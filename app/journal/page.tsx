@@ -6,14 +6,40 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function JournalPage() {
-  const { data: posts, error } = await supabase
-    .from("journal_posts")
-    .select("id, title, slug, cover_image, published_at")
-    .eq("visible", true)
-    .order("published_at", { ascending: false });
+  let posts = null;
+  let error = null;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000); // 7s timeout
+
+    const res = await supabase
+      .from("journal_posts")
+      .select("id, title, slug, cover_image, published_at")
+      .eq("visible", true)
+      .order("published_at", { ascending: false });
+
+    posts = res.data;
+    error = res.error;
+
+    clearTimeout(timeout);
+  } catch (err) {
+    console.error("Supabase fetch error:", err);
+    error = { message: "Request timed out or failed." };
+  }
+
+  console.log("Journal fetch:", { posts, error });
 
   if (error) {
     return <p className="p-10 text-red-500">Error loading journal: {error.message}</p>;
+  }
+
+  if (!posts) {
+    return <p className="p-10 text-muted-foreground">Loading journal entries…</p>;
+  }
+
+  if (posts.length === 0) {
+    return <p className="p-10 text-muted-foreground">No journal entries available yet.</p>;
   }
 
   return (
@@ -22,7 +48,7 @@ export default async function JournalPage() {
       <p className="text-muted-foreground mb-10">Stories from the soil, the kitchen, and the heart.</p>
 
       <ul className="space-y-8">
-        {posts?.map((post) => (
+        {posts.map((post) => (
           <li key={post.id}>
             <Link href={`/journal/${post.slug}`} className="block group">
               {post.cover_image && (

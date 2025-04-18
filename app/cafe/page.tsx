@@ -4,10 +4,6 @@ export default async function CafePage() {
   const { data: menuItems, error } = await supabase
     .from("cafe_menu")
     .select("*");
-
-  console.log("📦 Menu Data:", menuItems);
-  console.log("⚠️ Supabase Error:", error);
-
   return (
     <main className="p-10">
       <h1 className="text-3xl font-semibold">Olivea Café</h1>
