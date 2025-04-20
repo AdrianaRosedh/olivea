@@ -1,0 +1,53 @@
+{
+    "about": {
+      "title": "About Olivea",
+      "description": "Our story, philosophy, and the people behind the vision."
+    },
+    "cafe": {
+      "title": "Olivea Café",
+      "description": "Our casual, garden-facing café. Menu and hours coming soon.",
+      "error": "Error loading menu:"
+    },
+    "casa": {
+        "title": "Casa Olivea",
+        "description": "Stay with us. Rooms, amenities, and reservations coming soon."
+    },
+    "contact": {
+        "title": "Contact",
+        "description": "Press, inquiries, and how to reach us."
+    },
+    "events": {
+        "title": "Events",
+        "description": "Upcoming experiences at Olivea. Filterable system coming soon."
+    },
+    "journal": {
+        "title": "Olivea Journal",
+        "subtitle": "Stories from the soil, the kitchen, and the heart.",
+        "loading": "Loading journal entries…",
+        "empty": "No journal entries available yet.",
+        "error": "Error loading journal:",
+        "by": "by"
+    },
+    "legal": {
+        "title": "Legal",
+        "description": "Legal entity details and terms for all Olivea properties."
+    },
+    "reservations": {
+        "title": "Reservations",
+        "description": "Choose where you’d like to reserve: restaurant, café, or hotel."
+    },
+    "restaurant": {
+        "title": "Olivea Farm To Table",
+        "description": "Coming soon: seasonal menus, chef stories, and more."
+    },
+    "notFound": {
+        "message": "The page you're looking for doesn’t exist.",
+        "cta": "Return Home"
+    },
+    "home": {
+        "title": "Welcome to Olivea",
+        "subtitle": "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+        "cta_restaurant": "Visit the Restaurant",
+        "cta_casa": "Stay at Casa Olivea"
+    }     
+}

@@ -1,0 +1,54 @@
+{
+    "about": {
+      "title": "Sobre Olivea",
+      "description": "Nuestra historia, filosofía y las personas detrás de la visión."
+    },
+    "cafe": {
+        "title": "Café Olivea",
+        "description": "Nuestro café informal con vista al jardín. El menú y los horarios estarán disponibles pronto.",
+        "error": "Error al cargar el menú:"
+  },
+  "casa": {
+    "title": "Casa Olivea",
+    "description": "Hospédate con nosotros. Habitaciones, comodidades y reservas muy pronto."
+  },
+  "contact": {
+    "title": "Contacto",
+    "description": "Prensa, consultas y cómo contactarnos."
+  },
+  "events": {
+    "title": "Eventos",
+    "description": "Próximas experiencias en Olivea. Sistema de filtrado disponible pronto."
+  },
+  "journal": {
+    "title": "Diario de Olivea",
+    "subtitle": "Historias desde la tierra, la cocina y el corazón.",
+    "loading": "Cargando entradas del diario…",
+    "empty": "Aún no hay entradas disponibles.",
+    "error": "Error al cargar el diario:",
+    "by": "por"
+  },
+  "legal": {
+    "title": "Información Legal",
+    "description": "Detalles legales y términos para todas las propiedades de Olivea."
+  },
+  "reservations": {
+    "title": "Reservas",
+    "description": "Elige dónde te gustaría reservar: restaurante, café u hotel."
+  },
+  "restaurant": {
+    "title": "Olivea de la Granja a la Mesa",
+    "description": "Próximamente: menús de temporada, historias del chef y más."
+  },
+  "notFound": {
+    "message": "La página que buscas no existe.",
+    "cta": "Volver al inicio"
+  },
+  "home": {
+    "title": "Bienvenidos a Olivea",
+    "subtitle": "Un santuario de la granja a la mesa donde la naturaleza, la comida y el diseño se unen.",
+    "cta_restaurant": "Visitar el Restaurante",
+    "cta_casa": "Hospedarse en Casa Olivea"
+  }
+    
+}

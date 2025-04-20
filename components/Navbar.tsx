@@ -1,31 +1,35 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
 
-export default function Navbar() {
-  const pathname = usePathname();
-  const [hasMounted, setHasMounted] = useState(false);
+type NavbarProps = {
+  lang: "en" | "es"
+}
+
+export default function Navbar({ lang }: NavbarProps) {
+  const pathname = usePathname()
+  const [hasMounted, setHasMounted] = useState(false)
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
+    setHasMounted(true)
+  }, [])
 
-  if (!hasMounted) return null;
+  if (!hasMounted) return null
 
   const navItems = [
-    { label: "Hotel", href: "/casa" },
-    { label: "Restaurant", href: "/restaurant" },
-    { label: "Café", href: "/cafe" },
-  ];
+    { label: "Hotel", href: `/${lang}/casa` },
+    { label: "Restaurant", href: `/${lang}/restaurant` },
+    { label: "Café", href: `/${lang}/cafe` },
+  ]
 
   return (
     <nav className="w-full border-b sticky top-0 z-50 bg-white">
       <div className="max-w-6xl mx-auto px-4 py-4">
         {/* Logo centered */}
-        <Link href="/" className="text-xl font-bold block text-center">
+        <Link href={`/${lang}`} className="text-xl font-bold block text-center">
           Olivea
         </Link>
 
@@ -62,5 +66,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  );
+  )
 }
