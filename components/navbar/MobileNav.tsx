@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Calendar, BookOpen, MessageSquare } from "lucide-react"
 
@@ -11,12 +12,17 @@ type MobileNavProps = {
 
 export function MobileNav({ lang, isDrawerOpen }: MobileNavProps) {
   const [hasMounted, setHasMounted] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     setHasMounted(true)
   }, [])
 
   if (!hasMounted) return null
+
+  // Hide on homepage
+  const isHome = pathname === `/${lang}` || pathname === `/${lang}/`
+  if (isHome) return null
 
   return (
     <nav
