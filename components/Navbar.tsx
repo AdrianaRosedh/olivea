@@ -3,8 +3,15 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { cn } from "@/lib/utils"
 import Cookies from "js-cookie"
+import { cn } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
+import { GlobeIcon } from "lucide-react"
 
 type NavbarProps = {
   lang: "en" | "es"
@@ -27,38 +34,51 @@ export default function Navbar({ lang }: NavbarProps) {
     { label: "Café", href: `/${lang}/cafe` },
   ]
 
-  const toggleLang = () => {
-    const newLang = lang === "en" ? "es" : "en"
-
-    // Swap `/en/xyz` → `/es/xyz`, preserving the path
-    const newPath = pathname.replace(`/${lang}`, `/${newLang}`)
-
-    // Set preferred language cookie (for middleware)
-    Cookies.set("NEXT_LOCALE", newLang, { expires: 365 })
-
+  const switchLocale = (newLang: "en" | "es") => {
+    const segments = pathname.split("/")
+    segments[1] = newLang
+    const newPath = segments.join("/") || "/"
+    Cookies.set("NEXT_LOCALE", newLang)
     router.push(newPath)
   }
 
   return (
     <nav className="w-full border-b sticky top-0 z-50 bg-white">
-      <div className="max-w-6xl mx-auto px-4 py-4">
+      <div className="max-w-6xl mx-auto px-4 py-4 relative flex flex-col items-center">
+        {/* Language Toggle - Top Right */}
+        <div className="absolute top-4 right-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={cn(
+                "flex items-center gap-1 border rounded transition hover:bg-gray-100",
+                "text-sm px-3 py-2", // default (desktop)
+                "md:text-sm md:px-3 md:py-2 text-xs px-2 py-1" // smaller on mobile
+              )}
+            >
+              <GlobeIcon className="w-4 h-4" />
+              {lang.toUpperCase()}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => switchLocale("en")}>
+                🇺🇸 English
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => switchLocale("es")}>
+                🇲🇽 Español
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {/* Logo centered */}
-        <Link href={`/${lang}`} className="text-xl font-bold block text-center">
+        <Link
+          href={`/${lang}`}
+          className="text-2xl md:text-4xl font-bold block text-center"
+        >
           Olivea
         </Link>
 
-        {/* Language Toggle */}
-        <div className="absolute right-4 top-4">
-          <button
-            onClick={toggleLang}
-            className="text-sm px-3 py-1 border rounded hover:bg-gray-100 transition"
-          >
-            {lang === "en" ? "ES" : "EN"}
-          </button>
-        </div>
-
         {/* Mobile View: nav under logo */}
-        <div className="flex justify-around mt-4 md:hidden">
+        <div className="flex justify-around mt-4 md:hidden w-full">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -73,14 +93,14 @@ export default function Navbar({ lang }: NavbarProps) {
           ))}
         </div>
 
-        {/* Desktop View: nav top right */}
-        <div className="hidden md:flex justify-end gap-6 mt-2">
+        {/* Desktop View: nav centered below logo */}
+        <div className="hidden md:flex justify-center gap-8 mt-4">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-medium transition hover:underline",
+                "text-lg font-medium transition hover:underline",
                 pathname === item.href && "text-black"
               )}
             >
