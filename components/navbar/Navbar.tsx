@@ -7,8 +7,10 @@ import Cookies from "js-cookie"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, GlobeIcon } from "lucide-react"
+import MobileDrawer from "@/components/navbar/MobileDrawer"
+import MenuToggle from "@/components/navbar/MenuToggle"
 
-type NavbarProps = {
+interface NavbarProps {
   lang: "en" | "es"
 }
 
@@ -18,6 +20,7 @@ export default function Navbar({ lang }: NavbarProps) {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [hasMounted, setHasMounted] = useState(false)
   const [open, setOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     setHasMounted(true)
@@ -51,22 +54,29 @@ export default function Navbar({ lang }: NavbarProps) {
 
   return (
     <nav className="w-full border-b sticky top-0 z-50 bg-white">
-      <div className="max-w-6xl mx-auto px-4 py-4 relative flex flex-col items-center">
-        {/* Language Toggle */}
-        <div className="absolute top-4 right-4" ref={dropdownRef}>
+      <div className="max-w-6xl mx-auto px-4 py-4 relative flex items-center justify-between">
+        {/* Centered Logo */}
+        <Link
+          href={`/${lang}`}
+          className="text-2xl md:text-4xl font-bold absolute left-1/2 transform -translate-x-1/2"
+        >
+          Olivea
+        </Link>
+
+        {/* Right: Hamburger Toggle */}
+        <div className="md:hidden absolute right-4 top-4 z-[60]">
+          <MenuToggle toggle={() => setDrawerOpen((prev) => !prev)} isOpen={drawerOpen} />
+        </div>
+
+        {/* Locale Selector (desktop only) */}
+        <div className="hidden md:block relative ml-auto" ref={dropdownRef}>
           <button
             onClick={() => setOpen(!open)}
-            className={cn(
-              "flex items-center gap-1 border rounded transition hover:bg-gray-100 px-3 py-2 text-sm",
-              "md:text-sm md:px-3 md:py-2 text-xs px-2 py-1"
-            )}
+            className="flex items-center gap-1 border rounded px-3 py-2 text-sm hover:bg-gray-100"
           >
             <GlobeIcon className="w-4 h-4" />
             {lang.toUpperCase()}
-            <motion.div
-              animate={{ rotate: open ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
               <ChevronDown className="w-4 h-4" />
             </motion.div>
           </button>
@@ -79,63 +89,36 @@ export default function Navbar({ lang }: NavbarProps) {
                 exit={{ opacity: 0, y: -6 }}
                 className="absolute right-0 mt-2 bg-white border rounded shadow-md z-50 w-32"
               >
-                <button
-                  onClick={() => switchLocale("en")}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                >
+                <button onClick={() => switchLocale("en")} className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
                   🇺🇸 English
                 </button>
-                <button
-                  onClick={() => switchLocale("es")}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                >
+                <button onClick={() => switchLocale("es")} className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
                   🇲🇽 Español
                 </button>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        {/* Logo */}
-        <Link
-          href={`/${lang}`}
-          className="text-2xl md:text-4xl font-bold block text-center"
-        >
-          Olivea
-        </Link>
-
-        {/* Mobile nav */}
-        <div className="flex justify-around mt-4 md:hidden w-full">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-sm font-medium transition hover:underline",
-                pathname === item.href && "text-black"
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Desktop nav */}
-        <div className="hidden md:flex justify-center gap-8 mt-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-lg font-medium transition hover:underline",
-                pathname === item.href && "text-black"
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
       </div>
+
+      {/* Desktop Nav */}
+      <div className="hidden md:flex justify-center gap-8 mt-2">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "text-lg font-medium transition hover:underline",
+              pathname === item.href && "text-black"
+            )}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+
+      {/* Mobile Drawer */}
+      <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} lang={lang} />
     </nav>
   )
 }

@@ -1,43 +1,110 @@
-import Image from "next/image"
+'use client'
+
+import { useEffect, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { getDictionary } from "./dictionaries"
-import type { Dictionary } from "@/types"
 
-type Props = {
-  params: Promise<{ lang: "en" | "es" }>
-}
+export default function HomePage() {
+  const [showLoader, setShowLoader] = useState(true)
 
-export default async function Home({ params }: Props) {
-  const { lang } = await params
-  const dict: Dictionary = await getDictionary(lang)
-  const home = dict.home
+  useEffect(() => {
+    const timeout = setTimeout(() => setShowLoader(false), 3000)
+    return () => clearTimeout(timeout)
+  }, [])
 
   return (
-    <main className="min-h-screen flex flex-col">
-      <section className="relative w-full h-[90vh] flex items-center justify-center text-white text-center">
-        <Image
-          src="/images/hero.jpg"
-          alt="Olivea Garden"
-          fill
-          className="object-cover -z-10"
-          priority
+    <main className="flex items-center justify-center w-full h-screen bg-black">
+      <div className="relative w-full h-full max-w-screen-xl rounded-3xl overflow-hidden shadow-xl">
+        
+        {/* Loader */}
+        <AnimatePresence>
+          {showLoader && (
+            <motion.div
+              initial={{ scale: 1, opacity: 1 }}
+              animate={{ scale: 10, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.8, ease: "easeInOut" }}
+              className="absolute inset-0 z-50 flex items-center justify-center bg-green-600 rounded-3xl"
+            >
+              <motion.h1
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="text-3xl md:text-5xl font-light tracking-tight text-white"
+              >
+                Olivea
+              </motion.h1>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Background video */}
+        <video
+          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+          src="https://www.w3schools.com/howto/rain.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
         />
-        <div className="bg-black/40 p-6 rounded-xl">
-          <h1 className="text-4xl md:text-6xl font-light tracking-tight">
-            {home.title}
-          </h1>
-          <p className="mt-4 text-lg md:text-xl font-light">{home.subtitle}</p>
-          <div className="mt-6 flex flex-col md:flex-row gap-4 justify-center">
-            <Link href={`/${lang}/restaurant`}>
-              <Button variant="secondary">{home.cta_restaurant}</Button>
-            </Link>
-            <Link href={`/${lang}/casa`}>
-              <Button variant="ghost">{home.cta_casa}</Button>
-            </Link>
+
+        {/* Overlay content */}
+        {!showLoader && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 px-4 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            >
+              <Image
+                src="/images/logos/oliveaFTT.svg"
+                alt="Olivea Logo"
+                width={240}
+                height={120}
+                priority
+                className="mx-auto"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="flex flex-wrap justify-center gap-4"
+            >
+              <Link href="/es/restaurant">
+                <Button variant="secondary" size="lg">
+                  Olivea Farm To Table
+                </Button>
+              </Link>
+              <Link href="/es/casa">
+                <Button variant="ghost" size="lg">
+                  Casa Olivea
+                </Button>
+              </Link>
+              <Link href="/es/cafe">
+                <Button variant="ghost" size="lg">
+                  Olivea Café
+                </Button>
+              </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 0.8 }}
+            >
+              <Link href="/es/reservations">
+                <Button className="mt-4" size="lg">
+                  Reservar
+                </Button>
+              </Link>
+            </motion.div>
           </div>
-        </div>
-      </section>
+        )}
+      </div>
     </main>
   )
 }
