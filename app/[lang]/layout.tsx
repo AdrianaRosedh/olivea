@@ -1,21 +1,18 @@
-// app/[lang]/layout.tsx
+import "@/app/globals.css"
+import { Inter } from "next/font/google"
+import Navbar from "@/components/Navbar"
+import { MobileNav } from "@/components/MobileNav"
+import Footer from "@/components/Footer"
 
-import "@/app/globals.css";
-import { Inter } from "next/font/google";
-import Navbar from "@/components/Navbar";
-import { MobileNav } from "@/components/MobileNav";
-import Footer from "@/components/Footer";
+const inter = Inter({ subsets: ["latin"] })
 
-const inter = Inter({ subsets: ["latin"] });
+type Props = {
+  children: React.ReactNode
+  params: Promise<{ lang: "en" | "es" }>
+}
 
-export default async function LangLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { lang: "en" | "es" };
-}) {
-  const lang = params.lang;
+export default async function LangLayout({ children, params }: Props) {
+  const { lang } = await params
 
   return (
     <html lang={lang}>
@@ -24,6 +21,7 @@ export default async function LangLayout({
         <main className="min-h-screen">{children}</main>
         <MobileNav lang={lang} />
         <Footer lang={lang} />
+
         <div className="hidden md:block">
           <div className="fixed bottom-6 left-6 z-50">
             <a
@@ -46,5 +44,5 @@ export default async function LangLayout({
         </div>
       </body>
     </html>
-  );
+  )
 }

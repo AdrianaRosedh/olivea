@@ -2,14 +2,16 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { getDictionary } from "./dictionaries"
+import type { Dictionary } from "@/types"
 
-export default async function Home({
-  params,
-}: {
-  params: { lang: "es" | "en" }
-}) {
-  const { lang } = params
-  const dict = await getDictionary(lang)
+type Props = {
+  params: Promise<{ lang: "en" | "es" }>
+}
+
+export default async function Home({ params }: Props) {
+  const { lang } = await params
+  const dict: Dictionary = await getDictionary(lang)
+  const home = dict.home
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -23,17 +25,15 @@ export default async function Home({
         />
         <div className="bg-black/40 p-6 rounded-xl">
           <h1 className="text-4xl md:text-6xl font-light tracking-tight">
-            {dict.home.title}
+            {home.title}
           </h1>
-          <p className="mt-4 text-lg md:text-xl font-light">
-            {dict.home.subtitle}
-          </p>
+          <p className="mt-4 text-lg md:text-xl font-light">{home.subtitle}</p>
           <div className="mt-6 flex flex-col md:flex-row gap-4 justify-center">
             <Link href={`/${lang}/restaurant`}>
-              <Button variant="secondary">{dict.home.cta_restaurant}</Button>
+              <Button variant="secondary">{home.cta_restaurant}</Button>
             </Link>
             <Link href={`/${lang}/casa`}>
-              <Button variant="ghost">{dict.home.cta_casa}</Button>
+              <Button variant="ghost">{home.cta_casa}</Button>
             </Link>
           </div>
         </div>

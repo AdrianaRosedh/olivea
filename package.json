@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",
+    "@next/bundle-analyzer": "^15.3.1",
     "@radix-ui/react-slot": "^1.2.0",
     "@supabase/supabase-js": "^2.49.4",
     "class-variance-authority": "^0.7.1",
@@ -28,8 +29,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.0",
+    "eslint": "^9.25.0",
+    "eslint-config-next": "^15.3.0",
+    "eslint-config-prettier": "^10.1.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
