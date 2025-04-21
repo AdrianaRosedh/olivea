@@ -18,7 +18,7 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
     <>
       {!isHome && <Navbar lang={lang} />}
       <main className="min-h-screen">{children}</main>
-      {!isHome && <MobileNav lang={lang} />}
+      <MobileNav lang={lang} isDrawerOpen={false} />
       {!isHome && <Footer lang={lang} />}
 
       {/* Desktop-only floating buttons */}

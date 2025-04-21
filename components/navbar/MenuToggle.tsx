@@ -23,6 +23,7 @@ export default function MenuToggle({ toggle, isOpen }: MenuToggleProps) {
       onClick={toggle}
       className="text-black p-2 rounded focus:outline-none"
       aria-label="Toggle menu"
+      style={{ zIndex: 1000 }} // extra guarantee
     >
       <svg width="23" height="23" viewBox="0 0 23 23">
         <Path
