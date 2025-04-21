@@ -1,23 +1,22 @@
 import type { Dictionary } from "@/types"
 
-type Locale = "en" | "es";
+type Locale = "en" | "es"
 
 // Import the dictionary objects directly
-import en from "./en.json";
-import es from "./es.json";
+import en from "./en.json"
+import es from "./es.json"
 
 // This maps the locale to the dictionary object
 const dictionaries: Record<Locale, Dictionary> = {
   en,
   es,
-};
+}
 
-export const getDictionary = async (locale: Locale): Promise<Dictionary> => {
-  const dictionary = dictionaries[locale];
-
-  if (!dictionary) {
-    throw new Error(`No dictionary found for locale: ${locale}`);
+// Change the param to `string` to safely validate unknown input
+export const getDictionary = async (locale: string): Promise<Dictionary> => {
+  if (!["en", "es"].includes(locale)) {
+    throw new Error(`No dictionary found for locale: ${locale}`)
   }
 
-  return dictionary;
-};
+  return dictionaries[locale as Locale]
+}
