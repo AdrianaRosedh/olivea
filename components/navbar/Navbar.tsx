@@ -58,39 +58,41 @@ export default function Navbar({ lang }: NavbarProps) {
     <>
       {/* Desktop Navbar */}
       <nav className="w-full sticky top-0 z-50 bg-white">
-      <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-8 lg:px-0 flex items-center justify-between h-20 md:h-32 lg:h-36">
-          {/* Left: Logo */}
-          <div className="flex-1 flex items-center justify-start">
-            <Link href={`/${lang}`}>
-            <img
-  src="/images/logos/OliveaFTTIcon.svg"
-  alt="Olivea Logo"
-  className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain transition-all duration-200"
-/>
-            </Link>
-          </div>
-
-          {/* Center: Nav Links */}
-          <div className="hidden md:flex flex-1 justify-center gap-16">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-2xl font-semibold text-black hover:text-green-700 transition-transform hover:scale-105",
-                  pathname === item.href && "underline underline-offset-4 decoration-2"
-                )}
-              >
-                {item.label}
+        <div className="w-full flex justify-center">
+          <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-32 lg:h-36">
+            {/* Left: Logo */}
+            <div className="flex-1 flex items-center justify-start">
+              <Link href={`/${lang}`}>
+                <img
+                  src="/images/logos/OliveaFTTIcon.svg"
+                  alt="Olivea Logo"
+                  className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain transition-all duration-200"
+                />
               </Link>
-            ))}
-          </div>
+            </div>
 
-          {/* Right: Reservar Button */}
-          <div className="hidden md:flex flex-1 justify-end items-center">
-            <MagneticButton href={`/${lang}/reservations`}>
-              Reservar
-            </MagneticButton>
+            {/* Center: Nav Links */}
+            <div className="hidden md:flex flex-1 justify-center gap-16">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "text-2xl font-semibold text-black hover:text-green-700 transition-transform hover:scale-105",
+                    pathname === item.href && "underline underline-offset-4 decoration-2"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Right: Reservar Button */}
+            <div className="hidden md:flex flex-1 justify-end items-center">
+              <MagneticButton href={`/${lang}/reservations`}>
+                Reservar
+              </MagneticButton>
+            </div>
           </div>
         </div>
       </nav>
