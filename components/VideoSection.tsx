@@ -9,7 +9,7 @@ export default function VideoSection() {
       {/* Video Background */}
       <video
         className="absolute top-0 left-0 w-full h-full object-cover z-0"
-        src="https://www.w3schools.com/howto/rain.mp4"
+        src="https://www.shutterstock.com/shutterstock/videos/1093882337/preview/stock-footage-timelapse-of-growing-plants-of-basil-with-lens-flare-alfalfa-grows-dynamically-the-birth-of-a-new.webm"
         autoPlay
         muted
         loop

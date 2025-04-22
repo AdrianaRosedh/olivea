@@ -44,7 +44,7 @@ export default function HomePage() {
         {/* Background Video */}
         <video
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
-          src="https://www.w3schools.com/howto/rain.mp4"
+          src="/videos/homepage-temp.mp4"
           autoPlay
           muted
           loop
