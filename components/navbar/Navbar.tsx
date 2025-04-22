@@ -6,10 +6,11 @@ import { useEffect, useRef, useState } from "react"
 import Cookies from "js-cookie"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, GlobeIcon } from "lucide-react"
+import { GlobeIcon } from "lucide-react"
 import MobileDrawer from "@/components/navbar/MobileDrawer"
 import MenuToggle from "@/components/navbar/MenuToggle"
 import { MobileNav } from "@/components/navbar/MobileNav"
+import MagneticButton from "@/components/ui/MagneticButton"
 
 interface NavbarProps {
   lang: "en" | "es"
@@ -57,15 +58,15 @@ export default function Navbar({ lang }: NavbarProps) {
     <>
       {/* Desktop Navbar */}
       <nav className="w-full sticky top-0 z-50 bg-white">
-        <div className="max-w-screen-2xl w-full mx-auto px-4 sm:px-6 lg:px-0 flex items-center justify-between h-28">
+      <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-8 lg:px-0 flex items-center justify-between h-20 md:h-32 lg:h-36">
           {/* Left: Logo */}
           <div className="flex-1 flex items-center justify-start">
             <Link href={`/${lang}`}>
-              <img
-                src="/images/logos/OliveaFTTIcon.svg"
-                alt="Olivea Logo"
-                className="w-10 h-10 md:w-16 md:h-16 object-contain"
-              />
+            <img
+  src="/images/logos/OliveaFTTIcon.svg"
+  alt="Olivea Logo"
+  className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain transition-all duration-200"
+/>
             </Link>
           </div>
 
@@ -87,17 +88,14 @@ export default function Navbar({ lang }: NavbarProps) {
 
           {/* Right: Reservar Button */}
           <div className="hidden md:flex flex-1 justify-end items-center">
-            <Link
-              href={`/${lang}/reservations`}
-              className="bg-black text-white rounded-full text-lg px-6 py-2.5 font-semibold hover:scale-105 transition"
-            >
+            <MagneticButton href={`/${lang}/reservations`}>
               Reservar
-            </Link>
+            </MagneticButton>
           </div>
         </div>
       </nav>
 
-      {/* Language Switcher (Floating Bottom Left) */}
+      {/* Language Switcher */}
       <div className="hidden md:flex fixed bottom-4 left-4 z-50 flex-col items-start gap-2" ref={dropdownRef}>
         <button
           onClick={() => setOpen(!open)}
