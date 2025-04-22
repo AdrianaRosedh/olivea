@@ -28,7 +28,7 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
 
       <MobileNav lang={lang} isDrawerOpen={false} />
 
-      {!isHome && <Footer lang={lang} />}
+      {!isHome && <Footer />}
 
       {/* Desktop-only floating buttons */}
       {!isHome && (

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import MagneticButton from '@/components/ui/MagneticButton'
 import { Button } from '@/components/ui/button'
+import OliveaFTTLogo from '@/assets/oliveaFTT.svg'
 
 export default function HomePage() {
   const [showLoader, setShowLoader] = useState(true)
@@ -58,20 +59,13 @@ export default function HomePage() {
 
             {/* Logo */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="mt-10 md:mt-0"
-            >
-              <Image
-                src="/images/logos/oliveaFTT.svg"
-                alt="Olivea Logo"
-                width={240}
-                height={120}
-                priority
-                className="mx-auto w-40 md:w-[240px]"
-              />
-            </motion.div>
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.4, duration: 0.8 }}
+  className="mt-10 md:mt-0"
+>
+  <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
+</motion.div>
 
             {/* Identity Buttons */}
             <motion.div

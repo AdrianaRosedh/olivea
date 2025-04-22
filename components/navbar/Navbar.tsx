@@ -2,15 +2,14 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
-import { GlobeIcon } from "lucide-react"
 import MobileDrawer from "@/components/navbar/MobileDrawer"
 import MenuToggle from "@/components/navbar/MenuToggle"
 import { MobileNav } from "@/components/navbar/MobileNav"
 import MagneticButton from "@/components/ui/MagneticButton"
+import OliveaLogo from "@/assets/OliveaFTTIcon.svg"
 
 interface NavbarProps {
   lang: "en" | "es"
@@ -19,27 +18,8 @@ interface NavbarProps {
 export default function Navbar({ lang }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const [hasMounted, setHasMounted] = useState(false)
-  const [open, setOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  useEffect(() => {
-    setHasMounted(true)
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
-
-  if (!hasMounted) return null
-
-  // Dynamic Nav Items
   const basePath = `/${lang}`
   const navItems = [
     {
@@ -59,30 +39,17 @@ export default function Navbar({ lang }: NavbarProps) {
     },
   ]
 
-  const switchLocale = (newLang: "en" | "es") => {
-    const segments = pathname.split("/")
-    segments[1] = newLang
-    const newPath = segments.join("/") || "/"
-    Cookies.set("NEXT_LOCALE", newLang)
-    router.push(newPath)
-    setOpen(false)
-  }
-
   return (
     <>
       {/* Desktop Navbar */}
       <nav className="w-full sticky top-0 z-50 bg-transparent backdrop-blur-md">
         <div className="w-full flex justify-center">
           <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-32 lg:h-36">
-            
+
             {/* Left: Logo */}
             <div className="flex-1 flex items-center justify-start">
-              <Link href={`/${lang}`}>
-                <img
-                  src="/images/logos/OliveaFTTIcon.svg"
-                  alt="Olivea Logo"
-                  className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain transition-all duration-200"
-                />
+              <Link href={`/${lang}`} aria-label="Home">
+              <OliveaLogo className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 text-[var(--olivea-soil)]" />
               </Link>
             </div>
 
@@ -116,7 +83,6 @@ export default function Navbar({ lang }: NavbarProps) {
           </div>
         </div>
       </nav>
-
 
       {/* Mobile Hamburger Toggle */}
       <div className="md:hidden fixed top-4 right-4 z-[1000]">
