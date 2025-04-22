@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation"
 import Navbar from "@/components/navbar/Navbar"
 import Footer from "@/components/Footer"
 import { MobileNav } from "@/components/navbar/MobileNav"
+import { MessageCircle } from "lucide-react"
+import { motion } from "framer-motion"
 
 type LayoutShellProps = {
   lang: "en" | "es"
@@ -28,19 +30,19 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
 
       {/* Desktop-only floating buttons */}
       {!isHome && (
-        <div className="hidden md:block">
-          <div className="fixed bottom-6 right-6 z-50">
-            <a
-              href="https://your-whistle-chatbot-link.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-neutral-800 hover:bg-black text-white px-4 py-2 rounded-full shadow-lg transition"
-            >
-              Chat
-            </a>
-          </div>
-        </div>
-      )}
+  <div className="hidden md:block">
+    <motion.button
+      id="chatbot-toggle"
+      initial={{ scale: 1 }}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
+      className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full backdrop-blur-sm bg-white/80 shadow-xl border border-gray-300 text-black hover:bg-white"
+      aria-label="Open Chat"
+    >
+      <MessageCircle className="w-6 h-6" />
+    </motion.button>
+  </div>
+)}
     </>
   )
 }
