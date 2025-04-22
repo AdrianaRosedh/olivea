@@ -8,7 +8,7 @@ export const dictionarySchema = z.object({
   cafe: z.object({
     title: z.string(),
     description: z.string(),
-    error: z.string().optional(),
+    error: z.string(),
   }),
   casa: z.object({
     title: z.string(),

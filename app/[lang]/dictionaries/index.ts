@@ -1,27 +1,23 @@
-import { dictionarySchema } from "@/types/dictionarySchema"
-import type { Dictionary } from "@/types"
-
-type Locale = "en" | "es"
-
+import { dictionarySchema, type Dictionary } from "@/types"
 import en from "./en.json"
 import es from "./es.json"
 
-const rawDictionaries: Record<Locale, unknown> = {
-  en,
-  es,
-}
+type Locale = "en" | "es"
+
+const dictionaries: Record<Locale, unknown> = { en, es }
 
 export const getDictionary = async (locale: string): Promise<Dictionary> => {
   if (!["en", "es"].includes(locale)) {
-    throw new Error(`No dictionary found for locale: ${locale}`)
+    throw new Error(`Unsupported locale: ${locale}`)
   }
 
-  const raw = rawDictionaries[locale as Locale]
+  const raw = dictionaries[locale as Locale]
   const parsed = dictionarySchema.safeParse(raw)
 
   if (!parsed.success) {
-    console.error("❌ Invalid dictionary structure:", parsed.error.format())
-    throw new Error(`Invalid dictionary format for locale: ${locale}`)
+    console.error(`❌ Invalid translation file [${locale}]`)
+    console.error(parsed.error.format())
+    throw new Error(`Invalid dictionary structure for locale "${locale}"`)
   }
 
   return parsed.data
