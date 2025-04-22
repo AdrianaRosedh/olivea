@@ -117,43 +117,6 @@ export default function Navbar({ lang }: NavbarProps) {
         </div>
       </nav>
 
-      {/* Language Switcher */}
-      <div
-        className="hidden md:flex fixed bottom-4 left-4 z-50 flex-col items-start gap-2"
-        ref={dropdownRef}
-      >
-        <button
-          onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded-md text-xs font-medium bg-white/70 backdrop-blur-sm shadow hover:bg-gray-100"
-        >
-          <GlobeIcon className="w-4 h-4" />
-          {lang.toUpperCase()}
-        </button>
-
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              className="bg-white border border-gray-200 rounded-md shadow-lg z-50 w-32"
-            >
-              <button
-                onClick={() => switchLocale("en")}
-                className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100"
-              >
-                🇺🇸 English
-              </button>
-              <button
-                onClick={() => switchLocale("es")}
-                className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100"
-              >
-                🇲🇽 Español
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
 
       {/* Mobile Hamburger Toggle */}
       <div className="md:hidden fixed top-4 right-4 z-[1000]">

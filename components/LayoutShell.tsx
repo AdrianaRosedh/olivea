@@ -36,9 +36,9 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
           <MagneticButton
   href="#chat"
   aria-label="Open Chat"
-  className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 
-             bg-[var(--olivea-soil)] text-white hover:bg-[var(--olivea-olive)] 
-             transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]"
+  className="fixed bottom-11 right-15 z-50 flex items-center justify-center w-14 h-14 
+           bg-[var(--olivea-soil)] text-white hover:bg-[var(--olivea-olive)] 
+           transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]"
 >
   <MessageCircle className="w-6 h-6" />
 </MagneticButton>
