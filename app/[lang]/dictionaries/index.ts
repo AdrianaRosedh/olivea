@@ -1,22 +1,28 @@
+import { dictionarySchema } from "@/types/dictionarySchema"
 import type { Dictionary } from "@/types"
 
 type Locale = "en" | "es"
 
-// Import the dictionary objects directly
 import en from "./en.json"
 import es from "./es.json"
 
-// This maps the locale to the dictionary object
-const dictionaries: Record<Locale, Dictionary> = {
+const rawDictionaries: Record<Locale, unknown> = {
   en,
   es,
 }
 
-// Change the param to `string` to safely validate unknown input
 export const getDictionary = async (locale: string): Promise<Dictionary> => {
   if (!["en", "es"].includes(locale)) {
     throw new Error(`No dictionary found for locale: ${locale}`)
   }
 
-  return dictionaries[locale as Locale]
+  const raw = rawDictionaries[locale as Locale]
+  const parsed = dictionarySchema.safeParse(raw)
+
+  if (!parsed.success) {
+    console.error("❌ Invalid dictionary structure:", parsed.error.format())
+    throw new Error(`Invalid dictionary format for locale: ${locale}`)
+  }
+
+  return parsed.data
 }

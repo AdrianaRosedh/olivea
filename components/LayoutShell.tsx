@@ -6,6 +6,8 @@ import Footer from "@/components/Footer"
 import { MobileNav } from "@/components/navbar/MobileNav"
 import { MessageCircle } from "lucide-react"
 import { motion } from "framer-motion"
+import MagneticButton from "@/components/ui/MagneticButton"
+
 
 type LayoutShellProps = {
   lang: "en" | "es"
@@ -30,19 +32,18 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
 
       {/* Desktop-only floating buttons */}
       {!isHome && (
-  <div className="hidden md:block">
-    <motion.button
-      id="chatbot-toggle"
-      initial={{ scale: 1 }}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
-      className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full backdrop-blur-sm bg-white/80 shadow-xl border border-gray-300 text-black hover:bg-white"
-      aria-label="Open Chat"
-    >
-      <MessageCircle className="w-6 h-6" />
-    </motion.button>
-  </div>
-)}
+        <div className="hidden md:block">
+          <MagneticButton
+  href="#chat"
+  aria-label="Open Chat"
+  className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 
+             bg-[var(--olivea-soil)] text-white hover:bg-[var(--olivea-olive)] 
+             transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]"
+>
+  <MessageCircle className="w-6 h-6" />
+</MagneticButton>
+        </div>
+      )}
     </>
   )
 }

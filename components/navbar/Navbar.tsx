@@ -39,10 +39,24 @@ export default function Navbar({ lang }: NavbarProps) {
 
   if (!hasMounted) return null
 
+  // Dynamic Nav Items
+  const basePath = `/${lang}`
   const navItems = [
-    { label: "Hotel", href: `/${lang}/casa` },
-    { label: "Restaurant", href: `/${lang}/restaurant` },
-    { label: "Café", href: `/${lang}/cafe` },
+    {
+      base: "casa",
+      label: pathname.startsWith(`${basePath}/casa`) ? "Casa Olivea" : "Hotel",
+      href: `${basePath}/casa`,
+    },
+    {
+      base: "restaurant",
+      label: pathname.startsWith(`${basePath}/restaurant`) ? "Olivea Farm To Table" : "Restaurant",
+      href: `${basePath}/restaurant`,
+    },
+    {
+      base: "cafe",
+      label: pathname.startsWith(`${basePath}/cafe`) ? "Olivea Café" : "Café",
+      href: `${basePath}/cafe`,
+    },
   ]
 
   const switchLocale = (newLang: "en" | "es") => {
@@ -57,9 +71,10 @@ export default function Navbar({ lang }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="w-full sticky top-0 z-50 bg-white">
+      <nav className="w-full sticky top-0 z-50 bg-transparent backdrop-blur-md">
         <div className="w-full flex justify-center">
           <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-32 lg:h-36">
+            
             {/* Left: Logo */}
             <div className="flex-1 flex items-center justify-start">
               <Link href={`/${lang}`}>
@@ -71,15 +86,17 @@ export default function Navbar({ lang }: NavbarProps) {
               </Link>
             </div>
 
-            {/* Center: Nav Links */}
-            <div className="hidden md:flex flex-1 justify-center gap-16">
+            {/* Center: Nav Buttons */}
+            <div className="hidden md:flex flex-1 justify-center gap-6">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-2xl font-semibold text-black hover:text-green-700 transition-transform hover:scale-105",
-                    pathname === item.href && "underline underline-offset-4 decoration-2"
+                    "px-5 py-2 rounded-md border border-[var(--olivea-soil)] text-[var(--olivea-soil)] font-medium text-sm tracking-wide uppercase transition-colors",
+                    pathname === item.href
+                      ? "bg-[var(--olivea-soil)] text-white"
+                      : "hover:bg-[var(--olivea-soil)] hover:text-white"
                   )}
                 >
                   {item.label}
@@ -89,7 +106,10 @@ export default function Navbar({ lang }: NavbarProps) {
 
             {/* Right: Reservar Button */}
             <div className="hidden md:flex flex-1 justify-end items-center">
-              <MagneticButton href={`/${lang}/reservations`}>
+              <MagneticButton
+                href={`/${lang}/reservations`}
+                className="bg-[var(--olivea-soil)] text-white px-6 py-2.5 rounded-md hover:bg-[var(--olivea-olive)] transition-colors"
+              >
                 Reservar
               </MagneticButton>
             </div>
@@ -98,7 +118,10 @@ export default function Navbar({ lang }: NavbarProps) {
       </nav>
 
       {/* Language Switcher */}
-      <div className="hidden md:flex fixed bottom-4 left-4 z-50 flex-col items-start gap-2" ref={dropdownRef}>
+      <div
+        className="hidden md:flex fixed bottom-4 left-4 z-50 flex-col items-start gap-2"
+        ref={dropdownRef}
+      >
         <button
           onClick={() => setOpen(!open)}
           className="flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded-md text-xs font-medium bg-white/70 backdrop-blur-sm shadow hover:bg-gray-100"
@@ -115,10 +138,16 @@ export default function Navbar({ lang }: NavbarProps) {
               exit={{ opacity: 0, y: 6 }}
               className="bg-white border border-gray-200 rounded-md shadow-lg z-50 w-32"
             >
-              <button onClick={() => switchLocale("en")} className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100">
+              <button
+                onClick={() => switchLocale("en")}
+                className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100"
+              >
                 🇺🇸 English
               </button>
-              <button onClick={() => switchLocale("es")} className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100">
+              <button
+                onClick={() => switchLocale("es")}
+                className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100"
+              >
                 🇲🇽 Español
               </button>
             </motion.div>

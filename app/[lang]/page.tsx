@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
+import MagneticButton from '@/components/ui/MagneticButton'
 import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
@@ -27,7 +28,7 @@ export default function HomePage() {
               animate={{ scale: 10, opacity: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1.8, ease: 'easeInOut' }}
-              className="absolute inset-0 z-50 flex items-center justify-center bg-green-600 rounded-3xl"
+              className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--olivea-soil)] rounded-3xl"
             >
               <motion.h1
                 initial={{ opacity: 1 }}
@@ -55,7 +56,7 @@ export default function HomePage() {
         {!showLoader && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center gap-y-8 md:gap-y-10 py-6 md:py-16">
 
-            {/* Logo (a bit higher on mobile) */}
+            {/* Logo */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -98,30 +99,47 @@ export default function HomePage() {
                 >
                   <Link href={href}>
                     <Button
-                      variant="secondary"
                       size="lg"
-                      className="w-full h-[100px] text-lg px-6 py-4 flex flex-col items-center justify-center"
+                      className="w-full h-[100px] text-lg px-6 py-4 flex flex-col items-center justify-center 
+                        rounded-md bg-[var(--olivea-shell)] text-[var(--olivea-ink)] 
+                        hover:bg-[var(--olivea-clay)] transition-colors"
                     >
                       <span>{label}</span>
-                      <span className="text-sm text-muted-foreground mt-1">{desc}</span>
+                      <span className="text-sm text-[color:var(--muted-foreground)] mt-1">{desc}</span>
                     </Button>
                   </Link>
                 </motion.div>
               ))}
             </motion.div>
 
-            {/* Reservar Button (spaced cleanly) */}
+            {/* Reservar Button */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.4, duration: 0.8 }}
               className="mt-6 md:mt-10 mb-10"
             >
-              <Link href="/es/reservations">
-                <Button className="w-full md:w-auto" size="lg">
+              {/* Mobile fallback button */}
+              <div className="md:hidden">
+                <Link href="/es/reservations">
+                  <Button
+                    className="w-full"
+                    size="lg"
+                  >
+                    Reservar
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Desktop magnetic button */}
+              <div className="hidden md:block">
+                <MagneticButton
+                  href="/es/reservations"
+                  className="px-6 py-3 text-white bg-[var(--olivea-soil)] hover:bg-[var(--olivea-olive)] rounded-md transition-colors"
+                >
                   Reservar
-                </Button>
-              </Link>
+                </MagneticButton>
+              </div>
             </motion.div>
           </div>
         )}

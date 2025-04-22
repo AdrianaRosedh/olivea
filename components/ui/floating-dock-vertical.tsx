@@ -1,17 +1,14 @@
-// components/ui/floating-dock-vertical.tsx
-
 "use client"
 
 import { cn } from "@/lib/utils"
 import {
-    AnimatePresence,
-    motion,
-    useMotionValue,
-    useSpring,
-    useTransform,
-    type MotionValue,
-  } from "framer-motion"
-
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "framer-motion"
 import { useRef, useState } from "react"
 
 export const FloatingDock = ({
@@ -42,7 +39,7 @@ const FloatingDockDesktop = ({
       onMouseMove={(e) => mouseY.set(e.clientY)}
       onMouseLeave={() => mouseY.set(Infinity)}
       className={cn(
-        "fixed left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-4 p-3 rounded-2xl bg-white/90 shadow-lg border dark:bg-neutral-900 dark:border-neutral-800",
+        "fixed left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-4 p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]",
         className
       )}
     >
@@ -86,15 +83,15 @@ function IconContainer({
         style={{ width: sizeSpring, height: sizeSpring }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative flex items-center justify-center rounded-full bg-gray-200 dark:bg-neutral-800 transition-colors"
+        className="relative flex items-center justify-center rounded-full bg-[var(--background)] border border-[var(--border)] transition-colors"
       >
         <AnimatePresence>
           {hovered && (
             <motion.div
-              initial={{ opacity: 0, x: 10 }}
+              initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className="absolute left-full ml-3 px-2 py-1 bg-white dark:bg-neutral-700 rounded-md text-xs text-black dark:text-white shadow"
+              exit={{ opacity: 0, x: 8 }}
+              className="absolute left-full ml-3 px-2 py-1 bg-[var(--background)] border border-[var(--border)] rounded-md text-xs text-[var(--foreground)]"
             >
               {title}
             </motion.div>
