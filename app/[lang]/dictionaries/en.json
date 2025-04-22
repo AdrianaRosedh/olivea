@@ -9,9 +9,27 @@
       "error": "Error loading menu:"
     },
     "casa": {
-        "title": "Casa Olivea",
-        "description": "Stay with us. Rooms, amenities, and reservations coming soon."
+      "title": "Casa Olivea",
+      "description": "Stay with us. Rooms, amenities, and reservations coming soon.",
+      "sections": {
+        "rooms": {
+          "title": "Rooms",
+          "description": "Peaceful spaces designed with comfort and elegance."
     },
+    "breakfast": {
+      "title": "Breakfast",
+      "description": "Wake up to garden-fresh breakfasts made with love."
+    },
+    "experiences": {
+      "title": "Experiences",
+      "description": "Enjoy curated activities and local moments."
+    },
+    "location": {
+      "title": "Location",
+      "description": "Nestled in the heart of Valle de Guadalupe."
+    }
+  }
+},
     "contact": {
         "title": "Contact",
         "description": "Press, inquiries, and how to reach us."

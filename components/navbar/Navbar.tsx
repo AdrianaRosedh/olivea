@@ -55,28 +55,29 @@ export default function Navbar({ lang }: NavbarProps) {
 
   return (
     <>
-      <nav className="w-full border-b sticky top-0 z-50 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between h-20">
+      {/* Desktop Navbar */}
+      <nav className="w-full sticky top-0 z-50 bg-white">
+        <div className="max-w-screen-2xl w-full mx-auto px-4 sm:px-6 lg:px-0 flex items-center justify-between h-28">
           {/* Left: Logo */}
-          <div className="flex-1">
-            <Link href={`/${lang}`} className="flex items-center">
+          <div className="flex-1 flex items-center justify-start">
+            <Link href={`/${lang}`}>
               <img
                 src="/images/logos/OliveaFTTIcon.svg"
                 alt="Olivea Logo"
-                className="w-10 h-10 md:w-12 md:h-12 object-contain"
+                className="w-10 h-10 md:w-16 md:h-16 object-contain"
               />
             </Link>
           </div>
 
-          {/* Center: Desktop nav */}
-          <div className="hidden md:flex flex-1 justify-center gap-10">
+          {/* Center: Nav Links */}
+          <div className="hidden md:flex flex-1 justify-center gap-16">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-xl font-semibold text-black hover:text-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-500",
-                  pathname === item.href && "underline"
+                  "text-2xl font-semibold text-black hover:text-green-700 transition-transform hover:scale-105",
+                  pathname === item.href && "underline underline-offset-4 decoration-2"
                 )}
               >
                 {item.label}
@@ -85,10 +86,10 @@ export default function Navbar({ lang }: NavbarProps) {
           </div>
 
           {/* Right: Reservar Button */}
-          <div className="hidden md:flex flex-1 justify-end items-center gap-4">
+          <div className="hidden md:flex flex-1 justify-end items-center">
             <Link
               href={`/${lang}/reservations`}
-              className="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-neutral-800 transition"
+              className="bg-black text-white rounded-full text-lg px-6 py-2.5 font-semibold hover:scale-105 transition"
             >
               Reservar
             </Link>
@@ -96,7 +97,7 @@ export default function Navbar({ lang }: NavbarProps) {
         </div>
       </nav>
 
-      {/* Floating Language Switcher (Bottom Left on Desktop) */}
+      {/* Language Switcher (Floating Bottom Left) */}
       <div className="hidden md:flex fixed bottom-4 left-4 z-50 flex-col items-start gap-2" ref={dropdownRef}>
         <button
           onClick={() => setOpen(!open)}
@@ -125,7 +126,7 @@ export default function Navbar({ lang }: NavbarProps) {
         </AnimatePresence>
       </div>
 
-      {/* Hamburger toggle (always visible on mobile) */}
+      {/* Mobile Hamburger Toggle */}
       <div className="md:hidden fixed top-4 right-4 z-[1000]">
         <MenuToggle toggle={() => setDrawerOpen((prev) => !prev)} isOpen={drawerOpen} />
       </div>
@@ -133,7 +134,7 @@ export default function Navbar({ lang }: NavbarProps) {
       {/* Mobile Drawer */}
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} lang={lang} />
 
-      {/* Bottom nav hidden when drawer is open */}
+      {/* Mobile Bottom Nav */}
       <MobileNav lang={lang} isDrawerOpen={drawerOpen} />
     </>
   )
