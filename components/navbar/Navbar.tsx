@@ -84,45 +84,46 @@ export default function Navbar({ lang }: NavbarProps) {
             ))}
           </div>
 
-          {/* Right: Locale switcher */}
-          <div className="hidden md:flex flex-1 justify-end" ref={dropdownRef}>
-            <button
-              onClick={() => setOpen(!open)}
-              className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600"
+          {/* Right: Reservar Button */}
+          <div className="hidden md:flex flex-1 justify-end items-center gap-4">
+            <Link
+              href={`/${lang}/reservations`}
+              className="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-neutral-800 transition"
             >
-              <GlobeIcon className="w-5 h-5" />
-              {lang.toUpperCase()}
-              <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronDown className="w-4 h-4" />
-              </motion.div>
-            </button>
-
-            <AnimatePresence>
-              {open && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-36"
-                >
-                  <button
-                    onClick={() => switchLocale("en")}
-                    className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
-                  >
-                    🇺🇸 English
-                  </button>
-                  <button
-                    onClick={() => switchLocale("es")}
-                    className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
-                  >
-                    🇲🇽 Español
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              Reservar
+            </Link>
           </div>
         </div>
       </nav>
+
+      {/* Floating Language Switcher (Bottom Left on Desktop) */}
+      <div className="hidden md:flex fixed bottom-4 left-4 z-50 flex-col items-start gap-2" ref={dropdownRef}>
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded-md text-xs font-medium bg-white/70 backdrop-blur-sm shadow hover:bg-gray-100"
+        >
+          <GlobeIcon className="w-4 h-4" />
+          {lang.toUpperCase()}
+        </button>
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              className="bg-white border border-gray-200 rounded-md shadow-lg z-50 w-32"
+            >
+              <button onClick={() => switchLocale("en")} className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100">
+                🇺🇸 English
+              </button>
+              <button onClick={() => switchLocale("es")} className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100">
+                🇲🇽 Español
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Hamburger toggle (always visible on mobile) */}
       <div className="md:hidden fixed top-4 right-4 z-[1000]">

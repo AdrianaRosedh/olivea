@@ -17,21 +17,18 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
   return (
     <>
       {!isHome && <Navbar lang={lang} />}
-      <main className="min-h-screen">{children}</main>
+
+      <main className={isHome ? "" : "max-w-7xl mx-auto px-1 pt-10 min-h-screen"}>
+        {children}
+      </main>
+
       <MobileNav lang={lang} isDrawerOpen={false} />
+
       {!isHome && <Footer lang={lang} />}
 
       {/* Desktop-only floating buttons */}
       {!isHome && (
         <div className="hidden md:block">
-          <div className="fixed bottom-6 left-6 z-50">
-            <a
-              href={`/${lang}/reservations`}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full shadow-lg transition"
-            >
-              Reserve
-            </a>
-          </div>
           <div className="fixed bottom-6 right-6 z-50">
             <a
               href="https://your-whistle-chatbot-link.com"
