@@ -112,6 +112,17 @@
   }
 }
 
+/* Hide scrollbars visually but preserve scroll functionality */
+body::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* Optional: just to be extra clean */
+}
+
+body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
 /* =========================
    🧩 Olivea Utility Classes
    ========================= */
@@ -167,4 +178,27 @@
 }
 .text-olivea-green {
   color: var(--olivea-green);
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-container {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+html {
+  scroll-behavior: smooth;
 }
