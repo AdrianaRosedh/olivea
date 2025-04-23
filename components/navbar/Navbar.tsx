@@ -49,18 +49,18 @@ export default function Navbar({ lang }: NavbarProps) {
             {/* Left: Logo */}
             <div className="flex-1 flex items-center justify-start">
               <Link href={`/${lang}`} aria-label="Home">
-              <OliveaLogo className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 text-[var(--olivea-soil)]" />
+                <OliveaLogo className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 text-[var(--olivea-soil)]" />
               </Link>
             </div>
 
             {/* Center: Nav Buttons */}
-            <div className="hidden md:flex flex-1 justify-center gap-6">
+            <div className="hidden md:flex flex-1 justify-center gap-4">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "px-5 py-2 rounded-md border border-[var(--olivea-soil)] text-[var(--olivea-soil)] font-medium text-sm tracking-wide uppercase transition-colors",
+                    "px-6 py-2.5 h-[52px] rounded-md border border-[var(--olivea-soil)] text-[var(--olivea-soil)] font-medium text-base uppercase transition-colors flex items-center justify-center",
                     pathname === item.href
                       ? "bg-[var(--olivea-soil)] text-white"
                       : "hover:bg-[var(--olivea-soil)] hover:text-white"
@@ -75,7 +75,7 @@ export default function Navbar({ lang }: NavbarProps) {
             <div className="hidden md:flex flex-1 justify-end items-center">
               <MagneticButton
                 href={`/${lang}/reservations`}
-                className="bg-[var(--olivea-soil)] text-white px-6 py-2.5 rounded-md hover:bg-[var(--olivea-olive)] transition-colors"
+                className="bg-[var(--olivea-soil)] text-white px-6 py-2.5 h-[52px] rounded-md hover:bg-[var(--olivea-olive)] transition-colors"
               >
                 Reservar
               </MagneticButton>
@@ -85,8 +85,11 @@ export default function Navbar({ lang }: NavbarProps) {
       </nav>
 
       {/* Mobile Hamburger Toggle */}
-      <div className="md:hidden fixed top-4 right-4 z-[1000]">
-        <MenuToggle toggle={() => setDrawerOpen((prev) => !prev)} isOpen={drawerOpen} />
+      <div className="md:hidden fixed top-4 right-4 z-[1000] pointer-events-auto">
+      <MenuToggle
+        toggle={() => (navigator.vibrate?.(10), setDrawerOpen((prev) => !prev))}
+        isOpen={drawerOpen}
+      />
       </div>
 
       {/* Mobile Drawer */}

@@ -17,52 +17,29 @@
     --olivea-soil: #58544C;
     --olivea-mist: #F6F5F0;
   
-    --background: var(--olivea-mist);
+    --radius: 0.625rem;
+  
+    --background: var(--olivea-cream);
     --foreground: var(--olivea-ink);
+    --card: var(--olivea-cream);
+    --card-foreground: var(--olivea-ink);
+    --popover: var(--olivea-cream);
+    --popover-foreground: var(--olivea-ink);
     --primary: var(--olivea-ink);
-    --primary-foreground: var(--olivea-white);
-    --accent: var(--olivea-olive);
-    --accent-foreground: var(--olivea-white);
-    --border: #D7D5CD;
+    --primary-foreground: white;
+    --secondary: #F0EEE8;
+    --secondary-foreground: var(--olivea-ink);
+    --muted: #F0EEE8;
+    --muted-foreground: #666;
+    --accent: var(--olivea-green); /* if used */
+    --accent-foreground: white;
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: #E5E3DC;
+    --input: #E5E3DC;
+    --ring: #CCC;
+    --sidebar: var(--olivea-sand); /* if used */
+    --sidebar-foreground: var(--olivea-ink);
   }
-
-/* =========================
-   🌞 Light Theme Variables
-   ========================= */
-:root {
-  --radius: 0.625rem;
-
-  --background: var(--olivea-cream);
-  --foreground: var(--olivea-ink);
-
-  --card: var(--olivea-cream);
-  --card-foreground: var(--olivea-ink);
-
-  --popover: var(--olivea-cream);
-  --popover-foreground: var(--olivea-ink);
-
-  --primary: var(--olivea-ink);
-  --primary-foreground: white;
-
-  --secondary: #F0EEE8;
-  --secondary-foreground: var(--olivea-ink);
-
-  --muted: #F0EEE8;
-  --muted-foreground: #666;
-
-  --accent: var(--olivea-green);
-  --accent-foreground: white;
-
-  --destructive: oklch(0.577 0.245 27.325);
-
-  --border: #E5E3DC;
-  --input: #E5E3DC;
-  --ring: #CCC;
-
-  --sidebar: var(--olivea-sand);
-  --sidebar-foreground: var(--olivea-ink);
-}
-
 /* =========================
    🌚 Dark Theme
    ========================= */
@@ -171,6 +148,14 @@ body {
 .bg-olivea-stone {
   background-color: var(--olivea-stone);
 }
+.bg-olivea-clay {
+  background-color: var(--olivea-clay);
+}
+/* global.css */
+.bg-olivea-clay-blur {
+  background-color: rgba(203, 187, 160, 0.75); /* olivea-clay with opacity */
+  backdrop-filter: blur(8px);
+}
 
 /* Brand Text */
 .text-olivea-ink {
@@ -183,9 +168,8 @@ body {
 .scroll-container::-webkit-scrollbar {
   display: none;
 }
-
 .scroll-container {
-  -ms-overflow-style: none; /* IE and Edge */
+  -ms-overflow-style: none; /* IE */
   scrollbar-width: none;    /* Firefox */
 }
 
@@ -201,4 +185,16 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none; /* Prevent bounce on iOS */
+  position: fixed; /* Prevent some edge cases on iOS */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  touch-action: none; /* Optional: Disables gestures on body */
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import Navbar from "@/components/navbar/Navbar"
 import Footer from "@/components/Footer"
@@ -21,6 +22,23 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
   const isHome = pathname === `/${lang}`
   const isCasaPage = pathname.includes("/casa")
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el
+      const progress = scrollTop / (scrollHeight - clientHeight)
+      setScrollProgress(progress)
+    }
+
+    el.addEventListener("scroll", handleScroll)
+    return () => el.removeEventListener("scroll", handleScroll)
+  }, [])
+
   const dockLeftItems = isCasaPage
     ? [
         { id: "rooms", icon: <MessageCircle />, label: "Rooms" },
@@ -31,24 +49,9 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
     : []
 
   const dockRightItems = [
-    {
-      id: "journal",
-      href: `/${lang}/journal`,
-      icon: <BookOpenText />,
-      label: "Journal",
-    },
-    {
-      id: "sustainability",
-      href: `/${lang}/sustainability`,
-      icon: <Leaf />,
-      label: "Sustainability",
-    },
-    {
-      id: "policies",
-      href: `/${lang}/legal`,
-      icon: <ShieldCheck />,
-      label: "Policies",
-    },
+    { id: "journal", href: `/${lang}/journal`, icon: <BookOpenText />, label: "Journal" },
+    { id: "sustainability", href: `/${lang}/sustainability`, icon: <Leaf />, label: "Sustainability" },
+    { id: "policies", href: `/${lang}/legal`, icon: <ShieldCheck />, label: "Policies" },
   ]
 
   const mobileDockItems = isCasaPage
@@ -64,7 +67,6 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
     <>
       {!isHome && <Navbar lang={lang} />}
 
-      {/* ✅ Sticky section nav — OUTSIDE scroll container to avoid scroll + position bugs */}
       {!isHome && mobileDockItems.length > 0 && (
         <div className="md:hidden sticky top-[5rem] z-40 bg-[rgba(252,250,247,0.95)] backdrop-blur border-b border-zinc-200">
           <MobileSectionNav items={mobileDockItems} />
@@ -72,11 +74,12 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
       )}
 
       <main
+        ref={scrollRef}
         className={cn(
-          "relative w-full",
+          "scroll-container relative w-full",
           isHome ? "" : "max-w-7xl mx-auto px-1 pt-10 min-h-screen",
           isCasaPage &&
-            "scroll-container snap-y snap-mandatory h-screen overflow-y-scroll scroll-smooth"
+            "snap-y snap-mandatory h-screen overflow-y-scroll scroll-smooth"
         )}
       >
         {children}
@@ -88,7 +91,7 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
       {/* Left Dock */}
       {!isHome && dockLeftItems.length > 0 && (
         <div className="hidden md:flex fixed top-1/2 left-6 -translate-y-1/2 z-40">
-          <DockLeft items={dockLeftItems} />
+          <DockLeft items={dockLeftItems} scrollProgress={scrollProgress} />
         </div>
       )}
 

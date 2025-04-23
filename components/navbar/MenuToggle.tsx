@@ -3,13 +3,7 @@
 import { motion } from "framer-motion"
 
 const Path = (props: any) => (
-  <motion.path
-    fill="transparent"
-    strokeWidth="2.5"
-    stroke="currentColor"
-    strokeLinecap="round"
-    {...props}
-  />
+  <motion.path fill="transparent" strokeWidth="2.5" stroke="currentColor" strokeLinecap="round" {...props} />
 )
 
 type MenuToggleProps = {
@@ -20,12 +14,19 @@ type MenuToggleProps = {
 export default function MenuToggle({ toggle, isOpen }: MenuToggleProps) {
   return (
     <button
-      onClick={toggle}
-      className="text-black p-2 rounded focus:outline-none"
+      onClick={() => {
+        navigator.vibrate?.(10)
+        toggle()
+      }}
       aria-label="Toggle menu"
-      style={{ zIndex: 1000 }} // extra guarantee
+      className="text-[var(--olivea-soil)] p-3 rounded-full focus:outline-none focus:ring-0 focus:bg-transparent active:bg-transparent transition"
+      style={{
+        zIndex: 1001, // Increased z-index to be higher than the drawer
+        position: "relative", // Ensure the z-index works properly
+        pointerEvents: "auto", // Ensure clicks are always captured
+      }}
     >
-      <svg width="23" height="23" viewBox="0 0 23 23">
+      <svg width="28" height="28" viewBox="0 0 23 23">
         <Path
           variants={{
             closed: { d: "M 2 2.5 L 20 2.5" },

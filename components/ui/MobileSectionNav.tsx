@@ -15,7 +15,7 @@ interface Props {
 export default function MobileSectionNav({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
+  const buttonRefs = useRef<Record<string, HTMLAnchorElement | null>>({})
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -23,7 +23,12 @@ export default function MobileSectionNav({ items }: Props) {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             const id = entry.target.id
-            setActiveId(id)
+            setActiveId((prev) => {
+              if (prev !== id && window.navigator.vibrate) {
+                window.navigator.vibrate(10)
+              }
+              return id
+            })
 
             const btn = buttonRefs.current[id]
             if (btn && containerRef.current) {
@@ -32,11 +37,6 @@ export default function MobileSectionNav({ items }: Props) {
                 left: offsetLeft - 16,
                 behavior: "smooth",
               })
-            }
-
-            // Vibrate only when section changes
-            if (window.navigator.vibrate) {
-              window.navigator.vibrate(10)
             }
 
             break
@@ -61,12 +61,16 @@ export default function MobileSectionNav({ items }: Props) {
     <div
       ref={containerRef}
       className="flex gap-3 px-4 py-3 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar"
+      aria-label="Mobile section navigation"
     >
       {items.map((item) => (
         <a
           key={item.id}
           href={`#${item.id}`}
-          ref={(el) => (buttonRefs.current[item.id] = el)}
+          aria-label={`Jump to ${item.label}`}
+          ref={(el) => {
+            buttonRefs.current[item.id] = el
+          }}
           className={cn(
             "px-5 py-2 rounded-md text-sm font-medium uppercase border transition whitespace-nowrap",
             activeId === item.id
