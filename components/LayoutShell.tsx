@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Navbar from "@/components/navbar/Navbar"
 import Footer from "@/components/Footer"
@@ -23,30 +23,15 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
   const isCasaPage = pathname.includes("/casa")
 
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = el
-      const progress = scrollTop / (scrollHeight - clientHeight)
-      setScrollProgress(progress)
-    }
-
-    el.addEventListener("scroll", handleScroll)
-    return () => el.removeEventListener("scroll", handleScroll)
-  }, [])
 
   const dockLeftItems = isCasaPage
-  ? [
-      { id: "rooms", number: "01", label: "Rooms" },
-      { id: "breakfast", number: "02", label: "Breakfast" },
-      { id: "experiences", number: "03", label: "Experiences" },
-      { id: "location", number: "04", label: "Location" },
-    ]
-  : []
+    ? [
+        { id: "rooms", number: "01", label: "Rooms" },
+        { id: "breakfast", number: "02", label: "Breakfast" },
+        { id: "experiences", number: "03", label: "Experiences" },
+        { id: "location", number: "04", label: "Location" },
+      ]
+    : []
 
   const dockRightItems = [
     { id: "journal", href: `/${lang}/journal`, icon: <BookOpenText />, label: "Journal" },
