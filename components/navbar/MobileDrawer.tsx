@@ -30,8 +30,8 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
   const router = useRouter()
 
   const links = [
-    { href: `/${lang}/casa`, label: "Casa Olivea" },
     { href: `/${lang}/restaurant`, label: "Olivea Farm To Table" },
+    { href: `/${lang}/casa`, label: "Casa Olivea" },
     { href: `/${lang}/cafe`, label: "Olivea Café" },
   ]
 

@@ -8,9 +8,9 @@
    🌿 Olivea Brand Tokens
    ========================= */
    :root {
-    --olivea-cream: #FAF9F6;
+    --olivea-cream: #e9e8e5;
     --olivea-shell: #EAE7DF;
-    --olivea-clay: #CBBBA0;
+    --olivea-clay: #bdb6aa;
     --olivea-olive: #718066;
     --olivea-ink: #1F1F1F;
     --olivea-white: #FFFFFF;
@@ -197,4 +197,12 @@ body {
   margin: 0;
   padding: 0;
   touch-action: none; /* Optional: Disables gestures on body */
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.animate-shimmer {
+  animation: shimmer 1.6s linear infinite;
 }

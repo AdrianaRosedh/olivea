@@ -4,11 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname, useRouter } from 'next/navigation'
 import { ChevronDown } from 'lucide-react'
-import Link from 'next/link'
 
 const languages = [
-  { code: 'es', label: 'ES' },
-  { code: 'en', label: 'EN' },
+  { code: 'es', label: 'Español' },
+  { code: 'en', label: 'English' },
 ]
 
 export default function LocaleSwitcher({ currentLang }: { currentLang: string }) {
@@ -17,9 +16,8 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
   const pathname = usePathname()
   const router = useRouter()
 
-  // ⛔ Click outside to close
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         dropdownRef.current &&
         !(dropdownRef.current as any).contains(e.target)
@@ -27,8 +25,8 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
         setOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const switchLocale = (locale: string) => {
@@ -39,9 +37,15 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
 
   return (
     <div ref={dropdownRef} className="relative inline-block text-left">
-      <button
+      {/* Toggle Button */}
+      <motion.button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 text-white bg-black rounded-full border border-white"
+        whileTap={{ scale: 0.96 }}
+        whileHover={{ scale: 1.03 }}
+        transition={{ type: 'spring', stiffness: 180, damping: 12 }}
+        className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold uppercase tracking-wide 
+          border-[var(--olivea-soil)] text-[var(--olivea-soil)] 
+          hover:bg-[var(--olivea-soil)] hover:text-white transition-colors duration-300"
       >
         {currentLang.toUpperCase()}
         <motion.div
@@ -50,27 +54,29 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
         >
           <ChevronDown size={16} />
         </motion.div>
-      </button>
+      </motion.button>
 
+      {/* Dropdown */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -4 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
+            exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}
-            className="absolute mt-2 right-0 bg-white shadow-lg rounded-md z-50 overflow-hidden"
+            className="absolute mt-2 right-0 bg-[var(--olivea-cream)] border border-[var(--olivea-soil)] rounded-md z-50 shadow-md overflow-hidden"
           >
             {languages
               .filter((lang) => lang.code !== currentLang)
               .map((lang) => (
-                <button
+                <motion.button
                   key={lang.code}
                   onClick={() => switchLocale(lang.code)}
-                  className="block w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
+                  whileTap={{ scale: 0.97 }}
+                  className="block w-full text-left px-4 py-2 text-sm text-[var(--olivea-soil)] hover:bg-[var(--olivea-soil)] hover:text-white transition-colors"
                 >
                   {lang.label}
-                </button>
+                </motion.button>
               ))}
           </motion.div>
         )}

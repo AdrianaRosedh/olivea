@@ -1,47 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
-import Image from 'next/image'
+import OliveaFTTLogo from '@/assets/oliveaFTT.svg'
 import MagneticButton from '@/components/ui/MagneticButton'
 import { Button } from '@/components/ui/button'
-import OliveaFTTLogo from '@/assets/oliveaFTT.svg'
 
 export default function HomePage() {
-  const [showLoader, setShowLoader] = useState(true)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowLoader(false), 3000)
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
     <main className="flex items-center justify-center w-full h-screen bg-black">
       <div className="relative w-full h-full max-w-screen-xl rounded-3xl overflow-hidden shadow-xl">
-
-        {/* Loader */}
-        <AnimatePresence>
-          {showLoader && (
-            <motion.div
-              key="loader"
-              initial={{ scale: 1, opacity: 1 }}
-              animate={{ scale: 10, opacity: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.8, ease: 'easeInOut' }}
-              className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--olivea-soil)] rounded-3xl"
-            >
-              <motion.h1
-                initial={{ opacity: 1 }}
-                animate={{ opacity: 0 }}
-                transition={{ duration: 1, ease: 'easeOut' }}
-                className="text-4xl md:text-6xl font-light tracking-tight text-white"
-              >
-                Olivea
-              </motion.h1>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Background Video */}
         <video
@@ -53,90 +21,120 @@ export default function HomePage() {
           playsInline
         />
 
+        {/* Animated Gradient Overlay */}
+        <motion.div
+          initial={{ opacity: 0.4 }}
+          animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05), transparent), linear-gradient(120deg, rgba(255,255,255,0.03), transparent 70%)',
+            backgroundSize: '200% 200%',
+          }}
+        />
+
         {/* Main Content */}
-        {!showLoader && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center gap-y-8 md:gap-y-10 py-6 md:py-16">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center gap-y-8 md:gap-y-10 py-6 md:py-16">
 
-            {/* Logo */}
-            <motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.4, duration: 0.8 }}
-  className="mt-10 md:mt-0"
->
-  <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
-</motion.div>
+          {/* Logo */}
+          <motion.div
+            initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }}
+            animate={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
+            transition={{ delay: 0.4, duration: 1.2, ease: 'easeInOut' }}
+            className="mt-10 md:mt-0"
+          >
+            <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
+          </motion.div>
 
-            {/* Identity Buttons */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={{
-                visible: {
-                  transition: {
-                    staggerChildren: 0.15,
-                    delayChildren: 0.8,
-                  },
+          {/* Tagline */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="text-white text-sm md:text-base mt-2"
+          >
+              Experience the garden. Live the story.
+          </motion.p>
+
+          {/* Identity Buttons */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.15,
+                  delayChildren: 0.8,
                 },
-              }}
-              className="w-full max-w-3xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4 mt-4"
-            >
-              {[
-                { href: '/es/restaurant', label: 'Olivea Farm To Table', desc: 'A garden you can eat from.' },
-                { href: '/es/casa', label: 'Casa Olivea', desc: 'A home you can stay in.' },
-                { href: '/es/cafe', label: 'Olivea Café', desc: 'Wake up with flavor.' },
-              ].map(({ href, label, desc }) => (
-                <motion.div
-                  key={label}
-                  variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
-                  className="w-full md:w-[240px]"
-                >
-                  <Link href={href}>
-                    <Button
-                      size="lg"
-                      className="w-full h-[100px] text-lg px-6 py-4 flex flex-col items-center justify-center 
-                        rounded-md bg-[var(--olivea-shell)] text-[var(--olivea-ink)] 
-                        hover:bg-[var(--olivea-clay)] transition-colors"
-                    >
-                      <span>{label}</span>
-                      <span className="text-sm text-[color:var(--muted-foreground)] mt-1">{desc}</span>
-                    </Button>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
+              },
+            }}
+            className="w-full max-w-3xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4 mt-4"
+          >
+            {[
+              { href: '/es/restaurant', label: 'Olivea Farm To Table', desc: 'A garden you can eat from.' },
+              { href: '/es/casa', label: 'Casa Olivea', desc: 'A home you can stay in.' },
+              { href: '/es/cafe', label: 'Olivea Café', desc: 'Wake up with flavor.' },
+            ].map(({ href, label, desc }) => (
+              <motion.div
+                key={label}
+                variants={{
+                  hidden: { opacity: 0, y: 20, filter: 'blur(6px)' },
+                  visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
+                }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                className="w-full md:w-[240px]"
+              >
+                <Link href={href}>
+                  <Button
+                    size="lg"
+                    className="group relative w-full h-[100px] text-lg px-6 py-4 flex flex-col items-center justify-center 
+                      rounded-md bg-[var(--olivea-shell)] text-[var(--olivea-ink)] 
+                      hover:bg-[var(--olivea-clay)] transition-colors overflow-hidden"
+                  >
+                    <span>{label}</span>
+                    <span className="text-sm text-[color:var(--muted-foreground)] mt-1">{desc}</span>
+                    <span className="absolute left-[-50%] top-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 animate-shimmer" />
+                  </Button>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
 
-            {/* Reservar Button */}
+          {/* Reservar Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, type: 'spring', stiffness: 80, damping: 12 }}
+            className="mt-6 md:mt-10 mb-10"
+          >
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4, duration: 0.8 }}
-              className="mt-6 md:mt-10 mb-10"
+              transition={{ delay: 1.5, duration: 0.6, ease: 'easeOut' }}
+              className="md:hidden w-full px-4"
             >
-              {/* Mobile fallback button */}
-              <div className="md:hidden">
-                <Link href="/es/reservations">
-                  <Button
-                    className="w-full"
-                    size="lg"
-                  >
-                    Reservar
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Desktop magnetic button */}
-              <div className="hidden md:block">
-                <MagneticButton
-                  href="/es/reservations"
-                  className="px-6 py-3 text-white bg-[var(--olivea-soil)] hover:bg-[var(--olivea-olive)] rounded-md transition-colors"
+              <Link href="/es/reservations">
+                <Button
+                  size="lg"
+                  className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-olive)] text-white 
+                    hover:bg-[var(--olivea-olive)] transition-colors shadow-md"
                 >
                   Reservar
-                </MagneticButton>
-              </div>
+                </Button>
+              </Link>
             </motion.div>
-          </div>
-        )}
+
+            <div className="hidden md:block">
+              <MagneticButton
+                href="/es/reservations"
+                className="px-6 py-3 text-white bg-[var(--olivea-soil)] hover:bg-[var(--olivea-olive)] rounded-md transition-colors"
+              >
+                Reservar
+              </MagneticButton>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </main>
   )

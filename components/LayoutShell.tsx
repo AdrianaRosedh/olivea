@@ -40,13 +40,13 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
   }, [])
 
   const dockLeftItems = isCasaPage
-    ? [
-        { id: "rooms", icon: <MessageCircle />, label: "Rooms" },
-        { id: "breakfast", icon: <MessageCircle />, label: "Breakfast" },
-        { id: "experiences", icon: <MessageCircle />, label: "Experiences" },
-        { id: "location", icon: <MessageCircle />, label: "Location" },
-      ]
-    : []
+  ? [
+      { id: "rooms", number: "01", label: "Rooms" },
+      { id: "breakfast", number: "02", label: "Breakfast" },
+      { id: "experiences", number: "03", label: "Experiences" },
+      { id: "location", number: "04", label: "Location" },
+    ]
+  : []
 
   const dockRightItems = [
     { id: "journal", href: `/${lang}/journal`, icon: <BookOpenText />, label: "Journal" },
@@ -91,7 +91,7 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
       {/* Left Dock */}
       {!isHome && dockLeftItems.length > 0 && (
         <div className="hidden md:flex fixed top-1/2 left-6 -translate-y-1/2 z-40">
-          <DockLeft items={dockLeftItems} scrollProgress={scrollProgress} />
+          <DockLeft items={dockLeftItems} />
         </div>
       )}
 

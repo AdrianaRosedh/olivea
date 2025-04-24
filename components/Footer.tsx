@@ -34,7 +34,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-40 bg-[rgba(252,250,247,0.75)] backdrop-blur-md border-t border-[rgba(44,44,44,0.08)] text-[13px] text-olivea-ink font-light tracking-wide">
+    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-40 bg-[var(--olivea-cream)]/80 backdrop-blur-md border-t border-[rgba(44,44,44,0.08)] text-[13px] text-olivea-ink font-light tracking-wide">
       <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-8 lg:px-6 py-2 flex justify-between items-center">
         <span className="text-[13px] font-light tracking-wider">
           © {new Date().getFullYear()} Inmobilaria MYA by DH
@@ -51,7 +51,7 @@ export default function Footer() {
           {/* Globe dropdown toggle */}
           <button
             onClick={() => setOpen(!open)}
-            className="flex items-center gap-1 text-xs font-medium border border-gray-300 px-2 py-1.5 rounded-md bg-[rgba(252,250,247,0.75)] backdrop-blur border border-gray-300 hover:bg-gray-100 transition-all"
+            className="flex items-center gap-1 text-xs font-medium border border-gray-300 px-2 py-1.5 rounded-md bg-[var(--olivea-cream)]/80 backdrop-blur border border-gray-300 hover:bg-gray-100 transition-all"
           >
             <GlobeIcon className="w-4 h-4" />
             {lang.toUpperCase()}
@@ -63,7 +63,7 @@ export default function Footer() {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
-                className="absolute bottom-full mb-2 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-32"
+                className="absolute bottom-full mb-2 right-0 bg-[var(--olivea-cream)]/80 border border-gray-200 rounded-md shadow-lg z-50 w-32"
               >
                 <button
                   onClick={() => switchLocale("en")}
