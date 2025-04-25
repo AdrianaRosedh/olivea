@@ -7,45 +7,45 @@
 /* =========================
    🌿 Olivea Brand Tokens
    ========================= */
-   :root {
-    --olivea-cream: #e9e8e5;
-    --olivea-shell: #EAE7DF;
-    --olivea-clay: #bdb6aa;
-    --olivea-olive: #718066;
-    --olivea-ink: #1F1F1F;
-    --olivea-white: #FFFFFF;
-    --olivea-soil: #58544C;
-    --olivea-mist: #F6F5F0;
-  
-    --radius: 0.625rem;
-  
-    --background: var(--olivea-cream);
-    --foreground: var(--olivea-ink);
-    --card: var(--olivea-cream);
-    --card-foreground: var(--olivea-ink);
-    --popover: var(--olivea-cream);
-    --popover-foreground: var(--olivea-ink);
-    --primary: var(--olivea-ink);
-    --primary-foreground: white;
-    --secondary: #F0EEE8;
-    --secondary-foreground: var(--olivea-ink);
-    --muted: #F0EEE8;
-    --muted-foreground: #666;
-    --accent: var(--olivea-green); /* if used */
-    --accent-foreground: white;
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: #E5E3DC;
-    --input: #E5E3DC;
-    --ring: #CCC;
-    --sidebar: var(--olivea-sand); /* if used */
-    --sidebar-foreground: var(--olivea-ink);
-  }
+:root {
+  --olivea-cream: #e9e8e5;
+  --olivea-shell: #eae7df;
+  --olivea-clay: #b27f4d;
+  --olivea-olive: #65735b;
+  --olivea-ink: #1f1f1f;
+  --olivea-white: #ffffff;
+  --olivea-soil: #58544c;
+  --olivea-mist: #f6f5f0;
+
+  --radius: 0.625rem;
+
+  --background: var(--olivea-cream);
+  --foreground: var(--olivea-ink);
+  --card: var(--olivea-cream);
+  --card-foreground: var(--olivea-ink);
+  --popover: var(--olivea-cream);
+  --popover-foreground: var(--olivea-ink);
+  --primary: var(--olivea-ink);
+  --primary-foreground: white;
+  --secondary: #f0eee8;
+  --secondary-foreground: var(--olivea-ink);
+  --muted: #f0eee8;
+  --muted-foreground: #666;
+  --accent: var(--olivea-green); /* if used */
+  --accent-foreground: white;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #e5e3dc;
+  --input: #e5e3dc;
+  --ring: #ccc;
+  --sidebar: var(--olivea-sand); /* if used */
+  --sidebar-foreground: var(--olivea-ink);
+}
 /* =========================
    🌚 Dark Theme
    ========================= */
 .dark {
-  --background: #1B1B1B;
-  --foreground: #FDFDFD;
+  --background: #1b1b1b;
+  --foreground: #fdfdfd;
 
   --card: #232323;
   --card-foreground: white;
@@ -53,24 +53,24 @@
   --popover: #232323;
   --popover-foreground: white;
 
-  --primary: #FDFDFD;
+  --primary: #fdfdfd;
   --primary-foreground: #232323;
 
-  --secondary: #2A2A2A;
+  --secondary: #2a2a2a;
   --secondary-foreground: white;
 
-  --muted: #2A2A2A;
-  --muted-foreground: #CCC;
+  --muted: #2a2a2a;
+  --muted-foreground: #ccc;
 
-  --accent: #7D8C74;
-  --accent-foreground: #FDFDFD;
+  --accent: #7d8c74;
+  --accent-foreground: #fdfdfd;
 
   --border: #333;
   --input: #444;
   --ring: #666;
 
-  --sidebar: #1E1E1E;
-  --sidebar-foreground: #FDFDFD;
+  --sidebar: #1e1e1e;
+  --sidebar-foreground: #fdfdfd;
 }
 
 /* =========================
@@ -97,7 +97,7 @@ body::-webkit-scrollbar {
 
 body {
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
 
 /* =========================
@@ -170,7 +170,7 @@ body {
 }
 .scroll-container {
   -ms-overflow-style: none; /* IE */
-  scrollbar-width: none;    /* Firefox */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Hide scrollbar */
@@ -183,26 +183,88 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
+/* Adjust scroll-padding-top to account for the navbar height */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 8rem; /* Increased to account for the navbar height */
+  scroll-padding-bottom: 3rem; /* Added for footer space */
 }
 
+/* New scroll settings */
 html,
 body {
-  overflow: hidden;
-  height: 100%;
-  overscroll-behavior: none; /* Prevent bounce on iOS */
-  position: fixed; /* Prevent some edge cases on iOS */
-  width: 100%;
+  overscroll-behavior: none;
   margin: 0;
   padding: 0;
-  touch-action: none; /* Optional: Disables gestures on body */
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 .animate-shimmer {
   animation: shimmer 1.6s linear infinite;
+}
+
+.bg-radial-gradient {
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+}
+
+/* Ensure sections start at the top when navigating directly to them */
+section[id] {
+  scroll-margin-top: 8rem; /* Match the scroll-padding-top value */
+  scroll-margin-bottom: 3rem; /* Match the scroll-padding-bottom value */
+}
+
+/* Fix for snap scrolling to prevent extra space */
+.snap-y.snap-mandatory {
+  scroll-snap-type: y mandatory;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Ensure the last section doesn't have extra space below */
+.snap-y.snap-mandatory > section:last-child {
+  margin-bottom: 0;
+}
+
+/* Social Media Icons - Flat Style */
+.social-media a {
+  display: flex;
+  height: 36px;
+  width: 36px;
+  margin: 0 5px;
+  border-radius: 6px;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.social-icon {
+  color: var(--olivea-olive);
+  transition: transform 0.3s ease;
+}
+
+.social-media a:hover {
+  transform: translateY(1px);
+}
+
+.social-media a:hover .social-icon {
+  transform: scale(0.9);
+  color: var(--olivea-clay);
+}
+
+.social-media a:hover .youtube,
+.social-media a:hover .instagram,
+.social-media a:hover .tiktok,
+.social-media a:hover .linkedin,
+.social-media a:hover .spotify,
+.social-media a:hover .pinterest {
+  color: var(--olivea-clay);
 }

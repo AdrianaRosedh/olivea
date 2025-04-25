@@ -53,7 +53,7 @@ export default function DockLeft({ items }: Props) {
             onMouseLeave={() => setHoveredId(null)}
             className={cn(
               "group relative flex items-center space-x-4 transition-all duration-500",
-              isActive ? "text-[var(--olivea-olive)]" : "text-[var(--olivea-soil)] opacity-80 hover:opacity-100",
+              isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100",
             )}
           >
             <span className="text-2xl tabular-nums font-extrabold">{item.number}</span>

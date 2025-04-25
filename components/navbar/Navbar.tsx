@@ -2,15 +2,13 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import Cookies from "js-cookie"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import MobileDrawer from "@/components/navbar/MobileDrawer"
 import MenuToggle from "@/components/navbar/MenuToggle"
 import { MobileNav } from "@/components/navbar/MobileNav"
 import MagneticButton from "@/components/ui/MagneticButton"
-import OliveaLogo from "@/assets/OliveaFTTIcon.svg"
-import { motion } from "framer-motion"
+import { Circle } from "lucide-react"
 
 interface NavbarProps {
   lang: "en" | "es"
@@ -43,14 +41,15 @@ export default function Navbar({ lang }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="w-full sticky top-0 z-50 bg-transparent backdrop-blur-md">
+      <nav className="w-full fixed top-0 z-50 bg-transparent backdrop-blur-md">
         <div className="w-full flex justify-center">
-          <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-32 lg:h-36">
-
+          <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-24 lg:h-28">
             {/* Left: Logo */}
             <div className="flex-1 flex items-center justify-start">
               <Link href={`/${lang}`} aria-label="Home">
-                <OliveaLogo className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 text-[var(--olivea-soil)]" />
+                <div className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 text-[var(--olivea-olive)]">
+                  <Circle className="w-full h-full" />
+                </div>
               </Link>
             </div>
 
@@ -62,10 +61,10 @@ export default function Navbar({ lang }: NavbarProps) {
                   href={item.href}
                   className={cn(
                     "px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap",
-                    "rounded-md border border-[var(--olivea-soil)] text-[var(--olivea-soil)] font-medium text-base uppercase transition-colors flex items-center justify-center",
+                    "rounded-md border border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-medium text-base uppercase transition-colors flex items-center justify-center",
                     pathname === item.href
-                      ? "bg-[var(--olivea-soil)] text-white"
-                      : "hover:bg-[var(--olivea-soil)] hover:text-white"
+                      ? "bg-[var(--olivea-olive)] text-white"
+                      : "hover:bg-[var(--olivea-olive)] hover:text-white",
                   )}
                 >
                   {item.label}
@@ -77,7 +76,7 @@ export default function Navbar({ lang }: NavbarProps) {
             <div className="hidden md:flex flex-1 justify-end items-center">
               <MagneticButton
                 href={`/${lang}/reservations`}
-                className="bg-[var(--olivea-soil)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-olive)] transition-colors"
+                className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
               >
                 Reservar
               </MagneticButton>
@@ -88,10 +87,7 @@ export default function Navbar({ lang }: NavbarProps) {
 
       {/* Mobile Hamburger Toggle */}
       <div className="md:hidden fixed top-4 right-4 z-[1000] pointer-events-auto">
-        <MenuToggle
-          toggle={() => (navigator.vibrate?.(10), setDrawerOpen((prev) => !prev))}
-          isOpen={drawerOpen}
-        />
+        <MenuToggle toggle={() => (navigator.vibrate?.(10), setDrawerOpen((prev) => !prev))} isOpen={drawerOpen} />
       </div>
 
       {/* Mobile Drawer */}

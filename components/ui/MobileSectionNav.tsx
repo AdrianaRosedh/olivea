@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -46,7 +48,7 @@ export default function MobileSectionNav({ items }: Props) {
       {
         root: null,
         threshold: 0.5,
-      }
+      },
     )
 
     items.forEach((item) => {
@@ -57,25 +59,65 @@ export default function MobileSectionNav({ items }: Props) {
     return () => observer.disconnect()
   }, [items])
 
+  // Handle click to scroll to section
+  const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault()
+
+    // Find the section element
+    const section = document.getElementById(id)
+
+    if (section) {
+      // Get the parent scroll container
+      const scrollContainer = section.closest(".scroll-container")
+
+      // Firefox-compatible approach
+      if (scrollContainer) {
+        // Calculate the top position of the section relative to the scroll container
+        const sectionTop = section.offsetTop
+
+        // Scroll the container
+        scrollContainer.scrollTo({
+          top: sectionTop,
+          behavior: "smooth",
+        })
+      } else {
+        // Fallback to standard scrollIntoView
+        section.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+
+      // Update active state
+      setActiveId(id)
+
+      // Provide haptic feedback if available
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate(10)
+      }
+    }
+  }
+
   return (
     <div
       ref={containerRef}
-      className="flex gap-3 px-4 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar bg-[var(--olivea-cream)]"
+      className="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar"
       aria-label="Mobile section navigation"
+      role="navigation"
     >
       {items.map((item) => (
         <a
           key={item.id}
           href={`#${item.id}`}
-          aria-label={`Jump to ${item.label}`}
+          onClick={(e) => handleSectionClick(e, item.id)}
+          aria-label={`Jump to ${item.label} section`}
+          aria-current={activeId === item.id ? "location" : undefined}
           ref={(el) => {
             buttonRefs.current[item.id] = el
           }}
           className={cn(
-            "px-5 py-2 rounded-md text-sm font-medium uppercase border transition whitespace-nowrap",
+            "px-5 py-2 rounded-md text-sm font-medium uppercase border transition-all duration-300 whitespace-nowrap",
+            "focus:outline-none focus:ring-2 focus:ring-[var(--olivea-soil)] focus:ring-offset-2",
             activeId === item.id
-              ? "bg-[var(--olivea-soil)] text-white border-[var(--olivea-soil)]"
-              : "text-[var(--olivea-soil)] border-[var(--olivea-soil)] hover:bg-[var(--olivea-soil)] hover:text-white"
+              ? "bg-[var(--olivea-soil)] text-white border-[var(--olivea-soil)] shadow-sm"
+              : "text-[var(--olivea-soil)] border-[var(--olivea-soil)]/70 hover:bg-[var(--olivea-soil)]/10 hover:border-[var(--olivea-soil)]",
           )}
         >
           {item.label}

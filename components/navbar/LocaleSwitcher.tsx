@@ -44,8 +44,8 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
         whileHover={{ scale: 1.03 }}
         transition={{ type: 'spring', stiffness: 180, damping: 12 }}
         className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold uppercase tracking-wide 
-          border-[var(--olivea-soil)] text-[var(--olivea-soil)] 
-          hover:bg-[var(--olivea-soil)] hover:text-white transition-colors duration-300"
+          border-[var(--olivea-olive)] text-[var(--olivea-olive)] 
+          hover:bg-[var(--olivea-olive)] hover:text-white transition-colors duration-300"
       >
         {currentLang.toUpperCase()}
         <motion.div
@@ -64,7 +64,7 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}
-            className="absolute mt-2 right-0 bg-[var(--olivea-cream)] border border-[var(--olivea-soil)] rounded-md z-50 shadow-md overflow-hidden"
+            className="absolute mt-2 right-0 bg-[var(--olivea-cream)] border border-[var(--olivea-olive)] rounded-md z-50 shadow-md overflow-hidden"
           >
             {languages
               .filter((lang) => lang.code !== currentLang)
@@ -73,7 +73,7 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
                   key={lang.code}
                   onClick={() => switchLocale(lang.code)}
                   whileTap={{ scale: 0.97 }}
-                  className="block w-full text-left px-4 py-2 text-sm text-[var(--olivea-soil)] hover:bg-[var(--olivea-soil)] hover:text-white transition-colors"
+                  className="block w-full text-left px-4 py-2 text-sm text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)] hover:text-white transition-colors"
                 >
                   {lang.label}
                 </motion.button>

@@ -76,8 +76,8 @@ function IconContainer({
         className={cn(
           "flex items-center justify-center transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]",
           active
-            ? "bg-[var(--olivea-olive)] text-white"
-            : "bg-[var(--olivea-soil)] text-white hover:bg-[var(--olivea-olive)] hover:text-white"
+            ? "bg-[var(--olivea-clay)] text-white"
+            : "bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] hover:text-white"
         )}
       >
         <motion.div
@@ -94,7 +94,7 @@ function IconContainer({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 6, scale: 0.95 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="absolute right-full mr-4 px-6 py-3 text-lg rounded-xl backdrop-blur-sm shadow-lg border border-[var(--olivea-soil)/20] bg-white text-[var(--olivea-soil)] whitespace-nowrap font-bold"
+              className="absolute right-full mr-4 px-6 py-3 text-lg rounded-xl backdrop-blur-sm shadow-lg border border-[var(--olivea-olive)/20] bg-white text-[var(--olivea-olive)] whitespace-nowrap font-bold"
             >
               {item.label}
             </motion.div>

@@ -19,7 +19,7 @@ export default function MenuToggle({ toggle, isOpen }: MenuToggleProps) {
         toggle()
       }}
       aria-label="Toggle menu"
-      className="text-[var(--olivea-soil)] p-3 rounded-full focus:outline-none focus:ring-0 focus:bg-transparent active:bg-transparent transition"
+      className="text-[var(--olivea-olive)] p-3 rounded-full focus:outline-none focus:ring-0 focus:bg-transparent active:bg-transparent transition"
       style={{
         zIndex: 1001, // Increased z-index to be higher than the drawer
         position: "relative", // Ensure the z-index works properly

@@ -67,8 +67,8 @@ export function MobileNav({ lang, isDrawerOpen }: MobileNavProps) {
               onClick={vibrate}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 rounded-md transition-all duration-150",
-                "text-[var(--olivea-soil)] active:scale-[0.95]",
-                "hover:bg-[var(--olivea-soil)] hover:text-white px-5 py-3"
+                "text-[var(--olivea-olive)] active:scale-[0.95]",
+                "hover:bg-[var(--olivea-olive)] hover:text-white px-5 py-3"
               )}
             >
               {icon}
@@ -83,8 +83,8 @@ export function MobileNav({ lang, isDrawerOpen }: MobileNavProps) {
                 "flex flex-col items-center justify-center gap-1 rounded-md transition-all duration-150",
                 "px-5 py-3 text-[13px] font-medium active:scale-[0.95]",
                 active
-                  ? "bg-[var(--olivea-soil)] text-white"
-                  : "text-[var(--olivea-soil)] hover:bg-[var(--olivea-soil)] hover:text-white"
+                  ? "bg-[var(--olivea-olive)] text-white"
+                  : "text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)] hover:text-white"
               )}
             >
               {icon}
