@@ -81,6 +81,16 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
 
   return (
     <>
+      {/* Skip to main content link for accessibility - only visible when focused */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[1001] focus:bg-white focus:px-4 focus:py-2 focus:text-black"
+        tabIndex={isHome ? -1 : 0} // Disable on homepage
+        aria-hidden={isHome}
+      >
+        Skip to main content
+      </a>
+
       {!isHome && <Navbar lang={lang} />}
 
       {!isHome && mobileDockItems.length > 0 && (
@@ -90,6 +100,7 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
       )}
 
       <main
+        id="main-content"
         ref={scrollRef}
         className={cn(
           "relative w-full",
@@ -117,7 +128,7 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
         </div>
       )}
 
-      {/* Chat Button */}
+      {/* Chat Button - Improved with accessibility */}
       {!isHome && (
         <div className="hidden md:block">
           <MagneticButton

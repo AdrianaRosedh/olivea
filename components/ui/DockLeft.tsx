@@ -67,7 +67,10 @@ export default function DockLeft({ items }: Props) {
   }
 
   return (
-    <div className="hidden md:flex flex-col gap-6 items-start text-xl font-bold tracking-widest uppercase">
+    <nav
+      className="hidden md:flex flex-col gap-6 items-start text-xl font-bold tracking-widest uppercase"
+      aria-label="Section navigation"
+    >
       {items.map((item) => {
         const isHovered = hoveredId === item.id
         const isActive = activeId === item.id
@@ -84,8 +87,12 @@ export default function DockLeft({ items }: Props) {
               "group relative flex items-center space-x-4 transition-all duration-500 cursor-pointer",
               isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100",
             )}
+            aria-current={isActive ? "location" : undefined}
+            aria-label={`Navigate to ${item.label} section`}
           >
-            <span className="text-2xl tabular-nums font-extrabold">{item.number}</span>
+            <span className="text-2xl tabular-nums font-extrabold" aria-hidden="true">
+              {item.number}
+            </span>
 
             {/* Text reveal container */}
             <div className="relative h-8 overflow-hidden">
@@ -101,6 +108,7 @@ export default function DockLeft({ items }: Props) {
                     y: { type: "spring", stiffness: 140, damping: 18 },
                     filter: { duration: 0.25, ease: "easeOut" },
                   }}
+                  aria-hidden="true"
                 >
                   {item.label.toUpperCase()}
                 </motion.div>
@@ -117,6 +125,7 @@ export default function DockLeft({ items }: Props) {
                     y: { type: "spring", stiffness: 140, damping: 18 },
                     filter: { duration: 0.25, ease: "easeOut" },
                   }}
+                  aria-hidden="true"
                 >
                   {item.label.toUpperCase()}
                 </motion.div>
@@ -125,6 +134,6 @@ export default function DockLeft({ items }: Props) {
           </a>
         )
       })}
-    </div>
+    </nav>
   )
 }

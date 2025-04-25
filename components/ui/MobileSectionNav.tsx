@@ -96,7 +96,7 @@ export default function MobileSectionNav({ items }: Props) {
   }
 
   return (
-    <div
+    <nav
       ref={containerRef}
       className="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar"
       aria-label="Mobile section navigation"
@@ -123,6 +123,6 @@ export default function MobileSectionNav({ items }: Props) {
           {item.label}
         </a>
       ))}
-    </div>
+    </nav>
   )
 }

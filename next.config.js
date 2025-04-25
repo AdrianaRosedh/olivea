@@ -10,6 +10,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    domains: ["olivea.com"], // Add your domains here
+    formats: ["image/avif", "image/webp"],
     unoptimized: true,
   },
   webpack(config) {
@@ -20,6 +22,46 @@ const nextConfig = {
     })
 
     return config
+  },
+  // Add security headers
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          {
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ]
+  },
+  // Add redirects for common paths
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/es", // Default to Spanish
+        permanent: false,
+      },
+    ]
   },
   turbopack: {
     rules: {
