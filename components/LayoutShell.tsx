@@ -84,7 +84,7 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
       {!isHome && <Navbar lang={lang} />}
 
       {!isHome && mobileDockItems.length > 0 && (
-        <div className="md:hidden sticky top-[5rem] z-40 bg-[rgba(233,232,229,0.7)] backdrop-blur-md border-b border-[var(--olivea-olive)]/10">
+        <div className="md:hidden sticky top-[5rem] z-40 bg-transparent backdrop-blur-md border-b border-[var(--olivea-soil)]/10">
           <MobileSectionNav items={mobileDockItems} />
         </div>
       )}
@@ -92,9 +92,9 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
       <main
         ref={scrollRef}
         className={cn(
-          "scroll-container relative w-full",
-          isHome ? "" : "max-w-7xl mx-auto px-1", // Removed min-height
-          isCasaPage && "snap-y snap-mandatory h-screen overflow-y-auto scroll-smooth pb-16", // Added pb-16 for footer space
+          "relative w-full",
+          isHome ? "" : "max-w-7xl mx-auto px-1",
+          isCasaPage && "pb-16", // Simplified - removed scroll properties
         )}
       >
         {children}

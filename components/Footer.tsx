@@ -56,8 +56,7 @@ export default function Footer() {
 
   return (
     <footer
-      style={{ backgroundColor: "#e9e8e5" }}
-      className={`hidden md:flex fixed bottom-0 left-0 w-full z-40 text-[13px] text-olivea-ink font-light tracking-wide ${isCasaPage ? "pointer-events-auto" : ""}`}
+      className={`hidden md:flex fixed bottom-0 left-0 w-full z-40 bg-transparent backdrop-blur-md text-[13px] text-olivea-ink font-light tracking-wide ${isCasaPage ? "pointer-events-auto" : ""}`}
     >
       <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-8 lg:px-6 py-2 flex justify-between items-center">
         {/* Copyright */}
@@ -70,22 +69,22 @@ export default function Footer() {
         {/* Social Media Icons - Centered */}
         <div className="flex-1 flex justify-center">
           <div className="social-media flex items-center gap-3">
-            <a href="#" className="social-icon-link" aria-label="YouTube" style={{ backgroundColor: "#e9e8e5" }}>
+            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="YouTube">
               <Youtube size={18} className="social-icon youtube" />
             </a>
-            <a href="#" className="social-icon-link" aria-label="Instagram" style={{ backgroundColor: "#e9e8e5" }}>
+            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="Instagram">
               <Instagram size={18} className="social-icon instagram" />
             </a>
-            <a href="#" className="social-icon-link" aria-label="TikTok" style={{ backgroundColor: "#e9e8e5" }}>
+            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="TikTok">
               <TikTokIcon size={18} className="social-icon tiktok" />
             </a>
-            <a href="#" className="social-icon-link" aria-label="LinkedIn" style={{ backgroundColor: "#e9e8e5" }}>
+            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="LinkedIn">
               <Linkedin size={18} className="social-icon linkedin" />
             </a>
-            <a href="#" className="social-icon-link" aria-label="Spotify" style={{ backgroundColor: "#e9e8e5" }}>
+            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="Spotify">
               <Music size={18} className="social-icon spotify" />
             </a>
-            <a href="#" className="social-icon-link" aria-label="Pinterest" style={{ backgroundColor: "#e9e8e5" }}>
+            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="Pinterest">
               <PinIcon size={18} className="social-icon pinterest" />
             </a>
           </div>
@@ -100,8 +99,7 @@ export default function Footer() {
           {/* Globe dropdown toggle */}
           <button
             onClick={() => setOpen(!open)}
-            style={{ backgroundColor: "#e9e8e5" }}
-            className="flex items-center gap-1 text-xs font-medium border border-gray-300 px-2 py-1.5 rounded-md hover:bg-gray-100 transition-all"
+            className="flex items-center gap-1 text-xs font-medium border border-gray-300 px-2 py-1.5 rounded-md bg-transparent backdrop-blur-sm hover:bg-gray-100/50 transition-all"
           >
             <GlobeIcon className="w-4 h-4" />
             {lang.toUpperCase()}
@@ -113,18 +111,17 @@ export default function Footer() {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
-                style={{ backgroundColor: "#e9e8e5" }}
-                className="absolute bottom-full mb-2 right-0 border border-gray-200 rounded-md shadow-lg z-50 w-32"
+                className="absolute bottom-full mb-2 right-0 bg-transparent backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-50 w-32"
               >
                 <button
                   onClick={() => switchLocale("en")}
-                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100"
+                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100/50"
                 >
                   🇺🇸 English
                 </button>
                 <button
                   onClick={() => switchLocale("es")}
-                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100"
+                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100/50"
                 >
                   🇲🇽 Español
                 </button>

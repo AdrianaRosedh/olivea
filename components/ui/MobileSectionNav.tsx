@@ -114,10 +114,10 @@ export default function MobileSectionNav({ items }: Props) {
           }}
           className={cn(
             "px-5 py-2 rounded-md text-sm font-medium uppercase border transition-all duration-300 whitespace-nowrap",
-            "focus:outline-none focus:ring-2 focus:ring-[var(--olivea-soil)] focus:ring-offset-2",
+            "focus:outline-none focus:ring-2 focus:ring-[var(--olivea-olive)] focus:ring-offset-2",
             activeId === item.id
-              ? "bg-[var(--olivea-soil)] text-white border-[var(--olivea-soil)] shadow-sm"
-              : "text-[var(--olivea-soil)] border-[var(--olivea-soil)]/70 hover:bg-[var(--olivea-soil)]/10 hover:border-[var(--olivea-soil)]",
+              ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)] shadow-sm"
+              : "text-[var(--olivea-olive)] border-[var(--olivea-olive)]/70 hover:bg-[var(--olivea-olive)]/10 hover:border-[var(--olivea-olive)]",
           )}
         >
           {item.label}
