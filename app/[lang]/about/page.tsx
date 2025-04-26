@@ -1,11 +1,13 @@
-import { getDictionary } from '../dictionaries'
+import { getDictionary } from "../dictionaries"
 
 export default async function AboutPage({
   params,
 }: {
-  params: Promise<{ lang: 'es' | 'en' }>
+  params: Promise<{ lang: "es" | "en" }>
 }) {
-  const { lang } = await params
+  // Await the params Promise before accessing its properties
+  const resolvedParams = await params
+  const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
 
   return (

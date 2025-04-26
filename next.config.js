@@ -71,6 +71,15 @@ const nextConfig = {
       },
     },
   },
+  // Next.js 15 specific optimizations
+  experimental: {
+    // Enable React 19 features
+    serverActions: {
+      bodySizeLimit: "2mb", // Increased limit for server actions
+    },
+    // Improved caching behavior in Next.js 15
+    optimizePackageImports: ["framer-motion", "@radix-ui/react-*"],
+  },
 }
 
 export default withBundleAnalyzer({

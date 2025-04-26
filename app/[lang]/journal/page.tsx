@@ -1,15 +1,17 @@
-import { supabase } from '@/lib/supabase'
-import { getDictionary } from '../dictionaries'
-import Link from 'next/link'
+import { supabase } from "@/lib/supabase"
+import { getDictionary } from "../dictionaries"
+import Link from "next/link"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export default async function JournalPage({
   params,
 }: {
-  params: Promise<{ lang: 'en' | 'es' }>
+  params: Promise<{ lang: "en" | "es" }>
 }) {
-  const { lang } = await params
+  // Await the params Promise before accessing its properties
+  const resolvedParams = await params
+  const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
 
   let posts = null
@@ -20,18 +22,18 @@ export default async function JournalPage({
     const timeout = setTimeout(() => controller.abort(), 7000)
 
     const res = await supabase
-      .from('journal_posts')
-      .select('id, title, slug, cover_image, published_at')
-      .eq('visible', true)
-      .order('published_at', { ascending: false })
+      .from("journal_posts")
+      .select("id, title, slug, cover_image, published_at")
+      .eq("visible", true)
+      .order("published_at", { ascending: false })
 
     posts = res.data
     error = res.error
 
     clearTimeout(timeout)
   } catch (err) {
-    console.error('Supabase fetch error:', err)
-    error = { message: 'Request timed out or failed.' }
+    console.error("Supabase fetch error:", err)
+    error = { message: "Request timed out or failed." }
   }
 
   if (error) {
@@ -61,15 +63,13 @@ export default async function JournalPage({
             <Link href={`/${lang}/journal/${post.slug}`} className="block group">
               {post.cover_image && (
                 <img
-                  src={post.cover_image}
+                  src={post.cover_image || "/placeholder.svg"}
                   alt={post.title}
                   className="rounded-xl w-full h-60 object-cover mb-4 group-hover:opacity-90 transition"
                 />
               )}
               <h2 className="text-2xl font-medium group-hover:underline">{post.title}</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {new Date(post.published_at).toLocaleDateString()}
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">{new Date(post.published_at).toLocaleDateString()}</p>
             </Link>
           </li>
         ))}

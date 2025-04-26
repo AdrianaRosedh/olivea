@@ -1,11 +1,13 @@
-import { getDictionary } from '../dictionaries'
+import { getDictionary } from "../dictionaries"
 
 export default async function ReservationsPage({
   params,
 }: {
-  params: Promise<{ lang: 'en' | 'es' }>
+  params: Promise<{ lang: "en" | "es" }>
 }) {
-  const { lang } = await params
+  // Await the params Promise before accessing its properties
+  const resolvedParams = await params
+  const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
 
   return (

@@ -1,13 +1,17 @@
 import type { Metadata } from "next"
 import { getDictionary } from "../dictionaries"
+import ScrollToSection from "@/components/ScrollToSection"
 
 // Define metadata for better SEO
-export async function generateMetadata({ params }: { params: { lang: "en" | "es" } }): Promise<Metadata> {
-  const dict = await getDictionary(params.lang)
+export async function generateMetadata({ params }: { params: Promise<{ lang: "en" | "es" }> }): Promise<Metadata> {
+  // Await the params Promise before accessing its properties
+  const resolvedParams = await params
+  const dict = await getDictionary(resolvedParams.lang)
 
   return {
     title: `${dict.casa.title} | Olivea`,
     description: dict.casa.description,
+    metadataBase: new URL("https://olivea.com"),
     openGraph: {
       title: `${dict.casa.title} | Olivea`,
       description: dict.casa.description,
@@ -19,11 +23,11 @@ export async function generateMetadata({ params }: { params: { lang: "en" | "es"
           alt: "Casa Olivea",
         },
       ],
-      locale: params.lang,
+      locale: resolvedParams.lang,
       type: "website",
     },
     alternates: {
-      canonical: `https://olivea.com/${params.lang}/casa`,
+      canonical: `https://olivea.com/${resolvedParams.lang}/casa`,
       languages: {
         en: `https://olivea.com/en/casa`,
         es: `https://olivea.com/es/casa`,
@@ -37,7 +41,9 @@ export default async function CasaPage({
 }: {
   params: Promise<{ lang: "en" | "es" }>
 }) {
-  const { lang } = await params
+  // Await the params Promise before accessing its properties
+  const resolvedParams = await params
+  const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
 
   // Structured data for better SEO (JSON-LD)
@@ -74,7 +80,11 @@ export default async function CasaPage({
       {/* Add JSON-LD structured data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      <div className="min-h-screen">
+      {/* Add ScrollToSection component for improved scrolling */}
+      <ScrollToSection />
+
+      {/* Make sure this div has the scroll-container class for ScrollToSection.tsx */}
+      <div className="min-h-screen scroll-container">
         {/* Rooms Section - Improved with semantic HTML and accessibility */}
         <section
           id="rooms"

@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition, useCallback } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -19,52 +18,92 @@ interface Props {
 export default function DockLeft({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  // Use React 19's useTransition for smoother UI during scrolling
+  const [isPending, startTransition] = useTransition()
 
+  // Use Intersection Observer API for better performance
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    const handleScroll = () => {
-      // Simple scroll position detection
-      const scrollPosition = window.scrollY + window.innerHeight / 2
-
-      // Find the section that's currently in view
-      for (const item of items) {
-        const element = document.getElementById(item.id)
-        if (!element) continue
-
-        const { top, bottom } = element.getBoundingClientRect()
-        const elementCenter = top + (bottom - top) / 2
-
-        if (elementCenter > 0 && elementCenter < window.innerHeight) {
-          setActiveId(item.id)
-          break
-        }
-      }
+    // Create observers for each section
+    const observers: IntersectionObserver[] = []
+    const observerOptions = {
+      root: null,
+      rootMargin: "-10% 0px -40% 0px", // Adjust these values for better detection
+      threshold: [0.1, 0.5, 0.9],
     }
 
-    window.addEventListener("scroll", handleScroll)
-    handleScroll() // Initial check
+    // Create a single observer for all sections
+    const observer = new IntersectionObserver((entries) => {
+      // Find the most visible section
+      let maxVisibility = 0
+      let mostVisibleId: string | null = null
 
-    return () => window.removeEventListener("scroll", handleScroll)
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id
+          const visibility = entry.intersectionRatio
+
+          if (visibility > maxVisibility) {
+            maxVisibility = visibility
+            mostVisibleId = id
+          }
+        }
+      })
+
+      if (mostVisibleId) {
+        startTransition(() => {
+          setActiveId(mostVisibleId)
+        })
+      }
+    }, observerOptions)
+
+    // Observe all sections
+    items.forEach((item) => {
+      const element = document.getElementById(item.id)
+      if (element) {
+        observer.observe(element)
+      }
+    })
+
+    return () => observer.disconnect()
   }, [items])
 
-  // Implement the scrollIntoView with block: "center" as suggested
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+  // Improved scroll function with useCallback for better performance
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
     const el = document.getElementById(id)
 
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      // Use the new View Transitions API if available
+      if ("startViewTransition" in document && typeof (document as any).startViewTransition === "function") {
+        ;(document as any).startViewTransition(() => {
+          el.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          })
+        })
+      } else {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        })
+      }
 
       // Provide haptic feedback if available
       if (window.navigator.vibrate) {
         window.navigator.vibrate(10)
       }
 
-      // Update active state
-      setActiveId(id)
+      // Update URL without reload
+      window.history.pushState(null, "", `#${id}`)
+
+      // Update active state with transition for smoother UI
+      startTransition(() => {
+        setActiveId(id)
+      })
     }
-  }
+  }, [])
 
   return (
     <nav
@@ -86,6 +125,7 @@ export default function DockLeft({ items }: Props) {
             className={cn(
               "group relative flex items-center space-x-4 transition-all duration-500 cursor-pointer",
               isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100",
+              isPending && "opacity-70", // Visual feedback during transitions
             )}
             aria-current={isActive ? "location" : undefined}
             aria-label={`Navigate to ${item.label} section`}
