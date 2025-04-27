@@ -68,6 +68,20 @@ export default function NavigationAwareScrollInitializer() {
 
     document.addEventListener(EVENTS.SCROLL_INITIALIZE, handleScrollInit)
 
+    // Also listen for navigation complete events
+    const handleNavigationComplete = () => {
+      console.log("[ScrollInit] Received navigation:complete event")
+      // Reset the counter on navigation
+      initCountRef.current = 0
+
+      // Initialize with multiple attempts
+      setTimeout(initializeScroll, 100)
+      setTimeout(initializeScroll, 300)
+      setTimeout(initializeScroll, 600)
+    }
+
+    document.addEventListener(EVENTS.NAVIGATION_COMPLETE, handleNavigationComplete)
+
     // Also initialize on user interaction
     const handleUserInteraction = () => {
       if (initCountRef.current < 3) {
@@ -81,6 +95,7 @@ export default function NavigationAwareScrollInitializer() {
     return () => {
       timers.forEach(clearTimeout)
       document.removeEventListener(EVENTS.SCROLL_INITIALIZE, handleScrollInit)
+      document.removeEventListener(EVENTS.NAVIGATION_COMPLETE, handleNavigationComplete)
       document.removeEventListener("click", handleUserInteraction)
       document.removeEventListener("scroll", handleUserInteraction)
     }

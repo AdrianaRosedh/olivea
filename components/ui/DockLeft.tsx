@@ -4,6 +4,7 @@ import type React from "react"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { usePathname } from "next/navigation"
 
 interface DockItem {
   id: string
@@ -18,18 +19,45 @@ interface Props {
 export default function DockLeft({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(items.length > 0 ? items[0].id : null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+  const scrollContainerRef = useRef<HTMLElement | null>(null)
   const mountedRef = useRef(false)
+  const pathname = usePathname() // Track pathname for navigation changes
 
-  // Find the scroll container on mount
-  useEffect(() => {
-    scrollContainerRef.current = document.querySelector(".scroll-container")
-    mountedRef.current = true
+  // Initialize scroll container and event listeners
+  const initializeScrollFunctionality = useCallback(() => {
+    console.log("[DockLeft] Initializing scroll functionality")
+
+    // Find the scroll container
+    scrollContainerRef.current = document.querySelector(".scroll-container") || document.documentElement
 
     // Set initial active section
     if (items.length > 0) {
       setActiveId(items[0].id)
+
+      // Force an initial check
+      setTimeout(() => {
+        const firstSection = document.getElementById(items[0]?.id || "")
+        if (firstSection) {
+          document.dispatchEvent(
+            new CustomEvent("sectionInView", {
+              detail: {
+                id: items[0].id,
+                intersectionRatio: 1.0,
+              },
+            }),
+          )
+        }
+      }, 200)
     }
+  }, [items])
+
+  // Find the scroll container on mount and when pathname changes
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    // Initialize on mount or navigation
+    initializeScrollFunctionality()
+    mountedRef.current = true
 
     // Listen for section visibility events
     const handleSectionInView = (e: Event) => {
@@ -41,35 +69,45 @@ export default function DockLeft({ items }: Props) {
 
     document.addEventListener("sectionInView", handleSectionInView)
 
-    // Force an initial check
-    setTimeout(() => {
-      const firstSection = document.getElementById(items[0]?.id || "")
-      if (firstSection) {
-        document.dispatchEvent(
-          new CustomEvent("sectionInView", {
-            detail: {
-              id: items[0].id,
-              intersectionRatio: 1.0,
-            },
-          }),
-        )
-      }
-    }, 200)
+    // Listen for navigation events
+    const handleNavigationComplete = () => {
+      console.log("[DockLeft] Navigation complete, reinitializing")
+      // Re-initialize after navigation
+      setTimeout(initializeScrollFunctionality, 100)
+    }
+
+    document.addEventListener("navigation:complete", handleNavigationComplete)
+
+    // Also listen for scroll initialization events
+    const handleScrollInit = () => {
+      console.log("[DockLeft] Scroll initialize event received")
+      initializeScrollFunctionality()
+    }
+
+    document.addEventListener("scroll:initialize", handleScrollInit)
 
     return () => {
       document.removeEventListener("sectionInView", handleSectionInView)
+      document.removeEventListener("navigation:complete", handleNavigationComplete)
+      document.removeEventListener("scroll:initialize", handleScrollInit)
     }
-  }, [items])
+  }, [items, pathname, initializeScrollFunctionality])
 
   // Improved scroll function with useCallback for better performance
   const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
+
+    // Re-query the DOM to ensure we have the latest references
     const el = document.getElementById(id)
-    const scrollContainer = scrollContainerRef.current
+    const scrollContainer = document.querySelector(".scroll-container") || document.documentElement
+
+    console.log(`[DockLeft] Click handler for ${id}, element:`, el, "container:", scrollContainer)
 
     if (el && scrollContainer) {
       // Calculate the top position of the section relative to the scroll container
       const sectionTop = el.offsetTop
+
+      console.log(`[DockLeft] Scrolling to section ${id} at position ${sectionTop}`)
 
       // Scroll the container
       scrollContainer.scrollTo({
@@ -97,6 +135,8 @@ export default function DockLeft({ items }: Props) {
           },
         }),
       )
+    } else {
+      console.warn(`[DockLeft] Could not find section ${id} or scroll container`)
     }
   }, [])
 

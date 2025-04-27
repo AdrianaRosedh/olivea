@@ -1,17 +1,38 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { usePathname } from "next/navigation"
 
 export default function ScrollSync() {
   const scrollContainerRef = useRef<HTMLElement | null>(null)
   const isScrollingProgrammatically = useRef(false)
+  const pathname = usePathname() // Track pathname for navigation changes
+  const isInitializedRef = useRef(false)
+
+  // Function to initialize scroll functionality
+  const initializeScrollFunctionality = () => {
+    if (typeof window === "undefined") return
+
+    console.log("[ScrollSync] Initializing scroll functionality")
+
+    // Find the scroll container
+    scrollContainerRef.current = document.querySelector(".scroll-container") || document.documentElement
+
+    // Force a scroll event to activate listeners
+    window.scrollBy(0, 1)
+    window.scrollBy(0, -1)
+    window.dispatchEvent(new Event("scroll"))
+
+    // Mark as initialized
+    isInitializedRef.current = true
+  }
 
   useEffect(() => {
     // Only run on client side
     if (typeof window === "undefined") return
 
-    // Find the scroll container
-    scrollContainerRef.current = document.querySelector(".scroll-container") || document.documentElement
+    // Initialize on mount or navigation
+    initializeScrollFunctionality()
 
     // Function to handle section clicks
     const handleSectionClick = (e: MouseEvent) => {
@@ -25,8 +46,13 @@ export default function ScrollSync() {
         const targetId = href.replace("#", "")
         const targetSection = document.getElementById(targetId)
 
-        if (targetSection && scrollContainerRef.current) {
+        // Re-query the scroll container to ensure we have the latest reference
+        const scrollContainer = document.querySelector(".scroll-container") || document.documentElement
+
+        if (targetSection && scrollContainer) {
           e.preventDefault()
+
+          console.log(`[ScrollSync] Clicking to section ${targetId}`)
 
           // Mark that we're programmatically scrolling
           isScrollingProgrammatically.current = true
@@ -35,7 +61,7 @@ export default function ScrollSync() {
           const sectionTop = targetSection.offsetTop
 
           // Scroll to the section
-          scrollContainerRef.current.scrollTo({
+          scrollContainer.scrollTo({
             top: sectionTop,
             behavior: "smooth",
           })
@@ -108,6 +134,23 @@ export default function ScrollSync() {
       }
     }
 
+    // Listen for navigation events
+    const handleNavigationComplete = () => {
+      console.log("[ScrollSync] Navigation complete, reinitializing")
+      // Re-initialize after navigation
+      setTimeout(initializeScrollFunctionality, 100)
+    }
+
+    document.addEventListener("navigation:complete", handleNavigationComplete)
+
+    // Also listen for scroll initialization events
+    const handleScrollInit = () => {
+      console.log("[ScrollSync] Scroll initialize event received")
+      initializeScrollFunctionality()
+    }
+
+    document.addEventListener("scroll:initialize", handleScrollInit)
+
     // Add event listeners
     document.addEventListener("click", handleSectionClick)
     window.addEventListener("scroll", handleScroll, { passive: true })
@@ -119,8 +162,10 @@ export default function ScrollSync() {
     return () => {
       document.removeEventListener("click", handleSectionClick)
       window.removeEventListener("scroll", handleScroll)
+      document.removeEventListener("navigation:complete", handleNavigationComplete)
+      document.removeEventListener("scroll:initialize", handleScrollInit)
     }
-  }, [])
+  }, [pathname]) // Re-run when pathname changes
 
   return null // This component doesn't render anything
 }
