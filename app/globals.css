@@ -48,6 +48,11 @@
   --ring: #ccc;
   --sidebar: var(--olivea-sand);
   --sidebar-foreground: var(--olivea-ink);
+
+  /* Container query breakpoints */
+  --cq-sm: 20rem;
+  --cq-md: 40rem;
+  --cq-lg: 60rem;
 }
 /* =========================
    🌚 Dark Theme
@@ -418,4 +423,59 @@ blockquote {
 /* Footer hover styles */
 .footer-link:hover {
   color: var(--olivea-clay) !important;
+}
+
+@supports (container-type: inline-size) {
+  .cq-container {
+    container-type: inline-size;
+  }
+
+  .cq-sm\:text-lg {
+    @container (min-width: 20rem) {
+      font-size: 1.125rem;
+    }
+  }
+
+  .cq-md\:text-xl {
+    @container (min-width: 40rem) {
+      font-size: 1.25rem;
+    }
+  }
+
+  .cq-lg\:text-2xl {
+    @container (min-width: 60rem) {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+/* Ensure grid layout works properly */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Ensure flexbox layout works properly */
+.flex-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Add support for aspect ratio */
+.aspect-ratio {
+  aspect-ratio: var(--aspect-ratio, 1);
+}
+
+/* Add support for clamp */
+.text-clamp {
+  font-size: clamp(1rem, 2vw + 0.5rem, 1.5rem);
+}
+
+/* Add support for sticky positioning */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }

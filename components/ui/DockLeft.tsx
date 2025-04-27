@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
+import { EVENTS, emitEvent } from "@/lib/navigation-events"
 
 interface DockItem {
   id: string
@@ -22,10 +23,11 @@ export default function DockLeft({ items }: Props) {
   const [isAnimating, setIsAnimating] = useState(false)
   const scrollContainerRef = useRef<HTMLElement | null>(null)
   const mountedRef = useRef(false)
-  const pathname = usePathname() // Track pathname for navigation changes
+  const pathname = usePathname()
   const scrollAnimationRef = useRef<number | null>(null)
   const clickedSectionRef = useRef<string | null>(null)
-  const debugModeRef = useRef(false) // Set to true to enable debug logs
+  const debugModeRef = useRef(false)
+  const lastScrollTimeRef = useRef(0)
 
   // Debug logger that only logs if debug mode is enabled
   const debugLog = (...args: any[]) => {
@@ -49,6 +51,12 @@ export default function DockLeft({ items }: Props) {
     // Set animating state to prevent button jumps
     setIsAnimating(true)
 
+    // Record the time we started scrolling
+    lastScrollTimeRef.current = Date.now()
+
+    // Emit scroll start event for other components to sync with
+    emitEvent(EVENTS.SCROLL_START, { targetId: clickedSectionRef.current })
+
     // Easing function for smooth animation
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 
@@ -61,6 +69,13 @@ export default function DockLeft({ items }: Props) {
 
       if (scrollContainer) {
         scrollContainer.scrollTop = startPosition + distance * easedProgress
+
+        // Emit scroll progress event for other components to sync with
+        emitEvent(EVENTS.SCROLL_PROGRESS, {
+          progress: easedProgress,
+          targetId: clickedSectionRef.current,
+          scrollPosition: startPosition + distance * easedProgress,
+        })
       }
 
       if (progress < 1) {
@@ -68,12 +83,22 @@ export default function DockLeft({ items }: Props) {
       } else {
         // Animation complete
         scrollAnimationRef.current = null
+
+        // Emit scroll end event
+        emitEvent(EVENTS.SCROLL_COMPLETE, { targetId: clickedSectionRef.current })
+
         // Reset animating state after a short delay
         setTimeout(() => {
           setIsAnimating(false)
           // Clear clicked section after animation completes
           clickedSectionRef.current = null
-        }, 50)
+
+          // Force a scroll event to reactivate observers
+          window.dispatchEvent(new Event("scroll"))
+
+          // Re-enable scroll animations by dispatching a custom event
+          document.dispatchEvent(new CustomEvent("enableScrollAnimations", {}))
+        }, 100)
       }
     }
 
@@ -106,10 +131,10 @@ export default function DockLeft({ items }: Props) {
     const handleSectionInView = (e: Event) => {
       const customEvent = e as CustomEvent
 
-      // If this event is from a click and we're on mobile, always update the active ID
-      const isMobileDevice =
-        typeof navigator !== "undefined" &&
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      // If we recently scrolled (within 500ms), don't update from scroll events
+      if (Date.now() - lastScrollTimeRef.current < 500 && customEvent.detail?.fromScroll) {
+        return
+      }
 
       // If we have a clicked section, prioritize it
       if (clickedSectionRef.current && customEvent.detail?.id === clickedSectionRef.current) {
@@ -118,7 +143,7 @@ export default function DockLeft({ items }: Props) {
         return
       }
 
-      // Otherwise, update normally if not animating
+      // Otherwise, update normally if not animating or if this is from a click
       if (customEvent.detail?.id && (!isAnimating || customEvent.detail?.fromClick)) {
         debugLog(`Setting active ID to: ${customEvent.detail.id}`)
         setActiveId(customEvent.detail.id)
@@ -144,6 +169,27 @@ export default function DockLeft({ items }: Props) {
 
     document.addEventListener("scroll:initialize", handleScrollInit)
 
+    // Listen for scroll events from other components
+    const handleScrollSync = (e: Event) => {
+      const customEvent = e as CustomEvent
+      if (customEvent.detail?.targetId && !isAnimating) {
+        // Update our active ID to match the scrolled section
+        setActiveId(customEvent.detail.targetId)
+      }
+    }
+
+    document.addEventListener(EVENTS.SCROLL_START, handleScrollSync)
+
+    // Listen for the enableScrollAnimations event
+    const handleEnableScrollAnimations = () => {
+      debugLog("Re-enabling scroll animations")
+      // Reset animation state
+      setIsAnimating(false)
+      clickedSectionRef.current = null
+    }
+
+    document.addEventListener("enableScrollAnimations", handleEnableScrollAnimations)
+
     return () => {
       // Cancel any ongoing animation
       if (scrollAnimationRef.current !== null) {
@@ -153,6 +199,8 @@ export default function DockLeft({ items }: Props) {
       document.removeEventListener("sectionInView", handleSectionInView)
       document.removeEventListener("navigation:complete", handleNavigationComplete)
       document.removeEventListener("scroll:initialize", handleScrollInit)
+      document.removeEventListener(EVENTS.SCROLL_START, handleScrollSync)
+      document.removeEventListener("enableScrollAnimations", handleEnableScrollAnimations)
     }
   }, [items, pathname, initializeScrollFunctionality, isAnimating])
 
@@ -208,81 +256,78 @@ export default function DockLeft({ items }: Props) {
     [isAnimating],
   )
 
-  // Find the longest label to determine width
-  const maxLabelLength = Math.max(...items.map((item) => item.label.length))
-  // Calculate width based on label length (approximately 12px per character for this font)
-  const labelWidth = Math.max(120, maxLabelLength * 12) // Minimum 120px, or calculated width
-
   return (
-    <nav
-      className="hidden md:flex flex-col gap-6 items-start text-xl font-bold tracking-widest uppercase"
-      aria-label="Section navigation"
-    >
-      {items.map((item) => {
-        const isHovered = hoveredId === item.id
-        const isActive = activeId === item.id
-        const isAnimated = isActive || isHovered
+    <nav className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40" aria-label="Section navigation">
+      <div className="flex flex-col gap-6">
+        {items.map((item) => {
+          const isHovered = hoveredId === item.id
+          const isActive = activeId === item.id
+          const isAnimated = isActive || isHovered
 
-        return (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            onClick={(e) => handleClick(e, item.id)}
-            onMouseEnter={() => !isAnimating && setHoveredId(item.id)}
-            onMouseLeave={() => !isAnimating && setHoveredId(null)}
-            className={cn(
-              "group relative flex items-center space-x-4 transition-all duration-500 cursor-pointer",
-              isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100",
-              isAnimating ? "pointer-events-none" : "", // Disable pointer events during animation
-            )}
-            aria-current={isActive ? "location" : undefined}
-            aria-label={`Navigate to ${item.label} section`}
-            data-active={isActive ? "true" : "false"} // Add data attribute for debugging
-          >
-            <span className="text-2xl tabular-nums font-extrabold" aria-hidden="true">
-              {item.number}
-            </span>
-
-            {/* Text reveal container with fixed height and overflow hidden */}
-            <div className="relative h-8 overflow-hidden" style={{ width: `${labelWidth}px` }}>
-              <div className="relative">
-                {/* Top text that slides up and out */}
-                <motion.div
-                  className="block text-2xl font-bold absolute whitespace-nowrap"
-                  animate={{
-                    y: isAnimated ? -24 : 0,
-                    filter: isAnimated ? "blur(0.6px)" : "blur(0px)",
-                  }}
-                  transition={{
-                    y: { type: "spring", stiffness: 140, damping: 18 },
-                    filter: { duration: 0.25, ease: "easeOut" },
-                  }}
-                  aria-hidden="true"
-                >
-                  {item.label.toUpperCase()}
-                </motion.div>
-
-                {/* Bottom text that slides up into view */}
-                <motion.div
-                  className="block text-2xl font-bold absolute top-0 left-0 whitespace-nowrap"
-                  initial={{ y: 24, filter: "blur(0.6px)" }}
-                  animate={{
-                    y: isAnimated ? 0 : 24,
-                    filter: isAnimated ? "blur(0px)" : "blur(0.6px)",
-                  }}
-                  transition={{
-                    y: { type: "spring", stiffness: 140, damping: 18 },
-                    filter: { duration: 0.25, ease: "easeOut" },
-                  }}
-                  aria-hidden="true"
-                >
-                  {item.label.toUpperCase()}
-                </motion.div>
+          return (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              onClick={(e) => handleClick(e, item.id)}
+              onMouseEnter={() => !isAnimating && setHoveredId(item.id)}
+              onMouseLeave={() => !isAnimating && setHoveredId(null)}
+              className={cn(
+                "group relative flex items-center gap-4 transition-all duration-500 cursor-pointer",
+                isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100",
+                isAnimating ? "pointer-events-none" : "", // Disable pointer events during animation
+              )}
+              aria-current={isActive ? "location" : undefined}
+              aria-label={`Navigate to ${item.label} section`}
+              data-active={isActive ? "true" : "false"}
+            >
+              {/* Number */}
+              <div className="flex-shrink-0 w-10">
+                <span className="text-2xl tabular-nums font-extrabold" aria-hidden="true">
+                  {item.number}
+                </span>
               </div>
-            </div>
-          </a>
-        )
-      })}
+
+              {/* Text container with CSS Grid for better layout control */}
+              <div className="relative h-8 overflow-hidden min-w-[200px]">
+                <div className="grid grid-cols-1 grid-rows-1">
+                  {/* Top text that slides up and out */}
+                  <motion.div
+                    className="col-start-1 row-start-1 text-2xl font-bold whitespace-nowrap"
+                    animate={{
+                      y: isAnimated ? -24 : 0,
+                      filter: isAnimated ? "blur(0.6px)" : "blur(0px)",
+                    }}
+                    transition={{
+                      y: { type: "spring", stiffness: 140, damping: 18 },
+                      filter: { duration: 0.25, ease: "easeOut" },
+                    }}
+                    aria-hidden="true"
+                  >
+                    {item.label.toUpperCase()}
+                  </motion.div>
+
+                  {/* Bottom text that slides up into view */}
+                  <motion.div
+                    className="col-start-1 row-start-1 text-2xl font-bold whitespace-nowrap"
+                    initial={{ y: 24, filter: "blur(0.6px)" }}
+                    animate={{
+                      y: isAnimated ? 0 : 24,
+                      filter: isAnimated ? "blur(0px)" : "blur(0.6px)",
+                    }}
+                    transition={{
+                      y: { type: "spring", stiffness: 140, damping: 18 },
+                      filter: { duration: 0.25, ease: "easeOut" },
+                    }}
+                    aria-hidden="true"
+                  >
+                    {item.label.toUpperCase()}
+                  </motion.div>
+                </div>
+              </div>
+            </a>
+          )
+        })}
+      </div>
     </nav>
   )
 }

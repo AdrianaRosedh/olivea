@@ -139,6 +139,18 @@ export default function ScrollSync() {
               },
             }),
           )
+
+          // After animation completes, re-enable scroll animations
+          setTimeout(() => {
+            isScrollingProgrammatically.current = false
+            clickedSectionRef.current = null
+
+            // Force a scroll event to reactivate observers
+            window.dispatchEvent(new Event("scroll"))
+
+            // Re-enable scroll animations by dispatching a custom event
+            document.dispatchEvent(new CustomEvent("enableScrollAnimations", {}))
+          }, 900) // Slightly longer than the animation duration
         }
       }
     }
