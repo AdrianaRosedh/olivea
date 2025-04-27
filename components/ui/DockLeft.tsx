@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState, useTransition, useCallback } from "react"
+import { useEffect, useState, useTransition, useCallback, useRef } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -20,15 +20,20 @@ export default function DockLeft({ items }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   // Use React 19's useTransition for smoother UI during scrolling
   const [isPending, startTransition] = useTransition()
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+
+  // Find the scroll container on mount
+  useEffect(() => {
+    scrollContainerRef.current = document.querySelector(".scroll-container")
+  }, [])
 
   // Use Intersection Observer API for better performance
   useEffect(() => {
     if (typeof window === "undefined") return
 
     // Create observers for each section
-    const observers: IntersectionObserver[] = []
     const observerOptions = {
-      root: null,
+      root: scrollContainerRef.current,
       rootMargin: "-10% 0px -40% 0px", // Adjust these values for better detection
       threshold: [0.1, 0.5, 0.9],
     }
@@ -73,17 +78,23 @@ export default function DockLeft({ items }: Props) {
   const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
     const el = document.getElementById(id)
+    const scrollContainer = scrollContainerRef.current
 
-    if (el) {
+    if (el && scrollContainer) {
       // Use the new View Transitions API if available
       if ("startViewTransition" in document && typeof (document as any).startViewTransition === "function") {
         ;(document as any).startViewTransition(() => {
-          el.scrollIntoView({
+          // Calculate the top position of the section relative to the scroll container
+          const sectionTop = el.offsetTop
+
+          // Scroll the container
+          scrollContainer.scrollTo({
+            top: sectionTop,
             behavior: "smooth",
-            block: "center",
           })
         })
       } else {
+        // Fallback for browsers without View Transitions API
         el.scrollIntoView({
           behavior: "smooth",
           block: "center",

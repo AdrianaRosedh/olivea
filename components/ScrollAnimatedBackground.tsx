@@ -1,37 +1,59 @@
 "use client"
 
-import { useRef, useState } from "react"
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
+import { motion } from "framer-motion"
 
 export default function ScrollAnimatedBackground() {
   const [scrollProgress, setScrollProgress] = useState(0)
-  const containerRef = useRef(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null)
 
-  // Use scroll progress from the document
-  const { scrollYProgress } = useScroll({
-    // Don't specify a target to track the entire viewport scroll
-    offset: ["start start", "end end"],
-  })
+  // Find the scroll container on mount
+  useEffect(() => {
+    // First try to find the .scroll-container element
+    const container = document.querySelector<HTMLElement>(".scroll-container")
+    setScrollContainer(container)
 
-  // Log scroll progress for debugging
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    setScrollProgress(latest)
-  })
+    // If not found, fall back to document.documentElement
+    if (!container) {
+      console.warn("Scroll container not found, falling back to document")
+      setScrollContainer(document.documentElement)
+    }
+  }, [])
 
-  // Make the animation values more pronounced
+  // Manual scroll tracking for more reliable results
+  useEffect(() => {
+    if (!scrollContainer) return
 
-  // Light transition values - more dramatic shifts
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.8])
-  const lightHue = useTransform(scrollYProgress, [0, 0.5, 1], [20, 45, 10]) // Golden → Bright → Warm
-  const lightSaturation = useTransform(scrollYProgress, [0, 0.5, 1], [90, 30, 80]) // %
-  const lightBrightness = useTransform(scrollYProgress, [0, 0.5, 1], [85, 105, 80]) // %
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer
+      const maxScroll = scrollHeight - clientHeight
+      const current = scrollTop / maxScroll
+      setScrollProgress(current || 0) // Ensure we don't get NaN
+    }
 
+    // Initial calculation
+    handleScroll()
 
-  // Combine light values into a CSS filter
-  const lightFilter = useTransform(
-    [lightHue, lightSaturation, lightBrightness],
-    ([h, s, l]) => `hue-rotate(${h}deg) saturate(${s}%) brightness(${l}%)`,
-  )
+    // Add event listener
+    scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
+
+    // Cleanup
+    return () => {
+      scrollContainer.removeEventListener("scroll", handleScroll)
+    }
+  }, [scrollContainer])
+
+  // Calculate derived values based on scroll progress
+  const opacity = scrollProgress < 0.01 ? 0.8 : scrollProgress > 0.99 ? 0.8 : 1
+
+  // Map scroll progress to hue, saturation, and brightness values
+  const hue = 20 + (scrollProgress < 0.5 ? scrollProgress * 50 : (1 - scrollProgress) * 50)
+  const saturation = 90 - scrollProgress * 60 + (scrollProgress > 0.5 ? (scrollProgress - 0.5) * 100 : 0)
+  const brightness = 85 + scrollProgress * 40 - (scrollProgress > 0.5 ? (scrollProgress - 0.5) * 90 : 0)
+
+  // Create the CSS filter string
+  const filterStyle = `hue-rotate(${hue}deg) saturate(${saturation}%) brightness(${brightness}%)`
 
   return (
     <>
@@ -41,15 +63,15 @@ export default function ScrollAnimatedBackground() {
       </div>
 
       <div ref={containerRef} className="fixed inset-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        {/* Base layer */}
+        {/* Base layer - Updated with lightened colors */}
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--olivea-cream)] to-[var(--olivea-shell)]" />
 
-        {/* Light transition layer */}
+        {/* Light transition layer - Updated with lightened colors */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-[#f8e3c5] via-[#e9e8e5] to-[#d8d0c0]"
+          className="absolute inset-0 bg-gradient-to-br from-[#e8e4d5] via-[#e0d9c5] to-[#d5ceb8]"
           style={{
             opacity,
-            filter: lightFilter,
+            filter: filterStyle,
           }}
         />
 

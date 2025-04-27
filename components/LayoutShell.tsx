@@ -49,7 +49,20 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
 
       if (element) {
         setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth", block: "center" })
+          // Find the scroll container if it exists
+          const scrollContainer = document.querySelector(".scroll-container")
+
+          if (scrollContainer && element.closest(".scroll-container")) {
+            // If the element is inside a scroll container, scroll the container
+            const sectionTop = element.offsetTop
+            scrollContainer.scrollTo({
+              top: sectionTop,
+              behavior: "smooth",
+            })
+          } else {
+            // Otherwise use standard scrollIntoView
+            element.scrollIntoView({ behavior: "smooth", block: "center" })
+          }
         }, 500)
       }
     }

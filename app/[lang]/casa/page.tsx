@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getDictionary } from "../dictionaries"
 import ScrollToSection from "@/components/ScrollToSection"
+import { TypographyH2, TypographyP } from "@/components/ui/Typography"
 
 // Define metadata for better SEO
 export async function generateMetadata({ params }: { params: Promise<{ lang: "en" | "es" }> }): Promise<Metadata> {
@@ -84,60 +85,52 @@ export default async function CasaPage({
       <ScrollToSection />
 
       {/* Make sure this div has the scroll-container class for ScrollToSection.tsx */}
-      <div className="min-h-screen scroll-container">
+      <div className="min-h-screen scroll-container snap-y snap-mandatory overflow-y-auto">
         {/* Rooms Section - Improved with semantic HTML and accessibility */}
         <section
           id="rooms"
-          className="min-h-screen w-full flex items-center justify-center px-6"
+          className="min-h-screen w-full flex items-center justify-center px-6 snap-center snap-always"
           aria-labelledby="rooms-heading"
         >
           <div>
-            <h2 id="rooms-heading" className="text-2xl font-semibold">
-              {dict.casa.sections.rooms.title}
-            </h2>
-            <p className="mt-2 text-muted-foreground">{dict.casa.sections.rooms.description}</p>
+            <TypographyH2 id="rooms-heading">{dict.casa.sections.rooms.title}</TypographyH2>
+            <TypographyP className="mt-2">{dict.casa.sections.rooms.description}</TypographyP>
           </div>
         </section>
 
         {/* Breakfast Section - Improved with semantic HTML and accessibility */}
         <section
           id="breakfast"
-          className="min-h-screen w-full flex items-center justify-center px-6"
+          className="min-h-screen w-full flex items-center justify-center px-6 snap-center snap-always"
           aria-labelledby="breakfast-heading"
         >
           <div>
-            <h2 id="breakfast-heading" className="text-2xl font-semibold">
-              {dict.casa.sections.breakfast.title}
-            </h2>
-            <p className="mt-2 text-muted-foreground">{dict.casa.sections.breakfast.description}</p>
+            <TypographyH2 id="breakfast-heading">{dict.casa.sections.breakfast.title}</TypographyH2>
+            <TypographyP className="mt-2">{dict.casa.sections.breakfast.description}</TypographyP>
           </div>
         </section>
 
         {/* Experiences Section - Improved with semantic HTML and accessibility */}
         <section
           id="experiences"
-          className="min-h-screen w-full flex items-center justify-center px-6"
+          className="min-h-screen w-full flex items-center justify-center px-6 snap-center snap-always"
           aria-labelledby="experiences-heading"
         >
           <div>
-            <h2 id="experiences-heading" className="text-2xl font-semibold">
-              {dict.casa.sections.experiences.title}
-            </h2>
-            <p className="mt-2 text-muted-foreground">{dict.casa.sections.experiences.description}</p>
+            <TypographyH2 id="experiences-heading">{dict.casa.sections.experiences.title}</TypographyH2>
+            <TypographyP className="mt-2">{dict.casa.sections.experiences.description}</TypographyP>
           </div>
         </section>
 
         {/* Location Section - Improved with semantic HTML and accessibility */}
         <section
           id="location"
-          className="min-h-screen w-full flex items-center justify-center px-6 mb-0"
+          className="min-h-screen w-full flex items-center justify-center px-6 mb-0 snap-center snap-always"
           aria-labelledby="location-heading"
         >
           <div>
-            <h2 id="location-heading" className="text-2xl font-semibold">
-              {dict.casa.sections.location.title}
-            </h2>
-            <p className="mt-2 text-muted-foreground">{dict.casa.sections.location.description}</p>
+            <TypographyH2 id="location-heading">{dict.casa.sections.location.title}</TypographyH2>
+            <TypographyP className="mt-2">{dict.casa.sections.location.description}</TypographyP>
           </div>
         </section>
       </div>

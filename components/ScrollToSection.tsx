@@ -1,11 +1,17 @@
 "use client"
 
-import { useEffect, useTransition, useState, useCallback } from "react"
+import { useEffect, useTransition, useState, useCallback, useRef } from "react"
 
 export default function ScrollToSection() {
   // Use React 19's useTransition for smoother UI during scrolling
   const [isPending, startTransition] = useTransition()
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+
+  // Find the scroll container on mount
+  useEffect(() => {
+    scrollContainerRef.current = document.querySelector(".scroll-container")
+  }, [])
 
   // Memoized scroll function with useCallback
   const scrollToSection = useCallback((sectionId: string) => {
@@ -13,7 +19,7 @@ export default function ScrollToSection() {
     if (!section) return
 
     // Find the scroll container
-    const scrollContainer = document.querySelector(".scroll-container")
+    const scrollContainer = scrollContainerRef.current
     if (!scrollContainer) return
 
     // Start transition for smoother UI updates
@@ -24,21 +30,17 @@ export default function ScrollToSection() {
       // Use the new View Transitions API if available
       if ("startViewTransition" in document && typeof (document as any).startViewTransition === "function") {
         ;(document as any).startViewTransition(() => {
-          // Calculate the top position of the section
-          const sectionTop = section.offsetTop
-
-          // Scroll the container with improved animation
-          scrollContainer.scrollTo({
-            top: sectionTop,
+          // Scroll to the section with smooth behavior
+          section.scrollIntoView({
             behavior: "smooth",
+            block: "center",
           })
         })
       } else {
         // Fallback for browsers without View Transitions API
-        const sectionTop = section.offsetTop
-        scrollContainer.scrollTo({
-          top: sectionTop,
+        section.scrollIntoView({
           behavior: "smooth",
+          block: "center",
         })
       }
     })
@@ -46,7 +48,7 @@ export default function ScrollToSection() {
 
   // Handle initial hash in URL
   useEffect(() => {
-    if (window.location.hash) {
+    if (typeof window !== "undefined" && window.location.hash) {
       const sectionId = window.location.hash.substring(1)
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => scrollToSection(sectionId), 100)

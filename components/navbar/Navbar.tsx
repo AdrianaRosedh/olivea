@@ -8,7 +8,7 @@ import MobileDrawer from "@/components/navbar/MobileDrawer"
 import MenuToggle from "@/components/navbar/MenuToggle"
 import { MobileNav } from "@/components/navbar/MobileNav"
 import MagneticButton from "@/components/ui/MagneticButton"
-import { Circle } from "lucide-react"
+import { default as OliveaFTTLogo } from "@/assets/OliveaFTTIcon.svg"
 
 interface NavbarProps {
   lang: "en" | "es"
@@ -47,9 +47,7 @@ export default function Navbar({ lang }: NavbarProps) {
             {/* Left: Logo */}
             <div className="flex-1 flex items-center justify-start">
               <Link href={`/${lang}`} aria-label="Home">
-                <div className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 text-[var(--olivea-olive)]">
-                  <Circle className="w-full h-full" />
-                </div>
+                <OliveaFTTLogo className="h-10 md:h-16 lg:h-20 text-[var(--olivea-olive)]" aria-label="Olivea Logo" />
               </Link>
             </div>
 
@@ -62,6 +60,7 @@ export default function Navbar({ lang }: NavbarProps) {
                   className={cn(
                     "px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap",
                     "rounded-md border border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-medium text-base uppercase transition-colors flex items-center justify-center",
+                    "font-sans tracking-wide", // Added explicit font class
                     pathname === item.href
                       ? "bg-[var(--olivea-olive)] text-white"
                       : "hover:bg-[var(--olivea-olive)] hover:text-white",
@@ -76,7 +75,7 @@ export default function Navbar({ lang }: NavbarProps) {
             <div className="hidden md:flex flex-1 justify-end items-center">
               <MagneticButton
                 href={`/${lang}/reservations`}
-                className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
+                className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors font-sans"
               >
                 Reservar
               </MagneticButton>
