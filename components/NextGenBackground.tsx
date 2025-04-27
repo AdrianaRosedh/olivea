@@ -1,42 +1,50 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 
 export default function NextGenBackground() {
-  const baseLayerRef = useRef<HTMLDivElement>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
   const gradientLayerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Get references to the DOM elements
-    const gradientLayer = gradientLayerRef.current
-    if (!gradientLayer) return
-
     // Function to update background based on scroll
     const updateBackground = () => {
-      const scrollTop = window.scrollY
-      const scrollHeight = document.documentElement.scrollHeight
-      const clientHeight = window.innerHeight
+      // Find the scroll container
+      const scrollContainer = document.querySelector(".scroll-container") || document.documentElement
+
+      // Get scroll values from the appropriate container
+      const scrollTop = scrollContainer.scrollTop
+      const scrollHeight = scrollContainer.scrollHeight
+      const clientHeight = scrollContainer.clientHeight
+
+      // Calculate progress (0 to 1)
       const maxScroll = Math.max(1, scrollHeight - clientHeight)
       const progress = Math.min(1, scrollTop / maxScroll)
 
-      // Calculate values based on scroll progress
-      const opacity = progress < 0.01 ? 0.8 : progress > 0.99 ? 0.8 : 1
-      const hue = 20 + (progress < 0.5 ? progress * 50 : (1 - progress) * 50)
-      const saturation = 90 - progress * 60 + (progress > 0.5 ? (progress - 0.5) * 100 : 0)
-      const brightness = 85 + progress * 40 - (progress > 0.5 ? (progress - 0.5) * 90 : 0)
+      setScrollProgress(progress)
 
-      // Update the DOM directly
-      gradientLayer.style.opacity = opacity.toString()
-      gradientLayer.style.filter = `hue-rotate(${hue}deg) saturate(${saturation}%) brightness(${brightness}%)`
+      // Update the gradient layer directly
+      if (gradientLayerRef.current) {
+        // Calculate values based on scroll progress
+        const opacity = progress < 0.01 ? 0.8 : progress > 0.99 ? 0.8 : 1
+        const hue = 20 + (progress < 0.5 ? progress * 50 : (1 - progress) * 50)
+        const saturation = 90 - progress * 60 + (progress > 0.5 ? (progress - 0.5) * 100 : 0)
+        const brightness = 85 + progress * 40 - (progress > 0.5 ? (progress - 0.5) * 90 : 0)
+
+        // Update the DOM directly
+        gradientLayerRef.current.style.opacity = opacity.toString()
+        gradientLayerRef.current.style.filter = `hue-rotate(${hue}deg) saturate(${saturation}%) brightness(${brightness}%)`
+      }
     }
 
     // Update immediately
     updateBackground()
 
     // Use passive event listener for better performance
-    window.addEventListener("scroll", updateBackground, { passive: true })
+    const scrollContainer = document.querySelector(".scroll-container") || window
+    scrollContainer.addEventListener("scroll", updateBackground, { passive: true })
 
     // Force multiple updates to ensure it works
     const timers = [
@@ -47,7 +55,7 @@ export default function NextGenBackground() {
 
     // Cleanup
     return () => {
-      window.removeEventListener("scroll", updateBackground)
+      scrollContainer.removeEventListener("scroll", updateBackground)
       timers.forEach(clearTimeout)
     }
   }, [])
@@ -55,10 +63,7 @@ export default function NextGenBackground() {
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
       {/* Base layer */}
-      <div
-        ref={baseLayerRef}
-        className="absolute inset-0 bg-gradient-to-b from-[var(--olivea-cream)] to-[var(--olivea-shell)]"
-      />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--olivea-cream)] to-[var(--olivea-shell)]" />
 
       {/* Gradient layer */}
       <div

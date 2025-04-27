@@ -54,7 +54,7 @@ export default function DockLeft({ items }: Props) {
           }),
         )
       }
-    }, 100)
+    }, 200)
 
     return () => {
       document.removeEventListener("sectionInView", handleSectionInView)
@@ -68,25 +68,14 @@ export default function DockLeft({ items }: Props) {
     const scrollContainer = scrollContainerRef.current
 
     if (el && scrollContainer) {
-      // Use the new View Transitions API if available
-      if ("startViewTransition" in document && typeof (document as any).startViewTransition === "function") {
-        ;(document as any).startViewTransition(() => {
-          // Calculate the top position of the section relative to the scroll container
-          const sectionTop = el.offsetTop
+      // Calculate the top position of the section relative to the scroll container
+      const sectionTop = el.offsetTop
 
-          // Scroll the container
-          scrollContainer.scrollTo({
-            top: sectionTop,
-            behavior: "smooth",
-          })
-        })
-      } else {
-        // Fallback for browsers without View Transitions API
-        el.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        })
-      }
+      // Scroll the container
+      scrollContainer.scrollTo({
+        top: sectionTop,
+        behavior: "smooth",
+      })
 
       // Provide haptic feedback if available
       if (window.navigator.vibrate) {
@@ -96,19 +85,18 @@ export default function DockLeft({ items }: Props) {
       // Update URL without reload
       window.history.pushState(null, "", `#${id}`)
 
-      // Update active state
+      // Update active state immediately for better UX
       setActiveId(id)
-    }
-  }, [])
 
-  // Force re-render on mount to ensure proper initialization
-  useEffect(() => {
-    if (mountedRef.current) {
-      const timer = setTimeout(() => {
-        setActiveId((current) => current) // Force re-render
-      }, 200)
-
-      return () => clearTimeout(timer)
+      // Also dispatch the event to ensure other components update
+      document.dispatchEvent(
+        new CustomEvent("sectionInView", {
+          detail: {
+            id,
+            intersectionRatio: 1.0,
+          },
+        }),
+      )
     }
   }, [])
 

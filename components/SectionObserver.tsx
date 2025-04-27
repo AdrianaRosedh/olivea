@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface SectionObserverProps {
   sectionIds: string[]
@@ -9,6 +9,7 @@ interface SectionObserverProps {
 export default function SectionObserver({ sectionIds }: SectionObserverProps) {
   const observersRef = useRef<IntersectionObserver[]>([])
   const activeIdRef = useRef<string | null>(null)
+  const [initialized, setInitialized] = useState(false)
 
   // Function to create and start observers
   const initializeObservers = () => {
@@ -31,8 +32,8 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
       )
     }
 
-    // Create observers for each section
-    sectionIds.forEach((id) => {
+    // Create observers for each section with different thresholds
+    sectionIds.forEach((id, index) => {
       const section = document.getElementById(id)
       if (!section) {
         console.warn(`[SectionObserver] Section with id "${id}" not found`)
@@ -42,9 +43,11 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+            // Use a higher threshold for determining active section
+            if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
               // Only update if this is a new active section
               if (activeIdRef.current !== id) {
+                console.log(`[SectionObserver] Section in view: ${id} (ratio: ${entry.intersectionRatio.toFixed(2)})`)
                 activeIdRef.current = id
 
                 // Dispatch custom event when section is in view
@@ -62,8 +65,10 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
         },
         {
           root: null,
-          rootMargin: "-20% 0px -30% 0px",
-          threshold: [0.1, 0.3, 0.5, 0.7],
+          // Adjust rootMargin based on section position
+          rootMargin: "-15% 0px -35% 0px",
+          // Use more threshold points for smoother detection
+          threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
         },
       )
 
@@ -71,6 +76,7 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
       observersRef.current.push(observer)
     })
 
+    setInitialized(true)
     console.log("[SectionObserver] Observers initialized")
   }
 
@@ -78,8 +84,10 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
     // Prevent hydration issues by only running on client
     if (typeof window === "undefined") return
 
-    // Initialize observers
-    initializeObservers()
+    // Initialize observers with a slight delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      initializeObservers()
+    }, 100)
 
     // Listen for reinitialize event
     const handleReinitialize = () => {
@@ -89,19 +97,32 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
 
     document.addEventListener("observers:reinitialize", handleReinitialize)
 
-    // Also initialize on scroll
-    const handleScroll = () => {
-      initializeObservers()
-    }
-
-    window.addEventListener("scroll", handleScroll, { once: true, passive: true })
+    // Force a scroll event after initialization
+    const scrollTimer = setTimeout(() => {
+      window.dispatchEvent(new Event("scroll"))
+    }, 200)
 
     return () => {
+      clearTimeout(timer)
+      clearTimeout(scrollTimer)
       observersRef.current.forEach((observer) => observer.disconnect())
-      window.removeEventListener("scroll", handleScroll)
       document.removeEventListener("observers:reinitialize", handleReinitialize)
     }
   }, [sectionIds])
+
+  // Force reinitialization on scroll if not initialized
+  useEffect(() => {
+    if (!initialized) {
+      const handleScroll = () => {
+        if (!initialized) {
+          initializeObservers()
+        }
+      }
+
+      window.addEventListener("scroll", handleScroll, { once: true, passive: true })
+      return () => window.removeEventListener("scroll", handleScroll)
+    }
+  }, [initialized])
 
   return null // This component doesn't render anything
 }

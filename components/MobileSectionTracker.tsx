@@ -38,7 +38,7 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
               // When section is visible, dispatch a custom event that the MobileSectionNav can listen for
               const event = new CustomEvent("sectionInView", {
                 detail: { id, intersectionRatio: entry.intersectionRatio },
@@ -49,14 +49,9 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
         },
         {
           root: null,
-          // Adjust rootMargin based on section position (different for first/last sections)
-          rootMargin:
-            index === 0
-              ? "-10% 0px -50% 0px"
-              : index === sectionIds.length - 1
-                ? "-50% 0px -10% 0px"
-                : "-30% 0px -30% 0px",
-          threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+          // Use consistent rootMargin for all sections
+          rootMargin: "-20% 0px -40% 0px",
+          threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
         },
       )
 
@@ -72,17 +67,21 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
   }
 
   useEffect(() => {
-    // Initialize observers
-    initializeObservers()
+    // Initialize observers with a slight delay
+    const timer = setTimeout(() => {
+      initializeObservers()
+    }, 200)
 
     // Force a scroll event to initialize section detection
-    setTimeout(() => {
+    const scrollTimer = setTimeout(() => {
       window.dispatchEvent(new Event("scroll"))
-    }, 100)
+    }, 300)
 
     return () => {
       // Clean up all observers
       observersRef.current.forEach((observer) => observer.disconnect())
+      clearTimeout(timer)
+      clearTimeout(scrollTimer)
     }
   }, [sectionIds, pathname]) // Re-initialize on path change
 
