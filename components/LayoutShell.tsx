@@ -12,7 +12,10 @@ import MobileSectionNav from "@/components/ui/MobileSectionNav"
 import { cn } from "@/lib/utils"
 import { memo, useEffect } from "react"
 import ScrollToTop from "@/components/ScrollToTop"
-import ScrollAnimatedBackground from "@/components/ScrollAnimatedBackground"
+import ClientOnly from "@/components/ClientOnly"
+import NextGenScrollIndicator from "@/components/NextGenScrollIndicator"
+import NextGenBackground from "@/components/NextGenBackground"
+import ScrollDebug from "@/components/ScrollDebug"
 
 type LayoutShellProps = {
   lang: string
@@ -23,6 +26,29 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
   const pathname = usePathname()
   const isHome = pathname === `/${lang}`
   const isCasaPage = pathname.includes("/casa")
+
+  // Force scroll events after component mounts
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    if (isHome) return
+
+    // Force scroll events to ensure components update
+    const forceScrollEvents = () => {
+      window.dispatchEvent(new Event("scroll"))
+    }
+
+    // Schedule multiple attempts
+    const timers = [
+      setTimeout(forceScrollEvents, 0),
+      setTimeout(forceScrollEvents, 100),
+      setTimeout(forceScrollEvents, 500),
+      setTimeout(forceScrollEvents, 1000),
+    ]
+
+    return () => {
+      timers.forEach(clearTimeout)
+    }
+  }, [isHome, pathname])
 
   const dockLeftItems = isCasaPage
     ? [
@@ -48,36 +74,13 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
       ]
     : []
 
-  // Initialize scroll behavior
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Small delay to ensure hydration is complete
-      const timer = setTimeout(() => {
-        // Force a tiny scroll to activate scroll listeners
-        window.scrollBy(0, 1)
-        window.scrollBy(0, -1)
-
-        // Re-apply any hash scrolling
-        if (window.location.hash) {
-          const id = window.location.hash.substring(1)
-          const element = document.getElementById(id)
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth" })
-          }
-        }
-      }, 200)
-
-      return () => clearTimeout(timer)
-    }
-  }, [])
-
   return (
     <>
-      {/* Skip to main content link for accessibility - only visible when focused */}
+      {/* Skip to main content link for accessibility */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[1001] focus:bg-white focus:px-4 focus:py-2 focus:text-black"
-        tabIndex={isHome ? -1 : 0} // Disable on homepage
+        tabIndex={isHome ? -1 : 0}
         aria-hidden={isHome}
       >
         Skip to main content
@@ -85,19 +88,9 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
       {!isHome && <Navbar lang={lang} />}
 
-      {!isHome && mobileDockItems.length > 0 && (
-        <div className="md:hidden sticky top-[5rem] z-40 bg-transparent backdrop-blur-md border-b border-[var(--olivea-soil)]/10">
-          <MobileSectionNav items={mobileDockItems} />
-        </div>
-      )}
-
       <main
         id="main-content"
-        className={cn(
-          "relative w-full",
-          isHome ? "" : "max-w-7xl mx-auto px-1",
-          isCasaPage && "pb-16", // Simplified - removed scroll properties
-        )}
+        className={cn("relative w-full", isHome ? "" : "max-w-7xl mx-auto px-1", isCasaPage && "pb-16")}
       >
         {children}
       </main>
@@ -105,37 +98,59 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
       {/* Restore footer for all non-home pages */}
       {!isHome && <Footer />}
 
-      {/* Left Dock */}
+      {/* Mobile section navigation - moved to bottom and only rendered on client */}
+      {!isHome && mobileDockItems.length > 0 && (
+        <ClientOnly>
+          <div className="md:hidden fixed bottom-[68px] left-0 right-0 z-40 bg-transparent backdrop-blur-md border-t border-b border-[var(--olivea-soil)]/10 w-full">
+            <MobileSectionNav items={mobileDockItems} />
+          </div>
+        </ClientOnly>
+      )}
+
+      {/* Left Dock - only rendered on client */}
       {!isHome && dockLeftItems.length > 0 && (
-        <div className="hidden md:flex fixed top-1/2 left-6 -translate-y-1/2 z-40">
-          <DockLeft items={dockLeftItems} />
-        </div>
+        <ClientOnly>
+          <div className="hidden md:flex fixed top-1/2 left-6 -translate-y-1/2 z-40">
+            <DockLeft items={dockLeftItems} />
+          </div>
+        </ClientOnly>
       )}
 
-      {/* Right Dock */}
+      {/* Right Dock - only rendered on client */}
       {!isHome && (
-        <div className="hidden md:flex fixed top-1/2 right-6 -translate-y-1/2 z-40">
-          <DockRight items={dockRightItems} />
-        </div>
+        <ClientOnly>
+          <div className="hidden md:flex fixed top-1/2 right-6 -translate-y-1/2 z-40">
+            <DockRight items={dockRightItems} />
+          </div>
+        </ClientOnly>
       )}
 
-      {/* Chat Button - Improved with accessibility */}
+      {/* Chat Button - only rendered on client */}
       {!isHome && (
-        <div className="hidden md:block">
-          <MagneticButton
-            href="#chat"
-            aria-label="Open Chat"
-            className="fixed bottom-20 right-6 z-50 flex items-center justify-center w-14 h-14 
-              bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] 
-              transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]"
-          >
-            <MessageCircle className="w-6 h-6" />
-          </MagneticButton>
-        </div>
+        <ClientOnly>
+          <div className="hidden md:block">
+            <MagneticButton
+              href="#chat"
+              aria-label="Open Chat"
+              className="fixed bottom-20 right-6 z-50 flex items-center justify-center w-14 h-14 
+                bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] 
+                transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]"
+            >
+              <MessageCircle className="w-6 h-6" />
+            </MagneticButton>
+          </div>
+        </ClientOnly>
       )}
 
-      {!isHome && <ScrollToTop />}
-      {!isHome && <ScrollAnimatedBackground />}
+      {/* Scroll components - directly rendered for reliability */}
+      {!isHome && (
+        <>
+          <ScrollToTop />
+          <NextGenBackground />
+          <NextGenScrollIndicator />
+          <ScrollDebug />
+        </>
+      )}
     </>
   )
 }

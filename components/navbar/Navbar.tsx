@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import MobileDrawer from "@/components/navbar/MobileDrawer"
 import MenuToggle from "@/components/navbar/MenuToggle"
@@ -20,10 +20,15 @@ export default function Navbar({ lang }: NavbarProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { openReservationModal } = useReservation()
 
-  const handleReservationClick = () => {
-    console.log("Opening reservation modal")
-    openReservationModal()
-  }
+  // Use useCallback to memoize the handler
+  const handleReservationClick = useCallback(() => {
+    try {
+      console.log("Opening reservation modal from Navbar")
+      openReservationModal()
+    } catch (error) {
+      console.error("Error opening reservation modal:", error)
+    }
+  }, [openReservationModal])
 
   const basePath = `/${lang}`
   const navItems = [

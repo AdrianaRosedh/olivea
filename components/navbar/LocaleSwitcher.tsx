@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname, useRouter } from "next/navigation"
 import { ChevronDown } from "lucide-react"
+import Cookies from "js-cookie"
 
 const languages = [
   { code: "es", label: "Español" },
@@ -27,8 +28,14 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
   }, [])
 
   const switchLocale = (locale: string) => {
-    const newPath = pathname.replace(/^\/(en|es)/, "") || "/"
-    router.push(`/${locale}${newPath}`)
+    // Set cookie first
+    Cookies.set("NEXT_LOCALE", locale, { path: "/" })
+
+    // Create the new path
+    const newPath = pathname.replace(/^\/(en|es)/, `/${locale}`) || `/${locale}`
+
+    // Use router.push for client-side navigation
+    router.push(newPath)
     setOpen(false)
   }
 

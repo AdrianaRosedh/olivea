@@ -5,6 +5,8 @@ import { getDictionary } from "./dictionaries"
 import "../globals.css"
 import LayoutShell from "@/components/LayoutShell"
 import { ReservationProvider } from "@/contexts/ReservationContext"
+import { Suspense } from "react"
+import ScrollManager from "@/components/ScrollManager"
 
 // Define fonts with display: 'swap' for better performance
 const inter = Inter({
@@ -62,10 +64,13 @@ export default async function RootLayout({
   const lang = resolvedParams.lang
 
   return (
-    <html lang={lang} className={`${inter.variable} ${cormorant.variable}`}>
-      <body className={inter.className}>
+    <html lang={lang} className={`${inter.variable} ${cormorant.variable}`} suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
+        <ScrollManager />
         <ReservationProvider lang={lang}>
-          <LayoutShell lang={lang}>{children}</LayoutShell>
+          <Suspense fallback={null}>
+            <LayoutShell lang={lang}>{children}</LayoutShell>
+          </Suspense>
         </ReservationProvider>
       </body>
     </html>

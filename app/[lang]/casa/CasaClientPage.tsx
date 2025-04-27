@@ -1,31 +1,9 @@
 "use client"
-import ScrollToSection from "@/components/ScrollToSection"
+
 import { TypographyH2, TypographyP } from "@/components/ui/Typography"
-import { useEffect } from "react"
-
-function ScrollInit() {
-  useEffect(() => {
-    // Force scroll position update after hydration
-    const timer = setTimeout(() => {
-      // This tiny scroll nudge helps initialize scroll listeners
-      window.scrollBy(0, 1)
-      window.scrollBy(0, -1)
-
-      // If there's a hash in the URL, scroll to it again
-      if (window.location.hash) {
-        const id = window.location.hash.substring(1)
-        const element = document.getElementById(id)
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "center" })
-        }
-      }
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  return null // This component doesn't render anything
-}
+import ClientOnly from "@/components/ClientOnly"
+import SectionObserver from "@/components/SectionObserver"
+import MobileSectionTracker from "@/components/MobileSectionTracker"
 
 export default function CasaClientPage({
   lang,
@@ -34,6 +12,9 @@ export default function CasaClientPage({
   lang: string
   dict: any
 }) {
+  // Define section IDs
+  const sectionIds = ["rooms", "breakfast", "experiences", "location"]
+
   // Structured data for better SEO (JSON-LD)
   const structuredData = {
     "@context": "https://schema.org",
@@ -68,15 +49,18 @@ export default function CasaClientPage({
       {/* Add JSON-LD structured data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      {/* Add ScrollInit component */}
-      <ScrollInit />
+      {/* Section observer - only rendered on client */}
+      <ClientOnly>
+        <SectionObserver sectionIds={sectionIds} />
+        <MobileSectionTracker sectionIds={sectionIds} />
+      </ClientOnly>
 
-      {/* Add ScrollToSection component for improved scrolling */}
-      <ScrollToSection />
-
-      {/* Make sure this div has the scroll-container class for ScrollToSection.tsx */}
-      <div className="min-h-screen scroll-container snap-y snap-mandatory overflow-y-auto">
-        {/* Rooms Section - Improved with semantic HTML and accessibility */}
+      {/* Make sure this div has the scroll-container class */}
+      <div
+        className="min-h-screen scroll-container snap-y snap-mandatory overflow-y-auto pb-[120px] md:pb-0"
+        style={{ height: "100vh" }}
+      >
+        {/* Rooms Section */}
         <section
           id="rooms"
           className="min-h-screen w-full flex items-center justify-center px-6 snap-center snap-always"
@@ -88,7 +72,7 @@ export default function CasaClientPage({
           </div>
         </section>
 
-        {/* Breakfast Section - Improved with semantic HTML and accessibility */}
+        {/* Breakfast Section */}
         <section
           id="breakfast"
           className="min-h-screen w-full flex items-center justify-center px-6 snap-center snap-always"
@@ -100,7 +84,7 @@ export default function CasaClientPage({
           </div>
         </section>
 
-        {/* Experiences Section - Improved with semantic HTML and accessibility */}
+        {/* Experiences Section */}
         <section
           id="experiences"
           className="min-h-screen w-full flex items-center justify-center px-6 snap-center snap-always"
@@ -112,7 +96,7 @@ export default function CasaClientPage({
           </div>
         </section>
 
-        {/* Location Section - Improved with semantic HTML and accessibility */}
+        {/* Location Section */}
         <section
           id="location"
           className="min-h-screen w-full flex items-center justify-center px-6 mb-0 snap-center snap-always"

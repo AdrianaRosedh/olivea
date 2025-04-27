@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useState, useTransition, useRef } from "react"
 
 export function useActiveSection(sectionIds: string[]) {
   const [active, setActive] = useState<string | null>(sectionIds[0])
   const [isPending, startTransition] = useTransition()
+  const isInitializedRef = useRef(false)
 
   useEffect(() => {
     // Create a single IntersectionObserver for better performance
@@ -38,15 +39,38 @@ export function useActiveSection(sectionIds: string[]) {
       }
     }, observerOptions)
 
-    // Observe all sections
-    sectionIds.forEach((id) => {
-      const section = document.getElementById(id)
-      if (section) {
-        observer.observe(section)
-      }
-    })
+    // Function to observe all sections
+    const observeSections = () => {
+      // First, disconnect any existing observations
+      observer.disconnect()
 
-    return () => observer.disconnect()
+      // Then observe all sections
+      sectionIds.forEach((id) => {
+        const section = document.getElementById(id)
+        if (section) {
+          observer.observe(section)
+        }
+      })
+
+      // Mark as initialized
+      isInitializedRef.current = true
+    }
+
+    // Initial observation
+    observeSections()
+
+    // Re-observe after delays to ensure all sections are properly tracked
+    setTimeout(observeSections, 100)
+    setTimeout(observeSections, 500)
+    setTimeout(observeSections, 1000)
+
+    // Re-observe on window resize
+    window.addEventListener("resize", observeSections)
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("resize", observeSections)
+    }
   }, [sectionIds])
 
   return { active, isPending }

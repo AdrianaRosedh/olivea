@@ -46,10 +46,15 @@ export default function Footer() {
   }, [])
 
   const switchLocale = (newLang: "en" | "es") => {
+    // Set cookie first
+    Cookies.set("NEXT_LOCALE", newLang, { path: "/" })
+
+    // Create the new path
     const segments = pathname.split("/")
     segments[1] = newLang
-    const newPath = segments.join("/") || "/"
-    Cookies.set("NEXT_LOCALE", newLang)
+    const newPath = segments.join("/") || `/${newLang}`
+
+    // Use router.push for client-side navigation
     router.push(newPath)
     setOpen(false)
   }

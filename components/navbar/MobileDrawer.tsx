@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import LocaleSwitcher from "./LocaleSwitcher"
 import FocusTrap from "focus-trap-react"
 import { cn } from "@/lib/utils"
@@ -47,14 +47,21 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
     }, 200)
   }
 
-  const handleReservationClick = () => {
+  // Use useCallback to memoize the handler
+  const handleReservationClick = useCallback(() => {
     window.navigator.vibrate?.(10)
     onClose()
-    console.log("Opening reservation modal from mobile drawer")
-    setTimeout(() => {
-      openReservationModal()
-    }, 300)
-  }
+
+    try {
+      console.log("Opening reservation modal from mobile drawer")
+      // Add a delay to ensure the drawer is closed first
+      setTimeout(() => {
+        openReservationModal()
+      }, 300)
+    } catch (error) {
+      console.error("Error opening reservation modal:", error)
+    }
+  }, [onClose, openReservationModal])
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : ""

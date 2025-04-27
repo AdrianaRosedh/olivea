@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Calendar, BookOpen, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useReservation } from "@/contexts/ReservationContext"
@@ -21,40 +21,46 @@ export function MobileNav({ lang, isDrawerOpen }: MobileNavProps) {
     setHasMounted(true)
   }, [])
 
+  // Define vibrate function with useCallback to avoid recreation
+  const vibrate = useCallback(() => {
+    if (typeof window !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(10)
+    }
+  }, [])
+
+  // Handle reservation click with useCallback
+  const handleReservationClick = useCallback(() => {
+    vibrate()
+    try {
+      console.log("Opening reservation modal from mobile nav")
+      openReservationModal()
+    } catch (error) {
+      console.error("Error opening reservation modal:", error)
+    }
+  }, [vibrate, openReservationModal])
+
   if (!hasMounted) return null
 
   const isHome = pathname === `/${lang}` || pathname === `/${lang}/`
   if (isHome) return null
 
-  const vibrate = () => {
-    if (typeof window !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(10)
-    }
-  }
-
-  const handleReservationClick = () => {
-    vibrate()
-    console.log("Opening reservation modal from mobile nav")
-    openReservationModal()
-  }
-
   const navItems = [
     {
       label: "Journal",
       href: `/${lang}/journal`,
-      icon: <BookOpen className="w-6 h-6" />,
+      icon: <BookOpen className="w-5 h-5" />,
       active: pathname.includes("/journal"),
     },
     {
       label: "Reserve",
       action: handleReservationClick,
-      icon: <Calendar className="w-6 h-6" />,
+      icon: <Calendar className="w-5 h-5" />,
       isButton: true,
     },
     {
       label: "Chat",
       href: "#chat",
-      icon: <MessageSquare className="w-6 h-6" />,
+      icon: <MessageSquare className="w-5 h-5" />,
       isButton: true,
     },
   ]
@@ -66,7 +72,7 @@ export function MobileNav({ lang, isDrawerOpen }: MobileNavProps) {
         isDrawerOpen && "opacity-0 pointer-events-none",
       )}
     >
-      <div className="flex justify-around items-center py-3 px-4">
+      <div className="flex justify-around items-center py-1.5 px-4">
         {navItems.map((item) =>
           item.href ? (
             <Link
@@ -75,7 +81,7 @@ export function MobileNav({ lang, isDrawerOpen }: MobileNavProps) {
               onClick={vibrate}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 rounded-md transition-all duration-150",
-                "px-5 py-3 text-[13px] font-medium active:scale-[0.95]",
+                "px-4 py-1.5 text-[13px] font-medium active:scale-[0.95]",
                 item.active
                   ? "bg-[var(--olivea-olive)] text-white"
                   : "text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)] hover:text-white",
@@ -91,7 +97,7 @@ export function MobileNav({ lang, isDrawerOpen }: MobileNavProps) {
               className={cn(
                 "flex flex-col items-center justify-center gap-1 rounded-md transition-all duration-150",
                 "text-[var(--olivea-olive)] active:scale-[0.95]",
-                "hover:bg-[var(--olivea-olive)] hover:text-white px-5 py-3",
+                "hover:bg-[var(--olivea-olive)] hover:text-white px-4 py-1.5",
               )}
             >
               {item.icon}

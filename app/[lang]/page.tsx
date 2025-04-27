@@ -3,15 +3,14 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useReservation } from "@/contexts/ReservationContext"
 import MagneticButton from "@/components/ui/MagneticButton"
-import { default as OliveaFTTLogo } from "@/assets/oliveaFTT.svg"
+import { useReservation } from "@/contexts/ReservationContext"
 
 export default function HomePage() {
   const { openReservationModal } = useReservation()
 
   const handleReservationClick = () => {
-    console.log("Opening reservation modal from homepage")
+    // Use the context to open the modal directly
     openReservationModal()
   }
 
@@ -50,8 +49,8 @@ export default function HomePage() {
             transition={{ delay: 0.4, duration: 1.2, ease: "easeInOut" }}
             className="mt-10 md:mt-0"
           >
-            {/* Use the imported SVG component */}
-            <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
+            {/* Simple text logo as a reliable fallback */}
+            <h1 className="text-4xl md:text-6xl font-serif text-white tracking-widest">OLIVEA</h1>
           </motion.div>
 
           {/* Tagline */}

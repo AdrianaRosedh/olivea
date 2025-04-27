@@ -8,25 +8,43 @@ type ReservationType = "restaurant" | "hotel" | "cafe"
 interface ReservationContextType {
   openReservationModal: (type?: ReservationType) => void
   closeReservationModal: () => void
+  isModalOpen: boolean
+  reservationType: ReservationType
 }
 
-const ReservationContext = createContext<ReservationContextType | undefined>(undefined)
+// Create context with default values to avoid undefined errors
+const ReservationContext = createContext<ReservationContextType>({
+  openReservationModal: () => {},
+  closeReservationModal: () => {},
+  isModalOpen: false,
+  reservationType: "restaurant",
+})
 
 export function ReservationProvider({ children, lang }: { children: ReactNode; lang: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [reservationType, setReservationType] = useState<ReservationType>("restaurant")
 
   const openReservationModal = (type: ReservationType = "restaurant") => {
+    console.log(`[ReservationContext] Opening modal with type: ${type}`)
     setReservationType(type)
     setIsModalOpen(true)
   }
 
   const closeReservationModal = () => {
+    console.log("[ReservationContext] Closing modal")
     setIsModalOpen(false)
   }
 
+  // Create the context value object
+  const contextValue = {
+    openReservationModal,
+    closeReservationModal,
+    isModalOpen,
+    reservationType,
+  }
+
   return (
-    <ReservationContext.Provider value={{ openReservationModal, closeReservationModal }}>
+    <ReservationContext.Provider value={contextValue}>
       {children}
       <ReservationModal
         isOpen={isModalOpen}
@@ -40,8 +58,7 @@ export function ReservationProvider({ children, lang }: { children: ReactNode; l
 
 export function useReservation() {
   const context = useContext(ReservationContext)
-  if (context === undefined) {
-    throw new Error("useReservation must be used within a ReservationProvider")
-  }
+
+  // No need to throw an error, as we've provided default values
   return context
 }

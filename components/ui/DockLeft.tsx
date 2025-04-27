@@ -16,58 +16,49 @@ interface Props {
 }
 
 export default function DockLeft({ items }: Props) {
-  const [activeId, setActiveId] = useState<string | null>(null)
+  const [activeId, setActiveId] = useState<string | null>(items.length > 0 ? items[0].id : null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+  const mountedRef = useRef(false)
 
   // Find the scroll container on mount
   useEffect(() => {
     scrollContainerRef.current = document.querySelector(".scroll-container")
-  }, [])
+    mountedRef.current = true
 
-  // Use Intersection Observer API for better performance
-  useEffect(() => {
-    if (typeof window === "undefined") return
-
-    // Create observers for each section
-    const observerOptions = {
-      root: scrollContainerRef.current,
-      rootMargin: "-10% 0px -40% 0px", // Adjust these values for better detection
-      threshold: [0.1, 0.5, 0.9],
+    // Set initial active section
+    if (items.length > 0) {
+      setActiveId(items[0].id)
     }
 
-    // Create a single observer for all sections
-    const observer = new IntersectionObserver((entries) => {
-      // Find the most visible section
-      let maxVisibility = 0
-      let mostVisibleId: string | null = null
-
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id
-          const visibility = entry.intersectionRatio
-
-          if (visibility > maxVisibility) {
-            maxVisibility = visibility
-            mostVisibleId = id
-          }
-        }
-      })
-
-      if (mostVisibleId) {
-        setActiveId(mostVisibleId)
+    // Listen for section visibility events
+    const handleSectionInView = (e: Event) => {
+      const customEvent = e as CustomEvent
+      if (customEvent.detail?.id) {
+        setActiveId(customEvent.detail.id)
       }
-    }, observerOptions)
+    }
 
-    // Observe all sections
-    items.forEach((item) => {
-      const element = document.getElementById(item.id)
-      if (element) {
-        observer.observe(element)
+    document.addEventListener("sectionInView", handleSectionInView)
+
+    // Force an initial check
+    setTimeout(() => {
+      const firstSection = document.getElementById(items[0]?.id || "")
+      if (firstSection) {
+        document.dispatchEvent(
+          new CustomEvent("sectionInView", {
+            detail: {
+              id: items[0].id,
+              intersectionRatio: 1.0,
+            },
+          }),
+        )
       }
-    })
+    }, 100)
 
-    return () => observer.disconnect()
+    return () => {
+      document.removeEventListener("sectionInView", handleSectionInView)
+    }
   }, [items])
 
   // Improved scroll function with useCallback for better performance
@@ -110,6 +101,17 @@ export default function DockLeft({ items }: Props) {
     }
   }, [])
 
+  // Force re-render on mount to ensure proper initialization
+  useEffect(() => {
+    if (mountedRef.current) {
+      const timer = setTimeout(() => {
+        setActiveId((current) => current) // Force re-render
+      }, 200)
+
+      return () => clearTimeout(timer)
+    }
+  }, [])
+
   return (
     <nav
       className="hidden md:flex flex-col gap-6 items-start text-xl font-bold tracking-widest uppercase"
@@ -133,6 +135,7 @@ export default function DockLeft({ items }: Props) {
             )}
             aria-current={isActive ? "location" : undefined}
             aria-label={`Navigate to ${item.label} section`}
+            data-active={isActive ? "true" : "false"} // Add data attribute for debugging
           >
             <span className="text-2xl tabular-nums font-extrabold" aria-hidden="true">
               {item.number}

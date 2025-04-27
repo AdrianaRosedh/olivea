@@ -11,9 +11,10 @@ interface MagneticButtonProps {
   className?: string
   children: React.ReactNode
   onClick?: () => void
+  disabled?: boolean
 }
 
-export default function MagneticButton({ href, className, children, onClick }: MagneticButtonProps) {
+export default function MagneticButton({ href, className, children, onClick, disabled = false }: MagneticButtonProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   const mouseX = useMotionValue(0)
@@ -32,6 +33,8 @@ export default function MagneticButton({ href, className, children, onClick }: M
   const shineY = useTransform(springY, (v) => `${v * 0.4}px`)
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (disabled) return
+
     const bounds = ref.current?.getBoundingClientRect()
     if (!bounds) return
 
@@ -48,9 +51,18 @@ export default function MagneticButton({ href, className, children, onClick }: M
   }
 
   const handleClick = (e: React.MouseEvent) => {
+    if (disabled) {
+      e.preventDefault()
+      return
+    }
+
     if (onClick) {
       e.preventDefault()
-      onClick()
+      try {
+        onClick()
+      } catch (error) {
+        console.error("Error in MagneticButton onClick handler:", error)
+      }
     }
   }
 
@@ -65,6 +77,7 @@ export default function MagneticButton({ href, className, children, onClick }: M
         "px-6 py-3 md:px-8 md:py-3.5 lg:px-9 lg:py-4", // Responsive and slightly reduced padding
         "rounded-full transition-transform duration-200 overflow-hidden",
         "bg-black text-white shadow-xl hover:scale-110 active:scale-95",
+        disabled && "opacity-50 cursor-not-allowed hover:scale-100 active:scale-100",
         className,
       )}
       style={{ x, y }}
@@ -85,5 +98,5 @@ export default function MagneticButton({ href, className, children, onClick }: M
     </motion.div>
   )
 
-  return href ? <Link href={href}>{ButtonContent}</Link> : ButtonContent
+  return href && !disabled ? <Link href={href}>{ButtonContent}</Link> : ButtonContent
 }

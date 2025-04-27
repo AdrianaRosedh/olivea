@@ -1,48 +1,42 @@
 "use client"
 
-import { useRef, useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 
 export default function ScrollAnimatedBackground() {
   const [scrollProgress, setScrollProgress] = useState(0)
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null)
 
-  // Find the scroll container on mount
   useEffect(() => {
-    // First try to find the .scroll-container element
-    const container = document.querySelector<HTMLElement>(".scroll-container")
-    setScrollContainer(container)
+    if (typeof window === "undefined") return
 
-    // If not found, fall back to document.documentElement
-    if (!container) {
-      console.warn("Scroll container not found, falling back to document")
-      setScrollContainer(document.documentElement)
+    // Function to calculate scroll progress
+    const calculateScroll = () => {
+      const scrollTop = window.scrollY
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = window.innerHeight
+      const maxScroll = Math.max(1, scrollHeight - clientHeight) // Avoid division by zero
+      const progress = Math.min(1, scrollTop / maxScroll)
+      setScrollProgress(progress)
     }
-  }, [])
 
-  // Manual scroll tracking for more reliable results
-  useEffect(() => {
-    if (!scrollContainer) return
+    // Calculate immediately
+    calculateScroll()
 
+    // Add event listener with passive option for better performance
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer
-      const maxScroll = scrollHeight - clientHeight
-      const current = scrollTop / maxScroll
-      setScrollProgress(current || 0) // Ensure we don't get NaN
+      requestAnimationFrame(calculateScroll)
     }
 
-    // Initial calculation
-    handleScroll()
+    window.addEventListener("scroll", handleScroll, { passive: true })
 
-    // Add event listener
-    scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
+    // Force recalculation after a short delay to ensure correct values
+    const timer = setTimeout(calculateScroll, 200)
 
     // Cleanup
     return () => {
-      scrollContainer.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("scroll", handleScroll)
+      clearTimeout(timer)
     }
-  }, [scrollContainer])
+  }, [])
 
   // Calculate derived values based on scroll progress
   const opacity = scrollProgress < 0.01 ? 0.8 : scrollProgress > 0.99 ? 0.8 : 1
@@ -56,28 +50,22 @@ export default function ScrollAnimatedBackground() {
   const filterStyle = `hue-rotate(${hue}deg) saturate(${saturation}%) brightness(${brightness}%)`
 
   return (
-    <>
-      {/* Debug indicator - remove in production */}
-      <div className="fixed top-2 left-2 z-50 bg-black/70 text-white px-2 py-1 text-xs rounded">
-        Scroll: {Math.round(scrollProgress * 100)}%
-      </div>
+    <div className="fixed inset-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+      {/* Base layer - Updated with lightened colors */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--olivea-cream)] to-[var(--olivea-shell)]" />
 
-      <div ref={containerRef} className="fixed inset-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        {/* Base layer - Updated with lightened colors */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--olivea-cream)] to-[var(--olivea-shell)]" />
+      {/* Light transition layer - Updated with lightened colors */}
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-[#e8e4d5] via-[#e0d9c5] to-[#d5ceb8]"
+        style={{
+          opacity,
+          filter: filterStyle,
+          transition: "filter 0.3s ease-out",
+        }}
+      />
 
-        {/* Light transition layer - Updated with lightened colors */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-[#e8e4d5] via-[#e0d9c5] to-[#d5ceb8]"
-          style={{
-            opacity,
-            filter: filterStyle,
-          }}
-        />
-
-        {/* Subtle vignette effect */}
-        <div className="absolute inset-0 bg-radial-gradient pointer-events-none opacity-40" />
-      </div>
-    </>
+      {/* Subtle vignette effect */}
+      <div className="absolute inset-0 bg-radial-gradient pointer-events-none opacity-40" />
+    </div>
   )
 }
