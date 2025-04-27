@@ -265,6 +265,9 @@ body {
 .text-olivea-green {
   color: var(--olivea-olive);
 }
+.text-olivea-clay {
+  color: var(--olivea-clay);
+}
 
 /* Scroll snap container */
 .snap-y {
@@ -410,4 +413,9 @@ blockquote {
   font-weight: 600;
   @apply text-xl md:text-2xl;
   color: var(--olivea-ink);
+}
+
+/* Footer hover styles */
+.footer-link:hover {
+  color: var(--olivea-clay) !important;
 }

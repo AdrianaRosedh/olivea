@@ -1,25 +1,37 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
-import dynamic from "next/dynamic"
-
-// Dynamically import components with no SSR
-const ScrollManager = dynamic(() => import("@/components/ScrollManager"), { ssr: false })
-const NavigationProvider = dynamic(() => import("@/components/NavigationProvider"), { ssr: false })
+import { useEffect, useState } from "react"
+import ScrollManager from "@/components/ScrollManager"
+import NavigationProvider from "@/components/NavigationProvider"
+import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback"
 
 export default function ClientProviders() {
   const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+
+    // Check if on mobile device
+    const checkMobile = () => {
+      if (typeof navigator !== "undefined") {
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent,
+        )
+        setIsMobile(isMobileDevice)
+      }
+    }
+
+    checkMobile()
   }, [])
 
   if (!mounted) return null
 
   return (
-    <Suspense fallback={null}>
+    <>
       <NavigationProvider />
       <ScrollManager />
-    </Suspense>
+      {isMobile && <MobileAudioFeedback />}
+    </>
   )
 }

@@ -66,9 +66,15 @@ export default function Footer() {
       <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-8 lg:px-6 py-2 flex justify-between items-center">
         {/* Copyright */}
         <div className="flex-1">
-          <span className="text-[13px] font-light tracking-wider">
+          <a
+            href="#"
+            className="text-[13px] font-light tracking-wider cursor-default inline-block"
+            style={{ transition: "color 0.3s ease" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--olivea-clay)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+          >
             © {new Date().getFullYear()} Inmobilaria MYA by DH
-          </span>
+          </a>
         </div>
 
         {/* Social Media Icons - Centered */}
@@ -97,16 +103,44 @@ export default function Footer() {
 
         {/* Language Selector */}
         <div className="flex-1 flex items-center justify-end gap-6 relative" ref={dropdownRef}>
-          <Link href={`/${lang}/legal`} className="transition-opacity opacity-80 hover:opacity-100">
+          <Link
+            href={`/${lang}/contact`}
+            style={{ transition: "color 0.3s ease" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--olivea-clay)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+            className="opacity-80 hover:opacity-100"
+          >
+            Contact
+          </Link>
+          <Link
+            href={`/${lang}/legal`}
+            style={{ transition: "color 0.3s ease" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--olivea-clay)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+            className="opacity-80 hover:opacity-100"
+          >
             Legal
           </Link>
 
           {/* Globe dropdown toggle */}
           <button
             onClick={() => setOpen(!open)}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md bg-transparent backdrop-blur-sm hover:bg-gray-100/50 transition-all border border-[rgba(0,0,0,0.05)]"
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md bg-transparent backdrop-blur-sm transition-all border border-[rgba(0,0,0,0.05)]"
+            style={{ transition: "all 0.3s ease" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--olivea-clay)"
+              e.currentTarget.style.color = "white"
+              const icon = e.currentTarget.querySelector(".globe-icon") as HTMLElement
+              if (icon) icon.style.color = "white"
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = ""
+              e.currentTarget.style.color = ""
+              const icon = e.currentTarget.querySelector(".globe-icon") as HTMLElement
+              if (icon) icon.style.color = ""
+            }}
           >
-            <GlobeIcon className="w-4 h-4 text-olivea-olive" />
+            <GlobeIcon className="w-4 h-4 text-olivea-olive globe-icon" style={{ transition: "color 0.3s ease" }} />
             {lang.toUpperCase()}
           </button>
 
@@ -120,13 +154,31 @@ export default function Footer() {
               >
                 <button
                   onClick={() => switchLocale("en")}
-                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100/50"
+                  className="w-full px-3 py-1.5 text-sm text-left"
+                  style={{ transition: "all 0.3s ease" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--olivea-clay)"
+                    e.currentTarget.style.color = "white"
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = ""
+                    e.currentTarget.style.color = ""
+                  }}
                 >
                   🇺🇸 English
                 </button>
                 <button
                   onClick={() => switchLocale("es")}
-                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-gray-100/50"
+                  className="w-full px-3 py-1.5 text-sm text-left"
+                  style={{ transition: "all 0.3s ease" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--olivea-clay)"
+                    e.currentTarget.style.color = "white"
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = ""
+                    e.currentTarget.style.color = ""
+                  }}
                 >
                   🇲🇽 Español
                 </button>
