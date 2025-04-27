@@ -49,10 +49,26 @@ export default function ScrollToSection() {
   // Handle initial hash in URL
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash) {
-      const sectionId = window.location.hash.substring(1)
-      // Small delay to ensure DOM is ready
-      const timer = setTimeout(() => scrollToSection(sectionId), 100)
-      return () => clearTimeout(timer) // Proper cleanup in React 19
+      // Wait for document to be fully loaded and hydrated
+      const handleScroll = () => {
+        const sectionId = window.location.hash.substring(1)
+        // Small delay to ensure DOM is fully hydrated
+        setTimeout(() => {
+          const section = document.getElementById(sectionId)
+          if (section) {
+            scrollToSection(sectionId)
+          }
+        }, 500) // Increased delay for more reliability
+      }
+
+      // Check if document is already loaded
+      if (document.readyState === "complete") {
+        handleScroll()
+      } else {
+        // Otherwise wait for it to load
+        window.addEventListener("load", handleScroll)
+        return () => window.removeEventListener("load", handleScroll)
+      }
     }
   }, [scrollToSection])
 

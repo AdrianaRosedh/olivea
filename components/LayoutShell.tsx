@@ -10,7 +10,7 @@ import DockLeft from "@/components/ui/DockLeft"
 import DockRight from "@/components/ui/DockRight"
 import MobileSectionNav from "@/components/ui/MobileSectionNav"
 import { cn } from "@/lib/utils"
-import { memo } from "react"
+import { memo, useEffect } from "react"
 import ScrollToTop from "@/components/ScrollToTop"
 import ScrollAnimatedBackground from "@/components/ScrollAnimatedBackground"
 
@@ -47,6 +47,29 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         { id: "location", label: "Ubicación" },
       ]
     : []
+
+  // Initialize scroll behavior
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Small delay to ensure hydration is complete
+      const timer = setTimeout(() => {
+        // Force a tiny scroll to activate scroll listeners
+        window.scrollBy(0, 1)
+        window.scrollBy(0, -1)
+
+        // Re-apply any hash scrolling
+        if (window.location.hash) {
+          const id = window.location.hash.substring(1)
+          const element = document.getElementById(id)
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" })
+          }
+        }
+      }, 200)
+
+      return () => clearTimeout(timer)
+    }
+  }, [])
 
   return (
     <>
