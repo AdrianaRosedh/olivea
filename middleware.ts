@@ -11,8 +11,14 @@ function getLocale(request: NextRequest): string {
   }
 
   const acceptLang = request.headers.get("accept-language")
-  const preferred = acceptLang?.split(",")[0].split("-")[0]
-  return locales.includes(preferred!) ? preferred! : defaultLocale
+  if (acceptLang) {
+    const preferred = acceptLang.split(",")[0].split("-")[0]
+    if (locales.includes(preferred)) {
+      return preferred
+    }
+  }
+
+  return defaultLocale
 }
 
 export function middleware(request: NextRequest) {

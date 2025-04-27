@@ -1,8 +1,6 @@
-import withBundleAnalyzer from "@next/bundle-analyzer"
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false, // Disable strict mode for better performance
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -14,6 +12,17 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     unoptimized: true,
   },
+  // Configure Turbopack for Next.js 15
+  turbopack: {
+    rules: {
+      // Add SVG handling for Turbopack
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
+  },
+  // Keep webpack config for non-Turbopack builds
   webpack(config) {
     // Configure SVG handling
     config.module.rules.push({
@@ -63,25 +72,10 @@ const nextConfig = {
       },
     ]
   },
-  turbopack: {
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
-      },
-    },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
-  // Next.js 15 specific optimizations
-  experimental: {
-    // Enable React 19 features
-    serverActions: {
-      bodySizeLimit: "2mb", // Increased limit for server actions
-    },
-    // Improved caching behavior in Next.js 15
-    optimizePackageImports: ["framer-motion", "@radix-ui/react-*"],
-  },
+  poweredByHeader: false,
 }
 
-export default withBundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-})(nextConfig)
+export default nextConfig

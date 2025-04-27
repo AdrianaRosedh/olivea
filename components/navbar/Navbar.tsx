@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import MobileDrawer from "@/components/navbar/MobileDrawer"
@@ -9,6 +9,7 @@ import MenuToggle from "@/components/navbar/MenuToggle"
 import { MobileNav } from "@/components/navbar/MobileNav"
 import MagneticButton from "@/components/ui/MagneticButton"
 import { default as OliveaFTTLogo } from "@/assets/OliveaFTTIcon.svg"
+import { useReservation } from "@/contexts/ReservationContext"
 
 interface NavbarProps {
   lang: "en" | "es"
@@ -16,8 +17,13 @@ interface NavbarProps {
 
 export default function Navbar({ lang }: NavbarProps) {
   const pathname = usePathname()
-  const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const { openReservationModal } = useReservation()
+
+  const handleReservationClick = () => {
+    console.log("Opening reservation modal")
+    openReservationModal()
+  }
 
   const basePath = `/${lang}`
   const navItems = [
@@ -41,7 +47,7 @@ export default function Navbar({ lang }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="w-full fixed top-0 z-50 bg-transparent backdrop-blur-md">
+      <nav className="w-full fixed top-0 z-40 bg-transparent backdrop-blur-md">
         <div className="w-full flex justify-center">
           <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-24 lg:h-28">
             {/* Left: Logo */}
@@ -60,7 +66,7 @@ export default function Navbar({ lang }: NavbarProps) {
                   className={cn(
                     "px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap",
                     "rounded-md border border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-medium text-base uppercase transition-colors flex items-center justify-center",
-                    "font-sans tracking-wide", // Added explicit font class
+                    "font-sans tracking-wide",
                     pathname === item.href
                       ? "bg-[var(--olivea-olive)] text-white"
                       : "hover:bg-[var(--olivea-olive)] hover:text-white",
@@ -74,7 +80,7 @@ export default function Navbar({ lang }: NavbarProps) {
             {/* Right: Reservar Button */}
             <div className="hidden md:flex flex-1 justify-end items-center">
               <MagneticButton
-                href={`/${lang}/reservations`}
+                onClick={handleReservationClick}
                 className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors font-sans"
               >
                 Reservar

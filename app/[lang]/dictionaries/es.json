@@ -1,35 +1,35 @@
 {
-    "about": {
-      "title": "Sobre Olivea",
-      "description": "Nuestra historia, filosofía y las personas detrás de la visión."
-    },
-    "cafe": {
-        "title": "Café Olivea",
-        "description": "Nuestro café informal con vista al jardín. El menú y los horarios estarán disponibles pronto.",
-        "error": "Error al cargar el menú:"
+  "about": {
+    "title": "Sobre Olivea",
+    "description": "Nuestra historia, filosofía y las personas detrás de la visión."
+  },
+  "cafe": {
+    "title": "Café Olivea",
+    "description": "Nuestro café informal con vista al jardín. El menú y los horarios estarán disponibles pronto.",
+    "error": "Error al cargar el menú:"
   },
   "casa": {
-  "title": "Casa Olivea",
-  "description": "Quédate con nosotros...",
-  "sections": {
-    "rooms": {
-      "title": "Habitaciones",
-      "description": "..."
-    },
-    "breakfast": {
-      "title": "Desayuno",
-      "description": "..."
-    },
-    "experiences": {
-      "title": "Experiencias",
-      "description": "..."
-    },
-    "location": {
-      "title": "Ubicación",
-      "description": "..."
+    "title": "Casa Olivea",
+    "description": "Quédate con nosotros...",
+    "sections": {
+      "rooms": {
+        "title": "Habitaciones",
+        "description": "..."
+      },
+      "breakfast": {
+        "title": "Desayuno",
+        "description": "..."
+      },
+      "experiences": {
+        "title": "Experiencias",
+        "description": "..."
+      },
+      "location": {
+        "title": "Ubicación",
+        "description": "..."
+      }
     }
-  }
-},
+  },
   "contact": {
     "title": "Contacto",
     "description": "Prensa, consultas y cómo contactarnos."
@@ -67,6 +67,8 @@
     "subtitle": "Un santuario de la granja a la mesa donde la naturaleza, la comida y el diseño se unen.",
     "cta_restaurant": "Visitar el Restaurante",
     "cta_casa": "Hospedarse en Casa Olivea"
+  },
+  "metadata": {
+    "description": "Un santuario de la granja a la mesa donde la naturaleza, la comida y el diseño se unen."
   }
-    
 }

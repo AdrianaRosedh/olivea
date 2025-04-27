@@ -70,4 +70,9 @@ export const dictionarySchema = z.object({
     cta_restaurant: z.string(),
     cta_casa: z.string(),
   }),
+  metadata: z
+    .object({
+      description: z.string(),
+    })
+    .optional(),
 })

@@ -15,6 +15,7 @@ interface Props {
 
 export default function MobileSectionNav({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
+  // Use React 19's improved useTransition for smoother UI updates
   const [isPending, startTransition] = useTransition()
   const containerRef = useRef<HTMLDivElement>(null)
   const buttonRefs = useRef<Record<string, HTMLAnchorElement | null>>({})

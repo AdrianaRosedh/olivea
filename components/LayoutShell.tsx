@@ -1,8 +1,6 @@
 "use client"
 
 import type React from "react"
-
-import { useRef, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import Navbar from "@/components/navbar/Navbar"
 import Footer from "@/components/Footer"
@@ -12,61 +10,19 @@ import DockLeft from "@/components/ui/DockLeft"
 import DockRight from "@/components/ui/DockRight"
 import MobileSectionNav from "@/components/ui/MobileSectionNav"
 import { cn } from "@/lib/utils"
+import { memo } from "react"
+import ScrollToTop from "@/components/ScrollToTop"
 import ScrollAnimatedBackground from "@/components/ScrollAnimatedBackground"
 
 type LayoutShellProps = {
-  lang: "en" | "es"
+  lang: string
   children: React.ReactNode
 }
 
-export default function LayoutShell({ lang, children }: LayoutShellProps) {
+function LayoutShell({ lang, children }: LayoutShellProps) {
   const pathname = usePathname()
   const isHome = pathname === `/${lang}`
   const isCasaPage = pathname.includes("/casa")
-
-  const scrollRef = useRef<HTMLDivElement>(null)
-
-  // Fix for scroll issues in iOS
-  useEffect(() => {
-    // Remove fixed positioning from body to allow scrolling
-    document.body.style.position = "relative"
-    document.body.style.overflow = "auto"
-    document.body.style.height = "auto"
-
-    return () => {
-      // Reset when component unmounts
-      document.body.style.position = ""
-      document.body.style.overflow = ""
-      document.body.style.height = ""
-    }
-  }, [])
-
-  // Handle hash navigation on page load
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash) {
-      const id = window.location.hash.substring(1)
-      const element = document.getElementById(id)
-
-      if (element) {
-        setTimeout(() => {
-          // Find the scroll container if it exists
-          const scrollContainer = document.querySelector(".scroll-container")
-
-          if (scrollContainer && element.closest(".scroll-container")) {
-            // If the element is inside a scroll container, scroll the container
-            const sectionTop = element.offsetTop
-            scrollContainer.scrollTo({
-              top: sectionTop,
-              behavior: "smooth",
-            })
-          } else {
-            // Otherwise use standard scrollIntoView
-            element.scrollIntoView({ behavior: "smooth", block: "center" })
-          }
-        }, 500)
-      }
-    }
-  }, [pathname])
 
   const dockLeftItems = isCasaPage
     ? [
@@ -114,7 +70,6 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
 
       <main
         id="main-content"
-        ref={scrollRef}
         className={cn(
           "relative w-full",
           isHome ? "" : "max-w-7xl mx-auto px-1",
@@ -156,8 +111,11 @@ export default function LayoutShell({ lang, children }: LayoutShellProps) {
         </div>
       )}
 
-      {/* Add the animated background */}
+      {!isHome && <ScrollToTop />}
       {!isHome && <ScrollAnimatedBackground />}
     </>
   )
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(LayoutShell)

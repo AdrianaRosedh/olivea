@@ -1,13 +1,13 @@
-'use client'
+"use client"
 
-import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { usePathname, useRouter } from 'next/navigation'
-import { ChevronDown } from 'lucide-react'
+import { useEffect, useRef, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { usePathname, useRouter } from "next/navigation"
+import { ChevronDown } from "lucide-react"
 
 const languages = [
-  { code: 'es', label: 'Español' },
-  { code: 'en', label: 'English' },
+  { code: "es", label: "Español" },
+  { code: "en", label: "English" },
 ]
 
 export default function LocaleSwitcher({ currentLang }: { currentLang: string }) {
@@ -18,19 +18,16 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !(dropdownRef.current as any).contains(e.target)
-      ) {
+      if (dropdownRef.current && !(dropdownRef.current as any).contains(e.target)) {
         setOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
   const switchLocale = (locale: string) => {
-    const newPath = pathname.replace(/^\/(en|es)/, '') || '/'
+    const newPath = pathname.replace(/^\/(en|es)/, "") || "/"
     router.push(`/${locale}${newPath}`)
     setOpen(false)
   }
@@ -42,16 +39,13 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
         onClick={() => setOpen(!open)}
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.03 }}
-        transition={{ type: 'spring', stiffness: 180, damping: 12 }}
+        transition={{ type: "spring", stiffness: 180, damping: 12 }}
         className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold uppercase tracking-wide 
           border-[var(--olivea-olive)] text-[var(--olivea-olive)] 
           hover:bg-[var(--olivea-olive)] hover:text-white transition-colors duration-300"
       >
         {currentLang.toUpperCase()}
-        <motion.div
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
           <ChevronDown size={16} />
         </motion.div>
       </motion.button>

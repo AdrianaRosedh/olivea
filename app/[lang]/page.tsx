@@ -3,10 +3,18 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useReservation } from "@/contexts/ReservationContext"
 import MagneticButton from "@/components/ui/MagneticButton"
 import { default as OliveaFTTLogo } from "@/assets/oliveaFTT.svg"
 
 export default function HomePage() {
+  const { openReservationModal } = useReservation()
+
+  const handleReservationClick = () => {
+    console.log("Opening reservation modal from homepage")
+    openReservationModal()
+  }
+
   return (
     <main className="flex items-center justify-center w-full h-screen bg-black">
       <div className="relative w-full h-full max-w-screen-xl rounded-3xl overflow-hidden shadow-xl">
@@ -113,20 +121,19 @@ export default function HomePage() {
               transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
               className="md:hidden w-full px-4"
             >
-              <Link href="/es/reservations">
-                <Button
-                  size="lg"
-                  className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-clay)] text-white 
-                    hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans"
-                >
-                  Reservar
-                </Button>
-              </Link>
+              <Button
+                onClick={handleReservationClick}
+                size="lg"
+                className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-clay)] text-white 
+                  hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans"
+              >
+                Reservar
+              </Button>
             </motion.div>
 
             <div className="hidden md:block">
               <MagneticButton
-                href="/es/reservations"
+                onClick={handleReservationClick}
                 className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors font-sans"
               >
                 Reservar

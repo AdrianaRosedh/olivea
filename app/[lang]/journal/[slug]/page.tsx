@@ -1,19 +1,43 @@
 import { supabase } from "@/lib/supabase"
 import { notFound } from "next/navigation"
 import { getDictionary } from "../../dictionaries"
+import type { Metadata } from "next"
 
-export async function generateStaticParams() {
-  const { data: posts } = await supabase.from("journal_posts").select("slug").eq("visible", true)
+// Generate metadata that can be streamed
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string; slug: string }>
+}): Promise<Metadata> {
+  // Await the params Promise before accessing its properties
+  const resolvedParams = await params
+  const { data } = await supabase
+    .from("journal_posts")
+    .select("title, description, cover_image")
+    .eq("slug", resolvedParams.slug)
+    .single()
 
-  return posts?.map((post) => ({ slug: post.slug })) || []
+  if (!data) return { title: "Journal Post" }
+
+  return {
+    title: data.title,
+    description: data.description || undefined,
+    openGraph: data.cover_image
+      ? {
+          images: [{ url: data.cover_image }],
+        }
+      : undefined,
+  }
 }
 
 export default async function JournalPostPage({
   params,
 }: {
-  params: Promise<{ lang: "es" | "en"; slug: string }>
+  params: Promise<{ lang: string; slug: string }>
 }) {
-  const { lang, slug } = await params
+  // Await the params Promise before accessing its properties
+  const resolvedParams = await params
+  const { lang, slug } = resolvedParams
   const dict = await getDictionary(lang)
 
   let postData

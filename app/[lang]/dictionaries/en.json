@@ -52,14 +52,14 @@
   },
   "reservations": {
     "title": "Reservations",
-    "description": "Choose where you’d like to reserve: restaurant, café, or hotel."
+    "description": "Choose where you'd like to reserve: restaurant, café, or hotel."
   },
   "restaurant": {
     "title": "Olivea Farm To Table",
     "description": "Coming soon: seasonal menus, chef stories, and more."
   },
   "notFound": {
-    "message": "The page you're looking for doesn’t exist.",
+    "message": "The page you're looking for doesn't exist.",
     "cta": "Return Home"
   },
   "home": {
@@ -67,5 +67,8 @@
     "subtitle": "A farm-to-table sanctuary where nature, nourishment, and design meet.",
     "cta_restaurant": "Visit the Restaurant",
     "cta_casa": "Stay at Casa Olivea"
+  },
+  "metadata": {
+    "description": "A farm-to-table sanctuary where nature, nourishment, and design meet."
   }
 }

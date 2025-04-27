@@ -8,7 +8,7 @@ import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useState } from "react"
-import { type MotionValue } from "framer-motion"
+import type { MotionValue } from "framer-motion"
 
 interface DockRightItem {
   id: string
@@ -23,21 +23,16 @@ interface DockRightProps {
 
 export default function DockRight({ items }: DockRightProps) {
   const pathname = usePathname()
-  const mouseY: MotionValue<number> = useMotionValue(Infinity)
+  const mouseY: MotionValue<number> = useMotionValue(Number.POSITIVE_INFINITY)
 
   return (
     <motion.div
       onMouseMove={(e) => mouseY.set(e.pageY)}
-      onMouseLeave={() => mouseY.set(Infinity)}
+      onMouseLeave={() => mouseY.set(Number.POSITIVE_INFINITY)}
       className="flex flex-col gap-8 items-end pr-6 p-2"
     >
       {items.map((item) => (
-        <IconContainer
-          key={item.id}
-          item={item}
-          active={pathname === item.href}
-          mouseY={mouseY}
-        />
+        <IconContainer key={item.id} item={item} active={pathname === item.href} mouseY={mouseY} />
       ))}
     </motion.div>
   )
@@ -50,7 +45,7 @@ function IconContainer({
 }: {
   item: DockRightItem
   active: boolean
-  mouseY: MotionValue<number> 
+  mouseY: MotionValue<number>
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [hovered, setHovered] = useState(false)
@@ -77,13 +72,10 @@ function IconContainer({
           "flex items-center justify-center transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]",
           active
             ? "bg-[var(--olivea-clay)] text-white"
-            : "bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] hover:text-white"
+            : "bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] hover:text-white",
         )}
       >
-        <motion.div
-          style={{ width: animatedIcon, height: animatedIcon }}
-          className="flex items-center justify-center"
-        >
+        <motion.div style={{ width: animatedIcon, height: animatedIcon }} className="flex items-center justify-center">
           {item.icon}
         </motion.div>
 

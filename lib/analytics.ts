@@ -4,37 +4,56 @@
 /**
  * Track a page view
  */
-export function trackPageView(url: string) {
-    if (typeof window !== "undefined") {
+export async function trackPageView(url: string) {
+  if (typeof window !== "undefined") {
+    try {
       // Example implementation - replace with your analytics provider
       console.log(`[Analytics] Page view: ${url}`)
-  
+
       // Google Analytics example
       // window.gtag?.('config', 'GA_MEASUREMENT_ID', { page_path: url })
+
+      // Return a resolved promise for better error handling
+      return Promise.resolve()
+    } catch (error) {
+      console.error("[Analytics] Error tracking page view:", error)
+      // Return a resolved promise to prevent errors from propagating
+      return Promise.resolve()
     }
   }
-  
-  /**
-   * Track a custom event
-   */
-  export function trackEvent(eventName: string, properties?: Record<string, any>) {
-    if (typeof window !== "undefined") {
+  return Promise.resolve()
+}
+
+/**
+ * Track a custom event
+ */
+export async function trackEvent(eventName: string, properties?: Record<string, any>) {
+  if (typeof window !== "undefined") {
+    try {
       // Example implementation - replace with your analytics provider
       console.log(`[Analytics] Event: ${eventName}`, properties)
-  
+
       // Google Analytics example
       // window.gtag?.('event', eventName, properties)
+
+      return Promise.resolve()
+    } catch (error) {
+      console.error(`[Analytics] Error tracking event ${eventName}:`, error)
+      return Promise.resolve()
     }
   }
-  
-  /**
-   * Initialize analytics
-   */
-  export function initAnalytics() {
-    if (typeof window !== "undefined") {
+  return Promise.resolve()
+}
+
+/**
+ * Initialize analytics
+ */
+export function initAnalytics() {
+  if (typeof window !== "undefined") {
+    try {
       // Example implementation - replace with your analytics provider
       console.log("[Analytics] Initialized")
-  
+
       // Google Analytics example
       // const script = document.createElement('script')
       // script.src = `https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID`
@@ -44,6 +63,8 @@ export function trackPageView(url: string) {
       // window.gtag = function() { window.dataLayer.push(arguments) }
       // window.gtag('js', new Date())
       // window.gtag('config', 'GA_MEASUREMENT_ID')
+    } catch (error) {
+      console.error("[Analytics] Error initializing analytics:", error)
     }
   }
-  
+}

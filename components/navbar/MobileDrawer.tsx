@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import LocaleSwitcher from "./LocaleSwitcher"
 import FocusTrap from "focus-trap-react"
 import { cn } from "@/lib/utils"
+import { useReservation } from "@/contexts/ReservationContext"
 
 type Props = {
   isOpen: boolean
@@ -28,6 +29,7 @@ const navVariants = {
 export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
   const [clicked, setClicked] = useState<string | null>(null)
   const router = useRouter()
+  const { openReservationModal } = useReservation()
 
   const links = [
     { href: `/${lang}/restaurant`, label: "Olivea Farm To Table" },
@@ -43,6 +45,15 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
       onClose()
       router.push(href)
     }, 200)
+  }
+
+  const handleReservationClick = () => {
+    window.navigator.vibrate?.(10)
+    onClose()
+    console.log("Opening reservation modal from mobile drawer")
+    setTimeout(() => {
+      openReservationModal()
+    }, 300)
   }
 
   useEffect(() => {
@@ -118,6 +129,19 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                       {label}
                     </motion.button>
                   ))}
+
+                  {/* Reservation Button */}
+                  <motion.button
+                    custom={links.length}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={navVariants}
+                    onClick={handleReservationClick}
+                    className="w-full text-center px-6 py-3 rounded-md text-lg font-semibold uppercase transition-colors outline-none focus:ring-2 focus:ring-white bg-[var(--olivea-soil)] text-white"
+                  >
+                    {lang === "es" ? "Reservar" : "Reserve"}
+                  </motion.button>
                 </nav>
 
                 {/* Language Switcher */}

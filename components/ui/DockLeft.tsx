@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState, useTransition, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -18,8 +18,6 @@ interface Props {
 export default function DockLeft({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  // Use React 19's useTransition for smoother UI during scrolling
-  const [isPending, startTransition] = useTransition()
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
 
   // Find the scroll container on mount
@@ -57,9 +55,7 @@ export default function DockLeft({ items }: Props) {
       })
 
       if (mostVisibleId) {
-        startTransition(() => {
-          setActiveId(mostVisibleId)
-        })
+        setActiveId(mostVisibleId)
       }
     }, observerOptions)
 
@@ -109,10 +105,8 @@ export default function DockLeft({ items }: Props) {
       // Update URL without reload
       window.history.pushState(null, "", `#${id}`)
 
-      // Update active state with transition for smoother UI
-      startTransition(() => {
-        setActiveId(id)
-      })
+      // Update active state
+      setActiveId(id)
     }
   }, [])
 
@@ -136,7 +130,6 @@ export default function DockLeft({ items }: Props) {
             className={cn(
               "group relative flex items-center space-x-4 transition-all duration-500 cursor-pointer",
               isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100",
-              isPending && "opacity-70", // Visual feedback during transitions
             )}
             aria-current={isActive ? "location" : undefined}
             aria-label={`Navigate to ${item.label} section`}

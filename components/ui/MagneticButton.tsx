@@ -10,9 +10,10 @@ interface MagneticButtonProps {
   href?: string
   className?: string
   children: React.ReactNode
+  onClick?: () => void
 }
 
-export default function MagneticButton({ href, className, children }: MagneticButtonProps) {
+export default function MagneticButton({ href, className, children, onClick }: MagneticButtonProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   const mouseX = useMotionValue(0)
@@ -46,11 +47,19 @@ export default function MagneticButton({ href, className, children }: MagneticBu
     mouseY.set(0)
   }
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const ButtonContent = (
     <motion.div
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       className={cn(
         "relative inline-flex items-center justify-center",
         "px-6 py-3 md:px-8 md:py-3.5 lg:px-9 lg:py-4", // Responsive and slightly reduced padding

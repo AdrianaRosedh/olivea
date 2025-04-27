@@ -3,7 +3,7 @@ import { getDictionary } from "../dictionaries"
 export default async function EventsPage({
   params,
 }: {
-  params: Promise<{ lang: "en" | "es" }>
+  params: Promise<{ lang: string }>
 }) {
   // Await the params Promise before accessing its properties
   const resolvedParams = await params

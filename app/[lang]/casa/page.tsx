@@ -1,13 +1,14 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { getDictionary } from "../dictionaries"
 import ScrollToSection from "@/components/ScrollToSection"
 import { TypographyH2, TypographyP } from "@/components/ui/Typography"
 
 // Define metadata for better SEO
-export async function generateMetadata({ params }: { params: Promise<{ lang: "en" | "es" }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   // Await the params Promise before accessing its properties
   const resolvedParams = await params
-  const dict = await getDictionary(resolvedParams.lang)
+  const lang = resolvedParams.lang
+  const dict = await getDictionary(lang)
 
   return {
     title: `${dict.casa.title} | Olivea`,
@@ -24,11 +25,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: "en
           alt: "Casa Olivea",
         },
       ],
-      locale: resolvedParams.lang,
+      locale: lang,
       type: "website",
     },
     alternates: {
-      canonical: `https://olivea.com/${resolvedParams.lang}/casa`,
+      canonical: `https://olivea.com/${lang}/casa`,
       languages: {
         en: `https://olivea.com/en/casa`,
         es: `https://olivea.com/es/casa`,
@@ -37,10 +38,15 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: "en
   }
 }
 
+// Move viewport settings to a separate export
+export const viewport: Viewport = {
+  themeColor: "#65735b",
+}
+
 export default async function CasaPage({
   params,
 }: {
-  params: Promise<{ lang: "en" | "es" }>
+  params: Promise<{ lang: string }>
 }) {
   // Await the params Promise before accessing its properties
   const resolvedParams = await params
