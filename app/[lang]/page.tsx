@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import MagneticButton from "@/components/ui/MagneticButton"
 import { useReservation } from "@/contexts/ReservationContext"
+import { default as OliveaFTTLogo } from "@/assets/oliveaFTT.svg"
 
 export default function HomePage() {
   const { openReservationModal } = useReservation()
@@ -49,8 +50,8 @@ export default function HomePage() {
             transition={{ delay: 0.4, duration: 1.2, ease: "easeInOut" }}
             className="mt-10 md:mt-0"
           >
-            {/* Simple text logo as a reliable fallback */}
-            <h1 className="text-4xl md:text-6xl font-serif text-white tracking-widest">OLIVEA</h1>
+            {/* Use the imported SVG component */}
+            <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
           </motion.div>
 
           {/* Tagline */}
