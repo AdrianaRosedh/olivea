@@ -36,7 +36,7 @@ export const dictionarySchema = z.object({
     title: z.string(),
     description: z.string(),
   }),
-  events: z.object({
+  sustainability: z.object({
     title: z.string(),
     description: z.string(),
   }),

@@ -104,9 +104,9 @@ export default function Footer() {
           {/* Globe dropdown toggle */}
           <button
             onClick={() => setOpen(!open)}
-            className="flex items-center gap-1 text-xs font-medium border border-gray-300 px-2 py-1.5 rounded-md bg-transparent backdrop-blur-sm hover:bg-gray-100/50 transition-all"
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md bg-transparent backdrop-blur-sm hover:bg-gray-100/50 transition-all border border-[rgba(0,0,0,0.05)]"
           >
-            <GlobeIcon className="w-4 h-4" />
+            <GlobeIcon className="w-4 h-4 text-olivea-olive" />
             {lang.toUpperCase()}
           </button>
 

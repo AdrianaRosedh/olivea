@@ -10,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/cafe",
     "/casa",
     "/contact",
-    "/events",
+    "/sustainability",
     "/journal",
     "/legal",
     "/reservations",

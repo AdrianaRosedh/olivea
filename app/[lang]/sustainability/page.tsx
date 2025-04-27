@@ -1,6 +1,6 @@
 import { getDictionary } from "../dictionaries"
 
-export default async function EventsPage({
+export default async function SustainabilityPage({
   params,
 }: {
   params: Promise<{ lang: string }>
@@ -12,8 +12,8 @@ export default async function EventsPage({
 
   return (
     <main className="p-10">
-      <h1 className="text-3xl font-semibold">{dict.events.title}</h1>
-      <p className="mt-2 text-muted-foreground">{dict.events.description}</p>
+      <h1 className="text-3xl font-semibold">{dict.sustainability.title}</h1>
+      <p className="mt-2 text-muted-foreground">{dict.sustainability.description}</p>
     </main>
   )
 }
