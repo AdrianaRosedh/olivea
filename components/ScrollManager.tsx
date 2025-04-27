@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
-import ScrollSync from "./ScrollSync"
 
 export default function ScrollManager() {
   const pathname = usePathname()
@@ -67,5 +66,5 @@ export default function ScrollManager() {
     }
   }, [pathname])
 
-  return <ScrollSync />
+  return null // This component doesn't render anything
 }

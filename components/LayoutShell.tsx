@@ -13,9 +13,7 @@ import { cn } from "@/lib/utils"
 import { memo, useEffect } from "react"
 import ScrollToTop from "@/components/ScrollToTop"
 import ClientOnly from "@/components/ClientOnly"
-import NextGenScrollIndicator from "@/components/NextGenScrollIndicator"
 import NextGenBackground from "@/components/NextGenBackground"
-import ScrollDebug from "@/components/ScrollDebug"
 
 type LayoutShellProps = {
   lang: string
@@ -147,8 +145,6 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         <>
           <ScrollToTop />
           <NextGenBackground />
-          <NextGenScrollIndicator />
-          <ScrollDebug />
         </>
       )}
     </>

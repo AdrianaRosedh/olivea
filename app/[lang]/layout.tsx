@@ -32,7 +32,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   // Await the params Promise before accessing its properties
   const resolvedParams = await params
-  const dict = await getDictionary(resolvedParams.lang)
+  const lang = resolvedParams.lang
+  const dict = await getDictionary(lang)
 
   return {
     title: {
