@@ -33,9 +33,16 @@ export default function NextGenBackground() {
         const saturation = 90 - progress * 60 + (progress > 0.5 ? (progress - 0.5) * 100 : 0)
         const brightness = 85 + progress * 40 - (progress > 0.5 ? (progress - 0.5) * 90 : 0)
 
-        // Update the DOM directly
+        // Update the DOM directly with a smoother transition
         gradientLayerRef.current.style.opacity = opacity.toString()
         gradientLayerRef.current.style.filter = `hue-rotate(${hue}deg) saturate(${saturation}%) brightness(${brightness}%)`
+
+        // Dispatch a custom event that other animation components can listen for
+        document.dispatchEvent(
+          new CustomEvent("scrollProgressUpdate", {
+            detail: { progress },
+          }),
+        )
       }
     }
 

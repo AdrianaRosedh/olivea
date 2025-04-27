@@ -2,12 +2,19 @@
 
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
+import dynamic from "next/dynamic"
+
+// Dynamically import ScrollSync with no SSR to prevent server-side execution
+const ScrollSync = dynamic(() => import("./ScrollSync"), { ssr: false })
 
 export default function ScrollManager() {
   const pathname = usePathname()
 
   // Force scroll events on navigation
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return
+    
     console.log(`[ScrollManager] Path changed: ${pathname}`)
 
     // Function to dispatch scroll events
@@ -66,5 +73,5 @@ export default function ScrollManager() {
     }
   }, [pathname])
 
-  return null // This component doesn't render anything
+  return <ScrollSync />
 }
