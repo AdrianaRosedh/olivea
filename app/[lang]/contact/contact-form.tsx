@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button"
 import { handleSubmit } from "./actions"
 
 export default function ContactForm({ lang }: { lang: string }) {
