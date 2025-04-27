@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { cn } from "@/lib/utils"
 
 interface MobileSectionNavItem {
@@ -16,6 +15,7 @@ interface Props {
 
 export default function MobileSectionNav({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
   const containerRef = useRef<HTMLDivElement>(null)
   const buttonRefs = useRef<Record<string, HTMLAnchorElement | null>>({})
 
@@ -25,11 +25,15 @@ export default function MobileSectionNav({ items }: Props) {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             const id = entry.target.id
-            setActiveId((prev) => {
-              if (prev !== id && window.navigator.vibrate) {
-                window.navigator.vibrate(10)
-              }
-              return id
+
+            // Use startTransition to avoid blocking the UI during state updates
+            startTransition(() => {
+              setActiveId((prev) => {
+                if (prev !== id && window.navigator.vibrate) {
+                  window.navigator.vibrate(10)
+                }
+                return id
+              })
             })
 
             const btn = buttonRefs.current[id]
@@ -85,8 +89,10 @@ export default function MobileSectionNav({ items }: Props) {
         section.scrollIntoView({ behavior: "smooth", block: "start" })
       }
 
-      // Update active state
-      setActiveId(id)
+      // Update active state with transition for smoother UI
+      startTransition(() => {
+        setActiveId(id)
+      })
 
       // Provide haptic feedback if available
       if (window.navigator.vibrate) {
@@ -115,6 +121,7 @@ export default function MobileSectionNav({ items }: Props) {
           className={cn(
             "px-5 py-2 rounded-md text-sm font-medium uppercase border transition-all duration-300 whitespace-nowrap",
             "focus:outline-none focus:ring-2 focus:ring-[var(--olivea-olive)] focus:ring-offset-2",
+            isPending ? "opacity-80" : "", // Visual feedback during transitions
             activeId === item.id
               ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)] shadow-sm"
               : "text-[var(--olivea-olive)] border-[var(--olivea-olive)]/70 hover:bg-[var(--olivea-olive)]/10 hover:border-[var(--olivea-olive)]",

@@ -1,9 +1,10 @@
 "use client"
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
-import Link from "next/link"
+import type React from "react"
 import { useRef } from "react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 
 interface MagneticButtonProps {
   href?: string
@@ -55,7 +56,7 @@ export default function MagneticButton({ href, className, children }: MagneticBu
         "px-6 py-3 md:px-8 md:py-3.5 lg:px-9 lg:py-4", // Responsive and slightly reduced padding
         "rounded-full transition-transform duration-200 overflow-hidden",
         "bg-black text-white shadow-xl hover:scale-110 active:scale-95",
-        className
+        className,
       )}
       style={{ x, y }}
     >
