@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://olivea.com"
+  const baseUrl = "https://oliveafarmtotable.com"
 
   // Define all routes that should be in the sitemap
   const routes = [
@@ -26,7 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       sitemap.push({
         url: `${baseUrl}/${lang}${route}`,
         lastModified: new Date(),
-        changeFrequency: "weekly",
+        changeFrequency: route === "" ? "daily" : "weekly",
         priority: route === "" ? 1.0 : 0.8,
       })
     }

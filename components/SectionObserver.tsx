@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { EVENTS } from "@/lib/navigation-events"
+import { EVENTS, emitEvent } from "@/lib/navigation-events"
 
 interface SectionObserverProps {
   sectionIds: string[]
@@ -14,6 +14,7 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
   const initialLoadRef = useRef(true)
   const isScrollingProgrammaticallyRef = useRef(false)
   const debugModeRef = useRef(false) // Enable debug logs
+  const observationPausedRef = useRef(false)
 
   // Debug logger
   const debugLog = (...args: any[]) => {
@@ -58,6 +59,9 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
 
       const observer = new IntersectionObserver(
         (entries) => {
+          // Skip if observation is paused
+          if (observationPausedRef.current) return
+
           // Skip if we're scrolling programmatically
           if (isScrollingProgrammaticallyRef.current) return
 
@@ -79,6 +83,13 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
                     },
                   }),
                 )
+
+                // Also emit section change event
+                emitEvent(EVENTS.SECTION_CHANGE, {
+                  id,
+                  source: "observer",
+                  intersectionRatio: entry.intersectionRatio,
+                })
               }
             }
           })
@@ -124,32 +135,36 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
     // Listen for scroll events from DockLeft
     const handleScrollStart = () => {
       isScrollingProgrammaticallyRef.current = true
+      observationPausedRef.current = true
     }
 
     const handleScrollComplete = () => {
       // Wait a bit before re-enabling observers to avoid jumps
       setTimeout(() => {
         isScrollingProgrammaticallyRef.current = false
+        observationPausedRef.current = false
 
         // Force a scroll event to reactivate observers
         window.dispatchEvent(new Event("scroll"))
       }, 150)
     }
 
+    // Listen for section snap events
+    const handleSectionSnapStart = () => {
+      observationPausedRef.current = true
+    }
+
+    const handleSectionSnapComplete = () => {
+      setTimeout(() => {
+        observationPausedRef.current = false
+      }, 150)
+    }
+
     document.addEventListener("observers:reinitialize", handleReinitialize)
     document.addEventListener(EVENTS.SCROLL_START, handleScrollStart)
     document.addEventListener(EVENTS.SCROLL_COMPLETE, handleScrollComplete)
-
-    // Listen for the enableScrollAnimations event
-    const handleEnableScrollAnimations = () => {
-      if (debugModeRef.current) {
-        console.log("[SectionObserver] Re-enabling scroll animations")
-      }
-      // Reset the programmatic scrolling flag
-      isScrollingProgrammaticallyRef.current = false
-    }
-
-    document.addEventListener("enableScrollAnimations", handleEnableScrollAnimations)
+    document.addEventListener(EVENTS.SECTION_SNAP_START, handleSectionSnapStart)
+    document.addEventListener(EVENTS.SECTION_SNAP_COMPLETE, handleSectionSnapComplete)
 
     // Force a scroll event after initialization
     const scrollTimer = setTimeout(() => {
@@ -164,7 +179,8 @@ export default function SectionObserver({ sectionIds }: SectionObserverProps) {
       document.removeEventListener("observers:reinitialize", handleReinitialize)
       document.removeEventListener(EVENTS.SCROLL_START, handleScrollStart)
       document.removeEventListener(EVENTS.SCROLL_COMPLETE, handleScrollComplete)
-      document.removeEventListener("enableScrollAnimations", handleEnableScrollAnimations)
+      document.removeEventListener(EVENTS.SECTION_SNAP_START, handleSectionSnapStart)
+      document.removeEventListener(EVENTS.SECTION_SNAP_COMPLETE, handleSectionSnapComplete)
     }
   }, [sectionIds])
 

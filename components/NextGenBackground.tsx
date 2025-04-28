@@ -1,24 +1,45 @@
 "use client"
 
 import { useRef, useEffect, useState } from "react"
-import { EVENTS } from "@/lib/navigation-events"
+import { EVENTS, getScrollProgress } from "@/lib/navigation-events"
 
 export default function NextGenBackground() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const gradientLayerRef = useRef<HTMLDivElement>(null)
   const isAnimatingRef = useRef(false)
-  const targetProgressRef = useRef(0)
   const animationFrameRef = useRef<number | null>(null)
+  const debugModeRef = useRef(false)
+
+  // Debug logger
+  const debugLog = (...args: any[]) => {
+    if (debugModeRef.current) {
+      console.log("[NextGenBackground]", ...args)
+    }
+  }
+
+  // Function to update the gradient based on scroll progress
+  const updateGradient = (progress: number) => {
+    if (!gradientLayerRef.current) return
+
+    // Calculate values based on scroll progress
+    const opacity = progress < 0.01 ? 0.8 : progress > 0.99 ? 0.8 : 1
+    const hue = 20 + (progress < 0.5 ? progress * 50 : (1 - progress) * 50)
+    const saturation = 90 - progress * 60 + (progress > 0.5 ? (progress - 0.5) * 100 : 0)
+    const brightness = 85 + progress * 40 - (progress > 0.5 ? (progress - 0.5) * 90 : 0)
+
+    // Update the DOM directly with a smoother transition
+    gradientLayerRef.current.style.opacity = opacity.toString()
+    gradientLayerRef.current.style.filter = `hue-rotate(${hue}deg) saturate(${saturation}%) brightness(${brightness}%)`
+  }
 
   // Smooth animation function for background changes
-  const animateBackground = (targetProgress: number) => {
+  const animateToProgress = (targetProgress: number, duration = 800) => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
     }
 
     const startProgress = scrollProgress
     const startTime = performance.now()
-    const duration = 800 // Match the scroll animation duration
 
     const animate = (time: number) => {
       const elapsed = time - startTime
@@ -46,21 +67,6 @@ export default function NextGenBackground() {
     animationFrameRef.current = requestAnimationFrame(animate)
   }
 
-  // Function to update the gradient based on scroll progress
-  const updateGradient = (progress: number) => {
-    if (!gradientLayerRef.current) return
-
-    // Calculate values based on scroll progress
-    const opacity = progress < 0.01 ? 0.8 : progress > 0.99 ? 0.8 : 1
-    const hue = 20 + (progress < 0.5 ? progress * 50 : (1 - progress) * 50)
-    const saturation = 90 - progress * 60 + (progress > 0.5 ? (progress - 0.5) * 100 : 0)
-    const brightness = 85 + progress * 40 - (progress > 0.5 ? (progress - 0.5) * 90 : 0)
-
-    // Update the DOM directly with a smoother transition
-    gradientLayerRef.current.style.opacity = opacity.toString()
-    gradientLayerRef.current.style.filter = `hue-rotate(${hue}deg) saturate(${saturation}%) brightness(${brightness}%)`
-  }
-
   useEffect(() => {
     if (typeof window === "undefined") return
 
@@ -69,27 +75,12 @@ export default function NextGenBackground() {
       // Skip if we're already animating from a programmatic scroll
       if (isAnimatingRef.current) return
 
-      // Find the scroll container
-      const scrollContainer = document.querySelector(".scroll-container") || document.documentElement
+      // Get current scroll progress
+      const progress = getScrollProgress()
 
-      // Get scroll values from the appropriate container
-      const scrollTop = scrollContainer.scrollTop
-      const scrollHeight = scrollContainer.scrollHeight
-      const clientHeight = scrollContainer.clientHeight
-
-      // Calculate progress (0 to 1)
-      const maxScroll = Math.max(1, scrollHeight - clientHeight)
-      const progress = Math.min(1, scrollTop / maxScroll)
-
+      // Update state and gradient
       setScrollProgress(progress)
       updateGradient(progress)
-
-      // Dispatch a custom event that other animation components can listen for
-      document.dispatchEvent(
-        new CustomEvent("scrollProgressUpdate", {
-          detail: { progress },
-        }),
-      )
     }
 
     // Listen for scroll events from DockLeft
@@ -100,14 +91,17 @@ export default function NextGenBackground() {
 
     const handleScrollProgress = (e: Event) => {
       const customEvent = e as CustomEvent
-      if (customEvent.detail?.progress !== undefined) {
-        // Get the target progress from the event
-        const targetProgress = customEvent.detail.progress
 
-        // Update our progress state
+      // If we have totalProgress, use that directly
+      if (customEvent.detail?.totalProgress !== undefined) {
+        const targetProgress = customEvent.detail.totalProgress
         setScrollProgress(targetProgress)
-
-        // Update the gradient directly
+        updateGradient(targetProgress)
+      }
+      // Otherwise use the animation progress if we have a target
+      else if (customEvent.detail?.progress !== undefined) {
+        const targetProgress = customEvent.detail.progress
+        setScrollProgress(targetProgress)
         updateGradient(targetProgress)
       }
     }
@@ -119,16 +113,40 @@ export default function NextGenBackground() {
 
         // Force an update of the background
         updateBackground()
-      }, 150)
+      }, 50)
     }
 
-    // Listen for the enableScrollAnimations event
-    const handleEnableScrollAnimations = () => {
-      // Reset animation state
-      isAnimatingRef.current = false
+    // Listen for section snap events
+    const handleSectionSnapStart = (e: Event) => {
+      const customEvent = e as CustomEvent
+      isAnimatingRef.current = true
 
-      // Force an update of the background
-      updateBackground()
+      // If we have start and target positions, calculate the progress
+      if (customEvent.detail?.startPosition !== undefined && customEvent.detail?.targetPosition !== undefined) {
+        debugLog("Section snap start", customEvent.detail)
+      }
+    }
+
+    const handleSectionSnapComplete = (e: Event) => {
+      const customEvent = e as CustomEvent
+
+      // Force an update after snap completes
+      setTimeout(() => {
+        isAnimatingRef.current = false
+        updateBackground()
+      }, 50)
+    }
+
+    // Listen for section change events
+    const handleSectionChange = (e: Event) => {
+      const customEvent = e as CustomEvent
+
+      // Only animate if this wasn't from a scroll or click (those are handled separately)
+      if (customEvent.detail?.source !== "scroll" && customEvent.detail?.source !== "click") {
+        // Get current scroll progress
+        const progress = getScrollProgress()
+        animateToProgress(progress, 400)
+      }
     }
 
     // Update immediately
@@ -138,11 +156,13 @@ export default function NextGenBackground() {
     const scrollContainer = document.querySelector(".scroll-container") || window
     scrollContainer.addEventListener("scroll", updateBackground, { passive: true })
 
-    // Listen for scroll events from DockLeft
+    // Listen for events
     document.addEventListener(EVENTS.SCROLL_START, handleScrollStart)
     document.addEventListener(EVENTS.SCROLL_PROGRESS, handleScrollProgress)
     document.addEventListener(EVENTS.SCROLL_COMPLETE, handleScrollComplete)
-    document.addEventListener("enableScrollAnimations", handleEnableScrollAnimations)
+    document.addEventListener(EVENTS.SECTION_SNAP_START, handleSectionSnapStart)
+    document.addEventListener(EVENTS.SECTION_SNAP_COMPLETE, handleSectionSnapComplete)
+    document.addEventListener(EVENTS.SECTION_CHANGE, handleSectionChange)
 
     // Force multiple updates to ensure it works
     const timers = [
@@ -157,7 +177,9 @@ export default function NextGenBackground() {
       document.removeEventListener(EVENTS.SCROLL_START, handleScrollStart)
       document.removeEventListener(EVENTS.SCROLL_PROGRESS, handleScrollProgress)
       document.removeEventListener(EVENTS.SCROLL_COMPLETE, handleScrollComplete)
-      document.removeEventListener("enableScrollAnimations", handleEnableScrollAnimations)
+      document.removeEventListener(EVENTS.SECTION_SNAP_START, handleSectionSnapStart)
+      document.removeEventListener(EVENTS.SECTION_SNAP_COMPLETE, handleSectionSnapComplete)
+      document.removeEventListener(EVENTS.SECTION_CHANGE, handleSectionChange)
 
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)

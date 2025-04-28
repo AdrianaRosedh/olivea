@@ -274,24 +274,27 @@ body {
   color: var(--olivea-clay);
 }
 
-/* Scroll snap container */
-.snap-y {
+/* Improved scroll snap container */
+.scroll-container {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch; /* For better iOS scrolling */
 }
 
-.snap-center {
-  scroll-snap-align: center;
-}
-
-.snap-always {
+/* Ensure sections snap properly */
+.scroll-container > section {
+  scroll-snap-align: start;
   scroll-snap-stop: always;
+  min-height: 100vh;
+  position: relative;
 }
 
 /* Ensure the scroll container takes up the full height */
 .scroll-container {
   height: 100vh;
   overflow-y: auto;
-  scroll-behavior: smooth;
 }
 
 /* Hide scrollbar but keep functionality */
@@ -304,6 +307,19 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
+/* Adjust scroll-padding-top to account for the navbar height */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 8rem; /* Increased to account for the navbar height */
+  scroll-padding-bottom: 3rem; /* Added for footer space */
+}
+
+/* Ensure sections start at the top when navigating directly to them */
+section[id] {
+  scroll-margin-top: 8rem; /* Match the scroll-padding-top value */
+  scroll-margin-bottom: 3rem; /* Match the scroll-padding-bottom value */
+}
+
 /* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -312,13 +328,6 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
-}
-
-/* Adjust scroll-padding-top to account for the navbar height */
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 8rem; /* Increased to account for the navbar height */
-  scroll-padding-bottom: 3rem; /* Added for footer space */
 }
 
 /* New scroll settings */

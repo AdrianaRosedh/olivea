@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
+import { EVENTS, emitEvent } from "@/lib/navigation-events"
 
 export default function ScrollSync() {
   const scrollContainerRef = useRef<HTMLElement | null>(null)
@@ -12,6 +13,8 @@ export default function ScrollSync() {
   const scrollAnimationRef = useRef<number | null>(null)
   const clickedSectionRef = useRef<string | null>(null)
   const debugModeRef = useRef(false) // Set to true to enable debug logs
+  const snapInProgressRef = useRef(false)
+  const lastScrollTimeRef = useRef(0)
 
   // Debug logger that only logs if debug mode is enabled
   const debugLog = (...args: any[]) => {
@@ -50,6 +53,18 @@ export default function ScrollSync() {
     const distance = targetPosition - startPosition
     let startTime: number | null = null
 
+    // Set flags
+    isScrollingProgrammatically.current = true
+    snapInProgressRef.current = true
+    lastScrollTimeRef.current = Date.now()
+
+    // Emit events
+    emitEvent(EVENTS.SECTION_SNAP_START, {
+      targetId: clickedSectionRef.current,
+      startPosition,
+      targetPosition,
+    })
+
     // Easing function for smooth animation
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 
@@ -62,6 +77,15 @@ export default function ScrollSync() {
 
       if (scrollContainer) {
         scrollContainer.scrollTop = startPosition + distance * easedProgress
+
+        // Emit progress event
+        emitEvent(EVENTS.SCROLL_PROGRESS, {
+          progress: easedProgress,
+          targetId: clickedSectionRef.current,
+          scrollPosition: startPosition + distance * easedProgress,
+          totalProgress:
+            (startPosition + distance * easedProgress) / (scrollContainer.scrollHeight - scrollContainer.clientHeight),
+        })
       }
 
       if (progress < 1) {
@@ -69,17 +93,26 @@ export default function ScrollSync() {
       } else {
         // Animation complete
         scrollAnimationRef.current = null
-        isScrollingProgrammatically.current = false
 
-        // Clear clicked section after animation completes
+        // Emit events
+        emitEvent(EVENTS.SECTION_SNAP_COMPLETE, {
+          targetId: clickedSectionRef.current,
+          finalPosition: scrollContainer.scrollTop,
+        })
+
+        // Reset flags after a short delay
         setTimeout(() => {
+          isScrollingProgrammatically.current = false
+          snapInProgressRef.current = false
           clickedSectionRef.current = null
+
+          // Force a scroll event
+          window.dispatchEvent(new Event("scroll"))
         }, 100)
       }
     }
 
     // Start animation
-    isScrollingProgrammatically.current = true
     scrollAnimationRef.current = requestAnimationFrame(animateScroll)
   }
 
@@ -108,13 +141,13 @@ export default function ScrollSync() {
         if (targetSection && scrollContainer) {
           e.preventDefault()
 
+          // Skip if we're already animating
+          if (snapInProgressRef.current) return
+
           debugLog(`Clicking to section ${targetId}`)
 
           // Store the clicked section ID
           clickedSectionRef.current = targetId
-
-          // Mark that we're programmatically scrolling
-          isScrollingProgrammatically.current = true
 
           // Calculate the top position of the section relative to the scroll container
           const sectionTop = targetSection.offsetTop
@@ -140,17 +173,11 @@ export default function ScrollSync() {
             }),
           )
 
-          // After animation completes, re-enable scroll animations
-          setTimeout(() => {
-            isScrollingProgrammatically.current = false
-            clickedSectionRef.current = null
-
-            // Force a scroll event to reactivate observers
-            window.dispatchEvent(new Event("scroll"))
-
-            // Re-enable scroll animations by dispatching a custom event
-            document.dispatchEvent(new CustomEvent("enableScrollAnimations", {}))
-          }, 900) // Slightly longer than the animation duration
+          // Also emit section change event
+          emitEvent(EVENTS.SECTION_CHANGE, {
+            id: targetId,
+            source: "click",
+          })
         }
       }
     }
@@ -159,7 +186,7 @@ export default function ScrollSync() {
     let scrollTimeout: NodeJS.Timeout | null = null
     const handleScroll = () => {
       // Skip if we're programmatically scrolling to avoid competing updates
-      if (isScrollingProgrammatically.current) return
+      if (isScrollingProgrammatically.current || snapInProgressRef.current) return
 
       // If we have a clicked section that's still being processed, don't override it
       if (clickedSectionRef.current) return
@@ -206,6 +233,13 @@ export default function ScrollSync() {
               },
             }),
           )
+
+          // Also emit section change event
+          emitEvent(EVENTS.SECTION_CHANGE, {
+            id: activeSection.id,
+            source: "scroll",
+            intersectionRatio: maxVisibility,
+          })
         }
       }, 50) // 50ms throttle
     }
@@ -217,7 +251,7 @@ export default function ScrollSync() {
       setTimeout(initializeScrollFunctionality, 100)
     }
 
-    document.addEventListener("navigation:complete", handleNavigationComplete)
+    document.addEventListener(EVENTS.NAVIGATION_COMPLETE, handleNavigationComplete)
 
     // Also listen for scroll initialization events
     const handleScrollInit = () => {
@@ -225,7 +259,7 @@ export default function ScrollSync() {
       initializeScrollFunctionality()
     }
 
-    document.addEventListener("scroll:initialize", handleScrollInit)
+    document.addEventListener(EVENTS.SCROLL_INITIALIZE, handleScrollInit)
 
     // Add event listeners
     document.addEventListener("click", handleSectionClick)
@@ -254,8 +288,8 @@ export default function ScrollSync() {
 
       document.removeEventListener("click", handleSectionClick)
       window.removeEventListener("scroll", handleScroll)
-      document.removeEventListener("navigation:complete", handleNavigationComplete)
-      document.removeEventListener("scroll:initialize", handleScrollInit)
+      document.removeEventListener(EVENTS.NAVIGATION_COMPLETE, handleNavigationComplete)
+      document.removeEventListener(EVENTS.SCROLL_INITIALIZE, handleScrollInit)
     }
   }, [pathname]) // Re-run when pathname changes
 

@@ -22,7 +22,8 @@ const nextConfig = {
   images: {
     domains: ["olivea.com"],
     formats: ["image/avif", "image/webp"],
-    unoptimized: true,
+    // Remove or set to false to enable optimization
+    unoptimized: false,
   },
   webpack(config) {
     config.module.rules.push({

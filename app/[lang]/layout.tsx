@@ -7,6 +7,7 @@ import { ReservationProvider } from "@/contexts/ReservationContext"
 import { Suspense } from "react"
 import ClientProviders from "@/components/ClientProviders"
 import type React from "react"
+import StructuredData from "@/components/StructuredData"
 
 // Define fonts with display: 'swap' for better performance
 const inter = Inter({
@@ -41,6 +42,30 @@ export async function generateMetadata({
     },
     description: dict.metadata?.description || "A farm-to-table sanctuary where nature, nourishment, and design meet.",
     metadataBase: new URL("https://olivea.com"),
+    openGraph: {
+      title: "Olivea",
+      description:
+        dict.metadata?.description || "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+      images: [`/images/og-${lang}.jpg`],
+      url: `https://olivea.com/${lang}`,
+      type: "website",
+      locale: lang,
+      siteName: "Olivea",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Olivea",
+      description:
+        dict.metadata?.description || "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+      images: [`/images/twitter-${lang}.jpg`],
+    },
+    alternates: {
+      canonical: `https://olivea.com/${lang}`,
+      languages: {
+        en: `https://olivea.com/en`,
+        es: `https://olivea.com/es`,
+      },
+    },
   }
 }
 
@@ -63,6 +88,7 @@ export default async function RootLayout({
 
   return (
     <div className={`${inter.variable} ${cormorant.variable}`}>
+      <StructuredData lang={lang} />
       {/* Client-side providers */}
       <ClientProviders />
 
