@@ -5,6 +5,7 @@ import ClientOnly from "@/components/ClientOnly"
 import SectionObserver from "@/components/SectionObserver"
 import MobileSectionTracker from "@/components/MobileSectionTracker"
 
+// This component remains client-side because it needs interactivity
 export default function CasaClientPage({
   lang,
   dict,
@@ -29,7 +30,7 @@ export default function CasaClientPage({
     },
     priceRange: "$$$",
     telephone: "+52-123-456-7890", // Replace with actual phone
-    image: "/images/casa-hero.jpg", // Replace with actual image
+    image: "/images/casa.png", // Updated to use the new image
     amenityFeature: [
       {
         "@type": "LocationFeatureSpecification",

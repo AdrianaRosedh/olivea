@@ -2,6 +2,31 @@ import { Suspense } from "react"
 import { getDictionary } from "../dictionaries"
 import MenuItems from "./menu-items"
 
+// Improved menu skeleton with more realistic appearance
+function MenuSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+
+        {[1, 2].map((categoryIndex) => (
+          <div key={categoryIndex} className="mb-8">
+            <div className="h-7 bg-gray-200 rounded w-1/3 mb-3"></div>
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map((itemIndex) => (
+                <div key={itemIndex} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
+                  <div className="h-5 bg-gray-200 rounded w-40"></div>
+                  <div className="h-5 bg-gray-200 rounded w-12"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default async function CafePage({
   params,
 }: {
@@ -21,28 +46,5 @@ export default async function CafePage({
         <MenuItems lang={lang} />
       </Suspense>
     </main>
-  )
-}
-
-function MenuSkeleton() {
-  return (
-    <div className="space-y-8">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map((j) => (
-              <div key={j} className="flex justify-between">
-                <div>
-                  <div className="h-5 bg-gray-200 rounded w-40 mb-2"></div>
-                  <div className="h-4 bg-gray-100 rounded w-60"></div>
-                </div>
-                <div className="h-5 bg-gray-200 rounded w-12"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
   )
 }

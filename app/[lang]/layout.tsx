@@ -8,6 +8,7 @@ import { Suspense } from "react"
 import ClientProviders from "@/components/ClientProviders"
 import type React from "react"
 import StructuredData from "@/components/StructuredData"
+import LoadingSpinner from "@/components/ui/LoadingSpinner"
 
 // Define fonts with display: 'swap' for better performance
 const inter = Inter({
@@ -76,6 +77,15 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 }
 
+// Loading component for the layout
+function LayoutLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <LoadingSpinner size="lg" />
+    </div>
+  )
+}
+
 export default async function RootLayout({
   children,
   params,
@@ -89,12 +99,16 @@ export default async function RootLayout({
   return (
     <div className={`${inter.variable} ${cormorant.variable}`}>
       <StructuredData lang={lang} />
+
       {/* Client-side providers */}
       <ClientProviders />
 
       <ReservationProvider lang={lang}>
-        <Suspense fallback={null}>
-          <LayoutShell lang={lang}>{children}</LayoutShell>
+        <Suspense fallback={<LayoutLoading />}>
+          <LayoutShell lang={lang}>
+            {/* Wrap children in Suspense to enable streaming */}
+            <Suspense fallback={<LayoutLoading />}>{children}</Suspense>
+          </LayoutShell>
         </Suspense>
       </ReservationProvider>
     </div>

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next"
 import { getDictionary } from "../dictionaries"
 import CasaClientPage from "./CasaClientPage"
+import { Suspense } from "react"
+import LoadingSpinner from "@/components/ui/LoadingSpinner"
 
 // Define metadata for better SEO
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -18,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       description: dict.casa.description,
       images: [
         {
-          url: "/images/casa-og.jpg", // You can create this image later
+          url: "/images/casa.png", // Updated to use the new image
           width: 1200,
           height: 630,
           alt: "Casa Olivea",
@@ -42,6 +44,15 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 }
 
+// Simple loading component for Casa page
+function CasaLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <LoadingSpinner size="lg" />
+    </div>
+  )
+}
+
 export default async function CasaPage({
   params,
 }: {
@@ -52,5 +63,9 @@ export default async function CasaPage({
   const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
 
-  return <CasaClientPage lang={lang} dict={dict} />
+  return (
+    <Suspense fallback={<CasaLoading />}>
+      <CasaClientPage lang={lang} dict={dict} />
+    </Suspense>
+  )
 }
