@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Button } from "@/components/ui/Button"
+import { Button } from "@/components/ui/button"
 import MagneticButton from "@/components/ui/MagneticButton"
 import { useReservation } from "@/contexts/ReservationContext"
 import { default as OliveaFTTLogo } from "@/assets/oliveaFTT.svg"
