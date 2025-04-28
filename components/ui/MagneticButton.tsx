@@ -20,8 +20,8 @@ export default function MagneticButton({ href, className, children, onClick, dis
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  const springX = useSpring(mouseX, { stiffness: 100, damping: 15 })
-  const springY = useSpring(mouseY, { stiffness: 100, damping: 15 })
+  const springX = useSpring(mouseX, { stiffness: 80, damping: 10 })
+  const springY = useSpring(mouseY, { stiffness: 80, damping: 10 })
 
   const x = useTransform(springX, (v) => `${v}px`)
   const y = useTransform(springY, (v) => `${v}px`)
@@ -74,8 +74,8 @@ export default function MagneticButton({ href, className, children, onClick, dis
       onClick={handleClick}
       className={cn(
         "relative inline-flex items-center justify-center",
-        "px-6 py-3 md:px-8 md:py-3.5 lg:px-9 lg:py-4", // Responsive and slightly reduced padding
-        "rounded-full transition-transform duration-200 overflow-hidden",
+        "px-6 py-3 md:px-8 md:py-3.5 lg:px-9 lg:py-4",
+        "rounded-full transition-transform duration-300 overflow-hidden",
         "bg-black text-white shadow-xl hover:scale-110 active:scale-95",
         disabled && "opacity-50 cursor-not-allowed hover:scale-100 active:scale-100",
         className,

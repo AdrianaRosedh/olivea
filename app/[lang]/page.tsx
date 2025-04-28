@@ -4,17 +4,10 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import MagneticButton from "@/components/ui/MagneticButton"
-import { useReservation } from "@/contexts/ReservationContext"
-import { default as OliveaFTTLogo } from "@/assets/oliveaFTT.svg"
+import OliveaFTTLogo from "@/assets/oliveaFTT.svg"
+import ReservationButton from "./ReservationButton"
 
 export default function HomePage() {
-  const { openReservationModal } = useReservation()
-
-  const handleReservationClick = () => {
-    // Use the context to open the modal directly
-    openReservationModal()
-  }
-
   return (
     <main className="flex items-center justify-center w-full h-screen bg-black">
       <div className="relative w-full h-full max-w-screen-xl rounded-3xl overflow-hidden shadow-xl">
@@ -26,13 +19,14 @@ export default function HomePage() {
           muted
           loop
           playsInline
+          preload="auto"
         />
 
         {/* Animated Gradient Overlay */}
         <motion.div
           initial={{ opacity: 0.4 }}
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-          transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
           style={{
             backgroundImage:
@@ -50,7 +44,6 @@ export default function HomePage() {
             transition={{ delay: 0.4, duration: 1.2, ease: "easeInOut" }}
             className="mt-10 md:mt-0"
           >
-            {/* Use the imported SVG component */}
             <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
           </motion.div>
 
@@ -115,30 +108,7 @@ export default function HomePage() {
             transition={{ delay: 1.4, type: "spring", stiffness: 80, damping: 12 }}
             className="mt-6 md:mt-10 mb-10"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
-              className="md:hidden w-full px-4"
-            >
-              <Button
-                onClick={handleReservationClick}
-                size="lg"
-                className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-clay)] text-white 
-                  hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans"
-              >
-                Reservar
-              </Button>
-            </motion.div>
-
-            <div className="hidden md:block">
-              <MagneticButton
-                onClick={handleReservationClick}
-                className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors font-sans"
-              >
-                Reservar
-              </MagneticButton>
-            </div>
+            <ReservationButton />
           </motion.div>
         </div>
       </div>

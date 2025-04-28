@@ -1,4 +1,3 @@
-import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Cormorant_Garamond } from "next/font/google"
 import { getDictionary } from "./dictionaries"
@@ -7,6 +6,7 @@ import LayoutShell from "@/components/LayoutShell"
 import { ReservationProvider } from "@/contexts/ReservationContext"
 import { Suspense } from "react"
 import ClientProviders from "@/components/ClientProviders"
+import type React from "react"
 
 // Define fonts with display: 'swap' for better performance
 const inter = Inter({
@@ -30,7 +30,6 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
-  // Await the params Promise before accessing its properties
   const resolvedParams = await params
   const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
@@ -45,7 +44,6 @@ export async function generateMetadata({
   }
 }
 
-// Move viewport and themeColor to a separate viewport export
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -60,22 +58,19 @@ export default async function RootLayout({
   children: React.ReactNode
   params: Promise<{ lang: string }>
 }) {
-  // Await the params Promise before accessing its properties
   const resolvedParams = await params
   const lang = resolvedParams.lang
 
   return (
-    <html lang={lang} className={`${inter.variable} ${cormorant.variable}`} suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
-        {/* Client-side providers */}
-        <ClientProviders />
+    <div className={`${inter.variable} ${cormorant.variable}`}>
+      {/* Client-side providers */}
+      <ClientProviders />
 
-        <ReservationProvider lang={lang}>
-          <Suspense fallback={null}>
-            <LayoutShell lang={lang}>{children}</LayoutShell>
-          </Suspense>
-        </ReservationProvider>
-      </body>
-    </html>
+      <ReservationProvider lang={lang}>
+        <Suspense fallback={null}>
+          <LayoutShell lang={lang}>{children}</LayoutShell>
+        </Suspense>
+      </ReservationProvider>
+    </div>
   )
 }
