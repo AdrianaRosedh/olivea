@@ -18,60 +18,94 @@ export default function DockLeft({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(items.length > 0 ? items[0].id : null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
   const scrollingRef = useRef(false)
   const lastActiveIdRef = useRef<string | null>(null)
   const animationFrameRef = useRef<number | null>(null)
 
+  // Define updateActiveSection function outside of effects to fix the error
+  // but keep the implementation identical to preserve animation behavior
+  function updateActiveSection() {
+    // Skip if we're programmatically scrolling
+    if (scrollingRef.current) return
+
+    const sections = document.querySelectorAll("section[id]")
+    if (sections.length === 0) return
+
+    let bestSection = null
+    let bestVisibility = 0
+
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+
+      // Calculate how much of the section is visible
+      const visibleTop = Math.max(0, rect.top)
+      const visibleBottom = Math.min(windowHeight, rect.bottom)
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+      const visibility = visibleHeight / rect.height
+
+      // Weight the center of the screen more heavily
+      const distanceFromCenter = Math.abs((rect.top + rect.bottom) / 2 - windowHeight / 2)
+      const centerWeight = 1 - Math.min(1, distanceFromCenter / (windowHeight / 2))
+
+      // Combined score that favors both visibility and centeredness
+      const score = visibility * 0.7 + centerWeight * 0.3
+
+      if (score > bestVisibility) {
+        bestVisibility = score
+        bestSection = section
+      }
+    })
+
+    if (bestSection && bestSection.id !== activeId) {
+      // Update the active ID
+      setActiveId(bestSection.id)
+      lastActiveIdRef.current = bestSection.id
+    }
+  }
+
+  // Force a scroll event to activate listeners
+  function forceScrollEvent() {
+    window.scrollBy(0, 1)
+    window.scrollBy(0, -1)
+    window.dispatchEvent(new Event("scroll"))
+  }
+
+  // Force initialization on mount
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Function to determine which section is active
-    const updateActiveSection = () => {
-      // Skip if we're programmatically scrolling
-      if (scrollingRef.current) return
+    // Function to initialize the component
+    const initialize = () => {
+      console.log("[DockLeft] Initializing")
+      setIsInitialized(true)
 
-      const sections = document.querySelectorAll("section[id]")
-      if (sections.length === 0) return
+      // Force an update of the active section
+      updateActiveSection()
 
-      let bestSection = null
-      let bestVisibility = 0
-
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect()
-        const windowHeight = window.innerHeight
-
-        // Calculate how much of the section is visible
-        const visibleTop = Math.max(0, rect.top)
-        const visibleBottom = Math.min(windowHeight, rect.bottom)
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop)
-        const visibility = visibleHeight / rect.height
-
-        // Weight the center of the screen more heavily
-        const distanceFromCenter = Math.abs((rect.top + rect.bottom) / 2 - windowHeight / 2)
-        const centerWeight = 1 - Math.min(1, distanceFromCenter / (windowHeight / 2))
-
-        // Combined score that favors both visibility and centeredness
-        const score = visibility * 0.7 + centerWeight * 0.3
-
-        if (score > bestVisibility) {
-          bestVisibility = score
-          bestSection = section
-        }
-      })
-
-      if (bestSection && bestSection.id !== activeId) {
-        // Update the active ID
-        setActiveId(bestSection.id)
-        lastActiveIdRef.current = bestSection.id
-      }
+      // Force scroll events
+      forceScrollEvent()
     }
 
-    // Force a scroll event to activate listeners
-    const forceScrollEvent = () => {
-      window.scrollBy(0, 1)
-      window.scrollBy(0, -1)
-      window.dispatchEvent(new Event("scroll"))
+    // Initialize immediately
+    initialize()
+
+    // Also listen for the custom initialization event
+    const handleAnimationsInitialize = () => {
+      console.log("[DockLeft] Received animations:initialize event")
+      initialize()
     }
+
+    document.addEventListener("animations:initialize", handleAnimationsInitialize)
+
+    return () => {
+      document.removeEventListener("animations:initialize", handleAnimationsInitialize)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
 
     // Use requestAnimationFrame for smoother animations tied to scroll
     const handleScroll = () => {
@@ -136,6 +170,15 @@ export default function DockLeft({ items }: Props) {
 
     document.addEventListener("navigation:complete", handleNavigationComplete)
 
+    // Listen for observers:reinitialize event
+    const handleObserversReinitialize = () => {
+      console.log("[DockLeft] Observers reinitialize, updating active section")
+      updateActiveSection()
+      forceScrollEvent()
+    }
+
+    document.addEventListener("observers:reinitialize", handleObserversReinitialize)
+
     return () => {
       window.removeEventListener("scroll", handleScroll)
       if (scrollContainer) {
@@ -146,6 +189,7 @@ export default function DockLeft({ items }: Props) {
       }
       timers.forEach(clearTimeout)
       document.removeEventListener("navigation:complete", handleNavigationComplete)
+      document.removeEventListener("observers:reinitialize", handleObserversReinitialize)
     }
   }, [activeId, items])
 

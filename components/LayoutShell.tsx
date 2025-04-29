@@ -15,6 +15,7 @@ import ScrollToTop from "@/components/ScrollToTop"
 import ClientOnly from "@/components/ClientOnly"
 import NextGenBackground from "@/components/NextGenBackground"
 import ScrollSystem from "@/components/ScrollSystem"
+import AnimationInitializer from "@/components/AnimationInitializer"
 
 type LayoutShellProps = {
   lang: string
@@ -63,6 +64,9 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
   return (
     <>
+      {/* Add the AnimationInitializer to ensure animations work on page load */}
+      <AnimationInitializer />
+
       {/* Skip to main content link for accessibility */}
       <a
         href="#main-content"

@@ -16,15 +16,64 @@ export default function CasaClientPage({
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastScrollTimeRef = useRef(0)
   const sectionIds = ["rooms", "breakfast", "experiences", "location"]
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Define notifySectionChange function outside of effects to fix the error
+  function notifySectionChange(sectionId: string, intersectionRatio = 1.0, fromScroll = true) {
+    // Simple event dispatch without extra parameters
+    document.dispatchEvent(
+      new CustomEvent("sectionInView", {
+        detail: {
+          id: sectionId,
+          intersectionRatio,
+        },
+      }),
+    )
+  }
+
+  // Define forceUpdateSections function outside of effects to fix the error
+  function forceUpdateSections() {
+    // Dispatch a custom event to force section detection
+    document.dispatchEvent(new Event("scroll"))
+
+    // Also dispatch a custom event for the MobileSectionTracker
+    const sections = document.querySelectorAll("section[id]")
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+
+      // Calculate visibility
+      const visibleTop = Math.max(0, rect.top)
+      const visibleBottom = Math.min(windowHeight, rect.bottom)
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+      const visibility = visibleHeight / rect.height
+
+      if (visibility > 0.3) {
+        notifySectionChange(section.id, visibility, true)
+      }
+    })
+  }
 
   // Initialize scroll container and handle hash navigation
   useEffect(() => {
     if (typeof window === "undefined" || !containerRef.current) return
 
-    // Check if there's a hash in the URL and scroll to that section
-    if (window.location.hash) {
-      const sectionId = window.location.hash.substring(1)
-      setTimeout(() => {
+    // Function to initialize animations and scroll detection
+    const initializeAnimations = () => {
+      console.log("[CasaClientPage] Initializing animations")
+      setIsInitialized(true)
+
+      // Force scroll events
+      window.scrollBy(0, 1)
+      window.scrollBy(0, -1)
+      window.dispatchEvent(new Event("scroll"))
+
+      // Dispatch custom events
+      document.dispatchEvent(new CustomEvent("animations:initialize"))
+
+      // Check if there's a hash in the URL and scroll to that section
+      if (window.location.hash) {
+        const sectionId = window.location.hash.substring(1)
         const section = document.getElementById(sectionId)
         if (section && containerRef.current) {
           containerRef.current.scrollTo({
@@ -32,8 +81,19 @@ export default function CasaClientPage({
             behavior: "smooth",
           })
         }
-      }, 300)
+      }
     }
+
+    // Initialize immediately
+    initializeAnimations()
+
+    // Also initialize with delays to ensure it works
+    const timers = [
+      setTimeout(initializeAnimations, 100),
+      setTimeout(initializeAnimations, 300),
+      setTimeout(initializeAnimations, 600),
+      setTimeout(initializeAnimations, 1000),
+    ]
 
     // Handle clicks on section links with minimal interference
     const handleSectionClick = (e: MouseEvent) => {
@@ -85,38 +145,25 @@ export default function CasaClientPage({
 
     document.addEventListener("click", handleSectionClick)
 
+    // Listen for the custom initialization event
+    const handleAnimationsInitialize = () => {
+      console.log("[CasaClientPage] Received animations:initialize event")
+      initializeAnimations()
+    }
+
+    document.addEventListener("animations:initialize", handleAnimationsInitialize)
+
     return () => {
       document.removeEventListener("click", handleSectionClick)
+      document.removeEventListener("animations:initialize", handleAnimationsInitialize)
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+      timers.forEach(clearTimeout)
     }
   }, [])
 
   // Add a scroll event handler to force section detection updates
   useEffect(() => {
     if (typeof window === "undefined") return
-
-    // Function to force section detection updates
-    const forceUpdateSections = () => {
-      // Dispatch a custom event to force section detection
-      document.dispatchEvent(new Event("scroll"))
-
-      // Also dispatch a custom event for the MobileSectionTracker
-      const sections = document.querySelectorAll("section[id]")
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect()
-        const windowHeight = window.innerHeight
-
-        // Calculate visibility
-        const visibleTop = Math.max(0, rect.top)
-        const visibleBottom = Math.min(windowHeight, rect.bottom)
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop)
-        const visibility = visibleHeight / rect.height
-
-        if (visibility > 0.3) {
-          notifySectionChange(section.id, visibility, true)
-        }
-      })
-    }
 
     // Add scroll event listener with throttling
     let scrollTimeout: NodeJS.Timeout | null = null
@@ -150,19 +197,6 @@ export default function CasaClientPage({
     }
   }, [])
 
-  // This will help coordinate section changes across components
-  const notifySectionChange = (sectionId: string, intersectionRatio = 1.0, fromScroll = true) => {
-    // Simple event dispatch without extra parameters
-    document.dispatchEvent(
-      new CustomEvent("sectionInView", {
-        detail: {
-          id: sectionId,
-          intersectionRatio,
-        },
-      }),
-    )
-  }
-
   // Force initialization when component mounts
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -181,6 +215,9 @@ export default function CasaClientPage({
 
       // Emit navigation complete event to trigger reinitializations
       document.dispatchEvent(new CustomEvent("navigation:complete"))
+
+      // Dispatch animations initialize event
+      document.dispatchEvent(new CustomEvent("animations:initialize"))
     }
 
     // Call immediately
@@ -191,6 +228,7 @@ export default function CasaClientPage({
       setTimeout(forceInitialization, 100),
       setTimeout(forceInitialization, 300),
       setTimeout(forceInitialization, 600),
+      setTimeout(forceInitialization, 1000),
     ]
 
     return () => {
