@@ -10,10 +10,11 @@ import DockLeft from "@/components/ui/DockLeft"
 import DockRight from "@/components/ui/DockRight"
 import MobileSectionNav from "@/components/ui/MobileSectionNav"
 import { cn } from "@/lib/utils"
-import { memo, useEffect } from "react"
+import { memo } from "react"
 import ScrollToTop from "@/components/ScrollToTop"
 import ClientOnly from "@/components/ClientOnly"
 import NextGenBackground from "@/components/NextGenBackground"
+import ScrollSystem from "@/components/ScrollSystem"
 
 type LayoutShellProps = {
   lang: string
@@ -24,29 +25,6 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
   const pathname = usePathname()
   const isHome = pathname === `/${lang}`
   const isCasaPage = pathname.includes("/casa")
-
-  // Force scroll events after component mounts
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (isHome) return
-
-    // Force scroll events to ensure components update
-    const forceScrollEvents = () => {
-      window.dispatchEvent(new Event("scroll"))
-    }
-
-    // Schedule multiple attempts
-    const timers = [
-      setTimeout(forceScrollEvents, 0),
-      setTimeout(forceScrollEvents, 100),
-      setTimeout(forceScrollEvents, 500),
-      setTimeout(forceScrollEvents, 1000),
-    ]
-
-    return () => {
-      timers.forEach(clearTimeout)
-    }
-  }, [isHome, pathname])
 
   const dockLeftItems = isCasaPage
     ? [
@@ -65,12 +43,23 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
   const mobileDockItems = isCasaPage
     ? [
-        { id: "rooms", label: "Habitaciones" },
-        { id: "breakfast", label: "Desayuno" },
-        { id: "experiences", label: "Experiencias" },
-        { id: "location", label: "Ubicación" },
+        { id: "rooms", label: "Rooms" },
+        { id: "breakfast", label: "Breakfast" },
+        { id: "experiences", label: "Experiences" },
+        { id: "location", label: "Location" },
       ]
     : []
+
+  // Wrap non-home content in ScrollSystem
+  const content = isHome ? (
+    children
+  ) : (
+    <ScrollSystem>
+      <main id="main-content" className={cn("relative w-full", "max-w-7xl mx-auto px-1", isCasaPage && "pb-16")}>
+        {children}
+      </main>
+    </ScrollSystem>
+  )
 
   return (
     <>
@@ -86,12 +75,7 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
       {!isHome && <Navbar lang={lang} />}
 
-      <main
-        id="main-content"
-        className={cn("relative w-full", isHome ? "" : "max-w-7xl mx-auto px-1", isCasaPage && "pb-16")}
-      >
-        {children}
-      </main>
+      {content}
 
       {/* Restore footer for all non-home pages */}
       {!isHome && <Footer />}

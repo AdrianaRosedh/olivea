@@ -27,19 +27,19 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
     }
 
     // Create observers for each section with different priorities
-    sectionIds.forEach((id, index) => {
+    sectionIds.forEach((id) => {
       const section = document.getElementById(id)
       if (!section) {
         console.warn(`[MobileSectionTracker] Section with id "${id}" not found`)
         return
       }
 
-      // Create observer with settings optimized for this specific section
+      // Update the observer settings for better mobile detection
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
-              // When section is visible, dispatch a custom event that the MobileSectionNav can listen for
+            if (entry.isIntersecting && entry.intersectionRatio > 0.2) {
+              // When section is visible, dispatch a custom event with lower threshold
               const event = new CustomEvent("sectionInView", {
                 detail: { id, intersectionRatio: entry.intersectionRatio },
               })
@@ -49,9 +49,10 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
         },
         {
           root: null,
-          // Use consistent rootMargin for all sections
-          rootMargin: "-20% 0px -40% 0px",
-          threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
+          // Adjusted rootMargin for better mobile detection
+          rootMargin: "-10% 0px -20% 0px",
+          // More granular thresholds for better detection
+          threshold: [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5],
         },
       )
 

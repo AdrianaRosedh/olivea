@@ -1,9 +1,7 @@
 "use client"
 
-import type React from "react"
 import { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
-import { usePathname } from "next/navigation"
 
 interface MobileSectionNavItem {
   id: string
@@ -15,12 +13,23 @@ interface Props {
 }
 
 export default function MobileSectionNav({ items }: Props) {
-  const pathname = usePathname()
-  // Don't set initial state to avoid hydration mismatch
-  const [activeId, setActiveId] = useState<string | null>(null)
+  const [activeId, setActiveId] = useState<string | null>(items.length > 0 ? items[0].id : null)
+  const [isScrolling, setIsScrolling] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const buttonRefs = useRef<Record<string, HTMLAnchorElement | null>>({})
-  const isClientRef = useRef(false)
+  const userClickedSectionRef = useRef<string | null>(null)
+  const userClickTimeRef = useRef<number>(0)
+  const lockTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lastUpdateTimeRef = useRef<number>(0)
+  const animationFrameRef = useRef<number | null>(null)
+  const debugModeRef = useRef(false) // Set to true to enable console logs
+
+  // Debug logger
+  const debugLog = (...args: any[]) => {
+    if (debugModeRef.current) {
+      console.log("[MobileSectionNav]", ...args)
+    }
+  }
 
   // Function to scroll active button into view
   const scrollActiveButtonIntoView = (id: string) => {
@@ -44,73 +53,194 @@ export default function MobileSectionNav({ items }: Props) {
     })
   }
 
-  // Safe initialization after hydration
+  // Function to check if user clicked section should be prioritized
+  const shouldPrioritizeUserClick = () => {
+    if (!userClickedSectionRef.current) return false
+
+    // If user clicked within the last 2 seconds, prioritize that section
+    // Reduced from 5 seconds to 2 seconds for better responsiveness
+    const timeSinceClick = Date.now() - userClickTimeRef.current
+    return timeSinceClick < 2000 // 2 seconds lock (reduced from 5)
+  }
+
+  // Set up section tracking with requestAnimationFrame for smoother updates
   useEffect(() => {
-    // Mark that we're on the client
-    isClientRef.current = true
+    if (typeof window === "undefined") return
 
-    // Set initial active ID only on client
-    if (activeId === null && items.length > 0) {
-      const initialId = items[0].id
-      setActiveId(initialId)
+    // Function to determine which section is active
+    const updateActiveSection = () => {
+      // If user clicked a section recently, prioritize that section
+      if (shouldPrioritizeUserClick()) {
+        return
+      }
 
-      // Small delay to ensure refs are set
-      setTimeout(() => {
-        scrollActiveButtonIntoView(initialId)
-      }, 100)
-    }
+      // Throttle updates to prevent too many state changes
+      // But make it more responsive than before (50ms instead of 100ms)
+      const now = Date.now()
+      if (now - lastUpdateTimeRef.current < 50) return
+      lastUpdateTimeRef.current = now
 
-    // Listen for custom section visibility events
-    const handleSectionInView = (e: Event) => {
-      const customEvent = e as CustomEvent
-      if (customEvent.detail?.id) {
-        const newActiveId = customEvent.detail.id
-        setActiveId(newActiveId)
-        scrollActiveButtonIntoView(newActiveId)
+      const sections = document.querySelectorAll("section[id]")
+      if (sections.length === 0) return
+
+      let bestSection = null
+      let bestVisibility = 0
+
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+
+        // Calculate how much of the section is visible
+        const visibleTop = Math.max(0, rect.top)
+        const visibleBottom = Math.min(windowHeight, rect.bottom)
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+        const visibility = visibleHeight / rect.height
+
+        // Weight the center of the screen more heavily
+        const distanceFromCenter = Math.abs((rect.top + rect.bottom) / 2 - windowHeight / 2)
+        const centerWeight = 1 - Math.min(1, distanceFromCenter / (windowHeight / 2))
+
+        // Combined score that favors both visibility and centeredness
+        const score = visibility * 0.7 + centerWeight * 0.3
+
+        if (score > bestVisibility) {
+          bestVisibility = score
+          bestSection = section
+        }
+      })
+
+      // Lower the threshold for section changes during scrolling
+      // This makes the buttons more responsive to scrolling
+      if (bestSection && bestSection.id !== activeId && bestVisibility > 0.15) {
+        debugLog("Updating active section to:", bestSection.id, "with visibility:", bestVisibility)
+        setActiveId(bestSection.id)
+        scrollActiveButtonIntoView(bestSection.id)
       }
     }
 
-    document.addEventListener("sectionInView", handleSectionInView)
+    // Use requestAnimationFrame for smoother updates
+    const handleScroll = () => {
+      // Skip if user clicked a section recently
+      if (shouldPrioritizeUserClick()) return
+
+      // Cancel any existing animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+
+      // Schedule the update on the next animation frame
+      animationFrameRef.current = requestAnimationFrame(() => {
+        updateActiveSection()
+        animationFrameRef.current = null
+      })
+    }
+
+    // Add scroll listener
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    const scrollContainer = document.querySelector(".scroll-container")
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
+    }
+
+    // Initial update
+    setTimeout(updateActiveSection, 100)
+    setTimeout(updateActiveSection, 300)
 
     return () => {
-      document.removeEventListener("sectionInView", handleSectionInView)
+      window.removeEventListener("scroll", handleScroll)
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", handleScroll)
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+      if (lockTimeoutRef.current) {
+        clearTimeout(lockTimeoutRef.current)
+      }
     }
-  }, [items, activeId, pathname]) // Re-initialize on path change
+  }, [activeId, items])
 
-  // Effect to ensure active button is visible when activeId changes
-  useEffect(() => {
-    if (activeId && isClientRef.current) {
-      scrollActiveButtonIntoView(activeId)
-    }
-  }, [activeId])
+  // Update the scrollToSection function to be more reliable on mobile
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId)
+    const scrollContainer = document.querySelector(".scroll-container") || document.documentElement
 
-  // Handle click to scroll to section
-  const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault()
+    if (section && scrollContainer) {
+      // Set this as a user-clicked section
+      userClickedSectionRef.current = sectionId
+      userClickTimeRef.current = Date.now()
 
-    // Find the section element
-    const section = document.getElementById(id)
+      debugLog("User clicked section:", sectionId)
 
-    if (section) {
-      // Get the parent scroll container
-      const scrollContainer = section.closest(".scroll-container") || document.documentElement
+      // Set active section immediately for better UX
+      setActiveId(sectionId)
+      scrollActiveButtonIntoView(sectionId)
 
-      // Scroll the container
+      // Update URL without reload
+      window.history.pushState(null, "", `#${sectionId}`)
+
+      // Set scrolling state
+      setIsScrolling(true)
+
+      // Calculate the top position of the section
+      const sectionTop = section.offsetTop
+
+      // Use a more gentle scroll
       scrollContainer.scrollTo({
-        top: section.offsetTop,
+        top: sectionTop,
         behavior: "smooth",
       })
 
-      // Update active state
-      setActiveId(id)
-      scrollActiveButtonIntoView(id)
+      // Reset scrolling flag after animation completes
+      setTimeout(() => {
+        setIsScrolling(false)
+      }, 800) // Reduced from 1000ms to 800ms
 
-      // Provide haptic feedback if available
-      if (navigator.vibrate) {
-        navigator.vibrate(10)
+      // Clear any existing timeout
+      if (lockTimeoutRef.current) {
+        clearTimeout(lockTimeoutRef.current)
       }
+
+      // Set a timeout to clear the user clicked section after 2 seconds
+      // Reduced from 5 seconds to 2 seconds for better responsiveness
+      lockTimeoutRef.current = setTimeout(() => {
+        debugLog("Clearing user clicked section lock")
+        userClickedSectionRef.current = null
+      }, 2000)
     }
   }
+
+  // Handle hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "")
+      if (hash && items.some((item) => item.id === hash)) {
+        // Set this as a user-clicked section
+        userClickedSectionRef.current = hash
+        userClickTimeRef.current = Date.now()
+
+        debugLog("Hash changed to:", hash)
+
+        // Update active ID
+        setActiveId(hash)
+        scrollActiveButtonIntoView(hash)
+
+        // Clear any existing timeout
+        if (lockTimeoutRef.current) {
+          clearTimeout(lockTimeoutRef.current)
+        }
+
+        // Set a timeout to clear the user clicked section after 2 seconds
+        lockTimeoutRef.current = setTimeout(() => {
+          debugLog("Clearing user clicked section lock from hash change")
+          userClickedSectionRef.current = null
+        }, 2000)
+      }
+    }
+
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [items])
 
   return (
     <div
@@ -123,7 +253,17 @@ export default function MobileSectionNav({ items }: Props) {
         <a
           key={item.id}
           href={`#${item.id}`}
-          onClick={(e) => handleSectionClick(e, item.id)}
+          onClick={(e) => {
+            e.preventDefault()
+            if (!isScrolling) {
+              scrollToSection(item.id)
+
+              // Provide haptic feedback if available
+              if (navigator.vibrate) {
+                navigator.vibrate(10)
+              }
+            }
+          }}
           aria-label={`Jump to ${item.label} section`}
           aria-current={activeId === item.id ? "location" : undefined}
           ref={(el) => {
@@ -136,7 +276,7 @@ export default function MobileSectionNav({ items }: Props) {
               ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)] shadow-sm"
               : "text-[var(--olivea-olive)] border-[var(--olivea-olive)]/70 hover:bg-[var(--olivea-olive)]/10 hover:border-[var(--olivea-olive)]",
           )}
-          data-active={activeId === item.id ? "true" : "false"} // Add data attribute for debugging
+          data-active={activeId === item.id ? "true" : "false"}
         >
           {item.label}
         </a>

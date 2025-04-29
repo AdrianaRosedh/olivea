@@ -1,11 +1,8 @@
 "use client"
 
-import type React from "react"
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { usePathname } from "next/navigation"
-import { EVENTS, emitEvent, getCurrentSection } from "@/lib/navigation-events"
 
 interface DockItem {
   id: string
@@ -21,281 +18,129 @@ export default function DockLeft({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(items.length > 0 ? items[0].id : null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
-  const scrollContainerRef = useRef<HTMLElement | null>(null)
-  const mountedRef = useRef(false)
-  const pathname = usePathname()
-  const scrollAnimationRef = useRef<number | null>(null)
-  const clickedSectionRef = useRef<string | null>(null)
-  const debugModeRef = useRef(false)
-  const lastScrollTimeRef = useRef(0)
-  const animationInProgressRef = useRef(false)
+  const scrollingRef = useRef(false)
+  const lastActiveIdRef = useRef<string | null>(null)
+  const animationFrameRef = useRef<number | null>(null)
 
-  // Debug logger that only logs if debug mode is enabled
-  const debugLog = (...args: any[]) => {
-    if (debugModeRef.current) {
-      console.log("[DockLeft]", ...args)
-    }
-  }
-
-  // Custom smooth scroll function to avoid browser's native implementation
-  const smoothScrollTo = (targetPosition: number, duration = 800) => {
-    // Cancel any ongoing animation
-    if (scrollAnimationRef.current !== null) {
-      cancelAnimationFrame(scrollAnimationRef.current)
-    }
-
-    const scrollContainer = scrollContainerRef.current || document.documentElement
-    const startPosition = scrollContainer.scrollTop
-    const distance = targetPosition - startPosition
-    let startTime: number | null = null
-
-    // Set animating state to prevent button jumps
-    setIsAnimating(true)
-    animationInProgressRef.current = true
-
-    // Record the time we started scrolling
-    lastScrollTimeRef.current = Date.now()
-
-    // Emit scroll start event for other components to sync with
-    emitEvent(EVENTS.SCROLL_START, { targetId: clickedSectionRef.current })
-
-    // Also emit section snap start event
-    emitEvent(EVENTS.SECTION_SNAP_START, {
-      targetId: clickedSectionRef.current,
-      startPosition,
-      targetPosition,
-    })
-
-    // Easing function for smooth animation
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
-
-    // Animation function
-    const animateScroll = (timestamp: number) => {
-      if (startTime === null) startTime = timestamp
-      const elapsed = timestamp - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const easedProgress = easeOutCubic(progress)
-
-      if (scrollContainer) {
-        scrollContainer.scrollTop = startPosition + distance * easedProgress
-
-        // Emit scroll progress event for other components to sync with
-        emitEvent(EVENTS.SCROLL_PROGRESS, {
-          progress: easedProgress,
-          targetId: clickedSectionRef.current,
-          scrollPosition: startPosition + distance * easedProgress,
-          totalProgress:
-            (startPosition + distance * easedProgress) / (scrollContainer.scrollHeight - scrollContainer.clientHeight),
-        })
-      }
-
-      if (progress < 1) {
-        scrollAnimationRef.current = requestAnimationFrame(animateScroll)
-      } else {
-        // Animation complete
-        scrollAnimationRef.current = null
-
-        // Emit scroll end event
-        emitEvent(EVENTS.SCROLL_COMPLETE, { targetId: clickedSectionRef.current })
-
-        // Also emit section snap complete event
-        emitEvent(EVENTS.SECTION_SNAP_COMPLETE, {
-          targetId: clickedSectionRef.current,
-          finalPosition: scrollContainer.scrollTop,
-        })
-
-        // Reset animating state after a short delay
-        setTimeout(() => {
-          setIsAnimating(false)
-          animationInProgressRef.current = false
-
-          // Clear clicked section after animation completes
-          clickedSectionRef.current = null
-
-          // Force a scroll event to reactivate observers
-          window.dispatchEvent(new Event("scroll"))
-        }, 50)
-      }
-    }
-
-    // Start animation
-    scrollAnimationRef.current = requestAnimationFrame(animateScroll)
-  }
-
-  // Initialize scroll container and event listeners
-  const initializeScrollFunctionality = useCallback(() => {
-    debugLog("Initializing scroll functionality")
-
-    // Find the scroll container
-    scrollContainerRef.current = document.querySelector(".scroll-container") || document.documentElement
-
-    // Set initial active section based on current scroll position
-    const currentSection = getCurrentSection()
-    if (currentSection) {
-      setActiveId(currentSection)
-    } else if (items.length > 0) {
-      setActiveId(items[0].id)
-    }
-  }, [items])
-
-  // Find the scroll container on mount and when pathname changes
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Initialize on mount or navigation
-    initializeScrollFunctionality()
-    mountedRef.current = true
+    // Function to determine which section is active
+    const updateActiveSection = () => {
+      // Skip if we're programmatically scrolling
+      if (scrollingRef.current) return
 
-    // Listen for section visibility events
-    const handleSectionInView = (e: Event) => {
-      const customEvent = e as CustomEvent
+      const sections = document.querySelectorAll("section[id]")
+      if (sections.length === 0) return
 
-      // Skip updates if we're currently animating
-      if (animationInProgressRef.current && !customEvent.detail?.fromClick) {
-        return
-      }
+      let bestSection = null
+      let bestVisibility = 0
 
-      // If we recently scrolled (within 500ms), don't update from scroll events
-      if (Date.now() - lastScrollTimeRef.current < 500 && customEvent.detail?.fromScroll) {
-        return
-      }
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect()
+        const windowHeight = window.innerHeight
 
-      // If we have a clicked section, prioritize it
-      if (clickedSectionRef.current && customEvent.detail?.id === clickedSectionRef.current) {
-        debugLog(`Setting active ID to clicked section: ${clickedSectionRef.current}`)
-        setActiveId(clickedSectionRef.current)
-        return
-      }
+        // Calculate how much of the section is visible
+        const visibleTop = Math.max(0, rect.top)
+        const visibleBottom = Math.min(windowHeight, rect.bottom)
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+        const visibility = visibleHeight / rect.height
 
-      // Otherwise, update normally
-      if (customEvent.detail?.id) {
-        debugLog(`Setting active ID to: ${customEvent.detail.id}`)
-        setActiveId(customEvent.detail.id)
+        // Weight the center of the screen more heavily
+        const distanceFromCenter = Math.abs((rect.top + rect.bottom) / 2 - windowHeight / 2)
+        const centerWeight = 1 - Math.min(1, distanceFromCenter / (windowHeight / 2))
 
-        // Emit section change event
-        emitEvent(EVENTS.SECTION_CHANGE, {
-          id: customEvent.detail.id,
-          source: customEvent.detail.fromClick ? "click" : customEvent.detail.fromScroll ? "scroll" : "other",
-        })
-      }
-    }
+        // Combined score that favors both visibility and centeredness
+        const score = visibility * 0.7 + centerWeight * 0.3
 
-    document.addEventListener("sectionInView", handleSectionInView)
-
-    // Listen for navigation events
-    const handleNavigationComplete = () => {
-      debugLog("Navigation complete, reinitializing")
-      // Re-initialize after navigation
-      setTimeout(initializeScrollFunctionality, 100)
-    }
-
-    document.addEventListener(EVENTS.NAVIGATION_COMPLETE, handleNavigationComplete)
-
-    // Also listen for scroll initialization events
-    const handleScrollInit = () => {
-      debugLog("Scroll initialize event received")
-      initializeScrollFunctionality()
-    }
-
-    document.addEventListener(EVENTS.SCROLL_INITIALIZE, handleScrollInit)
-
-    // Listen for scroll events from other components
-    const handleScrollSync = (e: Event) => {
-      const customEvent = e as CustomEvent
-      if (customEvent.detail?.targetId && !isAnimating) {
-        // Update our active ID to match the scrolled section
-        setActiveId(customEvent.detail.targetId)
-      }
-    }
-
-    document.addEventListener(EVENTS.SCROLL_START, handleScrollSync)
-
-    // Listen for section change events
-    const handleSectionChange = (e: Event) => {
-      const customEvent = e as CustomEvent
-      if (customEvent.detail?.id && !animationInProgressRef.current) {
-        setActiveId(customEvent.detail.id)
-      }
-    }
-
-    document.addEventListener(EVENTS.SECTION_CHANGE, handleSectionChange)
-
-    // Check active section periodically to ensure sync
-    const syncInterval = setInterval(() => {
-      if (!animationInProgressRef.current) {
-        const currentSection = getCurrentSection()
-        if (currentSection && currentSection !== activeId) {
-          setActiveId(currentSection)
+        if (score > bestVisibility) {
+          bestVisibility = score
+          bestSection = section
         }
+      })
+
+      if (bestSection && bestSection.id !== activeId) {
+        // Update the active ID
+        setActiveId(bestSection.id)
+        lastActiveIdRef.current = bestSection.id
       }
-    }, 1000)
+    }
+
+    // Use requestAnimationFrame for smoother animations tied to scroll
+    const handleScroll = () => {
+      // Skip if we're programmatically scrolling
+      if (scrollingRef.current) return
+
+      // Cancel any existing animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+
+      // Use requestAnimationFrame for smoother updates
+      animationFrameRef.current = requestAnimationFrame(() => {
+        updateActiveSection()
+        animationFrameRef.current = null
+      })
+    }
+
+    // Add scroll listener
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    const scrollContainer = document.querySelector(".scroll-container")
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
+    }
+
+    // Initial update
+    updateActiveSection()
+
+    // Force multiple updates to ensure it works
+    const timers = [setTimeout(updateActiveSection, 100), setTimeout(updateActiveSection, 500)]
 
     return () => {
-      // Cancel any ongoing animation
-      if (scrollAnimationRef.current !== null) {
-        cancelAnimationFrame(scrollAnimationRef.current)
+      window.removeEventListener("scroll", handleScroll)
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", handleScroll)
       }
-
-      clearInterval(syncInterval)
-      document.removeEventListener("sectionInView", handleSectionInView)
-      document.removeEventListener(EVENTS.NAVIGATION_COMPLETE, handleNavigationComplete)
-      document.removeEventListener(EVENTS.SCROLL_INITIALIZE, handleScrollInit)
-      document.removeEventListener(EVENTS.SCROLL_START, handleScrollSync)
-      document.removeEventListener(EVENTS.SECTION_CHANGE, handleSectionChange)
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+      timers.forEach(clearTimeout)
     }
-  }, [items, pathname, initializeScrollFunctionality, isAnimating, activeId])
+  }, [activeId, items])
 
-  // Improved scroll function with useCallback for better performance
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-      e.preventDefault()
+  // Function to scroll to a section
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId)
+    const scrollContainer = document.querySelector(".scroll-container") || document.documentElement
 
-      // Prevent multiple clicks during animation
-      if (isAnimating || animationInProgressRef.current) {
-        return
-      }
+    if (section && scrollContainer) {
+      // Mark that we're programmatically scrolling
+      scrollingRef.current = true
+      setIsAnimating(true)
 
-      // Store the clicked section ID
-      clickedSectionRef.current = id
+      // Update URL without reload
+      window.history.pushState(null, "", `#${sectionId}`)
 
-      // Re-query the DOM to ensure we have the latest references
-      const el = document.getElementById(id)
-      const scrollContainer = document.querySelector(".scroll-container") || document.documentElement
+      // Set active section immediately for better UX
+      setActiveId(sectionId)
+      lastActiveIdRef.current = sectionId
 
-      debugLog(`Click handler for ${id}, element:`, el, "container:", scrollContainer)
+      // Calculate the top position of the section
+      const sectionTop = section.offsetTop
 
-      if (el && scrollContainer) {
-        // Calculate the top position of the section relative to the scroll container
-        const sectionTop = el.offsetTop
+      // Use a more gentle scroll
+      scrollContainer.scrollTo({
+        top: sectionTop,
+        behavior: "smooth",
+      })
 
-        debugLog(`Scrolling to section ${id} at position ${sectionTop}`)
-
-        // Update active state immediately for better UX
-        setActiveId(id)
-
-        // Update URL without reload
-        window.history.pushState(null, "", `#${id}`)
-
-        // Use our custom smooth scroll
-        smoothScrollTo(sectionTop, 800)
-
-        // Also dispatch the event to ensure other components update
-        debugLog(`Dispatching sectionInView event for ${id}`)
-        document.dispatchEvent(
-          new CustomEvent("sectionInView", {
-            detail: {
-              id,
-              intersectionRatio: 1.0,
-              fromClick: true,
-            },
-          }),
-        )
-      } else {
-        console.warn(`[DockLeft] Could not find section ${id} or scroll container`)
-      }
-    },
-    [isAnimating],
-  )
+      // Reset scrolling flag after animation completes
+      setTimeout(() => {
+        scrollingRef.current = false
+        setIsAnimating(false)
+      }, 1000)
+    }
+  }
 
   return (
     <nav className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40" aria-label="Section navigation">
@@ -305,11 +150,31 @@ export default function DockLeft({ items }: Props) {
           const isActive = activeId === item.id
           const isAnimated = isActive || isHovered
 
+          // More balanced animation settings for hover
+          const hoverAnimationSettings = {
+            y: { type: "spring", stiffness: 200, damping: 20, duration: 0.4 },
+            filter: { duration: 0.3 },
+          }
+
+          // Faster animation settings for scroll/active state changes
+          const activeAnimationSettings = {
+            y: { type: "spring", stiffness: 400, damping: 20 },
+            filter: { duration: 0.2 },
+          }
+
+          // Use hover settings when hovering, active settings when changing due to scroll
+          const animationSettings = isHovered && !isActive ? hoverAnimationSettings : activeAnimationSettings
+
           return (
             <a
               key={item.id}
               href={`#${item.id}`}
-              onClick={(e) => handleClick(e, item.id)}
+              onClick={(e) => {
+                e.preventDefault()
+                if (!isAnimating) {
+                  scrollToSection(item.id)
+                }
+              }}
               onMouseEnter={() => !isAnimating && setHoveredId(item.id)}
               onMouseLeave={() => !isAnimating && setHoveredId(null)}
               className={cn(
@@ -338,10 +203,7 @@ export default function DockLeft({ items }: Props) {
                       y: isAnimated ? -24 : 0,
                       filter: isAnimated ? "blur(0.6px)" : "blur(0px)",
                     }}
-                    transition={{
-                      y: { type: "spring", stiffness: 140, damping: 18 },
-                      filter: { duration: 0.25, ease: "easeOut" },
-                    }}
+                    transition={animationSettings}
                     aria-hidden="true"
                   >
                     {item.label.toUpperCase()}
@@ -355,10 +217,7 @@ export default function DockLeft({ items }: Props) {
                       y: isAnimated ? 0 : 24,
                       filter: isAnimated ? "blur(0px)" : "blur(0.6px)",
                     }}
-                    transition={{
-                      y: { type: "spring", stiffness: 140, damping: 18 },
-                      filter: { duration: 0.25, ease: "easeOut" },
-                    }}
+                    transition={animationSettings}
                     aria-hidden="true"
                   >
                     {item.label.toUpperCase()}

@@ -1,8 +1,11 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 export default function MobileAudioFeedback() {
+  // Track active section
+  const [activeSection, setActiveSection] = useState<string | null>(null)
+
   // Audio element reference
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -12,19 +15,9 @@ export default function MobileAudioFeedback() {
   const lastSectionRef = useRef<string | null>(null)
   const initialLoadCompleteRef = useRef(false)
   const userHasInteractedRef = useRef(false)
-  const debugModeRef = useRef(true) // Enable debug logs
-
-  // Debug logger
-  const debugLog = (...args: any[]) => {
-    if (debugModeRef.current) {
-      console.log("[MobileAudioFeedback]", ...args)
-    }
-  }
 
   useEffect(() => {
     if (typeof window === "undefined") return
-
-    debugLog("Component mounted")
 
     // Create audio element immediately but don't play it
     audioRef.current = new Audio("/sounds/scroll-click.mp3")
@@ -33,43 +26,30 @@ export default function MobileAudioFeedback() {
 
     try {
       audioRef.current.load()
-      debugLog("Audio element created and loaded")
     } catch (err) {
       console.error("Error loading audio:", err)
     }
 
-    // After 3 seconds, mark initial load as complete
+    // After 1 second, mark initial load as complete
     const initialLoadTimer = setTimeout(() => {
       initialLoadCompleteRef.current = true
-      debugLog("Initial load period complete")
-    }, 3000)
+    }, 1000)
 
     // Function to play sound
-    const playSound = (reason: string) => {
+    const playSound = () => {
       // Don't play during initial load
-      if (!initialLoadCompleteRef.current) {
-        debugLog("Skipping sound during initial load period:", reason)
-        return
-      }
+      if (!initialLoadCompleteRef.current) return
 
       // Only play after user interaction
-      if (!userHasInteractedRef.current) {
-        debugLog("Skipping sound before user interaction:", reason)
-        return
-      }
+      if (!userHasInteractedRef.current) return
 
       // Debounce sound playback
       const now = Date.now()
-      if (now - lastPlayTimeRef.current < 300) {
-        debugLog("Debouncing sound playback:", reason)
-        return
-      }
+      if (now - lastPlayTimeRef.current < 300) return
 
       if (audioRef.current && !isPlayingRef.current) {
         isPlayingRef.current = true
         lastPlayTimeRef.current = now
-
-        debugLog("Playing sound for:", reason)
 
         // Reset audio to beginning
         audioRef.current.currentTime = 0
@@ -80,7 +60,6 @@ export default function MobileAudioFeedback() {
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              debugLog("Sound played successfully")
               setTimeout(() => {
                 isPlayingRef.current = false
               }, 100)
@@ -95,10 +74,75 @@ export default function MobileAudioFeedback() {
 
     // Mark user interaction
     const handleUserInteraction = () => {
-      if (!userHasInteractedRef.current) {
-        userHasInteractedRef.current = true
-        debugLog("User interaction detected")
+      userHasInteractedRef.current = true
+    }
+
+    // Function to determine which section is active
+    const updateActiveSection = () => {
+      const sections = document.querySelectorAll("section[id]")
+      if (sections.length === 0) return
+
+      let bestSection = null
+      let bestVisibility = 0
+
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+
+        // Calculate how much of the section is visible
+        const visibleTop = Math.max(0, rect.top)
+        const visibleBottom = Math.min(windowHeight, rect.bottom)
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+        const visibility = visibleHeight / rect.height
+
+        // Weight the center of the screen more heavily
+        const distanceFromCenter = Math.abs((rect.top + rect.bottom) / 2 - windowHeight / 2)
+        const centerWeight = 1 - Math.min(1, distanceFromCenter / (windowHeight / 2))
+
+        // Combined score that favors both visibility and centeredness
+        const score = visibility * 0.7 + centerWeight * 0.3
+
+        if (score > bestVisibility) {
+          bestVisibility = score
+          bestSection = section
+        }
+      })
+
+      if (bestSection && bestSection.id !== activeSection) {
+        setActiveSection(bestSection.id)
+
+        // Only play sound if this is a new section (not initial load)
+        // and user has interacted with the page
+        if (
+          lastSectionRef.current !== null &&
+          bestSection.id !== lastSectionRef.current &&
+          userHasInteractedRef.current
+        ) {
+          // Force vibration for better feedback
+          if (window.navigator.vibrate) {
+            window.navigator.vibrate(10)
+          }
+
+          playSound()
+        }
+
+        lastSectionRef.current = bestSection.id
       }
+    }
+
+    // Throttled scroll handler
+    let scrollTimeout: NodeJS.Timeout | null = null
+    const handleScroll = () => {
+      // Clear any existing timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+
+      // Throttle section updates
+      scrollTimeout = setTimeout(() => {
+        updateActiveSection()
+        scrollTimeout = null
+      }, 50)
     }
 
     // Handle section clicks
@@ -109,37 +153,25 @@ export default function MobileAudioFeedback() {
       const link = target.closest('a[href^="#"]')
 
       if (link) {
-        debugLog("Section link clicked:", link.getAttribute("href"))
-        playSound("section-click")
-      }
-    }
-
-    // Handle scroll events
-    const handleScroll = () => {
-      handleUserInteraction()
-    }
-
-    // Handle section visibility changes
-    const handleSectionInView = (e: CustomEvent) => {
-      if (!e.detail?.id) return
-
-      const currentSection = e.detail.id
-
-      // Only play for new sections
-      if (currentSection !== lastSectionRef.current) {
-        debugLog(`New section in view: ${currentSection} (previous: ${lastSectionRef.current})`)
-        lastSectionRef.current = currentSection
-
-        // Play sound for section change
-        playSound("section-change")
+        playSound()
       }
     }
 
     // Add event listeners
     document.addEventListener("click", handleSectionClick)
-    document.addEventListener("touchstart", handleUserInteraction)
+    document.addEventListener("touchstart", handleUserInteraction, { passive: true })
     window.addEventListener("scroll", handleScroll, { passive: true })
-    document.addEventListener("sectionInView", handleSectionInView as EventListener)
+    const scrollContainer = document.querySelector(".scroll-container")
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
+    }
+
+    // Remove the complex event listener for sectionInView events
+    // and rely on the scroll detection instead
+    const handleSectionInViewEvent = () => {}
+
+    // Initial update
+    updateActiveSection()
 
     // Cleanup
     return () => {
@@ -147,14 +179,20 @@ export default function MobileAudioFeedback() {
       document.removeEventListener("click", handleSectionClick)
       document.removeEventListener("touchstart", handleUserInteraction)
       window.removeEventListener("scroll", handleScroll)
-      document.removeEventListener("sectionInView", handleSectionInView as EventListener)
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", handleScroll)
+      }
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
 
       if (audioRef.current) {
         audioRef.current.pause()
         audioRef.current = null
       }
+      document.removeEventListener("sectionInView", handleSectionInViewEvent as EventListener)
     }
-  }, [])
+  }, [activeSection])
 
   return null
 }

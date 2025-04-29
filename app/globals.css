@@ -274,21 +274,50 @@ body {
   color: var(--olivea-clay);
 }
 
-/* Improved scroll snap container */
+/* Update scroll-container class for better mobile scrolling */
 .scroll-container {
   height: 100vh;
   overflow-y: auto;
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch; /* For better iOS scrolling */
+  scroll-snap-type: y proximity; /* Using proximity for smoother scrolling */
+  -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+  overscroll-behavior: none;
+  touch-action: pan-y; /* Optimize for vertical touch scrolling */
 }
 
-/* Ensure sections snap properly */
+/* Update the section snap settings to be more responsive */
 .scroll-container > section {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scroll-snap-align: center;
+  scroll-snap-stop: normal; /* Using normal instead of always */
   min-height: 100vh;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform; /* Optimize for animations */
+  transform: translateZ(0); /* Force GPU acceleration */
+}
+
+/* Hide scrollbar but keep functionality */
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-container {
+  -ms-overflow-style: none; /* IE */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Prevent content from being cut off at the bottom */
+.scroll-container > section:last-child {
+  margin-bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Ensure smooth transitions during scrolling */
+.scroll-container > * {
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Ensure the scroll container takes up the full height */
