@@ -26,7 +26,10 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
   const pathname = usePathname()
   const isHome = pathname === `/${lang}`
   const isCasaPage = pathname.includes("/casa")
+  const isCafePage = pathname.includes("/cafe")
+  const isRestaurantPage = pathname.includes("/restaurant")
 
+  // Set section-based nav for each identity
   const dockLeftItems = isCasaPage
     ? [
         { id: "rooms", number: "01", label: "Rooms" },
@@ -34,7 +37,23 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         { id: "experiences", number: "03", label: "Experiences" },
         { id: "location", number: "04", label: "Location" },
       ]
+    : isCafePage
+    ? [
+        { id: "Brunch", number: "01", label: "Brunch" },
+        { id: "Drinks", number: "02", label: "Drinks" },
+        { id: "Pastries", number: "03", label: "Pastries" },
+        { id: "Others", number: "04", label: "Others" },
+      ]
+    : isRestaurantPage
+    ? [
+        { id: "Story", number: "01", label: "Story" },
+        { id: "Garden", number: "02", label: "Garden" },
+        { id: "Menu", number: "03", label: "Menu" },
+        { id: "Wines", number: "04", label: "Wines" },
+      ]
     : []
+
+  const mobileDockItems = dockLeftItems.map(({ id, label }) => ({ id, label }))
 
   const dockRightItems = [
     { id: "journal", href: `/${lang}/journal`, icon: <BookOpenText />, label: "Journal" },
@@ -42,21 +61,11 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
     { id: "policies", href: `/${lang}/legal`, icon: <ShieldCheck />, label: "Policies" },
   ]
 
-  const mobileDockItems = isCasaPage
-    ? [
-        { id: "rooms", label: "Rooms" },
-        { id: "breakfast", label: "Breakfast" },
-        { id: "experiences", label: "Experiences" },
-        { id: "location", label: "Location" },
-      ]
-    : []
-
-  // Wrap non-home content in ScrollSystem
   const content = isHome ? (
     children
   ) : (
     <ScrollSystem>
-      <main id="main-content" className={cn("relative w-full", "max-w-7xl mx-auto px-1", isCasaPage && "pb-16")}>
+      <main id="main-content" className={cn("relative w-full", "max-w-7xl mx-auto px-1", (isCasaPage || isCafePage || isRestaurantPage) && "pb-16")}>
         {children}
       </main>
     </ScrollSystem>
@@ -64,10 +73,8 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
   return (
     <>
-      {/* Add the AnimationInitializer to ensure animations work on page load */}
       <AnimationInitializer />
 
-      {/* Skip to main content link for accessibility */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[1001] focus:bg-white focus:px-4 focus:py-2 focus:text-black"
@@ -81,10 +88,8 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
       {content}
 
-      {/* Restore footer for all non-home pages */}
       {!isHome && <Footer />}
 
-      {/* Mobile section navigation - moved to bottom and only rendered on client */}
       {!isHome && mobileDockItems.length > 0 && (
         <ClientOnly>
           <div className="md:hidden fixed bottom-[68px] left-0 right-0 z-40 bg-transparent backdrop-blur-md border-t border-b border-[var(--olivea-soil)]/10 w-full">
@@ -93,7 +98,6 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
-      {/* Left Dock - only rendered on client */}
       {!isHome && dockLeftItems.length > 0 && (
         <ClientOnly>
           <div className="hidden md:flex fixed top-1/2 left-6 -translate-y-1/2 z-40">
@@ -102,7 +106,6 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
-      {/* Right Dock - only rendered on client */}
       {!isHome && (
         <ClientOnly>
           <div className="hidden md:flex fixed top-1/2 right-6 -translate-y-1/2 z-40">
@@ -111,7 +114,6 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
-      {/* Chat Button - only rendered on client */}
       {!isHome && (
         <ClientOnly>
           <div className="hidden md:block">
@@ -128,7 +130,6 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
-      {/* Scroll components - directly rendered for reliability */}
       {!isHome && (
         <>
           <ScrollToTop />
@@ -139,5 +140,4 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
   )
 }
 
-// Memoize the component to prevent unnecessary re-renders
 export default memo(LayoutShell)

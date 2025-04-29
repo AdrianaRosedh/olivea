@@ -1,50 +1,66 @@
 import { Suspense } from "react"
 import { getDictionary } from "../dictionaries"
-import MenuItems from "./menu-items"
+import CafeClientPage from "./CafeClientPage"
+import LoadingSpinner from "@/components/ui/LoadingSpinner"
+import type { Metadata, Viewport } from "next"
 
-// Improved menu skeleton with more realistic appearance
-function MenuSkeleton() {
-  return (
-    <div className="space-y-8">
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-
-        {[1, 2].map((categoryIndex) => (
-          <div key={categoryIndex} className="mb-8">
-            <div className="h-7 bg-gray-200 rounded w-1/3 mb-3"></div>
-            <div className="space-y-2">
-              {[1, 2, 3, 4].map((itemIndex) => (
-                <div key={itemIndex} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
-                  <div className="h-5 bg-gray-200 rounded w-40"></div>
-                  <div className="h-5 bg-gray-200 rounded w-12"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-export default async function CafePage({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
-  // Await the params Promise before accessing its properties
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const resolvedParams = await params
   const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
 
-  return (
-    <main className="p-10">
-      <h1 className="text-3xl font-semibold">{dict.cafe.title}</h1>
-      <p className="mt-2 text-muted-foreground mb-6">{dict.cafe.description}</p>
+  return {
+    title: `${dict.cafe.title} | Olivea`,
+    description: dict.cafe.description,
+    metadataBase: new URL("https://olivea.com"),
+    openGraph: {
+      title: `${dict.cafe.title} | Olivea`,
+      description: dict.cafe.description,
+      images: [
+        {
+          url: "/images/cafe.png",
+          width: 1200,
+          height: 630,
+          alt: "Olivea Café",
+        },
+      ],
+      locale: lang,
+      type: "website",
+    },
+    alternates: {
+      canonical: `https://olivea.com/${lang}/cafe`,
+      languages: {
+        en: "https://olivea.com/en/cafe",
+        es: "https://olivea.com/es/cafe",
+      },
+    },
+  }
+}
 
-      <Suspense fallback={<MenuSkeleton />}>
-        <MenuItems lang={lang} />
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#65735b",
+}
+
+export default async function CafePage({ params }: { params: Promise<{ lang: string }> }) {
+  const resolvedParams = await params
+  const lang = resolvedParams.lang
+  const dict = await getDictionary(lang)
+
+  const sections = dict?.cafe?.sections ?? {
+    about: { title: "", description: "" },
+    coffee: { title: "", description: "" },
+    pastries: { title: "", description: "" },
+    menu: { title: "", description: "" },
+  }
+
+  return (
+    <div suppressHydrationWarning>
+      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><LoadingSpinner size="lg" /></div>}>
+        <CafeClientPage lang={lang} sections={sections} />
       </Suspense>
-    </main>
+    </div>
   )
 }

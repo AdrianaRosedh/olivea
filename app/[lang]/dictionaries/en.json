@@ -4,10 +4,28 @@
     "description": "Our story, philosophy, and the people behind the vision."
   },
   "cafe": {
-    "title": "Olivea Café",
-    "description": "Our casual, garden-facing café. Menu and hours coming soon.",
-    "error": "Error loading menu:"
-  },
+  "title": "Olivea Café",
+  "description": "Our casual, garden-facing café.",
+  "error": "Error loading menu:",
+  "sections": {
+    "about": {
+      "title": "About the Café",
+      "description": "A relaxing space surrounded by gardens and fresh air."
+    },
+    "coffee": {
+      "title": "Our Coffee",
+      "description": "Handcrafted coffee drinks made with the best local beans."
+    },
+    "pastries": {
+      "title": "Fresh Pastries",
+      "description": "Daily baked goods, sweet and savory."
+    },
+    "menu": {
+      "title": "Menu",
+      "description": "Discover our complete café offerings."
+    }
+  }
+},
   "casa": {
     "title": "Casa Olivea",
     "description": "Stay with us. Rooms, amenities, and reservations coming soon.",
@@ -55,9 +73,27 @@
     "description": "Choose where you'd like to reserve: restaurant, café, or hotel."
   },
   "restaurant": {
-    "title": "Olivea Farm To Table",
-    "description": "Coming soon: seasonal menus, chef stories, and more."
-  },
+  "title": "Olivea Farm To Table",
+  "description": "Coming soon: seasonal menus, chef stories, and more.",
+  "sections": {
+    "story": {
+      "title": "Our Story",
+      "description": "Where it all began — the garden, the vision, and the heart."
+    },
+    "garden": {
+      "title": "The Garden",
+      "description": "The source of every ingredient, every idea, every dish."
+    },
+    "menu": {
+      "title": "Tasting Menu",
+      "description": "A seasonal expression of land, time, and technique."
+    },
+    "wines": {
+      "title": "Wines",
+      "description": "Natural wines and Baja expressions curated by our team."
+    }
+  }
+},
   "notFound": {
     "message": "The page you're looking for doesn't exist.",
     "cta": "Return Home"

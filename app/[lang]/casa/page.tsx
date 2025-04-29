@@ -1,12 +1,10 @@
-import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 import { getDictionary } from "../dictionaries"
 import CasaClientPage from "./CasaClientPage"
-import { Suspense } from "react"
 import LoadingSpinner from "@/components/ui/LoadingSpinner"
+import type { Metadata, Viewport } from "next"
 
-// Define metadata for better SEO
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
-  // Await the params Promise before accessing its properties
   const resolvedParams = await params
   const lang = resolvedParams.lang
   const dict = await getDictionary(lang)
@@ -20,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       description: dict.casa.description,
       images: [
         {
-          url: "/images/casa.png", // Updated to use the new image
+          url: "/images/casa.png",
           width: 1200,
           height: 630,
           alt: "Casa Olivea",
@@ -32,19 +30,20 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     alternates: {
       canonical: `https://olivea.com/${lang}/casa`,
       languages: {
-        en: `https://olivea.com/en/casa`,
-        es: `https://olivea.com/es/casa`,
+        en: "https://olivea.com/en/casa",
+        es: "https://olivea.com/es/casa",
       },
     },
   }
 }
 
-// Move viewport settings to a separate export
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
   themeColor: "#65735b",
 }
 
-// Simple loading component for Casa page
 function CasaLoading() {
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -53,12 +52,7 @@ function CasaLoading() {
   )
 }
 
-export default async function CasaPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
-  // Await the params Promise before accessing its properties
+export default async function CasaPage({ params }: { params: Promise<{ lang: string }> }) {
   const resolvedParams = await params
   const lang = resolvedParams.lang
   const dict = await getDictionary(lang)

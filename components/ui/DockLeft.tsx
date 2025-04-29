@@ -22,15 +22,24 @@ export default function DockLeft({ items }: Props) {
   useSectionObserver(setActiveId)
 
   const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId)
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" })
-      window.history.pushState(null, "", `#${sectionId}`)
-    }
+    // ✅ Fixed event detail key
+    document.dispatchEvent(
+      new CustomEvent("scroll-to-section", {
+        detail: { sectionId },
+      })
+    )
+
+    // Force re-evaluation by observers after scroll
+    setTimeout(() => {
+      window.dispatchEvent(new Event("scroll"))
+    }, 600)
   }
 
   return (
-    <nav className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40" aria-label="Section navigation">
+    <nav
+      className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40"
+      aria-label="Section navigation"
+    >
       <div className="flex flex-col gap-6">
         {items.map((item) => {
           const isHovered = hoveredId === item.id

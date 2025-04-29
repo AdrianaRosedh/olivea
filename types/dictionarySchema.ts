@@ -9,6 +9,24 @@ export const dictionarySchema = z.object({
     title: z.string(),
     description: z.string(),
     error: z.string(),
+    sections: z.object({
+      about: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+      coffee: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+      pastries: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+      menu: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+    }),
   }),
   casa: z.object({
     title: z.string(),
@@ -59,6 +77,24 @@ export const dictionarySchema = z.object({
   restaurant: z.object({
     title: z.string(),
     description: z.string(),
+    sections: z.object({
+      story: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+      garden: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+      menu: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+      wines: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+    }),
   }),
   notFound: z.object({
     message: z.string(),

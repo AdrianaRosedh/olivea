@@ -4,10 +4,28 @@
     "description": "Nuestra historia, filosofía y las personas detrás de la visión."
   },
   "cafe": {
-    "title": "Café Olivea",
-    "description": "Nuestro café informal con vista al jardín. El menú y los horarios estarán disponibles pronto.",
-    "error": "Error al cargar el menú:"
-  },
+  "title": "Café Olivea",
+  "description": "Nuestro café casual con vista al jardín.",
+  "error": "Error al cargar el menú:",
+  "sections": {
+    "about": {
+      "title": "Sobre el Café",
+      "description": "Un espacio relajante rodeado de jardines y aire fresco."
+    },
+    "coffee": {
+      "title": "Nuestro Café",
+      "description": "Bebidas artesanales preparadas con los mejores granos locales."
+    },
+    "pastries": {
+      "title": "Repostería Fresca",
+      "description": "Panadería diaria, dulce y salada, recién horneada."
+    },
+    "menu": {
+      "title": "Menú",
+      "description": "Descubre todas las opciones que ofrece nuestro café."
+    }
+  }
+},
   "casa": {
     "title": "Casa Olivea",
     "description": "Quédate con nosotros...",
@@ -55,9 +73,27 @@
     "description": "Elige dónde te gustaría reservar: restaurante, café u hotel."
   },
   "restaurant": {
-    "title": "Olivea de la Granja a la Mesa",
-    "description": "Próximamente: menús de temporada, historias del chef y más."
-  },
+  "title": "Olivea de la Granja a la Mesa",
+  "description": "Próximamente: menús de temporada, historias del chef y más.",
+  "sections": {
+    "story": {
+      "title": "Nuestra Historia",
+      "description": "Donde comenzó todo — el jardín, la visión y el alma."
+    },
+    "garden": {
+      "title": "El Jardín",
+      "description": "La fuente de cada ingrediente, cada idea, cada plato."
+    },
+    "menu": {
+      "title": "Menú Degustación",
+      "description": "Una expresión estacional de tierra, tiempo y técnica."
+    },
+    "wines": {
+      "title": "Vinos",
+      "description": "Vinos naturales y etiquetas de Baja cuidadosamente seleccionadas."
+    }
+  }
+},
   "notFound": {
     "message": "La página que buscas no existe.",
     "cta": "Volver al inicio"

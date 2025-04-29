@@ -17,7 +17,12 @@ export default function RestaurantClientPage({
   }
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const sectionIds = ["story", "garden", "menu", "wines"]
+
+  function notifySectionChange(sectionId: string) {
+    document.dispatchEvent(new CustomEvent("sectionInView", { detail: { id: sectionId, intersectionRatio: 1.0 } }))
+  }
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -27,18 +32,28 @@ export default function RestaurantClientPage({
         const sectionId = link.getAttribute("href")?.substring(1)
         const section = document.getElementById(sectionId!)
         if (section && containerRef.current) {
-          section.scrollIntoView({ behavior: "smooth", block: "start" })
-          window.history.pushState(null, "", `#${sectionId}`)
-
-          // Trigger a scroll event to help section detection
-          setTimeout(() => {
-            window.dispatchEvent(new Event("scroll"))
-          }, 600)
+          containerRef.current.scrollTo({ top: section.offsetTop, behavior: "smooth" })
+          if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+          scrollTimeoutRef.current = setTimeout(() => notifySectionChange(sectionId!), 800)
         }
       }
     }
     document.addEventListener("click", handleClick)
-    return () => document.removeEventListener("click", handleClick)
+    return () => {
+      document.removeEventListener("click", handleClick)
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    const force = () => {
+      window.scrollBy(0, 1)
+      window.scrollBy(0, -1)
+      document.dispatchEvent(new Event("scroll"))
+    }
+    force()
+    const timers = [100, 300, 600, 1000].map((t) => setTimeout(force, t))
+    return () => timers.forEach(clearTimeout)
   }, [])
 
   return (
@@ -59,7 +74,7 @@ export default function RestaurantClientPage({
             key={id}
             id={id}
             data-section-id={id}
-            className="min-h-screen w-full flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px]"
+            className="min-h-screen w-full flex flex-col items-center justify-center px-6 snap-center"
             aria-labelledby={`${id}-heading`}
           >
             <div className="max-w-2xl text-center">

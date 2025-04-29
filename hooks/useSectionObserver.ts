@@ -12,23 +12,20 @@ export function useSectionObserver(
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
             const id = entry.target.getAttribute("data-section-id")
-            if (id) {
-              setActiveSection(id)
-            }
+            if (id) setActiveSection(id)
           }
         })
       },
       {
-        rootMargin: "0px 0px -60% 0px",
-        threshold: 0.2,
+        rootMargin: "-15% 0px -35% 0px", // Top 15%, bottom 35% — center-weighted
+        threshold: Array.from({ length: 10 }, (_, i) => i / 10),
         ...options,
       }
     )
 
     const sections = document.querySelectorAll("[data-section-id]")
-
     sections.forEach((section) => observer.observe(section))
 
     return () => {
