@@ -28,10 +28,31 @@ export default function NavigationProvider({ children }: { children: React.React
     // Emit navigation complete event
     emitEvent(EVENTS.NAVIGATION_COMPLETE)
 
-    // Trigger scroll initialization after navigation
+    // Trigger scroll initialization after navigation with multiple attempts
     setTimeout(() => {
       emitEvent(EVENTS.SCROLL_INITIALIZE)
     }, 100)
+
+    setTimeout(() => {
+      emitEvent(EVENTS.SCROLL_INITIALIZE)
+    }, 300)
+
+    setTimeout(() => {
+      emitEvent(EVENTS.SCROLL_INITIALIZE)
+    }, 600)
+
+    // Force scroll events
+    setTimeout(() => {
+      window.scrollBy(0, 1)
+      window.scrollBy(0, -1)
+      window.dispatchEvent(new Event("scroll"))
+    }, 200)
+
+    setTimeout(() => {
+      window.scrollBy(0, 1)
+      window.scrollBy(0, -1)
+      window.dispatchEvent(new Event("scroll"))
+    }, 500)
   }, [pathname])
 
   return (

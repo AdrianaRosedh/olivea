@@ -43,6 +43,12 @@ export default function ScrollSync() {
 
   // Custom smooth scroll function to avoid browser's native implementation
   const smoothScrollTo = (targetPosition: number, duration = 800) => {
+    // Check if we're on a mobile device
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+    // Use a shorter duration for mobile devices
+    const scrollDuration = isMobileDevice ? 500 : duration
+
     // Cancel any ongoing animation
     if (scrollAnimationRef.current !== null) {
       cancelAnimationFrame(scrollAnimationRef.current)
@@ -65,15 +71,17 @@ export default function ScrollSync() {
       targetPosition,
     })
 
-    // Easing function for smooth animation
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+    // On mobile, we can use a more responsive easing function
+    const easing = isMobileDevice
+      ? (t: number) => t * (2 - t) // Ease out quad (faster)
+      : (t: number) => 1 - Math.pow(1 - t, 3) // Ease out cubic (smoother)
 
     // Animation function
     const animateScroll = (timestamp: number) => {
       if (startTime === null) startTime = timestamp
       const elapsed = timestamp - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const easedProgress = easeOutCubic(progress)
+      const progress = Math.min(elapsed / scrollDuration, 1)
+      const easedProgress = easing(progress)
 
       if (scrollContainer) {
         scrollContainer.scrollTop = startPosition + distance * easedProgress
@@ -100,15 +108,18 @@ export default function ScrollSync() {
           finalPosition: scrollContainer.scrollTop,
         })
 
-        // Reset flags after a short delay
-        setTimeout(() => {
-          isScrollingProgrammatically.current = false
-          snapInProgressRef.current = false
-          clickedSectionRef.current = null
+        // Reset flags after a short delay - shorter on mobile
+        setTimeout(
+          () => {
+            isScrollingProgrammatically.current = false
+            snapInProgressRef.current = false
+            clickedSectionRef.current = null
 
-          // Force a scroll event
-          window.dispatchEvent(new Event("scroll"))
-        }, 100)
+            // Force a scroll event
+            window.dispatchEvent(new Event("scroll"))
+          },
+          isMobileDevice ? 50 : 100,
+        )
       }
     }
 

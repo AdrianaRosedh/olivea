@@ -279,10 +279,34 @@ body {
   height: 100vh;
   overflow-y: auto;
   scroll-behavior: smooth;
-  scroll-snap-type: y proximity; /* Using proximity for smoother scrolling */
   -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
   overscroll-behavior: none;
   touch-action: pan-y; /* Optimize for vertical touch scrolling */
+}
+
+/* Add a mobile-specific class that can be conditionally applied */
+.mobile-scroll-container {
+  scroll-snap-type: y none; /* Disable snap scrolling on mobile */
+  scroll-behavior: auto; /* Use native scrolling on mobile */
+}
+
+/* Update the section snap settings to be more responsive on mobile */
+@media (max-width: 768px) {
+  .scroll-container > section {
+    scroll-snap-align: start; /* Use start instead of center on mobile */
+    scroll-snap-stop: normal; /* Never force stopping on mobile */
+    min-height: 100vh;
+  }
+
+  /* Adjust scroll-padding for mobile */
+  html {
+    scroll-padding-top: 5rem; /* Smaller padding on mobile */
+  }
+
+  /* Ensure sections start at the top when navigating directly to them on mobile */
+  section[id] {
+    scroll-margin-top: 5rem; /* Match the scroll-padding-top value */
+  }
 }
 
 /* Update the section snap settings to be more responsive */

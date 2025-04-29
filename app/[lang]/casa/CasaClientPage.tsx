@@ -54,17 +54,30 @@ export default function CasaClientPage({
             // Update URL without reload
             window.history.pushState(null, "", href)
 
-            // Scroll with smooth behavior
+            // Notify about section change with fromClick flag
+            notifySectionChange(sectionId, 1.0, false)
+
+            // Check if we're on a mobile device
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+              navigator.userAgent,
+            )
+
+            // Scroll with appropriate behavior based on device
             containerRef.current.scrollTo({
               top: section.offsetTop,
               behavior: "smooth",
             })
 
-            // Reset scrolling state after animation completes
+            // Reset scrolling state after animation completes - faster on mobile
             if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
-            scrollTimeoutRef.current = setTimeout(() => {
-              setIsScrolling(false)
-            }, 1000)
+            scrollTimeoutRef.current = setTimeout(
+              () => {
+                setIsScrolling(false)
+                // Notify again after scrolling completes
+                notifySectionChange(sectionId, 1.0, false)
+              },
+              isMobileDevice ? 500 : 1000,
+            ) // Shorter timeout for mobile
           }
         }
       }
@@ -100,11 +113,7 @@ export default function CasaClientPage({
         const visibility = visibleHeight / rect.height
 
         if (visibility > 0.3) {
-          document.dispatchEvent(
-            new CustomEvent("sectionInView", {
-              detail: { id: section.id, intersectionRatio: visibility },
-            }),
-          )
+          notifySectionChange(section.id, visibility, true)
         }
       })
     }
@@ -141,6 +150,54 @@ export default function CasaClientPage({
     }
   }, [])
 
+  // This will help coordinate section changes across components
+  const notifySectionChange = (sectionId: string, intersectionRatio = 1.0, fromScroll = true) => {
+    // Simple event dispatch without extra parameters
+    document.dispatchEvent(
+      new CustomEvent("sectionInView", {
+        detail: {
+          id: sectionId,
+          intersectionRatio,
+        },
+      }),
+    )
+  }
+
+  // Force initialization when component mounts
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    // Function to force section detection
+    const forceInitialization = () => {
+      console.log("[CasaClientPage] Forcing initialization")
+
+      // Force a scroll event
+      window.scrollBy(0, 1)
+      window.scrollBy(0, -1)
+      window.dispatchEvent(new Event("scroll"))
+
+      // Dispatch a custom event to force section detection
+      document.dispatchEvent(new CustomEvent("observers:reinitialize"))
+
+      // Emit navigation complete event to trigger reinitializations
+      document.dispatchEvent(new CustomEvent("navigation:complete"))
+    }
+
+    // Call immediately
+    forceInitialization()
+
+    // And with delays to ensure it works
+    const timers = [
+      setTimeout(forceInitialization, 100),
+      setTimeout(forceInitialization, 300),
+      setTimeout(forceInitialization, 600),
+    ]
+
+    return () => {
+      timers.forEach(clearTimeout)
+    }
+  }, [])
+
   return (
     <>
       <div
@@ -149,8 +206,13 @@ export default function CasaClientPage({
         style={{
           height: "100vh",
           scrollBehavior: "smooth",
-          scrollSnapType: "y proximity", // Use proximity instead of mandatory
+          scrollSnapType: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            typeof navigator !== "undefined" ? navigator.userAgent : "",
+          )
+            ? "y none" // Disable snap scrolling on mobile for more natural feel
+            : "y proximity", // Keep proximity snap on desktop
           overscrollBehavior: "none",
+          WebkitOverflowScrolling: "touch", // Improve iOS scrolling
         }}
       >
         {/* Rooms Section */}

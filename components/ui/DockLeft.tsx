@@ -66,6 +66,13 @@ export default function DockLeft({ items }: Props) {
       }
     }
 
+    // Force a scroll event to activate listeners
+    const forceScrollEvent = () => {
+      window.scrollBy(0, 1)
+      window.scrollBy(0, -1)
+      window.dispatchEvent(new Event("scroll"))
+    }
+
     // Use requestAnimationFrame for smoother animations tied to scroll
     const handleScroll = () => {
       // Skip if we're programmatically scrolling
@@ -94,7 +101,40 @@ export default function DockLeft({ items }: Props) {
     updateActiveSection()
 
     // Force multiple updates to ensure it works
-    const timers = [setTimeout(updateActiveSection, 100), setTimeout(updateActiveSection, 500)]
+    const timers = [
+      setTimeout(() => {
+        updateActiveSection()
+        forceScrollEvent()
+      }, 100),
+      setTimeout(() => {
+        updateActiveSection()
+        forceScrollEvent()
+      }, 300),
+      setTimeout(() => {
+        updateActiveSection()
+        forceScrollEvent()
+      }, 600),
+      setTimeout(() => {
+        updateActiveSection()
+        forceScrollEvent()
+      }, 1000),
+    ]
+
+    // Listen for navigation events
+    const handleNavigationComplete = () => {
+      console.log("[DockLeft] Navigation complete, reinitializing")
+      // Force multiple updates after navigation
+      setTimeout(() => {
+        updateActiveSection()
+        forceScrollEvent()
+      }, 100)
+      setTimeout(() => {
+        updateActiveSection()
+        forceScrollEvent()
+      }, 300)
+    }
+
+    document.addEventListener("navigation:complete", handleNavigationComplete)
 
     return () => {
       window.removeEventListener("scroll", handleScroll)
@@ -105,6 +145,7 @@ export default function DockLeft({ items }: Props) {
         cancelAnimationFrame(animationFrameRef.current)
       }
       timers.forEach(clearTimeout)
+      document.removeEventListener("navigation:complete", handleNavigationComplete)
     }
   }, [activeId, items])
 

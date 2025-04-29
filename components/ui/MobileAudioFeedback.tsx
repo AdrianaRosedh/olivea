@@ -43,9 +43,15 @@ export default function MobileAudioFeedback() {
       // Only play after user interaction
       if (!userHasInteractedRef.current) return
 
+      // Check if we're on a mobile device
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+      // Use a shorter debounce time on mobile devices
+      const debounceTime = isMobileDevice ? 100 : 300
+
       // Debounce sound playback
       const now = Date.now()
-      if (now - lastPlayTimeRef.current < 300) return
+      if (now - lastPlayTimeRef.current < debounceTime) return
 
       if (audioRef.current && !isPlayingRef.current) {
         isPlayingRef.current = true
@@ -54,20 +60,49 @@ export default function MobileAudioFeedback() {
         // Reset audio to beginning
         audioRef.current.currentTime = 0
 
-        // Play sound
-        const playPromise = audioRef.current.play()
+        // On mobile, we need to use a user interaction to play audio
+        if (isMobileDevice) {
+          // Try to play with a user gesture simulation
+          const playPromise = audioRef.current.play()
 
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setTimeout(() => {
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setTimeout(() => {
+                  isPlayingRef.current = false
+                }, 50) // Very short reset time on mobile
+              })
+              .catch((error) => {
+                console.error("Audio playback error:", error)
                 isPlayingRef.current = false
-              }, 100)
-            })
-            .catch((error) => {
-              console.error("Audio playback error:", error)
-              isPlayingRef.current = false
-            })
+
+                // Try to play again with a different approach
+                document.addEventListener(
+                  "touchend",
+                  function playOnTouch() {
+                    audioRef.current?.play()
+                    document.removeEventListener("touchend", playOnTouch)
+                  },
+                  { once: true },
+                )
+              })
+          }
+        } else {
+          // Desktop behavior
+          const playPromise = audioRef.current.play()
+
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setTimeout(() => {
+                  isPlayingRef.current = false
+                }, 100)
+              })
+              .catch((error) => {
+                console.error("Audio playback error:", error)
+                isPlayingRef.current = false
+              })
+          }
         }
       }
     }
@@ -123,7 +158,21 @@ export default function MobileAudioFeedback() {
             window.navigator.vibrate(10)
           }
 
-          playSound()
+          // On mobile, we need to be more aggressive about playing sounds
+          const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent,
+          )
+          if (isMobileDevice) {
+            // For mobile, play sound with minimal debounce
+            const now = Date.now()
+            if (now - lastPlayTimeRef.current > 100) {
+              // Shorter debounce for mobile
+              lastPlayTimeRef.current = now
+              playSound()
+            }
+          } else {
+            playSound()
+          }
         }
 
         lastSectionRef.current = bestSection.id
@@ -138,11 +187,17 @@ export default function MobileAudioFeedback() {
         clearTimeout(scrollTimeout)
       }
 
+      // Check if we're on a mobile device
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+      // Use a shorter throttle time for mobile
+      const throttleTime = isMobileDevice ? 30 : 50
+
       // Throttle section updates
       scrollTimeout = setTimeout(() => {
         updateActiveSection()
         scrollTimeout = null
-      }, 50)
+      }, throttleTime)
     }
 
     // Handle section clicks
