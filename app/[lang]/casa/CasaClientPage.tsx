@@ -254,52 +254,56 @@ export default function CasaClientPage({
         }}
       >
         {/* Rooms Section */}
-        <section
-          id="rooms"
-          className="min-h-screen w-full flex items-center justify-center px-6 snap-center"
-          aria-labelledby="rooms-heading"
-        >
-          <div>
-            <TypographyH2 id="rooms-heading">{dict.casa.sections.rooms.title}</TypographyH2>
-            <TypographyP className="mt-2">{dict.casa.sections.rooms.description}</TypographyP>
-          </div>
-        </section>
-
-        {/* Breakfast Section */}
-        <section
-          id="breakfast"
-          className="min-h-screen w-full flex items-center justify-center px-6 snap-center"
-          aria-labelledby="breakfast-heading"
-        >
-          <div>
-            <TypographyH2 id="breakfast-heading">{dict.casa.sections.breakfast.title}</TypographyH2>
-            <TypographyP className="mt-2">{dict.casa.sections.breakfast.description}</TypographyP>
-          </div>
-        </section>
-
-        {/* Experiences Section */}
-        <section
-          id="experiences"
-          className="min-h-screen w-full flex items-center justify-center px-6 snap-center"
-          aria-labelledby="experiences-heading"
-        >
-          <div>
-            <TypographyH2 id="experiences-heading">{dict.casa.sections.experiences.title}</TypographyH2>
-            <TypographyP className="mt-2">{dict.casa.sections.experiences.description}</TypographyP>
-          </div>
-        </section>
-
-        {/* Location Section */}
-        <section
-          id="location"
-          className="min-h-screen w-full flex items-center justify-center px-6 mb-0 snap-center"
-          aria-labelledby="location-heading"
-        >
-          <div>
-            <TypographyH2 id="location-heading">{dict.casa.sections.location.title}</TypographyH2>
-            <TypographyP className="mt-2">{dict.casa.sections.location.description}</TypographyP>
-          </div>
-        </section>
+      <section
+        id="rooms"
+  data-section-id="rooms"
+  className="min-h-screen w-full flex items-center justify-center px-6 snap-center"
+  aria-labelledby="rooms-heading"
+      >
+        <div>
+          <TypographyH2 id="rooms-heading">{dict.casa.sections.rooms.title}</TypographyH2>
+          <TypographyP className="mt-2">{dict.casa.sections.rooms.description}</TypographyP>
+        </div>
+      </section>
+            
+      {/* Breakfast Section */}
+      <section
+        id="breakfast"
+        data-section-id="breakfast"
+        className="min-h-screen w-full flex items-center justify-center px-6 snap-center"
+        aria-labelledby="breakfast-heading"
+      >
+        <div>
+          <TypographyH2 id="breakfast-heading">{dict.casa.sections.breakfast.title}</TypographyH2>
+          <TypographyP className="mt-2">{dict.casa.sections.breakfast.description}</TypographyP>
+        </div>
+      </section>
+            
+      {/* Experiences Section */}
+      <section
+        id="experiences"
+        data-section-id="experiences"
+        className="min-h-screen w-full flex items-center justify-center px-6 snap-center"
+        aria-labelledby="experiences-heading"
+      >
+        <div>
+          <TypographyH2 id="experiences-heading">{dict.casa.sections.experiences.title}</TypographyH2>
+          <TypographyP className="mt-2">{dict.casa.sections.experiences.description}</TypographyP>
+        </div>
+      </section>
+            
+      {/* Location Section */}
+      <section
+        id="location"
+        data-section-id="location"
+        className="min-h-screen w-full flex items-center justify-center px-6 mb-0 snap-center"
+        aria-labelledby="location-heading"
+      >
+        <div>
+          <TypographyH2 id="location-heading">{dict.casa.sections.location.title}</TypographyH2>
+          <TypographyP className="mt-2">{dict.casa.sections.location.description}</TypographyP>
+        </div>
+      </section>
       </div>
 
       {/* Add the MobileSectionTracker to help with mobile section detection */}

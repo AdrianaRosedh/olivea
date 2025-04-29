@@ -169,6 +169,9 @@ body::-webkit-scrollbar {
   width: 0px;
   background: transparent; /* Optional: just to be extra clean */
 }
+body:not(.animations-initialized) * {
+  transition: none !important;
+}
 
 body {
   scrollbar-width: none; /* Firefox */

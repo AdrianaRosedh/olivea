@@ -6,6 +6,7 @@ import LayoutShell from "@/components/LayoutShell"
 import { ReservationProvider } from "@/contexts/ReservationContext"
 import { Suspense } from "react"
 import ClientProviders from "@/components/ClientProviders"
+import AnimationManager from "@/components/AnimationManager"
 import type React from "react"
 import StructuredData from "@/components/StructuredData"
 import LoadingSpinner from "@/components/ui/LoadingSpinner"
@@ -102,6 +103,9 @@ export default async function RootLayout({
 
       {/* Client-side providers */}
       <ClientProviders />
+
+      {/* 🔥 Add AnimationManager here */}
+      <AnimationManager />
 
       <ReservationProvider lang={lang}>
         <Suspense fallback={<LayoutLoading />}>
