@@ -3,9 +3,8 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import MagneticButton from "@/components/ui/MagneticButton"
-import OliveaFTTLogo from "@/assets/oliveaFTT.svg"
 import ReservationButton from "./ReservationButton"
+import OliveaFTTLogo from "@/assets/oliveaFTT.svg"
 
 export default function HomePage() {
   return (
@@ -26,7 +25,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0.4 }}
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
           className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
           style={{
             backgroundImage:
@@ -45,6 +44,7 @@ export default function HomePage() {
             className="mt-10 md:mt-0"
           >
             <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
+
           </motion.div>
 
           {/* Tagline */}
@@ -52,7 +52,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="text-white text-sm md:text-base mt-2 font-sans"
+            className="text-[var(--olivea-cream)] text-base md:text-lg mt-2 font-sans tracking-wider"
           >
             Experience the garden. Live the story.
           </motion.p>
@@ -88,13 +88,13 @@ export default function HomePage() {
                 <Link href={href}>
                   <Button
                     size="lg"
-                    className="group relative w-full h-[100px] text-lg px-6 py-4 flex flex-col items-center justify-center 
-                      rounded-md bg-[var(--olivea-shell)] text-[var(--olivea-ink)] 
-                      hover:bg-[var(--olivea-clay)] transition-colors overflow-hidden font-serif"
+                    className="group relative w-full h-[120px] text-xl px-6 py-4 flex flex-col items-center justify-center 
+                      rounded-lg bg-[#e8e3cf] text-[#333333] 
+                      hover:bg-[#dcd6bc] transition-all duration-300 overflow-hidden font-serif
+                      shadow-lg hover:shadow-xl"
                   >
-                    <span className="font-serif">{label}</span>
-                    <span className="text-sm text-[color:var(--muted-foreground)] mt-1 font-sans">{desc}</span>
-                    <span className="absolute left-[-50%] top-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 animate-shimmer" />
+                    <span className="font-serif font-medium">{label}</span>
+                    <span className="text-sm md:text-base text-[#666666] mt-2 font-sans">{desc}</span>
                   </Button>
                 </Link>
               </motion.div>
@@ -106,9 +106,9 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, type: "spring", stiffness: 80, damping: 12 }}
-            className="mt-6 md:mt-10 mb-10"
+            className="mt-8 md:mt-12 mb-10"
           >
-            <ReservationButton />
+            <ReservationButton className="bg-[#5d6b53] text-[var(--olivea-cream)] hover:bg-[#4a5642]" />
           </motion.div>
         </div>
       </div>
