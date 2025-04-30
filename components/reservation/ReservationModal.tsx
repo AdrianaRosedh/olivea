@@ -67,20 +67,22 @@ export default function ReservationModal({ isOpen, onClose, initialType = "resta
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000]" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 flex items-center justify-center z-[1001] p-4">
         <div
           className="w-full max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-xl font-semibold">{lang === "es" ? "Reservaciones" : "Reservations"}</h2>
+            <h2 className="text-xl font-semibold text-[var(--olivea-ink)]">
+              {lang === "es" ? "Reservaciones" : "Reservations"}
+            </h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors text-[var(--olivea-ink)]"
               aria-label="Close"
             >
               <X size={20} />
@@ -100,7 +102,7 @@ export default function ReservationModal({ isOpen, onClose, initialType = "resta
                 className={`flex-1 py-3 px-4 text-center transition-colors ${
                   type === tab.id
                     ? "border-b-2 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-medium"
-                    : "text-gray-600 hover:bg-gray-50"
+                    : "text-[var(--olivea-ink)] hover:bg-gray-50"
                 }`}
               >
                 {tab.label}
