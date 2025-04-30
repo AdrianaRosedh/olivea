@@ -110,7 +110,7 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                 animate={{ clipPath: "circle(150% at 92% 40px)" }}
                 exit={{ clipPath: "circle(0% at 92% 40px)" }}
                 transition={{ type: "spring", stiffness: 80, damping: 18 }}
-                className="absolute top-0 right-0 w-full h-full bg-[var(--olivea-clay)] backdrop-blur-md flex flex-col items-center justify-center px-6 pointer-events-auto"
+                className="absolute top-0 right-0 w-full h-full bg-[var(--olivea-olive)] backdrop-blur-md flex flex-col items-center justify-center px-6 pointer-events-auto"
                 aria-modal="true"
                 role="dialog"
               >
@@ -129,8 +129,8 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                       className={cn(
                         "w-full text-center px-6 py-3 rounded-md text-lg font-semibold uppercase transition-colors outline-none focus:ring-2 focus:ring-white",
                         clicked === href
-                          ? "bg-[var(--olivea-soil)] text-white"
-                          : "bg-[var(--olivea-cream)] text-[var(--olivea-soil)] border border-[var(--olivea-soil)] hover:bg-[var(--olivea-soil)] hover:text-white",
+                          ? "bg-[var(--olivea-soil)] text-[var(--olivea-cream)]"
+                          : "bg-transparent text-[var(--olivea-cream)] border border-[var(--olivea-cream)] hover:bg-[var(--olivea-cream)]/10",
                       )}
                     >
                       {label}
@@ -145,7 +145,7 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                     exit="hidden"
                     variants={navVariants}
                     onClick={handleReservationClick}
-                    className="w-full text-center px-6 py-3 rounded-md text-lg font-semibold uppercase transition-colors outline-none focus:ring-2 focus:ring-white bg-[var(--olivea-soil)] text-white"
+                    className="w-full text-center px-6 py-3 rounded-md text-lg font-semibold uppercase transition-colors outline-none focus:ring-2 focus:ring-white bg-[var(--olivea-cream)] text-[var(--olivea-olive)]"
                   >
                     {lang === "es" ? "Reservar" : "Reserve"}
                   </motion.button>
