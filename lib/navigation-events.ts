@@ -1,26 +1,24 @@
-// This file creates a global event system for navigation events
-// that works reliably with Next.js 15 and React 19
-
-// Define custom events
+// Event name constants
 export const EVENTS = {
   NAVIGATION_START: "navigation:start",
   NAVIGATION_COMPLETE: "navigation:complete",
   SCROLL_INITIALIZE: "scroll:initialize",
-  SCROLL_START: "scroll:start",
-  SCROLL_PROGRESS: "scroll:progress",
-  SCROLL_COMPLETE: "scroll:complete",
   SECTION_CHANGE: "section:change",
   SECTION_SNAP_START: "section:snap:start",
   SECTION_SNAP_COMPLETE: "section:snap:complete",
+  SCROLL_PROGRESS: "scroll:progress",
+  MOBILE_SCROLL_INITIALIZED: "mobile:scroll:initialized",
 }
 
-// Helper to emit custom events
-export function emitEvent(eventName: string, detail?: any) {
-  if (typeof window === "undefined") return
-
-  console.log(`[Navigation] Emitting event: ${eventName}`, detail)
-  const event = new CustomEvent(eventName, { detail })
-  document.dispatchEvent(event)
+// Helper function to emit events
+export function emitEvent(eventName: string, detail: any = {}) {
+  if (typeof document !== "undefined") {
+    document.dispatchEvent(
+      new CustomEvent(eventName, {
+        detail,
+      }),
+    )
+  }
 }
 
 // Initialize the navigation event system

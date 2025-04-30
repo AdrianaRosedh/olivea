@@ -10,6 +10,9 @@ import { MobileNav } from "@/components/navbar/MobileNav"
 import MagneticButton from "@/components/ui/MagneticButton"
 import { default as OliveaFTTLogo } from "@/assets/OliveaFTTIcon.svg"
 import { useReservation } from "@/contexts/ReservationContext"
+import AdaptiveNavbar from "@/components/navbar/AdaptiveNavbar"
+import { useIsMobile } from "@/hooks/useMediaQuery"
+import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection"
 
 interface NavbarProps {
   lang: "en" | "es"
@@ -19,6 +22,8 @@ export default function Navbar({ lang }: NavbarProps) {
   const pathname = usePathname()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { openReservationModal } = useReservation()
+  const isMobile = useIsMobile()
+  const { isDark } = useBackgroundColorDetection(200)
 
   // Use useCallback to memoize the handler
   const handleReservationClick = useCallback(() => {
@@ -29,6 +34,11 @@ export default function Navbar({ lang }: NavbarProps) {
       console.error("Error opening reservation modal:", error)
     }
   }, [openReservationModal])
+
+  const toggleDrawer = useCallback(() => {
+    navigator.vibrate?.(10)
+    setDrawerOpen((prev) => !prev)
+  }, [])
 
   const basePath = `/${lang}`
   const navItems = [
@@ -51,54 +61,65 @@ export default function Navbar({ lang }: NavbarProps) {
 
   return (
     <>
-      {/* Desktop Navbar */}
-      <nav className="w-full fixed top-0 z-40 bg-transparent backdrop-blur-md">
-        <div className="w-full flex justify-center">
-          <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-24 lg:h-28">
-            {/* Left: Logo */}
-            <div className="flex-1 flex items-center justify-start">
-              <Link href={`/${lang}`} aria-label="Home">
-                <OliveaFTTLogo className="h-10 md:h-16 lg:h-20 text-[var(--olivea-olive)]" aria-label="Olivea Logo" />
-              </Link>
-            </div>
+      {/* Mobile Adaptive Navbar */}
+      {isMobile && <AdaptiveNavbar lang={lang} onToggleDrawer={toggleDrawer} isDrawerOpen={drawerOpen} />}
 
-            {/* Center: Nav Buttons */}
-            <div className="hidden md:flex flex-1 justify-center gap-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap",
-                    "rounded-md border border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-medium text-base uppercase transition-colors flex items-center justify-center",
-                    "font-sans tracking-wide",
-                    pathname === item.href
-                      ? "bg-[var(--olivea-olive)] text-white"
-                      : "hover:bg-[var(--olivea-olive)] hover:text-white",
-                  )}
-                >
-                  {item.label}
+      {/* Mobile Hamburger Toggle - Always visible and accessible */}
+      {isMobile && (
+        <div className="fixed top-4 right-4 z-[1002] pointer-events-auto">
+          <MenuToggle
+            toggle={toggleDrawer}
+            isOpen={drawerOpen}
+            className={drawerOpen ? "text-white" : isDark ? "text-[#f8f8f8]" : "text-[var(--olivea-olive)]"}
+          />
+        </div>
+      )}
+
+      {/* Desktop Navbar - Unchanged */}
+      {!isMobile && (
+        <nav className="w-full fixed top-0 z-40 bg-transparent backdrop-blur-md">
+          <div className="w-full flex justify-center">
+            <div className="max-w-screen-2xl w-full flex items-center justify-between px-4 md:px-8 lg:px-6 h-20 md:h-24 lg:h-28">
+              {/* Left: Logo */}
+              <div className="flex-1 flex items-center justify-start">
+                <Link href={`/${lang}`} aria-label="Home">
+                  <OliveaFTTLogo className="h-10 md:h-16 lg:h-20 text-[var(--olivea-olive)]" aria-label="Olivea Logo" />
                 </Link>
-              ))}
-            </div>
+              </div>
 
-            {/* Right: Reservar Button */}
-            <div className="hidden md:flex flex-1 justify-end items-center">
-              <MagneticButton
-                onClick={handleReservationClick}
-                className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors font-sans"
-              >
-                Reservar
-              </MagneticButton>
+              {/* Center: Nav Buttons */}
+              <div className="hidden md:flex flex-1 justify-center gap-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap",
+                      "rounded-md border border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-medium text-base uppercase transition-colors flex items-center justify-center",
+                      "font-sans tracking-wide",
+                      pathname === item.href
+                        ? "bg-[var(--olivea-olive)] text-white"
+                        : "hover:bg-[var(--olivea-olive)] hover:text-white",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Right: Reservar Button */}
+              <div className="hidden md:flex flex-1 justify-end items-center">
+                <MagneticButton
+                  onClick={handleReservationClick}
+                  className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors font-sans"
+                >
+                  Reservar
+                </MagneticButton>
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
-
-      {/* Mobile Hamburger Toggle */}
-      <div className="md:hidden fixed top-4 right-4 z-[1000] pointer-events-auto">
-        <MenuToggle toggle={() => (navigator.vibrate?.(10), setDrawerOpen((prev) => !prev))} isOpen={drawerOpen} />
-      </div>
+        </nav>
+      )}
 
       {/* Mobile Drawer */}
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} lang={lang} />

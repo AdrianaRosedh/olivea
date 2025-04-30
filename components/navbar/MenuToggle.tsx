@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 const Path = (props: any) => (
   <motion.path fill="transparent" strokeWidth="2.5" stroke="currentColor" strokeLinecap="round" {...props} />
@@ -9,9 +10,10 @@ const Path = (props: any) => (
 type MenuToggleProps = {
   toggle: () => void
   isOpen: boolean
+  className?: string
 }
 
-export default function MenuToggle({ toggle, isOpen }: MenuToggleProps) {
+export default function MenuToggle({ toggle, isOpen, className }: MenuToggleProps) {
   return (
     <button
       onClick={() => {
@@ -19,7 +21,10 @@ export default function MenuToggle({ toggle, isOpen }: MenuToggleProps) {
         toggle()
       }}
       aria-label="Toggle menu"
-      className="text-[var(--olivea-olive)] p-3 rounded-full focus:outline-none focus:ring-0 focus:bg-transparent active:bg-transparent transition"
+      className={cn(
+        "p-3 rounded-full focus:outline-none focus:ring-0 focus:bg-transparent active:bg-transparent transition",
+        className,
+      )}
       style={{
         zIndex: 1001, // Increased z-index to be higher than the drawer
         position: "relative", // Ensure the z-index works properly

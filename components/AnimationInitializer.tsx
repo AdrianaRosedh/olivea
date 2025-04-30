@@ -2,10 +2,12 @@
 
 import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
+import { EVENTS, emitEvent } from "@/lib/navigation-events"
 
 export default function AnimationInitializer() {
   const pathname = usePathname()
   const initCountRef = useRef(0)
+  const hasInitializedRef = useRef(false)
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -20,6 +22,9 @@ export default function AnimationInitializer() {
 
       // Dispatch animation initialization events
       document.dispatchEvent(new CustomEvent("animations:initialize"))
+
+      // Emit scroll initialize event
+      emitEvent(EVENTS.SCROLL_INITIALIZE, { source: "animation-initializer" })
 
       // Force layout recalculation for animated elements - use separate selectors
       const animatedElements = [
@@ -40,6 +45,8 @@ export default function AnimationInitializer() {
 
       // Force a resize event to recalculate responsive animations
       window.dispatchEvent(new Event("resize"))
+
+      hasInitializedRef.current = true
     }
 
     // Run initialization with increasing delays
@@ -51,8 +58,22 @@ export default function AnimationInitializer() {
       setTimeout(forceInitializeAnimations, 1000),
     ]
 
+    // Also initialize on document ready state change
+    const checkReadyState = () => {
+      if (document.readyState === "complete" && !hasInitializedRef.current) {
+        forceInitializeAnimations()
+      }
+    }
+
+    document.addEventListener("readystatechange", checkReadyState)
+
+    // Also initialize on load event
+    window.addEventListener("load", forceInitializeAnimations)
+
     return () => {
       timers.forEach(clearTimeout)
+      document.removeEventListener("readystatechange", checkReadyState)
+      window.removeEventListener("load", forceInitializeAnimations)
     }
   }, [pathname]) // Re-run when pathname changes
 

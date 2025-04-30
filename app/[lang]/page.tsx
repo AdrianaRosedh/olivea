@@ -35,13 +35,13 @@ export default function HomePage() {
         />
 
         {/* Main Content */}
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center gap-y-8 md:gap-y-10 py-6 md:py-16">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center gap-y-8 md:gap-y-10 pt-16 md:py-16">
           {/* Logo */}
           <motion.div
             initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0 }}
             animate={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
             transition={{ delay: 0.4, duration: 1.2, ease: "easeInOut" }}
-            className="mt-10 md:mt-0"
+            className="mt-16 md:mt-0"
           >
             <OliveaFTTLogo className="mx-auto w-40 md:w-[240px] text-white" aria-label="Olivea Logo" />
 
