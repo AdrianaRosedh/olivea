@@ -149,6 +149,22 @@ export default function NextGenBackground() {
       }
     }
 
+    // Listen for section in view events (for our new navigation system)
+    const handleSectionInView = (e: Event) => {
+      const customEvent = e as CustomEvent
+      if (customEvent.detail?.id) {
+        // Calculate progress based on section index
+        const sections = document.querySelectorAll("section[id]")
+        const sectionArray = Array.from(sections)
+        const sectionIndex = sectionArray.findIndex((section) => section.id === customEvent.detail.id)
+
+        if (sectionIndex !== -1) {
+          const progress = sectionIndex / (sectionArray.length - 1)
+          animateToProgress(progress, 800)
+        }
+      }
+    }
+
     // Update immediately
     updateBackground()
 
@@ -163,6 +179,7 @@ export default function NextGenBackground() {
     document.addEventListener(EVENTS.SECTION_SNAP_START, handleSectionSnapStart)
     document.addEventListener(EVENTS.SECTION_SNAP_COMPLETE, handleSectionSnapComplete)
     document.addEventListener(EVENTS.SECTION_CHANGE, handleSectionChange)
+    document.addEventListener("sectionInView", handleSectionInView)
 
     // Force multiple updates to ensure it works
     const timers = [
@@ -180,6 +197,7 @@ export default function NextGenBackground() {
       document.removeEventListener(EVENTS.SECTION_SNAP_START, handleSectionSnapStart)
       document.removeEventListener(EVENTS.SECTION_SNAP_COMPLETE, handleSectionSnapComplete)
       document.removeEventListener(EVENTS.SECTION_CHANGE, handleSectionChange)
+      document.removeEventListener("sectionInView", handleSectionInView)
 
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)

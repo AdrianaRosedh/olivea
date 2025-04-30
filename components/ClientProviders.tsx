@@ -4,10 +4,15 @@ import { useEffect, useState } from "react"
 import ScrollManager from "@/components/ScrollManager"
 import NavigationProvider from "@/components/NavigationProvider"
 import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback"
+import AnimationInitializer from "@/components/AnimationInitializer"
+import { useNavigationEvents } from "@/hooks/useNavigationEvents"
 
 export default function ClientProviders() {
   const [mounted, setMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+
+  // Use the navigation events hook
+  useNavigationEvents()
 
   useEffect(() => {
     setMounted(true)
@@ -31,6 +36,7 @@ export default function ClientProviders() {
     <>
       <NavigationProvider />
       <ScrollManager />
+      <AnimationInitializer />
       {isMobile && <MobileAudioFeedback />}
     </>
   )

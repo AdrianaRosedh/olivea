@@ -4,72 +4,55 @@ import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 
 export default function AnimationInitializer() {
-  const hasInitializedRef = useRef(false)
   const pathname = usePathname()
+  const initCountRef = useRef(0)
 
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Function to force initialize all animations and scroll detection
-    const forceInitializeAnimations = () => {
-      console.log("[AnimationInitializer] Forcing animation initialization")
+    // Reset counter on navigation
+    initCountRef.current = 0
 
-      // 1. Force scroll events
+    // Function to force initialize animations
+    const forceInitializeAnimations = () => {
+      const count = ++initCountRef.current
+      console.log(`[AnimationInitializer] Initializing animations (attempt ${count})`)
+
+      // Dispatch animation initialization events
+      document.dispatchEvent(new CustomEvent("animations:initialize"))
+
+      // Force layout recalculation for animated elements - use separate selectors
+      const animatedElements = [
+        ...document.querySelectorAll("[data-animate]"),
+        ...document.querySelectorAll("[class*='animate-']"),
+        ...document.querySelectorAll("[class*='transition-']"),
+      ]
+
+      animatedElements.forEach((el) => {
+        // Force layout recalculation
+        el.getBoundingClientRect()
+      })
+
+      // Force a scroll event to trigger scroll-based animations
       window.scrollBy(0, 1)
       window.scrollBy(0, -1)
       window.dispatchEvent(new Event("scroll"))
 
-      // 2. Find all sections and force layout recalculation
-      const sections = document.querySelectorAll("section[id]")
-      sections.forEach((section) => {
-        // Force layout recalculation
-        section.getBoundingClientRect()
-      })
-
-      // 3. Dispatch custom events
-      document.dispatchEvent(new CustomEvent("observers:reinitialize"))
-      document.dispatchEvent(new CustomEvent("animations:initialize"))
-      document.dispatchEvent(new CustomEvent("navigation:complete"))
-      document.dispatchEvent(new CustomEvent("scroll:initialize"))
-
-      // 4. Force animation frames
-      requestAnimationFrame(() => {
-        // Force another scroll event inside animation frame
-        window.dispatchEvent(new Event("scroll"))
-
-        // Force resize event to recalculate any responsive elements
-        window.dispatchEvent(new Event("resize"))
-      })
-
-      hasInitializedRef.current = true
+      // Force a resize event to recalculate responsive animations
+      window.dispatchEvent(new Event("resize"))
     }
 
-    // Run initialization immediately
-    forceInitializeAnimations()
-
-    // Run multiple times with increasing delays to ensure it works
+    // Run initialization with increasing delays
     const timers = [
+      setTimeout(forceInitializeAnimations, 0),
       setTimeout(forceInitializeAnimations, 100),
       setTimeout(forceInitializeAnimations, 300),
       setTimeout(forceInitializeAnimations, 600),
       setTimeout(forceInitializeAnimations, 1000),
-      setTimeout(forceInitializeAnimations, 2000),
     ]
-
-    // Also initialize on user interaction
-    const handleUserInteraction = () => {
-      if (!hasInitializedRef.current) {
-        forceInitializeAnimations()
-      }
-    }
-
-    document.addEventListener("click", handleUserInteraction, { once: true })
-    document.addEventListener("touchstart", handleUserInteraction, { once: true })
 
     return () => {
       timers.forEach(clearTimeout)
-      document.removeEventListener("click", handleUserInteraction)
-      document.removeEventListener("touchstart", handleUserInteraction)
     }
   }, [pathname]) // Re-run when pathname changes
 

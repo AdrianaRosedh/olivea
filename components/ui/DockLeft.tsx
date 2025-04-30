@@ -1,9 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { useSectionObserver } from "@/hooks/useSectionObserver"
 
 interface DockItem {
   id: string
@@ -15,55 +14,59 @@ interface Props {
   items: DockItem[]
 }
 
-export default function DockLeft({ items }: Props) {
-  const [activeId, setActiveId] = useState<string | null>(items[0]?.id || null)
+export default function DockLeft({ items = [] }: Props) {
+  const [activeSection, setActiveSection] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const initialRender = useRef(true)
 
-  useSectionObserver(setActiveId)
+  // Filter out invalid items
+  const validItems = items.filter((item) => item && typeof item === "object" && item.id && item.label && item.number)
 
-  const scrollToSection = (sectionId: string) => {
-    // ✅ Fixed event detail key
-    document.dispatchEvent(
-      new CustomEvent("scroll-to-section", {
-        detail: { sectionId },
-      })
-    )
-
-    // Force re-evaluation by observers after scroll
-    setTimeout(() => {
-      window.dispatchEvent(new Event("scroll"))
-    }, 600)
+  // Safety check for empty items array
+  if (!validItems.length) {
+    return null
   }
 
-  return (
-    <nav
-      className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40"
-      aria-label="Section navigation"
-    >
-      <div className="flex flex-col gap-6">
-        {items.map((item) => {
-          const isHovered = hoveredId === item.id
-          const isActive = activeId === item.id
-          const isAnimated = isActive || isHovered
+  // Initialize activeSection with the first item if not set
+  useEffect(() => {
+    if (initialRender.current) {
+      if (!activeSection && validItems.length > 0) {
+        setActiveSection(validItems[0].id)
+      }
+      initialRender.current = false
+    }
+  }, [validItems, activeSection])
 
-          const animationSettings = {
-            y: { type: "spring", stiffness: isHovered ? 200 : 400, damping: 20 },
-            filter: { duration: 0.3 },
-          }
+  // Listen for section change events
+  useEffect(() => {
+    const handleSectionInView = (e: Event) => {
+      const customEvent = e as CustomEvent
+      if (customEvent.detail?.id) {
+        setActiveSection(customEvent.detail.id)
+      }
+    }
+
+    document.addEventListener("sectionInView", handleSectionInView)
+    return () => document.removeEventListener("sectionInView", handleSectionInView)
+  }, [])
+
+  return (
+    <nav className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40" aria-label="Section navigation">
+      <div className="flex flex-col gap-6">
+        {validItems.map((item) => {
+          const isHovered = hoveredId === item.id
+          const isActive = activeSection === item.id
+          const isAnimated = isActive || isHovered
 
           return (
             <a
               key={item.id}
               href={`#${item.id}`}
-              onClick={(e) => {
-                e.preventDefault()
-                scrollToSection(item.id)
-              }}
               onMouseEnter={() => setHoveredId(item.id)}
               onMouseLeave={() => setHoveredId(null)}
               className={cn(
                 "group relative flex items-center gap-4 transition-all duration-500 cursor-pointer",
-                isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100"
+                isActive ? "text-[var(--olivea-clay)]" : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100",
               )}
               aria-current={isActive ? "location" : undefined}
               aria-label={`Navigate to ${item.label} section`}
@@ -83,7 +86,10 @@ export default function DockLeft({ items }: Props) {
                       y: isAnimated ? -24 : 0,
                       filter: isAnimated ? "blur(0.6px)" : "blur(0px)",
                     }}
-                    transition={animationSettings}
+                    transition={{
+                      y: { type: "spring", stiffness: isHovered ? 200 : 400, damping: 20 },
+                      filter: { duration: 0.3 },
+                    }}
                     aria-hidden="true"
                   >
                     {item.label.toUpperCase()}
@@ -95,7 +101,10 @@ export default function DockLeft({ items }: Props) {
                       y: isAnimated ? 0 : 24,
                       filter: isAnimated ? "blur(0px)" : "blur(0.6px)",
                     }}
-                    transition={animationSettings}
+                    transition={{
+                      y: { type: "spring", stiffness: isHovered ? 200 : 400, damping: 20 },
+                      filter: { duration: 0.3 },
+                    }}
                     aria-hidden="true"
                   >
                     {item.label.toUpperCase()}

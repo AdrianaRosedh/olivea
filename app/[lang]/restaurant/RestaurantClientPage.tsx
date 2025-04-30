@@ -1,7 +1,7 @@
 "use client"
 
 import { TypographyH2, TypographyP } from "@/components/ui/Typography"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import MobileSectionTracker from "@/components/MobileSectionTracker"
 
 export default function RestaurantClientPage({
@@ -22,6 +22,21 @@ export default function RestaurantClientPage({
 
   function notifySectionChange(sectionId: string) {
     document.dispatchEvent(new CustomEvent("sectionInView", { detail: { id: sectionId, intersectionRatio: 1.0 } }))
+  }
+
+  function forceUpdateSections() {
+    const sections = document.querySelectorAll("section[id]")
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+      const visibleTop = Math.max(0, rect.top)
+      const visibleBottom = Math.min(windowHeight, rect.bottom)
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+      const visibility = visibleHeight / rect.height
+      if (visibility > 0.3) {
+        notifySectionChange(section.id)
+      }
+    })
   }
 
   useEffect(() => {
