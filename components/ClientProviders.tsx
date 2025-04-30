@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import ScrollManager from "@/components/ScrollManager"
+import ScrollManager from "@/components/animations/ScrollManager"
 import NavigationProvider from "@/components/NavigationProvider"
 import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback"
-import AnimationInitializer from "@/components/AnimationInitializer"
-import NextGenBackgroundInitializer from "@/components/NextGenBackgroundInitializer"
+import AnimationInitializer from "@/components/animations/AnimationInitializer"
+import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer"
 import MobileScrollInitializer from "@/components/MobileScrollInitializer"
 
 export default function ClientProviders() {

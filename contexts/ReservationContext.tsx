@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, type ReactNode } from "react"
-import ReservationModal from "@/components/reservation/ReservationModal"
+import ReservationModal from "@/components/forms/reservation/ReservationModal"
 
 type ReservationType = "restaurant" | "hotel" | "cafe"
 
