@@ -208,3 +208,62 @@ main, section, div {
 nav, footer, .dock-left, .dock-right {
   color: var(--olivea-ink);
 }
+
+
+/* at the bottom of globals.css */
+@layer utilities {
+  /* allow us to set transform‐origin from CSS var */
+  .origin-\[var\(--hover-x\)_50\%\] {
+    transform-origin: var(--hover-x) 50%;
+  }
+}
+
+/* liquid fill hover */
+@media (min-width: 768px) {
+  .fill-nav a {
+    --hover-x: 50%;
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+    color: var(--olivea-olive);
+    border: 1px solid var(--olivea-olive);
+    transition: color 0.3s ease;
+  }
+  .fill-nav a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--olivea-olive);
+    clip-path: circle(0% at var(--hover-x) 50%);
+    transition: clip-path 0.6s ease-out;
+    z-index: -1;
+  }
+  .fill-nav a:hover::before {
+    clip-path: circle(150% at var(--hover-x) 50%);
+  }
+  .fill-nav a:hover {
+    color: white;
+  }
+  /* default inactive state */
+.fill-nav a {
+  background: var(--olivea-mist);
+  border-color: var(--olivea-olive);
+}
+
+/* active state */
+.fill-nav a.active {
+  background: var(--olivea-clay) !important;
+  color: white !important;
+  border-color: var(--olivea-clay) !important;
+}
+
+/* leave the hover fill only for inactive */
+.fill-nav a:not(.active):hover::before {
+  clip-path: circle(150% at var(--hover-x) 50%);
+}
+/* and ensure the text turns white on hover */
+.fill-nav a:not(.active):hover {
+  color: white;
+}
+}
+

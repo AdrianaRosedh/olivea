@@ -1,12 +1,14 @@
-import { Suspense } from "react"
+// app/[lang]/casa/page.tsx
 import { getDictionary } from "../dictionaries"
 import CasaClientPage from "./CasaClientPage"
-import LoadingSpinner from "@/components/ui/LoadingSpinner"
 import type { Metadata, Viewport } from "next"
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}): Promise<Metadata> {
+  const { lang } = await params
   const dict = await getDictionary(lang)
 
   return {
@@ -44,22 +46,13 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 }
 
-function CasaLoading() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <LoadingSpinner size="lg" />
-    </div>
-  )
-}
-
-export default async function CasaPage({ params }: { params: Promise<{ lang: string }> }) {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
+export default async function CasaPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
   const dict = await getDictionary(lang)
 
-  return (
-    <Suspense fallback={<CasaLoading />}>
-      <CasaClientPage lang={lang} dict={dict} />
-    </Suspense>
-  )
+  return <CasaClientPage lang={lang} dict={dict} />
 }

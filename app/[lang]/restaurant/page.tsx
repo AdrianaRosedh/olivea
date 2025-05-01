@@ -2,7 +2,6 @@ import { getDictionary } from "../dictionaries"
 import RestaurantClientPage from "./RestaurantClientPage"
 import type { Metadata, Viewport } from "next"
 import { Suspense } from "react"
-import LoadingSpinner from "@/components/ui/LoadingSpinner"
 
 export async function generateStaticParams() {
   return [{ lang: "en" }, { lang: "es" }]
@@ -62,7 +61,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ lan
 
   return (
     <div suppressHydrationWarning>
-      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><LoadingSpinner size="lg" /></div>}>
+      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"></div>}>
         <RestaurantClientPage lang={lang} sections={sections} />
       </Suspense>
     </div>

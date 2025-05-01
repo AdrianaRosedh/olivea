@@ -1,7 +1,6 @@
 import { Suspense } from "react"
 import { getDictionary } from "../dictionaries"
 import CafeClientPage from "./CafeClientPage"
-import LoadingSpinner from "@/components/ui/LoadingSpinner"
 import type { Metadata, Viewport } from "next"
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -58,7 +57,7 @@ export default async function CafePage({ params }: { params: Promise<{ lang: str
 
   return (
     <div suppressHydrationWarning>
-      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><LoadingSpinner size="lg" /></div>}>
+      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"></div>}>
         <CafeClientPage lang={lang} sections={sections} />
       </Suspense>
     </div>

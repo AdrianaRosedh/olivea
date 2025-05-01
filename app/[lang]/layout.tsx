@@ -5,13 +5,10 @@ import "../globals.css"
 import LayoutShell from "@/components/layout/LayoutShell"
 import { ReservationProvider } from "@/contexts/ReservationContext"
 import { Suspense } from "react"
-import ClientProviders from "@/components/ClientProviders"
 import AnimationManager from "@/components/animations/AnimationManager"
-import type React from "react"
 import StructuredData from "@/components/StructuredData"
-import LoadingSpinner from "@/components/ui/LoadingSpinner"
+import { headers } from "next/headers"
 
-// Define fonts with display: 'swap' for better performance
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -33,21 +30,20 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
+  const { lang } = await params
   const dict = await getDictionary(lang)
 
   return {
-    title: {
-      template: "%s | Olivea",
-      default: "Olivea",
-    },
-    description: dict.metadata?.description || "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+    title: { template: "%s | Olivea", default: "Olivea" },
+    description:
+      dict.metadata?.description ||
+      "A farm-to-table sanctuary where nature, nourishment, and design meet.",
     metadataBase: new URL("https://olivea.com"),
     openGraph: {
       title: "Olivea",
       description:
-        dict.metadata?.description || "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+        dict.metadata?.description ||
+        "A farm-to-table sanctuary where nature, nourishment, and design meet.",
       images: [`/images/og-${lang}.jpg`],
       url: `https://olivea.com/${lang}`,
       type: "website",
@@ -58,7 +54,8 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: "Olivea",
       description:
-        dict.metadata?.description || "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+        dict.metadata?.description ||
+        "A farm-to-table sanctuary where nature, nourishment, and design meet.",
       images: [`/images/twitter-${lang}.jpg`],
     },
     alternates: {
@@ -78,43 +75,38 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 }
 
-// Loading component for the layout
-function LayoutLoading() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <LoadingSpinner size="lg" />
-    </div>
-  )
-}
-
-export default async function RootLayout({
+export default async function LangLayout({
   children,
   params,
 }: {
   children: React.ReactNode
   params: Promise<{ lang: string }>
 }) {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
+  const { lang } = await params
+  const hdr = await headers()
+  const currentPath = new URL(
+    hdr.get("x-nextjs-pathname") || `/`,
+    "https://olivea.com"
+  ).pathname
+  const isHome = currentPath === `/${lang}`
 
   return (
-    <div className={`${inter.variable} ${cormorant.variable}`}>
-      <StructuredData lang={lang} />
+    <html lang={lang}>
+      <body className={`${inter.variable} ${cormorant.variable}`}>
+        <StructuredData lang={lang} />
 
-      {/* Client-side providers */}
-      <ClientProviders />
-
-      {/* 🔥 Add AnimationManager here */}
-      <AnimationManager />
-
-      <ReservationProvider lang={lang}>
-        <Suspense fallback={<LayoutLoading />}>
-          <LayoutShell lang={lang}>
-            {/* Wrap children in Suspense to enable streaming */}
-            <Suspense fallback={<LayoutLoading />}>{children}</Suspense>
-          </LayoutShell>
-        </Suspense>
-      </ReservationProvider>
-    </div>
+        <ReservationProvider lang={lang}>
+          <AnimationManager>
+            <Suspense>
+              {isHome ? (
+                children
+              ) : (
+                <LayoutShell lang={lang}>{children}</LayoutShell>
+              )}
+            </Suspense>
+          </AnimationManager>
+        </ReservationProvider>
+      </body>
+    </html>
   )
 }

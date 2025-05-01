@@ -1,11 +1,19 @@
+// components/ui/Button.tsx
+"use client"
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-
 import { cn } from "@/lib/utils"
 
+// 1) Define your base button variants (CVA)
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  [
+    // make root a positioning context + group for hover
+    "relative overflow-hidden group",
+    // existing base styles
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+  ].join(" "),
   {
     variants: {
       variant: {
@@ -35,25 +43,52 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
+
+export function Button({
   className,
   variant,
   size,
   asChild = false,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
+}: ButtonProps) {
   const Comp = asChild ? Slot : "button"
+  const ref = React.useRef<HTMLButtonElement>(null)
+
+  // 2) Track cursor X to set CSS var for transform-origin
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    ref.current.style.setProperty("--ripple-x", `${x}px`)
+  }
 
   return (
     <Comp
-      data-slot="button"
+      ref={ref}
+      onMouseMove={handleMouseMove}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {/* 3) The fill 'bubble' expands from cursor on hover */}
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 bg-[var(--primary)]",
+          "scale-0 group-hover:scale-100",
+          "transition-transform duration-500 ease-in-out",
+          "origin-[var(--ripple-x)_50%]"
+        )}
+      />
+
+      {/* 4) Your button label on top */}
+      <span className="relative z-10">
+        {props.children}
+      </span>
+    </Comp>
   )
 }
-
-export { Button, buttonVariants }

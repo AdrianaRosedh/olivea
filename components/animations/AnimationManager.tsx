@@ -1,21 +1,26 @@
 "use client"
 
-import { useLayoutEffect } from "react"
+import { usePathname } from "next/navigation"
+import { AnimatePresence, motion } from "framer-motion"
 
-export default function AnimationManager() {
-  useLayoutEffect(() => {
-    const initializeAnimations = () => {
-      document.body.classList.add("animations-initialized")
-      window.dispatchEvent(new Event("scroll")) // optional, refresh listeners once
-    }
+export default function AnimationManager({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const path = usePathname()
 
-    if (document.readyState === "complete") {
-      initializeAnimations()
-    } else {
-      window.addEventListener("load", initializeAnimations)
-      return () => window.removeEventListener("load", initializeAnimations)
-    }
-  }, [])
-
-  return null
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={path}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -30 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  )
 }
