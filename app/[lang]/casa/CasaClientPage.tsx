@@ -64,7 +64,7 @@ export default function CasaClientPage({ lang, dict }: { lang: string; dict: any
     <>
       <div
         ref={containerRef}
-        className="scroll-container min-h-screen overflow-y-auto pb-[120px] md:pb-0"
+        className="min-h-screen overflow-y-auto pb-[120px] md:pb-0"
         style={{
           height: "100vh",
           scrollBehavior: "smooth",

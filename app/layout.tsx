@@ -1,6 +1,6 @@
 import "./globals.css"
 import { Providers } from "./providers"
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 
 export const metadata = {
   title: "Olivea",
@@ -11,10 +11,8 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className="bg-background text-foreground">
-        <Providers>
-          {children}
-        </Providers>
+      <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] overflow-hidden">
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

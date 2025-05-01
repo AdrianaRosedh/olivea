@@ -1,222 +1,86 @@
+// components/layout/LayoutShell.tsx
 "use client"
 
-import type React from "react"
+import React, { memo, useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
-import { MessageCircle, Leaf, BookOpenText, ShieldCheck } from "lucide-react"
-import MagneticButton from "@/components/ui/MagneticButton"
 import DockLeft from "@/components/navigation/DockLeft"
 import DockRight from "@/components/navigation/DockRight"
 import MobileSectionNav from "@/components/ui/MobileSectionNav"
-import { cn } from "@/lib/utils"
-import { memo, useEffect, useState } from "react"
-import ScrollToTop from "@/components/ScrollToTop"
 import ClientOnly from "@/components/ClientOnly"
-import NextGenBackground from "@/components/animations/NextGenBackground"
-import ScrollSystem from "@/components/animations/ScrollSystem"
-import AnimationInitializer from "@/components/animations/AnimationInitializer"
 import { supabase } from "@/lib/supabase"
 import { NavigationProvider } from "@/contexts/NavigationContext"
+import useSmoothScroll from "@/hooks/useSmoothScroll"
+import { useIsMobile } from "@/hooks/useMediaQuery"
 
-type LayoutShellProps = {
-  lang: string
-  children: React.ReactNode
-}
+const BASE_CAFE_ITEMS = [{ id: "about", number: "01", label: "About" }, { id: "coffee", number: "02", label: "Coffee" }, { id: "pastries", number: "03", label: "Pastries" }, { id: "menu", number: "04", label: "Menu" }]
+const CASA_ITEMS = [{ id: "rooms", number: "01", label: "Rooms" }, { id: "breakfast", number: "02", label: "Breakfast" }, { id: "experiences", number: "03", label: "Experiences" }, { id: "location", number: "04", label: "Location" }]
+const RESTAURANT_ITEMS = [{ id: "story", number: "01", label: "Story" }, { id: "garden", number: "02", label: "Garden" }, { id: "menu", number: "03", label: "Menu" }, { id: "wines", number: "04", label: "Wines" }]
 
-// Define base navigation items
-const BASE_CAFE_ITEMS = [
-  { id: "about", number: "01", label: "About" },
-  { id: "coffee", number: "02", label: "Coffee" },
-  { id: "pastries", number: "03", label: "Pastries" },
-  { id: "menu", number: "04", label: "Menu" },
-]
+function LayoutShell({ lang, children }: { lang: string; children: React.ReactNode }) {
+  useSmoothScroll()
 
-const CASA_ITEMS = [
-  { id: "rooms", number: "01", label: "Rooms" },
-  { id: "breakfast", number: "02", label: "Breakfast" },
-  { id: "experiences", number: "03", label: "Experiences" },
-  { id: "location", number: "04", label: "Location" },
-]
-
-const RESTAURANT_ITEMS = [
-  { id: "story", number: "01", label: "Story" },
-  { id: "garden", number: "02", label: "Garden" },
-  { id: "menu", number: "03", label: "Menu" },
-  { id: "wines", number: "04", label: "Wines" },
-]
-
-function LayoutShell({ lang, children }: LayoutShellProps) {
   const pathname = usePathname()
+  const isMobile = useIsMobile()
   const isHome = pathname === `/${lang}`
   const isCasaPage = pathname.includes("/casa")
   const isCafePage = pathname.includes("/cafe")
   const isRestaurantPage = pathname.includes("/restaurant")
 
-  // State for cafe menu categories
   const [cafeCategories, setCafeCategories] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(isCafePage)
 
-  // Fetch cafe menu categories if on cafe page
   useEffect(() => {
-    if (!isCafePage) {
-      setIsLoading(false)
-      return
-    }
+    if (!isCafePage) return setIsLoading(false)
 
     let isMounted = true
     setIsLoading(true)
 
-    async function fetchCategories() {
-      try {
-        const { data, error } = await supabase
-          .from("cafe_menu")
-          .select("category")
-          .eq("available", true)
-          .order("category")
+    supabase.from("cafe_menu").select("category").eq("available", true).order("category")
+      .then(({ data, error }) => {
+        if (error || !data || !isMounted) return setIsLoading(false)
+        setCafeCategories([...new Set(data.map((item) => item.category).filter(Boolean))])
+        setIsLoading(false)
+      })
 
-        if (error) {
-          console.error("Supabase error:", error)
-          if (isMounted) setIsLoading(false)
-          return
-        }
-
-        if (data && isMounted) {
-          // Filter out any null or undefined categories
-          const validCategories = data.map((item) => item?.category).filter((category) => category) as string[]
-
-          // Get unique categories
-          const uniqueCategories = Array.from(new Set(validCategories))
-          setCafeCategories(uniqueCategories)
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error)
-      } finally {
-        if (isMounted) setIsLoading(false)
-      }
-    }
-
-    fetchCategories()
-
-    return () => {
-      isMounted = false
-    }
+    return () => { isMounted = false }
   }, [isCafePage])
 
-  // Determine which navigation items to use
-  let navItems = []
-  if (isCasaPage) {
-    navItems = [...CASA_ITEMS]
-  } else if (isRestaurantPage) {
-    navItems = [...RESTAURANT_ITEMS]
-  } else if (isCafePage) {
-    // For cafe, start with base items
-    navItems = [...BASE_CAFE_ITEMS]
-
-    // Only add dynamic categories if they've been loaded
-    if (cafeCategories.length > 0) {
-      const dynamicItems = cafeCategories.map((category, index) => ({
-        id: category,
-        number: `0${index + 5}`,
-        label: category,
-      }))
-      navItems = [...navItems, ...dynamicItems]
-    }
-  }
-
-  const mobileDockItems = navItems.map(({ id, label }) => ({ id, label }))
+  let navItems = isCasaPage ? CASA_ITEMS : isRestaurantPage ? RESTAURANT_ITEMS : isCafePage ? [...BASE_CAFE_ITEMS, ...cafeCategories.map((category, i) => ({ id: category, number: `0${i + 5}`, label: category }))] : []
 
   const dockRightItems = [
-    { id: "journal", href: `/${lang}/journal`, icon: <BookOpenText />, label: "Journal" },
-    { id: "sustainability", href: `/${lang}/sustainability`, icon: <Leaf />, label: "Sustainability" },
-    { id: "policies", href: `/${lang}/legal`, icon: <ShieldCheck />, label: "Policies" },
+    { id: "journal", href: `/${lang}/journal`, label: "Journal" },
+    { id: "sustainability", href: `/${lang}/sustainability`, label: "Sustainability" },
+    { id: "policies", href: `/${lang}/legal`, label: "Policies" },
   ]
-
-  const content = isHome ? (
-    children
-  ) : (
-    <ScrollSystem>
-      <main
-        id="main-content"
-        className={cn(
-          "relative w-full",
-          "max-w-7xl mx-auto px-1",
-          (isCasaPage || isCafePage || isRestaurantPage) && "pb-16",
-        )}
-      >
-        {children}
-      </main>
-    </ScrollSystem>
-  )
-
-  // Wrap content in NavigationProvider only for pages that need section navigation
-  const wrappedContent =
-    isCasaPage || isCafePage || isRestaurantPage ? <NavigationProvider>{content}</NavigationProvider> : content
 
   return (
     <>
-      <AnimationInitializer />
-
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[1001] focus:bg-white focus:px-4 focus:py-2 focus:text-black"
-        tabIndex={isHome ? -1 : 0}
-        aria-hidden={isHome}
-      >
-        Skip to main content
-      </a>
-
       {!isHome && <Navbar lang={lang} />}
 
-      {wrappedContent}
+      <main className={isHome ? "p-0 m-0 overflow-hidden" : "max-w-7xl mx-auto px-4 md:px-8 pt-28 pb-20"}>
+        {(isCasaPage || isCafePage || isRestaurantPage) ? (
+          <NavigationProvider>{children}</NavigationProvider>
+        ) : children}
+      </main>
 
       {!isHome && <Footer />}
 
-      {!isHome && !isLoading && navItems.length > 0 && (
-        <ClientOnly>
-          <div className="md:hidden fixed bottom-[68px] left-0 right-0 z-40 bg-transparent backdrop-blur-md border-t border-b border-[var(--olivea-soil)]/10 w-full">
-            <MobileSectionNav items={mobileDockItems} />
-          </div>
-        </ClientOnly>
+      {!isHome && !isMobile && navItems.length > 0 && (
+        <ClientOnly><DockLeft items={navItems} className="fixed left-6 top-1/2 z-[60]" /></ClientOnly>
       )}
 
-      {!isHome && !isLoading && navItems.length > 0 && (
-        <ClientOnly>
-          <div className="hidden md:flex fixed top-1/2 left-6 -translate-y-1/2 z-40">
-            <DockLeft items={navItems} />
-          </div>
-        </ClientOnly>
+      {!isHome && !isMobile && (
+        <ClientOnly><DockRight items={dockRightItems} className="fixed right-6 top-1/2 z-[60]" /></ClientOnly>
       )}
 
-      {!isHome && (
+      {!isHome && isMobile && navItems.length > 0 && !isLoading && (
         <ClientOnly>
-          <div className="hidden md:flex fixed top-1/2 right-6 -translate-y-1/2 z-40">
-            <DockRight items={dockRightItems} />
+          <div className="fixed bottom-[68px] inset-x-0 z-[60] bg-transparent backdrop-blur-md">
+            <MobileSectionNav items={navItems.map(({ id, label }) => ({ id, label }))} />
           </div>
         </ClientOnly>
-      )}
-
-      {!isHome && (
-        <ClientOnly>
-          <div className="hidden md:block">
-            <MagneticButton
-              href="#chat"
-              aria-label="Open Chat"
-              className="fixed bottom-20 right-6 z-50 flex items-center justify-center w-14 h-14 
-                bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] 
-                transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]"
-            >
-              <MessageCircle className="w-6 h-6" />
-            </MagneticButton>
-          </div>
-        </ClientOnly>
-      )}
-
-      {!isHome && (
-        <>
-          <ScrollToTop />
-          <NextGenBackground />
-        </>
       )}
     </>
   )

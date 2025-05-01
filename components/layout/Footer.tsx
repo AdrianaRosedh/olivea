@@ -7,7 +7,6 @@ import Cookies from "js-cookie"
 import { AnimatePresence, motion } from "framer-motion"
 import { GlobeIcon, Instagram, Linkedin, Youtube, Music, PinIcon } from "lucide-react"
 
-// Custom TikTok icon component
 const TikTokIcon = ({ size = 18, className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +32,6 @@ export default function Footer() {
   const lang = pathname.split("/")[1] as "en" | "es"
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const isCasaPage = pathname.includes("/casa")
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,101 +44,45 @@ export default function Footer() {
   }, [])
 
   const switchLocale = (newLang: "en" | "es") => {
-    // Set cookie first
     Cookies.set("NEXT_LOCALE", newLang, { path: "/" })
-
-    // Create the new path
     const segments = pathname.split("/")
     segments[1] = newLang
     const newPath = segments.join("/") || `/${newLang}`
-
-    // Use router.push for client-side navigation
     router.push(newPath)
     setOpen(false)
   }
 
   return (
-    <footer
-      className={`hidden md:flex fixed bottom-0 left-0 w-full z-40 bg-transparent backdrop-blur-md text-[13px] text-olivea-ink font-light tracking-wide ${isCasaPage ? "pointer-events-auto" : ""}`}
-    >
+    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[50] bg-transparent backdrop-blur-md text-[13px] text-[var(--olivea-ink)] font-light tracking-wide">
       <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-8 lg:px-6 py-2 flex justify-between items-center">
-        {/* Copyright */}
         <div className="flex-1">
-          <a
-            href="#"
-            className="text-[13px] font-light tracking-wider cursor-default inline-block"
-            style={{ transition: "color 0.3s ease" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--olivea-clay)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
-          >
+          <span className="cursor-default transition-colors hover:text-[var(--olivea-clay)]">
             © {new Date().getFullYear()} Inmobilaria MYA by DH
-          </a>
+          </span>
         </div>
 
-        {/* Social Media Icons - Centered */}
-        <div className="flex-1 flex justify-center">
-          <div className="social-media flex items-center gap-3">
-            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="YouTube">
-              <Youtube size={18} className="social-icon youtube" />
-            </a>
-            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="Instagram">
-              <Instagram size={18} className="social-icon instagram" />
-            </a>
-            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="TikTok">
-              <TikTokIcon size={18} className="social-icon tiktok" />
-            </a>
-            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="LinkedIn">
-              <Linkedin size={18} className="social-icon linkedin" />
-            </a>
-            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="Spotify">
-              <Music size={18} className="social-icon spotify" />
-            </a>
-            <a href="#" className="social-icon-link bg-transparent backdrop-blur-sm" aria-label="Pinterest">
-              <PinIcon size={18} className="social-icon pinterest" />
-            </a>
-          </div>
+        <div className="flex-1 flex justify-center items-center gap-3">
+          <a href="#" className="social-icon-link" aria-label="YouTube"><Youtube size={18} className="social-icon youtube" /></a>
+          <a href="#" className="social-icon-link" aria-label="Instagram"><Instagram size={18} className="social-icon instagram" /></a>
+          <a href="#" className="social-icon-link" aria-label="TikTok"><TikTokIcon size={18} className="social-icon tiktok" /></a>
+          <a href="#" className="social-icon-link" aria-label="LinkedIn"><Linkedin size={18} className="social-icon linkedin" /></a>
+          <a href="#" className="social-icon-link" aria-label="Spotify"><Music size={18} className="social-icon spotify" /></a>
+          <a href="#" className="social-icon-link" aria-label="Pinterest"><PinIcon size={18} className="social-icon pinterest" /></a>
         </div>
 
-        {/* Language Selector */}
         <div className="flex-1 flex items-center justify-end gap-6 relative" ref={dropdownRef}>
-          <Link
-            href={`/${lang}/contact`}
-            style={{ transition: "color 0.3s ease" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--olivea-clay)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
-            className="opacity-80 hover:opacity-100"
-          >
+          <Link href={`/${lang}/contact`} className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100">
             Contact
           </Link>
-          <Link
-            href={`/${lang}/legal`}
-            style={{ transition: "color 0.3s ease" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--olivea-clay)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
-            className="opacity-80 hover:opacity-100"
-          >
+          <Link href={`/${lang}/legal`} className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100">
             Legal
           </Link>
 
-          {/* Globe dropdown toggle */}
           <button
             onClick={() => setOpen(!open)}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md bg-transparent backdrop-blur-sm transition-all border border-[rgba(0,0,0,0.05)]"
-            style={{ transition: "all 0.3s ease" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--olivea-clay)"
-              e.currentTarget.style.color = "white"
-              const icon = e.currentTarget.querySelector(".globe-icon") as HTMLElement
-              if (icon) icon.style.color = "white"
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = ""
-              e.currentTarget.style.color = ""
-              const icon = e.currentTarget.querySelector(".globe-icon") as HTMLElement
-              if (icon) icon.style.color = ""
-            }}
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
           >
-            <GlobeIcon className="w-4 h-4 text-olivea-olive globe-icon" style={{ transition: "color 0.3s ease" }} />
+            <GlobeIcon className="w-4 h-4 text-[var(--olivea-olive)] transition-colors" />
             {lang.toUpperCase()}
           </button>
 
@@ -154,31 +96,13 @@ export default function Footer() {
               >
                 <button
                   onClick={() => switchLocale("en")}
-                  className="w-full px-3 py-1.5 text-sm text-left"
-                  style={{ transition: "all 0.3s ease" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--olivea-clay)"
-                    e.currentTarget.style.color = "white"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = ""
-                    e.currentTarget.style.color = ""
-                  }}
+                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
                 >
                   🇺🇸 English
                 </button>
                 <button
                   onClick={() => switchLocale("es")}
-                  className="w-full px-3 py-1.5 text-sm text-left"
-                  style={{ transition: "all 0.3s ease" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--olivea-clay)"
-                    e.currentTarget.style.color = "white"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = ""
-                    e.currentTarget.style.color = ""
-                  }}
+                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
                 >
                   🇲🇽 Español
                 </button>
