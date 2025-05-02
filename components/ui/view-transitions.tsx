@@ -15,9 +15,8 @@ export default function ViewTransitionsProvider({
   const [isPending, setIsPending] = useState(false)
 
   useEffect(() => {
-    // Check if the View Transitions API is supported
-    if (document.startViewTransition) {
-      // Add a class to the body when transitions are supported
+    // Check if the View Transitions API is supported at runtime
+    if (typeof document.startViewTransition === "function") {
       document.body.classList.add("view-transitions-supported")
     }
 
