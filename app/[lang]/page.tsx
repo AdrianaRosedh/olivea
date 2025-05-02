@@ -163,8 +163,8 @@ export default function HomePage() {
           >
             <AlebrijeDraw
               size={240}
-              strokeDuration={drawComplete ? 0 : 3}
-              fillDuration={drawComplete ? 0 : 3.5}
+              strokeDuration={drawComplete ? 0 : 5}
+              fillDuration={drawComplete ? 0 : 7}
             />
           </motion.div>
         )}
