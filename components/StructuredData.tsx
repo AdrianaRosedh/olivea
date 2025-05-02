@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react'
 import { usePathname } from "next/navigation"
 
 interface StructuredDataProps {
@@ -9,8 +10,11 @@ interface StructuredDataProps {
 export default function StructuredData({ lang }: StructuredDataProps) {
   const pathname = usePathname()
 
+  // Generic JSON-LD object type
+  type JsonLdObject = Record<string, any>
+
   // Restaurant structured data
-  const restaurantData = {
+  const restaurantData: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
     name: "Olivea Farm To Table",
@@ -45,7 +49,7 @@ export default function StructuredData({ lang }: StructuredDataProps) {
   }
 
   // Hotel structured data
-  const hotelData = {
+  const hotelData: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "Hotel",
     name: "Casa Olivea",
@@ -73,7 +77,7 @@ export default function StructuredData({ lang }: StructuredDataProps) {
   }
 
   // Cafe structured data
-  const cafeData = {
+  const cafeData: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "CafeOrCoffeeShop",
     name: "Olivea Café",
@@ -98,21 +102,27 @@ export default function StructuredData({ lang }: StructuredDataProps) {
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        dayOfWeek: [
+          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+        ],
         opens: "08:00",
         closes: "18:00",
       },
     ],
   }
 
-  // Organization structured data (for the parent company)
-  const organizationData = {
+  // Organization structured data
+  const organizationData: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Olivea",
     url: `https://olivea.com/${lang}`,
     logo: "https://olivea.com/images/oliveaFTT.png",
-    sameAs: ["https://www.instagram.com/olivea", "https://www.facebook.com/olivea", "https://twitter.com/olivea"],
+    sameAs: [
+      "https://www.instagram.com/olivea",
+      "https://www.facebook.com/olivea",
+      "https://twitter.com/olivea",
+    ],
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+52-123-456-7890",
@@ -121,9 +131,7 @@ export default function StructuredData({ lang }: StructuredDataProps) {
     },
   }
 
-  // Determine which structured data to use based on the current path
-  let structuredData = organizationData
-
+  let structuredData: JsonLdObject = organizationData
   if (pathname.includes("/restaurant")) {
     structuredData = restaurantData
   } else if (pathname.includes("/casa")) {
@@ -132,5 +140,10 @@ export default function StructuredData({ lang }: StructuredDataProps) {
     structuredData = cafeData
   }
 
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  )
 }
