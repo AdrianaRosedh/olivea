@@ -1,106 +1,118 @@
 "use client"
 
-import { TypographyH2, TypographyP } from "@/components/ui/Typography"
-import { useEffect, useRef } from "react"
-import MobileSectionTracker from "@/components/MobileSectionTracker"
+import React, { useEffect, useRef } from "react"
+import { TypographyH2, TypographyP }   from "@/components/ui/Typography"
+import MobileSectionTracker            from "@/components/MobileSectionTracker"
+import type { Lang }                   from "../dictionaries"
+
+// 1️⃣ Define your literal‐tuple for sections
+const ALL_SECTIONS = ["story", "garden", "menu", "wines"] as const
+type SectionKey = (typeof ALL_SECTIONS)[number]  // "story" | "garden" | "menu" | "wines"
+
+export interface SectionDict {
+  title:       string
+  description: string
+  error?:      string
+}
+
+// 2️⃣ Use Lang for lang‐prop, not string
+export interface RestaurantClientPageProps {
+  lang:     Lang
+  sections: Partial<Record<SectionKey, SectionDict>>
+}
 
 export default function RestaurantClientPage({
   lang,
   sections,
-}: {
-  lang: string
-  sections: {
-    story?: { title: string; description: string }
-    garden?: { title: string; description: string }
-    menu?: { title: string; description: string }
-    wines?: { title: string; description: string }
-  }
-}) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const sectionIds = ["story", "garden", "menu", "wines"]
+}: RestaurantClientPageProps) {
+  const containerRef     = useRef<HTMLDivElement>(null)
+  const scrollTimeoutRef = useRef<number | null>(null)
 
-  function notifySectionChange(sectionId: string) {
-    document.dispatchEvent(new CustomEvent("sectionInView", { detail: { id: sectionId, intersectionRatio: 1.0 } }))
+  // 3️⃣ Copy your readonly tuple into a mutable array
+  const sectionIds: SectionKey[] = [...ALL_SECTIONS]
+
+  function notifySectionChange(sectionId: SectionKey) {
+    document.dispatchEvent(
+      new CustomEvent("sectionInView", {
+        detail: { id: sectionId, intersectionRatio: 1.0 },
+      })
+    )
   }
 
-  function forceUpdateSections() {
-    const sections = document.querySelectorAll("section[id]")
-    sections.forEach((section) => {
-      const rect = section.getBoundingClientRect()
-      const windowHeight = window.innerHeight
-      const visibleTop = Math.max(0, rect.top)
-      const visibleBottom = Math.min(windowHeight, rect.bottom)
-      const visibleHeight = Math.max(0, visibleBottom - visibleTop)
-      const visibility = visibleHeight / rect.height
-      if (visibility > 0.3) {
-        notifySectionChange(section.id)
-      }
-    })
-  }
-
+  // 4️⃣ Smooth‐scroll anchor links inside this scroll‐container
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement)?.closest('a[href^="#"]') as HTMLAnchorElement
-      if (link) {
-        e.preventDefault()
-        const sectionId = link.getAttribute("href")?.substring(1)
-        const section = document.getElementById(sectionId!)
-        if (section && containerRef.current) {
-          containerRef.current.scrollTo({ top: section.offsetTop, behavior: "smooth" })
-          if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
-          scrollTimeoutRef.current = setTimeout(() => notifySectionChange(sectionId!), 800)
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement).closest('a[href^="#"]')
+      if (!a) return
+      e.preventDefault()
+      const id = a.getAttribute("href")!.slice(1) as SectionKey
+      const el = document.getElementById(id)
+      if (el && containerRef.current) {
+        containerRef.current.scrollTo({ top: el.offsetTop, behavior: "smooth" })
+        if (scrollTimeoutRef.current !== null) {
+          clearTimeout(scrollTimeoutRef.current)
         }
+        scrollTimeoutRef.current = window.setTimeout(
+          () => notifySectionChange(id),
+          800
+        )
       }
     }
-    document.addEventListener("click", handleClick)
+    document.addEventListener("click", onClick)
     return () => {
-      document.removeEventListener("click", handleClick)
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+      document.removeEventListener("click", onClick)
+      if (scrollTimeoutRef.current !== null) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
     }
   }, [])
 
+  // 5️⃣ “Bump” the scroll once on mount so your IntersectionObservers fire immediately
   useEffect(() => {
-    const force = () => {
+    const bump = () => {
       window.scrollBy(0, 1)
       window.scrollBy(0, -1)
       document.dispatchEvent(new Event("scroll"))
     }
-    force()
-    const timers = [100, 300, 600, 1000].map((t) => setTimeout(force, t))
-    return () => timers.forEach(clearTimeout)
+    ;[100, 300, 600].forEach((ms) => setTimeout(bump, ms))
   }, [])
 
   return (
     <>
       <div
         ref={containerRef}
-        className="scroll-container min-h-screen overflow-y-auto pb-[120px] md:pb-0"
+        className="scroll-container min-h-screen overflow-y-auto snap-y snap-mandatory"
         style={{
           height: "100vh",
           scrollBehavior: "smooth",
-          scrollSnapType: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "y none" : "y proximity",
           overscrollBehavior: "none",
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {sectionIds.map((id) => (
-          <section
-            key={id}
-            id={id}
-            data-section-id={id}
-            className="min-h-screen w-full flex flex-col items-center justify-center px-6 snap-center"
-            aria-labelledby={`${id}-heading`}
-          >
-            <div className="max-w-2xl text-center">
-              <TypographyH2 id={`${id}-heading`}>{sections[id]?.title}</TypographyH2>
-              <TypographyP className="mt-2">{sections[id]?.description}</TypographyP>
-            </div>
-          </section>
-        ))}
+        {sectionIds.map((id) => {
+          const info = sections[id]
+          return (
+            <section
+              key={id}
+              id={id}
+              data-section-id={id}
+              className="min-h-screen snap-center flex flex-col items-center justify-center px-6"
+              aria-labelledby={`${id}-heading`}
+            >
+              <div className="max-w-2xl text-center">
+                <TypographyH2 id={`${id}-heading`}>
+                  {info?.title}
+                </TypographyH2>
+                <TypographyP className="mt-2">
+                  {info?.description}
+                </TypographyP>
+              </div>
+            </section>
+          )
+        })}
       </div>
 
-      <MobileSectionTracker sectionIds={sectionIds} />
+      <MobileSectionTracker sectionIds={sectionIds as string[]} />
     </>
   )
 }

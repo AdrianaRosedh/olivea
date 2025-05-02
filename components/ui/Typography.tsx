@@ -1,39 +1,125 @@
+// components/ui/Typography.tsx
+"use client"
+
+import React from "react"
 import { cn } from "@/lib/utils"
-import type React from "react"
 
-interface TypographyProps {
+// ——————————————————————————————————————————————
+// H1
+// ——————————————————————————————————————————————
+export interface TypographyH1Props extends React.HTMLAttributes<HTMLHeadingElement> {
   children: React.ReactNode
-  className?: string
 }
 
-export function TypographyH1({ children, className }: TypographyProps) {
-  return <h1 className={cn("heading-hero", className)}>{children}</h1>
+export function TypographyH1({ children, className, ...props }: TypographyH1Props) {
+  return (
+    <h1 className={cn("heading-hero", className)} {...props}>
+      {children}
+    </h1>
+  )
 }
 
-export function TypographyH2({ children, className }: TypographyProps) {
-  return <h2 className={cn("heading-section", className)}>{children}</h2>
+// ——————————————————————————————————————————————
+// H2
+// ——————————————————————————————————————————————
+export interface TypographyH2Props extends React.HTMLAttributes<HTMLHeadingElement> {
+  children: React.ReactNode
 }
 
-export function TypographyH3({ children, className }: TypographyProps) {
-  return <h3 className={cn("heading-sub", className)}>{children}</h3>
+export function TypographyH2({ children, className, ...props }: TypographyH2Props) {
+  return (
+    <h2 className={cn("heading-section", className)} {...props}>
+      {children}
+    </h2>
+  )
 }
 
-export function TypographyP({ children, className }: TypographyProps) {
-  return <p className={cn("text-body", className)}>{children}</p>
+// ——————————————————————————————————————————————
+// H3
+// ——————————————————————————————————————————————
+export interface TypographyH3Props extends React.HTMLAttributes<HTMLHeadingElement> {
+  children: React.ReactNode
 }
 
-export function TypographyAccent({ children, className }: TypographyProps) {
-  return <p className={cn("text-accent", className)}>{children}</p>
+export function TypographyH3({ children, className, ...props }: TypographyH3Props) {
+  return (
+    <h3 className={cn("heading-sub", className)} {...props}>
+      {children}
+    </h3>
+  )
 }
 
-export function TypographyQuote({ children, className }: TypographyProps) {
-  return <blockquote className={cn(className)}>{children}</blockquote>
+// ——————————————————————————————————————————————
+// Paragraph
+// ——————————————————————————————————————————————
+export interface TypographyPProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  children: React.ReactNode
 }
 
-export function TypographyCTA({ children, className }: TypographyProps) {
-  return <p className={cn("cta-text", className)}>{children}</p>
+export function TypographyP({ children, className, ...props }: TypographyPProps) {
+  return (
+    <p className={cn("text-body", className)} {...props}>
+      {children}
+    </p>
+  )
 }
 
-export function TypographyNav({ children, className }: TypographyProps) {
-  return <span className={cn("text-nav", className)}>{children}</span>
+// ——————————————————————————————————————————————
+// Accent paragraph
+// ——————————————————————————————————————————————
+export interface TypographyAccentProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  children: React.ReactNode
+}
+
+export function TypographyAccent({ children, className, ...props }: TypographyAccentProps) {
+  return (
+    <p className={cn("text-accent", className)} {...props}>
+      {children}
+    </p>
+  )
+}
+
+// ——————————————————————————————————————————————
+// Blockquote
+// ——————————————————————————————————————————————
+export interface TypographyQuoteProps extends React.BlockquoteHTMLAttributes<HTMLElement> {
+  children: React.ReactNode
+}
+
+export function TypographyQuote({ children, className, ...props }: TypographyQuoteProps) {
+  return (
+    <blockquote className={cn(className)} {...props}>
+      {children}
+    </blockquote>
+  )
+}
+
+// ——————————————————————————————————————————————
+// Call-to-action text
+// ——————————————————————————————————————————————
+export interface TypographyCTAProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  children: React.ReactNode
+}
+
+export function TypographyCTA({ children, className, ...props }: TypographyCTAProps) {
+  return (
+    <p className={cn("cta-text", className)} {...props}>
+      {children}
+    </p>
+  )
+}
+
+// ——————————————————————————————————————————————
+// Navigation text (inline span)
+// ——————————————————————————————————————————————
+export interface TypographyNavProps extends React.HTMLAttributes<HTMLSpanElement> {
+  children: React.ReactNode
+}
+
+export function TypographyNav({ children, className, ...props }: TypographyNavProps) {
+  return (
+    <span className={cn("text-nav", className)} {...props}>
+      {children}
+    </span>
+  )
 }

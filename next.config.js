@@ -2,10 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverActions: { enabled: true }, // ✅ Correct format
+    serverActions: { enabled: true },
   },
   turbopack: {
-    // ✅ Move turbo config here
     rules: {
       "*.svg": {
         loaders: ["@svgr/webpack"],
@@ -20,9 +19,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ["olivea.com"],
+    domains: [
+      "olivea.com",
+      "images.unsplash.com",    // ← add this so Next.js can optimize your Unsplash URLs
+    ],
     formats: ["image/avif", "image/webp"],
-    // Remove or set to false to enable optimization
     unoptimized: false,
   },
   webpack(config) {
@@ -30,39 +31,41 @@ const nextConfig = {
       test: /\.svg$/,
       issuer: /\.[jt]sx?$/,
       use: ["@svgr/webpack"],
-    })
-    return config
+    });
+    return config;
   },
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "X-XSS-Protection", value: "1; mode=block" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "X-Content-Type-Options",    value: "nosniff" },
+          { key: "X-Frame-Options",           value: "DENY" },
+          { key: "X-XSS-Protection",          value: "1; mode=block" },
+          { key: "Referrer-Policy",           value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=()" },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
         ],
       },
-    ]
+    ];
   },
   async redirects() {
     return [
       {
-        source: "/",
+        source:      "/",
         destination: "/es",
-        permanent: false,
+        permanent:   false,
       },
-    ]
+    ];
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+    removeConsole: process.env.NODE_ENV === "production"
+      ? { exclude: ["error", "warn"] }
+      : false,
     styledComponents: true,
   },
   poweredByHeader: false,
-}
+};
 
-export default nextConfig
+export default nextConfig;

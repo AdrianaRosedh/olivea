@@ -2,7 +2,6 @@
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 
-// load fonts *once*
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const corm = Cormorant_Garamond({
   subsets: ["latin"],
@@ -11,7 +10,10 @@ const corm = Cormorant_Garamond({
   display: "swap",
 });
 
-export const metadata = { title: "Olivea", description: "Experience the garden." };
+export const metadata = {
+  title: "Olivea",
+  description: "Experience the garden.",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

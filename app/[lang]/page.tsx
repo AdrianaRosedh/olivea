@@ -19,8 +19,8 @@ export default function HomePage() {
   const [showLoader, setShowLoader]     = useState(true);
   const [revealMain, setRevealMain]     = useState(false);
   const [loaderProgress, setLoaderProgress] = useState(0);
-  
-  const openModal = () => setIsModalOpen(true);
+
+  const openModal  = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const sections = [
@@ -31,17 +31,45 @@ export default function HomePage() {
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
+
     (async () => {
+      // 1) reset to 0
       setLoaderProgress(0);
-      await new Promise(r => setTimeout(r, 1500));
+
+      // 2) drive 0→20% over 1.5s via RAF
+      let startTime: number | null = null;
+      const DRAW_WAIT = 1500;
+      const step = (ts: number) => {
+        if (!startTime) startTime = ts;
+        const elapsed = ts - startTime;
+        const pct = Math.min(elapsed / DRAW_WAIT, 1);
+        setLoaderProgress(Math.floor(pct * 20));
+        if (elapsed < DRAW_WAIT) {
+          requestAnimationFrame(step);
+        }
+      };
+      requestAnimationFrame(step);
+
+      // 3) actual draw delay
+      await new Promise(r => setTimeout(r, DRAW_WAIT));
       setDrawComplete(true);
       setLoaderProgress(20);
+
+      // 4) wait for video data
       const vid = videoRef.current!;
-      if (vid.readyState < 2) await new Promise<void>(r => vid.addEventListener("loadeddata", () => r(), { once: true }));
+      if (vid.readyState < 2) {
+        await new Promise<void>(res =>
+          vid.addEventListener("loadeddata", () => res(), { once: true })
+        );
+      }
       setLoaderProgress(40);
+
+      // 5) reveal main
       setRevealMain(true);
       document.body.classList.remove("overflow-hidden");
       setLoaderProgress(60);
+
+      // 6) animate overlay shrink
       const rect = vid.getBoundingClientRect();
       await overlayControls.start({
         top: rect.top + window.scrollY,
@@ -49,10 +77,14 @@ export default function HomePage() {
         width: rect.width,
         height: rect.height,
         borderRadius: "1.5rem",
-        transition: { duration: 0.8, ease: "easeInOut" }
+        transition: { duration: 0.8, ease: "easeInOut" },
       });
       setLoaderProgress(80);
+
+      // 7) brief pause
       await new Promise(r => setTimeout(r, 400));
+
+      // 8) move logo into place
       const padRect = logoTargetRef.current!.getBoundingClientRect();
       await logoControls.start({
         top: padRect.top + padRect.height/2 + window.scrollY,
@@ -62,8 +94,12 @@ export default function HomePage() {
         transition: { type: "spring", stiffness: 200, damping: 25 }
       });
       setLoaderProgress(90);
+
+      // 9) fade overlay out
       await overlayControls.start({ opacity: 0, transition: { duration: 3 } });
       setLoaderProgress(100);
+
+      // done!
       setShowLoader(false);
     })();
   }, [overlayControls, logoControls]);
@@ -92,10 +128,10 @@ export default function HomePage() {
               <div className="relative w-2 h-2/3 bg-[rgba(226,190,143,0.2)] rounded-full overflow-hidden">
                 <motion.div
                   className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full will-change-transform"
-                  style={{ transformOrigin: 'bottom center' }}
+                  style={{ transformOrigin: "bottom center" }}
                   initial={{ scaleY: 0 }}
                   animate={{ scaleY: loaderProgress / 100 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 25 }}
                 />
               </div>
             </div>
@@ -103,10 +139,10 @@ export default function HomePage() {
             {/* Desktop loader */}
             <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-none">
               <span>Donde El Corazón es el Huerto</span>
-              <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: '#e2be8f20' }}>
+              <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: "#e2be8f20" }}>
                 <div
                   className="absolute top-0 left-0 h-full rounded-full"
-                  style={{ width: `${loaderProgress}%`, backgroundColor: '#e2be8f', transition: 'width 0.5s ease-out' }}
+                  style={{ width: `${loaderProgress}%`, backgroundColor: "#e2be8f", transition: "width 0.5s ease-out" }}
                 />
               </div>
               <span>{loaderProgress}%</span>
@@ -125,26 +161,41 @@ export default function HomePage() {
             exit={{ opacity: 0, transition: { duration: 0.5 } }}
             style={{ position: "fixed", zIndex: 100, width: 240, height: 240, transformOrigin: "center center" }}
           >
-            <AlebrijeDraw size={240} strokeDuration={drawComplete ? 0 : 3} fillDuration={drawComplete ? 0 : 3.5} />
+            <AlebrijeDraw
+              size={240}
+              strokeDuration={drawComplete ? 0 : 3}
+              fillDuration={drawComplete ? 0 : 3.5}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className={`fixed inset-0 flex flex-col items-center justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ease-in-out ${revealMain ? 'opacity-100' : 'opacity-0'}`}>  
-        <div className="relative overflow-hidden shadow-xl" style={{ width: '98vw', height: '98vh', borderRadius: '1.5rem' }}>
+      <main
+        className={`fixed inset-0 flex flex-col items-center justify-center bg-[var(--olivea-cream)]
+                    transition-opacity duration-500 ease-in-out ${
+                      revealMain ? "opacity-100" : "opacity-0"
+                    }`}
+      >
+        <div className="relative overflow-hidden shadow-xl" style={{ width: "98vw", height: "98vh", borderRadius: "1.5rem" }}>
           <video
             ref={videoRef}
             className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
             src="/videos/homepage-temp.mp4"
-            autoPlay muted loop playsInline preload="auto"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
           />
 
           {/* Logo Pad */}
           <div className="absolute inset-0 flex justify-center items-start">
             <div
               ref={logoTargetRef}
-              className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 sm:mt-14 md:w-48 md:h-48 md:mt-16 lg:w-56 lg:h-56 lg:mt-20 mx-auto rounded-lg overflow-hidden"
+              className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 sm:mt-14
+                         md:w-48 md:h-48 md:mt-16 lg:w-56 lg:h-56 lg:mt-20 mx-auto
+                         rounded-lg overflow-hidden"
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 <AlebrijeLogo />
@@ -152,14 +203,14 @@ export default function HomePage() {
             </div>
           </div>
 
-
-
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
 
         {/* Mobile menu */}
         <div className="flex flex-col md:hidden space-y-4 items-center mt-4 w-full max-w-sm px-4 mx-auto">
-          {sections.map(sec => <EntranceCard key={sec.href} {...sec} />)}
+          {sections.map((sec) => (
+            <EntranceCard key={sec.href} {...sec} />
+          ))}
         </div>
 
         {/* Mobile reserve button */}
@@ -170,7 +221,9 @@ export default function HomePage() {
         {/* Desktop overlay & buttons */}
         <div className="absolute inset-0 z-40 hidden md:flex flex-col items-center justify-center px-4 text-center">
           <div className="flex gap-6 mt-6">
-            {sections.map(sec => <EntranceCard key={sec.href} {...sec} />)}
+            {sections.map((sec) => (
+              <EntranceCard key={sec.href} {...sec} />
+            ))}
           </div>
 
           <motion.div

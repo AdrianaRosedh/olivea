@@ -1,32 +1,34 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useReservation } from "@/contexts/ReservationContext"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useReservation } from "@/contexts/ReservationContext";
+import type { Lang } from "../dictionaries";
 
-export default function ReservationsPage({
-  params,
-}: {
-  params: { lang: string }
-}) {
-  const router = useRouter()
-  const { openReservationModal } = useReservation()
-  const lang = params.lang
+interface ReservationsPageProps {
+  params: { lang: string };
+}
 
-  // Automatically open the reservation modal when this page is visited
+export default function ReservationsPage({ params }: ReservationsPageProps) {
+  const router = useRouter();
+  const { openReservationModal } = useReservation();
+
+  // 1️⃣ Coerce the incoming string into your Lang union
+  const raw = params.lang;
+  const lang: Lang = raw === "es" ? "es" : "en";
+
   useEffect(() => {
-    // Open the modal
-    openReservationModal()
+    // 2️⃣ Open the modal immediately
+    openReservationModal();
 
-    // Redirect back to home page after a short delay
+    // 3️⃣ Then redirect back home after a short pause
     const timer = setTimeout(() => {
-      router.push(`/${lang}`)
-    }, 100)
+      router.push(`/${lang}`);
+    }, 100);
 
-    return () => clearTimeout(timer)
-  }, [openReservationModal, router, lang])
+    return () => clearTimeout(timer);
+  }, [openReservationModal, router, lang]);
 
-  // This page doesn't need to render anything as it just triggers the modal
-  // and redirects back to home
-  return null
+  // No UI to render: this page simply triggers the modal + redirect
+  return null;
 }

@@ -1,34 +1,45 @@
-import { getDictionary } from "../dictionaries"
-import RestaurantClientPage from "./RestaurantClientPage"
-import type { Metadata, Viewport } from "next"
-import { Suspense } from "react"
+import { Suspense } from "react";
+import type { Metadata, Viewport } from "next";
+import { getDictionary, type Lang } from "../dictionaries";
+import RestaurantClientPage from "./RestaurantClientPage";
 
+// Tell Next.js which locales to prerender
 export async function generateStaticParams() {
-  return [{ lang: "en" }, { lang: "es" }]
+  const langs: Lang[] = ["en", "es"];
+  return langs.map((l) => ({ lang: l }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
-  const dict = await getDictionary(lang)
+export async function generateMetadata({
+  params,
+}: {
+  // Next.js 15.3 passes params as a Promise
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  // Await the params promise
+  const { lang: rawLang } = await params;
+  // Narrow to your Lang union
+  const lang: Lang = rawLang === "es" ? "es" : "en";
+
+  // Load translations
+  const dict = await getDictionary(lang);
 
   return {
-    title: `${dict.restaurant.title} | Olivea`,
+    title:       `${dict.restaurant.title} | Olivea`,
     description: dict.restaurant.description,
     metadataBase: new URL("https://olivea.com"),
     openGraph: {
-      title: `${dict.restaurant.title} | Olivea`,
+      title:       `${dict.restaurant.title} | Olivea`,
       description: dict.restaurant.description,
       images: [
         {
-          url: "/images/restaurant.png",
-          width: 1200,
+          url:    "/images/restaurant.png",
+          width:  1200,
           height: 630,
-          alt: "Olivea Restaurant",
+          alt:    "Olivea Restaurant",
         },
       ],
       locale: lang,
-      type: "website",
+      type:   "website",
     },
     alternates: {
       canonical: `https://olivea.com/${lang}/restaurant`,
@@ -37,33 +48,48 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         es: "https://olivea.com/es/restaurant",
       },
     },
-  }
+  };
 }
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width:        "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#65735b",
-}
+  themeColor:   "#65735b",
+};
 
-export default async function RestaurantPage({ params }: { params: Promise<{ lang: string }> }) {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
-  const dict = await getDictionary(lang)
+export default async function RestaurantPage({
+  params,
+}: {
+  // params is a Promise here, too
+  params: Promise<{ lang: string }>;
+}) {
+  // Await params before using it
+  const { lang: rawLang } = await params;
+  const lang: Lang        = rawLang === "es" ? "es" : "en";
 
-  const sections = dict?.restaurant?.sections ?? {
-    story: { title: "", description: "" },
+  // Load translations
+  const dict = await getDictionary(lang);
+
+  // Fill in fallback if your JSON is missing sections
+  const sections = dict.restaurant.sections ?? {
+    story:  { title: "", description: "" },
     garden: { title: "", description: "" },
-    menu: { title: "", description: "" },
-    wines: { title: "", description: "" },
-  }
+    menu:   { title: "", description: "" },
+    wines:  { title: "", description: "" },
+  };
 
   return (
     <div suppressHydrationWarning>
-      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"></div>}>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            {/* optional loading spinner */}
+          </div>
+        }
+      >
         <RestaurantClientPage lang={lang} sections={sections} />
       </Suspense>
     </div>
-  )
+  );
 }

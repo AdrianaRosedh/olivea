@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { useNavigation } from "@/contexts/NavigationContext"
 
 interface MobileSectionTrackerProps {
-  sectionIds: string[]
+  sectionIds: readonly string[]
 }
 
 /**

@@ -1,19 +1,22 @@
 // components/navigation/AdaptiveNavbar.tsx
-"use client"
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection"
-import { useIsMobile } from "@/hooks/useMediaQuery"
-import OliveaFTTLogo from "@/assets/OliveaFTTIcon.svg"
-import MenuToggle    from "./MenuToggle"
-import { cn }        from "@/lib/utils"
+"use client";
 
-interface AdaptiveNavbarProps {
-  /** ← add this! */
-  lang: "en" | "es"
-  isDrawerOpen: boolean
-  onToggleDrawer: () => void
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection";
+import { useIsMobile } from "@/hooks/useMediaQuery";
+import OliveaFTTLogo from "@/assets/OliveaFTTIcon.svg";
+import MenuToggle from "./MenuToggle";
+import { cn } from "@/lib/utils";
+
+export interface AdaptiveNavbarProps {
+  /** The current locale, "en" or "es" */
+  lang: "en" | "es";
+  /** Whether the mobile drawer is open */
+  isDrawerOpen: boolean;
+  /** Toggles the mobile drawer */
+  onToggleDrawer: () => void;
 }
 
 export default function AdaptiveNavbar({
@@ -21,26 +24,27 @@ export default function AdaptiveNavbar({
   isDrawerOpen,
   onToggleDrawer,
 }: AdaptiveNavbarProps) {
-  const pathname = usePathname()
-  const isMobile = useIsMobile()
-  const { isDark, elementRef } = useBackgroundColorDetection(300)
-  const [isScrolled, setIsScrolled] = useState(false)
+  const pathname = usePathname();
+  const isMobile = useIsMobile();
+  const { isDark, elementRef } = useBackgroundColorDetection(300);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return
-    const handler = () => setIsScrolled(window.scrollY > 20)
-    window.addEventListener("scroll", handler, { passive: true })
-    handler()
-    return () => window.removeEventListener("scroll", handler)
-  }, [])
+    if (typeof window === "undefined") return;
+    const handler = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handler, { passive: true });
+    handler();
+    return () => void window.removeEventListener("scroll", handler);
+  }, []);
 
-  if (!isMobile) return null
+  if (!isMobile) return null;
 
+  // decide logo color based on drawer & background
   const logoColor = isDrawerOpen
     ? "text-white"
     : isDark
     ? "text-[#f8f8f8]"
-    : "text-[var(--olivea-olive)]"
+    : "text-[var(--olivea-olive)]";
 
   return (
     <div
@@ -51,7 +55,6 @@ export default function AdaptiveNavbar({
       )}
     >
       <div className="flex items-center justify-between px-4 h-16">
-        {/* now TS knows `lang` is OK */}
         <Link href={`/${lang}`} aria-label="Home">
           <OliveaFTTLogo className={cn("h-6 w-auto", logoColor)} />
         </Link>
@@ -62,5 +65,5 @@ export default function AdaptiveNavbar({
         />
       </div>
     </div>
-  )
+  );
 }

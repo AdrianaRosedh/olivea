@@ -1,4 +1,3 @@
-// app/[lang]/casa/CasaClientPage.tsx
 "use client";
 
 import { TypographyH2, TypographyP } from "@/components/ui/Typography";

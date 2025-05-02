@@ -1,56 +1,68 @@
+// app/[lang]/layout.tsx
+import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { getDictionary } from "./dictionaries";
+import { getDictionary, type Lang, type AppDictionary } from "./dictionaries";
 import LayoutShell from "@/components/layout/LayoutShell";
 import { ReservationProvider } from "@/contexts/ReservationContext";
 import StructuredData from "@/components/StructuredData";
 
-// Generate metadata for each locale, awaiting params Promise
-export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
-  const { lang } = await params;
-  const dict = await getDictionary(lang);
+export async function generateMetadata({
+  params,
+}: {
+  // Next.js now passes params as a Promise here
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  // 1️⃣ Await the params promise
+  const { lang: rawLang } = await params;
+  // 2️⃣ Coerce to your Lang union
+  const lang: Lang = rawLang === "es" ? "es" : "en";
+  // 3️⃣ Load dictionary
+  const dict: AppDictionary = await getDictionary(lang);
 
   return {
-    title: { template: "%s | Olivea", default: "Olivea" },
-    description:
-      dict.metadata?.description ||
-      "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+    title:       { template: "%s | Olivea", default: "Olivea" },
+    description: dict.metadata?.description,
     metadataBase: new URL("https://olivea.com"),
     openGraph: {
-      title: "Olivea",
-      description:
-        dict.metadata?.description ||
-        "A farm-to-table sanctuary where nature, nourishment, and design meet.",
-      images: [`/images/og-${lang}.jpg`],
-      url: `https://olivea.com/${lang}`,
-      type: "website",
-      locale: lang,
-      siteName: "Olivea",
+      title:       "Olivea",
+      description: dict.metadata?.description,
+      images:      [`/images/og-${lang}.jpg`],
+      url:         `https://olivea.com/${lang}`,
+      type:        "website",
+      locale:      lang,
+      siteName:    "Olivea",
     },
     alternates: {
       canonical: `https://olivea.com/${lang}`,
-      languages: { en: "https://olivea.com/en", es: "https://olivea.com/es" },
+      languages: {
+        en: `https://olivea.com/en`,
+        es: `https://olivea.com/es`,
+      },
     },
   };
 }
 
-// Viewport settings per locale
 export const viewport: Viewport = {
-  width: "device-width",
+  width:        "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#65735b",
+  themeColor:   "#65735b",
 };
 
-// Locale-specific layout: await params Promise before use
 export default async function LangLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
+  // And here too, params is a Promise
   params: Promise<{ lang: string }>;
 }) {
-  const { lang } = await params;
-  const dict = await getDictionary(lang);
+  // 1️⃣ Await the params promise
+  const { lang: rawLang } = await params;
+  // 2️⃣ Narrow to your union
+  const lang: Lang = rawLang === "es" ? "es" : "en";
+  // 3️⃣ Load dictionary
+  const dict: AppDictionary = await getDictionary(lang);
 
   return (
     <>
