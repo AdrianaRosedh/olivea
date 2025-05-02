@@ -9,54 +9,46 @@ export default function NextGenBackgroundInitializer() {
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Function to force initialize the NextGenBackground
     const initializeBackground = () => {
       console.log("[NextGenBackgroundInitializer] Reinitializing background")
 
-      // Find the NextGenBackground element
-      const backgroundElement = document.querySelector(".next-gen-background")
+      const backgroundElement = document.querySelector<HTMLElement>(".next-gen-background")
+      if (!backgroundElement) return
+      backgroundElement.getBoundingClientRect()
+      document.dispatchEvent(new CustomEvent("background:reinitialize"))
 
-      if (backgroundElement) {
-        // Force layout recalculation
-        backgroundElement.getBoundingClientRect()
+      // Grab any elements matching section[id] and filter to HTMLElements
+      const rawSections = document.querySelectorAll("section[id]")
+      const sections = Array.from(rawSections).filter(
+        (el): el is HTMLElement => el instanceof HTMLElement && typeof el.id === 'string'
+      )
+      if (sections.length === 0) return
 
-        // Dispatch a custom event that NextGenBackground can listen for
-        document.dispatchEvent(new CustomEvent("background:reinitialize"))
+      let activeSection: HTMLElement | null = null
+      let maxVisibility = 0
 
-        // Find all sections and force a section change event
-        const sections = document.querySelectorAll("section[id]")
-        if (sections.length > 0) {
-          // Find which section is currently in view
-          let activeSection: Element | null = null
-          let maxVisibility = 0
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
+        const visibility = visibleHeight / rect.height
 
-          sections.forEach((section) => {
-            const rect = section.getBoundingClientRect()
-            const windowHeight = window.innerHeight
-
-            // Calculate how much of the section is visible
-            const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
-            const visibility = visibleHeight / rect.height
-
-            if (visibility > maxVisibility) {
-              maxVisibility = visibility
-              activeSection = section
-            }
-          })
-
-          // Dispatch section in view event for the active section
-          if (activeSection) {
-            document.dispatchEvent(
-              new CustomEvent("sectionInView", {
-                detail: {
-                  id: activeSection.id,
-                  intersectionRatio: maxVisibility,
-                  fromInitializer: true,
-                },
-              }),
-            )
-          }
+        if (visibility > maxVisibility) {
+          maxVisibility = visibility
+          activeSection = section
         }
+      })
+
+      if (activeSection) {
+        document.dispatchEvent(
+          new CustomEvent("sectionInView", {
+            detail: {
+              id: activeSection.id,
+              intersectionRatio: maxVisibility,
+              fromInitializer: true,
+            },
+          })
+        )
       }
     }
 
@@ -68,10 +60,8 @@ export default function NextGenBackgroundInitializer() {
       setTimeout(initializeBackground, 1000),
     ]
 
-    return () => {
-      timers.forEach(clearTimeout)
-    }
-  }, [pathname]) // Re-run when pathname changes
+    return () => timers.forEach(clearTimeout)
+  }, [pathname])
 
-  return null // This component doesn't render anything
+  return null
 }
