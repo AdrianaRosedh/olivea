@@ -1,42 +1,44 @@
 "use client"
 
 import { TypographyH2, TypographyP } from "@/components/ui/Typography"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import MobileSectionTracker from "@/components/MobileSectionTracker"
 
-export default function RestaurantClientPage({
-  lang,
-  sections,
-}: {
+// Shape of a section's content
+interface SectionContent {
+  title: string
+  description: string
+}
+
+// Props for the section observer component
+interface SectionObserverProps {
   lang: string
-  sections: {
-    story?: { title: string; description: string }
-    garden?: { title: string; description: string }
-    menu?: { title: string; description: string }
-    wines?: { title: string; description: string }
-  }
-}) {
+  sections: Record<string, SectionContent>
+}
+
+export default function SectionObserver({ lang, sections }: SectionObserverProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Define the order of sections
   const sectionIds = ["story", "garden", "menu", "wines"]
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement)?.closest('a[href^="#"]') as HTMLAnchorElement
+      const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement
       if (link) {
         e.preventDefault()
-        const sectionId = link.getAttribute("href")?.substring(1)
-        const section = document.getElementById(sectionId!)
-        if (section && containerRef.current) {
-          section.scrollIntoView({ behavior: "smooth", block: "start" })
+        const sectionId = link.getAttribute("href")?.slice(1)
+        const sectionEl = document.getElementById(sectionId!)
+        if (sectionEl && containerRef.current) {
+          sectionEl.scrollIntoView({ behavior: "smooth", block: "start" })
           window.history.pushState(null, "", `#${sectionId}`)
-
-          // Trigger a scroll event to help section detection
           setTimeout(() => {
             window.dispatchEvent(new Event("scroll"))
           }, 600)
         }
       }
     }
+
     document.addEventListener("click", handleClick)
     return () => document.removeEventListener("click", handleClick)
   }, [])
@@ -49,7 +51,9 @@ export default function RestaurantClientPage({
         style={{
           height: "100vh",
           scrollBehavior: "smooth",
-          scrollSnapType: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "y none" : "y proximity",
+          scrollSnapType: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+            ? "y none"
+            : "y proximity",
           overscrollBehavior: "none",
           WebkitOverflowScrolling: "touch",
         }}
@@ -62,9 +66,9 @@ export default function RestaurantClientPage({
             className="min-h-screen w-full flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px]"
             aria-labelledby={`${id}-heading`}
           >
-            <div className="max-w-2xl text-center">
-              <TypographyH2 id={`${id}-heading`}>{sections[id]?.title}</TypographyH2>
-              <TypographyP className="mt-2">{sections[id]?.description}</TypographyP>
+            <div id={`${id}-heading`} className="max-w-2xl text-center">
+              <TypographyH2>{sections[id]?.title}</TypographyH2>
+              <TypographyP>{sections[id]?.description}</TypographyP>
             </div>
           </section>
         ))}
