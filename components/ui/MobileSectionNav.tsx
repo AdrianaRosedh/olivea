@@ -90,7 +90,7 @@ export default function MobileSectionNav({ items }: Props) {
       {items.map((item) => (
         <a
           key={item.id}
-          ref={(el) => (buttonRefs.current[item.id] = el)}
+          ref={el => { buttonRefs.current[item.id] = el }}
           href={`#${item.id}`}
           onClick={(e) => {
             e.preventDefault()
