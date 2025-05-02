@@ -1,3 +1,4 @@
+// components/animations/ScrollSyncMobile.tsx
 "use client"
 
 import { useEffect, useRef } from "react"
@@ -13,111 +14,89 @@ export default function ScrollSyncMobile() {
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Check if on mobile device
-    const checkMobile = () => {
-      if (typeof navigator !== "undefined") {
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-          navigator.userAgent,
-        )
-        isMobileRef.current = isMobileDevice
-        return isMobileDevice
-      }
-      return false
-    }
+    // 1️⃣ detect mobile UA
+    const ua = navigator.userAgent
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+    isMobileRef.current = isMobile
+    if (!isMobile) return
 
-    // Only run on mobile
-    if (!checkMobile()) return
+    console.log("[ScrollSyncMobile] initializing scroll sync on mobile")
 
-    console.log("[ScrollSyncMobile] Mobile device detected, initializing scroll sync")
+    // 2️⃣ pick your scroll container
+    const scrollContainer: HTMLElement =
+      (document.querySelector(".scroll-container") as HTMLElement) ||
+      document.documentElement
 
-    // Function to check which section is currently in view
+    // 3️⃣ find the most visible <section>
     const checkVisibleSections = () => {
-      // Find all sections
-      const sections = document.querySelectorAll("section[id]")
-      if (sections.length === 0) return
+      // force TS to treat this NodeList as HTMLElements
+      const nodeList = document.querySelectorAll("section[id]") as NodeListOf<HTMLElement>
+      if (nodeList.length === 0) return
 
-      // Find which section is currently in view
-      let activeSection: Element | null = null
-      let maxVisibility = 0
+      let bestSection: HTMLElement | null = null
+      let bestVisibility = 0
 
-      sections.forEach((section) => {
+      for (const section of nodeList) {
         const rect = section.getBoundingClientRect()
-        const windowHeight = window.innerHeight
-
-        // Calculate how much of the section is visible
-        const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
+        const vh = window.innerHeight
+        const visibleHeight = Math.min(rect.bottom, vh) - Math.max(rect.top, 0)
         const visibility = visibleHeight / rect.height
 
-        if (visibility > maxVisibility) {
-          maxVisibility = visibility
-          activeSection = section
+        if (visibility > bestVisibility) {
+          bestVisibility = visibility
+          bestSection = section
         }
-      })
+      }
 
-      // Notify about the active section if it has changed
-      if (activeSection && activeSection.id !== lastSectionRef.current) {
-        lastSectionRef.current = activeSection.id
-        console.log(`[ScrollSyncMobile] Active section detected: ${activeSection.id}`)
+      if (
+        bestSection &&
+        bestSection.id !== lastSectionRef.current
+      ) {
+        lastSectionRef.current = bestSection.id
+        console.log(`[ScrollSyncMobile] new active section: ${bestSection.id}`)
 
-        // Dispatch both event types to ensure compatibility
+        // dispatch typed + legacy events
         document.dispatchEvent(
           new CustomEvent(SECTION_EVENTS.SECTION_IN_VIEW, {
             detail: {
-              id: activeSection.id,
-              intersectionRatio: maxVisibility,
+              id: bestSection.id,
+              intersectionRatio: bestVisibility,
               source: "mobile-scroll",
             },
-          }),
+          })
         )
-
         document.dispatchEvent(
           new CustomEvent("sectionInView", {
             detail: {
-              id: activeSection.id,
-              intersectionRatio: maxVisibility,
+              id: bestSection.id,
+              intersectionRatio: bestVisibility,
               source: "mobile-scroll",
             },
-          }),
+          })
         )
       }
     }
 
-    // Function to handle scroll events with throttling
-    const handleScroll = () => {
-      // Clear existing timeout
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
-      }
-
-      // Set a new timeout to check sections after scrolling stops
-      scrollTimeoutRef.current = setTimeout(() => {
-        checkVisibleSections()
-      }, 50) // 50ms throttle
+    // 4️⃣ throttle
+    const onScroll = () => {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+      scrollTimeoutRef.current = setTimeout(checkVisibleSections, 50)
     }
 
-    // Add scroll event listeners
-    window.addEventListener("scroll", handleScroll, { passive: true })
+    // 5️⃣ attach listeners
+    window.addEventListener("scroll", onScroll, { passive: true })
+    scrollContainer.addEventListener("scroll", onScroll, { passive: true })
 
-    // Also listen to scroll container
-    const scrollContainer = document.querySelector(".scroll-container")
-    if (scrollContainer) {
-      scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
-    }
-
-    // Initial check
+    // 6️⃣ kick off a few times for late-mounting sections
     setTimeout(checkVisibleSections, 100)
     setTimeout(checkVisibleSections, 500)
     setTimeout(checkVisibleSections, 1000)
 
-    // Cleanup
+    // 7️⃣ cleanup
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-      if (scrollContainer) {
-        scrollContainer.removeEventListener("scroll", handleScroll)
-      }
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
-      }
+      window.removeEventListener("scroll", onScroll)
+      scrollContainer.removeEventListener("scroll", onScroll)
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
     }
   }, [pathname])
 

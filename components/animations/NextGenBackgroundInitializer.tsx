@@ -1,67 +1,68 @@
-"use client"
+// components/animations/NextGenBackgroundInitializer.tsx
+"use client";
 
-import { useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function NextGenBackgroundInitializer() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined") return;
 
     const initializeBackground = () => {
-      console.log("[NextGenBackgroundInitializer] Reinitializing background")
+      console.log("[NextGenBackgroundInitializer] Reinitializing background");
 
-      const backgroundElement = document.querySelector<HTMLElement>(".next-gen-background")
-      if (!backgroundElement) return
-      backgroundElement.getBoundingClientRect()
-      document.dispatchEvent(new CustomEvent("background:reinitialize"))
+      // 1) mask the loader, etc.
+      const bg = document.querySelector<HTMLElement>(".next-gen-background");
+      if (!bg) return;
+      bg.getBoundingClientRect();
+      document.dispatchEvent(new CustomEvent("background:reinitialize"));
 
-      // Grab any elements matching section[id] and filter to HTMLElements
-      const rawSections = document.querySelectorAll("section[id]")
-      const sections = Array.from(rawSections).filter(
-        (el): el is HTMLElement => el instanceof HTMLElement && typeof el.id === 'string'
-      )
-      if (sections.length === 0) return
+      // 2) grab *all* sections, telling TS they are HTMLElements
+      const raw = document.querySelectorAll("section[id]");
+      // force it into the right shape
+      const sections = Array.from(raw) as HTMLElement[];
 
-      let activeSection: HTMLElement | null = null
-      let maxVisibility = 0
+      if (sections.length === 0) return;
 
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect()
-        const windowHeight = window.innerHeight
-        const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
-        const visibility = visibleHeight / rect.height
+      // 3) pick the most‐visible section
+      let best: HTMLElement | null = null;
+      let bestRatio = 0;
+      const vh = window.innerHeight;
 
-        if (visibility > maxVisibility) {
-          maxVisibility = visibility
-          activeSection = section
+      for (const section of sections) {
+        const r = section.getBoundingClientRect();
+        const visible = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+        const ratio = visible / r.height;
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          best = section;
         }
-      })
+      }
 
-      if (activeSection) {
+      // 4) fire the event with a real `.id`
+      if (best) {
         document.dispatchEvent(
           new CustomEvent("sectionInView", {
             detail: {
-              id: activeSection.id,
-              intersectionRatio: maxVisibility,
+              id: best.id,
+              intersectionRatio: bestRatio,
               fromInitializer: true,
             },
           })
-        )
+        );
       }
-    }
+    };
 
-    // Run initialization with increasing delays
-    const timers = [
-      setTimeout(initializeBackground, 100),
-      setTimeout(initializeBackground, 300),
-      setTimeout(initializeBackground, 600),
-      setTimeout(initializeBackground, 1000),
-    ]
+    // run a few times in case things load late
+    const delays = [100, 300, 600, 1000];
+    const timers = delays.map((d) =>
+      window.setTimeout(initializeBackground, d)
+    );
 
-    return () => timers.forEach(clearTimeout)
-  }, [pathname])
+    return () => timers.forEach(clearTimeout);
+  }, [pathname]);
 
-  return null
+  return null;
 }

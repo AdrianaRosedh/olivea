@@ -1,26 +1,21 @@
+// components/animations/ScrollSystem.tsx
 "use client"
-
-import type React from "react"
 
 import { useEffect, useRef, useState, createContext, useContext } from "react"
 import { usePathname } from "next/navigation"
 
-// Create a context to share scroll state across components
-type ScrollContextType = {
+export type ScrollContextType = {
   activeSection: string | null
   scrollProgress: number
   scrollTo: (sectionId: string) => void
   isScrolling: boolean
 }
-
 const ScrollContext = createContext<ScrollContextType>({
   activeSection: null,
   scrollProgress: 0,
   scrollTo: () => {},
   isScrolling: false,
 })
-
-// Hook to use the scroll context
 export const useScroll = () => useContext(ScrollContext)
 
 export default function ScrollSystem({ children }: { children: React.ReactNode }) {
@@ -29,165 +24,112 @@ export default function ScrollSystem({ children }: { children: React.ReactNode }
   const [isScrolling, setIsScrolling] = useState(false)
   const pathname = usePathname()
 
-  // Refs to track state without triggering re-renders
   const scrollingRef = useRef(false)
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const scrollContainerRef = useRef<HTMLElement | null>(null)
 
-  // Initialize on mount and when pathname changes
   useEffect(() => {
-    // Only run on client
     if (typeof window === "undefined") return
 
-    console.log("[ScrollSystem] Initializing")
+    scrollContainerRef.current =
+      document.querySelector<HTMLElement>(".scroll-container") ||
+      document.documentElement
 
-    // Find the scroll container
-    scrollContainerRef.current = document.querySelector(".scroll-container") || document.documentElement
-
-    // Function to update scroll progress
     const updateScrollProgress = () => {
-      if (!scrollContainerRef.current) return
-
-      const container = scrollContainerRef.current
-      const scrollTop = container.scrollTop
-      const scrollHeight = container.scrollHeight
-      const clientHeight = container.clientHeight
-
-      // Calculate progress (0 to 1)
-      const maxScroll = Math.max(1, scrollHeight - clientHeight)
-      const progress = Math.min(1, Math.max(0, scrollTop / maxScroll))
-
-      setScrollProgress(progress)
+      const c = scrollContainerRef.current!
+      const max = Math.max(1, c.scrollHeight - c.clientHeight)
+      setScrollProgress(Math.min(1, Math.max(0, c.scrollTop / max)))
     }
 
-    // Function to determine which section is active
     const updateActiveSection = () => {
-      // Skip if we're programmatically scrolling
       if (scrollingRef.current) return
 
-      const sections = document.querySelectorAll("section[id]")
+      // ← Here’s the key change:
+      //   querySelectorAll<HTMLElement> + Array.from → HTMLElement[]
+      const sections = Array.from(
+        document.querySelectorAll<HTMLElement>("section[id]")
+      )
+
       if (sections.length === 0) return
 
-      let bestSection = null
-      let bestVisibility = 0
+      let best: HTMLElement | null = null
+      let bestScore = 0
 
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect()
-        const windowHeight = window.innerHeight
+      for (const sec of sections) {
+        const r = sec.getBoundingClientRect()
+        const vh = window.innerHeight
 
-        // Calculate how much of the section is visible
-        const visibleTop = Math.max(0, rect.top)
-        const visibleBottom = Math.min(windowHeight, rect.bottom)
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop)
-        const visibility = visibleHeight / rect.height
+        const visTop = Math.max(0, r.top)
+        const visBottom = Math.min(vh, r.bottom)
+        const visHeight = Math.max(0, visBottom - visTop)
+        const visibility = visHeight / r.height
 
-        // Weight the center of the screen more heavily
-        const distanceFromCenter = Math.abs((rect.top + rect.bottom) / 2 - windowHeight / 2)
-        const centerWeight = 1 - Math.min(1, distanceFromCenter / (windowHeight / 2))
+        const centerDist = Math.abs((r.top + r.bottom) / 2 - vh / 2)
+        const centerWeight = 1 - Math.min(1, centerDist / (vh / 2))
 
-        // Combined score that favors both visibility and centeredness
         const score = visibility * 0.7 + centerWeight * 0.3
-
-        if (score > bestVisibility) {
-          bestVisibility = score
-          bestSection = section
+        if (score > bestScore) {
+          bestScore = score
+          best = sec
         }
-      })
+      }
 
-      if (bestSection && bestSection.id !== activeSection) {
-        setActiveSection(bestSection.id)
+      if (best && best.id !== activeSection) {
+        setActiveSection(best.id)
       }
     }
 
-    // Throttled scroll handler
-    const handleScroll = () => {
-      // Skip if we're programmatically scrolling
+    const onScroll = () => {
       if (scrollingRef.current) return
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
 
-      // Clear any existing timeout
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
-      }
-
-      // Update scroll progress immediately
       updateScrollProgress()
-
-      // Throttle section updates
       scrollTimeoutRef.current = setTimeout(() => {
         updateActiveSection()
         scrollTimeoutRef.current = null
       }, 50)
     }
 
-    // Add scroll listener
-    const scrollContainer = scrollContainerRef.current
-    scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
+    const container = scrollContainerRef.current!
+    container.addEventListener("scroll", onScroll, { passive: true })
 
-    // Initial update
+    // initial
     updateScrollProgress()
     updateActiveSection()
 
-    // Force multiple updates to ensure it works
-    const timers = [
-      setTimeout(() => {
-        updateScrollProgress()
-        updateActiveSection()
-      }, 100),
-      setTimeout(() => {
-        updateScrollProgress()
-        updateActiveSection()
-      }, 500),
+    const retries = [
+      setTimeout(() => { updateScrollProgress(); updateActiveSection() }, 100),
+      setTimeout(() => { updateScrollProgress(); updateActiveSection() }, 500),
     ]
 
     return () => {
-      scrollContainer.removeEventListener("scroll", handleScroll)
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
-      }
-      timers.forEach(clearTimeout)
+      container.removeEventListener("scroll", onScroll)
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+      retries.forEach(clearTimeout)
     }
   }, [pathname, activeSection])
 
-  // Function to scroll to a section
   const scrollTo = (sectionId: string) => {
-    const section = document.getElementById(sectionId)
-    const container = scrollContainerRef.current
+    const container = scrollContainerRef.current!
+    const sec = document.getElementById(sectionId)
+    if (!sec) return
 
-    if (section && container) {
-      // Mark that we're programmatically scrolling
-      scrollingRef.current = true
-      setIsScrolling(true)
+    scrollingRef.current = true
+    setIsScrolling(true)
+    window.history.pushState(null, "", `#${sectionId}`)
+    setActiveSection(sectionId)
 
-      // Update URL without reload
-      window.history.pushState(null, "", `#${sectionId}`)
+    container.scrollTo({ top: sec.offsetTop, behavior: "smooth" })
 
-      // Set active section immediately for better UX
-      setActiveSection(sectionId)
-
-      // Calculate the top position of the section
-      const sectionTop = section.offsetTop
-
-      // Scroll to the section
-      container.scrollTo({
-        top: sectionTop,
-        behavior: "smooth",
-      })
-
-      // Reset scrolling flag after animation completes
-      setTimeout(() => {
-        scrollingRef.current = false
-        setIsScrolling(false)
-      }, 1000) // Adjust timeout to match scroll duration
-    }
+    setTimeout(() => {
+      scrollingRef.current = false
+      setIsScrolling(false)
+    }, 1000)
   }
 
-  // Context value
-  const contextValue = {
-    activeSection,
-    scrollProgress,
-    scrollTo,
-    isScrolling,
-  }
-
-  return <ScrollContext.Provider value={contextValue}>{children}</ScrollContext.Provider>
+  return (
+    <ScrollContext.Provider value={{ activeSection, scrollProgress, scrollTo, isScrolling }}>
+      {children}
+    </ScrollContext.Provider>
+  )
 }

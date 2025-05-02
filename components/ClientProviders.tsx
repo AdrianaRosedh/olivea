@@ -1,43 +1,42 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import ScrollManager from "@/components/animations/ScrollManager"
-import NavigationProvider from "@/components/NavigationProvider"
-import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback"
-import AnimationInitializer from "@/components/animations/AnimationInitializer"
-import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer"
-import MobileScrollInitializer from "@/components/MobileScrollInitializer"
+import { ReactNode, useEffect, useState } from "react";
+import ScrollManager from "@/components/animations/ScrollManager";
+import NavigationProvider from "@/components/NavigationProvider";
+import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback";
+import AnimationInitializer from "@/components/animations/AnimationInitializer";
+import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer";
+import MobileScrollInitializer from "@/components/MobileScrollInitializer";
 
-export default function ClientProviders() {
-  const [mounted, setMounted] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+interface ClientProvidersProps {
+  children: ReactNode;
+}
+
+export default function ClientProviders({ children }: ClientProvidersProps) {
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-
-    // Check if on mobile device
-    const checkMobile = () => {
-      if (typeof navigator !== "undefined") {
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-          navigator.userAgent,
-        )
-        setIsMobile(isMobileDevice)
-      }
+    setMounted(true);
+    // detect mobile
+    if (typeof navigator !== "undefined") {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+      setIsMobile(isMobileDevice);
     }
+  }, []);
 
-    checkMobile()
-  }, [])
-
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return (
-    <>
-      <NavigationProvider />
+    <NavigationProvider>
       <ScrollManager />
       <AnimationInitializer />
       <NextGenBackgroundInitializer />
       <MobileScrollInitializer />
       {isMobile && <MobileAudioFeedback />}
-    </>
-  )
+      {children}
+    </NavigationProvider>
+  );
 }

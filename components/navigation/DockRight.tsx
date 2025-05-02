@@ -1,10 +1,8 @@
-// components/ui/DockRight.tsx
-
 "use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion"
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue } from "framer-motion"
 import { useRef, useState } from "react"
 import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
@@ -22,7 +20,7 @@ interface DockRightProps {
 
 export default function DockRight({ items }: DockRightProps) {
   const pathname = usePathname()
-  const mouseY = useMotionValue(Number.POSITIVE_INFINITY)
+  const mouseY: MotionValue<number> = useMotionValue(Number.POSITIVE_INFINITY)
 
   return (
     <motion.div
@@ -31,7 +29,12 @@ export default function DockRight({ items }: DockRightProps) {
       className="fixed top-1/2 right-6 -translate-y-1/2 z-[60] flex flex-col gap-6 items-end"
     >
       {items.map((item) => (
-        <IconContainer key={item.id} item={item} active={pathname === item.href} mouseY={mouseY} />
+        <IconContainer
+          key={item.id}
+          item={item}
+          active={pathname === item.href}
+          mouseY={mouseY}
+        />
       ))}
     </motion.div>
   )
@@ -44,12 +47,18 @@ function IconContainer({
 }: {
   item: DockRightItem
   active: boolean
-  mouseY: any
+  mouseY: MotionValue<number>
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [hovered, setHovered] = useState(false)
 
-  const distance = useTransform(mouseY, (val) => {
+  // Generate a random organic-looking borderRadius
+  const [borderRadiusValue] = useState(() => {
+    const randPercent = () => `${Math.floor(Math.random() * 50 + 25)}%`
+    return `${randPercent()} ${randPercent()} ${randPercent()} ${randPercent()} / ${randPercent()} ${randPercent()} ${randPercent()} ${randPercent()}`
+  })
+
+  const distance = useTransform<number, number>(mouseY, (val) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { y: 0, height: 0 }
     return val - bounds.y - bounds.height / 2
   })
@@ -64,20 +73,17 @@ function IconContainer({
     <Link href={item.href} aria-label={item.label} className="relative">
       <motion.div
         ref={ref}
-        style={{ width: animatedContainer, height: animatedContainer }}
+        style={{ width: animatedContainer, height: animatedContainer, borderRadius: borderRadiusValue }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className={cn(
-          "flex items-center justify-center transition-colors rounded-[40%_60%_60%_40%_/_40%_40%_60%_60%]",
+          "flex items-center justify-center transition-colors",
           active
             ? "bg-[var(--olivea-clay)] text-white"
-            : "bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] hover:text-white",
+            : "bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] hover:text-white"
         )}
       >
-        <motion.div
-          style={{ width: animatedIcon, height: animatedIcon }}
-          className="flex items-center justify-center"
-        >
+        <motion.div style={{ width: animatedIcon, height: animatedIcon }} className="flex items-center justify-center">
           {item.icon}
         </motion.div>
 
