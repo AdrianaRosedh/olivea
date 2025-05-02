@@ -5,7 +5,6 @@ import type React from "react"
 import { useEffect } from "react"
 import { initNavigationEvents, emitEvent, EVENTS } from "@/lib/navigation-events"
 import { useNavigationEvents } from "@/hooks/useNavigationEvents"
-import NavigationAwareScrollInitializer from "./NavigationAwareScrollInitializer"
 import { usePathname } from "next/navigation"
 
 export default function NavigationProvider({ children }: { children: React.ReactNode }) {
@@ -57,7 +56,6 @@ export default function NavigationProvider({ children }: { children: React.React
 
   return (
     <>
-      <NavigationAwareScrollInitializer />
       {children}
     </>
   )

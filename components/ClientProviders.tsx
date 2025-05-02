@@ -1,12 +1,10 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import ScrollManager from "@/components/animations/ScrollManager";
 import NavigationProvider from "@/components/NavigationProvider";
 import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback";
 import AnimationInitializer from "@/components/animations/AnimationInitializer";
 import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer";
-import MobileScrollInitializer from "@/components/MobileScrollInitializer";
 
 interface ClientProvidersProps {
   children: ReactNode;
@@ -31,10 +29,8 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
 
   return (
     <NavigationProvider>
-      <ScrollManager />
       <AnimationInitializer />
       <NextGenBackgroundInitializer />
-      <MobileScrollInitializer />
       {isMobile && <MobileAudioFeedback />}
       {children}
     </NavigationProvider>
