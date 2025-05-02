@@ -21,10 +21,11 @@ export function ScrollProvider({ children }: ScrollProviderProps) {
   useEffect(() => {
     // Initialize Lenis
     lenisRef.current = new Lenis({
-      duration: 1.2,
-      easing: (t) => t, // Linear easing; customize as needed
-      smooth: true,
-      direction: "vertical",
+        duration: 1.2,
+        easing: (t) => t,
+        smoothWheel: true,
+        smoothTouch: true,
+        orientation: "vertical",
     });
 
     // requestAnimationFrame loop
