@@ -1,20 +1,23 @@
+// app/layout.tsx
 import "./globals.css";
-import { Providers } from "./providers";
-import type { ReactNode } from "react";
+import { Inter, Cormorant_Garamond } from "next/font/google";
 
-export const metadata = {
-  title: "Olivea",
-  description: "Garden-rooted hospitality in Valle de Guadalupe",
-  icons: { icon: "/favicon.ico" },
-};
+// load fonts *once*
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const corm = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export const metadata = { title: "Olivea", description: "Experience the garden." };
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] overflow-hidden">
-        <Providers>
-          {children}
-        </Providers>
+    <html lang="es" className={`${inter.variable} ${corm.variable}`}>
+      <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
+        {children}
       </body>
     </html>
   );

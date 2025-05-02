@@ -4,8 +4,7 @@ import CafeClientPage from "./CafeClientPage"
 import type { Metadata, Viewport } from "next"
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
+  const { lang } = await params
   const dict = await getDictionary(lang)
 
   return {
@@ -15,23 +14,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     openGraph: {
       title: `${dict.cafe.title} | Olivea`,
       description: dict.cafe.description,
-      images: [
-        {
-          url: "/images/cafe.png",
-          width: 1200,
-          height: 630,
-          alt: "Olivea Café",
-        },
-      ],
+      images: [{ url: "/images/cafe.png", width: 1200, height: 630, alt: "Olivea Café" }],
       locale: lang,
       type: "website",
     },
     alternates: {
       canonical: `https://olivea.com/${lang}/cafe`,
-      languages: {
-        en: "https://olivea.com/en/cafe",
-        es: "https://olivea.com/es/cafe",
-      },
+      languages: { en: "https://olivea.com/en/cafe", es: "https://olivea.com/es/cafe" },
     },
   }
 }
@@ -44,16 +33,9 @@ export const viewport: Viewport = {
 }
 
 export default async function CafePage({ params }: { params: Promise<{ lang: string }> }) {
-  const resolvedParams = await params
-  const lang = resolvedParams.lang
+  const { lang } = await params
   const dict = await getDictionary(lang)
-
-  const sections = dict?.cafe?.sections ?? {
-    about: { title: "", description: "" },
-    coffee: { title: "", description: "" },
-    pastries: { title: "", description: "" },
-    menu: { title: "", description: "" },
-  }
+  const sections = dict?.cafe?.sections ?? {}
 
   return (
     <div suppressHydrationWarning>
