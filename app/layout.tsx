@@ -1,6 +1,6 @@
-// app/layout.tsx
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
+import { ScrollProvider } from "../components/providers/ScrollProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const corm = Cormorant_Garamond({
@@ -19,8 +19,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${inter.variable} ${corm.variable}`}>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
-        {children}
-      </body>
++        <ScrollProvider>
++          {children}
++        </ScrollProvider>
++      </body>
     </html>
   );
 }
