@@ -1,10 +1,10 @@
+// app/[lang]/restaurant/RestaurantClientPage.tsx
 "use client";
 
-import { useEffect, useRef } from "react";
-import { TypographyH2, TypographyP } from "@/components/ui/Typography";
+import { useRef } from "react";
+import { TypographyH1, TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 
-// 1️⃣ Define your sections as a literal tuple and derive the union
 const ALL_SECTIONS = ["story", "garden", "menu", "wines"] as const;
 type SectionKey = (typeof ALL_SECTIONS)[number];
 
@@ -14,72 +14,33 @@ export interface SectionDict {
 }
 
 export interface RestaurantClientPageProps {
-  lang:     string;
-  sections: Partial<Record<SectionKey, SectionDict>>;
+  /** the 2-letter locale code, "en" or "es" */
+  lang: "en" | "es";
+  /** your pre‐loaded dictionary for this page */
+  dict: {
+    title:       string;
+    description: string;
+    sections:    Record<SectionKey, SectionDict>;
+  };
 }
 
 export default function RestaurantClientPage({
   lang,
-  sections,
+  dict,
 }: RestaurantClientPageProps) {
-  const containerRef     = useRef<HTMLDivElement>(null);
-  const scrollTimeoutRef = useRef<number | null>(null);
-
-  // Copy your readonly tuple into a mutable array
-  const sectionIds: SectionKey[] = [...ALL_SECTIONS];
-
-  // Smooth‐scroll anchor links inside this scroll‐container
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      const a = (e.target as HTMLElement).closest('a[href^="#"]');
-      if (!a) return;
-      e.preventDefault();
-      const id = (a as HTMLAnchorElement)
-        .getAttribute("href")!
-        .slice(1) as SectionKey;
-      const el = document.getElementById(id);
-      if (el && containerRef.current) {
-        containerRef.current.scrollTo({ top: el.offsetTop, behavior: "smooth" });
-        if (scrollTimeoutRef.current !== null) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-        scrollTimeoutRef.current = window.setTimeout(
-          () => {
-            document.dispatchEvent(
-              new CustomEvent("sectionInView", {
-                detail: { id, intersectionRatio: 1 },
-              })
-            );
-          },
-          800
-        );
-      }
-    };
-
-    document.addEventListener("click", onClick);
-    return () => {
-      document.removeEventListener("click", onClick);
-      if (scrollTimeoutRef.current !== null) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // “Bump” the scroll so your IntersectionObservers fire immediately
-  useEffect(() => {
-    const bump = () => {
-      window.scrollBy(0, 1);
-      window.scrollBy(0, -1);
-      document.dispatchEvent(new Event("scroll"));
-    };
-    const timers = [100, 300, 600].map((ms) => window.setTimeout(bump, ms));
-    return () => timers.forEach(clearTimeout);
-  }, []);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
     <>
+      {/* PAGE HEADER */}
+      <header className="text-center py-12 px-6">
+        <TypographyH1>{dict.title}</TypographyH1>
+        <TypographyP className="mt-2">{dict.description}</TypographyP>
+      </header>
+
+      {/* SECTIONS CONTAINER */}
       <div
-        lang={lang} 
+        lang={lang}
         ref={containerRef}
         className="scroll-container min-h-screen overflow-y-auto snap-y snap-mandatory"
         style={{
@@ -89,8 +50,8 @@ export default function RestaurantClientPage({
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {sectionIds.map((id) => {
-          const info = sections[id];
+        {ALL_SECTIONS.map((id) => {
+          const info = dict.sections[id];
           return (
             <section
               key={id}
@@ -101,18 +62,30 @@ export default function RestaurantClientPage({
             >
               <div className="max-w-2xl text-center">
                 <TypographyH2 id={`${id}-heading`}>
-                  {info?.title}
+                  {info.title}
                 </TypographyH2>
-                <TypographyP className="mt-2">
-                  {info?.description}
-                </TypographyP>
+                <TypographyP className="mt-2">{info.description}</TypographyP>
               </div>
             </section>
           );
         })}
       </div>
 
-      <MobileSectionTracker sectionIds={sectionIds as string[]} />
+      {/* BACK-TO-TOP BUTTON */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <button
+          onClick={() =>
+            containerRef.current?.scrollTo({ top: 0, behavior: "smooth" })
+          }
+          aria-label={lang === "es" ? "Volver arriba" : "Back to top"}
+          className="px-4 py-2 bg-[var(--olivea-olive)] text-white rounded-md shadow"
+        >
+          {lang === "es" ? "Volver arriba" : "Back to top"}
+        </button>
+      </div>
+
+      {/* MOBILE SECTION NAV */}
+      <MobileSectionTracker sectionIds={ALL_SECTIONS as readonly string[]} />
     </>
   );
 }
