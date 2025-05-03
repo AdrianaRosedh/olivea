@@ -1,19 +1,20 @@
 // app/[lang]/journal/[slug]/page.tsx
+"use client?"  // no – this is a server component
+
 import { supabase } from "@/lib/supabase"
 import { notFound }  from "next/navigation"
 import { getDictionary, type Lang } from "../../dictionaries"
 import type { Metadata }            from "next"
+import Image                        from "next/image"
 
-// 1️⃣ Build your head tags, but await params first
+// 1️⃣ Build your head tags — we only need `slug` here
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ lang: string; slug: string }>
 }): Promise<Metadata> {
-  const { lang: rawLang, slug } = await params
-  const lang: Lang = rawLang === "es" ? "es" : "en"
+  const { slug } = await params
 
-  // fetch just enough for the <head>
   const { data } = await supabase
     .from("journal_posts")
     .select("title, description, cover_image")
@@ -33,12 +34,13 @@ export async function generateMetadata({
   }
 }
 
-// 2️⃣ The page itself also awaits params before using them
+// 2️⃣ The page itself (a server component)
 export default async function JournalPostPage({
   params,
 }: {
   params: Promise<{ lang: string; slug: string }>
 }) {
+  // pull both out here
   const { lang: rawLang, slug } = await params
   const lang: Lang = rawLang === "es" ? "es" : "en"
 
@@ -51,11 +53,9 @@ export default async function JournalPostPage({
     .eq("visible", true)
     .single()
 
-  if (error || !data) {
-    return notFound()
-  }
+  if (error || !data) return notFound()
 
-  // fire‐and‐forget view tracking
+  // track views in the background (we don't need the `error` var)
   ;(async () => {
     try {
       await supabase.rpc("increment_post_views", { post_slug: slug })
@@ -67,18 +67,22 @@ export default async function JournalPostPage({
   return (
     <main className="p-10 max-w-2xl mx-auto">
       {data.cover_image && (
-        <img
-          src={data.cover_image}
-          alt={data.title}
-          className="rounded-xl w-full h-64 object-cover mb-6"
-        />
+        <div className="relative w-full h-64 rounded-xl mb-6 overflow-hidden">
+          <Image
+            src={data.cover_image}
+            alt={data.title}
+            fill
+            style={{ objectFit: "cover" }}
+            priority
+          />
+        </div>
       )}
 
       <h1 className="text-3xl font-semibold mb-2">{data.title}</h1>
 
       <p className="text-sm text-muted-foreground mb-6">
-        {new Date(data.published_at).toLocaleDateString()} — {dict.journal.by}{" "}
-        {data.author_name || "Olivea"}
+        {new Date(data.published_at).toLocaleDateString()} —{" "}
+        {dict.journal.by} {data.author_name || "Olivea"}
       </p>
 
       <article className="prose prose-neutral dark:prose-invert">

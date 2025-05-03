@@ -1,35 +1,40 @@
-"use server"
+// app/[lang]/contact/actions.ts
+"use server";
 
-import { z } from "zod"
+import { z } from "zod";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  subject: z.string().min(5, "Subject is required"),
+  name:    z.string().min(2,  "Name is required"),
+  email:   z.string().email("Invalid email address"),
+  subject: z.string().min(5,  "Subject is required"),
   message: z.string().min(10, "Message is too short"),
-})
+});
 
-export async function handleSubmit(prevState: any, formData: FormData) {
-  // Client-side validation
-  const data = Object.fromEntries(formData.entries())
-  const validation = formSchema.safeParse(data)
+export type ContactErrors = Record<string, string>;
 
-  if (!validation.success) {
-    const errors: Record<string, string> = {}
-    validation.error.errors.forEach((err) => {
-      if (err.path[0]) errors[err.path[0].toString()] = err.message
-    })
-    return { errors }
+export async function handleSubmit(
+  formData: FormData
+): Promise<{ errors?: ContactErrors; success?: true }> {
+  // 1) parse & validate
+  const data = Object.fromEntries(formData.entries());
+  const result = formSchema.safeParse(data);
+
+  if (!result.success) {
+    const errors: ContactErrors = {};
+    result.error.errors.forEach((err) => {
+      const key = err.path[0]?.toString();
+      if (key) errors[key] = err.message;
+    });
+    return { errors };
   }
 
-  // Form is valid, submit it
+  // 2) submit
   try {
-    // Submit form data (example)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    return { success: true }
-  } catch (error) {
+    await new Promise<void>((r) => setTimeout(r, 1000));
+    return { success: true };
+  } catch {
     return {
       errors: { form: "Failed to submit form. Please try again." },
-    }
+    };
   }
 }

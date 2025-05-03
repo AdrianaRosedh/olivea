@@ -9,6 +9,7 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./assets/**/*.{js,ts,jsx,tsx,mdx,svg}",
+    "./contexts/**/*.{js,ts}",
   ],
 
   theme: {

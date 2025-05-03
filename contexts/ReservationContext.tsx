@@ -1,6 +1,12 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  type ReactNode,
+} from "react"
 import ReservationModal from "@/components/forms/reservation/ReservationModal"
 
 type ReservationType = "restaurant" | "hotel" | "cafe"
@@ -8,47 +14,50 @@ type ReservationType = "restaurant" | "hotel" | "cafe"
 interface ReservationContextType {
   openReservationModal: (type?: ReservationType) => void
   closeReservationModal: () => void
-  isModalOpen: boolean
+  isOpen: boolean
   reservationType: ReservationType
 }
 
-// Create context with default values to avoid undefined errors
 const ReservationContext = createContext<ReservationContextType>({
   openReservationModal: () => {},
   closeReservationModal: () => {},
-  isModalOpen: false,
+  isOpen: false,
   reservationType: "restaurant",
 })
 
-export function ReservationProvider({ children, lang }: { children: ReactNode; lang: string }) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [reservationType, setReservationType] = useState<ReservationType>("restaurant")
+export function ReservationProvider({
+  children,
+  lang,
+}: {
+  children: ReactNode
+  lang: string
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [reservationType, setReservationType] =
+    useState<ReservationType>("restaurant")
 
-  const openReservationModal = (type: ReservationType = "restaurant") => {
-    console.log(`[ReservationContext] Opening modal with type: ${type}`)
-    setReservationType(type)
-    setIsModalOpen(true)
-  }
+  const openReservationModal = useCallback(
+    (type: ReservationType = "restaurant") => {
+      setReservationType(type)
+      setIsOpen(true)
+    },
+    []
+  )
 
-  const closeReservationModal = () => {
-    console.log("[ReservationContext] Closing modal")
-    setIsModalOpen(false)
-  }
-
-  // Create the context value object
-  const contextValue = {
-    openReservationModal,
-    closeReservationModal,
-    isModalOpen,
-    reservationType,
-  }
+  const closeReservationModal = useCallback(() => {
+      setIsOpen(false)
+    },
+    []
+  )
 
   return (
-    <ReservationContext.Provider value={contextValue}>
+    <ReservationContext.Provider
+      value={{ openReservationModal, closeReservationModal, isOpen, reservationType }}
+    >
       {children}
+
+      {/* mount the modal once here */}
       <ReservationModal
-        isOpen={isModalOpen}
-        onClose={closeReservationModal}
         initialType={reservationType}
         lang={lang}
       />
@@ -57,8 +66,5 @@ export function ReservationProvider({ children, lang }: { children: ReactNode; l
 }
 
 export function useReservation() {
-  const context = useContext(ReservationContext)
-
-  // No need to throw an error, as we've provided default values
-  return context
+  return useContext(ReservationContext)
 }

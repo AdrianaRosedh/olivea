@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import OliveaFTTLogo from "@/assets/OliveaFTTIcon.svg";
@@ -24,7 +23,6 @@ export default function AdaptiveNavbar({
   isDrawerOpen,
   onToggleDrawer,
 }: AdaptiveNavbarProps) {
-  const pathname = usePathname();
   const isMobile = useIsMobile();
   const { isDark, elementRef } = useBackgroundColorDetection(300);
   const [isScrolled, setIsScrolled] = useState(false);

@@ -1,19 +1,39 @@
-"use client"
+// components/seo/StructuredData.tsx
+"use client";
 
-import React from 'react'
-import { usePathname } from "next/navigation"
+import React from "react";
+import { usePathname } from "next/navigation";
 
 interface StructuredDataProps {
-  lang: string
+  lang: string;
 }
 
+// Use `unknown` instead of `any` to satisfy the linter
+type JsonLdObject = Record<string, unknown>;
+
 export default function StructuredData({ lang }: StructuredDataProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
-  // Generic JSON-LD object type
-  type JsonLdObject = Record<string, any>
+  // Default Organization JSON-LD
+  const organizationData: JsonLdObject = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Olivea",
+    url: `https://olivea.com/${lang}`,
+    logo: "https://olivea.com/images/oliveaFTT.png",
+    sameAs: [
+      "https://www.instagram.com/olivea",
+      "https://www.facebook.com/olivea",
+      "https://twitter.com/olivea",
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "+52-123-456-7890",
+      contactType: "customer service",
+      availableLanguage: ["English", "Spanish"],
+    },
+  };
 
-  // Restaurant structured data
   const restaurantData: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
@@ -46,9 +66,8 @@ export default function StructuredData({ lang }: StructuredDataProps) {
     ],
     menu: `https://olivea.com/${lang}/restaurant/menu`,
     acceptsReservations: "True",
-  }
+  };
 
-  // Hotel structured data
   const hotelData: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "Hotel",
@@ -74,9 +93,8 @@ export default function StructuredData({ lang }: StructuredDataProps) {
       "@type": "Rating",
       ratingValue: "5",
     },
-  }
+  };
 
-  // Cafe structured data
   const cafeData: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "CafeOrCoffeeShop",
@@ -103,47 +121,36 @@ export default function StructuredData({ lang }: StructuredDataProps) {
       {
         "@type": "OpeningHoursSpecification",
         dayOfWeek: [
-          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
         ],
         opens: "08:00",
         closes: "18:00",
       },
     ],
-  }
+  };
 
-  // Organization structured data
-  const organizationData: JsonLdObject = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Olivea",
-    url: `https://olivea.com/${lang}`,
-    logo: "https://olivea.com/images/oliveaFTT.png",
-    sameAs: [
-      "https://www.instagram.com/olivea",
-      "https://www.facebook.com/olivea",
-      "https://twitter.com/olivea",
-    ],
-    contactPoint: {
-      "@type": "ContactPoint",
-      telephone: "+52-123-456-7890",
-      contactType: "customer service",
-      availableLanguage: ["English", "Spanish"],
-    },
-  }
-
-  let structuredData: JsonLdObject = organizationData
-  if (pathname.includes("/restaurant")) {
-    structuredData = restaurantData
-  } else if (pathname.includes("/casa")) {
-    structuredData = hotelData
-  } else if (pathname.includes("/cafe")) {
-    structuredData = cafeData
+  // Choose which JSON-LD to output
+  let structuredData: JsonLdObject = organizationData;
+  if (pathname?.includes("/restaurant")) {
+    structuredData = restaurantData;
+  } else if (pathname?.includes("/casa")) {
+    structuredData = hotelData;
+  } else if (pathname?.includes("/cafe")) {
+    structuredData = cafeData;
   }
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(structuredData),
+      }}
     />
-  )
+  );
 }

@@ -1,43 +1,49 @@
-/* ScrollProvider.tsx
-   Provides a single, global Lenis instance for smooth scrolling
-   and an easy `useLenis()` hook to subscribe to scroll events.
-*/
-
 "use client";
 
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import Lenis from "@studio-freight/lenis";
 
-// Context to hold Lenis instance
-const ScrollContext = createContext<Lenis | null>(null);
+// A minimal interface covering the methods we use
+interface ScrollHandler {
+  raf: (time: number) => void;
+  on: (event: "scroll", handler: ({ scroll }: { scroll: number }) => void) => void;
+  off: (event: "scroll", handler: ({ scroll }: { scroll: number }) => void) => void;
+  destroy: () => void;
+}
+
+// Dummy no-op implementation for SSR / hydration
+const dummyLenis: ScrollHandler = {
+  raf: () => {},
+  on: () => {},
+  off: () => {},
+  destroy: () => {},
+};
+
+// Provide a ScrollHandler (real Lenis on client, dummy on server)
+const ScrollContext = createContext<ScrollHandler>(dummyLenis);
 
 interface ScrollProviderProps {
   children: React.ReactNode;
 }
 
 export function ScrollProvider({ children }: ScrollProviderProps) {
-  const lenisRef = useRef<Lenis | null>(null);
+  const lenisRef = useRef<ScrollHandler>(
+    typeof window !== "undefined"
+      ? new Lenis({ orientation: "vertical", lerp: 0.1 })
+      : dummyLenis
+  );
 
   useEffect(() => {
-    // Initialize Lenis
-    lenisRef.current = new Lenis({
-        duration: 1.2,
-        easing: (t) => t,
-        smoothWheel: true,
-        smoothTouch: true,
-        orientation: "vertical",
-    });
-
-    // requestAnimationFrame loop
-    function raf(time: number) {
-      lenisRef.current!.raf(time);
-      requestAnimationFrame(raf);
+    // Only start RAF loop if we have a real Lenis instance
+    if (lenisRef.current !== dummyLenis) {
+      const lenis = lenisRef.current as Lenis;
+      const run = (time: number) => {
+        lenis.raf(time);
+        requestAnimationFrame(run);
+      };
+      requestAnimationFrame(run);
+      return () => lenis.destroy();
     }
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenisRef.current?.destroy();
-    };
   }, []);
 
   return (
@@ -47,11 +53,6 @@ export function ScrollProvider({ children }: ScrollProviderProps) {
   );
 }
 
-// Hook to access Lenis instance
-export function useLenis() {
-  const lenis = useContext(ScrollContext);
-  if (!lenis) {
-    throw new Error("useLenis must be used within <ScrollProvider>");
-  }
-  return lenis;
+export function useLenis(): ScrollHandler {
+  return useContext(ScrollContext);
 }

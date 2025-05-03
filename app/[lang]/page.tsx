@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion, useAnimation } from "framer-motion";
-import ReservationModal from "@/components/forms/reservation/ReservationModal";
 import ReservationButton from "./ReservationButton";
 import AlebrijeDraw from "@/components/animations/AlebrijeDraw";
 import { EntranceCard } from "@/components/ui/EntranceCard";
@@ -14,14 +13,10 @@ export default function HomePage() {
   const videoRef        = useRef<HTMLVideoElement>(null);
   const logoTargetRef   = useRef<HTMLDivElement>(null);
 
-  const [isModalOpen, setIsModalOpen]   = useState(false);
   const [drawComplete, setDrawComplete] = useState(false);
   const [showLoader, setShowLoader]     = useState(true);
   const [revealMain, setRevealMain]     = useState(false);
   const [loaderProgress, setLoaderProgress] = useState(0);
-
-  const openModal  = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
 
   const sections = [
     { href: "/es/casa",       label: "Casa Olivea",         desc: "A home you can stay in." },
@@ -30,13 +25,13 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
+    // lock page scroll during the loader
     document.body.classList.add("overflow-hidden");
 
     (async () => {
-      // 1) reset to 0
       setLoaderProgress(0);
 
-      // 2) drive 0→20% over 1.5s via RAF
+      // drive 0→20% via RAF over 1.5s
       let startTime: number | null = null;
       const DRAW_WAIT = 1500;
       const step = (ts: number) => {
@@ -44,18 +39,16 @@ export default function HomePage() {
         const elapsed = ts - startTime;
         const pct = Math.min(elapsed / DRAW_WAIT, 1);
         setLoaderProgress(Math.floor(pct * 20));
-        if (elapsed < DRAW_WAIT) {
-          requestAnimationFrame(step);
-        }
+        if (elapsed < DRAW_WAIT) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
 
-      // 3) actual draw delay
+      // wait for draw
       await new Promise(r => setTimeout(r, DRAW_WAIT));
       setDrawComplete(true);
       setLoaderProgress(20);
 
-      // 4) wait for video data
+      // wait for video to load
       const vid = videoRef.current!;
       if (vid.readyState < 2) {
         await new Promise<void>(res =>
@@ -64,12 +57,12 @@ export default function HomePage() {
       }
       setLoaderProgress(40);
 
-      // 5) reveal main
+      // reveal the main content
       setRevealMain(true);
       document.body.classList.remove("overflow-hidden");
       setLoaderProgress(60);
 
-      // 6) animate overlay shrink
+      // animate overlay shrinking into the video
       const rect = vid.getBoundingClientRect();
       await overlayControls.start({
         top: rect.top + window.scrollY,
@@ -81,38 +74,30 @@ export default function HomePage() {
       });
       setLoaderProgress(80);
 
-      // 7) brief pause
+      // brief pause
       await new Promise(r => setTimeout(r, 400));
 
-      // 8) move logo into place
+      // fly the logo into its pad
       const padRect = logoTargetRef.current!.getBoundingClientRect();
       await logoControls.start({
-        top: padRect.top + padRect.height/2 + window.scrollY,
-        left: padRect.left + padRect.width/2 + window.scrollX,
+        top: padRect.top + padRect.height / 2 + window.scrollY,
+        left: padRect.left + padRect.width / 2 + window.scrollX,
         x: "-50%", y: "-50%",
-        scale: padRect.width/240,
+        scale: padRect.width / 240,
         transition: { type: "spring", stiffness: 200, damping: 25 }
       });
-      setLoaderProgress(90);
+      setLoaderProgress(100);
 
-      // 9) fade overlay out
+      // fade overlay out
       await overlayControls.start({ opacity: 0, transition: { duration: 3 } });
       setLoaderProgress(100);
 
-      // done!
       setShowLoader(false);
     })();
   }, [overlayControls, logoControls]);
 
   return (
     <>
-      <ReservationModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        initialType="restaurant"
-        lang="es"
-      />
-
       {/* Loader Overlay */}
       <AnimatePresence>
         {showLoader && (
@@ -125,13 +110,13 @@ export default function HomePage() {
           >
             {/* Mobile loader */}
             <div className="absolute inset-0 md:hidden flex items-center justify-start pl-4 py-6 pointer-events-none">
-              <div className="relative w-2 h-2/3 bg-[rgba(226,190,143,0.2)] rounded-full overflow-hidden">
+              <div className="relative w-2 h-2/3 …">
                 <motion.div
-                  className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full will-change-transform"
+                  className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full"
                   style={{ transformOrigin: "bottom center" }}
                   initial={{ scaleY: 0 }}
-                  animate={{ scaleY: loaderProgress / 100 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ duration: 4, ease: "linear" }}
                 />
               </div>
             </div>
@@ -140,9 +125,11 @@ export default function HomePage() {
             <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-none">
               <span>Donde El Corazón es el Huerto</span>
               <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: "#e2be8f20" }}>
-                <div
-                  className="absolute top-0 left-0 h-full rounded-full"
-                  style={{ width: `${loaderProgress}%`, backgroundColor: "#e2be8f", transition: "width 0.5s ease-out" }}
+                <motion.div
+                  className="absolute top-0 left-0 h-full rounded-full bg-[#e2be8f]"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 3.5, ease: "linear" }}
                 />
               </div>
               <span>{loaderProgress}%</span>
@@ -170,14 +157,25 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
+      {/* Main Content (no scrolling) */}
       <main
-        className={`fixed inset-0 flex flex-col items-center justify-center bg-[var(--olivea-cream)]
-                    transition-opacity duration-500 ease-in-out ${
-                      revealMain ? "opacity-100" : "opacity-0"
-                    }`}
+        className={`
+          fixed inset-0 flex flex-col items-center
+          justify-between md:justify-center
+          bg-[var(--olivea-cream)]
+          transition-opacity duration-500 ease-in-out
+          ${revealMain ? "opacity-100" : "opacity-0"}
+        `}
       >
-        <div className="relative overflow-hidden shadow-xl" style={{ width: "98vw", height: "98vh", borderRadius: "1.5rem" }}>
+        {/* Video container */}
+        <div
+          className="relative overflow-hidden shadow-xl"
+          style={{
+            width: "98vw",
+            height: "98vh",
+            borderRadius: "1.5rem",
+          }}
+        >
           <video
             ref={videoRef}
             className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
@@ -193,46 +191,37 @@ export default function HomePage() {
           <div className="absolute inset-0 flex justify-center items-start">
             <div
               ref={logoTargetRef}
-              className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 sm:mt-14
-                         md:w-48 md:h-48 md:mt-16 lg:w-56 lg:h-56 lg:mt-20 mx-auto
-                         rounded-lg overflow-hidden"
+              className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 sm:mt-14 md:w-48 md:h-48 md:mt-16 lg:w-56 lg:h-56 lg:mt-20"
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <AlebrijeLogo />
-              </div>
+              <AlebrijeLogo className="w-full h-full" />
             </div>
           </div>
 
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
 
-        {/* Mobile menu */}
-        <div className="flex flex-col md:hidden space-y-4 items-center mt-4 w-full max-w-sm px-4 mx-auto">
-          {sections.map((sec) => (
+        {/* Mobile menu + reserve button */}
+        <div className="flex flex-col md:hidden space-y-4 items-center w-full max-w-sm px-4">
+          {sections.map(sec => (
             <EntranceCard key={sec.href} {...sec} />
           ))}
-        </div>
-
-        {/* Mobile reserve button */}
-        <div className="md:hidden flex justify-center mt-4 pb-8 md:pb-0">
           <ReservationButton />
         </div>
 
         {/* Desktop overlay & buttons */}
-        <div className="absolute inset-0 z-40 hidden md:flex flex-col items-center justify-center px-4 text-center">
+        <div className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center">
           <div className="flex gap-6 mt-6">
-            {sections.map((sec) => (
+            {sections.map(sec => (
               <EntranceCard key={sec.href} {...sec} />
             ))}
           </div>
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.4 }}
             className="mt-8"
           >
-            <ReservationButton />
+          <ReservationButton />
           </motion.div>
         </div>
       </main>

@@ -1,42 +1,46 @@
-"use client"
+// components/navigation/LocaleSwitcher.tsx
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { usePathname, useRouter } from "next/navigation"
-import { ChevronDown } from "lucide-react"
-import Cookies from "js-cookie"
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronDown } from "lucide-react";
+import Cookies from "js-cookie";
 
 const languages = [
   { code: "es", label: "Español" },
   { code: "en", label: "English" },
-]
+] as const;
+type LocaleCode = (typeof languages)[number]["code"];
 
-export default function LocaleSwitcher({ currentLang }: { currentLang: string }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-  const pathname = usePathname()
-  const router = useRouter()
+interface LocaleSwitcherProps {
+  currentLang: LocaleCode;
+}
+
+export default function LocaleSwitcher({ currentLang }: LocaleSwitcherProps) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !(dropdownRef.current as any).contains(e.target)) {
-        setOpen(false)
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node;
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+        setOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
-  const switchLocale = (locale: string) => {
-    // Set cookie first
-    Cookies.set("NEXT_LOCALE", locale, { path: "/" })
-
-    // Create the new path
-    const newPath = pathname.replace(/^\/(en|es)/, `/${locale}`) || `/${locale}`
-
-    // Use router.push for client-side navigation
-    router.push(newPath)
-    setOpen(false)
+  function switchLocale(locale: LocaleCode) {
+    Cookies.set("NEXT_LOCALE", locale, { path: "/" });
+    const newPath = pathname.replace(/^\/(en|es)/, `/${locale}`) || `/${locale}`;
+    router.push(newPath);
+    setOpen(false);
   }
 
   return (
@@ -68,20 +72,20 @@ export default function LocaleSwitcher({ currentLang }: { currentLang: string })
             className="absolute mt-2 right-0 bg-[var(--olivea-cream)] border border-[var(--olivea-olive)] rounded-md z-50 shadow-md overflow-hidden"
           >
             {languages
-              .filter((lang) => lang.code !== currentLang)
-              .map((lang) => (
+              .filter((l) => l.code !== currentLang)
+              .map(({ code, label }) => (
                 <motion.button
-                  key={lang.code}
-                  onClick={() => switchLocale(lang.code)}
+                  key={code}
+                  onClick={() => switchLocale(code)}
                   whileTap={{ scale: 0.97 }}
                   className="block w-full text-left px-4 py-2 text-sm text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)] hover:text-white transition-colors"
                 >
-                  {lang.label}
+                  {label}
                 </motion.button>
               ))}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

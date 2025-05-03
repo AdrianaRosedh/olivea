@@ -1,19 +1,21 @@
-"use client"
+// components/ui/FillButton.tsx
+"use client";
 
-import Link from "next/link"
-import { MouseEvent } from "react"
+import Link from "next/link";
+import type { MouseEvent as ReactMouseEvent } from "react";
 
 interface FillButtonProps {
-  href: string
-  label: string
-  isActive: boolean
+  href:     string;
+  label:    string;
+  isActive: boolean;
 }
 
 export function FillButton({ href, label, isActive }: FillButtonProps) {
-  function handleMouseEnter(e: MouseEvent<HTMLAnchorElement>) {
-    // use offsetX directly from the event
-    const x = (e.nativeEvent as any).offsetX
-    e.currentTarget.style.setProperty("--hover-x", `${x}px`)
+  function handleMouseEnter(e: ReactMouseEvent<HTMLAnchorElement>) {
+    // Cast the native event to the browser's MouseEvent so offsetX is typed
+    const nativeEv = e.nativeEvent as globalThis.MouseEvent;
+    const x = nativeEv.offsetX;
+    e.currentTarget.style.setProperty("--hover-x", `${x}px`);
   }
 
   return (
@@ -29,5 +31,5 @@ export function FillButton({ href, label, isActive }: FillButtonProps) {
     >
       <span className="z-front">{label}</span>
     </Link>
-  )
+  );
 }

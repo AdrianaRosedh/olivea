@@ -4,7 +4,7 @@ import MagneticButton from "@/components/ui/MagneticButton"
 import { Button } from "@/components/ui/button"
 import { useReservation } from "@/contexts/ReservationContext"
 
-export default function ReservationButton() {    
+export default function ReservationButton() {
   const { openReservationModal } = useReservation()
 
   return (

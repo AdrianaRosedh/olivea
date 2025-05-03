@@ -1,6 +1,7 @@
+// components/navigation/MobileSectionTracker.tsx
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useCallback } from "react"
 import { usePathname } from "next/navigation"
 import { useNavigation } from "@/contexts/NavigationContext"
 
@@ -17,26 +18,23 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
   const observersRef = useRef<IntersectionObserver[]>([])
   const { setActiveSection, isManualNavigation } = useNavigation()
 
-  // Function to initialize observers
-  const initializeObservers = () => {
+  // 1) Wrap in useCallback so we can safely list as a dependency
+  const initializeObservers = useCallback(() => {
     // Clean up any existing observers
-    if (observersRef.current.length > 0) {
-      observersRef.current.forEach((observer) => observer.disconnect())
-      observersRef.current = []
-    }
+    observersRef.current.forEach((obs) => obs.disconnect())
+    observersRef.current = []
 
-    // Skip if we're currently in manual navigation mode
+    // Skip if manual nav is in progress
     if (isManualNavigation) return
 
-    // Create observers for each section
+    // Observe each section
     sectionIds.forEach((id) => {
-      const section = document.getElementById(id)
-      if (!section) {
+      const el = document.getElementById(id)
+      if (!el) {
         console.warn(`Section with id "${id}" not found`)
         return
       }
-
-      const observer = new IntersectionObserver(
+      const obs = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting && entry.intersectionRatio > 0.3 && !isManualNavigation) {
@@ -48,27 +46,23 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
           root: null,
           rootMargin: "-10% 0px -20% 0px",
           threshold: [0.1, 0.2, 0.3, 0.4, 0.5],
-        },
+        }
       )
-
-      observer.observe(section)
-      observersRef.current.push(observer)
+      obs.observe(el)
+      observersRef.current.push(obs)
     })
-  }
+  }, [sectionIds, isManualNavigation, setActiveSection])
 
   useEffect(() => {
-    // Initialize observers with a slight delay
-    const timer = setTimeout(() => {
-      initializeObservers()
-    }, 200)
+    // Initialize after a slight delay
+    const timer = window.setTimeout(initializeObservers, 200)
 
     return () => {
-      // Clean up all observers
-      observersRef.current.forEach((observer) => observer.disconnect())
+      // Clean up observers + timer
+      observersRef.current.forEach((obs) => obs.disconnect())
       clearTimeout(timer)
     }
-  }, [sectionIds, pathname, isManualNavigation]) // Re-initialize on path change or navigation state change
+  }, [initializeObservers, pathname])  // now including initializeObservers
 
-  // This component doesn't render anything
   return null
 }

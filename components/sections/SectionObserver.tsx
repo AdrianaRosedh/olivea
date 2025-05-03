@@ -1,47 +1,43 @@
-"use client"
+// components/sections/SectionObserver.tsx
+"use client";
 
-import { TypographyH2, TypographyP } from "@/components/ui/Typography"
-import { useEffect, useRef } from "react"
-import MobileSectionTracker from "@/components/MobileSectionTracker"
+import { TypographyH2, TypographyP } from "@/components/ui/Typography";
+import { useEffect, useRef } from "react";
+import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 
 // Shape of a section's content
 interface SectionContent {
-  title: string
-  description: string
+  title:       string;
+  description: string;
 }
 
 // Props for the section observer component
 interface SectionObserverProps {
-  lang: string
-  sections: Record<string, SectionContent>
+  sections: Record<string, SectionContent>;
 }
 
-export default function SectionObserver({ lang, sections }: SectionObserverProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
+export default function SectionObserver({ sections }: SectionObserverProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Define the order of sections
-  const sectionIds = ["story", "garden", "menu", "wines"]
+  const sectionIds = ["story", "garden", "menu", "wines"];
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement
-      if (link) {
-        e.preventDefault()
-        const sectionId = link.getAttribute("href")?.slice(1)
-        const sectionEl = document.getElementById(sectionId!)
-        if (sectionEl && containerRef.current) {
-          sectionEl.scrollIntoView({ behavior: "smooth", block: "start" })
-          window.history.pushState(null, "", `#${sectionId}`)
-          setTimeout(() => {
-            window.dispatchEvent(new Event("scroll"))
-          }, 600)
-        }
+      const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
+      if (!link) return;
+      e.preventDefault();
+      const sectionId = link.getAttribute("href")!.slice(1);
+      const sectionEl = document.getElementById(sectionId);
+      if (sectionEl && containerRef.current) {
+        sectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.history.pushState(null, "", `#${sectionId}`);
+        setTimeout(() => window.dispatchEvent(new Event("scroll")), 600);
       }
-    }
-
-    document.addEventListener("click", handleClick)
-    return () => document.removeEventListener("click", handleClick)
-  }, [])
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
   return (
     <>
@@ -76,5 +72,5 @@ export default function SectionObserver({ lang, sections }: SectionObserverProps
 
       <MobileSectionTracker sectionIds={sectionIds} />
     </>
-  )
+  );
 }

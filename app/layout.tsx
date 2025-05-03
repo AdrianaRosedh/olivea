@@ -19,10 +19,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${inter.variable} ${corm.variable}`}>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
-+        <ScrollProvider>
-+          {children}
-+        </ScrollProvider>
-+      </body>
+        <ScrollProvider>
+          {children}
+        </ScrollProvider>
+      </body>
     </html>
   );
 }
