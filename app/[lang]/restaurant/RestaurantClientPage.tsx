@@ -71,19 +71,6 @@ export default function RestaurantClientPage({
         })}
       </div>
 
-      {/* BACK-TO-TOP BUTTON */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <button
-          onClick={() =>
-            containerRef.current?.scrollTo({ top: 0, behavior: "smooth" })
-          }
-          aria-label={lang === "es" ? "Volver arriba" : "Back to top"}
-          className="px-4 py-2 bg-[var(--olivea-olive)] text-white rounded-md shadow"
-        >
-          {lang === "es" ? "Volver arriba" : "Back to top"}
-        </button>
-      </div>
-
       {/* MOBILE SECTION NAV */}
       <MobileSectionTracker sectionIds={ALL_SECTIONS as readonly string[]} />
     </>
