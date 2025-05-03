@@ -1,45 +1,51 @@
-import type { Metadata, Viewport } from "next";
-import { getDictionary, type Lang } from "../dictionaries";
+// app/[lang]/legal/page.tsx
+import type { Metadata, Viewport } from "next"
+import { getDictionary, type Lang } from "../dictionaries"
 
-export async function generateStaticParams() {
-  // Next.js will statically generate these two locales
-  return [{ lang: "en" }, { lang: "es" }];
+export async function generateStaticParams(): Promise<{ lang: string }[]> {
+  // we only support en & es
+  return [{ lang: "en" }, { lang: "es" }]
 }
 
 export async function generateMetadata({
   params,
 }: {
-  // In Next.js 15.3+, params is a Promise you must await
-  params: Promise<{ lang: string }>;
+  // Next.js now passes params as a Promise
+  params: Promise<{ lang: string }>
 }): Promise<Metadata> {
-  const { lang: raw } = await params;
-  const lang: Lang = raw === "es" ? "es" : "en";
+  // 1️⃣ Await the promise
+  const { lang: raw } = await params
+  // 2️⃣ Narrow into your Lang union
+  const lang: Lang = raw === "es" ? "es" : "en"
+  // 3️⃣ Load your translations
+  const dict = await getDictionary(lang)
 
-  const dict = await getDictionary(lang);
   return {
     title:       `${dict.legal.title} | Olivea`,
     description: dict.legal.description,
-  };
+  }
 }
 
-// (Optional) if you want to control viewport metadata here
+// If you want to control the viewport meta here:
 export const viewport: Viewport = {
   width:        "device-width",
   initialScale: 1,
   maximumScale: 5,
   themeColor:   "#65735b",
-};
+}
 
 export default async function LegalPage({
   params,
 }: {
-  // Likewise, await here
-  params: Promise<{ lang: string }>;
+  // And here, too: params is still a Promise
+  params: Promise<{ lang: string }>
 }) {
-  const { lang: raw } = await params;
-  const lang: Lang = raw === "es" ? "es" : "en";
-
-  const dict = await getDictionary(lang);
+  // 1️⃣ Await it
+  const { lang: raw } = await params
+  // 2️⃣ Narrow
+  const lang: Lang = raw === "es" ? "es" : "en"
+  // 3️⃣ Fetch copy
+  const dict = await getDictionary(lang)
 
   return (
     <main className="p-10">
@@ -48,5 +54,5 @@ export default async function LegalPage({
         {dict.legal.description}
       </p>
     </main>
-  );
+  )
 }

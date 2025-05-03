@@ -1,4 +1,3 @@
-// app/[lang]/casa/CasaClientPage.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -6,7 +5,7 @@ import type { AppDictionary } from "../dictionaries";
 import { TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 
-// 1) Define your known section IDs as a literal tuple
+// 1️⃣ Define your known section IDs as a literal tuple
 const SECTION_IDS = ["rooms", "breakfast", "experiences", "location"] as const;
 type SectionId = typeof SECTION_IDS[number];
 
@@ -17,12 +16,11 @@ interface CasaClientPageProps {
 export default function CasaClientPage({ dict }: CasaClientPageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 2) Smooth‐scroll in‐page hash‐links
+  // 2️⃣ Smooth-scroll anchor links
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement).closest('a[href^="#"]') as
-        | HTMLAnchorElement
-        | null;
+      const link = (e.target as HTMLElement)
+        .closest('a[href^="#"]') as HTMLAnchorElement | null;
       if (!link) return;
       e.preventDefault();
       const id = link.getAttribute("href")!.slice(1) as SectionId;
@@ -38,7 +36,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     };
   }, []);
 
-  // 3) “Bump” the scroll so your observers fire immediately
+  // 3️⃣ “Bump” scroll so your IntersectionObservers fire immediately
   useEffect(() => {
     const bump = () => {
       window.scrollBy(0, 1);
@@ -52,14 +50,17 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     <>
       <div
         ref={containerRef}
-        className="scroll-container h-screen overflow-y-auto scroll-smooth overscroll-none touch-pan-y snap-y snap-mandatory pb-[120px] md:pb-0"
+        className="scroll-container h-screen overflow-y-auto scroll-smooth
+                   overscroll-none touch-pan-y snap-y snap-mandatory
+                   pb-[120px] md:pb-0"
       >
         {SECTION_IDS.map((id) => (
           <section
             key={id}
             id={id}
             data-section-id={id}
-            className="min-h-screen w-full flex items-center justify-center px-6 snap-center"
+            className="min-h-screen w-full flex items-center justify-center
+                       px-6 snap-center"
             aria-labelledby={`${id}-heading`}
           >
             <div id={`${id}-heading`} className="max-w-2xl text-center">

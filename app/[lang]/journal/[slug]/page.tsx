@@ -1,13 +1,11 @@
 // app/[lang]/journal/[slug]/page.tsx
-"use client?"  // no – this is a server component
-
+import React from "react"                  // ← add this
 import { supabase } from "@/lib/supabase"
 import { notFound }  from "next/navigation"
 import { getDictionary, type Lang } from "../../dictionaries"
 import type { Metadata }            from "next"
 import Image                        from "next/image"
 
-// 1️⃣ Build your head tags — we only need `slug` here
 export async function generateMetadata({
   params,
 }: {
@@ -34,13 +32,11 @@ export async function generateMetadata({
   }
 }
 
-// 2️⃣ The page itself (a server component)
 export default async function JournalPostPage({
   params,
 }: {
   params: Promise<{ lang: string; slug: string }>
 }) {
-  // pull both out here
   const { lang: rawLang, slug } = await params
   const lang: Lang = rawLang === "es" ? "es" : "en"
 
@@ -53,9 +49,11 @@ export default async function JournalPostPage({
     .eq("visible", true)
     .single()
 
-  if (error || !data) return notFound()
+  if (error || !data) {
+    return notFound()
+  }
 
-  // track views in the background (we don't need the `error` var)
+  // fire-and-forget view tracking
   ;(async () => {
     try {
       await supabase.rpc("increment_post_views", { post_slug: slug })

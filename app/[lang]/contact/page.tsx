@@ -1,37 +1,34 @@
-import type { Metadata } from "next"
-import { getDictionary, type Lang } from "../dictionaries"
-import ContactForm from "./contact-form"
+// app/[lang]/contact/page.tsx
+import type { Metadata } from "next";
+import { loadLocale }         from "@/lib/i18n";
+import ContactForm            from "./contact-form";
 
 export async function generateMetadata({
   params,
 }: {
-  // params is now a Promise in 15.3+
-  params: Promise<{ lang: string }>
+  // Next.js 15.3+ injects params as a Promise<{lang}>
+  params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   // 1️⃣ Await the params promise
-  const { lang: rawLang } = await params
-  // 2️⃣ Narrow into your Lang union
-  const lang: Lang = rawLang === "es" ? "es" : "en"
-  // 3️⃣ Load translations
-  const dict = await getDictionary(lang)
+  const p = await params;
+  // 2️⃣ Delegate into your helper so you never read p.lang directly
+  const { dict } = await loadLocale(p);
 
   return {
     title:       dict.contact.title,
     description: dict.contact.description,
-  }
+  };
 }
 
 export default async function ContactPage({
   params,
 }: {
-  // same here: params is a Promise
-  params: Promise<{ lang: string }>
+  // Likewise here, params is a Promise<{lang}>
+  params: Promise<{ lang: string }>;
 }) {
-  // 1️⃣ Await and coerce
-  const { lang: rawLang } = await params
-  const lang: Lang = rawLang === "es" ? "es" : "en"
-  // 2️⃣ Load translations
-  const dict = await getDictionary(lang)
+  // 1️⃣ Await & delegate
+  const p = await params;
+  const { dict } = await loadLocale(p);
 
   return (
     <main className="p-10 max-w-xl mx-auto">
@@ -42,8 +39,8 @@ export default async function ContactPage({
         {dict.contact.description}
       </p>
 
-      {/* Client-side form */}
-      <ContactForm lang={lang} />
+      {/* Your client-side form */}
+      <ContactForm lang={p.lang} />
     </main>
-  )
+  );
 }

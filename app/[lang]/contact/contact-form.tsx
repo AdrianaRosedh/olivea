@@ -1,23 +1,44 @@
+// app/[lang]/contact/contact-form.tsx
 "use client";
 
 import { useActionState } from "react";       // React 19
 import { Button }          from "@/components/ui/button";
-import { handleSubmit }    from "./actions";
+import { handleSubmit, type ContactErrors } from "./actions";
+import { useCallback }     from "react";
 
 type ContactState = {
   success?: boolean;
-  errors?: Record<string,string>;
+  errors?: ContactErrors;
 };
 
-// A fully specified initial state
+// initial form state
 const initialState: ContactState = {
   success: false,
   errors:  {},
 };
 
 export default function ContactForm({ lang }: { lang: string }) {
-  // Pass both your action and the initialState
-  const [state, action, isPending] = useActionState(handleSubmit, initialState);
+  // wrap your server action so it matches (state, payload) => newState
+  const actionWrapper = useCallback(
+    async (
+      _state: ContactState,
+      formData: FormData
+    ): Promise<ContactState> => {
+      const result = await handleSubmit(formData);
+      if (result.success) {
+        return { success: true, errors: {} };
+      } else {
+        return { success: false, errors: result.errors ?? {} };
+      }
+    },
+    []
+  );
+
+  // now this lines up with the second overload of useActionState
+  const [state, runAction, isPending] = useActionState(
+    actionWrapper,
+    initialState
+  );
 
   if (state.success) {
     return (
@@ -30,7 +51,7 @@ export default function ContactForm({ lang }: { lang: string }) {
   }
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={runAction} className="space-y-4">
       {/* Name */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-1">
@@ -95,7 +116,7 @@ export default function ContactForm({ lang }: { lang: string }) {
         )}
       </div>
 
-      {/* Form-level error */}
+      {/* Form‐level error */}
       {state.errors?.form && (
         <div className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-md">
           {state.errors.form}

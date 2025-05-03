@@ -1,27 +1,26 @@
+// app/[lang]/reservations/page.tsx
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useReservation } from "@/contexts/ReservationContext";
 import type { Lang } from "../dictionaries";
 
-interface ReservationsPageProps {
-  params: { lang: string };
-}
-
-export default function ReservationsPage({ params }: ReservationsPageProps) {
+export default function ReservationsPage() {
   const router = useRouter();
   const { openReservationModal } = useReservation();
 
-  // 1️⃣ Coerce the incoming string into your Lang union
-  const raw = params.lang;
+  // 1️⃣ Grab the `lang` segment straight from the URL
+  const { lang: raw } = useParams() as { lang: string };
+
+  // 2️⃣ Narrow it to your union
   const lang: Lang = raw === "es" ? "es" : "en";
 
   useEffect(() => {
-    // 2️⃣ Open the modal immediately
+    // Open the reservation modal immediately
     openReservationModal();
 
-    // 3️⃣ Then redirect back home after a short pause
+    // Then send them back home after a tiny delay
     const timer = setTimeout(() => {
       router.push(`/${lang}`);
     }, 100);
@@ -29,6 +28,6 @@ export default function ReservationsPage({ params }: ReservationsPageProps) {
     return () => clearTimeout(timer);
   }, [openReservationModal, router, lang]);
 
-  // No UI to render: this page simply triggers the modal + redirect
+  // We render nothing; this page is just a trigger.
   return null;
 }

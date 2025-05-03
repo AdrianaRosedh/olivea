@@ -17,10 +17,11 @@ import { supabase } from "@/lib/supabase";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 
 // import only the Lang type now
-import type { Lang } from "@/app/[lang]/dictionaries";
+import type { Lang, AppDictionary } from "@/app/[lang]/dictionaries";
 
 interface LayoutShellProps {
   lang: Lang;
+  dictionary: AppDictionary;
   children: React.ReactNode;
 }
 

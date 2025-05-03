@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import { getDictionary, type Lang } from "../dictionaries";
-import { supabase } from "@/lib/supabase";
+import type { Metadata, Viewport } from "next";
+import { loadLocale }               from "@/lib/i18n";
+import { supabase }                 from "@/lib/supabase";
 import CafeClientPage, {
   SectionDict,
   MenuItem,
@@ -9,39 +9,37 @@ import CafeClientPage, {
 export async function generateMetadata({
   params,
 }: {
-  // params is now a Promise in Next.js 15.3+
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   // 1️⃣ Await the params promise
-  const { lang: rawLang } = await params;
-
-  // 2️⃣ Narrow to our union
-  const lang: Lang = rawLang === "es" ? "es" : "en";
-
-  // 3️⃣ Load translations
-  const dicts = await getDictionary(lang);
+  const p = await params;
+  // 2️⃣ Load locale + dict
+  const { dict } = await loadLocale(p);
 
   return {
-    title:       dicts.cafe.title,
-    description: dicts.cafe.description,
+    title:       dict.cafe.title,
+    description: dict.cafe.description,
   };
 }
+
+export const viewport: Viewport = {
+  width:        "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor:   "#65735b",
+};
 
 export default async function CafePage({
   params,
 }: {
-  // params here is also a Promise
   params: Promise<{ lang: string }>;
 }) {
-  // 4️⃣ Await & coerce again
-  const { lang: rawLang } = await params;
-  const lang: Lang = rawLang === "es" ? "es" : "en";
+  // 1️⃣ Await + coerce
+  const p = await params;
+  const { lang, dict } = await loadLocale(p);
+  const cafeDict: SectionDict = dict.cafe;
 
-  // 5️⃣ Load translations
-  const dicts = await getDictionary(lang);
-  const dict: SectionDict = dicts.cafe;
-
-  // 6️⃣ Fetch your Supabase data
+  // 2️⃣ Fetch your data
   const { data, error } = await supabase
     .from("cafe_menu")
     .select("id, name, price, available, category")
@@ -51,12 +49,12 @@ export default async function CafePage({
   if (error) {
     return (
       <div className="p-8 text-red-700 bg-red-100">
-        {dict.error ?? "Error"}: {error.message}
+        {cafeDict.error ?? "Error"}: {error.message}
       </div>
     );
   }
 
-  // 7️⃣ Filter & group
+  // 3️⃣ Filter & group
   const available = (data ?? []).filter((i) => i.available);
   if (available.length === 0) {
     return (
@@ -67,18 +65,16 @@ export default async function CafePage({
       </p>
     );
   }
-
   const itemsByCategory: Record<string, MenuItem[]> = {};
   for (const item of available) {
-    const cat = item.category || (lang === "es" ? "Otros" : "Others");
+    const cat = item.category ?? (lang === "es" ? "Otros" : "Others");
     (itemsByCategory[cat] ||= []).push(item);
   }
 
-  // 8️⃣ Hand off to your client component
+  // 4️⃣ Render client component
   return (
     <CafeClientPage
-      lang={lang}
-      dict={dict}
+      dict={cafeDict}
       itemsByCategory={itemsByCategory}
     />
   );

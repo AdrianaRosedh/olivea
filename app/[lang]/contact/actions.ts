@@ -1,4 +1,3 @@
-// app/[lang]/contact/actions.ts
 "use server";
 
 import { z } from "zod";
@@ -10,12 +9,12 @@ const formSchema = z.object({
   message: z.string().min(10, "Message is too short"),
 });
 
-export type ContactErrors = Record<string, string>;
+export type ContactErrors = Record<string,string>;
 
 export async function handleSubmit(
   formData: FormData
 ): Promise<{ errors?: ContactErrors; success?: true }> {
-  // 1) parse & validate
+  // validate…
   const data = Object.fromEntries(formData.entries());
   const result = formSchema.safeParse(data);
 
@@ -28,13 +27,7 @@ export async function handleSubmit(
     return { errors };
   }
 
-  // 2) submit
-  try {
-    await new Promise<void>((r) => setTimeout(r, 1000));
-    return { success: true };
-  } catch {
-    return {
-      errors: { form: "Failed to submit form. Please try again." },
-    };
-  }
+  // pretend to submit…
+  await new Promise<void>((r) => setTimeout(r, 1000));
+  return { success: true };
 }

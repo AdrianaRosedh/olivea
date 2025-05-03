@@ -1,35 +1,37 @@
-import { Suspense } from "react";
-import { supabase }  from "@/lib/supabase";
-import Link          from "next/link";
-import Image         from "next/image";
-import { getDictionary, type Lang } from "../dictionaries";
+// app/[lang]/journal/journal-entries.tsx
+import React, { Suspense } from "react"
+import type { Lang } from "../dictionaries"
+import { supabase } from "@/lib/supabase"
+import Link from "next/link"
+import Image from "next/image"
 
-type JournalPost = {
-  id:           number;
-  title:        string;
-  slug:         string;
-  cover_image:  string | null;
-  published_at: string;
-};
+// 1️⃣ Data shape for a post
+export type JournalPost = {
+  id:           number
+  title:        string
+  slug:         string
+  cover_image:  string | null
+  published_at: string
+}
 
-// Loading skeleton for each entry
-function EntryLoading() {
+// 2️⃣ A little loading placeholder — returns JSX directly
+export function EntryLoading() {
   return (
     <li className="animate-pulse">
       <div className="h-60 bg-gray-200 rounded-xl mb-4" />
-      <div className="h-8  bg-gray-200 rounded w-3/4 mb-2" />
-      <div className="h-4  bg-gray-200 rounded w-1/4" />
+      <div className="h-8 bg-gray-200 rounded w-3/4 mb-2" />
+      <div className="h-4 bg-gray-200 rounded w-1/4" />
     </li>
-  );
+  )
 }
 
-// Renders a single post link
-function JournalEntry({
+// 3️⃣ Render one post
+export function JournalEntry({
   post,
   lang,
 }: {
-  post: JournalPost;
-  lang: Lang;
+  post: JournalPost
+  lang: Lang
 }) {
   return (
     <li key={post.id}>
@@ -56,31 +58,26 @@ function JournalEntry({
         </p>
       </Link>
     </li>
-  );
+  )
 }
 
+// 4️⃣ Server component to fetch & stream
 export default async function JournalEntries({
   lang,
 }: {
-  lang: Lang;
+  lang: Lang
 }) {
-  const dict = await getDictionary(lang);
-
   const { data, error } = await supabase
     .from("journal_posts")
     .select("id, title, slug, cover_image, published_at")
-    .eq("visible", true)
-    .order("published_at", { ascending: false });
 
   if (error) {
-    throw new Error(`${dict.journal.error}: ${error.message}`);
+    throw new Error(error.message)
   }
 
-  // Cast the untyped array into our JournalPost type
-  const posts = (data ?? []) as JournalPost[];
-
+  const posts = (data ?? []) as JournalPost[]
   if (posts.length === 0) {
-    return <p className="text-muted-foreground">{dict.journal.empty}</p>;
+    return <p className="text-center text-muted-foreground">No posts yet.</p>
   }
 
   return (
@@ -91,5 +88,5 @@ export default async function JournalEntries({
         </Suspense>
       ))}
     </ul>
-  );
+  )
 }

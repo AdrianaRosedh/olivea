@@ -1,25 +1,25 @@
-// app/[lang]/restaurant/RestaurantClientPage.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
 import { TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 
-// 1️⃣ Define your sections as a tuple and derive the union type
+// 1️⃣ Define your sections as a literal tuple and derive the union
 const ALL_SECTIONS = ["story", "garden", "menu", "wines"] as const;
 type SectionKey = (typeof ALL_SECTIONS)[number];
 
 export interface SectionDict {
   title:       string;
   description: string;
-  error?:      string;
 }
 
 export interface RestaurantClientPageProps {
+  lang:     string;
   sections: Partial<Record<SectionKey, SectionDict>>;
 }
 
 export default function RestaurantClientPage({
+  lang,
   sections,
 }: RestaurantClientPageProps) {
   const containerRef     = useRef<HTMLDivElement>(null);
@@ -28,28 +28,31 @@ export default function RestaurantClientPage({
   // Copy your readonly tuple into a mutable array
   const sectionIds: SectionKey[] = [...ALL_SECTIONS];
 
-  function notifySectionChange(sectionId: SectionKey) {
-    document.dispatchEvent(
-      new CustomEvent("sectionInView", {
-        detail: { id: sectionId, intersectionRatio: 1.0 },
-      })
-    );
-  }
-
-  // 2️⃣ Smooth‐scroll anchor links inside this scroll‐container
+  // Smooth‐scroll anchor links inside this scroll‐container
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement).closest('a[href^="#"]');
       if (!a) return;
       e.preventDefault();
-      const id = (a as HTMLAnchorElement).getAttribute("href")!.slice(1) as SectionKey;
+      const id = (a as HTMLAnchorElement)
+        .getAttribute("href")!
+        .slice(1) as SectionKey;
       const el = document.getElementById(id);
       if (el && containerRef.current) {
         containerRef.current.scrollTo({ top: el.offsetTop, behavior: "smooth" });
         if (scrollTimeoutRef.current !== null) {
           clearTimeout(scrollTimeoutRef.current);
         }
-        scrollTimeoutRef.current = window.setTimeout(() => notifySectionChange(id), 800);
+        scrollTimeoutRef.current = window.setTimeout(
+          () => {
+            document.dispatchEvent(
+              new CustomEvent("sectionInView", {
+                detail: { id, intersectionRatio: 1 },
+              })
+            );
+          },
+          800
+        );
       }
     };
 
@@ -62,7 +65,7 @@ export default function RestaurantClientPage({
     };
   }, []);
 
-  // 3️⃣ “Bump” the scroll once on mount so IntersectionObservers fire immediately
+  // “Bump” the scroll so your IntersectionObservers fire immediately
   useEffect(() => {
     const bump = () => {
       window.scrollBy(0, 1);
@@ -76,6 +79,7 @@ export default function RestaurantClientPage({
   return (
     <>
       <div
+        lang={lang} 
         ref={containerRef}
         className="scroll-container min-h-screen overflow-y-auto snap-y snap-mandatory"
         style={{

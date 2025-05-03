@@ -1,26 +1,26 @@
 // app/[lang]/layout.tsx
-import type { ReactNode } from "react"
-import type { Metadata, Viewport } from "next"
-import { getDictionary, type Lang, type AppDictionary } from "./dictionaries"
-
-import StructuredData      from "@/components/seo/StructuredData"
-import LayoutShell         from "@/components/layout/LayoutShell"
-import { ReservationProvider } from "@/contexts/ReservationContext"
-
-import { ScrollProvider }  from "@/components/providers/ScrollProvider"
-import ClientProviders     from "@/components/providers/ClientProviders"
+import React, { ReactNode } from "react";
+import type { Metadata, Viewport } from "next";
+import { loadLocale }               from "@/lib/i18n";
+import StructuredData               from "@/components/seo/StructuredData";
+import LayoutShell                  from "@/components/layout/LayoutShell";
+import { ReservationProvider }      from "@/contexts/ReservationContext";
+import { ScrollProvider }           from "@/components/providers/ScrollProvider";
+import ClientProviders              from "@/components/providers/ClientProviders";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: string }>
+  // NOTE: generateMetadata still receives params as a Promise
+  params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
-  const { lang: rawLang } = await params
-  const lang: Lang = rawLang === "es" ? "es" : "en"
-  const dict: AppDictionary = await getDictionary(lang)
+  // 1️⃣ Await the promise…
+  const p = await params;
+  // 2️⃣ …then delegate into your helper (never read p.lang yourself!)
+  const { lang, dict } = await loadLocale(p);
 
   return {
-    title: { template: "%s | Olivea", default: "Olivea" },
+    title:       { template: "%s | Olivea", default: "Olivea" },
     description: dict.metadata?.description,
     metadataBase: new URL("https://olivea.com"),
     openGraph: {
@@ -39,7 +39,7 @@ export async function generateMetadata({
         es: `https://olivea.com/es`,
       },
     },
-  }
+  };
 }
 
 export const viewport: Viewport = {
@@ -47,18 +47,20 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor:   "#65735b",
-}
+};
 
 export default async function LangLayout({
   children,
   params,
 }: {
-  children: ReactNode
-  params: Promise<{ lang: string }>
+  children: ReactNode;
+  // page component also gets params as a Promise
+  params: Promise<{ lang: string }>;
 }) {
-  const { lang: rawLang } = await params
-  const lang: Lang = rawLang === "es" ? "es" : "en"
-  const dict: AppDictionary = await getDictionary(lang)
+  // 1️⃣ Await params…
+  const p = await params;
+  // 2️⃣ …then load your dict
+  const { lang, dict } = await loadLocale(p);
 
   return (
     <>
@@ -67,11 +69,11 @@ export default async function LangLayout({
 
       {/* 2) Reservation context + modal */}
       <ReservationProvider lang={lang}>
-        {/* 3) Scroll context */}
+        {/* 3) Smooth-scroll context */}
         <ScrollProvider>
-          {/* 4) Client-only providers (background animation, audio, etc.) */}
+          {/* 4) Purely client-only bits (background, audio, etc.) */}
           <ClientProviders>
-            {/* 5) App shell (Navbar, Footer, etc.) */}
+            {/* 5) Your actual shell (Navbar, Footer, etc.) */}
             <LayoutShell lang={lang} dictionary={dict}>
               {children}
             </LayoutShell>
@@ -79,5 +81,5 @@ export default async function LangLayout({
         </ScrollProvider>
       </ReservationProvider>
     </>
-  )
+  );
 }

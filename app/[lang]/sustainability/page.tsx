@@ -1,17 +1,19 @@
+// app/[lang]/sustainability/page.tsx
 import type { Metadata } from "next";
-import { getDictionary, type Lang } from "../dictionaries";
+import { loadLocale } from "@/lib/i18n";
 
 export async function generateMetadata({
   params,
 }: {
-  // Next.js now passes params as a Promise, so we must await it
+  // Next 15.3 now passes params as a Promise here
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
-  const { lang: raw } = await params;
-  // Narrow the incoming string into our Lang union
-  const lang: Lang = raw === "es" ? "es" : "en";
+  // 1️⃣ Await the promise
+  const p = await params;
 
-  const dict = await getDictionary(lang);
+  // 2️⃣ Delegate into your helper so you never read p.lang directly
+  const { dict } = await loadLocale(p);
+
   return {
     title:       dict.sustainability.title,
     description: dict.sustainability.description,
@@ -21,13 +23,14 @@ export async function generateMetadata({
 export default async function SustainabilityPage({
   params,
 }: {
-  // Likewise here, params is a Promise
+  // And here too, params is a Promise
   params: Promise<{ lang: string }>;
 }) {
-  const { lang: raw } = await params;
-  const lang: Lang    = raw === "es" ? "es" : "en";
+  // 1️⃣ Await it
+  const p = await params;
 
-  const dict = await getDictionary(lang);
+  // 2️⃣ Pull in only what you need
+  const { dict } = await loadLocale(p);
 
   return (
     <main className="p-10">
