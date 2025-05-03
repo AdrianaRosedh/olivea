@@ -62,19 +62,22 @@ export default function MobileSectionNav({ items }: Props) {
     };
   }, [pathname, activeSection]);
 
-  // keep the active button roughly centered (or reveal edge buttons)
-  useEffect(() => {
-    const container = containerRef.current;
-    const btn       = buttonRefs.current[activeSection];
-    if (!container || !btn) return;
+// 2️⃣ Clamp-center the active pill so it never scrolls into empty space
+useEffect(() => {
+  const container = containerRef.current;
+  const btn       = buttonRefs.current[activeSection];
+  if (!container || !btn) return;
 
-    const cRect = container.getBoundingClientRect();
-    const bRect = btn.getBoundingClientRect();
-    const offset =
-      bRect.left - cRect.left - cRect.width / 2 + bRect.width / 2;
+  // calculate the ideal scrollLeft to center the button
+  const halfView = (container.clientWidth - btn.offsetWidth) / 2;
+  const desired  = btn.offsetLeft - halfView;
 
-    container.scrollBy({ left: offset, behavior: "smooth" });
-  }, [activeSection]);
+  // clamp between 0 and the max scrollable distance
+  const maxScroll     = container.scrollWidth - container.clientWidth;
+  const clampedScroll = Math.max(0, Math.min(desired, maxScroll));
+
+  container.scrollTo({ left: clampedScroll, behavior: "smooth" });
+}, [activeSection]);
 
   return (
     <nav
