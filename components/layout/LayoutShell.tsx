@@ -7,7 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import DockLeft from "@/components/navigation/DockLeft";
 import DockRight from "@/components/navigation/DockRight";
-import MobileSectionNav from "@/components/ui/MobileSectionNav";
+import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 import ClientOnly from "@/components/providers/ClientOnly";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { MessageCircle, BookOpen, Leaf, FileText } from "lucide-react";
