@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
-import { ScrollProvider } from "../components/providers/ScrollProvider";
+import { ScrollProvider } from "@/components/providers/ScrollProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const corm = Cormorant_Garamond({
