@@ -1,62 +1,47 @@
-// components/forms/reservation/ReservationModal.tsx
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
-import { motion, AnimatePresence, Variants, Transition } from "framer-motion";
-import { useReservation, ReservationType } from "@/contexts/ReservationContext";
-import { GlassPanel } from "@/components/ui/GlassPanel";
+import { useEffect, useState } from "react"
+import { X } from "lucide-react"
+import { motion, AnimatePresence, type Variants, type Transition } from "framer-motion"
+import { useReservation, type ReservationType } from "@/contexts/ReservationContext"
+import { GlassPanel } from "@/components/ui/GlassPanel"
+
+import { CloudbedsImmersive } from "@/components/forms/reservation/CloudbedsImmersive"
+import { TockWidget } from "@/components/forms/reservation/TockWidget"
 
 interface ReservationModalProps {
-  lang: string;
+  lang: string
 }
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
-  const {
-    isOpen,
-    closeReservationModal,
-    reservationType,
-    setReservationType,
-  } = useReservation();
+  const { isOpen, closeReservationModal, reservationType, setReservationType } = useReservation()
 
   // detect mobile breakpoint
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
-    const mql = window.matchMedia("(max-width: 767px)");
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    setIsMobile(mql.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
+    const mql = window.matchMedia("(max-width: 767px)")
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    setIsMobile(mql.matches)
+    mql.addEventListener("change", onChange)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
 
   // lock body scroll while open
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
+    document.body.style.overflow = isOpen ? "hidden" : ""
     return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+      document.body.style.overflow = ""
+    }
+  }, [isOpen])
 
   // animation variants for slide-up on mobile, scale-in on desktop
   const variants: Variants = {
-    closed: isMobile
-      ? { y: "100%", opacity: 0 }
-      : { scale: 0.9, opacity: 0 },
-    open: isMobile
-      ? { y: "0%", opacity: 1 }
-      : { scale: 1, opacity: 1 },
-  };
+    closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
+    open: isMobile ? { y: "0%", opacity: 1 } : { scale: 1, opacity: 1 },
+  }
   const transition: Transition = isMobile
     ? { type: "spring", stiffness: 200, damping: 25 }
-    : { duration: 0.4, ease: "easeOut" };
-
-  // restaurant / café iframe URLs
-  const iframeUrl =
-    reservationType === "restaurant"
-      ? "https://www.exploretock.com/yourrestaurant/embed"
-      : reservationType === "cafe"
-      ? "https://your-cafe-reservation-system.com/embed"
-      : "";
+    : { duration: 0.4, ease: "easeOut" }
 
   return (
     <AnimatePresence>
@@ -88,9 +73,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             <GlassPanel
               className={`
                 pointer-events-auto w-full
-                ${isMobile
-                  ? "h-full"
-                  : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl max-h-[90vh]"}
+                ${isMobile ? "h-full" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl max-h-[90vh]"}
                 flex flex-col overflow-hidden
               `}
             >
@@ -117,12 +100,12 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                         ? "Restaurante"
                         : "Restaurant"
                       : id === "hotel"
-                      ? lang === "es"
-                        ? "Casa Olivea"
-                        : "Hotel"
-                      : lang === "es"
-                      ? "Café"
-                      : "Cafe";
+                        ? lang === "es"
+                          ? "Casa Olivea"
+                          : "Hotel"
+                        : lang === "es"
+                          ? "Café"
+                          : "Cafe"
 
                   return (
                     <button
@@ -139,28 +122,32 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     >
                       {label}
                     </button>
-                  );
+                  )
                 })}
               </div>
 
               {/* content area */}
-              <div className="relative flex-1 min-h-0 overflow-auto">
-                {reservationType === "hotel" ? (
-                  // placeholder for Cloudbeds immersive widget
-                  <div id="cloudbeds-immersive" className="h-full w-full" />
-                ) : (
-                  <iframe
-                    src={iframeUrl}
-                    title={`${reservationType} reservation`}
-                    className="w-full h-full border-0"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                  />
-                )}
+              <div className="relative flex-1 min-h-[500px] overflow-auto">
+                {/* Use key to force remount when tab changes */}
+                <div key={reservationType} className="w-full h-full p-4">
+                  {reservationType === "hotel" && <CloudbedsImmersive />}
+
+                  {reservationType === "restaurant" && (
+                    <TockWidget
+                      token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJidXNpbmVzc0lkIjoiMzc0OTkiLCJ0eXBlIjoiV0lER0VUX0JVSUxERVIiLCJpYXQiOjE3NDYzMTA0NTJ9.GVNyQn2lL9yLe_U9dvRJ9gHGflQhhvoQlNiZxX5X0PM"
+                      offeringId="528232"
+                    />
+                  )}
+
+                  {reservationType === "cafe" && (
+                    <TockWidget token="YOUR_CAFE_TOKEN" offeringId="YOUR_CAFE_OFFERING_ID" />
+                  )}
+                </div>
               </div>
             </GlassPanel>
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  );
+  )
 }

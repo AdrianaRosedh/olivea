@@ -22,10 +22,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: [
-      "olivea.com",
-      "images.unsplash.com",
-    ],
+    domains: ["olivea.com", "images.unsplash.com"],
     formats: ["image/avif", "image/webp"],
     unoptimized: false,
   },
@@ -48,9 +45,9 @@ const nextConfig = {
             value: [
               // 1) only allow our own origin by default
               "default-src 'self'",
-              // 2) allow inline scripts + Cloudbeds loader
-              "script-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
-              // 3) allow iframes from Cloudbeds, ExploreTock & your café
+              // 2) allow inline scripts, eval, + Cloudbeds loader
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com",
+              // 3) allow iframes from Cloudbeds, Tock & your café
               "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://your-cafe-reservation-system.com",
               // 4) allow XHR/fetch back to those domains
               "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://your-cafe-reservation-system.com",
@@ -59,11 +56,14 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
             ].join("; "),
           },
-          { key: "X-Content-Type-Options",     value: "nosniff" },
-          { key: "X-Frame-Options",            value: "DENY"    },
-          { key: "X-XSS-Protection",           value: "1; mode=block" },
-          { key: "Referrer-Policy",            value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy",         value: "camera=(), microphone=(), geolocation=()" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           // Note: we omit COEP so third-party widgets can load correctly
         ],
@@ -73,9 +73,9 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source:      "/",
+        source: "/",
         destination: "/es",
-        permanent:   false,
+        permanent: false,
       },
     ];
   },
