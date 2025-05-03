@@ -1,3 +1,4 @@
+// app/layout.tsx
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
@@ -11,13 +12,17 @@ const corm = Cormorant_Garamond({
 });
 
 export const metadata = {
-  title: "Olivea",
+  title:       "Olivea",
   description: "Experience the garden.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${inter.variable} ${corm.variable}`}>
+    <html
+      lang="es"
+      className={`${inter.variable} ${corm.variable}`}
+      suppressHydrationWarning
+    >
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
         <ScrollProvider>
           {children}
