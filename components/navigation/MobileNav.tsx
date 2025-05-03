@@ -36,7 +36,9 @@ export function MobileNav({ isDrawerOpen }: { isDrawerOpen: boolean }) {
 
   return (
     <nav
-      className={`fixed bottom-0 inset-x-0 z-50
+      className={`
+        fixed bottom-0 inset-x-0 z-50
+        bg-transparent backdrop-blur-md
         ${isDrawerOpen ? "pt-20" : "pt-0"}`}
     >
       <ul className="flex justify-around py-3 bg-transparent">
