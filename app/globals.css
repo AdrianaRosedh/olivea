@@ -266,3 +266,14 @@ nav, footer, .dock-left, .dock-right {
 }
 }
 
+/* Allow Lenis to take over the scroll container */
+html.lenis,
+html.lenis body {
+  height: auto;              /* don’t lock the height */
+  overflow: visible;         /* allow Lenis to handle overflow */
+}
+
+/* Turn off native smooth scrolling when Lenis is active */
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
