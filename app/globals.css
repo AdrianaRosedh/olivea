@@ -277,3 +277,45 @@ html.lenis body {
 .lenis.lenis-smooth {
   scroll-behavior: auto !important;
 }
+
+:root {
+  /* Scroll percentage 0→1 set in JS */
+  --scroll-per: 0;
+  /* Scrollbar colors */
+  --scrollbar-fill: var(--olivea-sage);
+  --scrollbar-bg:   var(--olivea-cream);
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-fill) var(--scrollbar-bg);
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+html::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html::-webkit-scrollbar-track {
+  /* fill the track dynamically based on scroll */
+  background: 
+    linear-gradient(
+      to bottom,
+      var(--scrollbar-fill) 0%,
+      var(--scrollbar-fill) calc(var(--scroll-per) * 100%),
+      var(--scrollbar-bg)   calc(var(--scroll-per) * 100%),
+      var(--scrollbar-bg)   100%
+    );
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-fill);
+  border-radius: 4px;
+  border: 2px solid var(--scrollbar-bg);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background-color: var(--olivea-olive);
+}

@@ -1,4 +1,3 @@
-// components/animations/NextGenBackgroundInitializer.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -8,18 +7,27 @@ export default function NextGenBackgroundInitializer() {
   const lenis = useLenis();
 
   useEffect(() => {
-    // handler to run on every Lenis scroll
+    let ticking = false;
+
     const onScroll = ({ scroll }: { scroll: number }) => {
-      document.documentElement.style.setProperty(
-        "--scroll-position",
-        scroll.toString()
-      );
+      // normalize scroll into 0–1 range
+      const scrollPer = Math.min(scroll / 1000, 1);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          document.documentElement.style.setProperty(
+            "--scroll-per",
+            scrollPer.toString()
+          );
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    // subscribe
+    // subscribe to Lenis scroll
     lenis.on("scroll", onScroll);
-    // initial kick
-    onScroll({ scroll: 0 });
+    // set initial value
+    onScroll({ scroll: window.scrollY });
 
     return () => {
       // unsubscribe

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 
 // Single-SVG draw & fill component for alebrije-1
@@ -10,65 +10,74 @@ interface Props {
   size?: number;             // container size in px
   strokeDuration?: number;   // seconds to draw strokes
   fillDuration?: number;     // seconds to fade fills
+  fillDelay?: number;        // seconds to wait before fading fills
+  onComplete?: () => void;   // optional callback when animation finishes
 }
 
 export default function AlebrijeDraw({
   size = 1000,
-  strokeDuration = 30,
-  fillDuration = 40,
+  strokeDuration = 100,
+  fillDuration = 100,
+  fillDelay = 4,
+  onComplete,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const el = containerRef.current;
+      if (!el) return;
 
-    // find SVG and its paths
-    const svg = el.querySelector<SVGSVGElement>("svg");
-    if (!svg) return;
-    // prevent stroke scaling
-    svg.style.vectorEffect = "non-scaling-stroke";
+      // find SVG and its paths
+      const svg = el.querySelector<SVGSVGElement>("svg");
+      if (!svg) return;
 
-    const paths = Array.from(svg.querySelectorAll<SVGPathElement>("path"));
-    if (!paths.length) return;
+      const paths = Array.from(
+        svg.querySelectorAll<SVGPathElement>("path")
+      );
+      if (!paths.length) return;
 
-    // prepare each path: hide stroke & fill, set thin stroke
-    paths.forEach((path) => {
-      const length = path.getTotalLength();
-      path.style.strokeDasharray = `${length}`;
-      path.style.strokeDashoffset = `${length}`;
-      path.style.fillOpacity = "0";
-      // capture computed fill color
-      const computedFill = window.getComputedStyle(path).fill;
-      // hide fill during draw
-      path.setAttribute("fill", "none");
-      // apply stroke of that color
-      path.style.stroke = computedFill;
-      // thinner stroke width
-      path.style.strokeWidth = ".3";
-    });
+      // prepare each path: dash setup, fill setup, stroke style
+      paths.forEach((path) => {
+        const length = path.getTotalLength();
+        path.setAttribute("vector-effect", "non-scaling-stroke");
+        path.style.strokeDasharray = `${length}`;
+        path.style.strokeDashoffset = `${length}`;
 
-    // draw strokes
-    gsap.to(paths, {
-      strokeDashoffset: 0,
-      duration: strokeDuration,
-      ease: "power1.inOut",
-    });
+        const computedFill = window.getComputedStyle(path).fill;
+        path.setAttribute("fill", computedFill);
+        path.style.fillOpacity = "0";
 
-    // after stroke complete, fade in fill
-    gsap.to(paths, {
-      fill: (_, target) => (target as SVGPathElement).style.stroke,
-      duration: fillDuration,
-      ease: "power1.inOut",
-      delay: strokeDuration,
-      onStart: () => {
-        // restore fill attribute so shape fills
-        paths.forEach((path) => {
-          path.setAttribute("fill", path.style.stroke);
-        });
-      },
-    });
-  }, [strokeDuration, fillDuration]);
+        path.style.stroke = computedFill;
+        path.style.strokeWidth = ".3";
+      });
+
+      // create a timeline for better control
+      const tl = gsap.timeline({
+        onComplete: () => onComplete?.(),
+      });
+
+      // draw the strokes
+      tl.to(paths, {
+        strokeDashoffset: 0,
+        duration: strokeDuration,
+        ease: "power1.inOut",
+      });
+
+      // fade in fills after optional delay
+      tl.to(
+        paths,
+        {
+          fillOpacity: 1,
+          duration: fillDuration,
+          ease: "power1.inOut",
+        },
+        `+=${fillDelay}`
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [strokeDuration, fillDuration, fillDelay, onComplete]);
 
   return (
     <div
@@ -76,8 +85,7 @@ export default function AlebrijeDraw({
       style={{ width: size, height: size }}
       className="flex items-center justify-center"
     >
-      {/* apply non-scaling-stroke here too for some browsers */}
-      <Alebrije1 className="w-full h-full" style={{ vectorEffect: "non-scaling-stroke" }} />
+      <Alebrije1 className="w-full h-full" />
     </div>
   );
 }
