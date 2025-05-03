@@ -149,7 +149,7 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
       {mounted && !isHome && isMobile && !isLoading && navItems.length > 0 && (
         <ClientOnly>
-          <div className="fixed bottom-[68px] inset-x-0 z-40 bg-transparent backdrop-blur-md border-t border-[var(--olivea-soil)]/10">
+          <div className="fixed bottom-[68px] inset-x-0 z-40 border-t border-[var(--olivea-soil)]/10">
             <MobileSectionNav items={mobileNavItems} />
           </div>
         </ClientOnly>
