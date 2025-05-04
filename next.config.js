@@ -34,19 +34,18 @@ const nextConfig = {
     });
     return config;
   },
+
   async headers() {
     return [
-      // 1) Allow our Cloudbeds HTML wrapper to be framed same-origin
+      // 1) Exception for our Cloudbeds wrapper HTML
       {
         source: "/cloudbeds-immersive.html",
         headers: [
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
-          },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // No CSP here so their script/css can run freely
         ],
       },
-      // 2) All other routes get the strict security headers
+      // 2) All other routes get strict CSP + DENY
       {
         source: "/(.*)",
         headers: [
@@ -58,7 +57,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
               "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
               "img-src 'self' data: blob: https://static1.cloudbeds.com",
-              "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://*.supabase.co",
+              "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com",
               "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
             ].join("; "),
           },
@@ -71,11 +70,11 @@ const nextConfig = {
             value: "camera=(), microphone=(), geolocation=()",
           },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          // Note: we omit COEP so third-party widgets can load correctly
         ],
       },
     ];
   },
+
   async redirects() {
     return [
       {
@@ -85,6 +84,7 @@ const nextConfig = {
       },
     ];
   },
+
   compiler: {
     removeConsole:
       process.env.NODE_ENV === "production"
