@@ -14,7 +14,9 @@ import {
   type ReservationType,
 } from "@/contexts/ReservationContext";
 import { GlassPanel } from "@/components/ui/GlassPanel";
-import { CloudbedsImmersive } from "./CloudbedsImmersive";
+
+// ← swap import
+import { CloudbedsInlineIframe } from "./CloudbedsInlineIframe";
 import { TockWidget } from "./TockWidget";
 
 interface ReservationModalProps {
@@ -152,7 +154,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               {/* content area */}
               <div className="relative flex-1 min-h-[500px] overflow-auto">
                 <div key={reservationType} className="w-full h-full p-4">
-                  {reservationType === "hotel" && <CloudbedsImmersive />}
+                  {reservationType === "hotel" && <CloudbedsInlineIframe />}
 
                   {reservationType === "restaurant" && (
                     <TockWidget
