@@ -36,24 +36,30 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // 1) Allow our Cloudbeds HTML wrapper to be framed same-origin
       {
-        // Apply these headers to every route in your app
+        source: "/cloudbeds-immersive.html",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+        ],
+      },
+      // 2) All other routes get the strict security headers
+      {
         source: "/(.*)",
         headers: [
           {
             key: "Content-Security-Policy",
             value: [
-              // 1) only allow our own origin by default
               "default-src 'self'",
-              // 2) allow inline scripts, eval, + Cloudbeds loader
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com",
-              // 3) allow iframes from Cloudbeds, Tock & your café
-              "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://your-cafe-reservation-system.com",
-              // 4) allow XHR/fetch back to those domains
-              "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://your-cafe-reservation-system.com",
-              // 5) images & inline styles
-              "img-src 'self' data:",
-              "style-src 'self' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
+              "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
+              "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
+              "img-src 'self' data: blob: https://static1.cloudbeds.com",
+              "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://*.supabase.co",
+              "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
             ].join("; "),
           },
           { key: "X-Content-Type-Options", value: "nosniff" },

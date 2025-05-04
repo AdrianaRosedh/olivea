@@ -1,17 +1,31 @@
-<!-- public/cloudbeds-inline.html -->
+<!-- public/cloudbeds-immersive.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Casa Olivea Booking</title>
   <style>
-    /* Optional: reset body margins so the widget fills the frame */
-    body { margin: 0; }
+    /* ensure the immersive container fills the iframe */
+    html, body { margin:0; padding:0; height:100%; width:100%; }
+    #CBI_immersive { height:100%; width:100%; }
   </style>
 </head>
 <body>
-  <!-- This button is what the script hooks on to render inline -->
-  <button data-be-url="https://hotels.cloudbeds.com/reservation/pkwNrX" style="display:none"></button>
+  <!-- the invisible trigger button -->
+  <button
+    id="CBI_trigger"
+    data-be-url="https://hotels.cloudbeds.com/reservation/pkwNrX"
+    style="display:none"
+  ></button>
+
+  <!-- immersive loader script (no async) -->
   <script src="https://hotels.cloudbeds.com/widget/load/pkwNrX/immersive"></script>
+
+  <script>
+    // once the loader is ready, programmatically click to open immersive UI inside this frame
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("CBI_trigger")?.click();
+    });
+  </script>
 </body>
 </html>

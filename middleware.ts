@@ -10,7 +10,6 @@ function getLocale(request: NextRequest): string {
   if (cookieLocale && locales.includes(cookieLocale)) {
     return cookieLocale;
   }
-
   const acceptLang = request.headers.get("accept-language");
   if (acceptLang) {
     const preferred = acceptLang.split(",")[0].split("-")[0];
@@ -18,59 +17,75 @@ function getLocale(request: NextRequest): string {
       return preferred;
     }
   }
-
   return defaultLocale;
 }
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── 1) Exception: allow our Cloudbeds wrapper to be framed ──
+  if (pathname === "/cloudbeds-immersive.html") {
+    const res = NextResponse.next();
+    // Allow same-origin iframes for this wrapper
+    res.headers.set("X-Frame-Options", "SAMEORIGIN");
+    return res;
+  }
+
+  // ── 2) All other logic stays the same ──
+
+  // Locale‐prefix redirect / static asset bypass
   const isStaticAsset =
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
     pathname === "/favicon.ico" ||
     pathname === "/robots.txt" ||
-    pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|css|js|json|txt)$/);
+    /\.([a-z0-9]+)$/.test(pathname);
 
   const hasLocalePrefix = locales.some(
-    (locale) =>
-      pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
+    (loc) =>
+      pathname === `/${loc}` ||
+      pathname.startsWith(`/${loc}/`)
   );
 
-  const response = hasLocalePrefix || isStaticAsset
-    ? NextResponse.next()
-    : NextResponse.redirect(
-        new URL(`/${getLocale(request)}${pathname}`, request.url)
-      );
+  const response =
+    hasLocalePrefix || isStaticAsset
+      ? NextResponse.next()
+      : NextResponse.redirect(
+          new URL(`/${getLocale(request)}${pathname}`, request.url)
+        );
 
-  // build a CSP that whitelists Cloudbeds & Tock
-    const csp = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
-      // allow their external CSS + inline styles
-      "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
-      "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
-      "img-src 'self' data: blob: https://static1.cloudbeds.com",
-      "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com",
-      "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
-    ].join("; ");
+  // Build and inject your strict CSP
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
+    "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
+    "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
+    "img-src 'self' data: blob: https://static1.cloudbeds.com",
+    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com",
+    "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
+  ].join("; ");
 
-response.headers.set("Content-Security-Policy", csp);
-
-  // inject CSP and other security headers
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Frame-Options", "DENY");           // default DENY everywhere else
   response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set(
     "Referrer-Policy",
     "strict-origin-when-cross-origin"
   );
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()"
+  );
 
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!.*\\..*|_next|api).*)"],
+  matcher: [
+    // include the Cloudbeds HTML so we can override its frame options
+    "/cloudbeds-immersive.html",
+    // plus all your normal app routes
+    "/((?!.*\\..*|_next|api).*)",
+  ],
 };
