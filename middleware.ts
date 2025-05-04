@@ -48,7 +48,8 @@ export function middleware(request: NextRequest) {
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    // ← add static1.cloudbeds.com here
+    "img-src 'self' data: blob: https://static1.cloudbeds.com",
     "font-src 'self' data:",
     "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com",
     "media-src 'self' blob:",
