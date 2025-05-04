@@ -14,6 +14,8 @@ import {
   type ReservationType,
 } from "@/contexts/ReservationContext";
 import { GlassPanel } from "@/components/ui/GlassPanel";
+
+// ← Import the correct component name here:
 import { CloudbedsImmersiveIframe } from "./CloudbedsImmersiveIframe";
 import { TockWidget } from "./TockWidget";
 
@@ -30,7 +32,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     setReservationType,
   } = useReservation();
 
-  // Mobile breakpoint
+  // detect mobile breakpoint
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)");
@@ -40,7 +42,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Lock body scroll
+  // lock body scroll while open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
@@ -48,7 +50,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     };
   }, [isOpen]);
 
-  // Animation variants
+  // animation variants
   const variants: Variants = {
     closed: isMobile
       ? { y: "100%", opacity: 0 }
@@ -63,7 +65,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* backdrop */}
           <motion.div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
             initial={{ opacity: 0 }}
@@ -73,7 +75,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             onClick={closeReservationModal}
           />
 
-          {/* Panel */}
+          {/* panel */}
           <motion.div
             className={`
               fixed inset-0 z-[1300] flex
@@ -95,7 +97,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 flex flex-col overflow-hidden
               `}
             >
-              {/* Header */}
+              {/* header */}
               <div className="flex justify-between items-center px-6 py-4 border-b bg-white/50 backdrop-blur-sm flex-shrink-0 rounded-t-2xl overflow-hidden">
                 <h2 className="text-lg font-medium text-[var(--olivea-ink)]">
                   {lang === "es" ? "Reservaciones" : "Reservations"}
@@ -109,7 +111,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 </button>
               </div>
 
-              {/* Tabs */}
+              {/* tabs */}
               <div className="flex bg-gray-50 flex-shrink-0">
                 {(["restaurant", "hotel", "cafe"] as ReservationType[]).map(
                   (id) => {
@@ -149,11 +151,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 )}
               </div>
 
-              {/* Content Area */}
-              <div className="relative flex-1 min-h-[500px] overflow-hidden">
-                <div key={reservationType} className="relative w-full h-full p-0">
+              {/* content area */}
+              <div className="relative flex-1 overflow-hidden">
+                <div className="relative w-full h-full p-0">
                   {reservationType === "hotel" && (
-                    <CloudbedsImmersiveIframe className="absolute inset-0 w-full h-full border-0" />
+                    <CloudbedsImmersiveIframe className="absolute inset-0 w-full h-full" />
                   )}
 
                   {reservationType === "restaurant" && (
