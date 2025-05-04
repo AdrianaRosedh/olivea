@@ -1,47 +1,63 @@
-"use client"
+// components/forms/reservation/ReservationModal.tsx
+"use client";
 
-import { useEffect, useState } from "react"
-import { X } from "lucide-react"
-import { motion, AnimatePresence, type Variants, type Transition } from "framer-motion"
-import { useReservation, type ReservationType } from "@/contexts/ReservationContext"
-import { GlassPanel } from "@/components/ui/GlassPanel"
-
-import { CloudbedsImmersive } from "@/components/forms/reservation/CloudbedsImmersive"
-import { TockWidget } from "@/components/forms/reservation/TockWidget"
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import {
+  motion,
+  AnimatePresence,
+  type Variants,
+  type Transition,
+} from "framer-motion";
+import {
+  useReservation,
+  type ReservationType,
+} from "@/contexts/ReservationContext";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { CloudbedsImmersive } from "./CloudbedsImmersive";
+import { TockWidget } from "./TockWidget";
 
 interface ReservationModalProps {
-  lang: string
+  lang: string;
 }
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
-  const { isOpen, closeReservationModal, reservationType, setReservationType } = useReservation()
+  const {
+    isOpen,
+    openReservationModal,
+    closeReservationModal,
+    reservationType,
+    setReservationType,
+  } = useReservation();
 
   // detect mobile breakpoint
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const mql = window.matchMedia("(max-width: 767px)")
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    setIsMobile(mql.matches)
-    mql.addEventListener("change", onChange)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    const mql = window.matchMedia("(max-width: 767px)");
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    setIsMobile(mql.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
 
   // lock body scroll while open
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : ""
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = ""
-    }
-  }, [isOpen])
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
-  // animation variants for slide-up on mobile, scale-in on desktop
+  // animation variants
   const variants: Variants = {
-    closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
+    closed: isMobile
+      ? { y: "100%", opacity: 0 }
+      : { scale: 0.9, opacity: 0 },
     open: isMobile ? { y: "0%", opacity: 1 } : { scale: 1, opacity: 1 },
-  }
+  };
   const transition: Transition = isMobile
     ? { type: "spring", stiffness: 200, damping: 25 }
-    : { duration: 0.4, ease: "easeOut" }
+    : { duration: 0.4, ease: "easeOut" };
 
   return (
     <AnimatePresence>
@@ -73,7 +89,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             <GlassPanel
               className={`
                 pointer-events-auto w-full
-                ${isMobile ? "h-full" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl max-h-[90vh]"}
+                ${isMobile
+                  ? "h-full"
+                  : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl max-h-[90vh]"}
                 flex flex-col overflow-hidden
               `}
             >
@@ -93,42 +111,46 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
               {/* tabs */}
               <div className="flex bg-gray-50 flex-shrink-0">
-                {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => {
-                  const label =
-                    id === "restaurant"
-                      ? lang === "es"
-                        ? "Restaurante"
-                        : "Restaurant"
-                      : id === "hotel"
+                {(["restaurant", "hotel", "cafe"] as ReservationType[]).map(
+                  (id) => {
+                    const label =
+                      id === "restaurant"
+                        ? lang === "es"
+                          ? "Restaurante"
+                          : "Restaurant"
+                        : id === "hotel"
                         ? lang === "es"
                           ? "Casa Olivea"
                           : "Hotel"
                         : lang === "es"
-                          ? "Café"
-                          : "Cafe"
+                        ? "Café"
+                        : "Cafe";
 
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => setReservationType(id)}
-                      className={`
-                        flex-1 py-3 text-center transition-colors
-                        ${
-                          reservationType === id
-                            ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
-                            : "text-[var(--olivea-ink)] hover:bg-gray-50"
-                        }
-                      `}
-                    >
-                      {label}
-                    </button>
-                  )
-                })}
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => {
+                          setReservationType(id);
+                          openReservationModal(id);
+                        }}
+                        className={`
+                          flex-1 py-3 text-center transition-colors
+                          ${
+                            reservationType === id
+                              ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
+                              : "text-[var(--olivea-ink)] hover:bg-gray-50"
+                          }
+                        `}
+                      >
+                        {label}
+                      </button>
+                    );
+                  }
+                )}
               </div>
 
               {/* content area */}
               <div className="relative flex-1 min-h-[500px] overflow-auto">
-                {/* Use key to force remount when tab changes */}
                 <div key={reservationType} className="w-full h-full p-4">
                   {reservationType === "hotel" && <CloudbedsImmersive />}
 
@@ -140,7 +162,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   )}
 
                   {reservationType === "cafe" && (
-                    <TockWidget token="YOUR_CAFE_TOKEN" offeringId="YOUR_CAFE_OFFERING_ID" />
+                    <TockWidget
+                      token="YOUR_CAFE_TOKEN"
+                      offeringId="YOUR_CAFE_OFFERING_ID"
+                    />
                   )}
                 </div>
               </div>
@@ -149,5 +174,5 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }
