@@ -1,11 +1,16 @@
-// components/forms/reservation/CloudbedsImmersiveIframe.tsx
 "use client";
-export function CloudbedsImmersiveIframe() {
+
+type Props = {
+  className?: string;
+};
+
+export function CloudbedsImmersiveIframe({ className }: Props) {
   return (
     <iframe
       src="/cloudbeds-immersive.html"
-      className="w-full h-full border-0"
+      title="Casa Olivea Booking"
       sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+      className={className ?? "w-full h-full border-0"}
     />
   );
 }
