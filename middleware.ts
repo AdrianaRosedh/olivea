@@ -44,17 +44,17 @@ export function middleware(request: NextRequest) {
       );
 
   // build a CSP that whitelists Cloudbeds & Tock
-  const csp = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
-    "style-src 'self' 'unsafe-inline'",
-    // ← add static1.cloudbeds.com here
-    "img-src 'self' data: blob: https://static1.cloudbeds.com",
-    "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com",
-    "media-src 'self' blob:",
-    "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
-  ].join("; ");
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
+      // allow their inline <style> blocks if any, plus external CSS
+      "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
+      "style-src-elem 'self' https://hotels.cloudbeds.com",
+      "img-src 'self' data: blob: https://static1.cloudbeds.com",
+      "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com",
+      "media-src 'self' blob:",
+      "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
+    ].join("; ");
 
   // inject CSP and other security headers
   response.headers.set("Content-Security-Policy", csp);
