@@ -77,11 +77,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
           {/* panel */}
           <motion.div
-            className={`
-              fixed inset-0 z-[1300] flex
-              ${isMobile ? "items-end justify-center p-0" : "items-center justify-center p-4"}
-              pointer-events-none
-            `}
+            className={
+              `fixed inset-0 z-[1300] flex ${
+                isMobile
+                  ? "items-end justify-center p-0"
+                  : "items-center justify-center p-4"
+              } pointer-events-none`
+            }
             initial="closed"
             animate="open"
             exit="closed"
@@ -89,22 +91,37 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             transition={transition}
           >
             <GlassPanel
-              className={`
-                pointer-events-auto w-full
-                ${isMobile
-                  ? "h-full"
-                  : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl max-h-[90vh]"}
-                flex flex-col overflow-hidden
-              `}
+              className={
+                `pointer-events-auto w-full ${
+                  isMobile
+                    ? "h-full"
+                    : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl max-h-[90vh]"
+                } flex flex-col overflow-hidden`
+              }
             >
               {/* header */}
-              <div className="flex justify-between items-center px-6 py-4 border-b bg-white/50 backdrop-blur-sm flex-shrink-0 rounded-t-2xl overflow-hidden">
-                <h2 className="text-lg font-medium text-[var(--olivea-ink)]">
+              <div className="relative flex items-center px-6 py-4 border-b bg-[#e8e4d5] backdrop-blur-sm flex-shrink-0 rounded-t-2xl overflow-hidden">
+                {/* Centered title */}
+                <h2
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                  style={{
+                    margin: 0,
+                    fontFamily: "var(--font-serif)",
+                    fontSize: isMobile ? 24 : 32,
+                    fontWeight: 200,
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    color: "var(--olivea-ink)",
+                    lineHeight: 1,
+                    textAlign: "center",
+                  }}
+                >
                   {lang === "es" ? "Reservaciones" : "Reservations"}
                 </h2>
+                {/* Close button on right */}
                 <button
                   onClick={closeReservationModal}
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
                   aria-label="Close modal"
                 >
                   <X size={20} />
@@ -112,8 +129,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               </div>
 
               {/* tabs */}
-              <div className="flex bg-gray-50 flex-shrink-0">
-                {(["restaurant", "hotel", "cafe"] as ReservationType[]).map(
+              <div className="flex bg-[#e8e4d5] flex-shrink-0">
+                {( ["restaurant", "hotel", "cafe"] as ReservationType[] ).map(
                   (id) => {
                     const label =
                       id === "restaurant"
@@ -122,7 +139,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                           : "Restaurant"
                         : id === "hotel"
                         ? lang === "es"
-                          ? "Casa Olivea"
+                          ? "Hotel"
                           : "Hotel"
                         : lang === "es"
                         ? "Café"
@@ -135,14 +152,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                           setReservationType(id);
                           openReservationModal(id);
                         }}
-                        className={`
-                          flex-1 py-3 text-center transition-colors
-                          ${
+                        className={
+                          `flex-1 py-3 text-center transition-colors ${
                             reservationType === id
                               ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
-                              : "text-[var(--olivea-ink)] hover:bg-gray-50"
-                          }
-                        `}
+                              : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
+                          }`
+                        }
                       >
                         {label}
                       </button>
