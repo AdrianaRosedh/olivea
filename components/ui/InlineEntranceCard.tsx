@@ -37,13 +37,21 @@ export default function InlineEntranceCard({
   const [tiltStyle, setTiltStyle] = useState<CSSProperties>({});
 
   // Dimensions
-  const CARD_WIDTH = 256;
-  const CARD_HEIGHT = 210;
-  const TOP_DESKTOP = 128;
-  const TOP_COLLAPSED = 96;
-  const MOBILE_COLLAPSED = 96;
-  const BOTTOM_DEFAULT = CARD_HEIGHT - TOP_DESKTOP;
-  const CIRCLE_SIZE = 80;
+  // 1) Define desktop scale inside the component
+  const DESKTOP_SCALE = 1.3;
+  // 2) Pick scale = 1 on mobile, DESKTOP_SCALE on desktop
+  const scale = isMobile ? 1 : DESKTOP_SCALE;
+
+  // 3) Apply to all your dims
+  const CARD_WIDTH       = 256 * scale;
+  const CARD_HEIGHT      = 210 * scale;
+  const TOP_DESKTOP      = 128 * scale;
+  const TOP_COLLAPSED    = 96  * scale;
+  const MOBILE_COLLAPSED = 96  * scale;  // mobile stays 96 because scale=1 there
+  const BOTTOM_DEFAULT   = CARD_HEIGHT - TOP_DESKTOP;
+  const CIRCLE_SIZE      = 80  * scale;
+  const UNDERLAY_HEIGHT  = 32  * scale;
+
 
   // Compute dynamic heights
   const topHeight = isMobile
@@ -208,24 +216,48 @@ export default function InlineEntranceCard({
             >
               <h3
                 style={{
-                  margin: 0,
+                  margin: 1,
                   zIndex: 2,
                   fontFamily: "var(--font-serif)",
                   fontSize: isMobile ? 28 : 24,
                   fontWeight: isMobile ? 600 : 300,
-                  marginTop: !isMobile && isHovered ? 16 : 0,
+                  marginTop: !isMobile && isHovered ? 40 : 0,
                   transition: "margin-top 0.3s ease",
                 }}
               >
                 {title}
               </h3>
               {!isMobile && isHovered ? (
-                <p style={{ marginTop: 8, textAlign: "center", fontSize: 16, maxWidth: 224 }}>
+                <p style={{ marginTop: 10, textAlign: "center", fontSize: 16, maxWidth: 224 }}>
                   {description}
                 </p>
               ) : null}
             </motion.div>
           </div>
+
+        {!isMobile && (
+          <motion.div
+            // start fully BELOW the card:
+            initial={{ y: 0 }}
+            // on hover, Framer Motion will animate to y: 0
+            animate={ isHovered ? { y: UNDERLAY_HEIGHT } : { y: 0 } }
+            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+            className="absolute bottom-0 left-0 w-full h-16
+                       bg-white/30 backdrop-blur-md
+                       flex items-center justify-center pt-7"
+            style={{
+              borderBottomLeftRadius: 24,
+              borderBottomRightRadius: 24,
+              borderTopLeftRadius: 0,
+              borderTopRightRadius: 0,
+              zIndex: -1,
+            }}
+          >
+            <span style={{ fontFamily: "var(--font-serif)" }} className="font-semibold text-[var(--olivea-ink)] ">
+              Click Me
+            </span>
+          </motion.div>
+        )}
 
           {/* Floating logo circle */}
           {Logo ? (

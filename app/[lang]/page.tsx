@@ -239,7 +239,7 @@ export default function HomePage() {
           initial="hidden"
           animate={!showLoader ? "show" : "hidden"}
         >
-          <div className="flex gap-6">
+          <div className="flex gap-6 mb-0 md:pt-16">
             {sections.map((sec, i) => (
               <motion.div key={sec.href} variants={itemVariants}>
                 <InlineEntranceCard
@@ -256,7 +256,7 @@ export default function HomePage() {
           <motion.div
             variants={itemVariants}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 + sections.length * 0.2 }}
-            className="mt-8"
+            className="mt-8 md:mt-15"
           >
             <ReservationButton />
           </motion.div>
