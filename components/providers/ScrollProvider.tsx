@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import Lenis from "@studio-freight/lenis";
 
-// A minimal interface covering the methods we use
 interface ScrollHandler {
   raf: (time: number) => void;
   on: (event: "scroll", handler: ({ scroll }: { scroll: number }) => void) => void;
@@ -11,7 +10,6 @@ interface ScrollHandler {
   destroy: () => void;
 }
 
-// Dummy no-op implementation for SSR / hydration
 const dummyLenis: ScrollHandler = {
   raf: () => {},
   on: () => {},
@@ -19,40 +17,39 @@ const dummyLenis: ScrollHandler = {
   destroy: () => {},
 };
 
-// Provide a ScrollHandler (real Lenis on client, dummy on server)
 const ScrollContext = createContext<ScrollHandler>(dummyLenis);
 
-interface ScrollProviderProps {
-  children: React.ReactNode;
-}
-
-export function ScrollProvider({ children }: ScrollProviderProps) {
-  const lenisRef = useRef<ScrollHandler>(
-    typeof window !== "undefined"
-      ? new Lenis({ orientation: "vertical", lerp: 0.1 })
-      : dummyLenis
-  );
+export function ScrollProvider({ children }: { children: React.ReactNode }) {
+  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    // Only start RAF loop if we have a real Lenis instance
-    if (lenisRef.current !== dummyLenis) {
-      const lenis = lenisRef.current as Lenis;
-      const run = (time: number) => {
-        lenis.raf(time);
-        requestAnimationFrame(run);
-      };
-      requestAnimationFrame(run);
-      return () => lenis.destroy();
-    }
+    if (typeof window === "undefined") return;
+
+    lenisRef.current = new Lenis({
+      lerp: 0.07,                         // smoother easing
+      duration: 1.0,                      // responsive scrolling
+      gestureOrientation: "vertical",     // touch scrolling vertical
+      smoothWheel: true,                  // smooth mouse wheel
+      touchMultiplier: 2.0,               // responsiveness for touch devices
+      wheelMultiplier: 1.0,               // responsiveness for mouse wheel
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // custom gentle easing
+    });
+
+    const raf = (time: number) => {
+      lenisRef.current?.raf(time);
+      requestAnimationFrame(raf);
+    };
+
+    requestAnimationFrame(raf);
+
+    return () => lenisRef.current?.destroy();
   }, []);
 
   return (
-    <ScrollContext.Provider value={lenisRef.current}>
+    <ScrollContext.Provider value={lenisRef.current ?? dummyLenis}>
       {children}
     </ScrollContext.Provider>
   );
 }
 
-export function useLenis(): ScrollHandler {
-  return useContext(ScrollContext);
-}
+export const useLenis = () => useContext(ScrollContext);

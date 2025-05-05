@@ -78,21 +78,21 @@
     color: var(--foreground);
     font-family: var(--font-sans);
     line-height: var(--line-height-body);
-    overflow: visible !important;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     overscroll-behavior: none;
     scroll-behavior: smooth;
     @apply antialiased;
   }
 
-  html, body {
-    overflow-x: hidden;
-    overflow-y: auto;
-    scroll-behavior: smooth;
+  /* reset & root-level scroll */
+  html, body, #__next {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;        /* prevent horizontal scroll */
+    overflow-y: auto;          /* allow vertical scrolling */
+    scroll-behavior: smooth;   /* smooth native scrolling */
+   /*  scroll-snap-type: y mandatory;*/
+    overscroll-behavior: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -140,15 +140,21 @@
     font-weight: 600;
   }
 
+  /* Snapping sections */
+  section {
+    scroll-snap-align: start;
+    min-height: 100vh;
+  }
+
   section[id] {
     scroll-margin-top: 8rem;
     scroll-margin-bottom: 3rem;
   }
 
-  nav, footer, .dock-left, .dock-right {
-    color: var(--olivea-ink);
+    nav, footer, .dock-left, .dock-right {
+      color: var(--olivea-ink);
+    }
   }
-}
 
 @layer utilities {
   .origin-\[var\(--hover-x\)_50\%\] {
@@ -156,7 +162,7 @@
   }
 
   .no-scrollbar::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
 
   .no-scrollbar {
@@ -220,7 +226,7 @@ html.lenis body {
 }
 
 html {
-  scrollbar-width: thin;
+  scrollbar-width: none;
   scrollbar-color: var(--scrollbar-fill) var(--scrollbar-bg);
 }
 

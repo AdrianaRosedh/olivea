@@ -2,24 +2,24 @@
 
 import { useEffect, useRef } from "react";
 import { TypographyH2, TypographyP } from "@/components/ui/Typography";
-import MobileSectionTracker         from "@/components/navigation/MobileSectionTracker";
+import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 
 export type MenuItem = {
-  id:        number;
-  name:      string;
-  price:     number;
+  id: number;
+  name: string;
+  price: number;
   available: boolean;
   category?: string;
 };
 
 export type SectionDict = {
-  title:       string;
+  title: string;
   description: string;
-  error?:      string;
+  error?: string;
 };
 
 interface CafeClientPageProps {
-  dict:            SectionDict;
+  dict: SectionDict;
   itemsByCategory: Record<string, MenuItem[]>;
 }
 
@@ -28,13 +28,11 @@ export default function CafeClientPage({
   itemsByCategory,
 }: CafeClientPageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const sectionIds  = ["about", ...Object.keys(itemsByCategory)];
+  const sectionIds = ["about", ...Object.keys(itemsByCategory)];
 
-  // Smooth-scroll anchor links
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      const a = (e.target as HTMLElement)
-        .closest('a[href^="#"]') as HTMLAnchorElement | null;
+      const a = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
       if (!a) return;
       e.preventDefault();
       const id = a.getAttribute("href")!.slice(1);
@@ -45,7 +43,6 @@ export default function CafeClientPage({
     return () => document.removeEventListener("click", onClick);
   }, []);
 
-  // “Bump” the scroll so your tracker fires immediately
   useEffect(() => {
     const bump = () => {
       window.scrollBy(0, 1);
@@ -58,46 +55,29 @@ export default function CafeClientPage({
 
   return (
     <>
-      <div
-        ref={containerRef}
-        className="scroll-container min-h-screen overflow-y-auto snap-y snap-mandatory"
-        style={{
-          height:                "100vh",
-          scrollBehavior:        "smooth",
-          overscrollBehavior:    "none",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        {/* ABOUT */}
+      <div ref={containerRef}>
         <section
           id="about"
           data-section-id="about"
-          className="min-h-screen snap-center flex items-center justify-center px-6"
+          className="min-h-screen snap-start flex items-center justify-center px-6"
           aria-labelledby="about-heading"
         >
           <div className="max-w-2xl text-center">
-            <TypographyH2 id="about-heading">
-              {dict.title}
-            </TypographyH2>
-            <TypographyP className="mt-2">
-              {dict.description}
-            </TypographyP>
+            <TypographyH2 id="about-heading">{dict.title}</TypographyH2>
+            <TypographyP className="mt-2">{dict.description}</TypographyP>
           </div>
         </section>
 
-        {/* MENU CATEGORIES */}
         {Object.entries(itemsByCategory).map(([category, items]) => (
           <section
             key={category}
             id={category}
             data-section-id={category}
-            className="min-h-screen snap-center flex items-center justify-center px-6"
+            className="min-h-screen snap-start flex items-center justify-center px-6"
             aria-labelledby={`${category}-heading`}
           >
             <div className="max-w-2xl text-center">
-              <TypographyH2 id={`${category}-heading`}>
-                {category}
-              </TypographyH2>
+              <TypographyH2 id={`${category}-heading`}>{category}</TypographyH2>
               <div className="mt-4 space-y-3 text-left">
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between border-b py-2">
@@ -110,7 +90,6 @@ export default function CafeClientPage({
           </section>
         ))}
       </div>
-
       <MobileSectionTracker sectionIds={sectionIds} />
     </>
   );

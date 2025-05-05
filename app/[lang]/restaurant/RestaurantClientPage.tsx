@@ -1,7 +1,7 @@
 // app/[lang]/restaurant/RestaurantClientPage.tsx
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { TypographyH1, TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 
@@ -9,18 +9,16 @@ const ALL_SECTIONS = ["story", "garden", "menu", "wines"] as const;
 type SectionKey = (typeof ALL_SECTIONS)[number];
 
 export interface SectionDict {
-  title:       string;
+  title: string;
   description: string;
 }
 
 export interface RestaurantClientPageProps {
-  /** the 2-letter locale code, "en" or "es" */
   lang: "en" | "es";
-  /** your pre‐loaded dictionary for this page */
   dict: {
-    title:       string;
+    title: string;
     description: string;
-    sections:    Record<SectionKey, SectionDict>;
+    sections: Record<SectionKey, SectionDict>;
   };
 }
 
@@ -29,6 +27,35 @@ export default function RestaurantClientPage({
   dict,
 }: RestaurantClientPageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Smooth-scroll anchor links
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
+      if (!link) return;
+      e.preventDefault();
+      const id = link.getAttribute("href")!.slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.history.pushState(null, "", `#${id}`);
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => {
+      document.removeEventListener("click", onClick);
+    };
+  }, []);
+
+  // Initial "bump" scroll to trigger observers
+  useEffect(() => {
+    const bump = () => {
+      window.scrollBy(0, 1);
+      window.scrollBy(0, -1);
+      document.dispatchEvent(new Event("scroll"));
+    };
+    [100, 300, 600].forEach((ms) => setTimeout(bump, ms));
+  }, []);
 
   return (
     <>
@@ -39,17 +66,7 @@ export default function RestaurantClientPage({
       </header>
 
       {/* SECTIONS CONTAINER */}
-      <div
-        lang={lang}
-        ref={containerRef}
-        className="scroll-container min-h-screen overflow-y-auto snap-y snap-mandatory"
-        style={{
-          height: "100vh",
-          scrollBehavior: "smooth",
-          overscrollBehavior: "none",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
+      <div lang={lang} ref={containerRef}>
         {ALL_SECTIONS.map((id) => {
           const info = dict.sections[id];
           return (
@@ -57,14 +74,16 @@ export default function RestaurantClientPage({
               key={id}
               id={id}
               data-section-id={id}
-              className="min-h-screen snap-center flex flex-col items-center justify-center px-6"
+              className="min-h-screen snap-start flex flex-col items-center justify-center px-6"
               aria-labelledby={`${id}-heading`}
             >
               <div className="max-w-2xl text-center">
                 <TypographyH2 id={`${id}-heading`}>
                   {info.title}
                 </TypographyH2>
-                <TypographyP className="mt-2">{info.description}</TypographyP>
+                <TypographyP className="mt-2">
+                  {info.description}
+                </TypographyP>
               </div>
             </section>
           );
