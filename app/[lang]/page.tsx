@@ -1,8 +1,8 @@
 // app/[lang]/page.tsx
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { AnimatePresence, motion, useAnimation } from "framer-motion";
+import React, { useEffect, useState, useRef } from "react";
+import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
 import ReservationButton from "./ReservationButton";
 import AlebrijeDraw from "@/components/animations/AlebrijeDraw";
 import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
@@ -10,6 +10,27 @@ import CasaLogo from "@/assets/alebrije-2.svg";
 import FarmLogo from "@/assets/alebrije-1-Green.svg";
 import CafeLogo from "@/assets/alebrije-3.svg";
 import OliveaLogo from "@/assets/alebrije-1.svg";
+
+// 1) Container variants for staggered reveal
+const containerVariants: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      delayChildren: 0.3,
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+// 2) Item variants for each card/button
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
 
 export default function HomePage() {
   const overlayControls = useAnimation();
@@ -28,17 +49,14 @@ export default function HomePage() {
     { href: "/es/cafe", title: "Olivea Café", description: "Wake up with flavor.", Logo: CafeLogo },
   ];
 
-  // On mobile, bring "Olivea Farm To Table" first, else keep original order
   const mobileSections = isMobileMain
     ? [
-        // farm-to-table first
-        ...sections.filter(s => s.title === "Olivea Farm To Table"),
-        // then the rest
-        ...sections.filter(s => s.title !== "Olivea Farm To Table"),
+        ...sections.filter((s) => s.title === "Olivea Farm To Table"),
+        ...sections.filter((s) => s.title !== "Olivea Farm To Table"),
       ]
     : sections;
 
-  // Detect mobile for layout adjustments
+  // Detect mobile viewport
   useEffect(() => {
     const onResize = () => setIsMobileMain(window.innerWidth < 768);
     onResize();
@@ -50,17 +68,22 @@ export default function HomePage() {
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
     (async () => {
-      await new Promise(r => setTimeout(r, 1500));
+      // wait before draw starts
+      await new Promise((r) => setTimeout(r, 1500));
       setDrawComplete(true);
 
+      // wait for video to load
       const vid = videoRef.current!;
       if (vid.readyState < 2) {
-        await new Promise<void>(res => vid.addEventListener("loadeddata", () => res(), { once: true }));
+        await new Promise<void>((res) =>
+          vid.addEventListener("loadeddata", () => res(), { once: true })
+        );
       }
 
       document.body.classList.remove("overflow-hidden");
       setRevealMain(true);
 
+      // animate overlay to video bounds
       const rect = vid.getBoundingClientRect();
       await overlayControls.start({
         top: rect.top + window.scrollY,
@@ -71,17 +94,21 @@ export default function HomePage() {
         transition: { duration: 0.8, ease: "easeInOut" },
       });
 
-      await new Promise(r => setTimeout(r, 400));
+      // small delay before logo
+      await new Promise((r) => setTimeout(r, 400));
+      // animate logo into place
       const pad = logoTargetRef.current!.getBoundingClientRect();
       await logoControls.start({
-        top: pad.top + pad.height/2 + window.scrollY,
-        left: pad.left + pad.width/2 + window.scrollX,
-        x: "-50%", y: "-50%",
-        scale: pad.width/240,
-        transition: { type: "spring", stiffness:200, damping:25 }
+        top: pad.top + pad.height / 2 + window.scrollY,
+        left: pad.left + pad.width / 2 + window.scrollX,
+        x: "-50%",
+        y: "-50%",
+        scale: pad.width / 240,
+        transition: { type: "spring", stiffness: 200, damping: 25 },
       });
 
-      await overlayControls.start({ opacity: 0, transition:{ duration:0.4 } });
+      // fade overlay out
+      await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
       setShowLoader(false);
     })();
   }, [overlayControls, logoControls]);
@@ -93,32 +120,32 @@ export default function HomePage() {
         {showLoader && (
           <motion.div
             key="overlay"
-            initial={{ top:0, left:0, width:"100vw", height:"100vh", opacity:1 }}
+            initial={{ top: 0, left: 0, width: "100vw", height: "100vh", opacity: 1 }}
             animate={overlayControls}
-            exit={{ opacity:0, transition:{ duration:0.4 } }}
-            style={{ position:"fixed", background:"var(--olivea-olive)", zIndex:50 }}
+            exit={{ opacity: 0, transition: { duration: 0.4 } }}
+            style={{ position: "fixed", background: "var(--olivea-olive)", zIndex: 50 }}
           >
-            {/* Mobile Loader */}
+            {/* Mobile progress */}
             <div className="absolute inset-0 md:hidden flex items-center justify-start pl-4 py-6 pointer-events-none">
               <div className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden">
                 <motion.div
                   className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full"
                   style={{ transformOrigin: "bottom center" }}
-                  initial={{ scaleY:0 }}
-                  animate={{ scaleY:1 }}
-                  transition={{ duration:4, ease:"linear" }}
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ duration: 4, ease: "linear" }}
                 />
               </div>
             </div>
-            {/* Desktop Loader */}
+            {/* Desktop progress */}
             <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-none">
               <span>Donde El Corazón es el Huerto</span>
               <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: "#e2be8f20" }}>
                 <motion.div
                   className="absolute top-0 left-0 h-full rounded-full bg-[#e2be8f]"
-                  initial={{ width:0 }}
-                  animate={{ width:"100%" }}
-                  transition={{ duration:3.5, ease:"linear" }}
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 3.5, ease: "linear" }}
                 />
               </div>
               <span>100%</span>
@@ -132,26 +159,28 @@ export default function HomePage() {
         {showLoader && (
           <motion.div
             key="logo"
-            initial={{ top:"50%", left:"50%", x:"-50%", y:"-50%", scale:1, opacity:1 }}
+            initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
             animate={logoControls}
-            exit={{ opacity:0, transition:{ duration:0.3 } }}
-            style={{ position:"fixed", zIndex:100, width:240, height:240, transformOrigin:"center center" }}
+            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            style={{ position: "fixed", zIndex: 100, width: 240, height: 240, transformOrigin: "center center" }}
           >
-            <AlebrijeDraw size={240} strokeDuration={drawComplete?0:5} fillDuration={drawComplete?0:7} />
+            <AlebrijeDraw size={240} strokeDuration={drawComplete ? 0 : 5} fillDuration={drawComplete ? 0 : 7} />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${
-        revealMain ? "opacity-100" : "opacity-0"
-      }`}>
-
-        {/* Background video container */}
+      <main
+        className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center
+                    bg-[var(--olivea-cream)] transition-opacity duration-500 ${
+                      revealMain ? "opacity-100" : "opacity-0"
+                    }`}
+      >
+        {/* Background Video */}
         <div
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
           style={{
-            width:"98vw",
+            width: "98vw",
             height: isMobileMain ? "30vh" : "98vh",
             borderRadius: "1.5rem",
           }}
@@ -159,7 +188,11 @@ export default function HomePage() {
           <video
             ref={videoRef}
             src="/videos/homepage-temp.mp4"
-            autoPlay muted loop playsInline preload="auto"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
           />
           <div className="absolute inset-0 flex justify-center items-start">
@@ -173,45 +206,61 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
 
-        {/* Mobile UI (cards + button) */}
-        <div className="flex flex-col md:hidden flex-1 w-full px-4 pt-4">
+        {/* Mobile cards + button */}
+        <motion.div
+          className="flex flex-col md:hidden flex-1 w-full px-4 pt-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate={!showLoader ? "show" : "hidden"}
+        >
           <div className="space-y-12">
             {mobileSections.map((sec, i) => (
-              <InlineEntranceCard
-                key={sec.href}
-                title={sec.title}
-                href={sec.href}
-                description={sec.description}
-                Logo={sec.Logo}
-                index={i}
-                onActivate={() => {}}
-              />
+              <motion.div key={sec.href} variants={itemVariants}>
+                <InlineEntranceCard
+                  title={sec.title}
+                  href={sec.href}
+                  description={sec.description}
+                  Logo={sec.Logo}
+                  index={i}
+                  onActivate={() => {}}
+                />
+              </motion.div>
             ))}
           </div>
-          <div className="mt-auto w-full pb-6">
-            <ReservationButton />
-          </div>
-        </div>
-
-        {/* Desktop UI (cards + button) */}
-        <div className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center">
-          <div className="flex gap-6">
-            {sections.map((sec, i) => (
-              <InlineEntranceCard
-                key={sec.href}
-                title={sec.title}
-                href={sec.href}
-                description={sec.description}
-                Logo={sec.Logo}
-                index={i}
-                onActivate={() => {}}
-              />
-            ))}
-          </div>
-          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8, delay:1.4 }} className="mt-8">
+          <motion.div variants={itemVariants} className="mt-auto w-full pb-6">
             <ReservationButton />
           </motion.div>
-        </div>
+        </motion.div>
+
+        {/* Desktop cards + button */}
+        <motion.div
+          className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
+          variants={containerVariants}
+          initial="hidden"
+          animate={!showLoader ? "show" : "hidden"}
+        >
+          <div className="flex gap-6">
+            {sections.map((sec, i) => (
+              <motion.div key={sec.href} variants={itemVariants}>
+                <InlineEntranceCard
+                  title={sec.title}
+                  href={sec.href}
+                  description={sec.description}
+                  Logo={sec.Logo}
+                  index={i}
+                  onActivate={() => {}}
+                />
+              </motion.div>
+            ))}
+          </div>
+          <motion.div
+            variants={itemVariants}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 + sections.length * 0.2 }}
+            className="mt-8"
+          >
+            <ReservationButton />
+          </motion.div>
+        </motion.div>
       </main>
     </>
   );
