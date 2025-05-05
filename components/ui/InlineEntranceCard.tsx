@@ -1,10 +1,10 @@
-// components/ui/InlineEntranceCard.tsx
 "use client";
 
-import type { SVGProps, ComponentType, MouseEvent, CSSProperties } from "react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef, MouseEvent, CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import { MessageCircle, MoreHorizontal } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
+import Tilt from "react-parallax-tilt";
+import { motion } from "framer-motion";
 
 export interface InlineEntranceCardProps {
   title: string;
@@ -13,26 +13,22 @@ export interface InlineEntranceCardProps {
   videoSrc?: string;
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
   className?: string;
-  index?: number;
-  isActive?: boolean;
   onActivate?: () => void;
-  gradient?: string;
+  /** position in mobile stack */
+  index?: number;
 }
 
-export function InlineEntranceCard({
+export default function InlineEntranceCard({
   title,
   href,
   description = "Ut lorem purus nam feugiat malesuada quis libero cursus.",
   videoSrc = "/videos/homepage-temp.mp4",
   Logo,
   className = "",
-  index = 0,
-  isActive = false,
   onActivate = () => {},
-  gradient = "var(--olivea-mist)",
+  index = 0,
 }: InlineEntranceCardProps) {
   const router = useRouter();
-  const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [isMobile, setIsMobile] = useState(false);
@@ -40,206 +36,219 @@ export function InlineEntranceCard({
   const [isOpened, setIsOpened] = useState(false);
   const [tiltStyle, setTiltStyle] = useState<CSSProperties>({});
 
-  // detect mobile
+  // Dimensions
+  const CARD_WIDTH = 256;
+  const CARD_HEIGHT = 210;
+  const TOP_DESKTOP = 128;
+  const TOP_COLLAPSED = 96;
+  const MOBILE_COLLAPSED = 96;
+  const BOTTOM_DEFAULT = CARD_HEIGHT - TOP_DESKTOP;
+  const CIRCLE_SIZE = 80;
+
+  // Compute dynamic heights
+  const topHeight = isMobile
+    ? isOpened
+      ? TOP_DESKTOP
+      : 0
+    : isHovered
+    ? TOP_COLLAPSED
+    : TOP_DESKTOP;
+
+  const bottomHeight = isMobile
+    ? isOpened
+      ? CARD_HEIGHT - TOP_DESKTOP
+      : MOBILE_COLLAPSED
+    : isHovered
+    ? CARD_HEIGHT - TOP_COLLAPSED
+    : BOTTOM_DEFAULT;
+
+  const containerHeight = isMobile
+    ? isOpened
+      ? CARD_HEIGHT
+      : MOBILE_COLLAPSED
+    : CARD_HEIGHT;
+
+  // Mobile stacking
+  const mobileStyle: CSSProperties = isMobile && !isOpened
+    ? { transform: `translateY(${index * 40}px) scale(${1 - index * 0.05})`, transition: "transform 0.5s ease" }
+    : {};
+
+  // Detect mobile
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // play/pause video
+  // Video playback
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
-    if ((isHovered && !isMobile) || (isOpened && isMobile)) vid.play().catch(() => {});
-    else vid.pause();
+    const shouldPlay = (!isMobile && isHovered) || (isMobile && isOpened);
+    shouldPlay ? vid.play().catch(() => {}) : vid.pause();
   }, [isHovered, isOpened, isMobile]);
 
-  // mobile auto‐navigate
+  // Mobile auto-navigate
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
     if (isMobile && isOpened) {
-      const t = setTimeout(() => router.push(href), 5000);
-      return () => clearTimeout(t);
+      onActivate();
+      timer = setTimeout(() => router.push(href), 5000);
     }
-  }, [isOpened, isMobile, href, router]);
+    return () => clearTimeout(timer);
+  }, [isMobile, isOpened, href, router, onActivate]);
 
-  // 3D tilt
-  const onMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (isMobile || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
+  const handleClick = (e: MouseEvent) => {
+    e.preventDefault();
+    isMobile ? setIsOpened(true) : router.push(href);
+  };
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return;
+    const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
     setTiltStyle({
-      transform: `perspective(1000px) rotateX(${y * 10}deg) rotateY(${-x * 10}deg)`,
-      transition: "transform 0.1s ease-out",
-    });
-  };
-  const onMouseLeave = () => {
-    setIsHovered(false);
-    setTiltStyle({
-      transform: "perspective(1000px) rotateX(0) rotateY(0)",
-      transition: "transform 0.5s ease-out",
+      transform: `perspective(1000px) translateY(-8px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg)` ,
+      boxShadow: `${-x * 20}px ${y * 20}px 30px rgba(0,0,0,0.15)` ,
+      transition: "transform 0.1s ease-out, box-shadow 0.2s ease-out",
     });
   };
 
-  const onClick = (e: MouseEvent) => {
-    if (isMobile) {
-      e.preventDefault();
-      setIsOpened(true);
-      onActivate();
-    } else {
-      e.preventDefault();
-      router.push(href);
-    }
+  const handleMouseLeave = () => {
+    if (isMobile) return;
+    setTiltStyle({
+      transform: "perspective(1000px) translateY(0) rotateX(0) rotateY(0)",
+      boxShadow: "none",
+      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+    });
+    setIsHovered(false);
   };
 
   return (
-    <div
-      ref={cardRef}
+    <Tilt
       className={className}
-      onMouseMove={onMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={onMouseLeave}
-      onClick={onClick}
-      style={{
-        position: "relative",
-        width: 256,
-        height: 256,
-        borderRadius: 24,
-        overflow: "hidden",
-        cursor: "pointer",
-        perspective: 1000,
-        transformStyle: "preserve-3d",
-        ...(isHovered && !isMobile ? tiltStyle : {}),
-        ...(isMobile && !isActive && !isOpened
-          ? { transform: `translateY(${index * 40}px) scale(${1 - index * 0.05})` }
-          : {}),
-      }}
+      style={{ width: isMobile ? "100%" : CARD_WIDTH, ...mobileStyle }}
+      tiltMaxAngleX={10}
+      tiltMaxAngleY={10}
+      glareEnable={false}
+      onEnter={() => setIsHovered(true)}
+      onLeave={() => setIsHovered(false)}
     >
-      {/* Top half */}
+      {/* Wrapper for unified drop-shadow */}
       <div
+        className="relative overflow-visible"
         style={{
-          position: "relative",
-          height: isMobile && !isOpened ? 0 : isOpened && isMobile ? "60vh" : 128,
-          transition: "height 0.5s",
-          background: gradient,
-          border: "4px solid white",
-          borderBottom: "none",
+          filter: isMobile ? "drop-shadow(0 8px 12px rgba(0,0,0,0.15))" : undefined,
         }}
       >
-        {/* Video overlay */}
         <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0,
-            transition: "opacity 0.5s",
-          }}
+          onClick={handleClick}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}
         >
-          <video
-            ref={videoRef}
-            src={videoSrc}
-            muted
-            loop
-            playsInline
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        </div>
-        {/* Icons */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0 1rem",
-            opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0,
-            transition: "opacity 0.3s",
-            color: "white",
-          }}
-        >
-          <MessageCircle size={24} />
-          <MoreHorizontal size={24} />
-        </div>
-      </div>
+          {/* Card frame */}
+          <div style={{ border: "4px solid #e8e4d5", borderRadius: 24, overflow: "hidden", height: "100%" }}>
+            {/* Top */}
+            <motion.div
+              initial={{ height: TOP_DESKTOP }}
+              animate={{ height: topHeight }}
+              transition={{ duration: 0.3 }}
+              style={{ position: "relative", overflow: "hidden" }}
+            >
+              <video
+                ref={videoRef}
+                src={videoSrc}
+                muted
+                loop
+                playsInline
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: ((!isMobile && isHovered) || (isMobile && isOpened)) ? 1 : 0,
+                  transition: "opacity 0.5s",
+                }}
+              />
+            </motion.div>
+            {/* Bottom with title aligned lower on mobile */}
+            <motion.div
+              initial={{ height: BOTTOM_DEFAULT }}
+              animate={{ height: bottomHeight }}
+              transition={{ duration: 0.3 }}
+              style={{
+                background: "#e8e4d5",
+                paddingTop: isMobile && !isOpened ? 8 : 10,
+                paddingBottom: isMobile ? 16 : 8,
+                paddingLeft: 16,
+                paddingRight: 16,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: isMobile
+                  ? "flex-end"
+                  : isHovered
+                    ? "flex-start"
+                    : "center",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontFamily: "var(--font-serif)",
+                  fontSize: isMobile ? 28 : 24,
+                  fontWeight: isMobile ? 600 : 300, 
+                }}
+              >
+                {title}
+              </h3>
+              {!isMobile && isHovered && (
+                <p style={{ marginTop: 8, textAlign: "center", fontSize: 16, maxWidth: 224 }}>
+                  {description}
+                </p>
+              )}
+            </motion.div>
+          </div>
 
-      {/* Bottom half */}
-      <div
-        style={{
-          position: "relative",
-          height: isMobile && !isOpened ? 128 : isOpened && isMobile ? "30vh" : 128,
-          transition: "height 0.3s",
-          background: "white",
-          border: "4px solid white",
-          borderTop: "none",
-          padding: "1.5rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: isOpened ? "flex-start" : "center",
-        }}
-      >
-        <h3 style={{ margin: 0, fontSize: 20 }}>{title}</h3>
-        <p
-          style={{
-            marginTop: 8,
-            maxHeight: ((!isMobile && isHovered) || (isMobile && isOpened)) ? 100 : 0,
-            opacity: ((!isMobile && isHovered) || (isMobile && isOpened)) ? 1 : 0,
-            overflow: "hidden",
-            transition: "all 0.3s",
-            textAlign: "center",
-          }}
-        >
-          {description}
-        </p>
-
-        {/* Progress bar */}
-        {isMobile && isOpened && (
-          <div
-            style={{
-              marginTop: 12,
-              width: "100%",
-              height: 4,
-              background: "#eee",
-              borderRadius: 4,
-              overflow: "hidden",
-            }}
-          >
+          {/* Floating logo circle positioned half out at top on mobile */}
+          {Logo && (
             <div
               style={{
-                width: "100%",
-                height: "100%",
-                background: "#b8a6ff",
-                transition: "width 5s linear",
+                position: "absolute",
+                left: "50%",
+                width: CIRCLE_SIZE,
+                height: CIRCLE_SIZE,
+                borderRadius: CIRCLE_SIZE / 2,
+                border: "4px solid #e8e4d5",
+                background: "#e8e4d5",
+                overflow: "hidden",
+                ...(isMobile
+                  ? { top: 0, transform: "translate(-50%, -50%)" }
+                  : { top: topHeight, transform: "translate(-50%, -50%)" }
+                ),
+                transition: "top 0.3s",
               }}
-            />
-          </div>
-        )}
-      </div>
+            >
+              <Logo width="100%" height="100%" />
+            </div>
+          )}
 
-      {/* Floating logo */}
-      {Logo && (
-        <div
-          style={{
-            position: "absolute",
-            top: 128,
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 80,
-            height: 80,
-            borderRadius: "50%",
-            border: "4px solid white",
-            overflow: "hidden",
-            background: "white",
-            transition: "top 0.5s",
-            ...(isMobile && isOpened ? { top: "60vh" } : {}),
-          }}
-        >
-          <Logo width="100%" height="100%" />
+          {/* Mobile auto-progress */}
+          {isMobile && isOpened && (
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 5, ease: "linear" }}
+              style={{ position: "absolute", bottom: 0, left: 0, height: 4, background: "#b8a6ff" }}
+            />
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </Tilt>
   );
 }
