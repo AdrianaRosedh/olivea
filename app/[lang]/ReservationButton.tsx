@@ -16,11 +16,11 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
   return (
     <>
       {/* Mobile Button */}
-      <div className={`md:hidden w-full px-4 ${className}`}>
+      <div className={`md:hidden w-full px-4 pt-4 ${className}`}>
         <Button
           onClick={() => openReservationModal()}
           size="lg"
-          className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-clay)] text-white hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans"
+          className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans"
         >
           Reservar
         </Button>

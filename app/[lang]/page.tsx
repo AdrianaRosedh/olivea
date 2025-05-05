@@ -28,6 +28,16 @@ export default function HomePage() {
     { href: "/es/cafe", title: "Olivea Café", description: "Wake up with flavor.", Logo: CafeLogo },
   ];
 
+  // On mobile, bring "Olivea Farm To Table" first, else keep original order
+  const mobileSections = isMobileMain
+    ? [
+        // farm-to-table first
+        ...sections.filter(s => s.title === "Olivea Farm To Table"),
+        // then the rest
+        ...sections.filter(s => s.title !== "Olivea Farm To Table"),
+      ]
+    : sections;
+
   // Detect mobile for layout adjustments
   useEffect(() => {
     const onResize = () => setIsMobileMain(window.innerWidth < 768);
@@ -40,23 +50,17 @@ export default function HomePage() {
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
     (async () => {
-      // 1. Logo draw
       await new Promise(r => setTimeout(r, 1500));
       setDrawComplete(true);
 
-      // 2. Wait for video data
       const vid = videoRef.current!;
       if (vid.readyState < 2) {
-        await new Promise<void>(res =>
-          vid.addEventListener("loadeddata", () => res(), { once: true })
-        );
+        await new Promise<void>(res => vid.addEventListener("loadeddata", () => res(), { once: true }));
       }
 
-      // 3. Reveal main
       document.body.classList.remove("overflow-hidden");
       setRevealMain(true);
 
-      // 4. Shrink overlay to video
       const rect = vid.getBoundingClientRect();
       await overlayControls.start({
         top: rect.top + window.scrollY,
@@ -67,7 +71,6 @@ export default function HomePage() {
         transition: { duration: 0.8, ease: "easeInOut" },
       });
 
-      // 5. Fly logo to pad
       await new Promise(r => setTimeout(r, 400));
       const pad = logoTargetRef.current!.getBoundingClientRect();
       await logoControls.start({
@@ -78,7 +81,6 @@ export default function HomePage() {
         transition: { type: "spring", stiffness:200, damping:25 }
       });
 
-      // 6. Fade out overlay
       await overlayControls.start({ opacity: 0, transition:{ duration:0.4 } });
       setShowLoader(false);
     })();
@@ -144,6 +146,7 @@ export default function HomePage() {
       <main className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${
         revealMain ? "opacity-100" : "opacity-0"
       }`}>
+
         {/* Background video container */}
         <div
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
@@ -164,16 +167,16 @@ export default function HomePage() {
               ref={logoTargetRef}
               className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56"
             >
-              <OliveaLogo className="w-full h-full" />
+              <OliveaLogo className="hidden md:block w-full h-full" />
             </div>
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
 
         {/* Mobile UI (cards + button) */}
-        <div className="flex flex-col md:hidden flex-1 w-full px-4 pt-8">
+        <div className="flex flex-col md:hidden flex-1 w-full px-4 pt-4">
           <div className="space-y-12">
-            {sections.map((sec, i) => (
+            {mobileSections.map((sec, i) => (
               <InlineEntranceCard
                 key={sec.href}
                 title={sec.title}
