@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, MouseEvent, CSSProperties } from "react";
-import { useRouter } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
 import Tilt from "react-parallax-tilt";
 import { motion } from "framer-motion";
@@ -13,7 +12,8 @@ export interface InlineEntranceCardProps {
   videoSrc?: string;
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
   className?: string;
-  onActivate?: () => void;
+  /** Called with the video element and href when the user “activates” the card */
+  onActivate?: (videoEl: HTMLVideoElement | null, href: string) => void;
   /** position in mobile stack */
   index?: number;
 }
@@ -28,7 +28,6 @@ export default function InlineEntranceCard({
   onActivate = () => {},
   index = 0,
 }: InlineEntranceCardProps) {
-  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [isMobile, setIsMobile] = useState(false);
@@ -50,7 +49,7 @@ export default function InlineEntranceCard({
   const MOBILE_COLLAPSED = 96  * scale;  // mobile stays 96 because scale=1 there
   const BOTTOM_DEFAULT   = CARD_HEIGHT - TOP_DESKTOP;
   const CIRCLE_SIZE      = 80  * scale;
-  const UNDERLAY_HEIGHT  = 32  * scale;
+  const UNDERLAY_HEIGHT  = 25  * scale;
 
 
   // Compute dynamic heights
@@ -106,25 +105,15 @@ export default function InlineEntranceCard({
     }
   }, [isHovered, isOpened, isMobile]);
 
-  // Mobile auto-navigate
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    if (isMobile && isOpened) {
-      onActivate();
-      timer = setTimeout(() => {
-        router.push(href);
-      }, 5000);
-    }
-    return () => clearTimeout(timer);
-  }, [isMobile, isOpened, href, router, onActivate]);
-
   const handleClick = (e: MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation()
     if (isMobile) {
-      setIsOpened(true);
-    } else {
-      router.push(href);
-    }
+       setIsOpened(true);
+     } else {
+       // on desktop, immediately fire shared-element transition
+       onActivate(videoRef.current, href);
+     }
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -144,7 +133,7 @@ export default function InlineEntranceCard({
     setTiltStyle({
       transform: "perspective(1000px) translateY(0) rotateX(0) rotateY(0)",
       boxShadow: "none",
-      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+      transition: "transform 0.5s ease, box-shadow 0.3s ease",
     });
     setIsHovered(false);
   };
@@ -157,17 +146,29 @@ export default function InlineEntranceCard({
       tiltMaxAngleY={10}
       glareEnable={false}
       onEnter={() => setIsHovered(true)}
-      onLeave={() => setIsHovered(false)}
+      onLeave={handleMouseLeave}
+      
     >
       {/* Wrapper for unified drop-shadow */}
       <div
-        className="relative overflow-visible"
+        className="relative overflow-visible cursor-pointer"
         style={{ filter: isMobile ? "drop-shadow(0 8px 12px rgba(0,0,0,0.15))" : undefined }}
+        onClick={handleClick}
+        onPointerDown={handleClick}
       >
-        <div
-          onClick={handleClick}
+        <motion.div
+        // start at the collapsed height on mobile, or full card on desktop
+          initial={{ height: isMobile ? MOBILE_COLLAPSED : CARD_HEIGHT }}
+          animate={{ height: containerHeight }}
+          transition={{ duration: 0.3 }}
+          // when that expand finishes on mobile, trigger the shared-element
+          onAnimationComplete={() => {
+            if (isMobile && isOpened) {
+              onActivate(videoRef.current, href);
+              setIsOpened(false);
+            }
+          }}
           onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
           style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}
         >
           {/* Card frame */}
@@ -176,7 +177,7 @@ export default function InlineEntranceCard({
             <motion.div
               initial={{ height: TOP_DESKTOP }}
               animate={{ height: topHeight }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.5 }}
               style={{ position: "relative", overflow: "hidden" }}
             >
               <video
@@ -187,7 +188,6 @@ export default function InlineEntranceCard({
                 playsInline
                 style={{
                   position: "absolute",
-                  inset: 0,
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
@@ -221,8 +221,8 @@ export default function InlineEntranceCard({
                   fontFamily: "var(--font-serif)",
                   fontSize: isMobile ? 28 : 24,
                   fontWeight: isMobile ? 600 : 300,
-                  marginTop: !isMobile && isHovered ? 40 : 0,
-                  transition: "margin-top 0.3s ease",
+                  marginTop: !isMobile && isHovered ? 40 : 5,
+                  transition: "margin-top 0.5s ease",
                 }}
               >
                 {title}
@@ -234,7 +234,8 @@ export default function InlineEntranceCard({
               ) : null}
             </motion.div>
           </div>
-
+        </motion.div>
+        
         {!isMobile && (
           <motion.div
             // start fully BELOW the card:
@@ -244,7 +245,7 @@ export default function InlineEntranceCard({
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
             className="absolute bottom-0 left-0 w-full h-16
                        bg-white/30 backdrop-blur-md
-                       flex items-center justify-center pt-7"
+                       flex items-center justify-center pt-7 pointer-events-none"
             style={{
               borderBottomLeftRadius: 24,
               borderBottomRightRadius: 24,
@@ -260,26 +261,26 @@ export default function InlineEntranceCard({
         )}
 
           {/* Floating logo circle */}
-          {Logo ? (
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                width: CIRCLE_SIZE,
-                height: CIRCLE_SIZE,
-                borderRadius: CIRCLE_SIZE / 2,
-                border: "4px solid #e8e4d5",
-                background: "#e8e4d5",
-                overflow: "hidden",
-                ...circleStyle,
-                transition: "top 0.3s",
-              }}
-            >
-              <Logo width="100%" height="100%" />
-            </div>
-          ) : null}
+          {Logo && (
+          <div 
+          style={{
+            position:      "absolute",
+            zIndex: 1,
+            left:          "50%",
+            width:         CIRCLE_SIZE,
+            height:        CIRCLE_SIZE,
+            borderRadius:  CIRCLE_SIZE / 2,
+            border:        "4px solid #e8e4d5",
+            background:    "#e8e4d5",
+            overflow:      "hidden",
+            ...circleStyle,
+            transition:    "top 0.5s",
+          }}
+          >
+            <Logo width="100%" height="100%" />
+          </div>
+        )}
         </div>
-      </div>
     </Tilt>
   );
 }

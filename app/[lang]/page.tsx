@@ -3,12 +3,15 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
+import { useRouter } from "next/navigation";
+
 import ReservationButton from "./ReservationButton";
-import AlebrijeDraw from "@/components/animations/AlebrijeDraw";
+import AlebrijeDraw       from "@/components/animations/AlebrijeDraw";
 import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
-import CasaLogo from "@/assets/alebrije-2.svg";
-import FarmLogo from "@/assets/alebrije-1-Green.svg";
-import CafeLogo from "@/assets/alebrije-3.svg";
+
+import CasaLogo  from "@/assets/alebrije-2.svg";
+import FarmLogo  from "@/assets/alebrije-1-Green.svg";
+import CafeLogo  from "@/assets/alebrije-3.svg";
 import OliveaLogo from "@/assets/alebrije-1.svg";
 
 // 1) Container variants for staggered reveal
@@ -16,7 +19,7 @@ const containerVariants: Variants = {
   hidden: {},
   show: {
     transition: {
-      delayChildren: 0.3,
+      delayChildren:   0.3,
       staggerChildren: 0.2,
     },
   },
@@ -33,20 +36,29 @@ const itemVariants: Variants = {
 };
 
 export default function HomePage() {
+  const router = useRouter();
   const overlayControls = useAnimation();
-  const logoControls = useAnimation();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const logoControls    = useAnimation();
+  const cardControls    = useAnimation();
+
+  const videoRef      = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
 
   const [drawComplete, setDrawComplete] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
-  const [revealMain, setRevealMain] = useState(false);
+  const [showLoader,   setShowLoader]   = useState(true);
+  const [revealMain,   setRevealMain]   = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
 
+  // ** New state for shared-element transition **
+  const [transitionInfo, setTransitionInfo] = useState<{
+    videoEl: HTMLVideoElement | null;
+    href:    string;
+  } | null>(null);
+
   const sections = [
-    { href: "/es/casa", title: "Casa Olivea", description: "A home you can stay in.", Logo: CasaLogo },
+    { href: "/es/casa",       title: "Casa Olivea",         description: "A home you can stay in.", Logo: CasaLogo },
     { href: "/es/restaurant", title: "Olivea Farm To Table", description: "A garden you can eat from.", Logo: FarmLogo },
-    { href: "/es/cafe", title: "Olivea Café", description: "Wake up with flavor.", Logo: CafeLogo },
+    { href: "/es/cafe",       title: "Olivea Café",         description: "Wake up with flavor.",      Logo: CafeLogo },
   ];
 
   const mobileSections = isMobileMain
@@ -56,7 +68,7 @@ export default function HomePage() {
       ]
     : sections;
 
-  // Detect mobile viewport
+  // Detect mobile viewport for layout
   useEffect(() => {
     const onResize = () => setIsMobileMain(window.innerWidth < 768);
     onResize();
@@ -64,15 +76,13 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Loader + intro animation sequence
+  // Loader + intro animation (unchanged)
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
     (async () => {
-      // wait before draw starts
       await new Promise((r) => setTimeout(r, 1500));
       setDrawComplete(true);
 
-      // wait for video to load
       const vid = videoRef.current!;
       if (vid.readyState < 2) {
         await new Promise<void>((res) =>
@@ -86,32 +96,74 @@ export default function HomePage() {
       // animate overlay to video bounds
       const rect = vid.getBoundingClientRect();
       await overlayControls.start({
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-        height: rect.height,
+        top:          rect.top + window.scrollY,
+        left:         rect.left + window.scrollX,
+        width:        rect.width,
+        height:       rect.height,
         borderRadius: "1.5rem",
-        transition: { duration: 0.8, ease: "easeInOut" },
+        transition:   { duration: 0.8, ease: "easeInOut" },
       });
 
-      // small delay before logo
+      // small delay, then logo
       await new Promise((r) => setTimeout(r, 400));
-      // animate logo into place
       const pad = logoTargetRef.current!.getBoundingClientRect();
       await logoControls.start({
-        top: pad.top + pad.height / 2 + window.scrollY,
-        left: pad.left + pad.width / 2 + window.scrollX,
-        x: "-50%",
-        y: "-50%",
-        scale: pad.width / 240,
+        top:    pad.top + pad.height / 2 + window.scrollY,
+        left:   pad.left + pad.width / 2 + window.scrollX,
+        x:      "-50%",
+        y:      "-50%",
+        scale:  pad.width / 240,
         transition: { type: "spring", stiffness: 200, damping: 25 },
       });
 
-      // fade overlay out
+      // fade overlay
       await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
       setShowLoader(false);
     })();
   }, [overlayControls, logoControls]);
+
+  // ** Shared-element transition effect **
+  useEffect(() => {
+    if (!transitionInfo) return;
+    (async () => {
+      const { videoEl, href } = transitionInfo;
+      if (!videoEl) {
+        router.push(href);
+        return;
+      }
+      // 1) measure the card's video
+      const startRect = videoEl.getBoundingClientRect();
+      // place and show our overlay
+      await cardControls.start({
+        top:      startRect.top,
+        left:     startRect.left,
+        width:    startRect.width,
+        height:   startRect.height,
+        opacity:  1,
+        transition:{ duration: 0 },
+      });
+      // 2) on mobile we want *full viewport*, on desktop use hero-video bounds
+      const heroRect = isMobileMain
+        ? { top: window.scrollY, left: 0, width: window.innerWidth, height: window.innerHeight }
+        : videoRef.current!.getBoundingClientRect();
+
+      // animate to fill
+      await cardControls.start({
+        top:    heroRect.top + window.scrollY,
+        left:   heroRect.left + window.scrollX,
+        width:  heroRect.width,
+        height: heroRect.height,
+        transition: { duration: 0.8, ease: "easeInOut" },
+      });
+      // 3) finally navigate
+      router.push(href);
+    })();
+  }, [transitionInfo, cardControls, router]);
+
+  // Handler passed down into each card
+  const handleActivate = (videoEl: HTMLVideoElement | null, href: string) => {
+    setTransitionInfo({ videoEl, href });
+  };
 
   return (
     <>
@@ -125,7 +177,7 @@ export default function HomePage() {
             exit={{ opacity: 0, transition: { duration: 0.4 } }}
             style={{ position: "fixed", background: "var(--olivea-olive)", zIndex: 50 }}
           >
-            {/* Mobile progress */}
+            {/* Mobile Loader */}
             <div className="absolute inset-0 md:hidden flex items-center justify-start pl-4 py-6 pointer-events-none">
               <div className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden">
                 <motion.div
@@ -137,10 +189,14 @@ export default function HomePage() {
                 />
               </div>
             </div>
-            {/* Desktop progress */}
+        
+            {/* Desktop Loader */}
             <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-none">
               <span>Donde El Corazón es el Huerto</span>
-              <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: "#e2be8f20" }}>
+              <div
+                className="flex-1 h-2 rounded-full mx-6 relative"
+                style={{ backgroundColor: "#e2be8f20" }}
+              >
                 <motion.div
                   className="absolute top-0 left-0 h-full rounded-full bg-[#e2be8f]"
                   initial={{ width: 0 }}
@@ -164,7 +220,35 @@ export default function HomePage() {
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
             style={{ position: "fixed", zIndex: 100, width: 240, height: 240, transformOrigin: "center center" }}
           >
-            <AlebrijeDraw size={240} strokeDuration={drawComplete ? 0 : 5} fillDuration={drawComplete ? 0 : 7} />
+            <AlebrijeDraw size={240} strokeDuration={drawComplete?0:5} fillDuration={drawComplete?0:7} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Shared-element video overlay */}
+      <AnimatePresence>
+        {transitionInfo && (
+          <motion.div
+            key={transitionInfo.href}
+            initial={false} 
+            animate={cardControls}
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+            style={{
+              position: "fixed",
+              top: 0, 
+              left: 0,
+              width: 0,
+              height: 0,
+              zIndex:   200,
+              overflow: "hidden",
+              borderRadius: "1.5rem",
+            }}
+          >
+            <video
+              src={transitionInfo.videoEl?.currentSrc || transitionInfo.videoEl?.src}
+              muted autoPlay loop playsInline
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -176,12 +260,12 @@ export default function HomePage() {
                       revealMain ? "opacity-100" : "opacity-0"
                     }`}
       >
-        {/* Background Video */}
+        {/* Background video hero */}
         <div
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
           style={{
-            width: "98vw",
-            height: isMobileMain ? "30vh" : "98vh",
+            width:        "98vw",
+            height:       isMobileMain ? "30vh" : "98vh",
             borderRadius: "1.5rem",
           }}
         >
@@ -217,12 +301,12 @@ export default function HomePage() {
             {mobileSections.map((sec, i) => (
               <motion.div key={sec.href} variants={itemVariants}>
                 <InlineEntranceCard
-                  title={sec.title}
-                  href={sec.href}
+                  title     ={sec.title}
+                  href      ={sec.href}
                   description={sec.description}
-                  Logo={sec.Logo}
-                  index={i}
-                  onActivate={() => {}}
+                  Logo      ={sec.Logo}
+                  index     ={i}
+                  onActivate={handleActivate}
                 />
               </motion.div>
             ))}
@@ -239,24 +323,24 @@ export default function HomePage() {
           initial="hidden"
           animate={!showLoader ? "show" : "hidden"}
         >
-          <div className="flex gap-6 mb-0 md:pt-16">
+          <div className="flex gap-6 md:pt-16 mb-0">
             {sections.map((sec, i) => (
               <motion.div key={sec.href} variants={itemVariants}>
                 <InlineEntranceCard
-                  title={sec.title}
-                  href={sec.href}
+                  title     ={sec.title}
+                  href      ={sec.href}
                   description={sec.description}
-                  Logo={sec.Logo}
-                  index={i}
-                  onActivate={() => {}}
+                  Logo      ={sec.Logo}
+                  index     ={i}
+                  onActivate={handleActivate}
                 />
               </motion.div>
             ))}
           </div>
           <motion.div
-            variants={itemVariants}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 + sections.length * 0.2 }}
-            className="mt-8 md:mt-15"
+            variants   ={itemVariants}
+            transition ={{ duration: 0.6, ease: "easeOut", delay: 0.3 + sections.length * 0.2 }}
+            className ="mt-8 md:mt-15"
           >
             <ReservationButton />
           </motion.div>
