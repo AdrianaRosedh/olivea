@@ -1,0 +1,15 @@
+// .vscode/settings.json
+{
+  // turn off VS Code’s default validator
+  "css.validate": false,
+  // enable PostCSS validator (requires a PostCSS or Tailwind extension)
+  "postcss.validate": true,
+  // make sure *every* .css in any folder is treated as PostCSS
+  "files.associations": {
+    "**/*.css": "postcss"
+  },
+
+  // IGNORE unknown @rules (like @tailwind, @apply)
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore"
+}

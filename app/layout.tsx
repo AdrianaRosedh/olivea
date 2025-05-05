@@ -1,4 +1,3 @@
-// app/layout.tsx
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";

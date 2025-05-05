@@ -1,6 +1,5 @@
-@import "tailwindcss";     
-@import "tw-animate-css";   
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
 :root {
   --olivea-cream: #e8e4d5;
@@ -16,9 +15,9 @@
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
+
   --line-height-body: 1.6;
   --letter-spacing-nav: 0.05em;
-
   --radius: 0.625rem;
 
   --background: var(--olivea-cream);
@@ -70,29 +69,33 @@
     outline-color: var(--ring);
   }
 
-  /* Clearly remove all scrollbars globally while preserving scrollability */
   ::-webkit-scrollbar {
     display: none !important;
   }
 
   body {
-    -ms-overflow-style: none; /* IE & Edge */
-    scrollbar-width: none;    /* Firefox */
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-sans
-    );
+    font-family: var(--font-sans);
     line-height: var(--line-height-body);
     overflow: visible !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
     @apply antialiased;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  html, body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-serif);
     line-height: 1.2;
     font-weight: 500;
@@ -120,104 +123,49 @@
     font-style: italic;
   }
 
-  p,
-  li,
-  blockquote {
+  p, li, blockquote {
     font-size: 1rem;
     @apply md:text-lg;
     line-height: var(--line-height-body);
   }
 
-  nav a,
-  button,
-  .nav-item {
+  nav a, button, .nav-item {
     font-family: var(--font-sans);
     font-weight: 500;
     letter-spacing: var(--letter-spacing-nav);
   }
 
-  blockquote,
-  .accent-text,
-  .cta {
+  blockquote, .accent-text, .cta {
     font-family: var(--font-serif);
     font-weight: 600;
   }
-}
 
-body::-webkit-scrollbar {
-  display: none;
-}
+  section[id] {
+    scroll-margin-top: 8rem;
+    scroll-margin-bottom: 3rem;
+  }
 
-body {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  overflow-y: auto !important; 
-  overscroll-behavior: none;
-  height: 100%;
-  scroll-behavior: smooth;
-  background-color: var(--olivea-cream) !important; /* clearly force the cream background */
-  color: var(--olivea-ink) !important;
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  height: 100vh;
-}
-
-html {
-  overflow: hidden !important; 
-  height: 100%;
-}
-
-html,
-body {
-  overflow: auto !important;
-  height: 100%; 
-  overscroll-behavior: none;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  margin: 0;
-  padding: 0;
-}
-
-main {
-  min-height: 100vh;
-  overflow-y: visible;
-  overflow-x: hidden;
-}
-
-section[id] {
-  scroll-margin-top: 8rem;
-  scroll-margin-bottom: 3rem;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-main, section, div {
-  overflow: visible !important;
-}
-
-nav, footer, .dock-left, .dock-right {
-  color: var(--olivea-ink);
-}
-
-
-/* at the bottom of globals.css */
-@layer utilities {
-  /* allow us to set transform‐origin from CSS var */
-  .origin-\[var\(--hover-x\)_50\%\] {
-    transform-origin: var(--hover-x) 50%;
+  nav, footer, .dock-left, .dock-right {
+    color: var(--olivea-ink);
   }
 }
 
-/* liquid fill hover */
+@layer utilities {
+  .origin-\[var\(--hover-x\)_50\%\] {
+    transform-origin: var(--hover-x) 50%;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+/* Liquid fill hover effect */
 @media (min-width: 768px) {
   .fill-nav a {
     --hover-x: 50%;
@@ -227,7 +175,15 @@ nav, footer, .dock-left, .dock-right {
     color: var(--olivea-olive);
     border: 1px solid var(--olivea-olive);
     transition: color 0.3s ease;
+    background: var(--olivea-mist);
   }
+
+  .fill-nav a.active {
+    background: var(--olivea-clay) !important;
+    color: white !important;
+    border-color: var(--olivea-clay) !important;
+  }
+
   .fill-nav a::before {
     content: "";
     position: absolute;
@@ -237,77 +193,50 @@ nav, footer, .dock-left, .dock-right {
     transition: clip-path 0.6s ease-out;
     z-index: -1;
   }
-  .fill-nav a:hover::before {
+
+  .fill-nav a:not(.active):hover::before {
     clip-path: circle(150% at var(--hover-x) 50%);
   }
-  .fill-nav a:hover {
+
+  .fill-nav a:not(.active):hover {
     color: white;
   }
-  /* default inactive state */
-.fill-nav a {
-  background: var(--olivea-mist);
-  border-color: var(--olivea-olive);
 }
 
-/* active state */
-.fill-nav a.active {
-  background: var(--olivea-clay) !important;
-  color: white !important;
-  border-color: var(--olivea-clay) !important;
-}
-
-/* leave the hover fill only for inactive */
-.fill-nav a:not(.active):hover::before {
-  clip-path: circle(150% at var(--hover-x) 50%);
-}
-/* and ensure the text turns white on hover */
-.fill-nav a:not(.active):hover {
-  color: white;
-}
-}
-
-/* Allow Lenis to take over the scroll container */
+/* Lenis scrolling */
 html.lenis,
 html.lenis body {
-  height: auto;              /* don’t lock the height */
-  overflow: visible;         /* allow Lenis to handle overflow */
+  height: auto;
+  overflow: visible;
 }
 
-/* Turn off native smooth scrolling when Lenis is active */
 .lenis.lenis-smooth {
   scroll-behavior: auto !important;
 }
 
+/* Scrollbar styling */
 :root {
-  /* Scroll percentage 0→1 set in JS */
   --scroll-per: 0;
-  /* Scrollbar colors */
-  --scrollbar-fill: var(--olivea-sage);
-  --scrollbar-bg:   var(--olivea-cream);
 }
 
-/* Firefox */
 html {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-fill) var(--scrollbar-bg);
 }
 
-/* WebKit browsers (Chrome, Safari, Edge) */
 html::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 html::-webkit-scrollbar-track {
-  /* fill the track dynamically based on scroll */
-  background: 
-    linear-gradient(
-      to bottom,
-      var(--scrollbar-fill) 0%,
-      var(--scrollbar-fill) calc(var(--scroll-per) * 100%),
-      var(--scrollbar-bg)   calc(var(--scroll-per) * 100%),
-      var(--scrollbar-bg)   100%
-    );
+  background: linear-gradient(
+    to bottom,
+    var(--scrollbar-fill) 0%,
+    var(--scrollbar-fill) calc(var(--scroll-per) * 100%),
+    var(--scrollbar-bg) calc(var(--scroll-per) * 100%),
+    var(--scrollbar-bg) 100%
+  );
 }
 
 html::-webkit-scrollbar-thumb {
@@ -319,4 +248,3 @@ html::-webkit-scrollbar-thumb {
 html::-webkit-scrollbar-thumb:hover {
   background-color: var(--olivea-olive);
 }
-

@@ -4,6 +4,7 @@ import animatePlugin from "tailwindcss-animate";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  cssModules: true,
   experimental: {
     serverActions: { enabled: true },
   },
