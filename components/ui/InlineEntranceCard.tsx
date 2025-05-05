@@ -68,6 +68,11 @@ export default function InlineEntranceCard({
       : MOBILE_COLLAPSED
     : CARD_HEIGHT;
 
+  // Circle positioning style
+  const circleStyle: CSSProperties = isMobile
+    ? { top: 0, transform: "translate(-50%, -50%)" }
+    : { top: topHeight, transform: "translate(-50%, -50%)" };
+
   // Mobile stacking
   const mobileStyle: CSSProperties = isMobile && !isOpened
     ? { transform: `translateY(${index * 40}px) scale(${1 - index * 0.05})`, transition: "transform 0.5s ease" }
@@ -86,7 +91,11 @@ export default function InlineEntranceCard({
     const vid = videoRef.current;
     if (!vid) return;
     const shouldPlay = (!isMobile && isHovered) || (isMobile && isOpened);
-    shouldPlay ? vid.play().catch(() => {}) : vid.pause();
+    if (shouldPlay) {
+      vid.play().catch(() => {});
+    } else {
+      vid.pause();
+    }
   }, [isHovered, isOpened, isMobile]);
 
   // Mobile auto-navigate
@@ -94,14 +103,20 @@ export default function InlineEntranceCard({
     let timer: ReturnType<typeof setTimeout>;
     if (isMobile && isOpened) {
       onActivate();
-      timer = setTimeout(() => router.push(href), 5000);
+      timer = setTimeout(() => {
+        router.push(href);
+      }, 5000);
     }
     return () => clearTimeout(timer);
   }, [isMobile, isOpened, href, router, onActivate]);
 
   const handleClick = (e: MouseEvent) => {
     e.preventDefault();
-    isMobile ? setIsOpened(true) : router.push(href);
+    if (isMobile) {
+      setIsOpened(true);
+    } else {
+      router.push(href);
+    }
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -110,8 +125,8 @@ export default function InlineEntranceCard({
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
     setTiltStyle({
-      transform: `perspective(1000px) translateY(-8px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg)` ,
-      boxShadow: `${-x * 20}px ${y * 20}px 30px rgba(0,0,0,0.15)` ,
+      transform: `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`,
+      boxShadow: `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`,
       transition: "transform 0.1s ease-out, box-shadow 0.2s ease-out",
     });
   };
@@ -139,9 +154,7 @@ export default function InlineEntranceCard({
       {/* Wrapper for unified drop-shadow */}
       <div
         className="relative overflow-visible"
-        style={{
-          filter: isMobile ? "drop-shadow(0 8px 12px rgba(0,0,0,0.15))" : undefined,
-        }}
+        style={{ filter: isMobile ? "drop-shadow(0 8px 12px rgba(0,0,0,0.15))" : undefined }}
       >
         <div
           onClick={handleClick}
@@ -151,7 +164,7 @@ export default function InlineEntranceCard({
         >
           {/* Card frame */}
           <div style={{ border: "4px solid #e8e4d5", borderRadius: 24, overflow: "hidden", height: "100%" }}>
-            {/* Top */}
+            {/* Top section (video) */}
             <motion.div
               initial={{ height: TOP_DESKTOP }}
               animate={{ height: topHeight }}
@@ -170,12 +183,13 @@ export default function InlineEntranceCard({
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  opacity: ((!isMobile && isHovered) || (isMobile && isOpened)) ? 1 : 0,
                   transition: "opacity 0.5s",
+                  opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0,
                 }}
               />
             </motion.div>
-            {/* Bottom with title aligned lower on mobile */}
+
+            {/* Bottom section (title) */}
             <motion.div
               initial={{ height: BOTTOM_DEFAULT }}
               animate={{ height: bottomHeight }}
@@ -183,40 +197,38 @@ export default function InlineEntranceCard({
               style={{
                 background: "#e8e4d5",
                 paddingTop: isMobile && !isOpened ? 8 : 10,
-                paddingBottom: isMobile ? 16 : 8,
+                paddingBottom: isMobile ? 22 : 10,
                 paddingLeft: 16,
                 paddingRight: 16,
-                overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: isMobile
-                  ? "flex-end"
-                  : isHovered
-                    ? "flex-start"
-                    : "center",
+                justifyContent: isMobile ? "flex-end" : isHovered ? "flex-start" : "center",
               }}
             >
               <h3
                 style={{
                   margin: 0,
+                  zIndex: 2,
                   fontFamily: "var(--font-serif)",
                   fontSize: isMobile ? 28 : 24,
-                  fontWeight: isMobile ? 600 : 300, 
+                  fontWeight: isMobile ? 600 : 300,
+                  marginTop: !isMobile && isHovered ? 16 : 0,
+                  transition: "margin-top 0.3s ease",
                 }}
               >
                 {title}
               </h3>
-              {!isMobile && isHovered && (
+              {!isMobile && isHovered ? (
                 <p style={{ marginTop: 8, textAlign: "center", fontSize: 16, maxWidth: 224 }}>
                   {description}
                 </p>
-              )}
+              ) : null}
             </motion.div>
           </div>
 
-          {/* Floating logo circle positioned half out at top on mobile */}
-          {Logo && (
+          {/* Floating logo circle */}
+          {Logo ? (
             <div
               style={{
                 position: "absolute",
@@ -227,26 +239,13 @@ export default function InlineEntranceCard({
                 border: "4px solid #e8e4d5",
                 background: "#e8e4d5",
                 overflow: "hidden",
-                ...(isMobile
-                  ? { top: 0, transform: "translate(-50%, -50%)" }
-                  : { top: topHeight, transform: "translate(-50%, -50%)" }
-                ),
+                ...circleStyle,
                 transition: "top 0.3s",
               }}
             >
               <Logo width="100%" height="100%" />
             </div>
-          )}
-
-          {/* Mobile auto-progress */}
-          {isMobile && isOpened && (
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-              transition={{ duration: 5, ease: "linear" }}
-              style={{ position: "absolute", bottom: 0, left: 0, height: 4, background: "#b8a6ff" }}
-            />
-          )}
+          ) : null}
         </div>
       </div>
     </Tilt>
