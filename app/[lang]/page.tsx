@@ -37,7 +37,6 @@ const itemVariants: Variants = {
 export default function HomePage() {
   const overlayControls = useAnimation();
   const logoControls    = useAnimation();
-  const mainControls    = useAnimation(); 
 
   const videoRef      = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
@@ -176,9 +175,8 @@ export default function HomePage() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <motion.main
-        initial={{ y: 0 }}
-        animate={mainControls}
+      <main
+        
         className={`
           relative flex flex-col items-center justify-start md:justify-center
           bg-[var(--olivea-cream)] transition-opacity duration-500 min-h-screen
@@ -272,7 +270,7 @@ export default function HomePage() {
             <ReservationButton />
           </motion.div>
         </motion.div>
-      </motion.main>
+      </main>
     </>
   );
 }
