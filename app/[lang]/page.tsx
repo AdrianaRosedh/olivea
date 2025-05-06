@@ -3,7 +3,6 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
-import { useRouter } from "next/navigation";
 
 import ReservationButton from "./ReservationButton";
 import AlebrijeDraw       from "@/components/animations/AlebrijeDraw";
@@ -36,10 +35,8 @@ const itemVariants: Variants = {
 };
 
 export default function HomePage() {
-  const router = useRouter();
   const overlayControls = useAnimation();
   const logoControls    = useAnimation();
-  const cardControls    = useAnimation();
   const mainControls    = useAnimation(); 
 
   const videoRef      = useRef<HTMLVideoElement>(null);
@@ -50,11 +47,6 @@ export default function HomePage() {
   const [revealMain,   setRevealMain]   = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
 
-  // ** New state for shared-element transition **
-  const [transitionInfo, setTransitionInfo] = useState<{
-    videoEl: HTMLVideoElement | null;
-    href:    string;
-  } | null>(null);
 
   const sections = [
     { href: "/es/casa",       title: "Casa Olivea",         description: "A home you can stay in.", Logo: CasaLogo },
@@ -123,64 +115,6 @@ export default function HomePage() {
     })();
   }, [overlayControls, logoControls]);
 
-  // ** Shared-element transition effect **
-  useEffect(() => {
-    if (!transitionInfo) return;
-  
-    (async () => {
-      const { videoEl, href } = transitionInfo;
-      if (!videoEl) {
-        router.push(href);
-        return;
-      }
-  
-      const startRect = videoEl.getBoundingClientRect();
-      await cardControls.start({
-        top: startRect.top,
-        left: startRect.left,
-        width: startRect.width,
-        height: startRect.height,
-        opacity: 1,
-        transition: { duration: 0 },
-      });
-  
-      const heroRect = isMobileMain
-        ? { top: window.scrollY, left: 0, width: window.innerWidth, height: window.innerHeight }
-        : videoRef.current!.getBoundingClientRect();
-  
-      await cardControls.start({
-        top: heroRect.top + window.scrollY,
-        left: heroRect.left + window.scrollX,
-        width: heroRect.width,
-        height: heroRect.height,
-        transition: { duration: 0.8, ease: "easeInOut" },
-      });
-  
-      await new Promise((r) => setTimeout(r, 5000));
-  
-      await cardControls.start({
-        y: "-100vh",
-        transition: { duration: 0.8, ease: "easeInOut" },
-      });
-      
-      // safely wrap in setTimeout or directly call outside promise.all:
-      window.scrollBy({
-        top: window.innerHeight,
-        behavior: "smooth",
-      });
-  
-      await new Promise((r) => setTimeout(r, 800));
-  
-      router.push(href);
-      setTransitionInfo(null);
-    })();
-  }, [transitionInfo, cardControls, router, isMobileMain]);
-
-  // Handler passed down into each card
-  const handleActivate = (videoEl: HTMLVideoElement | null, href: string) => {
-    setTransitionInfo({ videoEl, href });
-  };
-
   return (
     <>
       {/* Loader Overlay */}
@@ -241,34 +175,6 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* Shared-element video overlay */}
-      <AnimatePresence>
-        {transitionInfo && (
-          <motion.div
-            key={transitionInfo.href}
-            initial={false} 
-            animate={cardControls}
-            exit={{ opacity: 0, transition: { duration: 0.2 } }}
-            style={{
-              position: "fixed",
-              top: 0, 
-              left: 0,
-              width: 0,
-              height: 0,
-              zIndex:   200,
-              overflow: "hidden",
-              borderRadius: "1.5rem",
-            }}
-          >
-            <video
-              src={transitionInfo.videoEl?.currentSrc || transitionInfo.videoEl?.src}
-              muted autoPlay loop playsInline
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Main Content */}
       <motion.main
         initial={{ y: 0 }}
@@ -278,6 +184,10 @@ export default function HomePage() {
           bg-[var(--olivea-cream)] transition-opacity duration-500 min-h-screen
           ${revealMain ? "opacity-100" : "opacity-0"}
         `}
+        style={{
+          height: '100svh',    
+          overflow: 'hidden'   
+        }}
       >
         {/* Background video hero */}
         <div
@@ -325,7 +235,6 @@ export default function HomePage() {
                   description={sec.description}
                   Logo      ={sec.Logo}
                   index     ={i}
-                  onActivate={handleActivate}
                 />
               </motion.div>
             ))}
@@ -351,7 +260,6 @@ export default function HomePage() {
                   description={sec.description}
                   Logo      ={sec.Logo}
                   index     ={i}
-                  onActivate={handleActivate}
                 />
               </motion.div>
             ))}

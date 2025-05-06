@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, MouseEvent, CSSProperties } from "react";
 import type { ComponentType, SVGProps } from "react";
 import Tilt from "react-parallax-tilt";
 import { motion } from "framer-motion";
+import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 
 export interface InlineEntranceCardProps {
   title: string;
@@ -12,9 +13,6 @@ export interface InlineEntranceCardProps {
   videoSrc?: string;
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
   className?: string;
-  /** Called with the video element and href when the user “activates” the card */
-  onActivate?: (videoEl: HTMLVideoElement | null, href: string) => void;
-  /** position in mobile stack */
   index?: number;
 }
 
@@ -25,10 +23,10 @@ export default function InlineEntranceCard({
   videoSrc = "/videos/homepage-temp.mp4",
   Logo,
   className = "",
-  onActivate = () => {},
   index = 0,
 }: InlineEntranceCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { startTransition } = useSharedTransition();
 
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -107,13 +105,18 @@ export default function InlineEntranceCard({
 
   const handleClick = (e: MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation()
+    e.stopPropagation();
+  
+    const playbackTime = videoRef.current?.currentTime || 0;
+    const bounds = videoRef.current?.getBoundingClientRect();
+  
+    if (!bounds) return; // safety check
+  
     if (isMobile) {
-       setIsOpened(true);
-     } else {
-       // on desktop, immediately fire shared-element transition
-       onActivate(videoRef.current, href);
-     }
+      setIsOpened(true);
+    } else {
+      startTransition(videoSrc, playbackTime, href, bounds); // ✅ pass bounds
+    }
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -164,7 +167,10 @@ export default function InlineEntranceCard({
           // when that expand finishes on mobile, trigger the shared-element
           onAnimationComplete={() => {
             if (isMobile && isOpened) {
-              onActivate(videoRef.current, href);
+              const playbackTime = videoRef.current?.currentTime || 0;
+              const bounds = videoRef.current?.getBoundingClientRect();
+              if (!bounds) return;
+              startTransition(videoSrc, playbackTime, href, bounds);
               setIsOpened(false);
             }
           }}
