@@ -175,18 +175,7 @@ export default function HomePage() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main
-        
-        className={`
-          relative flex flex-col items-center justify-start md:justify-center
-          bg-[var(--olivea-cream)] transition-opacity duration-500 min-h-screen
-          ${revealMain ? "opacity-100" : "opacity-0"}
-        `}
-        style={{
-          height: '100svh',    
-          overflow: 'hidden'   
-        }}
-      >
+      <main className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${revealMain ? "opacity-100" : "opacity-0"}`}>
         {/* Background video hero */}
         <div
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
