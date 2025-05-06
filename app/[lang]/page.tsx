@@ -194,7 +194,7 @@ export default function HomePage() {
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
           style={{
             width:        "98vw",
-            height:       isMobileMain ? "30vh" : "98vh",
+            height:       isMobileMain ? "30svh" : "98svh",
             borderRadius: "1.5rem",
           }}
         >
