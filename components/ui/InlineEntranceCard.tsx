@@ -44,7 +44,7 @@ export default function InlineEntranceCard({
   const CARD_HEIGHT      = 210 * scale;
   const TOP_DESKTOP      = 128 * scale;
   const TOP_COLLAPSED    = 96  * scale;
-  const MOBILE_COLLAPSED = 96  * scale;  // mobile stays 96 because scale=1 there
+  const MOBILE_COLLAPSED = 96;  // mobile stays 96 because scale=1 there
   const BOTTOM_DEFAULT   = CARD_HEIGHT - TOP_DESKTOP;
   const CIRCLE_SIZE      = 80  * scale;
   const UNDERLAY_HEIGHT  = 25  * scale;
