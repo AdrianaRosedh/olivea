@@ -40,6 +40,7 @@ export default function HomePage() {
   const overlayControls = useAnimation();
   const logoControls    = useAnimation();
   const cardControls    = useAnimation();
+  const mainControls    = useAnimation(); 
 
   const videoRef      = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
@@ -125,40 +126,55 @@ export default function HomePage() {
   // ** Shared-element transition effect **
   useEffect(() => {
     if (!transitionInfo) return;
+  
     (async () => {
       const { videoEl, href } = transitionInfo;
       if (!videoEl) {
         router.push(href);
         return;
       }
-      // 1) measure the card's video
+  
       const startRect = videoEl.getBoundingClientRect();
-      // place and show our overlay
       await cardControls.start({
-        top:      startRect.top,
-        left:     startRect.left,
-        width:    startRect.width,
-        height:   startRect.height,
-        opacity:  1,
-        transition:{ duration: 0 },
+        top: startRect.top,
+        left: startRect.left,
+        width: startRect.width,
+        height: startRect.height,
+        opacity: 1,
+        transition: { duration: 0 },
       });
-      // 2) on mobile we want *full viewport*, on desktop use hero-video bounds
+  
       const heroRect = isMobileMain
         ? { top: window.scrollY, left: 0, width: window.innerWidth, height: window.innerHeight }
         : videoRef.current!.getBoundingClientRect();
-
-      // animate to fill
+  
       await cardControls.start({
-        top:    heroRect.top + window.scrollY,
-        left:   heroRect.left + window.scrollX,
-        width:  heroRect.width,
+        top: heroRect.top + window.scrollY,
+        left: heroRect.left + window.scrollX,
+        width: heroRect.width,
         height: heroRect.height,
         transition: { duration: 0.8, ease: "easeInOut" },
       });
-      // 3) finally navigate
+  
+      await new Promise((r) => setTimeout(r, 5000));
+  
+      await cardControls.start({
+        y: "-100vh",
+        transition: { duration: 0.8, ease: "easeInOut" },
+      });
+      
+      // safely wrap in setTimeout or directly call outside promise.all:
+      window.scrollBy({
+        top: window.innerHeight,
+        behavior: "smooth",
+      });
+  
+      await new Promise((r) => setTimeout(r, 800));
+  
       router.push(href);
+      setTransitionInfo(null);
     })();
-  }, [transitionInfo, cardControls, router]);
+  }, [transitionInfo, cardControls, router, isMobileMain]);
 
   // Handler passed down into each card
   const handleActivate = (videoEl: HTMLVideoElement | null, href: string) => {
@@ -254,11 +270,14 @@ export default function HomePage() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main
-        className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center
-                    bg-[var(--olivea-cream)] transition-opacity duration-500 ${
-                      revealMain ? "opacity-100" : "opacity-0"
-                    }`}
+      <motion.main
+        initial={{ y: 0 }}
+        animate={mainControls}
+        className={`
+          relative flex flex-col items-center justify-start md:justify-center
+          bg-[var(--olivea-cream)] transition-opacity duration-500 min-h-screen
+          ${revealMain ? "opacity-100" : "opacity-0"}
+        `}
       >
         {/* Background video hero */}
         <div
@@ -345,7 +364,7 @@ export default function HomePage() {
             <ReservationButton />
           </motion.div>
         </motion.div>
-      </main>
+      </motion.main>
     </>
   );
 }
