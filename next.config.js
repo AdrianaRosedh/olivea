@@ -1,12 +1,10 @@
 // next.config.js
-import animatePlugin from "tailwindcss-animate";
-
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   cssModules: true,
   experimental: {
     serverActions: { enabled: true },
+    optimizeCss: true, // 🔥 optimized CSS bundling
   },
   turbopack: {
     rules: {
@@ -27,27 +25,12 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     unoptimized: false,
   },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      issuer: /\.[jt]sx?$/,
-      use: ["@svgr/webpack"],
-    });
-    return config;
-  },
   async headers() {
     return [
-      // 1) Allow our Cloudbeds HTML wrapper to be framed same-origin
       {
         source: "/cloudbeds-immersive.html",
-        headers: [
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
-          },
-        ],
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
       },
-      // 2) All other routes get the strict security headers
       {
         source: "/(.*)",
         headers: [
@@ -72,19 +55,12 @@ const nextConfig = {
             value: "camera=(), microphone=(), geolocation=()",
           },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          // Note: we omit COEP so third-party widgets can load correctly
         ],
       },
     ];
   },
   async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/es",
-        permanent: false,
-      },
-    ];
+    return [{ source: "/", destination: "/es", permanent: false }];
   },
   compiler: {
     removeConsole:
