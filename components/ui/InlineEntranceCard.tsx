@@ -13,7 +13,8 @@ export interface InlineEntranceCardProps {
   videoSrc?: string;
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
   className?: string;
-  index?: number;
+  onActivate?: () => void;
+  index?: number; 
 }
 
 export default function InlineEntranceCard({
@@ -23,6 +24,7 @@ export default function InlineEntranceCard({
   videoSrc = "/videos/homepage-temp.mp4",
   Logo,
   className = "",
+  onActivate = () => {},
   index = 0,
 }: InlineEntranceCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -111,6 +113,8 @@ export default function InlineEntranceCard({
     const bounds = videoRef.current?.getBoundingClientRect();
   
     if (!bounds) return; // safety check
+
+    onActivate?.();
   
     if (isMobile) {
       setIsOpened(true);

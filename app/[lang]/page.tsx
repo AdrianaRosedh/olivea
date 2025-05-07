@@ -221,6 +221,7 @@ export default function HomePage() {
                   href      ={sec.href}
                   description={sec.description}
                   Logo      ={sec.Logo}
+                  onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                   index     ={i}
                 />
               </motion.div>
@@ -246,6 +247,7 @@ export default function HomePage() {
                   href      ={sec.href}
                   description={sec.description}
                   Logo      ={sec.Logo}
+                  onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                   index     ={i}
                 />
               </motion.div>

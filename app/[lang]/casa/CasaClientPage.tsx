@@ -1,60 +1,86 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import type { AppDictionary } from "../dictionaries";
 import { TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
+import { motion, useAnimation } from "framer-motion";
 
-// Clearly defined section IDs
 const SECTION_IDS = ["rooms", "breakfast", "experiences", "location"] as const;
-type SectionId = typeof SECTION_IDS[number];
 
 interface CasaClientPageProps {
   dict: AppDictionary;
 }
 
 export default function CasaClientPage({ dict }: CasaClientPageProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const controlsVideo = useAnimation();
+  const controlsContent = useAnimation();
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Smooth-scroll anchor links
   useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
-      if (!link) return;
-      e.preventDefault();
-      const id = link.getAttribute("href")!.slice(1) as SectionId;
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        window.history.pushState(null, "", `#${id}`);
+    const onResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    const fromHomePage = sessionStorage.getItem("fromHomePage");
+
+    const animateSequence = async () => {
+      if (fromHomePage) {
+        await new Promise((res) => setTimeout(res, 3000)); // Cinematic pause
+        controlsVideo.start({
+          y: "-100vh",
+          transition: { duration: 1.2, ease: "easeInOut" },
+        });
+        controlsContent.start({
+          y: 0,
+          transition: { duration: 1.2, ease: "easeInOut" },
+        });
+        sessionStorage.removeItem("fromHomePage");
+      } else {
+        // Instantly position if not from homepage
+        controlsVideo.set({ y: "-100vh" });
+        controlsContent.set({ y: 0 });
       }
     };
-    document.addEventListener("click", onClick);
-    return () => {
-      document.removeEventListener("click", onClick);
-    };
-  }, []);
 
-  // “Bump” scroll to activate IntersectionObservers immediately
-  useEffect(() => {
-    const bump = () => {
-      window.scrollBy(0, 1);
-      window.scrollBy(0, -1);
-      document.dispatchEvent(new Event("scroll"));
-    };
-    [100, 300, 600].forEach((ms) => setTimeout(bump, ms));
-  }, []);
+    animateSequence();
+  }, [controlsVideo, controlsContent]);
 
   return (
     <>
-      <div ref={containerRef}>
+      {/* Video Overlay */}
+      <motion.div
+        initial={{ y: 0 }}
+        animate={controlsVideo}
+        className="fixed inset-0 flex justify-center overflow-hidden z-[1000]"
+      >
+        <video
+          src="/videos/homepage-temp.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className={`object-cover ${isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"}`}
+        />
+      </motion.div>
+
+      {/* Main Content */}
+      <motion.div
+        initial={{ y: "100vh" }}
+        animate={controlsContent}
+        className="relative"
+      >
         {SECTION_IDS.map((id) => (
           <section
             key={id}
             id={id}
             data-section-id={id}
-            className="min-h-screen w-full flex items-center justify-center
-                       px-6 snap-start"
+            className="min-h-screen w-full flex items-center justify-center px-6 snap-start"
             aria-labelledby={`${id}-heading`}
           >
             <div id={`${id}-heading`} className="max-w-2xl text-center">
@@ -67,7 +93,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
             </div>
           </section>
         ))}
-      </div>
+      </motion.div>
 
       <MobileSectionTracker sectionIds={SECTION_IDS as readonly string[]} />
     </>
