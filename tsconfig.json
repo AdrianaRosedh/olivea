@@ -14,12 +14,9 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-
-    // ←— Add these two:
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-
-    "baseUrl": ".", // required for `paths` to work
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@types": ["types"]
@@ -29,8 +26,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    "next.config.js"
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

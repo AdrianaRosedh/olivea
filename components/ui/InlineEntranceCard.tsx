@@ -113,13 +113,13 @@ export default function InlineEntranceCard({
     const bounds = videoRef.current?.getBoundingClientRect();
   
     if (!bounds) return; // safety check
-
-    onActivate?.();
+  
+    onActivate?.(); // ✅ Explicit call to ensure it always runs
   
     if (isMobile) {
       setIsOpened(true);
     } else {
-      startTransition(videoSrc, playbackTime, href, bounds); // ✅ pass bounds
+      startTransition(videoSrc, playbackTime, href, bounds);
     }
   };
 

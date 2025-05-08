@@ -1,10 +1,9 @@
-// next.config.js
+// next.config.js (explicitly cleaned up and optimized)
 const nextConfig = {
   reactStrictMode: true,
-  cssModules: true,
   experimental: {
-    serverActions: { enabled: true },
-    optimizeCss: true, // 🔥 optimized CSS bundling
+    serverActions: { allowServerActionsInClientComponents: true },
+    optimizeCss: true,
   },
   turbopack: {
     rules: {
@@ -14,12 +13,8 @@ const nextConfig = {
       },
     },
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
   images: {
     domains: ["olivea.com", "images.unsplash.com"],
     formats: ["image/avif", "image/webp"],
@@ -50,10 +45,7 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
         ],
       },
@@ -63,10 +55,9 @@ const nextConfig = {
     return [{ source: "/", destination: "/es", permanent: false }];
   },
   compiler: {
-    removeConsole:
-      process.env.NODE_ENV === "production"
-        ? { exclude: ["error", "warn"] }
-        : false,
+    removeConsole: process.env.NODE_ENV === "production"
+      ? { exclude: ["error", "warn"] }
+      : false,
     styledComponents: true,
   },
   poweredByHeader: false,

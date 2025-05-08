@@ -1,116 +1,100 @@
-// app/[lang]/page.tsx
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
-
+import dynamic from "next/dynamic";
 import ReservationButton from "./ReservationButton";
-import AlebrijeDraw       from "@/components/animations/AlebrijeDraw";
+
+import CasaLogo from "@/assets/alebrije-2.svg";
+import FarmLogo from "@/assets/alebrije-1-Green.svg";
+import CafeLogo from "@/assets/alebrije-3.svg";
+import OliveaLogo from "@/assets/alebrije-1.svg";
 import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
-import CasaLogo  from "@/assets/alebrije-2.svg";
-import FarmLogo  from "@/assets/alebrije-1-Green.svg";
-import CafeLogo  from "@/assets/alebrije-3.svg";
-import OliveaLogo from "@/assets/alebrije-1.svg";
+// Dynamically load only heavy animation components (better perf)
+const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
-// 1) Container variants for staggered reveal
 const containerVariants: Variants = {
   hidden: {},
-  show: {
-    transition: {
-      delayChildren:   0.3,
-      staggerChildren: 0.2,
-    },
-  },
+  show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } },
 };
 
-// 2) Item variants for each card/button
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
 export default function HomePage() {
   const overlayControls = useAnimation();
-  const logoControls    = useAnimation();
+  const logoControls = useAnimation();
 
-  const videoRef      = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
 
   const [drawComplete, setDrawComplete] = useState(false);
-  const [showLoader,   setShowLoader]   = useState(true);
-  const [revealMain,   setRevealMain]   = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
+  const [revealMain, setRevealMain] = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
 
-
   const sections = [
-    { href: "/es/casa",       title: "Casa Olivea",         description: "A home you can stay in.", Logo: CasaLogo },
+    { href: "/es/casa", title: "Casa Olivea", description: "A home you can stay in.", Logo: CasaLogo },
     { href: "/es/restaurant", title: "Olivea Farm To Table", description: "A garden you can eat from.", Logo: FarmLogo },
-    { href: "/es/cafe",       title: "Olivea Café",         description: "Wake up with flavor.",      Logo: CafeLogo },
+    { href: "/es/cafe", title: "Olivea Café", description: "Wake up with flavor.", Logo: CafeLogo },
   ];
 
   const mobileSections = isMobileMain
     ? [
-        ...sections.filter((s) => s.title === "Olivea Farm To Table"),
-        ...sections.filter((s) => s.title !== "Olivea Farm To Table"),
+        sections.find(s => s.title === "Olivea Farm To Table")!,
+        sections.find(s => s.title === "Casa Olivea")!,
+        sections.find(s => s.title === "Olivea Café")!,
       ]
     : sections;
 
-  // Detect mobile viewport for layout
-  useEffect(() => {
-    const onResize = () => setIsMobileMain(window.innerWidth < 768);
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+    useEffect(() => {
+      if (typeof window === 'undefined') return;  // explicit SSR check
+      const resizeHandler = () => setIsMobileMain(window.innerWidth < 768);
+      resizeHandler();
+      window.addEventListener("resize", resizeHandler);
+      return () => window.removeEventListener("resize", resizeHandler);
+    }, []);
 
-  // Loader + intro animation (unchanged)
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
     (async () => {
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise(res => setTimeout(res, 1500));
       setDrawComplete(true);
 
-      const vid = videoRef.current!;
-      if (vid.readyState < 2) {
-        await new Promise<void>((res) =>
-          vid.addEventListener("loadeddata", () => res(), { once: true })
-        );
-      }
+      const vid = videoRef.current;
+      if (vid && vid.readyState < 2)
+        await new Promise<void>(res => vid.addEventListener("loadeddata", () => res(), { once: true }));
 
-      document.body.classList.remove("overflow-hidden");
       setRevealMain(true);
+      const rect = vid!.getBoundingClientRect();
 
-      // animate overlay to video bounds
-      const rect = vid.getBoundingClientRect();
       await overlayControls.start({
-        top:          rect.top + window.scrollY,
-        left:         rect.left + window.scrollX,
-        width:        rect.width,
-        height:       rect.height,
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        height: rect.height,
         borderRadius: "1.5rem",
-        transition:   { duration: 0.8, ease: "easeInOut" },
-      });
+        transition: { duration: 0.8, ease: "easeInOut" },
+      }).catch(console.error);
 
-      // small delay, then logo
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise(res => setTimeout(res, 400));
       const pad = logoTargetRef.current!.getBoundingClientRect();
-      await logoControls.start({
-        top:    pad.top + pad.height / 2 + window.scrollY,
-        left:   pad.left + pad.width / 2 + window.scrollX,
-        x:      "-50%",
-        y:      "-50%",
-        scale:  pad.width / 240,
-        transition: { type: "spring", stiffness: 200, damping: 25 },
-      });
 
-      // fade overlay
+      await logoControls.start({
+        top: pad.top + pad.height / 2 + window.scrollY,
+        left: pad.left + pad.width / 2 + window.scrollX,
+        x: "-50%",
+        y: "-50%",
+        scale: pad.width / 240,
+        transition: { type: "spring", stiffness: 200, damping: 25 },
+      }).catch(console.error);
+
       await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
       setShowLoader(false);
+      document.body.classList.remove("overflow-hidden");
     })();
   }, [overlayControls, logoControls]);
 
@@ -121,10 +105,10 @@ export default function HomePage() {
         {showLoader && (
           <motion.div
             key="overlay"
-            initial={{ top: 0, left: 0, width: "100vw", height: "100vh", opacity: 1 }}
+            initial={{ opacity: 1 }}
             animate={overlayControls}
-            exit={{ opacity: 0, transition: { duration: 0.4 } }}
-            style={{ position: "fixed", background: "var(--olivea-olive)", zIndex: 50 }}
+            exit={{ opacity: 0 }}
+            style={{ position: "fixed", inset: 0, background: "var(--olivea-olive)", zIndex: 50 }}
           >
             {/* Mobile Loader */}
             <div className="absolute inset-0 md:hidden flex items-center justify-start pl-4 py-6 pointer-events-none">
@@ -167,9 +151,19 @@ export default function HomePage() {
             initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
             animate={logoControls}
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
-            style={{ position: "fixed", zIndex: 100, width: 240, height: 240, transformOrigin: "center center" }}
+            style={{
+              position: "fixed",
+              zIndex: 100,
+              width: 240,
+              height: 240,
+              transformOrigin: "center center",
+            }}
           >
-            <AlebrijeDraw size={240} strokeDuration={drawComplete?0:5} fillDuration={drawComplete?0:7} />
+            <AlebrijeDraw
+              size={240}
+              strokeDuration={drawComplete ? 0 : 5}
+              fillDuration={drawComplete ? 0 : 7}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -193,6 +187,7 @@ export default function HomePage() {
             loop
             playsInline
             preload="auto"
+            aria-label="Welcome to Olivea"
             className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
           />
           <div className="absolute inset-0 flex justify-center items-start">
