@@ -11,6 +11,40 @@ import CafeLogo from "@/assets/alebrije-3.svg";
 import OliveaLogo from "@/assets/alebrije-1.svg";
 import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
+function AnimatedDesktopLoader() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let start: number | null = null;
+    const duration = 3500;
+
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progressTime = timestamp - start;
+      const percent = Math.min((progressTime / duration) * 100, 100);
+      setProgress(Math.floor(percent));
+      if (progressTime < duration) requestAnimationFrame(step);
+    };
+
+    requestAnimationFrame(step);
+  }, []);
+
+  return (
+    <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-none">
+      <span>Donde El Corazón es el Huerto</span>
+      <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: "#e2be8f20" }}>
+        <motion.div
+          className="absolute top-0 left-0 h-full rounded-full bg-[#e2be8f]"
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 3.5, ease: "linear" }}
+        />
+      </div>
+      <span>{progress}%</span>
+    </div>
+  );
+}
+
 // Dynamically load only heavy animation components (better perf)
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
@@ -124,21 +158,7 @@ export default function HomePage() {
             </div>
         
             {/* Desktop Loader */}
-            <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-none">
-              <span>Donde El Corazón es el Huerto</span>
-              <div
-                className="flex-1 h-2 rounded-full mx-6 relative"
-                style={{ backgroundColor: "#e2be8f20" }}
-              >
-                <motion.div
-                  className="absolute top-0 left-0 h-full rounded-full bg-[#e2be8f]"
-                  initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 3.5, ease: "linear" }}
-                />
-              </div>
-              <span>100%</span>
-            </div>
+            <AnimatedDesktopLoader />
           </motion.div>
         )}
       </AnimatePresence>
