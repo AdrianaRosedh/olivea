@@ -11,7 +11,7 @@ import CafeLogo from "@/assets/alebrije-3.svg";
 import OliveaLogo from "@/assets/alebrije-1.svg";
 import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
-function AnimatedDesktopLoader() {
+const AnimatedDesktopLoader = () => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -43,9 +43,8 @@ function AnimatedDesktopLoader() {
       <span>{progress}%</span>
     </div>
   );
-}
+};
 
-// Dynamically load only heavy animation components (better perf)
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
 const containerVariants: Variants = {
@@ -77,33 +76,35 @@ export default function HomePage() {
   ];
 
   const mobileSections = isMobileMain
-    ? [
-        sections.find(s => s.title === "Olivea Farm To Table")!,
-        sections.find(s => s.title === "Casa Olivea")!,
-        sections.find(s => s.title === "Olivea Café")!,
-      ]
+    ? [sections[1], sections[0], sections[2]]
     : sections;
 
-    useEffect(() => {
-      if (typeof window === 'undefined') return;  // explicit SSR check
-      const resizeHandler = () => setIsMobileMain(window.innerWidth < 768);
-      resizeHandler();
-      window.addEventListener("resize", resizeHandler);
-      return () => window.removeEventListener("resize", resizeHandler);
-    }, []);
+  useEffect(() => {
+    const resizeHandler = () => setIsMobileMain(window.innerWidth < 768);
+    resizeHandler();
+    window.addEventListener("resize", resizeHandler);
+    return () => window.removeEventListener("resize", resizeHandler);
+  }, []);
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
-    (async () => {
+
+    const handleInitialAnimation = async () => {
       await new Promise(res => setTimeout(res, 1500));
       setDrawComplete(true);
 
       const vid = videoRef.current;
-      if (vid && vid.readyState < 2)
+      const logoTarget = logoTargetRef.current;
+
+      if (!vid || !logoTarget) return;
+
+      if (vid.readyState < 2) {
         await new Promise<void>(res => vid.addEventListener("loadeddata", () => res(), { once: true }));
+      }
 
       setRevealMain(true);
-      const rect = vid!.getBoundingClientRect();
+
+      const rect = vid.getBoundingClientRect();
 
       await overlayControls.start({
         top: rect.top + window.scrollY,
@@ -112,10 +113,11 @@ export default function HomePage() {
         height: rect.height,
         borderRadius: "1.5rem",
         transition: { duration: 0.8, ease: "easeInOut" },
-      }).catch(console.error);
+      });
 
       await new Promise(res => setTimeout(res, 400));
-      const pad = logoTargetRef.current!.getBoundingClientRect();
+
+      const pad = logoTarget.getBoundingClientRect();
 
       await logoControls.start({
         top: pad.top + pad.height / 2 + window.scrollY,
@@ -124,12 +126,14 @@ export default function HomePage() {
         y: "-50%",
         scale: pad.width / 240,
         transition: { type: "spring", stiffness: 200, damping: 25 },
-      }).catch(console.error);
+      });
 
       await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
       setShowLoader(false);
       document.body.classList.remove("overflow-hidden");
-    })();
+    };
+
+    handleInitialAnimation();
   }, [overlayControls, logoControls]);
 
   return (
@@ -163,7 +167,7 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* Logo Draw */}
+      {/* AlebrijeDraw Animation */}
       <AnimatePresence>
         {showLoader && (
           <motion.div
@@ -188,15 +192,14 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
       <main className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${revealMain ? "opacity-100" : "opacity-0"}`}>
         {/* Background video hero */}
         <div
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
-          style={{
-            width:        "98vw",
-            height:       isMobileMain ? "30vh" : "98vh",
-            borderRadius: "1.5rem",
+    style={{
+      width: "98vw",
+      height: isMobileMain ? "30vh" : "98vh",
+      borderRadius: "1.5rem",
           }}
         >
           <video
@@ -220,7 +223,7 @@ export default function HomePage() {
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
-
+        
         {/* Mobile cards + button */}
         <motion.div
           className="flex flex-col md:hidden flex-1 w-full px-4 pt-4"
@@ -231,19 +234,19 @@ export default function HomePage() {
           <div className="space-y-12">
             {mobileSections.map((sec, i) => (
               <motion.div
-              key={sec.href}
-              variants={itemVariants}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.2 }}
-            >
+                key={sec.href}
+                variants={itemVariants}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }}
+              >
                 <InlineEntranceCard
-                  title     ={sec.title}
-                  href      ={sec.href}
+                  title={sec.title}
+                  href={sec.href}
                   description={sec.description}
-                  Logo      ={sec.Logo}
+                  Logo={sec.Logo}
                   onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                  index     ={i}
+                  index={i}
                 />
               </motion.div>
             ))}
@@ -258,7 +261,7 @@ export default function HomePage() {
             <ReservationButton />
           </motion.div>
         </motion.div>
-
+          
         {/* Desktop cards + button */}
         <motion.div
           className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
@@ -276,12 +279,12 @@ export default function HomePage() {
                 viewport={{ once: true, amount: 0.2 }}
               >
                 <InlineEntranceCard
-                  title     ={sec.title}
-                  href      ={sec.href}
+                  title={sec.title}
+                  href={sec.href}
                   description={sec.description}
-                  Logo      ={sec.Logo}
+                  Logo={sec.Logo}
                   onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                  index     ={i}
+                  index={i}
                 />
               </motion.div>
             ))}
