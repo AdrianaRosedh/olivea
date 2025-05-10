@@ -89,8 +89,9 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    overflow-y: auto; /* ← Change this to fully prevent native scrollbars */
+    overflow-y: hidden; /* ← Change this to fully prevent native scrollbars */
     scroll-behavior: smooth;
+    overscroll-behavior: none;
   }
 
   h1, h2, h3, h4, h5, h6 {

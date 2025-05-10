@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
+import { motion, useAnimation } from "framer-motion";
 
 export type MenuItem = {
   id: number;
@@ -27,57 +28,71 @@ export default function CafeClientPage({
   dict,
   itemsByCategory,
 }: CafeClientPageProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const controlsVideo = useAnimation();
+  const controlsContent = useAnimation();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const sectionIds = ["about", ...Object.keys(itemsByCategory)];
 
   useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      const a = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
-      if (!a) return;
-      e.preventDefault();
-      const id = a.getAttribute("href")!.slice(1);
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    };
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   useEffect(() => {
-    const bump = () => {
-      window.scrollBy(0, 1);
-      window.scrollBy(0, -1);
-      document.dispatchEvent(new Event("scroll"));
+    const fromHomePage = sessionStorage.getItem("fromHomePage");
+    const playbackTime = sessionStorage.getItem("fromHomePageTime");
+
+    const animateSequence = async () => {
+      if (fromHomePage && videoRef.current && playbackTime) {
+        videoRef.current.currentTime = parseFloat(playbackTime);
+        await videoRef.current.play();
+
+        await new Promise((res) => setTimeout(res, 800));
+
+        await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
+        controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
+
+        sessionStorage.removeItem("fromHomePage");
+        sessionStorage.removeItem("fromHomePageTime");
+      } else {
+        controlsVideo.set({ y: "-100vh" });
+        controlsContent.set({ y: 0 });
+      }
     };
-    const timers = [100, 300, 600].map((t) => setTimeout(bump, t));
-    return () => timers.forEach(clearTimeout);
-  }, []);
+
+    animateSequence();
+  }, [controlsVideo, controlsContent]);
 
   return (
     <>
-      <div ref={containerRef}>
-        <section
-          id="about"
-          data-section-id="about"
-          className="min-h-screen snap-start flex items-center justify-center px-6"
-          aria-labelledby="about-heading"
-        >
+      <motion.div
+        initial={{ y: 0 }}
+        animate={controlsVideo}
+        className="fixed inset-0 flex justify-center overflow-hidden z-[1000]"
+      >
+        <video
+          ref={videoRef}
+          src="/videos/homepage-temp.mp4"
+          autoPlay muted loop playsInline
+          className={`object-cover ${isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"}`}
+        />
+      </motion.div>
+
+      <motion.div initial={{ y: "100vh" }} animate={controlsContent} className="relative">
+        <section id="about" className="min-h-screen snap-start flex items-center justify-center px-6">
           <div className="max-w-2xl text-center">
-            <TypographyH2 id="about-heading">{dict.title}</TypographyH2>
+            <TypographyH2>{dict.title}</TypographyH2>
             <TypographyP className="mt-2">{dict.description}</TypographyP>
           </div>
         </section>
 
         {Object.entries(itemsByCategory).map(([category, items]) => (
-          <section
-            key={category}
-            id={category}
-            data-section-id={category}
-            className="min-h-screen snap-start flex items-center justify-center px-6"
-            aria-labelledby={`${category}-heading`}
-          >
+          <section key={category} id={category} className="min-h-screen snap-start flex items-center justify-center px-6">
             <div className="max-w-2xl text-center">
-              <TypographyH2 id={`${category}-heading`}>{category}</TypographyH2>
+              <TypographyH2>{category}</TypographyH2>
               <div className="mt-4 space-y-3 text-left">
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between border-b py-2">
@@ -89,7 +104,8 @@ export default function CafeClientPage({
             </div>
           </section>
         ))}
-      </div>
+      </motion.div>
+
       <MobileSectionTracker sectionIds={sectionIds} />
     </>
   );

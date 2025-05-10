@@ -1,4 +1,3 @@
-// contexts/ReservationContext.tsx
 "use client";
 
 import React, {
@@ -15,43 +14,37 @@ export type ReservationType = "restaurant" | "hotel" | "cafe";
 interface ReservationContextType {
   openReservationModal: (type?: ReservationType) => void;
   closeReservationModal: () => void;
-  setReservationType: (type: ReservationType) => void;     // ← new
+  setReservationType: (type: ReservationType) => void;
   isOpen: boolean;
   reservationType: ReservationType;
+}
+
+interface ReservationProviderProps {
+  children: ReactNode;
+  lang: string;
 }
 
 const ReservationContext = createContext<ReservationContextType>({
   openReservationModal: () => {},
   closeReservationModal: () => {},
-  setReservationType: () => {},                             // ← dummy
+  setReservationType: () => {},
   isOpen: false,
   reservationType: "restaurant",
 });
 
-export function ReservationProvider({
-  children,
-  lang,
-}: {
-  children: ReactNode;
-  lang: string;
-}) {
+export function ReservationProvider({ children, lang }: ReservationProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [reservationType, _setReservationType] =
-    useState<ReservationType>("restaurant");
+  const [reservationType, _setReservationType] = useState<ReservationType>("restaurant");
 
-  const openReservationModal = useCallback(
-    (type: ReservationType = "restaurant") => {
-      _setReservationType(type);
-      setIsOpen(true);
-    },
-    []
-  );
+  const openReservationModal = useCallback((type: ReservationType = "restaurant") => {
+    _setReservationType(type);
+    setIsOpen(true);
+  }, []);
 
   const closeReservationModal = useCallback(() => {
     setIsOpen(false);
   }, []);
 
-  // New function that simply changes the tab
   const setReservationType = useCallback((type: ReservationType) => {
     _setReservationType(type);
   }, []);
@@ -61,7 +54,7 @@ export function ReservationProvider({
       value={{
         openReservationModal,
         closeReservationModal,
-        setReservationType,            // ← provide it here
+        setReservationType,
         isOpen,
         reservationType,
       }}

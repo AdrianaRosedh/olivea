@@ -17,7 +17,6 @@ export default function SharedVideoTransition() {
       videoRef.current.play();
 
       (async () => {
-        // Immediately set initial position without animation
         videoControls.set({
           top: initialBounds.top,
           left: initialBounds.left,
@@ -26,17 +25,11 @@ export default function SharedVideoTransition() {
           borderRadius: "1.5rem",
         });
 
-        await new Promise(r => requestAnimationFrame(r)); // Ensure DOM update
+        await new Promise(requestAnimationFrame);
 
         const isMobileMain = window.innerWidth < 768;
         const finalAnimation = isMobileMain
-          ? {
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              borderRadius: "0rem",
-            }
+          ? { top: 0, left: 0, width: "100vw", height: "100vh", borderRadius: "0rem" }
           : {
               width: window.innerWidth * 0.98,
               height: window.innerHeight * 0.98,
@@ -50,8 +43,12 @@ export default function SharedVideoTransition() {
           transition: { duration: 0.8, ease: "easeInOut" },
         });
 
+        // ✅ Preload the Casa page before routing
+        router.prefetch(targetHref);
+
         router.push(targetHref);
-        setTimeout(clearTransition, 500);
+
+        setTimeout(clearTransition, 800);
       })();
     }
   }, [
@@ -64,7 +61,7 @@ export default function SharedVideoTransition() {
     videoControls,
   ]);
 
-  if (!active || !initialBounds) return null; // Do NOT render if no initial bounds
+  if (!active || !initialBounds) return null;
 
   return (
     <AnimatePresence>
@@ -72,11 +69,7 @@ export default function SharedVideoTransition() {
         initial={false}
         animate={videoControls}
         exit={{ opacity: 0, transition: { duration: 0.2 } }}
-        style={{
-          position: "fixed",
-          overflow: "hidden",
-          zIndex: 9999,
-        }}
+        style={{ position: "fixed", overflow: "hidden", zIndex: 9999 }}
       >
         <video
           ref={videoRef}

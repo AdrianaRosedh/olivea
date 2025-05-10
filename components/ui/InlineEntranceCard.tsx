@@ -105,7 +105,7 @@ export default function InlineEntranceCard({
     }
   }, [isHovered, isOpened, isMobile]);
 
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = async (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
   
@@ -114,9 +114,12 @@ export default function InlineEntranceCard({
   
     if (!bounds) return; // safety check
   
-    onActivate?.(); // ✅ Explicit call to ensure it always runs
+    onActivate?.();
+    sessionStorage.setItem("fromHomePage", "true");
+    sessionStorage.setItem("fromHomePageTime", String(playbackTime));
   
     if (isMobile) {
+      await new Promise((res) => setTimeout(res, 800)); 
       setIsOpened(true);
     } else {
       startTransition(videoSrc, playbackTime, href, bounds);
@@ -171,13 +174,15 @@ export default function InlineEntranceCard({
           // when that expand finishes on mobile, trigger the shared-element
           onAnimationComplete={() => {
             if (isMobile && isOpened) {
-              const playbackTime = videoRef.current?.currentTime || 0;
-              const bounds = videoRef.current?.getBoundingClientRect();
-              if (!bounds) return;
-              startTransition(videoSrc, playbackTime, href, bounds);
-              setIsOpened(false);
+              setTimeout(() => {
+                const playbackTime = videoRef.current?.currentTime || 0;
+                const bounds = videoRef.current?.getBoundingClientRect();
+                if (!bounds) return;
+                startTransition(videoSrc, playbackTime, href, bounds);
+                setIsOpened(false);
+              }, 200); // ✅ wait extra 0.2s for smoother transition
             }
-          }}
+          }}          
           onMouseMove={handleMouseMove}
           style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}
         >

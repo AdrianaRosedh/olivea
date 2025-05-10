@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { AppDictionary } from "../dictionaries";
 import { TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
@@ -16,11 +16,10 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
   const controlsVideo = useAnimation();
   const controlsContent = useAnimation();
   const [isMobile, setIsMobile] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const onResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -28,21 +27,28 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
 
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
+    const playbackTime = sessionStorage.getItem("fromHomePageTime");
 
     const animateSequence = async () => {
-      if (fromHomePage) {
-        await new Promise((res) => setTimeout(res, 3000)); // Cinematic pause
-        controlsVideo.start({
+      if (fromHomePage && videoRef.current && playbackTime) {
+        videoRef.current.currentTime = parseFloat(playbackTime);
+        await videoRef.current.play();
+
+        await new Promise((res) => setTimeout(res, 800)); // Shorter pause for seamlessness
+
+        await controlsVideo.start({
           y: "-100vh",
-          transition: { duration: 1.2, ease: "easeInOut" },
+          transition: { duration: 1, ease: "easeInOut" },
         });
+
         controlsContent.start({
           y: 0,
-          transition: { duration: 1.2, ease: "easeInOut" },
+          transition: { duration: 1, ease: "easeInOut" },
         });
+
         sessionStorage.removeItem("fromHomePage");
+        sessionStorage.removeItem("fromHomePageTime");
       } else {
-        // Instantly position if not from homepage
         controlsVideo.set({ y: "-100vh" });
         controlsContent.set({ y: 0 });
       }
@@ -53,28 +59,25 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
 
   return (
     <>
-      {/* Video Overlay */}
       <motion.div
         initial={{ y: 0 }}
         animate={controlsVideo}
         className="fixed inset-0 flex justify-center overflow-hidden z-[1000]"
       >
         <video
+          ref={videoRef}
           src="/videos/homepage-temp.mp4"
           autoPlay
           muted
           loop
           playsInline
-          className={`object-cover ${isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"}`}
+          className={`object-cover ${
+            isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"
+          }`}
         />
       </motion.div>
 
-      {/* Main Content */}
-      <motion.div
-        initial={{ y: "100vh" }}
-        animate={controlsContent}
-        className="relative"
-      >
+      <motion.div initial={{ y: "100vh" }} animate={controlsContent} className="relative">
         {SECTION_IDS.map((id) => (
           <section
             key={id}
@@ -84,12 +87,8 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
             aria-labelledby={`${id}-heading`}
           >
             <div id={`${id}-heading`} className="max-w-2xl text-center">
-              <TypographyH2>
-                {dict.casa.sections[id].title}
-              </TypographyH2>
-              <TypographyP className="mt-2">
-                {dict.casa.sections[id].description}
-              </TypographyP>
+              <TypographyH2>{dict.casa.sections[id].title}</TypographyH2>
+              <TypographyP className="mt-2">{dict.casa.sections[id].description}</TypographyP>
             </div>
           </section>
         ))}

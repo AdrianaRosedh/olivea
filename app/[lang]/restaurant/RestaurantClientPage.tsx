@@ -1,9 +1,9 @@
-// app/[lang]/restaurant/RestaurantClientPage.tsx
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { TypographyH1, TypographyH2, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
+import { motion, useAnimation } from "framer-motion";
 
 const ALL_SECTIONS = ["story", "garden", "menu", "wines"] as const;
 type SectionKey = (typeof ALL_SECTIONS)[number];
@@ -26,47 +26,83 @@ export default function RestaurantClientPage({
   lang,
   dict,
 }: RestaurantClientPageProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const controlsVideo = useAnimation();
+  const controlsContent = useAnimation();
+  const [isMobile, setIsMobile] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Smooth-scroll anchor links
   useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
-      if (!link) return;
-      e.preventDefault();
-      const id = link.getAttribute("href")!.slice(1);
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        window.history.pushState(null, "", `#${id}`);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    const fromHomePage = sessionStorage.getItem("fromHomePage");
+    const playbackTime = sessionStorage.getItem("fromHomePageTime");
+
+    const animateSequence = async () => {
+      if (fromHomePage && videoRef.current && playbackTime) {
+        videoRef.current.currentTime = parseFloat(playbackTime);
+        await videoRef.current.play();
+
+        await new Promise((res) => setTimeout(res, 800));
+
+        await controlsVideo.start({
+          y: "-100vh",
+          transition: { duration: 1, ease: "easeInOut" },
+        });
+
+        controlsContent.start({
+          y: 0,
+          transition: { duration: 1, ease: "easeInOut" },
+        });
+
+        sessionStorage.removeItem("fromHomePage");
+        sessionStorage.removeItem("fromHomePageTime");
+      } else {
+        controlsVideo.set({ y: "-100vh" });
+        controlsContent.set({ y: 0 });
       }
     };
-    document.addEventListener("click", onClick);
-    return () => {
-      document.removeEventListener("click", onClick);
-    };
-  }, []);
 
-  // Initial "bump" scroll to trigger observers
-  useEffect(() => {
-    const bump = () => {
-      window.scrollBy(0, 1);
-      window.scrollBy(0, -1);
-      document.dispatchEvent(new Event("scroll"));
-    };
-    [100, 300, 600].forEach((ms) => setTimeout(bump, ms));
-  }, []);
+    animateSequence();
+  }, [controlsVideo, controlsContent]);
 
   return (
     <>
-      {/* PAGE HEADER */}
-      <header className="text-center py-12 px-6">
-        <TypographyH1>{dict.title}</TypographyH1>
-        <TypographyP className="mt-2">{dict.description}</TypographyP>
-      </header>
+      <motion.div
+        initial={{ y: 0 }}
+        animate={controlsVideo}
+        className="fixed inset-0 flex justify-center overflow-hidden z-[1000]"
+      >
+        <video
+          ref={videoRef}
+          src="/videos/homepage-temp.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className={`object-cover ${
+            isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"
+          }`}
+        />
+      </motion.div>
 
-      {/* SECTIONS CONTAINER */}
-      <div lang={lang} ref={containerRef}>
+      <motion.div
+        initial={{ y: "100vh" }}
+        animate={controlsContent}
+        lang={lang}  
+        className="relative"
+      >
+        {/* PAGE HEADER */}
+        <header className="text-center py-12 px-6">
+          <TypographyH1>{dict.title}</TypographyH1>
+          <TypographyP className="mt-2">{dict.description}</TypographyP>
+        </header>
+
+        {/* SECTIONS */}
         {ALL_SECTIONS.map((id) => {
           const info = dict.sections[id];
           return (
@@ -88,10 +124,9 @@ export default function RestaurantClientPage({
             </section>
           );
         })}
-      </div>
+      </motion.div>
 
-      {/* MOBILE SECTION NAV */}
-      <MobileSectionTracker sectionIds={ALL_SECTIONS as readonly string[]} />
+      <MobileSectionTracker sectionIds={[...ALL_SECTIONS]} />
     </>
   );
 }
