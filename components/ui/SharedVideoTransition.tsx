@@ -43,23 +43,14 @@ export default function SharedVideoTransition() {
           transition: { duration: 0.8, ease: "easeInOut" },
         });
 
-        // ✅ Preload the Casa page before routing
+        // ✅ Preload the destination page before routing
         router.prefetch(targetHref);
-
-        router.push(targetHref);
+        router.push(targetHref);  // route after overlay animates:contentReference[oaicite:0]{index=0}
 
         setTimeout(clearTransition, 800);
       })();
     }
-  }, [
-    active,
-    initialBounds,
-    videoPlaybackTime,
-    router,
-    targetHref,
-    clearTransition,
-    videoControls,
-  ]);
+  }, [active, initialBounds, videoPlaybackTime, router, targetHref, clearTransition, videoControls]);
 
   if (!active || !initialBounds) return null;
 

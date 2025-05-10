@@ -48,6 +48,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
 
         sessionStorage.removeItem("fromHomePage");
         sessionStorage.removeItem("fromHomePageTime");
+        sessionStorage.removeItem("targetVideo");
       } else {
         controlsVideo.set({ y: "-100vh" });
         controlsContent.set({ y: 0 });

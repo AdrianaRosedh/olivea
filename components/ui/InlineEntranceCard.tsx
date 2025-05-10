@@ -115,14 +115,17 @@ export default function InlineEntranceCard({
     if (!bounds) return; // safety check
   
     onActivate?.();
+    const slug = href.split("/").pop() || "";                          
+    const targetVideo = slug ? `/videos/${slug}.mp4` : videoSrc;       
     sessionStorage.setItem("fromHomePage", "true");
     sessionStorage.setItem("fromHomePageTime", String(playbackTime));
+    sessionStorage.setItem("targetVideo", targetVideo);   
   
     if (isMobile) {
       await new Promise((res) => setTimeout(res, 800)); 
       setIsOpened(true);
     } else {
-      startTransition(videoSrc, playbackTime, href, bounds);
+      startTransition(videoSrc, playbackTime, href, bounds, targetVideo); 
     }
   };
 
@@ -178,7 +181,9 @@ export default function InlineEntranceCard({
                 const playbackTime = videoRef.current?.currentTime || 0;
                 const bounds = videoRef.current?.getBoundingClientRect();
                 if (!bounds) return;
-                startTransition(videoSrc, playbackTime, href, bounds);
+                const slug = href.split("/").pop() || "";                
+                const targetVideo = slug ? `/videos/${slug}.mp4` : videoSrc; 
+                startTransition(videoSrc, playbackTime, href, bounds, targetVideo);
                 setIsOpened(false);
               }, 200); // ✅ wait extra 0.2s for smoother transition
             }

@@ -6,12 +6,14 @@ type TransitionState = {
   videoPlaybackTime: number;
   active: boolean;
   targetHref: string;
-  initialBounds?: DOMRect; // ✅ added
+  targetVideo: string | null;         // ✅ added: target video path for destination
+  initialBounds?: DOMRect;            // ✅ added previously
   startTransition: (
     src: string,
     playbackTime: number,
     href: string,
-    bounds: DOMRect // ✅ added
+    bounds: DOMRect,                 // ✅ added
+    targetVideo: string              // ✅ added
   ) => void;
   clearTransition: () => void;
 };
@@ -24,23 +26,35 @@ export function SharedTransitionProvider({ children }: { children: ReactNode }) 
     videoPlaybackTime: 0,
     active: false,
     targetHref: "",
+    targetVideo: null,              // ✅ added
   });
 
   const startTransition = (
     src: string,
     playbackTime: number,
     href: string,
-    bounds: DOMRect // ✅ added
-  ) =>
+    bounds: DOMRect,               // ✅ added
+    targetVideo: string            // ✅ added
+  ) => {
     setState({
       videoSrc: src,
       videoPlaybackTime: playbackTime,
       active: true,
       targetHref: href,
-      initialBounds: bounds, // ✅ added
+      targetVideo: targetVideo,    // ✅ added
+      initialBounds: bounds,       // ✅ added
     });
+  };
 
-  const clearTransition = () => setState({ videoSrc: null, videoPlaybackTime: 0, active: false, targetHref: "" });
+  const clearTransition = () => {
+    setState({
+      videoSrc: null,
+      videoPlaybackTime: 0,
+      active: false,
+      targetHref: "",
+      targetVideo: null,           // ✅ added
+    });
+  };
 
   return (
     <SharedTransitionContext.Provider value={{ ...state, startTransition, clearTransition }}>
