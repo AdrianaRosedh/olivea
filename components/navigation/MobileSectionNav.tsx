@@ -82,7 +82,7 @@ useEffect(() => {
   return (
     <nav
       ref={containerRef}
-      className="flex gap-3 py-2 overflow-x-auto no-scrollbar"
+      className="fixed bottom-1 inset-x-0 z-40 flex gap-3 py-3 px-2 overflow-x-auto no-scrollbar"
       style={{ padding: "0 0.75rem" }}
       aria-label="Mobile section navigation"
     >
