@@ -51,7 +51,6 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 };
 
-// updated layout component (✨ minimal additions clearly marked)
 export default async function LangLayout({
   children,
   params,
@@ -66,7 +65,6 @@ export default async function LangLayout({
     <>
       <StructuredData lang={lang} />
 
-      {/* ⬇️ Wrap all providers inside SharedTransitionProvider ⬇️ */}
       <SharedTransitionProvider>
         <ReservationProvider lang={lang}>
           <ScrollProvider>
@@ -78,7 +76,6 @@ export default async function LangLayout({
           </ScrollProvider>
         </ReservationProvider>
 
-        {/* ✨ Shared Video Transition component */}
         <SharedVideoTransition />
       </SharedTransitionProvider>
     </>
