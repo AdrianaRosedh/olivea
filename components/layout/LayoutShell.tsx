@@ -16,7 +16,7 @@ import { useLenis } from "@/components/providers/ScrollProvider";
 import { supabase } from "@/lib/supabase";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 
-// import only the Lang type now
+// import only the Lang & AppDictionary types
 import type { Lang, AppDictionary } from "@/app/[lang]/dictionaries";
 
 interface LayoutShellProps {
@@ -25,29 +25,9 @@ interface LayoutShellProps {
   children: React.ReactNode;
 }
 
-type SectionItem = { id: string; number: string; label: string };
-type DockItem    = { id: string; href: string; label: string; icon: React.ReactNode };
+type DockItem = { id: string; href: string; label: string; icon: React.ReactNode };
 
-const BASE_CAFE_ITEMS: SectionItem[] = [
-  { id: "about",    number: "01", label: "About"    },
-  { id: "coffee",   number: "02", label: "Coffee"   },
-  { id: "pastries", number: "03", label: "Pastries" },
-  { id: "menu",     number: "04", label: "Menu"     },
-];
-const CASA_ITEMS: SectionItem[] = [
-  { id: "rooms",       number: "01", label: "Rooms"       },
-  { id: "breakfast",   number: "02", label: "Breakfast"   },
-  { id: "experiences", number: "03", label: "Experiences" },
-  { id: "location",    number: "04", label: "Location"    },
-];
-const RESTAURANT_ITEMS: SectionItem[] = [
-  { id: "story",  number: "01", label: "Story"  },
-  { id: "garden", number: "02", label: "Garden" },
-  { id: "menu",   number: "03", label: "Menu"   },
-  { id: "wines",  number: "04", label: "Wines"  },
-];
-
-function LayoutShell({ lang, children }: LayoutShellProps) {
+function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const lenis    = useLenis();
   const pathname = usePathname();
   const isMobile = useIsMobile();
@@ -62,11 +42,11 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
     return () => void lenis.off("scroll", onScroll);
   }, [lenis]);
 
-  // Café categories state
+  // Café categories state (for mobile bottom nav & dynamic subsections)
   const [cafeCategories, setCafeCategories] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(pathname.includes("/cafe"));
+  const [isLoading, setIsLoading]           = useState(pathname.includes("/cafe"));
 
-  // Mark when mounted
+  // Mark mounted so we don’t SSR-nav before hydration
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -76,7 +56,7 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
   const isCafePage       = pathname.includes("/cafe");
   const isRestaurantPage = pathname.includes("/restaurant");
 
-  // Fetch café categories
+  // Fetch dynamic café categories
   useEffect(() => {
     if (!isCafePage) {
       setIsLoading(false);
@@ -91,9 +71,8 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         .order("category");
 
       if (!active) return;
-      if (error) {
-        console.error(error);
-      } else {
+      if (error) console.error(error);
+      else {
         const cats = Array.from(
           new Set((data ?? []).map((i) => i.category).filter(Boolean))
         );
@@ -101,26 +80,63 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
       }
       setIsLoading(false);
     })();
-    return () => { active = false };
+    return () => { active = false; };
   }, [isCafePage]);
 
-  // Determine which nav items to show
-  let navItems: SectionItem[] = [];
-  if (isCasaPage)           navItems = CASA_ITEMS;
-  else if (isRestaurantPage) navItems = RESTAURANT_ITEMS;
-  else if (isCafePage) {
-    navItems = [
-      ...BASE_CAFE_ITEMS,
-      ...cafeCategories.map((cat, i) => ({ id: cat, number: `0${i + 5}`, label: cat })),
-    ];
-  }
+  //
+  // ─── MOBILE NAV ITEMS ─────────────────────────────────────────────────────────
+  //
 
-  const mobileNavItems = navItems.map(({ id, label }) => ({ id, label }));
+  type CasaSection       = keyof AppDictionary["casa"]["sections"];
+  type RestaurantSection = keyof AppDictionary["restaurant"]["sections"];
+  type CafeSection       = keyof AppDictionary["cafe"]["sections"];
+
+  const mobileNavItems = (() => {
+    if (isCasaPage) {
+      const keys = Object.keys(dictionary.casa.sections) as CasaSection[];
+      return keys.map((id) => ({
+        id,
+        label: dictionary.casa.sections[id].title,
+      }));
+    }
+    if (isRestaurantPage) {
+      const keys = Object.keys(dictionary.restaurant.sections) as RestaurantSection[];
+      return keys.map((id) => ({
+        id,
+        label: dictionary.restaurant.sections[id].title,
+      }));
+    }
+    if (isCafePage) {
+      const baseKeys = Object.keys(dictionary.cafe.sections) as CafeSection[];
+      const base = baseKeys.map((id) => ({
+        id,
+        label: dictionary.cafe.sections[id].title,
+      }));
+      const dyn = cafeCategories.map((cat) => ({ id: cat, label: cat }));
+      return [...base, ...dyn];
+    }
+    return [];
+  })();
+
+  //
+  // ─── DOCK‐RIGHT ITEMS ──────────────────────────────────────────────────────────
+  //
+
   const dockRightItems: DockItem[] = [
-    { id: "journal",        href: `/${lang}/journal`,        label: "Journal",        icon: <BookOpen /> },
-    { id: "sustainability", href: `/${lang}/sustainability`, label: "Sustainability", icon: <Leaf />     },
-    { id: "policies",       href: `/${lang}/legal`,           label: "Policies",       icon: <FileText />},
+    { id: "journal",        href: `/${lang}/journal`,        label: dictionary.journal.title,        icon: <BookOpen /> },
+    { id: "sustainability", href: `/${lang}/sustainability`, label: dictionary.sustainability.title, icon: <Leaf />     },
+    { id: "policies",       href: `/${lang}/legal`,           label: dictionary.legal.title,           icon: <FileText />},
   ];
+
+  //
+  // ─── WHICH IDENTITY FOR DOCKLEFT? ───────────────────────────────────────────────
+  //
+
+  const identity: "casa" | "restaurant" | "cafe" =
+       isCasaPage       ? "casa"
+     : isRestaurantPage ? "restaurant"
+     : isCafePage       ? "cafe"
+     : "casa"; // fallback
 
   return (
     <>
@@ -140,14 +156,20 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
 
       {mounted && !isHome && <Footer />}
 
-      {mounted && !isHome && !isMobile && navItems.length > 0 && (
+      {/* ── DESKTOP DOCKS ─────────────────────────────────────────────────────────── */}
+      {mounted && !isHome && !isMobile && (
         <ClientOnly>
-          <DockLeft  items={navItems} />
+          <DockLeft
+            dict={dictionary}
+            identity={identity}
+            dynamicCafeCategories={isCafePage ? cafeCategories : []}
+          />
           <DockRight items={dockRightItems} />
         </ClientOnly>
       )}
 
-      {mounted && !isHome && isMobile && !isLoading && navItems.length > 0 && (
+      {/* ── MOBILE BOTTOM NAV ──────────────────────────────────────────────────────── */}
+      {mounted && !isHome && isMobile && !isLoading && mobileNavItems.length > 0 && (
         <ClientOnly>
           <div className="fixed bottom-[68px] inset-x-0 z-40 border-[var(--olivea-soil)]/10">
             <MobileSectionNav items={mobileNavItems} />
@@ -155,6 +177,7 @@ function LayoutShell({ lang, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
+      {/* ── CHAT BUTTON ───────────────────────────────────────────────────────────── */}
       {mounted && !isHome && !isMobile && (
         <ClientOnly>
           <div className="fixed bottom-20 right-6 z-50 hidden md:block">

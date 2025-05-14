@@ -88,7 +88,7 @@ export default function Navbar({ lang }: NavbarProps) {
           onClose={() => setDrawerOpen(false)}
           lang={lang}
         />
-        <MobileNav isDrawerOpen={drawerOpen} />
+        <MobileNav  />
       </>
     );
   }

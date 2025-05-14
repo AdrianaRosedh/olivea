@@ -4,47 +4,217 @@
     "description": "Nuestra historia, filosofía y las personas detrás de la visión."
   },
   "cafe": {
-  "title": "Café Olivea",
-  "description": "Nuestro café casual con vista al jardín.",
-  "error": "Error al cargar el menú:",
-  "sections": {
-    "about": {
-      "title": "Sobre el Café",
-      "description": "Un espacio relajante rodeado de jardines y aire fresco."
-    },
-    "coffee": {
-      "title": "Nuestro Café",
-      "description": "Bebidas artesanales preparadas con los mejores granos locales."
-    },
-    "pastries": {
-      "title": "Repostería Fresca",
-      "description": "Panadería diaria, dulce y salada, recién horneada."
-    },
-    "menu": {
-      "title": "Menú",
-      "description": "Descubre todas las opciones que ofrece nuestro café."
+    "title": "Café Olivea",
+    "description": "Nuestro café casual con vista al jardín.",
+    "error": "Error al cargar el menú:",
+    "sections": {
+      "all_day": {
+        "title": "Experiencia Todo el Día",
+        "description": "Desayuno, café de especialidad y vino & tapas por la tarde.",
+        "subsections": {
+          "breakfast_coffee_pastries": {
+            "title": "Desayuno & Repostería",
+            "description": "Café artesanal y repostería fresca (sin aceites vegetales)."
+          },
+          "evening_wine_tapas": {
+            "title": "Vino & Tapas",
+            "description": "Tablas de quesos, platos pequeños y vinos naturales."
+          }
+        }
+      },
+      "padel": {
+        "title": "Pistas de Pádel",
+        "description": "Detalles de reserva y experiencias.",
+        "subsections": {
+          "booking": {
+            "title": "Reservas",
+            "description": "Reserva pista en línea o al llegar."
+          },
+          "guest_benefits": {
+            "title": "Beneficios para Huéspedes",
+            "description": "Acceso matutino gratuito para huéspedes."
+          }
+        }
+      },
+      "community": {
+        "title": "Comunidad & Eventos",
+        "description": "Descuentos locales, talleres y encuentros.",
+        "subsections": {
+          "discounts": {
+            "title": "Descuentos Locales",
+            "description": "10% para vecinos y profesionales de la industria."
+          },
+          "events": {
+            "title": "Próximos Talleres",
+            "description": "Cocina de jardín, diseño floral y más."
+          },
+          "playlists": {
+            "title": "Listas de Reproducción",
+            "description": "Mezclas de Spotify para la vibra del jardín."
+          }
+        }
+      },
+      "menu": {
+        "title": "Destacados del Menú",
+        "description": "Platos destacados con conexión al jardín.",
+        "subsections": {
+          "signature_dishes": {
+            "title": "Platos Firmados",
+            "description": "Platos seleccionados por el chef."
+          },
+          "sustainable_sourcing": {
+            "title": "Suministro Sostenible",
+            "description": "Nunca usamos aceites vegetales; siempre local y orgánico."
+          }
+        }
+      }
     }
-  }
-},
+  },
   "casa": {
     "title": "Casa Olivea",
-    "description": "Quédate con nosotros...",
+    "description": "Quédate con nosotros. Habitaciones, servicios y reservas próximamente.",
     "sections": {
       "rooms": {
         "title": "Habitaciones",
-        "description": "..."
+        "description": "Espacios tranquilos diseñados con comodidad y elegancia.",
+        "subsections": {
+          "room_types": {
+            "title": "Tipos de Habitación",
+            "description": "Opciones King, Queen y suite con vista al jardín."
+          },
+          "amenities": {
+            "title": "Servicios",
+            "description": "Spa en la habitación, terraza y acceso privado al jardín."
+          },
+          "packages": {
+            "title": "Paquetes de Olivea",
+            "description": "Ofertas para luna de miel y aniversarios."
+          }
+        }
       },
-      "breakfast": {
-        "title": "Desayuno",
-        "description": "..."
+      "mornings": {
+        "title": "Amanecer",
+        "description": "Desayuno de cortesía por Café Olivea.",
+        "subsections": {
+          "garden_fresh": {
+            "title": "Café Olivea",
+            "description": "Acceso al menú matutino de nuestro café."
+          },
+          "cafe_connection": {
+            "title": "Frescura del Jardín",
+            "description": "Productos de temporada directamente de nuestro huerto." 
+          },
+          "padel_bonus": {
+            "title": "Pádel",
+            "description": "Acceso gratuito por la mañana a pistas para huéspedes."
+          }
+        }
       },
       "experiences": {
         "title": "Experiencias",
-        "description": "..."
+        "description": "Actividades curadas, momentos locales y eventos únicos.",
+        "subsections": {
+          "walk_and_wine": {
+            "title": "Paseo & Vino",
+            "description": "Paseo con Bodega Marciel y degustación."
+          },
+          "spa": {
+            "title": "Spa",
+            "description": "Relájate con tratamientos de nuestra alianza Roseiies."
+          },
+          "tours": {
+            "title": "Valle de Guadalupe",
+            "description": "Sesiones privadas y recorridos guiados."
+          }
+        }
       },
-      "location": {
-        "title": "Ubicación",
-        "description": "..."
+      "ambience": {
+        "title": "Ambiente",
+        "description": "Inmersión en el jardín, filosofía musical y testimonios.",
+        "subsections": {
+          "playlists": {
+            "title": "Listas de Reproducción",
+            "description": "Mezclas de Spotify para cada estado de ánimo."
+          },
+          "garden_immersion": {
+            "title": "Inmersión en el Jardín",
+            "description": "Experiencia sensorial 360° entre nuestros huertos."
+          },
+          "testimonials": {
+            "title": "Testimonios",
+            "description": "Lo que más valoran nuestros huéspedes."
+          }
+        }
+      }
+    }
+  },
+  "restaurant": {
+    "title": "Olivea de la Granja a la Mesa",
+    "description": "Menús de temporada, historias del chef y una verdadera experiencia farm-to-table.",
+    "sections": {
+      "philosophy": {
+        "title": "Filosofía Culinaria",
+        "description": "De la huerta al plato, sin aceites vegetales e inclusividad dietética.",
+        "subsections": {
+          "ingredient_story": {
+            "title": "Historia del Ingrediente",
+            "description": "Cómo nuestro huerto da forma a cada plato."
+          },
+          "no_seed_oils": {
+            "title": "Sin Aceites Vegetales",
+            "description": "Nuestro compromiso con grasas más saludables."
+          },
+          "dietary_accommodations": {
+            "title": "Adaptaciones Dietéticas",
+            "description": "Sin gluten, vegano, kosher, halal y más."
+          }
+        }
+      },
+      "menu_experience": {
+        "title": "Menú & Experiencia",
+        "description": "Menús degustación de temporada y maridajes.",
+        "subsections": {
+          "tasting_menu": {
+            "title": "Menú Degustación",
+            "description": "Un viaje estacional de varios platos."
+          },
+          "wine_pairings": {
+            "title": "Maridajes de Vino",
+            "description": "Vinos naturales para cada plato."
+          },
+          "special_events": {
+            "title": "Mesa del Chef",
+            "description": "Cenas exclusivas con el chef."
+          }
+        }
+      },
+      "atmosphere": {
+        "title": "Ambiente Gastronómico",
+        "description": "Decoración elegante, listas de reproducción y vajilla.",
+        "subsections": {
+          "music_philosophy": {
+            "title": "Música & Ambiente",
+            "description": "Nuestros paisajes sonoros para cada estación."
+          },
+          "interior_design": {
+            "title": "Diseño Interior",
+            "description": "Materiales naturales y mobiliario artesanal."
+          }
+        }
+      },
+      "team": {
+        "title": "Conoce al Chef & Equipo",
+        "description": "Visión de nuestros chefs, trayectoria y premios.",
+        "subsections": {
+          "chef_bio": {
+            "title": "Trayectoria del Chef",
+            "description": "Formación, inspiraciones y recorrido."
+          },
+          "awards": {
+            "title": "Premios & Reconocimientos",
+            "description": "Menciones en prensa, Michelin y más."
+          }
+        }
       }
     }
   },
@@ -59,41 +229,19 @@
   "journal": {
     "title": "Diario de Olivea",
     "subtitle": "Historias desde la tierra, la cocina y el corazón.",
-    "loading": "Cargando entradas del diario…",
+    "loading": "Cargando entradas…",
     "empty": "Aún no hay entradas disponibles.",
     "error": "Error al cargar el diario:",
     "by": "por"
   },
   "legal": {
     "title": "Información Legal",
-    "description": "Detalles legales y términos para todas las propiedades de Olivea."
+    "description": "Detalles legales y términos para todas las propiedades Olivea."
   },
   "reservations": {
     "title": "Reservas",
     "description": "Elige dónde te gustaría reservar: restaurante, café u hotel."
   },
-  "restaurant": {
-  "title": "Olivea de la Granja a la Mesa",
-  "description": "Próximamente: menús de temporada, historias del chef y más.",
-  "sections": {
-    "story": {
-      "title": "Nuestra Historia",
-      "description": "Donde comenzó todo — el jardín, la visión y el alma."
-    },
-    "garden": {
-      "title": "El Jardín",
-      "description": "La fuente de cada ingrediente, cada idea, cada plato."
-    },
-    "menu": {
-      "title": "Menú Degustación",
-      "description": "Una expresión estacional de tierra, tiempo y técnica."
-    },
-    "wines": {
-      "title": "Vinos",
-      "description": "Vinos naturales y etiquetas de Baja cuidadosamente seleccionadas."
-    }
-  }
-},
   "notFound": {
     "message": "La página que buscas no existe.",
     "cta": "Volver al inicio"
