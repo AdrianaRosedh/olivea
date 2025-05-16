@@ -61,9 +61,9 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
     "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
     "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com",
-    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
+    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com https://*.execute-api.us-west-2.amazonaws.com",
     "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
-  ].join("; ");  
+  ].join("; ");   
 
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("X-Content-Type-Options", "nosniff");
