@@ -31,10 +31,19 @@ const nextConfig = {
 
   // Image optimization settings
   images: {
-    domains: ["olivea.com", "images.unsplash.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "olivea.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
     formats: ["image/avif", "image/webp"],
     unoptimized: false,
-  },
+  },  
 
   // Compiler optimizations
   compiler: {
