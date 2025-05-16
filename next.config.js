@@ -54,42 +54,43 @@ const nextConfig = {
     styledComponents: true,
   },
 
-  // Security headers
-  async headers() {
-    return [
-      {
-        source: "/cloudbeds-immersive.html",
-        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
-      },
-      {
-        source: "/(.*)",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
-              "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
-              "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
-              "img-src 'self' data: blob: https://static1.cloudbeds.com https://images.unsplash.com",
-              "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://*.supabase.co",
-              "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
-              "font-src 'self' data:",
-            ].join("; "),
-          },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "X-XSS-Protection", value: "1; mode=block" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-        ],
-      },
-    ];
-  },
+// Security headers
+async headers() {
+  return [
+    {
+      source: "/cloudbeds-immersive.html",
+      headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+    },
+    {
+      source: "/(.*)",
+      headers: [
+        {
+          key: "Content-Security-Policy",
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
+            "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com",
+            "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com",
+            "img-src 'self' data: blob: https://static1.cloudbeds.com https://images.unsplash.com",
+            "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://*.supabase.co https://plugins.whistle.cloudbeds.com",
+            "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
+            "font-src 'self' data:",
+          ].join("; "),
+        },
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "X-Frame-Options", value: "DENY" },
+        { key: "X-XSS-Protection", value: "1; mode=block" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        {
+          key: "Permissions-Policy",
+          value: "camera=(), microphone=(), geolocation=()",
+        },
+        { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+      ],
+    },
+  ];
+},
+
 
   // Redirects
   async redirects() {

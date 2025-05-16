@@ -4,11 +4,7 @@ import { getDictionary } from "@/app/[lang]/dictionaries";
 import CafeClientPage from "./CafeClientPage";
 import { supabase } from "@/lib/supabase";
 
-export default async function CafePage({
-  params,
-}: {
-  params: { lang: Lang };
-}) {
+export default async function CafePage({ params }: { params: { lang: Lang } }) {
   const dict = await getDictionary(params.lang);
 
   const { data, error } = await supabase
@@ -42,10 +38,5 @@ export default async function CafePage({
     (itemsByCategory[cat] ||= []).push(item);
   }
 
-  return (
-    <CafeClientPage
-      dict={dict}
-      itemsByCategory={itemsByCategory}
-    />
-  );
+  return <CafeClientPage dict={dict} itemsByCategory={itemsByCategory} />;
 }
