@@ -9,24 +9,30 @@ interface DesktopChatButtonProps {
   lang: "en" | "es";
 }
 
+declare global {
+  interface Window {
+    Whistle?: { toggleWidget?: () => void };
+  }
+}
+
 export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
   const [chatAvailable, setChatAvailable] = useState(false);
   const [hovered, setHovered] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Check chat availability
   useEffect(() => {
     const updateAvailability = () => {
       const now = new Date().toLocaleString("en-US", {
         timeZone: "America/Tijuana",
         hour12: false,
       });
-      const minutesNow = new Date(now).getHours() * 60 + new Date(now).getMinutes();
-      setChatAvailable(minutesNow >= 480 && minutesNow <= 1290); // 8:00 AM to 9:30 PM
+      const minutesNow =
+        new Date(now).getHours() * 60 + new Date(now).getMinutes();
+      setChatAvailable(minutesNow >= 480 && minutesNow <= 1290);
     };
 
     updateAvailability();
-    const interval = setInterval(updateAvailability, 60000); // Check every minute
+    const interval = setInterval(updateAvailability, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -42,7 +48,20 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
     },
   };
 
-  const currentLabel = chatAvailable ? labels[lang].available : labels[lang].unavailable;
+  const currentLabel = chatAvailable
+    ? labels[lang].available
+    : labels[lang].unavailable;
+
+  const handleClick = () => {
+    // Directly call Whistle widget if available
+    if (window.Whistle?.toggleWidget) {
+      window.Whistle.toggleWidget();
+    } else {
+      // fallback to clicking the whistle toggle button if API unavailable
+      const chatbotToggle = document.getElementById("chatbot-toggle");
+      chatbotToggle?.click();
+    }
+  };
 
   return (
     <div className="fixed bottom-20 right-6 z-50 hidden md:block">
@@ -55,10 +74,7 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
         <MagneticButton
           aria-label="Open Chat"
           className="relative w-14 h-14 bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] rounded-[40%_60%_60%_40%]"
-          onClick={() => {
-            const chatbotToggle = document.getElementById('chatbot-toggle');
-            if (chatbotToggle) chatbotToggle.click();
-          }}
+          onClick={handleClick}
         >
           <MessageCircle className="w-7 h-7" />
 
@@ -68,7 +84,7 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
             }`}
           />
         </MagneticButton>
-          
+
         <AnimatePresence mode="wait">
           {hovered && (
             <motion.div
@@ -84,5 +100,5 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
         </AnimatePresence>
       </div>
     </div>
-  );  
+  );
 }

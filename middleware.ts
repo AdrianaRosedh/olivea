@@ -57,13 +57,13 @@ export function middleware(request: NextRequest) {
   // Build and inject your strict CSP
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
     "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
     "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com",
-    "img-src 'self' data: blob: https://static1.cloudbeds.com",
-    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com",
-    "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
-  ].join("; ");
+    "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com",
+    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
+    "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
+  ].join("; ");  
 
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("X-Content-Type-Options", "nosniff");
