@@ -1,26 +1,26 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue } from "framer-motion"
-import { useRef, useState } from "react"
-import type { ReactNode } from "react"
-import { cn } from "@/lib/utils"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue } from "framer-motion";
+import { useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface DockRightItem {
-  id: string
-  href: string
-  icon: ReactNode
-  label: string
+  id: string;
+  href: string;
+  icon: ReactNode;
+  label: string;
 }
 
 interface DockRightProps {
-  items: DockRightItem[]
+  items: DockRightItem[];
 }
 
 export default function DockRight({ items }: DockRightProps) {
-  const pathname = usePathname()
-  const mouseY: MotionValue<number> = useMotionValue(Number.POSITIVE_INFINITY)
+  const pathname = usePathname();
+  const mouseY: MotionValue<number> = useMotionValue(Number.POSITIVE_INFINITY);
 
   return (
     <motion.div
@@ -37,7 +37,7 @@ export default function DockRight({ items }: DockRightProps) {
         />
       ))}
     </motion.div>
-  )
+  );
 }
 
 function IconContainer({
@@ -45,29 +45,29 @@ function IconContainer({
   active,
   mouseY,
 }: {
-  item: DockRightItem
-  active: boolean
-  mouseY: MotionValue<number>
+  item: DockRightItem;
+  active: boolean;
+  mouseY: MotionValue<number>;
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [hovered, setHovered] = useState(false)
+  const ref = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false);
 
-  // Generate a random organic-looking borderRadius
+  // Generate a more rounded and organic-looking borderRadius
   const [borderRadiusValue] = useState(() => {
-    const randPercent = () => `${Math.floor(Math.random() * 50 + 25)}%`
-    return `${randPercent()} ${randPercent()} ${randPercent()} ${randPercent()} / ${randPercent()} ${randPercent()} ${randPercent()} ${randPercent()}`
-  })
+    const randPercent = () => `${Math.floor(Math.random() * 20 + 40)}%`;
+    return `${randPercent()} ${randPercent()} ${randPercent()} ${randPercent()} / ${randPercent()} ${randPercent()} ${randPercent()} ${randPercent()}`;
+  });
 
   const distance = useTransform<number, number>(mouseY, (val) => {
-    const bounds = ref.current?.getBoundingClientRect() ?? { y: 0, height: 0 }
-    return val - bounds.y - bounds.height / 2
-  })
+    const bounds = ref.current?.getBoundingClientRect() ?? { y: 0, height: 0 };
+    return val - bounds.y - bounds.height / 2;
+  });
 
-  const containerSize = useTransform(distance, [-150, 0, 150], [60, 80, 60])
-  const iconSize = useTransform(distance, [-150, 0, 150], [24, 32, 24])
+  const containerSize = useTransform(distance, [-150, 0, 150], [60, 80, 60]);
+  const iconSize = useTransform(distance, [-150, 0, 150], [24, 32, 24]);
 
-  const animatedContainer = useSpring(containerSize, { mass: 0.2, stiffness: 120, damping: 14 })
-  const animatedIcon = useSpring(iconSize, { mass: 0.2, stiffness: 120, damping: 14 })
+  const animatedContainer = useSpring(containerSize, { mass: 0.2, stiffness: 120, damping: 14 });
+  const animatedIcon = useSpring(iconSize, { mass: 0.2, stiffness: 120, damping: 14 });
 
   return (
     <Link href={item.href} aria-label={item.label} className="relative">
@@ -102,5 +102,5 @@ function IconContainer({
         </AnimatePresence>
       </motion.div>
     </Link>
-  )
+  );
 }
