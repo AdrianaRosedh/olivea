@@ -254,5 +254,22 @@
   },
   "metadata": {
     "description": "A farm-to-table sanctuary where nature, nourishment, and design meet."
-  }
+  },
+  "drawer": {
+    "main": {
+      "restaurant": "Olivea Farm To Table",
+      "casa": "Casa Olivea",
+      "cafe": "Olivea Café"
+    },
+    "more": {
+      "journal": "Journal",
+      "sustainability": "Sustainability",
+      "awards": "Awards & Reviews",
+      "contact": "Contact Us",
+      "legal": "Legal & Policies",
+      "seeMore": "See More",
+      "hide": "Hide",
+      "copyright": "© 2025 Inmobiliaria MYA by DH"
+    }
+  } 
 }

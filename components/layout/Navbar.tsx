@@ -12,6 +12,7 @@ import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection
 import AdaptiveNavbar from "@/components/navigation/AdaptiveNavbar";
 import MobileDrawer from "@/components/navigation/MobileDrawer";
 import { MobileNav } from "@/components/navigation/MobileNav";
+import type { AppDictionary } from "@/app/[lang]/dictionaries";
 
 // CenterLink for the desktop navbar
 interface CenterLinkProps {
@@ -46,8 +47,9 @@ function CenterLink({ href, label, isActive }: CenterLinkProps) {
 
 interface NavbarProps {
   lang: "en" | "es";
+  dictionary: AppDictionary;
 }
-export default function Navbar({ lang }: NavbarProps) {
+export default function Navbar({ lang, dictionary }: NavbarProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const { isDark } = useBackgroundColorDetection(200);
@@ -87,6 +89,7 @@ export default function Navbar({ lang }: NavbarProps) {
           isOpen={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           lang={lang}
+          dict={dictionary}
         />
         <MobileNav  />
       </>

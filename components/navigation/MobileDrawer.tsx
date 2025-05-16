@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
+import type { AppDictionary } from "@/app/[lang]/dictionaries";
 import { FaYoutube, FaInstagram, FaTiktok, FaLinkedin, FaSpotify, FaPinterest } from "react-icons/fa";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   lang: "en" | "es";
+  dict: AppDictionary;
 }
 
 const navVariants = {
@@ -22,22 +24,22 @@ const navVariants = {
   }),
 };
 
-export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
+export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
   const router = useRouter();
   const [showMore, setShowMore] = useState(false);
 
   const mainLinks = [
-    { href: `/${lang}/restaurant`, label: "Olivea Farm To Table" },
-    { href: `/${lang}/casa`, label: "Casa Olivea" },
-    { href: `/${lang}/cafe`, label: "Olivea Café" },
+    { href: `/${lang}/restaurant`, label: dict.drawer.main.restaurant },
+    { href: `/${lang}/casa`, label: dict.drawer.main.casa },
+    { href: `/${lang}/cafe`, label: dict.drawer.main.cafe },
   ];
-
+  
   const moreLinks = [
-    { href: `/${lang}/journal`, label: "Journal" },
-    { href: `/${lang}/sustainability`, label: "Sustainability" },
-    { href: `/${lang}/awards-reviews`, label: "Awards & Reviews" },
-    { href: `/${lang}/contact`, label: "Contact Us" },
-    { href: `/${lang}/legal`, label: "Legal & Policies" },
+    { href: `/${lang}/journal`, label: dict.drawer.more.journal },
+    { href: `/${lang}/sustainability`, label: dict.drawer.more.sustainability },
+    { href: `/${lang}/awards-reviews`, label: dict.drawer.more.awards },
+    { href: `/${lang}/contact`, label: dict.drawer.more.contact },
+    { href: `/${lang}/legal`, label: dict.drawer.more.legal },
   ];
 
   const handleClick = (href: string) => {
@@ -84,7 +86,7 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                 aria-modal="true"
                 role="dialog"
               >
-                <div className="flex flex-col items-center w-full gap-4 mt-20">
+                <div className="flex flex-col items-center w-full gap-4 mt-12">
                   {mainLinks.map(({ href, label }, i) => (
                     <motion.button
                       key={href}
@@ -103,8 +105,9 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                     onClick={() => setShowMore(!showMore)}
                     className="w-full mt-2 px-6 py-2 rounded-full bg-[var(--olivea-cream)]/20 text-[var(--olivea-cream)] text-sm uppercase transition-colors hover:bg-[var(--olivea-cream)]/30"
                   >
-                    {showMore ? "Hide" : "See More"}
+                    {showMore ? (lang === "es" ? "Ocultar" : "Hide") : (lang === "es" ? "Ver Más" : "See More")}
                   </button>
+
 
                   <AnimatePresence>
                     {showMore && (
@@ -123,12 +126,6 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                             {label}
                           </button>
                         ))}
-                        <button
-                          onClick={() => handleClick(`/${lang}/about`)}
-                          className="col-span-2 text-xs mt-2 text-[var(--olivea-shell)] hover:underline"
-                        >
-                          © 2025 Inmobiliaria MYA by DH
-                        </button>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -147,6 +144,12 @@ export default function MobileDrawer({ isOpen, onClose, lang }: Props) {
                     <FaSpotify className="text-[var(--olivea-shell)]" size={20} />
                     <FaPinterest className="text-[var(--olivea-shell)]" size={20} />
                   </div>
+                  <button
+                    onClick={() => handleClick(`/${lang}/about`)}
+                    className="text-xs text-[var(--olivea-shell)] hover:underline"
+                  >
+                    © 2025 Inmobiliaria MYA by DH
+                  </button>
                 </div>
               </motion.div>
             </div>

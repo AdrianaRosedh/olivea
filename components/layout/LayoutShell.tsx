@@ -144,7 +144,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       <NextGenBackgroundInitializer />
       <NextGenBackground />
 
-      {mounted && !isHome && <Navbar lang={lang} />}
+      {mounted && !isHome && <Navbar lang={lang} dictionary={dictionary} />}
 
       <main
         className={

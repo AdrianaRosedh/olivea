@@ -132,4 +132,18 @@ export const dictionarySchema = z.object({
   metadata:       z
     .object({ description: z.string() })
     .optional(),
+    drawer: z.object({
+      main: z.object({
+        restaurant: z.string(),
+        casa: z.string(),
+        cafe: z.string(),
+      }),
+      more: z.object({
+        journal: z.string(),
+        sustainability: z.string(),
+        awards: z.string(),
+        contact: z.string(),
+        legal: z.string(),
+      }),
+    }),   
 })
