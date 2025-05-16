@@ -89,7 +89,7 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    overflow-y: hidden; /* ← Change this to fully prevent native scrollbars */
+    overflow-y: auto;
     scroll-behavior: smooth;
     overscroll-behavior: none;
   }
@@ -208,11 +208,12 @@
   }
 }
 
-/* Lenis scrolling */
+/* Lenis scrolling fix */
 html.lenis,
 html.lenis body {
   height: auto;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .lenis.lenis-smooth {
