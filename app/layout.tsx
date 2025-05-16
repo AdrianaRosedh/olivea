@@ -36,21 +36,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
         <ScrollProvider>{children}</ScrollProvider>
 
-        {/* Whistle Live Chat Plugin */}
+        {/* Whistle configuration */}
+        <Script id="whistle-config" strategy="afterInteractive">
+          {`window.WhistleLiveChat = { company: "295565", source: "https://plugins.whistle.cloudbeds.com" };`}
+        </Script>
+
+        {/* Whistle external script */}
         <Script
           id="whistle-live-chat-script"
+          src="https://plugins.whistle.cloudbeds.com/live-chat/initialize.js"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(){
-              window.WhistleLiveChat={ company:"295565", source: "https://plugins.whistle.cloudbeds.com" };
-              var e=document.createElement("script");
-              e.async=true;
-              e.type="text/javascript";
-              e.src=window.WhistleLiveChat.source + "/live-chat/initialize.js";
-              var t=document.getElementsByTagName("script")[0];
-              t.parentNode.insertBefore(e,t);
-            })();`,
-          }}
         />
       </body>
     </html>

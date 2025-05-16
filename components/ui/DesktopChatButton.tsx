@@ -9,12 +9,6 @@ interface DesktopChatButtonProps {
   lang: "en" | "es";
 }
 
-declare global {
-  interface Window {
-    Whistle?: { toggleWidget?: () => void };
-  }
-}
-
 export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
   const [chatAvailable, setChatAvailable] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -33,7 +27,6 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
 
     updateAvailability();
     const interval = setInterval(updateAvailability, 60000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -53,14 +46,9 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
     : labels[lang].unavailable;
 
   const handleClick = () => {
-    // Directly call Whistle widget if available
-    if (window.Whistle?.toggleWidget) {
-      window.Whistle.toggleWidget();
-    } else {
-      // fallback to clicking the whistle toggle button if API unavailable
-      const chatbotToggle = document.getElementById("chatbot-toggle");
-      chatbotToggle?.click();
-    }
+    // directly trigger the existing mobile button
+    const chatbotToggle = document.getElementById("chatbot-toggle");
+    chatbotToggle?.click();
   };
 
   return (
@@ -77,7 +65,6 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
           onClick={handleClick}
         >
           <MessageCircle className="w-7 h-7" />
-
           <span
             className={`absolute top-[-4px] right-[-4px] block h-2.5 w-2.5 rounded-full ${
               chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
