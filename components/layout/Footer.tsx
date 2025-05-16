@@ -5,26 +5,9 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import Cookies from "js-cookie"
 import { AnimatePresence, motion } from "framer-motion"
-import { GlobeIcon, Instagram, Linkedin, Youtube, Music, PinIcon } from "lucide-react"
+import { GlobeIcon } from "lucide-react"
+import { FaYoutube, FaInstagram, FaTiktok, FaLinkedin, FaSpotify, FaPinterest } from "react-icons/fa";
 
-const TikTokIcon = ({ size = 18, className = "" }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
-    <path d="M15 8c0 1.657-1.343 3-3 3v5.5a6.5 6.5 0 1 1-6.5-6.5H13V8h2z"></path>
-    <path d="M15 5.5v-1A1.5 1.5 0 0 1 16.5 3H18a3 3 0 0 1 3 3v3h-2"></path>
-  </svg>
-)
 
 export default function Footer() {
   const pathname = usePathname()
@@ -54,21 +37,34 @@ export default function Footer() {
 
   return (
     <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[50] bg-transparent backdrop-blur-md text-[13px] text-[var(--olivea-ink)] font-light tracking-wide">
-      <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-8 lg:px-6 py-2 flex justify-between items-center">
+      <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-2 lg:px-0 py-2 flex justify-between items-center">
         <div className="flex-1">
           <span className="cursor-default transition-colors hover:text-[var(--olivea-clay)]">
             © {new Date().getFullYear()} Inmobilaria MYA by DH
           </span>
         </div>
 
-        <div className="flex-1 flex justify-center items-center gap-3">
-          <a href="#" className="social-icon-link" aria-label="YouTube"><Youtube size={18} className="social-icon youtube" /></a>
-          <a href="#" className="social-icon-link" aria-label="Instagram"><Instagram size={18} className="social-icon instagram" /></a>
-          <a href="#" className="social-icon-link" aria-label="TikTok"><TikTokIcon size={18} className="social-icon tiktok" /></a>
-          <a href="#" className="social-icon-link" aria-label="LinkedIn"><Linkedin size={18} className="social-icon linkedin" /></a>
-          <a href="#" className="social-icon-link" aria-label="Spotify"><Music size={18} className="social-icon spotify" /></a>
-          <a href="#" className="social-icon-link" aria-label="Pinterest"><PinIcon size={18} className="social-icon pinterest" /></a>
+        <div className="flex-1 flex justify-center items-center gap-4">
+          <a href="#" aria-label="YouTube" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+            <FaYoutube size={20} />
+          </a>
+          <a href="#" aria-label="Instagram" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+            <FaInstagram size={20} />
+          </a>
+          <a href="#" aria-label="TikTok" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+            <FaTiktok size={20} />
+          </a>
+          <a href="#" aria-label="LinkedIn" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+            <FaLinkedin size={20} />
+          </a>
+          <a href="#" aria-label="Spotify" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+            <FaSpotify size={20} />
+          </a>
+          <a href="#" aria-label="Pinterest" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+            <FaPinterest size={20} />
+          </a>
         </div>
+
 
         <div className="flex-1 flex items-center justify-end gap-6 relative" ref={dropdownRef}>
           <Link href={`/${lang}/contact`} className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100">
