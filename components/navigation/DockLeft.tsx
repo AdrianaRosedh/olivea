@@ -40,6 +40,15 @@ const subContainerVariants = {
   },
 };
 
+const handleSmoothScroll = (e: React.MouseEvent, id: string) => {
+  e.preventDefault();
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.history.pushState(null, "", `#${id}`);
+  }
+};
+
 const subItemVariants = {
   open: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
   collapsed: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
@@ -141,6 +150,7 @@ export default function DockLeft({ dict, identity, dynamicCafeCategories = [] }:
               {/* main link */}
               <a
                 href={`#${item.id}`}
+                onClick={(e) => handleSmoothScroll(e, item.id)}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 className={cn(
@@ -201,6 +211,7 @@ export default function DockLeft({ dict, identity, dynamicCafeCategories = [] }:
                         <motion.a
                           key={subId}
                           href={`#${subId}`}
+                          onClick={(e) => handleSmoothScroll(e, subId)} // ← add this line
                           variants={subItemVariants}
                           className={cn(
                             "block text-sm transition-colors",
