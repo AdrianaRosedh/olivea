@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import Cookies from "js-cookie";
+import { cn } from "@/lib/utils";
 
 const languages = [
   { code: "es", label: "Español" },
@@ -15,9 +16,10 @@ type LocaleCode = (typeof languages)[number]["code"];
 
 interface LocaleSwitcherProps {
   currentLang: LocaleCode;
+  className?: string;
 }
 
-export default function LocaleSwitcher({ currentLang }: LocaleSwitcherProps) {
+export default function LocaleSwitcher({ currentLang, className = "" }: LocaleSwitcherProps) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
@@ -45,15 +47,16 @@ export default function LocaleSwitcher({ currentLang }: LocaleSwitcherProps) {
 
   return (
     <div ref={dropdownRef} className="relative inline-block text-left">
-      {/* Toggle Button */}
       <motion.button
         onClick={() => setOpen(!open)}
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.03 }}
         transition={{ type: "spring", stiffness: 180, damping: 12 }}
-        className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold uppercase tracking-wide 
-          border-[var(--olivea-olive)] text-[var(--olivea-olive)] 
-          hover:bg-[var(--olivea-olive)] hover:text-white transition-colors duration-300"
+        className={cn(
+          "flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold uppercase tracking-wide transition-colors duration-300",
+          className ||
+            "border-[var(--olivea-olive)] text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)] hover:text-white"
+        )}
       >
         {currentLang.toUpperCase()}
         <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
