@@ -45,11 +45,12 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
     ? labels[lang].available
     : labels[lang].unavailable;
 
-  const handleClick = () => {
-    // directly trigger the existing mobile button
-    const chatbotToggle = document.getElementById("chatbot-toggle");
-    chatbotToggle?.click();
-  };
+    const handleClick = () => {
+      const mobileChatButton = document.querySelector("#chatbot-toggle");
+      if (mobileChatButton) {
+        mobileChatButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      }
+    };    
 
   return (
     <div className="fixed bottom-20 right-6 z-50 hidden md:block">

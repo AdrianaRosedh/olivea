@@ -17,6 +17,13 @@ export const metadata = {
   description: "Experience the garden.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: "no",
+};
+
 declare global {
   interface Window {
     WhistleLiveChat?: {
