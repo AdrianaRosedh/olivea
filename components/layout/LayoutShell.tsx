@@ -1,4 +1,3 @@
-// components/layout/LayoutShell.tsx
 "use client";
 
 import React, { memo, useEffect, useState } from "react";
@@ -9,12 +8,14 @@ import DockLeft from "@/components/navigation/DockLeft";
 import DockRight from "@/components/navigation/DockRight";
 import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 import ClientOnly from "@/components/providers/ClientOnly";
-import MagneticButton from "@/components/ui/MagneticButton";
-import { MessageCircle, BookOpen, Leaf, FileText } from "lucide-react";
+import { BookOpen, Leaf, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useLenis } from "@/components/providers/ScrollProvider";
 import { supabase } from "@/lib/supabase";
 import { NavigationProvider } from "@/contexts/NavigationContext";
+import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer";
+import NextGenBackground from "@/components/animations/NextGenBackground";
+import DesktopChatButton from "@/components/ui/DesktopChatButton";
 
 // import only the Lang & AppDictionary types
 import type { Lang, AppDictionary } from "@/app/[lang]/dictionaries";
@@ -140,6 +141,9 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
   return (
     <>
+      <NextGenBackgroundInitializer />
+      <NextGenBackground />
+
       {mounted && !isHome && <Navbar lang={lang} />}
 
       <main
@@ -180,19 +184,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {/* ── CHAT BUTTON ───────────────────────────────────────────────────────────── */}
       {mounted && !isHome && !isMobile && (
         <ClientOnly>
-          <div className="fixed bottom-20 right-6 z-50 hidden md:block">
-            <MagneticButton
-              href="#chat"
-              aria-label="Open Chat"
-              className="w-14 h-14 bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] rounded-[40%_60%_60%_40%]"
-            >
-              <MessageCircle className="w-6 h-6" />
-            </MagneticButton>
-          </div>
+          <DesktopChatButton lang={lang} />
         </ClientOnly>
       )}
     </>
   );
 }
-
 export default memo(LayoutShell);
