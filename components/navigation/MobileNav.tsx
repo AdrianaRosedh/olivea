@@ -43,7 +43,10 @@ export function MobileNav() {
       {/* Chat Button with status indicator */}
       <button
         id="chatbot-toggle"
-        onClick={() => window.dispatchEvent(new Event("open-chat"))}
+        onClick={() => {
+          const whistleButton = document.getElementById('chatbot-toggle');
+          if (whistleButton) whistleButton.click();
+        }}        
         className="relative flex flex-col items-center justify-center rounded-[40%_60%_30%_70%] bg-[var(--olivea-shell)] text-[var(--olivea-olive)] shadow-md px-2 py-1.5 transition-transform active:scale-95"
         aria-label="Chat"
       >

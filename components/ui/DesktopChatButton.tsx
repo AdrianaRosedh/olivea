@@ -61,15 +61,14 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
           }}
         >
           <MessageCircle className="w-7 h-7" />
-          
-          {/* Availability dot positioned clearly on top-right */}
+
           <span
             className={`absolute top-[-4px] right-[-4px] block h-2.5 w-2.5 rounded-full ${
               chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
             }`}
           />
         </MagneticButton>
-  
+          
         <AnimatePresence mode="wait">
           {hovered && (
             <motion.div
@@ -78,7 +77,6 @@ export default function DesktopChatButton({ lang }: DesktopChatButtonProps) {
               exit={{ opacity: 0, x: 10, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-4 py-2 text-sm rounded-lg backdrop-blur-sm shadow-md border border-[var(--olivea-olive)]/10 bg-[var(--olivea-white)] text-[var(--olivea-olive)] font-semibold whitespace-nowrap"
-              style={{ top: "50%", transform: "translateY(-50%)" }} // ⟵ Add this
             >
               {currentLabel}
             </motion.div>
