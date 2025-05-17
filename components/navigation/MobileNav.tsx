@@ -1,3 +1,4 @@
+// components/navigation/MobileNav.tsx
 "use client";
 
 import { Calendar, MessageSquare } from "lucide-react";
@@ -17,13 +18,10 @@ export function MobileNav() {
       const hourMinute = new Date(now).getHours() * 60 + new Date(now).getMinutes();
       const chatStart = 8 * 60; // 8:00 AM
       const chatEnd = 21 * 60 + 30; // 9:30 PM
-
       setChatAvailable(hourMinute >= chatStart && hourMinute <= chatEnd);
     };
-
     updateChatAvailability();
-    const timer = setInterval(updateChatAvailability, 60 * 1000); // Check every minute
-
+    const timer = setInterval(updateChatAvailability, 60 * 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -40,9 +38,12 @@ export function MobileNav() {
         <span className="text-[10px] font-medium mt-0.5">Reserve</span>
       </button>
 
-      {/* Chat Button with status indicator */}
+      {/* Mobile Chat Button (clearly triggers global button) */}
       <button
-        id="chatbot-toggle"
+        id="mobile-chat-button"
+        onClick={() => {
+          document.getElementById("chatbot-toggle")?.click();
+        }}
         className="relative flex flex-col items-center justify-center rounded-[40%_60%_30%_70%] bg-[var(--olivea-shell)] text-[var(--olivea-olive)] shadow-md px-2 py-1.5 transition-transform active:scale-95"
         aria-label="Chat"
       >

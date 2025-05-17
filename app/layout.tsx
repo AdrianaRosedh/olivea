@@ -54,6 +54,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           src="https://plugins.whistle.cloudbeds.com/live-chat/initialize.js"
           strategy="afterInteractive"
         />
+
+        {/* 👇 Hidden Global Whistle Toggle Button 👇 */}
+        <button id="chatbot-toggle" style={{ display: "none" }} />
       </body>
     </html>
   );
