@@ -39,8 +39,9 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
 
   // “Clicked from homepage” video transition
   useEffect(() => {
-    const fromHomePage  = sessionStorage.getItem("fromHomePage");
-    const playbackTime  = sessionStorage.getItem("fromHomePageTime");
+    const fromHomePage = sessionStorage.getItem("fromHomePage");
+    const playbackTime = sessionStorage.getItem("fromHomePageTime");
+  
     const animateSequence = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
         videoRef.current.currentTime = parseFloat(playbackTime);
@@ -48,15 +49,18 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
         await new Promise((r) => setTimeout(r, 800));
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
         await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
+  
         sessionStorage.removeItem("fromHomePage");
         sessionStorage.removeItem("fromHomePageTime");
       } else {
-        controlsVideo.set({ y: "-100vh" });
-        controlsContent.set({ y: 0 });
-      }
+        await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
+        await controlsContent.start({ y: 0, transition: { duration: 0 } });
+      }      
     };
+  
     animateSequence();
   }, [controlsVideo, controlsContent]);
+  
 
   return (
     <>

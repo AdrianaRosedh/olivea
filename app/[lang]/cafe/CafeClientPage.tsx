@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { AppDictionary }          from "@/app/[lang]/dictionaries";
-import { TypographyH2, TypographyP }   from "@/components/ui/Typography";
-import MobileSectionTracker            from "@/components/navigation/MobileSectionTracker";
-import { motion, useAnimation }        from "framer-motion";
+import type { AppDictionary } from "@/app/[lang]/dictionaries";
+import { TypographyH2, TypographyP } from "@/components/ui/Typography";
+import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
+import { motion, useAnimation } from "framer-motion";
 
 export interface MenuItem {
   id: number;
@@ -23,17 +23,14 @@ export default function CafeClientPage({
   dict,
   itemsByCategory,
 }: CafeClientPageProps) {
-  const controlsVideo   = useAnimation();
+  const controlsVideo = useAnimation();
   const controlsContent = useAnimation();
-  const videoRef        = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // build our ordered list of all section-IDs:
-  // 1) the static ones from dict.cafe.sections
-  // 2) then any dynamic categories
-  const staticIds = Object.keys(
-    dict.cafe.sections
-  ) as Array<keyof typeof dict.cafe.sections>;
+  const staticIds = Object.keys(dict.cafe.sections) as Array<
+    keyof typeof dict.cafe.sections
+  >;
   const dynamicIds = Object.keys(itemsByCategory);
   const sectionIds = [...staticIds, ...dynamicIds];
 
@@ -44,35 +41,34 @@ export default function CafeClientPage({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // MATCH CASA LOGIC EXACTLY
   useEffect(() => {
-    const targetVideo  = sessionStorage.getItem("targetVideo");
-    const playbackTime = sessionStorage.getItem("playbackTime");
+    const fromHomePage = sessionStorage.getItem("fromHomePage");
+    const playbackTime = sessionStorage.getItem("fromHomePageTime");
 
-    const run = async () => {
-      const vid = videoRef.current;
-      if (vid && targetVideo && playbackTime) {
-        vid.src = targetVideo;
-        vid.currentTime = parseFloat(playbackTime);
-        await vid.play().catch(() => {});
+    const animateSequence = async () => {
+      if (fromHomePage && playbackTime && videoRef.current) {
+        videoRef.current.currentTime = parseFloat(playbackTime);
+        await videoRef.current.play().catch(() => {});
         await new Promise((r) => setTimeout(r, 800));
 
         await controlsVideo.start({
           y: "-100vh",
           transition: { duration: 1, ease: "easeInOut" },
         });
-        controlsContent.start({
+        await controlsContent.start({
           y: 0,
           transition: { duration: 1, ease: "easeInOut" },
         });
 
-        sessionStorage.removeItem("targetVideo");
-        sessionStorage.removeItem("playbackTime");
+        sessionStorage.removeItem("fromHomePage");
+        sessionStorage.removeItem("fromHomePageTime");
       } else {
-        controlsVideo.set({ y: "-100vh" });
-        controlsContent.set({ y: 0 });
-      }
+        await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
+        await controlsContent.start({ y: 0, transition: { duration: 0 } });
+      }      
     };
-    run();
+    animateSequence();
   }, [controlsVideo, controlsContent]);
 
   return (
@@ -85,7 +81,10 @@ export default function CafeClientPage({
         <video
           ref={videoRef}
           src="/videos/cafe.mp4"
-          autoPlay muted loop playsInline
+          autoPlay
+          muted
+          loop
+          playsInline
           className={`object-cover ${
             isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"
           }`}
@@ -99,9 +98,8 @@ export default function CafeClientPage({
       >
         {sectionIds.map((id) => {
           if (id in dict.cafe.sections) {
-            const { title, description } = dict.cafe.sections[
-              id as keyof typeof dict.cafe.sections
-            ];
+            const { title, description } =
+              dict.cafe.sections[id as keyof typeof dict.cafe.sections];
             return (
               <section
                 key={id}
@@ -129,7 +127,10 @@ export default function CafeClientPage({
                 <TypographyH2>{id}</TypographyH2>
                 <div className="mt-4 space-y-3 text-left">
                   {items.map((item) => (
-                    <div key={item.id} className="flex justify-between border-b py-2">
+                    <div
+                      key={item.id}
+                      className="flex justify-between border-b py-2"
+                    >
                       <span>{item.name}</span>
                       <span>${item.price.toFixed(2)}</span>
                     </div>

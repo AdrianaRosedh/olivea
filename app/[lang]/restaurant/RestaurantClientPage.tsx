@@ -35,7 +35,7 @@ export default function RestaurantClientPage({
   lang,
   dict,
 }: RestaurantClientPageProps) {
-  const controlsVideo   = useAnimation();
+  const controlsVideo = useAnimation();
   const controlsContent = useAnimation();
   const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -48,29 +48,37 @@ export default function RestaurantClientPage({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // shared‐element video animation
+  // shared‐element video animation (EXACT CASA LOGIC)
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
+
     const animateSequence = async () => {
-      if (fromHomePage && videoRef.current && playbackTime) {
+      if (fromHomePage && playbackTime && videoRef.current) {
         videoRef.current.currentTime = parseFloat(playbackTime);
-        await videoRef.current.play();
+        await videoRef.current.play().catch(() => {});
         await new Promise((r) => setTimeout(r, 800));
-        await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" }});
-        await controlsContent.start({ y: 0,   transition: { duration: 1, ease: "easeInOut" }});
+
+        await controlsVideo.start({
+          y: "-100vh",
+          transition: { duration: 1, ease: "easeInOut" },
+        });
+        await controlsContent.start({
+          y: 0,
+          transition: { duration: 1, ease: "easeInOut" },
+        });
+
         sessionStorage.removeItem("fromHomePage");
         sessionStorage.removeItem("fromHomePageTime");
-        sessionStorage.removeItem("targetVideo");
       } else {
-        controlsVideo.set({ y: "-100vh" });
-        controlsContent.set({ y: 0 });
-      }
+        await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
+        await controlsContent.start({ y: 0, transition: { duration: 0 } });
+      }      
     };
+
     animateSequence();
   }, [controlsVideo, controlsContent]);
 
-  // Dynamically pull your section IDs and subsection IDs
   const sectionKeys = Object.keys(dict.sections);
   const sectionIds = sectionKeys.flatMap((secId) => {
     const subs = dict.sections[secId].subsections;
@@ -87,7 +95,10 @@ export default function RestaurantClientPage({
         <video
           ref={videoRef}
           src="/videos/homepage-temp.mp4"
-          autoPlay muted loop playsInline
+          autoPlay
+          muted
+          loop
+          playsInline
           className={`object-cover ${
             isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"
           }`}
@@ -100,13 +111,11 @@ export default function RestaurantClientPage({
         lang={lang}
         className="relative"
       >
-        {/* PAGE HEADER */}
         <header className="text-center py-12 px-6">
           <TypographyH1>{dict.title}</TypographyH1>
           <TypographyP className="mt-2">{dict.description}</TypographyP>
         </header>
 
-        {/* SECTIONS */}
         {sectionKeys.map((secId) => {
           const info = dict.sections[secId];
           return (
@@ -118,32 +127,22 @@ export default function RestaurantClientPage({
               aria-labelledby={`${secId}-heading`}
             >
               <div className="max-w-2xl text-center">
-                <TypographyH2 id={`${secId}-heading`}>
-                  {info.title}
-                </TypographyH2>
-                <TypographyP className="mt-2">
-                  {info.description}
-                </TypographyP>
+                <TypographyH2 id={`${secId}-heading`}>{info.title}</TypographyH2>
+                <TypographyP className="mt-2">{info.description}</TypographyP>
 
                 {info.subsections && (
                   <div className="mt-6 space-y-4 text-left">
-                    {Object.entries(info.subsections).map(
-                      ([subId, sub]) => (
-                        <div key={subId} id={subId}>
-                          <TypographyH3>
-                            {sub.title}
-                          </TypographyH3>
-                          <TypographyP className="mt-1">
-                            {sub.description}
-                          </TypographyP>
-                        </div>
-                      )
-                    )}
+                    {Object.entries(info.subsections).map(([subId, sub]) => (
+                      <div key={subId} id={subId}>
+                        <TypographyH3>{sub.title}</TypographyH3>
+                        <TypographyP className="mt-1">{sub.description}</TypographyP>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             </section>
-          )
+          );
         })}
       </motion.div>
 
