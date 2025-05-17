@@ -6,5 +6,8 @@ declare global {
       company: string;
       source: string;
     };
+    tock?: {
+      callMethod?: (method: string, ...args: unknown[]) => void;
+    };
   }
 }
