@@ -35,10 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               window, document, 'script',
               'https://www.exploretock.com/tock.js'
             );
-            tock('init', 'olivea-farm-to-table');
+            // we’ll do our real init from inside the widget
           `}
         </Script>
-
         <ReservationProvider>
           {children}
         </ReservationProvider>

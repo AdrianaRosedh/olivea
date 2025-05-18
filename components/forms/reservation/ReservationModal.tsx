@@ -1,12 +1,17 @@
+// components/forms/reservation/ReservationModal.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { motion, AnimatePresence, type Variants, type Transition } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  type Variants,
+  type Transition,
+} from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
 
-// Dynamically import widgets
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 const TockWidget     = dynamic(() => import("./TockWidget"),     { ssr: false });
 
@@ -15,10 +20,14 @@ interface ReservationModalProps {
 }
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
-  const { isOpen, closeReservationModal, reservationType, setReservationType } = useReservation();
-  const [isMobile, setIsMobile] = useState(false);
+  const {
+    isOpen,
+    closeReservationModal,
+    reservationType,
+    setReservationType,
+  } = useReservation();
 
-  // track mobile breakpoint
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)");
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
@@ -27,15 +36,20 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // lock body scroll
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const variants: Variants = {
-    closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
-    open:   isMobile ? { y:    0,    opacity: 1 } : { scale: 1,   opacity: 1 },
+    closed: isMobile
+      ? { y: "100%", opacity: 0 }
+      : { scale: 0.9, opacity: 0 },
+    open: isMobile
+      ? { y: 0, opacity: 1 }
+      : { scale: 1, opacity: 1 },
   };
   const transition: Transition = isMobile
     ? { type: "spring", stiffness: 200, damping: 25 }
@@ -45,7 +59,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* backdrop */}
+          {/* Backdrop */}
           <motion.div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
             initial={{ opacity: 0 }}
@@ -55,11 +69,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             onClick={closeReservationModal}
           />
 
-          {/* panel */}
+          {/* Modal Panel */}
           <motion.div
             className={`fixed inset-0 z-[1300] flex ${
-              isMobile 
-                ? "items-end justify-center p-0" 
+              isMobile
+                ? "items-end justify-center p-0"
                 : "items-center justify-center p-4"
             } pointer-events-none`}
             initial="closed"
@@ -75,7 +89,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
               } flex flex-col overflow-hidden`}
             >
-              {/* header */}
+              {/* Header */}
               <div className="relative flex items-center px-6 py-4 border-b backdrop-blur-sm flex-shrink-0">
                 <h2
                   className="absolute inset-0 flex items-center justify-center text-center pointer-events-none"
@@ -100,15 +114,15 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 </button>
               </div>
 
-              {/* tabs */}
+              {/* Tabs */}
               <div className="flex bg-[#e8e4d5] flex-shrink-0">
                 {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => {
-                  const label = id === "restaurant"
-                    ? lang === "es" ? "Restaurante" : "Restaurant"
-                    : id === "hotel"
-                    ? lang === "es" ? "Hotel"       : "Hotel"
-                    : lang === "es" ? "Café"        : "Cafe";
-
+                  const label =
+                    id === "restaurant"
+                      ? lang === "es" ? "Restaurante" : "Restaurant"
+                      : id === "hotel"
+                      ? lang === "es" ? "Hotel"      : "Hotel"
+                      : lang === "es" ? "Café"       : "Cafe";
                   return (
                     <button
                       key={id}
@@ -125,15 +139,36 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 })}
               </div>
 
-              {/* content */}
+              {/* Content */}
               <div className="relative flex-1 overflow-auto bg-white">
-                {reservationType === "hotel"      && <CloudbedsWidget />}
-                {reservationType === "restaurant" && <TockWidget lang={lang} />}
-                {reservationType === "cafe"       && (
-                  <div className="absolute inset-0 flex items-center justify-center italic text-neutral-500">
-                    {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
-                  </div>
-                )}
+                {/* Hotel Pane (pre-loaded) */}
+                <div
+                  className={`absolute inset-0 transition-opacity ${
+                    reservationType === "hotel" ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <CloudbedsWidget />
+                </div>
+
+                {/* Restaurant Pane */}
+                <div
+                  className={`absolute inset-0 transition-opacity ${
+                    reservationType === "restaurant"
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                >
+                  <TockWidget lang={lang} />
+                </div>
+
+                {/* Café Placeholder */}
+                <div
+                  className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity ${
+                    reservationType === "cafe" ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
+                </div>
               </div>
             </div>
           </motion.div>
