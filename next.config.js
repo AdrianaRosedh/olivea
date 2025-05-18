@@ -2,11 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // ─── Experimental / Turbopack ────────────────────────────────
   experimental: {
     optimizeCss: true,
     serverActions: { enabled: true },
   },
+
   turbopack: {
     rules: {
       "*.svg": {
@@ -16,11 +16,6 @@ const nextConfig = {
     },
   },
 
-  // ─── Webpack Overrides for SVGs (SSR safety) ──────────────────
-  /** 
-   * @param {import('webpack').Configuration} config 
-   * @returns {import('webpack').Configuration}
-   */
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -30,7 +25,6 @@ const nextConfig = {
     return config;
   },
 
-  // ─── Image Optimization ────────────────────────────────────────
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "olivea.com" },
@@ -40,7 +34,6 @@ const nextConfig = {
     unoptimized: false,
   },
 
-  // ─── Compiler Optimizations ────────────────────────────────────
   compiler: {
     removeConsole:
       process.env.NODE_ENV === "production"
@@ -53,7 +46,7 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
 
-  // ─── Security Headers (including CSP & X-Frame-Options) ─────────
+  // ─── Global Security Headers ─────────────────────────────────
   async headers() {
     return [
       {
@@ -62,21 +55,34 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value: [
+              // basics
               "default-src 'self'",
+
+              // your scripts + Tock + Cloudbeds + Whistle
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-              "style-src 'self' 'unsafe-inline' https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-              "style-src-elem 'self' https://www.exploretock.com",
+
+              // your styles + Tock’s CSS + inline styles for Tock
+              "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+              "style-src-elem 'self' 'unsafe-inline' https://www.exploretock.com",
+
+              // allow Tock’s web-fonts
               "font-src 'self' data: https://www.exploretock.com",
+
+              // images
+              "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.exploretock.com",
+
+              // XHR, WebSocket, etc.
+              "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com https://*.execute-api.us-west-2.amazonaws.com",
+
+              // iframes
               "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-              "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-              "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.exploretock.com"
             ].join("; "),
           },
-          { key: "X-Content-Type-Options",    value: "nosniff" },
-          { key: "X-Frame-Options",           value: "SAMEORIGIN" },
-          { key: "X-XSS-Protection",          value: "1; mode=block" },
-          { key: "Referrer-Policy",           value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=()" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
         ],
       },

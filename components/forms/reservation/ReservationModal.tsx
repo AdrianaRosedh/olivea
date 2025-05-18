@@ -1,4 +1,3 @@
-// components/forms/reservation/ReservationModal.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,13 +10,10 @@ import {
 } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
+import TockLoader from "./TockLoader";
 
-// load it client-side only
+// Dynamically load each widget to avoid SSR
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
-// const TockWidget      = dynamic(() => import("./TockWidget"),      { ssr: false });
-
-// …other imports
-import ReserveButton from "./ReserveButton";
 
 interface ReservationModalProps {
   lang: string;
@@ -38,17 +34,17 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   const [size, setSize] = useState("2");
   // ─────────────────────────────────────────────────────────
 
-  // detect mobile (…)
+  // detect mobile
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)");
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     setIsMobile(mql.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", onChange);
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // lock scroll (…)
+  // lock scroll
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -66,6 +62,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   return (
     <AnimatePresence>
+      {/* load Tock.js & init once */}
+      <TockLoader />
+
       {/* backdrop */}
       <motion.div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
@@ -136,25 +135,21 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           {/* Content */}
           <div className="relative flex-1 overflow-auto bg-white">
             {/* Hotel Pane */}
-            <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
+            <div className={`absolute inset-0 transition-opacity duration-300 ${
                 reservationType === "hotel"
                   ? "opacity-100 pointer-events-auto"
                   : "opacity-0 pointer-events-none"
-              }`}
-            >
+              }`}>
               <CloudbedsWidget />
             </div>
 
             {/* Restaurant Pane */}
-            <div
-              className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 ${
+            <div className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 ${
                 reservationType === "restaurant"
                   ? "opacity-100 pointer-events-auto"
                   : "opacity-0 pointer-events-none"
               }`}
             >
-              {/* date */}
               <label>
                 {lang === "es" ? "Fecha" : "Date"}
                 <input
@@ -164,8 +159,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   className="block w-full border p-2 rounded"
                 />
               </label>
-
-              {/* time */}
               <label>
                 {lang === "es" ? "Hora" : "Time"}
                 <input
@@ -175,8 +168,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   className="block w-full border p-2 rounded"
                 />
               </label>
-
-              {/* party size */}
               <label>
                 {lang === "es" ? "Personas" : "Party Size"}
                 <select
@@ -192,24 +183,22 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 </select>
               </label>
 
-              {/* the Tock “Reserve” button */}
-              <div className="mt-4">
-              <ReserveButton
-                business="olivea-farm-to-table"
-                offeringId="528232"
-                date={date}
-                time={time}
-                size={size}
-                className="w-full py-3 bg-[var(--olivea-olive)] text-white rounded">
-                {lang === "es" ? "Reservar Ahora" : "Book Now"}
-              </ReserveButton>
-
-              </div>
+              {/* ─── TOCK WIDGET (Step 2) ────────────────────────────── */}
+              <div id="Tock_widget_container"
+                data-tock-display-mode="Button"
+                data-tock-color-mode="Blue"
+                data-tock-locale={lang === "es" ? "es-mx" : "en-us"}
+                data-tock-timezone="America/Tijuana"
+                data-tock-business="olivea-farm-to-table"
+                data-tock-offering="528232"
+                data-tock-date={date}
+                data-tock-time={time}
+                data-tock-size={size}
+              />
             </div>
 
             {/* Café Pane */}
-            <div
-              className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
+            <div className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
                 reservationType === "cafe"
                   ? "opacity-100 pointer-events-auto"
                   : "opacity-0 pointer-events-none"

@@ -1,6 +1,5 @@
 "use client";
-
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 
 interface ReserveButtonProps {
   business: string;
@@ -21,17 +20,10 @@ export default function ReserveButton({
   className,
   children,
 }: ReserveButtonProps) {
-  useEffect(() => {
-    if (!document.getElementById("tock-js")) {
-      const s = document.createElement("script");
-      s.id = "tock-js";
-      s.src = "https://www.exploretock.com/tock.js";
-      document.body.appendChild(s);
-      s.onload = () => {
-        window.tock?.("init", { token: "<YOUR_TOKEN>" });
-      };
-    }
-  }, []);
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // pass the clicked button element so Tock picks up your data-attrs
+    window.tock?.("open", e.currentTarget);
+  };
 
   return (
     <button
@@ -42,7 +34,7 @@ export default function ReserveButton({
       data-tock-date={date}
       data-tock-time={time}
       data-tock-size={size}
-      onClick={() => window.tock?.("open")}
+      onClick={handleClick}
     >
       {children}
     </button>
