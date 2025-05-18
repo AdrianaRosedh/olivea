@@ -1,52 +1,42 @@
+// components/forms/reservation/TockWidget.tsx
 "use client";
 
 import { useEffect } from "react";
+import { useReservation } from "@/contexts/ReservationContext";
 
 interface TockWidgetProps {
   lang: string;
 }
 
 export default function TockWidget({ lang }: TockWidgetProps) {
+  const { isOpen, reservationType } = useReservation();
+
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // If stub not yet installed, create it and inject real script
-    if (!window.tock) {
-      const stub = (...args: unknown[]) => {
-        stub.queue.push(args);
-      };
-      stub.queue = [] as unknown[];
-      stub.loaded = true;
-      stub.version = "1.0";
-      stub.callMethod = stub;
-
-      window.tock = stub;
-
-      const s = document.createElement("script");
-      s.src = "https://www.exploretock.com/tock.js";
-      s.async = true;
-      s.onload = () => {
-        window.tock!("init", "olivea-farm-to-table");
-        window.tock!("show");
-      };
-      document.head.appendChild(s);
-    } else {
-      // Already loaded? Just re-init & show
-      try {
-        window.tock("init", "olivea-farm-to-table");
-        window.tock("show");
-      } catch {}
+    if (isOpen && reservationType === "restaurant" && window.tock) {
+      // initialize (with our options) and immediately show
+      window.tock(
+        "init",
+        "olivea-farm-to-table",
+        {
+          displayMode: "Overlay",    // full‐screen overlay
+          displayType: "search",     // “show all offerings”
+        }
+      );
+      window.tock("show");
     }
-  }, []);
+  }, [isOpen, reservationType]);
 
+  // this div just holds the overlay—the overlay itself will be
+  // mounted to <body> by tock.show()
   return (
     <div
       id="Tock_widget_container"
       data-tock-display-mode="Overlay"
+      data-tock-display-type="search" 
       data-tock-color-mode="White"
       data-tock-locale={lang === "es" ? "es-mx" : "en-us"}
       data-tock-timezone="America/Tijuana"
-      className="w-full h-full min-h-[300px]"
+      className="w-full h-full"
     />
   );
 }

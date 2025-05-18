@@ -292,3 +292,22 @@ iframe[src="/cloudbeds-immersive.html"],
   height: 100% !important;
   border: none !important;
 }
+
+
+/* 1) The top bar (logo + currency switch) */
+.tock-overlay-header {
+  background: var(--olivea-olive) !important;
+  color: white          !important;
+}
+
+/* 2) The month tile */
+.tock-day-cell {
+  width: 2.4rem  !important;
+  height: 2.4rem !important;
+  font-size: 1.1rem !important;
+}
+
+/* 3) Hide the "Powered by Tock" credit */
+.tock-powered-by {
+  display: none !important;
+}

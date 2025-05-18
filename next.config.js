@@ -74,7 +74,7 @@ async headers() {
             "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com",
             "img-src 'self' data: blob: https://static1.cloudbeds.com https://images.unsplash.com https://www.exploretock.com",
             "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://*.supabase.co https://plugins.whistle.cloudbeds.com https://*.execute-api.us-west-2.amazonaws.com",
-            "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com",
+            "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
             "font-src 'self' data:",
           ].join("; "),
         },
