@@ -1,5 +1,5 @@
-// app/[lang]/journal/journal-entries.tsx
-import React, { Suspense } from "react"
+
+import { Suspense } from "react";
 import type { Lang } from "../dictionaries"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"

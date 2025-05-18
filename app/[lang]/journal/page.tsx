@@ -1,5 +1,5 @@
 // app/[lang]/journal/page.tsx
-import React, { Suspense } from "react"
+import { Suspense } from "react";
 import type { Metadata } from "next"
 import { getDictionary, type Lang } from "../dictionaries"
 import JournalEntries, { EntryLoading } from "./journal-entries"

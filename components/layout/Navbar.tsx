@@ -1,7 +1,6 @@
-// components/layout/Navbar.tsx
 "use client";
 
-import React, { useState, useCallback, useRef, MouseEvent } from "react";
+import { useState, useCallback, useRef, MouseEvent  } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import OliveaFTTLogo from "@/assets/OliveaFTTIcon.svg";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
 import dynamic from "next/dynamic";
 import ReservationButton from "./ReservationButton";

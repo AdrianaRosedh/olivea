@@ -1,5 +1,4 @@
 // app/[lang]/journal/[slug]/page.tsx
-import React from "react"                  // ← add this
 import { supabase } from "@/lib/supabase"
 import { notFound }  from "next/navigation"
 import { getDictionary, type Lang } from "../../dictionaries"

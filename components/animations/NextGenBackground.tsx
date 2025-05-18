@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 // Pure on-brand background gradient layer without bird
 export default function NextGenBackground() {
   return (

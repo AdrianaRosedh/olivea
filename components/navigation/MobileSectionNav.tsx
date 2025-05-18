@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, Fragment } from "react";
+import { useEffect, useRef, useState, Fragment } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";

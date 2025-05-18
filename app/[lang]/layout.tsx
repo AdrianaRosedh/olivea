@@ -1,5 +1,4 @@
-// app/[lang]/layout.tsx
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { loadLocale } from "@/lib/i18n";
 import StructuredData from "@/components/seo/StructuredData";
