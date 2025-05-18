@@ -1,44 +1,41 @@
-// components/forms/reservation/TockWidget.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useReservation } from "@/contexts/ReservationContext";
 
-/**
- * TockWidget: renders the Tock reservation button inside the modal.
- * Uses data attributes on the container div and a simple init call.
- */
 export default function TockWidget() {
   const { isOpen, reservationType } = useReservation();
+  const widgetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isOpen || reservationType !== "restaurant") return;
-
-    // Poll for the tock function
-    const win = window as unknown as { tock?: (...args: unknown[]) => void };
-    const attemptInit = () => {
-      if (typeof win.tock === "function") {
-        win.tock("init", "olivea-farm-to-table");
-      } else {
-        setTimeout(attemptInit, 100);
-      }
-    };
-    attemptInit();
+    if (isOpen && reservationType === "restaurant" && widgetRef.current) {
+      const initTock = () => {
+        if (window.tock) {
+          window.tock("init", "olivea-farm-to-table");
+        } else {
+          setTimeout(initTock, 200);
+        }
+      };
+      initTock();
+    }
   }, [isOpen, reservationType]);
 
-  // Only render the placeholder when active
-  if (!isOpen || reservationType !== "restaurant") {
-    return null;
-  }
-
+  // Always mount the container for stable behavior
   return (
     <div
+      ref={widgetRef}
       id="Tock_widget_container"
       data-tock-display-mode="Button"
       data-tock-color-mode="Blue"
       data-tock-locale="es-mx"
       data-tock-timezone="America/Tijuana"
-      style={{ minHeight: 100, width: "100%" }}
+      style={{
+        width: "100%",
+        minHeight: "100px",
+        opacity: reservationType === "restaurant" ? 1 : 0,
+        pointerEvents: reservationType === "restaurant" ? "auto" : "none",
+        transition: "opacity 300ms ease",
+      }}
     />
   );
 }
