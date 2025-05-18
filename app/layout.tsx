@@ -40,6 +40,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="afterInteractive"
         />
         <button id="chatbot-toggle" style={{ display: "none" }} />
+
+        {/* ─── TOCK RESERVATIONS WIDGET ─────────────────── */}
+        {/* 1) loader snippet */}
+        <Script id="tock-loader" strategy="afterInteractive">
+          {`
+            !function(t,o,c,k){
+              if(!t.tock){
+                var e=t.tock=function(){
+                  e.callMethod?
+                    e.callMethod.apply(e,arguments):
+                    e.queue.push(arguments)
+                };
+                t._tock||(t._tock=e),
+                e.push=e,
+                e.loaded=!0,
+                e.version='1.0',
+                e.queue=[];
+                var f=o.createElement(c);
+                f.async=!0;
+                f.src=k;
+                var g=o.getElementsByTagName(c)[0];
+                g.parentNode.insertBefore(f,g)
+              }
+            }(window,document,'script','https://www.exploretock.com/tock.js');
+          `}
+        </Script>
+
+        {/* 2) init call */}
+        <Script id="tock-init" strategy="afterInteractive">
+          {`
+            tock('init', 'olivea-farm-to-table');
+          `}
+        </Script>
       </body>
     </html>
   );
