@@ -7,27 +7,35 @@ import { useReservation } from "@/contexts/ReservationContext";
 export default function TockWidget() {
   const { reservationType } = useReservation();
 
-  // Only load & init when the Restaurant tab is active
-  if (reservationType !== "restaurant") {
-    return null;
-  }
+  // Only mount our widget when “Restaurant” is active
+  if (reservationType !== "restaurant") return null;
 
   return (
     <>
-      {/* Load the Tock JS library on demand */}
+      {/* ─── TOCK STUB + INIT ─────────────────────────── */}
       <Script
-        src="https://www.exploretock.com/tock.js"
+        id="tock-init"
         strategy="afterInteractive"
-        onLoad={() => {
-          if (typeof window.tock === "function") {
-            window.tock("init", "olivea-farm-to-table");
-          } else {
-            console.error("Tock did load, but window.tock is not a function");
-          }
+        dangerouslySetInnerHTML={{
+          __html: `
+            !function(t,o,c,k){
+              if(!t.tock){
+                var e=t.tock=function(){
+                  e.callMethod?e.callMethod.apply(e,arguments):
+                  e.queue.push(arguments);
+                };
+                t._tock||(t._tock=e),e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];
+                var f=o.createElement(c);f.async=!0;f.src=k;
+                var g=o.getElementsByTagName(c)[0];
+                g.parentNode.insertBefore(f,g);
+              }
+            }(window,document,'script','https://www.exploretock.com/tock.js');
+            tock('init', 'olivea-farm-to-table');
+          `,
         }}
       />
 
-      {/* Container where Tock will inject its UI */}
+      {/* ─── TOCK CONTAINER ───────────────────────────── */}
       <div
         id="Tock_widget_container"
         data-tock-display-mode="Button"
