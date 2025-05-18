@@ -21,23 +21,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {`
             !function(t,o,c,k){
               if(!t.tock){
-                var e=t.tock=function(){
-                  e.callMethod?
-                    e.callMethod.apply(e,arguments):
-                    e.queue.push(arguments)
-                };
-                t._tock||(t._tock=e);
-                e.push=e; e.queue=[]; e.loaded=!0; e.version='1.0';
-                var f=o.createElement(c), g=o.getElementsByTagName(c)[0];
-                f.async=!0; f.src=k; g.parentNode.insertBefore(f,g);
+                var e=function(){e.queue.push(arguments)};
+                e.queue=[];
+                t.tock=e;
+                var s=o.createElement(c),r=o.getElementsByTagName(c)[0];
+                s.async=true; s.src=k; r.parentNode.insertBefore(s,r);
               }
             }(
               window, document, 'script',
               'https://www.exploretock.com/tock.js'
             );
-        -   tock('init', 'olivea-farm-to-table');
           `}
-        </Script>
+          </Script>
         <ReservationProvider>
           {children}
         </ReservationProvider>
