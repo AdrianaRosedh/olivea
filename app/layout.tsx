@@ -1,5 +1,4 @@
 // app/layout.tsx
-import type { ReactNode } from "react";
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import { ReservationProvider } from "@/contexts/ReservationContext";
@@ -16,7 +15,7 @@ const corm = Cormorant_Garamond({
   display: "swap",
 });
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="es"

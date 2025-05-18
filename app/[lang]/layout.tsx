@@ -1,3 +1,4 @@
+
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { loadLocale } from "@/lib/i18n";
@@ -13,6 +14,11 @@ import ClientProviders from "@/components/providers/ClientProviders";
 import ReservationModal from "@/components/forms/reservation/ReservationModal";
 import { SharedTransitionProvider } from "@/contexts/SharedTransitionContext";
 import SharedVideoTransition from "@/components/ui/SharedVideoTransition";
+
+interface LangLayoutProps {
+  children: ReactNode;
+  params: { lang: string };
+}
 
 export async function generateMetadata({
   params,
@@ -55,10 +61,7 @@ export const viewport: Viewport = {
 export default async function LangLayout({
   children,
   params,
-}: {
-  children: ReactNode;
-  params: Promise<{ lang: string }>;
-}) {
+}: LangLayoutProps) {
   const p = await params;
   const { lang, dict } = await loadLocale(p);
 
@@ -72,7 +75,7 @@ export default async function LangLayout({
             <ClientProviders>
               <LayoutShell lang={lang} dictionary={dict}>
                 {/* Mount the reservation modal once at the top level */}
-                <ReservationModal lang={lang} />
+                <ReservationModal lang={params.lang} />
 
                 {/* All your pages, carousels, identity-cards, etc. */}
                 {children}
