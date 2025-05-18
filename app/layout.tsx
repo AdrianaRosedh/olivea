@@ -1,43 +1,30 @@
 // app/layout.tsx
-// app/layout.tsx
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
-import Script from "next/script";
 import { ReservationProvider } from "@/contexts/ReservationContext";
+import Script from "next/script"; // only for your live-chat, not for Tock
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+// NOTE: Google Font calls *must* include a weight array per the TS types.
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400"],        // ← you must supply at least one weight
+  display: "swap",
+});
 const corm = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-cormorant",
+  weight: ["400", "700"], // ← supply your used weights
   display: "swap",
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${inter.variable} ${corm.variable}`} suppressHydrationWarning>
+    <html
+      lang="es"
+      className={`${inter.className} ${corm.className}`}
+      suppressHydrationWarning
+    >
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
-        {/* ─── TOCK STUB ONLY ───────────────────────────── */}
-        <Script id="tock-stub" strategy="beforeInteractive">
-          {`
-            !function(t,o,c,k){
-              if(!t.tock){
-                var e=t.tock=function(){
-                  e.callMethod?
-                    e.callMethod.apply(e,arguments):
-                    e.queue.push(arguments)
-                };
-                e.queue=[]; e.loaded=!0; e.version='1.0';
-                var f=o.createElement(c), g=o.getElementsByTagName(c)[0];
-                f.async=!0; f.src=k; g.parentNode.insertBefore(f,g);
-              }
-            }(window, document, 'script', 'https://www.exploretock.com/tock.js');
-          `}
-        </Script>
-
-        <ReservationProvider>
-          {children}
-        </ReservationProvider>
+        <ReservationProvider>{children}</ReservationProvider>
 
         {/* ─── WHISTLE LIVE CHAT ───────────────────────── */}
         <Script id="whistle-config" strategy="afterInteractive">
