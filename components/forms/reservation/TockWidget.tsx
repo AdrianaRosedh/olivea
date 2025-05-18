@@ -1,67 +1,52 @@
-// components/forms/reservation/TockWidget.tsx
 "use client";
-import { useEffect, useRef } from "react";
 
-export function TockWidget({
-  token,
-  offeringId,
-}: {
-  token: string;
-  offeringId: string;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
+import { useEffect } from "react";
 
+interface TockWidgetProps {
+  lang: string;
+}
+
+export default function TockWidget({ lang }: TockWidgetProps) {
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    if (typeof window === "undefined") return;
 
-    container.innerHTML = "";
+    // If stub not yet installed, create it and inject real script
+    if (!window.tock) {
+      const stub = (...args: unknown[]) => {
+        stub.queue.push(args);
+      };
+      stub.queue = [] as unknown[];
+      stub.loaded = true;
+      stub.version = "1.0";
+      stub.callMethod = stub;
 
-    const widgetContainer = document.createElement("div");
-    widgetContainer.id = "Tock_widget_container";
-    widgetContainer.setAttribute("data-tock-display-mode", "Inline");
-    widgetContainer.setAttribute("data-tock-color-mode", "White");
-    widgetContainer.setAttribute("data-tock-locale", "en-us");
-    widgetContainer.setAttribute("data-tock", token);
-    widgetContainer.setAttribute("data-tock-offering", offeringId);
+      window.tock = stub;
 
-    container.appendChild(widgetContainer);
-
-    const scriptUrl = "https://www.exploretock.com/tock.js";
-    const scriptExists = document.querySelector(`script[src="${scriptUrl}"]`);
-
-    const initializeTock = () => {
-      if (window.tock?.callMethod) {
-        window.tock.callMethod("init");
-      } else {
-        console.warn("Tock script loaded but method unavailable.");
-      }
-    };
-
-    if (!scriptExists) {
-      const script = document.createElement("script");
-      script.src = scriptUrl;
-      script.async = true;
-      script.onload = initializeTock;
-      document.head.appendChild(script);
+      const s = document.createElement("script");
+      s.src = "https://www.exploretock.com/tock.js";
+      s.async = true;
+      s.onload = () => {
+        window.tock!("init", "olivea-farm-to-table");
+        window.tock!("show");
+      };
+      document.head.appendChild(s);
     } else {
-      const existingScript = scriptExists as HTMLScriptElement;
-      if (existingScript.getAttribute("data-loaded") === "true") {
-        initializeTock();
-      } else {
-        existingScript.addEventListener("load", initializeTock);
-      }
+      // Already loaded? Just re-init & show
+      try {
+        window.tock("init", "olivea-farm-to-table");
+        window.tock("show");
+      } catch {}
     }
-
-    return () => {
-      container.innerHTML = "";
-    };
-  }, [token, offeringId]);
+  }, []);
 
   return (
     <div
-      ref={containerRef}
-      className="w-full h-full min-h-[600px] flex items-center justify-center bg-white"
+      id="Tock_widget_container"
+      data-tock-display-mode="Overlay"
+      data-tock-color-mode="White"
+      data-tock-locale={lang === "es" ? "es-mx" : "en-us"}
+      data-tock-timezone="America/Tijuana"
+      className="w-full h-full min-h-[300px]"
     />
   );
 }

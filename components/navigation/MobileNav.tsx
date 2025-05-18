@@ -30,7 +30,7 @@ export function MobileNav() {
       {/* Reserve Button */}
       <button
         id="reserve-toggle"
-        onClick={() => openReservationModal()}
+        onClick={() => openReservationModal("restaurant")}
         className="flex flex-col items-center justify-center rounded-[60%_40%_70%_30%] bg-[var(--olivea-olive)] text-white shadow-md px-2 py-1.5 transition-transform active:scale-95"
         aria-label="Reserve"
       >

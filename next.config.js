@@ -59,7 +59,9 @@ async headers() {
   return [
     {
       source: "/cloudbeds-immersive.html",
-      headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+      headers: [
+        { key: "X-Frame-Options", value: "SAMEORIGIN" }, 
+      ],
     },
     {
       source: "/(.*)",

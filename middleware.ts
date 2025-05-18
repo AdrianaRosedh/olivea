@@ -23,17 +23,14 @@ function getLocale(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ── 1) Exception: allow our Cloudbeds wrapper to be framed ──
+  // Explicit exception for cloudbeds iframe page
   if (pathname === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
-    // Allow same-origin iframes for this wrapper
     res.headers.set("X-Frame-Options", "SAMEORIGIN");
     return res;
   }
 
-  // ── 2) All other logic stays the same ──
-
-  // Locale‐prefix redirect / static asset bypass
+  // Locale-prefix redirect / static asset bypass
   const isStaticAsset =
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -42,9 +39,7 @@ export function middleware(request: NextRequest) {
     /\.([a-z0-9]+)$/.test(pathname);
 
   const hasLocalePrefix = locales.some(
-    (loc) =>
-      pathname === `/${loc}` ||
-      pathname.startsWith(`/${loc}/`)
+    (loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`)
   );
 
   const response =
@@ -54,8 +49,7 @@ export function middleware(request: NextRequest) {
           new URL(`/${getLocale(request)}${pathname}`, request.url)
         );
 
-  // Build and inject your strict CSP
-  // middleware.ts CSP
+  // Build and inject strict CSP for other routes
   const csp = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
@@ -67,7 +61,7 @@ export function middleware(request: NextRequest) {
 
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");           // default DENY everywhere else
+  response.headers.set("X-Frame-Options", "DENY"); // DENY everywhere else
   response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set(
     "Referrer-Policy",
@@ -83,9 +77,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // include the Cloudbeds HTML so we can override its frame options
     "/cloudbeds-immersive.html",
-    // plus all your normal app routes
     "/((?!.*\\..*|_next|api).*)",
   ],
 };

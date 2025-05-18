@@ -4,15 +4,17 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale } from "@/lib/i18n";
 import StructuredData from "@/components/seo/StructuredData";
 import LayoutShell from "@/components/layout/LayoutShell";
+
+// NEW! bring back all your providers:
 import { ReservationProvider } from "@/contexts/ReservationContext";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
 import ClientProviders from "@/components/providers/ClientProviders";
 
-// 🔥 NEW imports for shared transition
+// and your modal + shared transition pieces
+import ReservationModal from "@/components/forms/reservation/ReservationModal";
 import { SharedTransitionProvider } from "@/contexts/SharedTransitionContext";
 import SharedVideoTransition from "@/components/ui/SharedVideoTransition";
 
-// (unchanged metadata generation logic)
 export async function generateMetadata({
   params,
 }: {
@@ -66,16 +68,21 @@ export default async function LangLayout({
       <StructuredData lang={lang} />
 
       <SharedTransitionProvider>
-        <ReservationProvider lang={lang}>
+        <ReservationProvider>
           <ScrollProvider>
             <ClientProviders>
               <LayoutShell lang={lang} dictionary={dict}>
+                {/* Mount the reservation modal once at the top level */}
+                <ReservationModal lang={lang} />
+
+                {/* All your pages, carousels, identity-cards, etc. */}
                 {children}
               </LayoutShell>
             </ClientProviders>
           </ScrollProvider>
         </ReservationProvider>
 
+        {/* This keeps your shared video transitions working */}
         <SharedVideoTransition />
       </SharedTransitionProvider>
     </>

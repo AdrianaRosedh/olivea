@@ -1,70 +1,39 @@
+// contexts/ReservationContext.tsx
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  type ReactNode,
-} from "react";
-import ReservationModal from "@/components/forms/reservation/ReservationModal";
+import React, { createContext, useContext, useState } from "react";
 
-export type ReservationType = "restaurant" | "hotel" | "cafe";
+export type ReservationType = "restaurant"|"hotel"|"cafe";
 
 interface ReservationContextType {
-  openReservationModal: (type?: ReservationType) => void;
-  closeReservationModal: () => void;
-  setReservationType: (type: ReservationType) => void;
   isOpen: boolean;
   reservationType: ReservationType;
+  openReservationModal: (type?:ReservationType) => void;
+  closeReservationModal: () => void;
+  setReservationType: (type:ReservationType) => void;
 }
 
-interface ReservationProviderProps {
-  children: ReactNode;
-  lang: string;
-}
+const ReservationContext = createContext<ReservationContextType>({} as any);
 
-const ReservationContext = createContext<ReservationContextType>({
-  openReservationModal: () => {},
-  closeReservationModal: () => {},
-  setReservationType: () => {},
-  isOpen: false,
-  reservationType: "restaurant",
-});
-
-export function ReservationProvider({ children, lang }: ReservationProviderProps) {
+export const ReservationProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [reservationType, _setReservationType] = useState<ReservationType>("restaurant");
+  const [reservationType, setReservationType] = useState<ReservationType>("restaurant");
 
-  const openReservationModal = useCallback((type: ReservationType = "restaurant") => {
-    _setReservationType(type);
+  const openReservationModal = (type: ReservationType = "restaurant") => {
+    setReservationType(type);
     setIsOpen(true);
-  }, []);
-
-  const closeReservationModal = useCallback(() => {
-    setIsOpen(false);
-  }, []);
-
-  const setReservationType = useCallback((type: ReservationType) => {
-    _setReservationType(type);
-  }, []);
+  };
+  const closeReservationModal = () => setIsOpen(false);
 
   return (
-    <ReservationContext.Provider
-      value={{
-        openReservationModal,
-        closeReservationModal,
-        setReservationType,
-        isOpen,
-        reservationType,
-      }}
-    >
+    <ReservationContext.Provider value={{
+      isOpen, reservationType,
+      openReservationModal, closeReservationModal,
+      setReservationType
+    }}>
       {children}
-      <ReservationModal lang={lang} />
     </ReservationContext.Provider>
   );
-}
+};
 
-export function useReservation() {
-  return useContext(ReservationContext);
-}
+export const useReservation = () => useContext(ReservationContext);

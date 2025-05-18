@@ -18,7 +18,7 @@ export default function ReservationsPage() {
 
   useEffect(() => {
     // Open the reservation modal immediately
-    openReservationModal();
+    openReservationModal("restaurant");
 
     // Then send them back home after a tiny delay
     const timer = setTimeout(() => {

@@ -18,7 +18,7 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
       {/* Mobile Button */}
       <div className={`md:hidden w-full px-4 pt-4 ${className}`}>
         <Button
-          onClick={() => openReservationModal()}
+          onClick={() => openReservationModal("restaurant")}
           size="lg"
           className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans"
         >
@@ -29,7 +29,7 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
       {/* Desktop Magnetic Button */}
       <div className={`hidden md:block ${className}`}>
         <MagneticButton
-          onClick={() => openReservationModal()}
+          onClick={() => openReservationModal("restaurant")}
           className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors font-sans"
         >
           Reservar
