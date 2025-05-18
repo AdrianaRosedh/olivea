@@ -166,7 +166,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                       : "opacity-0 pointer-events-none")
                   }
                 >
-                  <TockWidget lang={lang} />
+                  <TockWidget />
                 </div>
 
                 {/* Café pane */}

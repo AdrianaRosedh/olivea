@@ -1,62 +1,65 @@
 // components/forms/reservation/TockWidget.tsx
 "use client";
 
-import Script from "next/script";
+import React, { useEffect } from "react";
 import { useReservation } from "@/contexts/ReservationContext";
 
-interface Props {
-  lang: string;
-}
-
-export default function TockWidget({ lang }: Props) {
+/**
+ * TockWidget renders the Tock reservation overlay inside the reservation modal.
+ * It initializes and shows the Tock widget in Overlay mode when the restaurant tab is active.
+ * In development (localhost) or staging, it skips initialization to avoid CSP/domain errors.
+ */
+export default function TockWidget() {
   const { isOpen, reservationType } = useReservation();
 
-  // Only render when modal is open AND on the Restaurant tab
-  if (!(isOpen && reservationType === "restaurant")) {
+  useEffect(() => {
+    // Only attempt initialization when client-side, modal open, and restaurant tab active
+    if (typeof window === "undefined" || !isOpen || reservationType !== "restaurant") {
+      return;
+    }
+
+    const host = window.location.hostname;
+    // Skip Tock init on local or unauthorized domains
+    if (host.includes("localhost") || host.includes("127.0.0.1") || host.endsWith("-staging")) {
+      console.info("TockWidget: skipping Tock initialization on local or staging domain");
+      return;
+    }
+
+    // Safely access window.tock without using any
+    const maybeTock = (window as unknown as { tock?: (...args: unknown[]) => void }).tock;
+    if (typeof maybeTock !== "function") {
+      console.warn("TockWidget: Tock script not found");
+      return;
+    }
+
+    try {
+      // Initialize Tock with overlay mode into our container
+      maybeTock("init", "olivea-farm-to-table", {
+        displayType: "search",
+        displayMode: "Overlay",
+        colorMode: "Blue",
+        locale: "es-mx",
+        timezone: "America/Tijuana",
+        containerId: "Tock_widget_container",
+      });
+
+      // Immediately show the reservation overlay
+      maybeTock("show");
+    } catch (error) {
+      console.error("TockWidget initialization error:", error);
+    }
+  }, [isOpen, reservationType]);
+
+  // Only render the container when the modal is open on the restaurant tab
+  if (!isOpen || reservationType !== "restaurant") {
     return null;
   }
 
-  // pick locale code
-  const locale = lang === "es" ? "es-mx" : "en-us";
-
   return (
-    <>
-      {/* 
-        Anchor for Tock to mount its overlay 
-        (we give it full size via your modal container styles)
-      */}
-      <div
-        id="Tock_widget_container"
-        data-tock-business="olivea-farm-to-table"
-        data-tock-display-type="search"
-        data-tock-display-mode="Overlay"
-        data-tock-color-mode="White"
-        data-tock-locale={locale}
-        data-tock-timezone="America/Tijuana"
-        className="w-full h-full"
-      />
-
-      {/* Load the tock.js script *once*, then init+show */}
-      <Script
-        id="tock-load-and-init"
-        src="https://www.exploretock.com/tock.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          window.tock?.(
-            "init",
-            "olivea-farm-to-table",
-            {
-              displayType: "search",
-              displayMode: "Overlay",
-              colorMode: "White",
-              locale,
-              timezone: "America/Tijuana",
-              containerId: "Tock_widget_container",
-            }
-          );
-          window.tock?.("show");
-        }}
-      />
-    </>
+    <div
+      id="Tock_widget_container"
+      className="w-full h-full"
+      aria-label="Tock reservation widget container"
+    />
   );
 }
