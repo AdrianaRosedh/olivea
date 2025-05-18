@@ -4,6 +4,7 @@ import { Inter, Cormorant_Garamond } from "next/font/google";
 import { ReservationProvider } from "@/contexts/ReservationContext";
 import Script from "next/script";
 
+// NOTE: Google Font calls include a weight array per the TS types.
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400"],
@@ -27,10 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* ─── WHISTLE LIVE CHAT ───────────────────────── */}
         <Script id="whistle-config" strategy="afterInteractive">
-          {`window.WhistleLiveChat = {
-             company: "295565",
-             source: "https://plugins.whistle.cloudbeds.com"
-           };`}
+          {`window.WhistleLiveChat = { company: "295565", source: "https://plugins.whistle.cloudbeds.com" };`}
         </Script>
         <Script
           id="whistle-script"
