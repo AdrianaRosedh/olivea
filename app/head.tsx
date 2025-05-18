@@ -5,12 +5,20 @@ export default function Head() {
       <meta
         httpEquiv="Content-Security-Policy"
         content={
-          "default-src 'self'; " +
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.exploretock.com https://cdn.exploretock.com; " +
-          "frame-src https://www.exploretock.com https://www.google.com; " +
-          "connect-src 'self' https://www.exploretock.com; " +
-          "style-src 'self' 'unsafe-inline'; " +
-          "img-src 'self' data: https://tock-public.imgix.net;"
+          [
+            `default-src 'self'`,
+            // Tock’s JS loader lives on www.exploretock.com
+            `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com`,
+            // allow pulling in tock.css
+            `style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com`,
+            // frames and AJAX calls to Tock
+            `frame-src https://hotels.cloudbeds.com https://www.exploretock.com`,
+            `connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com`,
+            // images still only self + data:
+            `img-src 'self' data:`,
+            // if Tock serves any fonts, allow them here too:
+            // `font-src 'self' https://www.exploretock.com`
+          ].join("; ")
         }
       />
 
