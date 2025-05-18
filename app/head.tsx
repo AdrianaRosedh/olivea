@@ -6,11 +6,11 @@ export default function Head() {
         httpEquiv="Content-Security-Policy"
         content={
           "default-src 'self'; " +
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com; " +
-          "frame-src https://hotels.cloudbeds.com https://www.exploretock.com; " +
-          "connect-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com; " +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.exploretock.com https://cdn.exploretock.com; " +
+          "frame-src https://www.exploretock.com https://www.google.com; " +
+          "connect-src 'self' https://www.exploretock.com; " +
           "style-src 'self' 'unsafe-inline'; " +
-          "img-src 'self' data:;"
+          "img-src 'self' data: https://tock-public.imgix.net;"
         }
       />
 
