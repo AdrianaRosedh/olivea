@@ -11,6 +11,7 @@ import {
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
 import TockLoader from "./TockLoader";
+import ReserveButton from "./ReserveButton";
 
 // Dynamically load each widget to avoid SSR
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
@@ -63,7 +64,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   return (
     <AnimatePresence>
       {/* load Tock.js & init once */}
-      <TockLoader />
+      <TockLoader business="olivea-farm-to-table" />
 
       {/* backdrop */}
       <motion.div
@@ -184,17 +185,18 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               </label>
 
               {/* ─── TOCK WIDGET (Step 2) ────────────────────────────── */}
-              <div id="Tock_widget_container"
-                data-tock-display-mode="Button"
-                data-tock-color-mode="Blue"
-                data-tock-locale={lang === "es" ? "es-mx" : "en-us"}
-                data-tock-timezone="America/Tijuana"
-                data-tock-business="olivea-farm-to-table"
-                data-tock-offering="528232"
-                data-tock-date={date}
-                data-tock-time={time}
-                data-tock-size={size}
-              />
+              <div className="mt-4">
+                <ReserveButton
+                  business="olivea-farm-to-table"
+                  offeringId="528232"
+                  date={date}
+                  time={time}
+                  size={size}
+                  className="w-full py-3 bg-[var(--olivea-olive)] text-white rounded"
+                >
+                  {lang === "es" ? "Reservar Ahora" : "Book Now"}
+                </ReserveButton>
+              </div>
             </div>
 
             {/* Café Pane */}
