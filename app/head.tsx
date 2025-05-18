@@ -2,7 +2,7 @@
 export default function Head() {
   return (
     <>
-      {/* ─── CSP + Preloads ───────────────────────────────────── */}
+      {/* ─── CSP & PRELOADS ─────────────────────────────────── */}
       <meta
         httpEquiv="Content-Security-Policy"
         content={[
@@ -27,9 +27,9 @@ export default function Head() {
         type="image/svg+xml"
       />
 
-      {/* ─── TOCK STUB ─────────────────────────────────────────── */}
+      {/* ─── TOCK.JS STUB ────────────────────────────────────── */}
       <script
-        // we control this inline, so dangerouslySetInnerHTML is safe
+        // inline because we control this exact snippet
         dangerouslySetInnerHTML={{
           __html: `
             !function(t,o,c,k){
