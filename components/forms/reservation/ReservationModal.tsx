@@ -27,6 +27,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     setReservationType,
   } = useReservation();
 
+  console.log("🔔 ReservationModal render—isOpen:", isOpen, "reservationType:", reservationType);
+
   // detect mobile vs desktop
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
