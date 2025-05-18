@@ -61,11 +61,17 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
-              "style-src  'self' 'unsafe-inline' https://plugins.whistle.cloudbeds.com",
-              "img-src    'self' data: blob: https://static1.cloudbeds.com https://www.exploretock.com",
-              "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
-              "frame-src  'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com",
-              "frame-ancestors 'self'",            // replaces X-Frame-Options
+              // allow Tock’s stylesheet…
+              "style-src 'self' 'unsafe-inline' https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+              // …and explicitly allow style elements loaded from Tock (CSP level-3)
+              "style-src-elem 'self' https://www.exploretock.com",
+              // open up Tock’s web-fonts if they serve any
+              "font-src 'self' https://www.exploretock.com",
+              // your frame/connect/img rules…
+              "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+              "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+              "img-src 'self' data: blob: https://static1.cloudbeds.com https://www.exploretock.com",
+              // etc…
             ].join("; "),
           },
           { key: "X-Content-Type-Options", value: "nosniff" },

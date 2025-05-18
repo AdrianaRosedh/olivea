@@ -52,12 +52,17 @@ export function middleware(request: NextRequest) {
   // Build and inject strict CSP for other routes
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
-    "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+    // allow Tock CSS…
+    "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+    // …and style elements from Tock
+    "style-src-elem 'self' https://www.exploretock.com",
+    // if they load fonts
+    "font-src 'self' data: https://www.exploretock.com",
+    // frames, connects, imgs…
+    "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
     "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.exploretock.com",
-    "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com https://*.execute-api.us-west-2.amazonaws.com https://plugins.whistle.cloudbeds.com",
-    "frame-src 'self' https://hotels.cloudbeds.com https://www.exploretock.com https://plugins.whistle.cloudbeds.com",
-    "font-src 'self' data:",
   ].join("; ");
 
   response.headers.set("Content-Security-Policy", csp);
