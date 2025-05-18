@@ -11,19 +11,19 @@ interface Props {
 export default function TockWidget({ lang }: Props) {
   const { isOpen, reservationType } = useReservation();
 
-  // only render this widget when the modal is open AND on the Restaurant tab
+  // Only render when modal is open AND on the Restaurant tab
   if (!(isOpen && reservationType === "restaurant")) {
     return null;
   }
 
-  // compute locale string for tock
+  // pick locale code
   const locale = lang === "es" ? "es-mx" : "en-us";
 
   return (
     <>
       {/* 
-        This <div> is the placeholder into which Tock will render.
-        We still give it 100% width/height so the overlay can fill the screen.
+        Anchor for Tock to mount its overlay 
+        (we give it full size via your modal container styles)
       */}
       <div
         id="Tock_widget_container"
@@ -36,29 +36,24 @@ export default function TockWidget({ lang }: Props) {
         className="w-full h-full"
       />
 
-      {/* 
-        Load the Tock script *once* when the widget first appears.
-        In the onLoad we do both init(...) and show().
-      */}
+      {/* Load the tock.js script *once*, then init+show */}
       <Script
-        id="tock-init"
+        id="tock-load-and-init"
         src="https://www.exploretock.com/tock.js"
         strategy="afterInteractive"
         onLoad={() => {
-          // 1) initialize with our “search” options
           window.tock?.(
             "init",
             "olivea-farm-to-table",
             {
-              displayType: "search",    // show all offerings
-              displayMode: "Overlay",   // full screen overlay
-              colorMode: "White",       // light theme
-              locale,                   // es-mx or en-us
+              displayType: "search",
+              displayMode: "Overlay",
+              colorMode: "White",
+              locale,
               timezone: "America/Tijuana",
-              containerId: "Tock_widget_container"
+              containerId: "Tock_widget_container",
             }
           );
-          // 2) immediately pop it open
           window.tock?.("show");
         }}
       />
