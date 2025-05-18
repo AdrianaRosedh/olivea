@@ -23,14 +23,14 @@ function getLocale(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Explicit exception for cloudbeds iframe page
+  // Allow Cloudbeds iframe w/o redirection
   if (pathname === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
     res.headers.set("X-Frame-Options", "SAMEORIGIN");
     return res;
   }
 
-  // Locale-prefix redirect / static asset bypass
+  // Skip locale-prefixing on assets, API, next, etc.
   const isStaticAsset =
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -49,22 +49,22 @@ export function middleware(request: NextRequest) {
           new URL(`/${getLocale(request)}${pathname}`, request.url)
         );
 
-  // Build and inject strict CSP for all other routes
+  // Strict CSP for everything else
   const csp = [
     "default-src 'self'",
-    // allow Tock scripts + Cloudbeds + Whistle
+    // scripts: your own + Cloudbeds + Whistle + Tock core
     "script-src    'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-    // allow Tock’s external stylesheet and inline styles
+    // styles: your own + Whistle + Tock stylesheet
     "style-src     'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-    // allow style elements injected at runtime (CSP level-3)
+    // **CRITICAL**: allow Tock’s runtime-injected <style> blocks
     "style-src-elem 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-    // Tock font endpoints
+    // fonts: Tock may load its own
     "font-src      'self' data: https://www.exploretock.com",
-    // iframes
+    // iframes (Cloudbeds, Whistle, Tock)
     "frame-src     'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-    // allow Tock’s reservation API + live-chat AWS endpoint
+    // XHR/websocket: Supabase + Cloudbeds + Whistle + Tock’s reservation & chat APIs
     "connect-src   'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com https://*.execute-api.us-west-2.amazonaws.com",
-    // images
+    // images: your own + Cloudbeds + Whistle + Tock
     "img-src       'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.exploretock.com",
   ].join("; ");
 
