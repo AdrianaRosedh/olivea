@@ -1,36 +1,41 @@
+// components/forms/reservation/TockWidget.tsx
 "use client";
-import { useEffect, useRef } from "react";
+
+import Script from "next/script";
 import { useReservation } from "@/contexts/ReservationContext";
 
 export default function TockWidget() {
   const { reservationType } = useReservation();
-  console.log("🔔 TockWidget render—reservationType:", reservationType);
-  const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log("🔔 TockWidget useEffect fired—reservationType:", reservationType, "window.tock:", !!window.tock);
-    if (reservationType !== "restaurant" || !ref.current) return;
-
-    const init = () => {
-      console.log("🔔 TockWidget trying to init");
-      if (window.tock) {
-        window.tock("init", "olivea-farm-to-table");
-      } else {
-        setTimeout(init, 100);
-      }
-    };
-    init();
-  }, [reservationType]);
+  // Only load & init when the Restaurant tab is active
+  if (reservationType !== "restaurant") {
+    return null;
+  }
 
   return (
-    <div
-      ref={ref}
-      id="Tock_widget_container"
-      data-tock-display-mode="Button"
-      data-tock-color-mode="Blue"
-      data-tock-locale="es-mx"
-      data-tock-timezone="America/Tijuana"
-      style={{ width: "100%", minHeight: 100 }}
-    />
+    <>
+      {/* Load the Tock JS library on demand */}
+      <Script
+        src="https://www.exploretock.com/tock.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          if (typeof window.tock === "function") {
+            window.tock("init", "olivea-farm-to-table");
+          } else {
+            console.error("Tock did load, but window.tock is not a function");
+          }
+        }}
+      />
+
+      {/* Container where Tock will inject its UI */}
+      <div
+        id="Tock_widget_container"
+        data-tock-display-mode="Button"
+        data-tock-color-mode="Blue"
+        data-tock-locale="es-mx"
+        data-tock-timezone="America/Tijuana"
+        style={{ width: "100%", minHeight: 100 }}
+      />
+    </>
   );
 }
