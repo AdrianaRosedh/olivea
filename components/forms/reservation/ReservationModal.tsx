@@ -5,9 +5,9 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
+import RestaurantWidget from "./RestaurantWidget";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
-const RestaurantWidget = dynamic(() => import("./RestaurantWidget"), { ssr: false });
 
 interface ReservationModalProps {
   lang: "es" | "en";
