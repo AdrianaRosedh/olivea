@@ -1,24 +1,39 @@
 "use client";
 
-import Script from "next/script";
+import { useEffect } from "react";
 
 export default function TockWidget() {
-  return (
-    <Script id="tock-inline-script" strategy="afterInteractive">
-      {`
-        !function(t,o,c,k){
-          if(!t.tock){
-            var e=t.tock=function(){
-              e.callMethod ? e.callMethod.apply(e,arguments) : e.queue.push(arguments)
-            };
-            t._tock||(t._tock=e), e.push=e, e.loaded=!0, e.version='1.0', e.queue=[];
-            var f=o.createElement(c);f.async=!0,f.src=k;
-            var g=o.getElementsByTagName(c)[0]; g.parentNode.insertBefore(f,g)
-          }
-        }(window,document,'script','https://www.exploretock.com/tock.js');
-      
-        tock('init', 'olivea-farm-to-table');
-      `}
-    </Script>
-  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    window.tock =
+      window.tock ||
+      function (...args: any[]) {
+        (window.tock!.queue = window.tock!.queue || []).push(args);
+      };
+
+    const scriptId = "tock-js-script";
+
+    if (document.getElementById(scriptId)) {
+      window.tock!("init", "olivea-farm-to-table");
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.async = true;
+    script.src = "https://www.exploretock.com/tock.js";
+    document.head.appendChild(script);
+
+    script.onload = () => {
+      window.tock!("init", "olivea-farm-to-table");
+      console.log("✅ Tock loaded and initialized");
+    };
+
+    script.onerror = () => {
+      console.error("❌ Failed to load Tock.js");
+    };
+  }, []);
+
+  return null;
 }
