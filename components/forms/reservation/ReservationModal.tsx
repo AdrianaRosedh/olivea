@@ -32,6 +32,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (reservationType === "restaurant" && isOpen) {
+      window.tock?.("init", "olivea-farm-to-table");
+      console.log("✅ Tock initialized inside modal");
+    }
+  }, [isOpen, reservationType]);
+
   const variants: Variants = {
     closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
     open: isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 },
