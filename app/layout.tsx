@@ -4,20 +4,23 @@ import { ReservationProvider } from "@/contexts/ReservationContext";
 import ReservationModal from "@/components/forms/reservation/ReservationModal";
 import Script from "next/script";
 
-const inter = Inter({ subsets:["latin"], weight:["400"], display:"swap" });
-const corm = Cormorant_Garamond({ subsets:["latin"], weight:["400","700"], display:"swap" });
+const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
+const corm = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${inter.className} ${corm.className}`}>
-      <head>{/* head.tsx handles Tock */}</head>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
         <ReservationProvider>
           {children}
           <ReservationModal lang="es" />
         </ReservationProvider>
 
-        {/* ─── WHISTLE LIVE CHAT ───────────────────────────── */}
+        {/* WHISTLE LIVE CHAT */}
         <Script id="whistle-config" strategy="afterInteractive">
           {`
             window.WhistleLiveChat = {

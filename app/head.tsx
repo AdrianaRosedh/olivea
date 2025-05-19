@@ -5,7 +5,6 @@ export default function Head() {
     <>
       <title>Grupo Olivea</title>
 
-      {/* Tock Widget Script adapted correctly for Next.js */}
       <Script
         src="https://www.exploretock.com/tock.js"
         strategy="afterInteractive"
@@ -16,7 +15,6 @@ export default function Head() {
         }}
       />
 
-      {/* Keep other links/preloads unchanged */}
       <link
         rel="preload"
         href="/videos/homepage-temp.mp4"
