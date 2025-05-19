@@ -34,10 +34,19 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   useEffect(() => {
     if (reservationType === "restaurant" && isOpen) {
-      window.tock?.("init", "olivea-farm-to-table");
-      console.log("✅ Tock widget initialized");
+      const triggerTock = () => {
+        window.tock?.("init", "olivea-farm-to-table");
+        window.dispatchEvent(new Event('resize')); // Trigger layout recalculation
+        console.log("✅ Tock widget force-initialized and resized");
+      };
+  
+      // Slightly defer initialization to ensure DOM is fully stable
+      requestAnimationFrame(() => {
+        triggerTock();
+      });
     }
   }, [reservationType, isOpen]);
+  
    
 
   const variants: Variants = {
