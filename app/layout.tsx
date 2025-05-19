@@ -2,8 +2,9 @@
 import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import { ReservationProvider } from "@/contexts/ReservationContext";
-import ReservationModal from "@/components/forms/reservation/ReservationModal";
 import Script from "next/script";
+import ReservationModalWrapper from "@/components/forms/reservation/ReservationModalWrapper";
+
 
 const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
         <ReservationProvider>
           {children}
-          <ReservationModal lang="es" />
+          <ReservationModalWrapper lang="es" />
         </ReservationProvider>
 
         {/* Whistle Live Chat (unchanged) */}

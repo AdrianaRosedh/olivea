@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
-import Script from "next/script";
+import TockWidget from "./TockWidget";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 
@@ -129,14 +129,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 data-tock-display-mode="Inline"
                 data-tock-widget="data-tock-offering"
                 data-tock-offering-id="528232"
-                data-tock-color-mode="Blue"
+                data-tock-color-mode="White"
                 data-tock-locale="es-mx"
                 data-tock-timezone="America/Tijuana"
-                data-tock-date={date}
-                data-tock-time={time}
-                data-tock-size={size}
                 className="mt-4"
-                style={{ width: "100%", height: "600px" }}
+                style={{ width: "100%", minHeight: "600px" }}
               />
             </div>
 
@@ -147,23 +144,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
         </div>
       </motion.div>
-
-      <Script id="tock-widget-script" strategy="afterInteractive">
-        {`
-          !function(t,o,c,k){
-            if(!t.tock){
-              var e=t.tock=function(){
-                e.callMethod ? e.callMethod.apply(e,arguments) : e.queue.push(arguments)
-              };
-              t._tock||(t._tock=e), e.push=e, e.loaded=!0, e.version='1.0', e.queue=[];
-              var f=o.createElement(c);f.async=!0,f.src=k;
-              var g=o.getElementsByTagName(c)[0]; g.parentNode.insertBefore(f,g)
-            }
-          }(window,document,'script','https://www.exploretock.com/tock.js');
-        
-          tock('init', 'olivea-farm-to-table');
-        `}
-      </Script>
+      <TockWidget />
     </AnimatePresence>
   );
 }
