@@ -33,15 +33,20 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  // Tock initialization safely handled client-side after script load
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.tock && typeof window.tock === "function") {
+  <Script
+  id="tock-widget-script"
+  src="https://www.exploretock.com/tock.js"
+  strategy="afterInteractive"
+  onLoad={() => {
+    if (typeof window.tock === "function") {
       window.tock("init", "olivea-farm-to-table");
-      console.log("✅ Tock initialized successfully in ReservationModal");
+      console.log("✅ Tock script loaded and initialized successfully");
     } else {
-      console.error("❌ Tock initialization failed: window.tock not loaded");
+      console.error("❌ window.tock still missing after script load");
     }
-  }, [isOpen, reservationType]);
+  }}
+/>
+
 
   const variants: Variants = {
     closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
