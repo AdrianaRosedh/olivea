@@ -7,11 +7,11 @@ export default function TockWidget() {
     const timeout = setTimeout(() => {
       if (window.tock) {
         window.tock("init", "olivea-farm-to-table");
-        console.log("✅ Tock initialized successfully");
+        console.log("✅ Tock widget initialized");
       } else {
-        console.error("❌ Tock failed to initialize");
+        console.error("❌ Tock script not loaded yet");
       }
-    }, 300);
+    }, 200);  // Short delay for stability across browsers
 
     return () => clearTimeout(timeout);
   }, []);
