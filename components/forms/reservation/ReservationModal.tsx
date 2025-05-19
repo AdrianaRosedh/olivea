@@ -7,6 +7,7 @@ import { useReservation, type ReservationType } from "@/contexts/ReservationCont
 import dynamic from "next/dynamic";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
+const RestaurantWidget = dynamic(() => import("./RestaurantWidget"), { ssr: false });
 
 interface ReservationModalProps {
   lang: "es" | "en";
@@ -90,7 +91,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             </div>
 
             {/* Restaurant Pane - conditional mount */}
-            {reservationType === "restaurant" && <RestaurantWidget />}
+            <div className={`absolute inset-0 transition-opacity duration-300 ${
+              reservationType === "restaurant" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            }`}>
+              <RestaurantWidget />
+            </div>
 
             {/* Café Pane */}
             <div
@@ -104,33 +109,5 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         </div>
       </motion.div>
     </AnimatePresence>
-  );
-}
-
-// Separate widget ensures reliable reinitialization
-function RestaurantWidget() {
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (window.tock && typeof window.tock === "function") {
-        window.tock("init", "olivea-farm-to-table");
-        console.log("✅ Tock widget initialized");
-      }
-    }, 100);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
-  return (
-    <div
-      id="Tock_widget_container"
-      data-tock-display-mode="Inline"
-      data-tock-widget="data-tock-offering"
-      data-tock-offering-id="528232"
-      data-tock-color-mode="White"
-      data-tock-locale="es-mx"
-      data-tock-timezone="America/Tijuana"
-      className="absolute inset-0 overflow-auto"
-      style={{ minHeight: "100%" }}
-    />
   );
 }
