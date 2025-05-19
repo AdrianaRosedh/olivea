@@ -119,7 +119,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
 
           {/* Content Panes */}
-          <div className="relative flex-1 overflow-auto bg-[var(--olivea-cream)] pointer-events-auto">
+          <div className="relative flex-1 overflow-auto bg-white pointer-events-auto">
             {/* Hotel Pane */}
             <div className={`absolute inset-0 transition-opacity duration-300 ${
                 reservationType === "hotel" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -133,6 +133,20 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 reservationType === "restaurant" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
+              <label>
+                {lang === "es" ? "Fecha" : "Date"}
+                <input type="date" value={date} onChange={e=>setDate(e.target.value)} className="block w-full border p-2 rounded"/>
+              </label>
+              <label>
+                {lang === "es" ? "Hora" : "Time"}
+                <input type="time" value={time} onChange={e=>setTime(e.target.value)} className="block w-full border p-2 rounded"/>
+              </label>
+              <label>
+                {lang === "es" ? "Personas" : "Party Size"}
+                <select value={size} onChange={e=>setSize(e.target.value)} className="block w-full border p-2 rounded">
+                  {Array.from({length:10},(_,i)=><option key={i}>{i+1}</option>)}
+                </select>
+              </label>
               <div
                 id="Tock_widget_container"
                 data-tock-display-mode="Inline"
@@ -142,7 +156,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 data-tock-locale="es-mx"
                 data-tock-timezone="America/Tijuana"
                 className="mt-4"
-                style={{ width: "100%", minHeight: "600px" }}
+                style={{ width: "100%", minHeight: isMobile ? "600px" : "800px" }}
               />
             </div>
 
