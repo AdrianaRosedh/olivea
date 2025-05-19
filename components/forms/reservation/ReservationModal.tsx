@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
 import Script from "next/script";
@@ -18,6 +18,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   const [date, setDate] = useState(today);
   const [time, setTime] = useState("19:00");
   const [size, setSize] = useState("2");
+
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -33,12 +34,21 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  const variants: Variants = {
+    closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
+    open: isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 },
+  };
+
+  const transition: Transition = isMobile
+    ? { type: "spring", stiffness: 200, damping: 25 }
+    : { duration: 0.4, ease: "easeOut" };
+
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200] pointer-events-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -47,89 +57,113 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       />
 
       <motion.div
-        className={`fixed inset-0 z-[1300] flex ${isMobile ? "items-end justify-center p-0" : "items-center justify-center p-4"}`}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        className={`fixed inset-0 z-[1300] flex ${
+          isMobile ? "items-end justify-center p-0" : "items-center justify-center p-4"
+        }`}
+        initial="closed"
+        animate="open"
+        exit="closed"
+        variants={variants}
+        transition={transition}
       >
-        <div className={`bg-white overflow-auto ${isMobile ? "w-full h-full rounded-t-2xl" : "rounded-xl max-w-3xl w-full max-h-[90vh]"}`}>
-          <div className="flex items-center justify-between border-b px-6 py-4">
-            <h2 className="text-xl uppercase tracking-wider">
+        <div
+          className={`pointer-events-auto bg-[#e8e4d5] flex flex-col overflow-hidden ${
+            isMobile ? "w-full h-full rounded-t-2xl" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
+          }`}
+        >
+          {/* Original header */}
+          <div className="relative flex items-center px-6 py-4 border-b flex-shrink-0 pointer-events-auto">
+            <h2
+              className="absolute inset-0 flex items-center justify-center pointer-events-none text-[var(--olivea-ink)] uppercase"
+              style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 24 : 32, fontWeight: 200, letterSpacing: "0.15em" }}
+            >
               {lang === "es" ? "Reservaciones" : "Reservations"}
             </h2>
-            <button onClick={closeReservationModal}>
-              <X size={20} />
+            <button
+              onClick={closeReservationModal}
+              aria-label="Close"
+              className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors pointer-events-auto"
+            >
+              <X size={20}/>
             </button>
           </div>
 
-          <div className="flex border-b">
-            {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => (
+          {/* Original tabs with smooth state */}
+          <div className="flex bg-[#e8e4d5] flex-shrink-0 pointer-events-auto">
+            {(["restaurant","hotel","cafe"] as ReservationType[]).map((id) => (
               <button
                 key={id}
-                className={`flex-1 py-3 ${
-                  reservationType === id ? "border-b-2 border-black font-bold" : ""
-                }`}
                 onClick={() => setReservationType(id)}
+                className={`flex-1 py-3 text-center transition-colors pointer-events-auto ${
+                  reservationType === id ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
+                    : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
+                }`}
               >
                 {id === "restaurant" ? (lang === "es" ? "Restaurante" : "Restaurant") : id === "hotel" ? "Hotel" : (lang === "es" ? "Café" : "Cafe")}
               </button>
             ))}
           </div>
 
-          <div className="p-6">
-            {reservationType === "restaurant" && (
-              <>
-                <label>
-                  {lang === "es" ? "Fecha" : "Date"}
-                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border rounded p-2 mt-2"/>
-                </label>
-                <label className="mt-4 block">
-                  {lang === "es" ? "Hora" : "Time"}
-                  <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full border rounded p-2 mt-2"/>
-                </label>
-                <label className="mt-4 block">
-                  {lang === "es" ? "Personas" : "Party Size"}
-                  <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full border rounded p-2 mt-2">
-                    {Array.from({ length: 10 }, (_, i) => <option key={i}>{i+1}</option>)}
-                  </select>
-                </label>
-                <div
-                  id="Tock_widget_container"
-                  data-tock-display-mode="Inline"
-                  data-tock-widget="data-tock-offering"
-                  data-tock-offering-id="528232"
-                  data-tock-color-mode="Blue"
-                  data-tock-locale="es-mx"
-                  data-tock-timezone="America/Tijuana"
-                  data-tock-date={date}
-                  data-tock-time={time}
-                  data-tock-size={size}
-                  className="mt-6"
-                  style={{ width: "100%", height: "600px" }}
-                />
-              </>
-            )}
+          {/* Original content panes, smooth transitions without reload */}
+          <div className="relative flex-1 overflow-auto bg-white pointer-events-auto">
+            {/* Hotel */}
+            <div className={`absolute inset-0 transition-opacity duration-300 ${reservationType==="hotel" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+              <CloudbedsWidget/>
+            </div>
 
-            {reservationType === "hotel" && <CloudbedsWidget />}
-            {reservationType === "cafe" && <div>{lang === "es" ? "Próximamente disponible." : "Coming Soon."}</div>}
+            {/* Restaurant (Corrected Tock) */}
+            <div className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 ${reservationType==="restaurant" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+              <label>{lang === "es"?"Fecha":"Date"}
+                <input type="date" value={date} onChange={e=>setDate(e.target.value)} className="block w-full border p-2 rounded"/>
+              </label>
+              <label>{lang === "es"?"Hora":"Time"}
+                <input type="time" value={time} onChange={e=>setTime(e.target.value)} className="block w-full border p-2 rounded"/>
+              </label>
+              <label>{lang === "es"?"Personas":"Party Size"}
+                <select value={size} onChange={e=>setSize(e.target.value)} className="block w-full border p-2 rounded">
+                  {Array.from({length:10},(_,i)=><option key={i}>{i+1}</option>)}
+                </select>
+              </label>
+              <div
+                id="Tock_widget_container"
+                data-tock-display-mode="Inline"
+                data-tock-widget="data-tock-offering"
+                data-tock-offering-id="528232"
+                data-tock-color-mode="Blue"
+                data-tock-locale="es-mx"
+                data-tock-timezone="America/Tijuana"
+                data-tock-date={date}
+                data-tock-time={time}
+                data-tock-size={size}
+                className="mt-4"
+                style={{ width: "100%", height: "600px" }}
+              />
+            </div>
+
+            {/* Café */}
+            <div className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${reservationType==="cafe"?"opacity-100 pointer-events-auto":"opacity-0 pointer-events-none"}`}>
+              {lang==="es"?"Próximamente disponible.":"Coming Soon."}
+            </div>
           </div>
         </div>
       </motion.div>
 
-      <Script
-        id="tock-widget-script"
-        src="https://www.exploretock.com/tock.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          if (window.tock && typeof window.tock === 'function') {
-            window.tock("init", "olivea-farm-to-table");
-            console.log("✅ Tock successfully loaded and initialized");
-          } else {
-            console.error("❌ Tock failed to initialize: window.tock missing");
-          }
-        }}
-      />
+      <Script id="tock-widget-script" strategy="afterInteractive">
+        {`
+          !function(t,o,c,k){
+            if(!t.tock){
+              var e=t.tock=function(){
+                e.callMethod ? e.callMethod.apply(e,arguments) : e.queue.push(arguments)
+              };
+              t._tock||(t._tock=e), e.push=e, e.loaded=!0, e.version='1.0', e.queue=[];
+              var f=o.createElement(c);f.async=!0,f.src=k;
+              var g=o.getElementsByTagName(c)[0]; g.parentNode.insertBefore(f,g)
+            }
+          }(window,document,'script','https://www.exploretock.com/tock.js');
+        
+          tock('init', 'olivea-farm-to-table');
+        `}
+      </Script>
     </AnimatePresence>
   );
 }
