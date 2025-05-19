@@ -3,68 +3,48 @@
 
 import { useEffect } from "react";
 
-/**
- * Full Tock API stub type.
- */
-interface TockFunction {
+type TockFunction = {
   (method: string, ...args: unknown[]): void;
+  queue?: [string, ...unknown[]][];
   callMethod?: (method: string, ...args: unknown[]) => void;
-  queue?: unknown[][];
-  loaded?: boolean;
-  version?: string;
-}
+};
 
 interface TockLoaderProps {
-  /** Your Tock business token */
-  business: string;
+  /** Your widget-builder JWT from the Tock Widget Builder */
+  token: string;
 }
 
-/**
- * TockLoader injects Tock.js once, stubs the API, and initializes with your business token.
- */
-export default function TockLoader({ business }: TockLoaderProps) {
+export default function TockLoader({ token }: TockLoaderProps) {
   useEffect(() => {
-    // Only inject once
-    if (!window.tock) {
-      // Create stub that queues calls until the real script loads
-      const stub = (function (method: string, ...args: unknown[]) {
-        console.log("[TockStub] call received:", method, ...args);
-        if (stub.callMethod) {
-          console.log("[TockStub] forwarding to real tock");
-          stub.callMethod(method, ...args);
-        } else {
-          console.log("[TockStub] queueing call until script is ready");
-          stub.queue!.push([method, ...args]);
-        }
-      } as unknown) as TockFunction;
+    // if real tock already loaded, skip stub
+    if (window.tock && window.tock.callMethod) return;
 
-      // initialize stub metadata + queue
-      stub.queue = [];
-      stub.loaded = true;
-      stub.version = "1.0";
+    // 1) stub
+    const stub = ((method: string, ...args: unknown[]) => {
+      stub.queue!.push([method, ...args]);
+    }) as TockFunction;
+    stub.queue = [];
 
-      // assign stub to global window.tock
-      window.tock = stub;
+    // 2) assign
+    window.tock = stub;
 
-      // inject the external Tock.js script
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = "https://www.exploretock.com/tock.js";
-      document.head.appendChild(script);
+    // 3) inject real script
+    const script = document.createElement("script");
+    script.src = "https://www.exploretock.com/tock.js";
+    script.async = true;
+    document.head.appendChild(script);
 
-      // on load, initialize Tock and flush queued calls
-      const handleLoad = () => {
-        console.log("[TockStub] tock.js loaded, initializing with business token");
-        window.tock!("init", business);
-        // if any calls were queued before load, they will be flushed by Tock's own logic
-      };
-      script.addEventListener("load", handleLoad);
-
-      return () => {
-        script.removeEventListener("load", handleLoad);
-      };
-    }
-  }, [business]);
+    // 4) on load, init & replay queue
+    const onLoad = () => {
+      window.tock!("init", token);
+      stub.queue!.forEach(([m, ...a]) => window.tock!(m, ...a));
+      delete stub.queue;
+    };
+    script.addEventListener("load", onLoad);
+    return () => {
+      script.removeEventListener("load", onLoad);
+    };
+  }, [token]);
 
   return null;
 }

@@ -2,10 +2,16 @@
 export default function Head() {
   return (
     <>
-      {/* ─── PAGE TITLE ───────────────────────────────── */}
-      <title>Grupo Olivea</title>
+      {/* ─── Load & init Tock as early as possible ─────────────────────────────────── */}
+      <script src="https://www.exploretock.com/tock.js" defer />
+      <script
+        // inline init with your widget-builder JWT
+        dangerouslySetInnerHTML={{
+          __html: `tock('init','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJidXNpbmVzc0lkIjoiMzc0OTkiLCJ0eXBlIjoiV0lER0VUX0JVSUxERVIiLCJpYXQiOjE3NDc1Mzc4MzV9.l3nMRBi3EDY-V5_y1zX8L9hpgUHk59M89edcU6x3nK4');`,
+        }}
+      />
 
-      {/* ─── PRELOAD CRITICAL ASSETS ─────────────────── */}
+      <title>Grupo Olivea</title>
       <link
         rel="preload"
         href="/videos/homepage-temp.mp4"

@@ -1,32 +1,31 @@
-
+// app/[lang]/layout.tsx
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { loadLocale } from "@/lib/i18n";
 import StructuredData from "@/components/seo/StructuredData";
 import LayoutShell from "@/components/layout/LayoutShell";
 
-// NEW! bring back all your providers:
+// Providers
 import { ReservationProvider } from "@/contexts/ReservationContext";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
 import ClientProviders from "@/components/providers/ClientProviders";
-
-// and your modal + shared transition pieces
+// Modal + transitions
 import ReservationModal from "@/components/forms/reservation/ReservationModal";
 import { SharedTransitionProvider } from "@/contexts/SharedTransitionContext";
 import SharedVideoTransition from "@/components/ui/SharedVideoTransition";
 
 interface LangLayoutProps {
   children: ReactNode;
-  params: { lang: string };
+  params: { lang: "es" | "en" };
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: string }>;
+  params: { lang: "es" | "en" };
 }): Promise<Metadata> {
-  const p = await params;
-  const { lang, dict } = await loadLocale(p);
+  // loadLocale returns { lang, dict }
+  const { lang, dict } = await loadLocale(params);
 
   return {
     title: { template: "%s | Olivea", default: "Olivea" },
@@ -62,8 +61,8 @@ export default async function LangLayout({
   children,
   params,
 }: LangLayoutProps) {
-  const p = await params;
-  const { lang, dict } = await loadLocale(p);
+  // Again use the same params shape
+  const { lang, dict } = await loadLocale(params);
 
   return (
     <>
@@ -75,7 +74,7 @@ export default async function LangLayout({
             <ClientProviders>
               <LayoutShell lang={lang} dictionary={dict}>
                 {/* Mount the reservation modal once at the top level */}
-                <ReservationModal lang={params.lang} />
+                <ReservationModal lang={lang} />
 
                 {/* All your pages, carousels, identity-cards, etc. */}
                 {children}
