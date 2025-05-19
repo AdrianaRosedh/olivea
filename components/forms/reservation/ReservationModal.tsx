@@ -1,46 +1,34 @@
-// components/forms/reservation/ReservationModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import {
-  AnimatePresence,
-  motion,
-  type Variants,
-  type Transition,
-} from "framer-motion";
+import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
-import TockLoader from "./TockLoader";
+import Script from "next/script";
 
-// only load Cloudbeds on client
-const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), {
-  ssr: false,
-});
+const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 
-interface ReservationModalProps {
-  lang: string;
-}
+interface ReservationModalProps { lang: "es" | "en"; }
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
-  const { isOpen, closeReservationModal, reservationType, setReservationType } =
-    useReservation();
+  const { isOpen, closeReservationModal, reservationType, setReservationType } = useReservation();
 
-  // restaurant state
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(today);
   const [time, setTime] = useState("19:00");
   const [size, setSize] = useState("2");
 
-  // detect mobile + lock scroll
   const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
-    const mql = window.matchMedia("(max-width: 767px)");
+    const mql = window.matchMedia("(max-width:767px)");
     setIsMobile(mql.matches);
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", onChange);
     return () => mql.removeEventListener("change", onChange);
   }, []);
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -52,16 +40,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
     open: isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 },
   };
+
   const transition: Transition = isMobile
     ? { type: "spring", stiffness: 200, damping: 25 }
     : { duration: 0.4, ease: "easeOut" };
 
   return (
     <AnimatePresence>
-      {/* ensure Tock is inited */}
-      <TockLoader token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJidXNpbmVzc0lkIjoiMzc0OTkiLCJ0eXBlIjoiV0lER0VUX0JVSUxERVIiLCJpYXQiOjE3NDc1Mzc4MzV9.l3nMRBi3EDY-V5_y1zX8L9hpgUHk59M89edcU6x3nK4" />
-
-      {/* backdrop */}
       <motion.div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200] pointer-events-auto"
         initial={{ opacity: 0 }}
@@ -71,7 +56,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         onClick={closeReservationModal}
       />
 
-      {/* modal */}
       <motion.div
         className={`fixed inset-0 z-[1300] flex pointer-events-auto ${
           isMobile ? "items-end justify-center p-0" : "items-center justify-center p-4"
@@ -84,12 +68,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       >
         <div
           className={`pointer-events-auto bg-[#e8e4d5] flex flex-col overflow-hidden ${
-            isMobile
-              ? "w-full h-full rounded-t-2xl"
-              : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
+            isMobile ? "w-full h-full rounded-t-2xl" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
           }`}
         >
-          {/* header */}
+          {/* Header */}
           <div className="relative flex items-center px-6 py-4 border-b flex-shrink-0 pointer-events-auto">
             <h2
               className="absolute inset-0 flex items-center justify-center pointer-events-none text-[var(--olivea-ink)] uppercase"
@@ -104,47 +86,41 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             </h2>
             <button
               onClick={closeReservationModal}
-              aria-label="Close modal"
+              aria-label="Close"
               className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors pointer-events-auto"
             >
               <X size={20} />
             </button>
           </div>
 
-          {/* tabs */}
+          {/* Tabs */}
           <div className="flex bg-[#e8e4d5] flex-shrink-0 pointer-events-auto">
-            {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => {
-              const label =
-                id === "restaurant"
+            {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => (
+              <button
+                key={id}
+                onClick={() => setReservationType(id)}
+                className={`flex-1 py-3 text-center transition-colors pointer-events-auto ${
+                  reservationType === id
+                    ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
+                    : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
+                }`}
+              >
+                {id === "restaurant"
                   ? lang === "es"
                     ? "Restaurante"
                     : "Restaurant"
                   : id === "hotel"
-                  ? lang === "es"
                     ? "Hotel"
-                    : "Hotel"
-                  : lang === "es"
-                  ? "Café"
-                  : "Cafe";
-              return (
-                <button
-                  key={id}
-                  onClick={() => setReservationType(id)}
-                  className={`flex-1 py-3 text-center transition-colors pointer-events-auto ${
-                    reservationType === id
-                      ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
-                      : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
+                    : lang === "es"
+                      ? "Café"
+                      : "Cafe"}
+              </button>
+            ))}
           </div>
 
-          {/* content */}
+          {/* Content Panes */}
           <div className="relative flex-1 overflow-auto bg-white pointer-events-auto">
-            {/* hotel */}
+            {/* Hotel */}
             <div
               className={`absolute inset-0 transition-opacity duration-300 ${
                 reservationType === "hotel"
@@ -155,7 +131,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               <CloudbedsWidget />
             </div>
 
-            {/* restaurant */}
+            {/* Restaurant: inline Tock */}
             <div
               className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 ${
                 reservationType === "restaurant"
@@ -165,54 +141,35 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               <label>
                 {lang === "es" ? "Fecha" : "Date"}
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="block w-full border p-2 rounded"
-                />
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="block w-full border p-2 rounded" />
               </label>
               <label>
                 {lang === "es" ? "Hora" : "Time"}
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="block w-full border p-2 rounded"
-                />
+                <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="block w-full border p-2 rounded" />
               </label>
               <label>
                 {lang === "es" ? "Personas" : "Party Size"}
-                <select
-                  value={size}
-                  onChange={(e) => setSize(e.target.value)}
-                  className="block w-full border p-2 rounded"
-                >
+                <select value={size} onChange={(e) => setSize(e.target.value)} className="block w-full border p-2 rounded">
                   {Array.from({ length: 10 }, (_, i) => (
-                    <option key={i + 1} value={String(i + 1)}>
-                      {i + 1}
-                    </option>
+                    <option key={i}>{i + 1}</option>
                   ))}
                 </select>
               </label>
 
-              {/* Tock’s “Book Now” button */}
-              <div className="mt-4 w-full pointer-events-auto">
-                <div
-                  id="Tock_widget_container"
-                  data-tock-display-mode="Button"
-                  data-tock-color-mode="Blue"
-                  data-tock-locale={lang === "es" ? "es-mx" : "en-us"}
-                  data-tock-timezone="America/Tijuana"
-                  data-tock-offering="528232"
-                  data-tock-date={date}
-                  data-tock-time={time}
-                  data-tock-size={size}
-                />
-              </div>
+              <div
+                id="Tock_widget_container"
+                data-tock-display-mode="Inline"
+                data-tock-color-mode="Blue"
+                data-tock-locale={lang === "es" ? "es-mx" : "en-us"}
+                data-tock-timezone="America/Tijuana"
+                data-tock-offering="528232"
+                data-tock-date={date}
+                data-tock-time={time}
+                data-tock-size={size}
+              />
             </div>
 
-            {/* cafe */}
+            {/* Café */}
             <div
               className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
                 reservationType === "cafe"
@@ -225,6 +182,16 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
         </div>
       </motion.div>
+
+      <Script
+        src="https://www.exploretock.com/tock.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          if (window.tock && typeof window.tock === "function") {
+            window.tock("init", "olivea-farm-to-table");
+          }
+        }}
+      />
     </AnimatePresence>
   );
 }
