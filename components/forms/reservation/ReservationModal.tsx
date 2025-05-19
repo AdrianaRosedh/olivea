@@ -34,14 +34,22 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   useEffect(() => {
     if (reservationType === "restaurant" && isOpen) {
-      const container = document.getElementById("Tock_widget_container");
-      if (container) {
-        container.innerHTML = "";
-        window.tock?.("init", "olivea-farm-to-table");
-        console.log("✅ Tock force-reloaded");
-      }
+      const loadTock = () => {
+        const container = document.getElementById("Tock_widget_container");
+        if (container) {
+          container.innerHTML = "";
+          window.tock?.("init", "olivea-farm-to-table");
+          console.log("✅ Tock force-reloaded after tab switch");
+        }
+      };
+  
+      // Small timeout ensures React completes DOM manipulation
+      const timeout = setTimeout(loadTock, 200);
+  
+      return () => clearTimeout(timeout);
     }
-  }, [isOpen, reservationType]);  
+  }, [isOpen, reservationType]);
+  
 
   const variants: Variants = {
     closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
@@ -182,7 +190,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 style={{ width: "100%", minHeight: isMobile ? "600px" : "800px" }}
               />
             </div>
-            
+
             {/* Café Pane */}
             <div className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
                 reservationType === "cafe" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
