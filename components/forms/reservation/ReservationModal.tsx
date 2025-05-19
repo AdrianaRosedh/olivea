@@ -34,10 +34,14 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   useEffect(() => {
     if (reservationType === "restaurant" && isOpen) {
-      window.tock?.("init", "olivea-farm-to-table");
-      console.log("✅ Tock initialized inside modal");
+      const container = document.getElementById("Tock_widget_container");
+      if (container) {
+        container.innerHTML = "";
+        window.tock?.("init", "olivea-farm-to-table");
+        console.log("✅ Tock force-reloaded");
+      }
     }
-  }, [isOpen, reservationType]);
+  }, [isOpen, reservationType]);  
 
   const variants: Variants = {
     closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
@@ -129,22 +133,41 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             </div>
 
             {/* Restaurant Pane */}
-            <div className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 overflow-auto ${
-                reservationType === "restaurant" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            <div
+              className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 overflow-auto ${
+                reservationType === "restaurant"
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none"
               }`}
             >
               <label>
                 {lang === "es" ? "Fecha" : "Date"}
-                <input type="date" value={date} onChange={e=>setDate(e.target.value)} className="block w-full border p-2 rounded"/>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="block w-full border p-2 rounded"
+                />
               </label>
               <label>
                 {lang === "es" ? "Hora" : "Time"}
-                <input type="time" value={time} onChange={e=>setTime(e.target.value)} className="block w-full border p-2 rounded"/>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="block w-full border p-2 rounded"
+                />
               </label>
               <label>
                 {lang === "es" ? "Personas" : "Party Size"}
-                <select value={size} onChange={e=>setSize(e.target.value)} className="block w-full border p-2 rounded">
-                  {Array.from({length:10},(_,i)=><option key={i}>{i+1}</option>)}
+                <select
+                  value={size}
+                  onChange={(e) => setSize(e.target.value)}
+                  className="block w-full border p-2 rounded"
+                >
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <option key={i}>{i + 1}</option>
+                  ))}
                 </select>
               </label>
               <div
@@ -159,7 +182,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 style={{ width: "100%", minHeight: isMobile ? "600px" : "800px" }}
               />
             </div>
-
+            
             {/* Café Pane */}
             <div className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
                 reservationType === "cafe" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
