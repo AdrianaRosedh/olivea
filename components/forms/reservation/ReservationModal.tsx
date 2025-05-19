@@ -9,18 +9,17 @@ import RestaurantWidget from "./RestaurantWidget";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 
-interface ReservationModalProps {
-  lang: "es" | "en";
-}
+interface ReservationModalProps { lang: "es" | "en"; }
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
   const { isOpen, closeReservationModal, reservationType, setReservationType } = useReservation();
+
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const mql = window.matchMedia("(max-width:767px)");
-    setIsMobile(mql.matches);
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    setIsMobile(mql.matches);
     mql.addEventListener("change", onChange);
     return () => mql.removeEventListener("change", onChange);
   }, []);
@@ -53,56 +52,78 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       />
 
       <motion.div
-        className={`fixed inset-0 z-[1300] flex ${isMobile ? "items-end justify-center" : "items-center justify-center p-4"}`}
+        className={`fixed inset-0 z-[1300] flex ${
+          isMobile ? "items-end justify-center p-0" : "items-center justify-center p-4"
+        }`}
         initial="closed"
         animate="open"
         exit="closed"
         variants={variants}
         transition={transition}
       >
-        <div className={`pointer-events-auto bg-[var(--olivea-cream)] flex flex-col overflow-hidden ${isMobile ? "w-full h-full rounded-t-2xl" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"}`}>
+        <div
+          className={`bg-[var(--olivea-cream)] flex flex-col overflow-hidden ${
+            isMobile ? "w-full h-full rounded-t-2xl" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
+          }`}
+        >
+          {/* Header */}
           <div className="relative flex items-center px-6 py-4 border-b">
-            <h2 className="absolute inset-0 flex items-center justify-center pointer-events-none text-[var(--olivea-ink)] uppercase"
-              style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 24 : 32, fontWeight: 200, letterSpacing: "0.15em" }}>
+            <h2
+              className="absolute inset-0 flex items-center justify-center text-[var(--olivea-ink)] uppercase pointer-events-none"
+              style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 24 : 32, fontWeight: 200, letterSpacing: "0.15em" }}
+            >
               {lang === "es" ? "Reservaciones" : "Reservations"}
             </h2>
-            <button onClick={closeReservationModal} className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]">
+            <button
+              onClick={closeReservationModal}
+              aria-label="Close"
+              className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
+            >
               <X size={20} />
             </button>
           </div>
 
+          {/* Tabs */}
           <div className="flex bg-[var(--olivea-cream)]">
             {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => (
-              <button key={id} onClick={() => setReservationType(id)}
-                className={`flex-1 py-3 transition-colors ${reservationType === id ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold" : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"}`}>
-                {id === "restaurant" ? (lang === "es" ? "Restaurante" : "Restaurant") : id === "hotel" ? "Hotel" : (lang === "es" ? "Café" : "Cafe")}
+              <button
+                key={id}
+                onClick={() => setReservationType(id)}
+                className={`flex-1 py-3 transition-colors ${
+                  reservationType === id
+                    ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
+                    : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
+                }`}
+              >
+                {id === "restaurant"
+                  ? lang === "es"
+                    ? "Restaurante"
+                    : "Restaurant"
+                  : id === "hotel"
+                  ? "Hotel"
+                  : lang === "es"
+                  ? "Café"
+                  : "Cafe"}
               </button>
             ))}
           </div>
 
+          {/* Content */}
           <div className="relative flex-1 overflow-auto bg-[var(--olivea-cream)]">
-            {/* Hotel Pane - always mounted */}
-            <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
-                reservationType === "hotel" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-              }`}
-            >
+            {/* Hotel */}
+            <div className={`absolute inset-0 transition-opacity duration-300 ${reservationType === "hotel" ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
               <CloudbedsWidget />
             </div>
 
-            {/* Restaurant Pane - conditional mount */}
-            <div className={`absolute inset-0 transition-opacity duration-300 ${
-              reservationType === "restaurant" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-            }`}>
+            {/* Restaurant (Stable, Persistent TockWidget) */}
+            <div className={`absolute inset-0 transition-opacity duration-300 ${reservationType === "restaurant" ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
               <RestaurantWidget />
             </div>
 
-            {/* Café Pane */}
-            <div
-              className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
-                reservationType === "cafe" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-              }`}
-            >
+            {/* Café */}
+            <div className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
+              reservationType === "cafe" ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}>
               {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
             </div>
           </div>

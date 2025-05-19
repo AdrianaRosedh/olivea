@@ -8,7 +8,7 @@ export default function RestaurantWidget() {
   useEffect(() => {
     if (initialized.current) return;
 
-    const timeout = setTimeout(() => {
+    const attemptInit = () => {
       const container = document.getElementById("Tock_widget_container");
       if (container && window.tock) {
         container.innerHTML = "";
@@ -19,7 +19,10 @@ export default function RestaurantWidget() {
         console.error("❌ Tock initialization failed, retrying...");
         initialized.current = false;
       }
-    }, 350); // Delayed initialization for DOM stability
+    };
+
+    // Ensure full DOM load before initializing
+    const timeout = setTimeout(attemptInit, 500);
 
     return () => clearTimeout(timeout);
   }, []);
