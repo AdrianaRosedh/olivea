@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
+import Script from "next/script";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 
@@ -32,14 +33,15 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  // This clearly initializes Tock properly on the client-side.
   useEffect(() => {
     if (typeof window !== "undefined" && window.tock && typeof window.tock === "function") {
-      console.log("✅ Tock script loaded, forcing re-init...");
       window.tock("init", "olivea-farm-to-table");
+      console.log("✅ Tock initialized from ReservationModal");
     } else {
-      console.error("❌ Tock script NOT loaded");
+      console.error("❌ Tock not initialized, window.tock missing");
     }
-  }, [reservationType, isOpen]);
+  }, [isOpen, reservationType]);
 
   const variants: Variants = {
     closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
@@ -50,7 +52,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     ? { type: "spring", stiffness: 200, damping: 25 }
     : { duration: 0.4, ease: "easeOut" };
 
-  if (!isOpen) return null; // ← this is your ONLY early return (AFTER HOOKS)
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -165,6 +167,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
         </div>
       </motion.div>
+
+      <Script src="https://www.exploretock.com/tock.js" strategy="afterInteractive" />
     </AnimatePresence>
   );
 }
