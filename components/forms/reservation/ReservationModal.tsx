@@ -34,21 +34,27 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   useEffect(() => {
     if (reservationType === "restaurant" && isOpen) {
-      const triggerTock = () => {
-        window.tock?.("init", "olivea-farm-to-table");
-        window.dispatchEvent(new Event('resize')); // Trigger layout recalculation
-        console.log("✅ Tock widget force-initialized and resized");
-      };
+      const container = document.getElementById("Tock_widget_container");
+      if (container) {
+        container.style.display = 'none';
   
-      // Slightly defer initialization to ensure DOM is fully stable
-      requestAnimationFrame(() => {
-        triggerTock();
-      });
+        // Force visibility toggle to trigger layout recalculation across browsers
+        requestAnimationFrame(() => {
+          container.innerHTML = "";
+          container.style.display = ''; // reset display
+  
+          setTimeout(() => {
+            if (window.tock && typeof window.tock === "function") {
+              window.tock("init", "olivea-farm-to-table");
+              window.dispatchEvent(new Event('resize'));
+              console.log("✅ Tock widget robustly initialized");
+            }
+          }, 150); // Slight delay to ensure visibility
+        });
+      }
     }
-  }, [reservationType, isOpen]);
+  }, [reservationType, isOpen]);  
   
-   
-
   const variants: Variants = {
     closed: isMobile ? { y: "100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
     open: isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 },
