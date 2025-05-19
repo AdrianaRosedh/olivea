@@ -53,7 +53,7 @@ export function middleware(request: NextRequest) {
     "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.exploretock.com",
     "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com https://*.execute-api.us-west-2.amazonaws.com",
     "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
-    "font-src 'self' data:",
+    "font-src 'self' data: https://www.exploretock.com" ,
   ].join("; ");
 
   response.headers.set("Content-Security-Policy", csp);
