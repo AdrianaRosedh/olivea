@@ -14,12 +14,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <title>Grupo Olivea</title>
 
-        {/* Tock Script */}
-        <Script
-          src="https://www.exploretock.com/tock.js"
-          strategy="afterInteractive"
-        />
-
         {/* Preloads */}
         <link
           rel="preload"

@@ -33,13 +33,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  // This clearly initializes Tock properly on the client-side.
+  // Tock initialization safely handled client-side after script load
   useEffect(() => {
     if (typeof window !== "undefined" && window.tock && typeof window.tock === "function") {
       window.tock("init", "olivea-farm-to-table");
-      console.log("✅ Tock initialized from ReservationModal");
+      console.log("✅ Tock initialized successfully in ReservationModal");
     } else {
-      console.error("❌ Tock not initialized, window.tock missing");
+      console.error("❌ Tock initialization failed: window.tock not loaded");
     }
   }, [isOpen, reservationType]);
 
@@ -149,12 +149,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
                 <div
                   id="Tock_widget_container"
+                  data-tock-widget="data-tock-offering"
                   data-tock-display-mode="Inline"
                   data-tock-color-mode="Blue"
                   data-tock-locale="es-mx"
                   data-tock-timezone="America/Tijuana"
-                  data-tock-offering="528232"
-                  style={{ width: "100%", height: "600px", backgroundColor: "#f0f0f0" }}
+                  data-tock-offering-id="528232"
+                  style={{ width: "100%", height: "600px" }}
                 />
               </div>
             )}
@@ -168,7 +169,18 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         </div>
       </motion.div>
 
-      <Script src="https://www.exploretock.com/tock.js" strategy="afterInteractive" />
+      {/* Tock.js Script initialized exactly as required by Tock (correctly using next/script) */}
+      <Script id="tock-widget-init" strategy="afterInteractive">
+        {`
+          !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?
+          e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
+          e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];var f=o.createElement(c);f.async=!0,
+          f.src=k;var g=o.getElementsByTagName(c)[0];g.parentNode.insertBefore(f,g)}}(
+          window,document,'script','https://www.exploretock.com/tock.js');
+        
+          tock('init', 'olivea-farm-to-table');
+        `}
+      </Script>
     </AnimatePresence>
   );
 }
