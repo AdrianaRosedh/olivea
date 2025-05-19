@@ -5,7 +5,6 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
-import TockWidget from "./TockWidget";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 
@@ -18,7 +17,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   const [date, setDate] = useState(today);
   const [time, setTime] = useState("19:00");
   const [size, setSize] = useState("2");
-
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -71,7 +69,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             isMobile ? "w-full h-full rounded-t-2xl" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
           }`}
         >
-          {/* Original header */}
+          {/* Header */}
           <div className="relative flex items-center px-6 py-4 border-b flex-shrink-0 pointer-events-auto">
             <h2
               className="absolute inset-0 flex items-center justify-center pointer-events-none text-[var(--olivea-ink)] uppercase"
@@ -88,38 +86,56 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             </button>
           </div>
 
-          {/* Original tabs with smooth state */}
+          {/* Tabs */}
           <div className="flex bg-[#e8e4d5] flex-shrink-0 pointer-events-auto">
-            {(["restaurant","hotel","cafe"] as ReservationType[]).map((id) => (
+            {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => (
               <button
                 key={id}
                 onClick={() => setReservationType(id)}
                 className={`flex-1 py-3 text-center transition-colors pointer-events-auto ${
-                  reservationType === id ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
+                  reservationType === id
+                    ? "border-b-4 border-[var(--olivea-olive)] text-[var(--olivea-olive)] font-semibold"
                     : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
                 }`}
               >
-                {id === "restaurant" ? (lang === "es" ? "Restaurante" : "Restaurant") : id === "hotel" ? "Hotel" : (lang === "es" ? "Café" : "Cafe")}
+                {id === "restaurant"
+                  ? lang === "es"
+                    ? "Restaurante"
+                    : "Restaurant"
+                  : id === "hotel"
+                  ? "Hotel"
+                  : lang === "es"
+                  ? "Café"
+                  : "Cafe"}
               </button>
             ))}
           </div>
 
-          {/* Original content panes, smooth transitions without reload */}
+          {/* Content Panes */}
           <div className="relative flex-1 overflow-auto bg-white pointer-events-auto">
-            {/* Hotel */}
-            <div className={`absolute inset-0 transition-opacity duration-300 ${reservationType==="hotel" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+            {/* Hotel Pane */}
+            <div className={`absolute inset-0 transition-opacity duration-300 ${
+                reservationType === "hotel" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              }`}
+            >
               <CloudbedsWidget/>
             </div>
 
-            {/* Restaurant (Corrected Tock) */}
-            <div className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 ${reservationType==="restaurant" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
-              <label>{lang === "es"?"Fecha":"Date"}
+            {/* Restaurant Pane */}
+            <div className={`absolute inset-0 p-6 flex flex-col space-y-4 transition-opacity duration-300 overflow-auto ${
+                reservationType === "restaurant" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <label>
+                {lang === "es" ? "Fecha" : "Date"}
                 <input type="date" value={date} onChange={e=>setDate(e.target.value)} className="block w-full border p-2 rounded"/>
               </label>
-              <label>{lang === "es"?"Hora":"Time"}
+              <label>
+                {lang === "es" ? "Hora" : "Time"}
                 <input type="time" value={time} onChange={e=>setTime(e.target.value)} className="block w-full border p-2 rounded"/>
               </label>
-              <label>{lang === "es"?"Personas":"Party Size"}
+              <label>
+                {lang === "es" ? "Personas" : "Party Size"}
                 <select value={size} onChange={e=>setSize(e.target.value)} className="block w-full border p-2 rounded">
                   {Array.from({length:10},(_,i)=><option key={i}>{i+1}</option>)}
                 </select>
@@ -127,8 +143,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               <div
                 id="Tock_widget_container"
                 data-tock-display-mode="Inline"
-                data-tock-widget="data-tock-offering"
-                data-tock-offering-id="528232"
+                data-tock-offering="528232"
                 data-tock-color-mode="White"
                 data-tock-locale="es-mx"
                 data-tock-timezone="America/Tijuana"
@@ -137,14 +152,16 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               />
             </div>
 
-            {/* Café */}
-            <div className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${reservationType==="cafe"?"opacity-100 pointer-events-auto":"opacity-0 pointer-events-none"}`}>
-              {lang==="es"?"Próximamente disponible.":"Coming Soon."}
+            {/* Café Pane */}
+            <div className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
+                reservationType === "cafe" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
             </div>
           </div>
         </div>
       </motion.div>
-      <TockWidget />
     </AnimatePresence>
   );
 }

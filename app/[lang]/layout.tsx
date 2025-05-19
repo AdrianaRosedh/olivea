@@ -19,14 +19,8 @@ interface LangLayoutProps {
   params: { lang: "es" | "en" };
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { lang: "es" | "en" };
-}): Promise<Metadata> {
-  // loadLocale returns { lang, dict }
+export async function generateMetadata({ params }: { params: { lang: "es" | "en" } }): Promise<Metadata> {
   const { lang, dict } = await loadLocale(params);
-
   return {
     title: { template: "%s | Olivea", default: "Olivea" },
     description: dict.metadata?.description,
@@ -57,11 +51,7 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 };
 
-export default async function LangLayout({
-  children,
-  params,
-}: LangLayoutProps) {
-  // Again use the same params shape
+export default async function LangLayout({ children, params }: LangLayoutProps) {
   const { lang, dict } = await loadLocale(params);
 
   return (
@@ -73,17 +63,15 @@ export default async function LangLayout({
           <ScrollProvider>
             <ClientProviders>
               <LayoutShell lang={lang} dictionary={dict}>
-                {/* Mount the reservation modal once at the top level */}
+                {/* Mount ReservationModal uniquely here */}
                 <ReservationModal lang={lang} />
 
-                {/* All your pages, carousels, identity-cards, etc. */}
                 {children}
               </LayoutShell>
             </ClientProviders>
           </ScrollProvider>
         </ReservationProvider>
 
-        {/* This keeps your shared video transitions working */}
         <SharedVideoTransition />
       </SharedTransitionProvider>
     </>
