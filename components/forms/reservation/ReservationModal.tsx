@@ -35,10 +35,21 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   useEffect(() => {
     if (reservationType === "restaurant" && isOpen) {
       const container = document.getElementById("Tock_widget_container");
+  
       if (container) {
-        container.innerHTML = "";
-        window.tock?.("init", "olivea-farm-to-table");
-        console.log("✅ Tock force-reloaded");
+        container.innerHTML = "";  // Clears any existing DOM elements.
+  
+        // Slight delay to ensure DOM stability
+        const timeout = setTimeout(() => {
+          if (window.tock && typeof window.tock === "function") {
+            window.tock("init", "olivea-farm-to-table");
+            console.log("✅ Tock widget reloaded");
+          } else {
+            console.error("❌ window.tock not ready");
+          }
+        }, 300); // Increased to 300ms for improved stability
+  
+        return () => clearTimeout(timeout);
       }
     }
   }, [isOpen, reservationType]);  
