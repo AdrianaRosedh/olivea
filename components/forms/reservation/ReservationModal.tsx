@@ -160,12 +160,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 id="Tock_widget_container"
                 data-tock-display-mode="Inline"
                 data-tock-color-mode="Blue"
-                data-tock-locale={lang === "es" ? "es-mx" : "en-us"}
+                data-tock-locale="es-mx"
                 data-tock-timezone="America/Tijuana"
                 data-tock-offering="528232"
-                data-tock-date={date}
-                data-tock-time={time}
-                data-tock-size={size}
               />
             </div>
 

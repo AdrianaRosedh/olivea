@@ -1,27 +1,22 @@
+import Script from "next/script";
+
 export default function Head() {
-  const token = process.env.NEXT_PUBLIC_TOCK_JWT;
   return (
     <>
-      {/* ─── TOCK INLINE WIDGET SNIPPET ───────────────────────── */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            !function(t,o,c,k){
-              if(!t.tock){
-                var e=t.tock=function(){ e.callMethod?e.callMethod.apply(e,arguments):e.queue.push(arguments) };
-                t._tock||(t._tock=e);
-                e.push=e; e.loaded=!0; e.version='1.0'; e.queue=[];
-                var f=o.createElement(c); f.async=!0; f.src=k;
-                var g=o.getElementsByTagName(c)[0];
-                g.parentNode.insertBefore(f,g);
-              }
-            }(window,document,'script','https://www.exploretock.com/tock.js');
-            tock('init','${token}');
-          `,
+      <title>Grupo Olivea</title>
+
+      {/* Tock Widget Script adapted correctly for Next.js */}
+      <Script
+        src="https://www.exploretock.com/tock.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          if (window.tock && typeof window.tock === "function") {
+            window.tock("init", "olivea-farm-to-table");
+          }
         }}
       />
 
-      <title>Grupo Olivea</title>
+      {/* Keep other links/preloads unchanged */}
       <link
         rel="preload"
         href="/videos/homepage-temp.mp4"
