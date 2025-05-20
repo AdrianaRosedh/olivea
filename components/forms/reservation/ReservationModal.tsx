@@ -172,11 +172,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 </div>
         
                   {/* Tock Widget container */}
-                  <div className="flex-1 flex justify-center items-start p-6">
-                    <div className="p-6 bg-white rounded-xl w-full max-w-lg">
-                      {reservationType === "restaurant" && <TockWidget />}
-                    </div>
-                  </div>    
+ 
+                
+                  {reservationType === "restaurant" && <TockWidget />}
                 </div>
 
                 {/* Café Pane */}
