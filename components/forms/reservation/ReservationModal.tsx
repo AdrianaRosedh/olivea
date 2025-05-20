@@ -6,6 +6,7 @@ import { AnimatePresence, motion, type Variants, type Transition } from "framer-
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
 import OliveaLogo from "@/assets/oliveaFTT1.svg";
+import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
@@ -157,7 +158,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 <div className="flex items-center justify-start px-4 py-3 md:px-6 md:py-4 border-b border-neutral-300 bg-[var(--olivea-cream)] shadow-md">
 
                   {/* Slightly Larger Logo */}
-                  <div className="h-[40px] w-auto md:h-[60px] flex-shrink-0">
+                  <div className="h-[45px] w-auto md:h-[65px] flex-shrink-0">
                     <OliveaLogo className="h-full w-auto object-contain" />
                   </div>
 
@@ -171,21 +172,37 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
                 </div>
         
-                  {/* Tock Widget container */}
- 
-                
+                  {/* Tock Widget container */}               
                   {reservationType === "restaurant" && <TockWidget />}
                 </div>
 
                 {/* Café Pane */}
                 <div
-                  className={`absolute inset-0 flex items-center justify-center italic text-neutral-500 transition-opacity duration-300 ${
-                    reservationType === "cafe"
+                  className={`
+                    absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto
+                    ${reservationType === "cafe"
                       ? "opacity-100 pointer-events-auto"
                       : "opacity-0 pointer-events-none"
-                  }`}
+                    }
+                  `}
                 >
-                  {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
+                  {/* 1) exactly the same header bar as Restaurant */}
+                  <div className="flex items-center justify-start px-4 py-3 md:px-6 md:py-4 border-b border-neutral-300 bg-[var(--olivea-cream)] shadow-md">
+                    <div className="h-[45px] w-auto md:h-[65px] flex-shrink-0">
+                      <OliveaCafe className="h-full w-auto object-contain" />
+                    </div>
+                    <span
+                      className={`${jakarta.className} font-bold whitespace-nowrap ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                      style={{ fontSize: "clamp(0.9rem, 2vw, 1.15rem)" }}
+                    >
+                      Olivea Café
+                    </span>
+                  </div>
+                  
+                  {/* 2) then your “coming soon” body, centered in the rest of the space */}
+                  <div className="flex-1 flex items-center justify-center italic text-neutral-500 p-6">
+                    {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
+                  </div>
                 </div>
               </div>
             </div>
