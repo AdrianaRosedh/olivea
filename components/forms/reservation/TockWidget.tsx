@@ -18,17 +18,19 @@ export default function TockWidget() {
 
   return (
     <div className="flex-1 flex justify-center items-start p-6 overflow-hidden">
-      <div className="p-6 bg-white rounded-xl w-full max-w-lg overflow-hidden relative">
-        <div
-          id="Tock_widget_container"
-          data-tock-display-mode="Inline"
-          data-tock-widget="data-tock-offering"
-          data-tock-offering-id="528232"
-          data-tock-color-mode="White"
-          data-tock-locale="es-mx"
-          data-tock-timezone="America/Tijuana"
-          style={{ width: "100%", minHeight: "400px", overflow: "auto" }}
-        />
+      <div className="p-4 bg-white rounded-xl w-full max-w-lg overflow-hidden">
+        <div className="max-w-[400px] mx-auto">
+          <div
+            id="Tock_widget_container"
+            data-tock-display-mode="Inline"
+            data-tock-widget="data-tock-offering"
+            data-tock-offering-id="528232"
+            data-tock-color-mode="White"
+            data-tock-locale="es-mx"
+            data-tock-timezone="America/Tijuana"
+            style={{ width: "100%", minHeight: "400px" }}
+          />
+        </div>
       </div>
     </div>
   );
