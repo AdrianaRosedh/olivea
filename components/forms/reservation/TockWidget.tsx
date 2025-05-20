@@ -19,17 +19,17 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
-  /* 1) Turn the root widget into a vertical stack and center it */
+  /* 1) Make the whole widget a vertical flex column */
   #Tock_widget_container {
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
     width: 100% !important;
-    max-width: 600px !important;  /* desktop cap */
+    max-width: 600px !important;
     margin: 0 auto !important;
   }
 
-  /* 2) Target the search‐bar wrapper that actually holds the three drop-downs + book button */
+  /* 2) Target the search-bar container (three selectors + button) */
   #Tock_widget_container .TockSearchBar-container {
     display: flex !important;
     flex-direction: column !important;
@@ -38,21 +38,29 @@ export default function TockWidget() {
     background: transparent !important;
   }
 
-  /* 3) Stretch each of the three selector panels to full width and round their corners */
+  /* 3a) Stretch each top-level panel wrapper to full width */
   #Tock_widget_container .TockSearchBar-container > .InlineWidgetDropDown-section,
   #Tock_widget_container .TockSearchBar-container > .TockDropdown-container,
   #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer {
     width: 100% !important;
-    max-width: none !important;
   }
+
+  /* 3b) Also stretch the hidden inner panel in the third wrapper */
+  #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer
+    .InlineWidgetDropDown-section {
+    width: 100% !important;
+  }
+
+  /* 4) Force every button inside those panels to fill & round */
   #Tock_widget_container .TockSearchBar-container > .InlineWidgetDropDown-section button,
   #Tock_widget_container .TockSearchBar-container > .TockDropdown-container button,
   #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer button {
     width: 100% !important;
     border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
   }
 
-  /* 4) Style the “Book now” button green + white text */
+  /* 5) Style the “Book now” button green + white */
   #Tock_widget_container .TockInlineButton-container {
     background-color: var(--olivea-olive) !important;
     color: #fff !important;
@@ -61,16 +69,16 @@ export default function TockWidget() {
     padding: 1rem 0 !important;
     text-align: center !important;
   }
-  /* book-now label */
   #Tock_widget_container .TockInlineButton-container .MainLabelSpan {
     color: #fff !important;
   }
 
-  /* 5) Hide the “Powered by Tock” link in the corner */
+  /* 6) hide the tiny “Powered by Tock” icon */
   #Tock_widget_container .TockSearchBar-tockIcon {
     display: none !important;
   }
 `}</style>
+
 
 
 
