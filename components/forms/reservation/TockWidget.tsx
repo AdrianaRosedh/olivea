@@ -18,45 +18,56 @@ export default function TockWidget() {
 
   return (
     <>
-     
-<style jsx global>{`
-  /* (a) Force “mobile” layout via matchMedia override… */
-  /* …your existing matchMedia shim here… */
+      <style jsx global>{`
+        #Tock_widget_container {
+          display: flex !important;
+          justify-content: center !important;
+          align-items: flex-start !important;
+          width: 100% !important;
+          min-height: 400px !important;
+        }
 
-  /* (b) Stretch each dropdown “button” to fill 100% of the white card */
-  #Tock_widget_container
-    button.InlineWidgetDropDown-sectionDropdown,
-  #Tock_widget_container
-    button.TockDatePicker-container {
-    width: 100% !important;
-    border-radius: 8px !important;
-    padding: 0.75rem 1rem !important;
-    /* you can tweak font-size / line-height here if needed */
-  }
+        .TockWidget-container {
+          width: 100% !important;
+          max-width: 400px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 12px !important;
+        }
 
-  /* (c) Make “Book now” olive-green with white text */
-  #Tock_widget_container
-    .TockInlineButton-container {
-    background-color: var(--olivea-olive) !important;
-    color: white !important;
-    border-radius: 8px !important;
-    padding: 1rem 0 !important;
-    text-align: center !important;
-    font-weight: 600 !important;
-  }
-  /* ensure the label inside also turns white */
-  #Tock_widget_container
-    .TockInlineButton-container .MainLabelSpan {
-    color: white !important;
-  }
+        .TockSearchBar-container {
+          flex-direction: column !important;
+          width: 100% !important;
+          gap: 12px !important;
+        }
 
-  /* (d) Hide “Powered by Tock” icon */
-  #Tock_widget_container
-    .TockSearchBar-tockIcon {
-    display: none !important;
-  }
-`}</style>
+        .InlineWidgetDropDown-section,
+        .TockDropdown-container,
+        .InlineWidget-dropdownContainer {
+          width: 100% !important;
+        }
 
+        .InlineWidgetDropDown-sectionDropdown,
+        .TockDatePicker-container,
+        .InlineWidgetDropDown-sectionDropdown {
+          width: 100% !important;
+          border-radius: 12px !important;
+        }
+
+        .TockInlineButton {
+          width: 100% !important;
+        }
+
+        /* Custom Button */
+        .TockInlineButton-container {
+          background-color: var(--olivea-olive) !important;
+          color: white !important;
+          font-weight: bold !important;
+          border-radius: 12px !important;
+          padding: 10px !important;
+        }
+      `}</style>
 
       <div className="flex-1 flex justify-center items-start p-6">
         <div className="p-6 bg-white rounded-xl w-full max-w-lg">
