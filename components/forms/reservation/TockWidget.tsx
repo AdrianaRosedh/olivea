@@ -18,66 +18,45 @@ export default function TockWidget() {
 
   return (
     <>
-      <style jsx global>{`
-        /* 1) Make the whole widget a vertical flex column */
-        #Tock_widget_container {
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: stretch !important;
-          width: 100% !important;
-          max-width: 600px !important;
-          margin: 0 auto !important;
-        }
+     
+<style jsx global>{`
+  /* (a) Force “mobile” layout via matchMedia override… */
+  /* …your existing matchMedia shim here… */
 
-        /* 2) Target the search-bar container (three selectors + button) */
-        #Tock_widget_container .TockSearchBar-container {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 1.5rem !important;
-          padding: 2rem !important;
-          background: transparent !important;
-        }
+  /* (b) Stretch each dropdown “button” to fill 100% of the white card */
+  #Tock_widget_container
+    button.InlineWidgetDropDown-sectionDropdown,
+  #Tock_widget_container
+    button.TockDatePicker-container {
+    width: 100% !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    /* you can tweak font-size / line-height here if needed */
+  }
 
-        /* 3a) Stretch each top-level panel wrapper to full width */
-        #Tock_widget_container .TockSearchBar-container > .InlineWidgetDropDown-section,
-        #Tock_widget_container .TockSearchBar-container > .TockDropdown-container,
-        #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer {
-          width: 100% !important;
-        }
+  /* (c) Make “Book now” olive-green with white text */
+  #Tock_widget_container
+    .TockInlineButton-container {
+    background-color: var(--olivea-olive) !important;
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 1rem 0 !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+  }
+  /* ensure the label inside also turns white */
+  #Tock_widget_container
+    .TockInlineButton-container .MainLabelSpan {
+    color: white !important;
+  }
 
-        /* 3b) Also stretch the hidden inner panel in the third wrapper */
-        #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer
-          .InlineWidgetDropDown-section {
-          width: 100% !important;
-        }
+  /* (d) Hide “Powered by Tock” icon */
+  #Tock_widget_container
+    .TockSearchBar-tockIcon {
+    display: none !important;
+  }
+`}</style>
 
-        /* 4) Force every button inside those panels to fill & round */
-        #Tock_widget_container .TockSearchBar-container > .InlineWidgetDropDown-section button,
-        #Tock_widget_container .TockSearchBar-container > .TockDropdown-container button,
-        #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer button {
-          width: 100% !important;
-          border-radius: 8px !important;
-          padding: 0.75rem 1rem !important;
-        }
-
-        /* 5) Style the “Book now” button green + white */
-        #Tock_widget_container .TockInlineButton-container {
-          background-color: var(--olivea-olive) !important;
-          color: #fff !important;
-          border-radius: 8px !important;
-          font-weight: 600 !important;
-          padding: 1rem 0 !important;
-          text-align: center !important;
-        }
-        #Tock_widget_container .TockInlineButton-container .MainLabelSpan {
-          color: #fff !important;
-        }
-
-        /* 6) hide the tiny “Powered by Tock” icon */
-        #Tock_widget_container .TockSearchBar-tockIcon {
-          display: none !important;
-        }
-      `}</style>
 
       <div className="flex-1 flex justify-center items-start p-6">
         <div className="p-6 bg-white rounded-xl w-full max-w-lg">
