@@ -14,11 +14,11 @@ export async function generateMetadata({
   const { lang, dict } = await loadLocale(p);
 
   return {
-    title:       `${dict.casa.title} | Olivea`,
+    title:       `${dict.casa.title}`,
     description: dict.casa.description,
-    metadataBase: new URL("https://olivea.com"),
+    metadataBase: new URL("https://oliveafarmtotable.com"),
     openGraph: {
-      title:       `${dict.casa.title} | Olivea`,
+      title:       `${dict.casa.title}`,
       description: dict.casa.description,
       images: [{
         url:   "/images/casa.png",
