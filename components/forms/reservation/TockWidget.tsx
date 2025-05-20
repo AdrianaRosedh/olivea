@@ -19,57 +19,73 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
+        /* Main Container */
         #Tock_widget_container {
-          display: flex !important;
-          justify-content: center !important;
-          align-items: flex-start !important;
-          width: 100% !important;
-          min-height: 400px !important;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
-        .TockWidget-container,
         .TockSearchBar-container {
-          width: 100% !important;
-          max-width: 400px !important;
-          display: flex !important;
           flex-direction: column !important;
-          align-items: stretch !important;
+          width: 100% !important;
           gap: 12px !important;
         }
 
-        .InlineWidgetDropDown-sectionDropdown,
-        .TockDatePicker-container {
-          width: 100% !important;
-          border-radius: 12px !important;
-          overflow: hidden !important;
-          border: 1px solid #e5e7eb !important; /* subtle border */
-        }
-
-        /* Removing horizontal line between stacked widgets */
-        .TockDropdown-container,
         .InlineWidgetDropDown-section,
-        .InlineWidget-dropdownContainer {
-          border: none !important;
+        .TockDropdown-container,
+        .InlineWidget-dropdownContainer,
+        .TockInlineButton {
           width: 100% !important;
         }
 
-        /* Custom Button */
+        .InlineWidgetDropDown-section button,
+        .TockDropdown-container button,
+        .InlineWidget-dropdownContainer button,
+        .TockInlineButton-container {
+          width: 100% !important;
+          padding: 14px 10px !important;
+          font-size: 16px !important;
+          text-align: center !important;
+          justify-content: center !important;
+        }
+
+        /* Adjust text to match Hotel look */
+        .MainLabelLabel,
+        .MainLabelSpan {
+          font-size: 16px !important;
+        }
+
+        /* Button style */
         .TockInlineButton-container {
           background-color: var(--olivea-olive) !important;
           color: white !important;
-          font-weight: bold !important;
           border-radius: 12px !important;
-          padding: 10px !important;
+          font-weight: bold !important;
+          padding: 14px !important;
         }
 
-        /* Improve the shadow and background of dropdown */
-        .InlineWidgetDropDown-sectionDropdown,
-        .TockDatePicker-container,
-        .InlineWidgetDropDown-sectionDropdown {
-          box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
-          background-color: #f9fafb !important; 
+        /* Add elegant padding within the white container */
+        .TockWidget-container {
+          padding: 16px !important;
         }
 
+        @media (max-width: 768px) {
+          .TockSearchBar-container {
+            gap: 8px !important;
+          }
+
+          .InlineWidgetDropDown-section button,
+          .TockDropdown-container button,
+          .InlineWidget-dropdownContainer button {
+            padding: 10px 8px !important;
+            font-size: 15px !important;
+          }
+
+          .TockInlineButton-container {
+            padding: 12px !important;
+          }
+        }
       `}</style>
 
       <div className="flex-1 flex justify-center items-start p-6">
