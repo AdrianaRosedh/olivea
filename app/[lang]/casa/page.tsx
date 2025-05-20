@@ -24,7 +24,7 @@ export async function generateMetadata({
         url:   "/images/casa.png",
         width: 1200,
         height: 630,
-        alt:   "Casa Olivea",
+        alt:   "Casa",
       }],
       locale: lang,
       type:   "website",

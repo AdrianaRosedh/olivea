@@ -19,7 +19,7 @@ interface LangLayoutProps {
 export async function generateMetadata({ params }: { params: { lang: "es" | "en" } }): Promise<Metadata> {
   const { lang, dict } = await loadLocale(params);
   return {
-    title: { template: "%s | Olivea", default: "Olivea" },
+    title: { template: "%s | Olivea", default: "Familia Olivea" },
     description: dict.metadata?.description,
     metadataBase: new URL("https://oliveafarmtotable.com"),
     openGraph: {
