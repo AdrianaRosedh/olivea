@@ -1,14 +1,15 @@
 // app/layout.tsx
 import "./globals.css";
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import { Inter, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${inter.className} ${corm.className}`}>
+    <html lang="es" className={`${inter.className} ${corm.className} ${jakarta.className}`}>
       <head>
         <title>Grupo Olivea</title>
 
@@ -28,16 +29,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
          {/* Tock Stub WITHOUT init */}
         
-        <Script id="tock-script" strategy="beforeInteractive">
+         <Script id="tock-script" strategy="beforeInteractive">
           {`
-            !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?
-            e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
-            e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];var f=o.createElement(c);f.async=!0,
-            f.src=k;var g=o.getElementsByTagName(c)[0];g.parentNode.insertBefore(f,g)}}(
-            window,document,'script','https://www.exploretock.com/tock.js');
-            tock('init', 'olivea-farm-to-table');
+          !function(t,o,c,k){
+            if(!t.tock){
+              var e=t.tock=function(){
+                e.callMethod? e.callMethod.apply(e,arguments):e.queue.push(arguments)
+              };
+              t._tock||(t._tock=e),e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];
+              var f=o.createElement(c);f.async=!0,f.src=k;
+              var g=o.getElementsByTagName(c)[0];g.parentNode.insertBefore(f,g);
+            }
+          }(window,document,'script','https://www.exploretock.com/tock.js');
           `}
+
         </Script>
+
 
       </head>
 

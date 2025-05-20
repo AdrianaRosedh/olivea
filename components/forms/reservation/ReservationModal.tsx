@@ -5,9 +5,13 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
+import OliveaLogo from "@/assets/oliveaFTT1.svg";
+import { Plus_Jakarta_Sans } from "next/font/google";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 const TockWidget = dynamic(() => import("./TockWidget"), { ssr: false });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
+
 
 interface ReservationModalProps {
   lang: "es" | "en";
@@ -143,13 +147,47 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
                 {/* Restaurant Pane */}
                 <div
-                  className={`absolute inset-0 transition-opacity duration-300 ${
+                  className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto ${
                     reservationType === "restaurant"
                       ? "opacity-100 pointer-events-auto"
                       : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  <TockWidget />
+
+                <div className="flex items-center justify-start px-4 py-3 md:px-6 md:py-4 border-b border-neutral-300 bg-[var(--olivea-cream)] shadow-md">
+
+                  {/* Slightly Larger Logo */}
+                  <div className="h-[40px] w-auto md:h-[60px] flex-shrink-0">
+                    <OliveaLogo className="h-full w-auto object-contain" />
+                  </div>
+
+                  {/* Further increased margin-left */}
+                  <span
+                    className={`${jakarta.className} font-bold whitespace-nowrap ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                    style={{ fontSize: "clamp(0.9rem, 2vw, 1.15rem)" }}
+                  >
+                    Olivea Farm To Table
+                  </span>
+
+                </div>
+        
+                  {/* Tock Widget container */}
+                  <div className="flex-1 flex justify-center items-start p-6">
+                    <div className="p-6 bg-white rounded-xl w-full max-w-lg">
+                      <div
+                        id="Tock_widget_container"
+                        data-tock-display-mode="Inline"
+                        data-tock-widget="data-tock-offering"
+                        data-tock-offering-id="528232"
+                        data-tock-color-mode="White"
+                        data-tock-locale="es-mx"
+                        data-tock-timezone="America/Tijuana"
+                        style={{ width: "100%", minHeight: "400px" }}
+                      />
+                    </div>
+                  </div>
+                
+                  {reservationType === "restaurant" && <TockWidget />}
                 </div>
 
                 {/* Café Pane */}
