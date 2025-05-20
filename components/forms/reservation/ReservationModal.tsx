@@ -9,7 +9,6 @@ import OliveaLogo from "@/assets/oliveaFTT1.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
-const TockWidget = dynamic(() => import("./TockWidget"), { ssr: false });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
 
@@ -174,11 +173,18 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   {/* Tock Widget container */}
                   <div className="flex-1 flex justify-center items-start p-6">
                     <div className="p-6 bg-white rounded-xl w-full max-w-lg">
-                      {reservationType === "restaurant" && <TockWidget />}
+                      <div
+                        id="Tock_widget_container"
+                        data-tock-display-mode="Inline"
+                        data-tock-widget="data-tock-offering"
+                        data-tock-offering-id="528232"
+                        data-tock-color-mode="White"
+                        data-tock-locale="es-mx"
+                        data-tock-timezone="America/Tijuana"
+                        style={{ width: "100%", minHeight: "400px" }}
+                      />
                     </div>
                   </div>
-                
-                  
                 </div>
 
                 {/* Café Pane */}
