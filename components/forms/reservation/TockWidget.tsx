@@ -59,7 +59,7 @@ export default function TockWidget() {
           data-tock-color-mode="White"
           data-tock-locale="es-mx"
           data-tock-timezone="America/Tijuana"
-          style={{ width: "100%", minHeight: "400px", overflow: "auto" }}
+          style={{ width: "400px", minHeight: "400px", overflow: "auto" }}
         />
       </div>
     </div>
