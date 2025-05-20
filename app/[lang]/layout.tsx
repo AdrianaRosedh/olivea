@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: { lang: "es" | "en"
     description: dict.metadata?.description,
     metadataBase: new URL("https://olivea.com"),
     openGraph: {
-      title: "Olivea",
+      title: "Olivea Farm To Table",
       description: dict.metadata?.description,
       images: [`/images/og-${lang}.jpg`],
       url: `https://olivea.com/${lang}`,

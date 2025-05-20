@@ -2,33 +2,38 @@
 import "./globals.css";
 import { Inter, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
+import type { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
+export const metadata: Metadata = {
+  title: "Grupo Olivea",
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-icon.png',
+    shortcut: '/favicon.ico'
+  },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    title: "Grupo Olivea",
+  },
+  other: {
+    'preload': [
+      { url: '/videos/homepage-temp.mp4', as: 'video', type: 'video/mp4' },
+      { url: '/assets/alebrije-1.svg', as: 'image', type: 'image/svg+xml' },
+    ],
+  }
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${inter.className} ${corm.className} ${jakarta.className}`}>
-      <head>
-        <title>Grupo Olivea</title>
+      <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
+        {children}
 
-        {/* Preloads */}
-        <link
-          rel="preload"
-          href="/videos/homepage-temp.mp4"
-          as="video"
-          type="video/mp4"
-        />
-        <link
-          rel="preload"
-          href="/assets/alebrije-1.svg"
-          as="image"
-          type="image/svg+xml"
-        />
-
-         {/* Tock Stub WITHOUT init */}
-        
+        {/* Tock Script */}
         <Script id="tock-script" strategy="beforeInteractive">
           {`
             !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?
@@ -40,12 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
 
-      </head>
-
-      <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
-        {children}
-
-        {/* Whistle Live Chat (unchanged) */}
+        {/* Whistle Live Chat */}
         <Script id="whistle-config" strategy="afterInteractive">
           {`
             window.WhistleLiveChat = {
