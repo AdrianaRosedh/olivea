@@ -11,7 +11,7 @@ export default function TockWidget() {
       } else {
         console.error("❌ Tock script not loaded yet");
       }
-    }, 200);  // Short delay for stability across browsers
+    }, 200);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -19,50 +19,47 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
-        /* DESKTOP STYLES */
+        /* Force widget to mobile layout (stacked) */
         #Tock_widget_container {
-          width: 100% !important;
+          max-width: 360px !important; /* critical width forcing mobile */
+          margin: 0 auto !important;
+          overflow: auto !important;
         }
 
-        /* MOBILE STYLES: Below 1024px */
-        @media (max-width: 1024px) {
-          #Tock_widget_container {
-            max-width: 100% !important;
-          }
-
-          #Tock_widget_container > div {
-            max-width: 400px !important;
-            margin: 0 auto !important;
-          }
-        }
-
-        /* Custom Tock Button Styling */
-        #Tock_widget_container button {
+        /* Custom Button Styling */
+        #Tock_widget_container .TockInlineButton-container {
           background-color: var(--olivea-olive) !important;
           color: white !important;
           border-radius: 8px !important;
           font-weight: bold !important;
         }
 
-        #Tock_widget_container button:hover {
+        #Tock_widget_container .TockInlineButton-container:hover {
           opacity: 0.9 !important;
+        }
+
+        /* Additional mobile-responsive fixes */
+        @media (max-width: 768px) {
+          #Tock_widget_container {
+            max-width: 100% !important;
+          }
         }
       `}</style>
 
-    <div className="flex-1 flex justify-center items-start p-6 overflow-hidden">
-      <div className="p-6 bg-white rounded-xl w-full max-w-lg overflow-hidden relative">
-        <div
-          id="Tock_widget_container"
-          data-tock-display-mode="Inline"
-          data-tock-widget="data-tock-offering"
-          data-tock-offering-id="528232"
-          data-tock-color-mode="White"
-          data-tock-locale="es-mx"
-          data-tock-timezone="America/Tijuana"
-          style={{ width: "400px", minHeight: "400px", overflow: "auto" }}
-        />
+      <div className="flex-1 flex justify-center items-start p-6 overflow-auto">
+        <div className="p-4 bg-white rounded-xl w-full max-w-lg overflow-hidden">
+          <div
+            id="Tock_widget_container"
+            data-tock-display-mode="Inline"
+            data-tock-widget="data-tock-offering"
+            data-tock-offering-id="528232"
+            data-tock-color-mode="White"
+            data-tock-locale="es-mx"
+            data-tock-timezone="America/Tijuana"
+            style={{ minHeight: "400px" }}
+          />
+        </div>
       </div>
-    </div>
     </>
   );
 }
