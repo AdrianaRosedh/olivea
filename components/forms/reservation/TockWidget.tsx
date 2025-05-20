@@ -19,74 +19,74 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
-        /* Main Container */
+        /* Ensuring vertical stacking & elegant styling */
         #Tock_widget_container {
-          display: flex;
-          align-items: center;
+          width: 100% !important;
+          display: flex !important;
           justify-content: center;
         }
-
+            
         .TockSearchBar-container {
           flex-direction: column !important;
-          width: 100% !important;
+          align-items: stretch !important;
           gap: 12px !important;
+          width: 100% !important;
+          max-width: 350px !important;
+          padding: 20px !important;
+          box-sizing: border-box !important;
         }
-
+            
         .InlineWidgetDropDown-section,
         .TockDropdown-container,
         .InlineWidget-dropdownContainer,
         .TockInlineButton {
           width: 100% !important;
         }
-
-        .InlineWidgetDropDown-section button,
-        .TockDropdown-container button,
-        .InlineWidget-dropdownContainer button,
+            
+        /* Rounded corners, uniform padding, and elegant shadows */
+        .InlineWidgetDropDown-sectionDropdown,
+        .TockDatePicker-container,
         .TockInlineButton-container {
           width: 100% !important;
-          padding: 14px 10px !important;
-          font-size: 16px !important;
-          text-align: center !important;
-          justify-content: center !important;
+          border-radius: 10px !important;
+          box-shadow: none !important;
+          border: 1px solid #e2e8f0 !important;
+          padding: 12px 15px !important;
         }
-
-        /* Adjust text to match Hotel look */
-        .MainLabelLabel,
-        .MainLabelSpan {
+            
+        /* Adjust labels and texts for elegance */
+        .MainLabelSpan, .MainLabelLabel {
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
           font-size: 16px !important;
         }
-
-        /* Button style */
+            
+        /* Custom Button Styling */
         .TockInlineButton-container {
           background-color: var(--olivea-olive) !important;
           color: white !important;
-          border-radius: 12px !important;
-          font-weight: bold !important;
-          padding: 14px !important;
+          font-weight: 600 !important;
+          border: none !important;
         }
-
-        /* Add elegant padding within the white container */
-        .TockWidget-container {
-          padding: 16px !important;
+            
+        .TockInlineButton-container:hover {
+          opacity: 0.9 !important;
         }
-
-        @media (max-width: 768px) {
+            
+        /* Hide unwanted backgrounds or borders from Tock's original horizontal layout */
+        .InlineWidgetDropDown-sectionDropdown,
+        .TockDatePicker-container {
+          background-color: #f8f8f8 !important;
+        }
+            
+        /* MOBILE STYLES: Below 1024px, slightly smaller max-width */
+        @media (max-width: 1024px) {
           .TockSearchBar-container {
-            gap: 8px !important;
-          }
-
-          .InlineWidgetDropDown-section button,
-          .TockDropdown-container button,
-          .InlineWidget-dropdownContainer button {
-            padding: 10px 8px !important;
-            font-size: 15px !important;
-          }
-
-          .TockInlineButton-container {
+            max-width: 100% !important;
             padding: 12px !important;
           }
         }
       `}</style>
+
 
       <div className="flex-1 flex justify-center items-start p-6">
         <div className="p-6 bg-white rounded-xl w-full max-w-lg">
