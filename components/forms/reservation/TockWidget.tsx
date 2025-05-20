@@ -27,7 +27,8 @@ export default function TockWidget() {
           min-height: 400px !important;
         }
 
-        .TockWidget-container {
+        .TockWidget-container,
+        .TockSearchBar-container {
           width: 100% !important;
           max-width: 400px !important;
           display: flex !important;
@@ -36,26 +37,19 @@ export default function TockWidget() {
           gap: 12px !important;
         }
 
-        .TockSearchBar-container {
-          flex-direction: column !important;
-          width: 100% !important;
-          gap: 12px !important;
-        }
-
-        .InlineWidgetDropDown-section,
-        .TockDropdown-container,
-        .InlineWidget-dropdownContainer {
-          width: 100% !important;
-        }
-
         .InlineWidgetDropDown-sectionDropdown,
-        .TockDatePicker-container,
-        .InlineWidgetDropDown-sectionDropdown {
+        .TockDatePicker-container {
           width: 100% !important;
           border-radius: 12px !important;
+          overflow: hidden !important;
+          border: 1px solid #e5e7eb !important; /* subtle border */
         }
 
-        .TockInlineButton {
+        /* Removing horizontal line between stacked widgets */
+        .TockDropdown-container,
+        .InlineWidgetDropDown-section,
+        .InlineWidget-dropdownContainer {
+          border: none !important;
           width: 100% !important;
         }
 
@@ -67,6 +61,15 @@ export default function TockWidget() {
           border-radius: 12px !important;
           padding: 10px !important;
         }
+
+        /* Improve the shadow and background of dropdown */
+        .InlineWidgetDropDown-sectionDropdown,
+        .TockDatePicker-container,
+        .InlineWidgetDropDown-sectionDropdown {
+          box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+          background-color: #f9fafb !important; 
+        }
+
       `}</style>
 
       <div className="flex-1 flex justify-center items-start p-6">
