@@ -170,6 +170,13 @@
   }
 }
 
+@media (max-width: 1024px) {
+  #Tock_widget_container {
+    max-width: 400px !important;
+    margin: 0 auto !important;
+  }
+}
+
 /* Liquid fill hover effect */
 @media (min-width: 768px) {
   .fill-nav a {
@@ -266,3 +273,14 @@ input, textarea, select {
   font-size: 16px !important;
 }
 
+/* Custom Tock Button Styling */
+#Tock_widget_container button {
+  background-color: var(--olivea-olive) !important; 
+  color: white !important;
+  border-radius: 8px !important; 
+  font-weight: bold !important;
+}
+
+#Tock_widget_container button:hover {
+  opacity: 0.9 !important;
+}
