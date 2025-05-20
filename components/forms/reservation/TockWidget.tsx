@@ -19,14 +19,25 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
-        /* Force widget to mobile layout (stacked) */
-        #Tock_widget_container {
-          max-width: 360px !important; /* critical width forcing mobile */
+        /* Force Tock search bar to vertical stacking */
+        #Tock_widget_container .TockSearchBar-container {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          max-width: 360px !important;
           margin: 0 auto !important;
-          overflow: auto !important;
         }
 
-        /* Custom Button Styling */
+        /* Ensure each dropdown fills the container width */
+        #Tock_widget_container .InlineWidgetDropDown-section,
+        #Tock_widget_container .TockDropdown-container,
+        #Tock_widget_container .InlineWidget-dropdownContainer,
+        #Tock_widget_container .TockInlineButton {
+          width: 100% !important;
+          margin-bottom: 8px !important;
+        }
+
+        /* Custom Button Styling (already working!) */
         #Tock_widget_container .TockInlineButton-container {
           background-color: var(--olivea-olive) !important;
           color: white !important;
@@ -36,13 +47,6 @@ export default function TockWidget() {
 
         #Tock_widget_container .TockInlineButton-container:hover {
           opacity: 0.9 !important;
-        }
-
-        /* Additional mobile-responsive fixes */
-        @media (max-width: 768px) {
-          #Tock_widget_container {
-            max-width: 100% !important;
-          }
         }
       `}</style>
 
