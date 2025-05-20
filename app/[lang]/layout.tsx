@@ -4,12 +4,9 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale } from "@/lib/i18n";
 import StructuredData from "@/components/seo/StructuredData";
 import LayoutShell from "@/components/layout/LayoutShell";
-
-// Providers
 import { ReservationProvider } from "@/contexts/ReservationContext";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
 import ClientProviders from "@/components/providers/ClientProviders";
-// Modal + transitions
 import ReservationModal from "@/components/forms/reservation/ReservationModal";
 import { SharedTransitionProvider } from "@/contexts/SharedTransitionContext";
 import SharedVideoTransition from "@/components/ui/SharedVideoTransition";
@@ -24,21 +21,21 @@ export async function generateMetadata({ params }: { params: { lang: "es" | "en"
   return {
     title: { template: "%s | Olivea", default: "Olivea" },
     description: dict.metadata?.description,
-    metadataBase: new URL("https://olivea.com"),
+    metadataBase: new URL("https://oliveafarmtotable.com"),
     openGraph: {
       title: "Olivea Farm To Table",
       description: dict.metadata?.description,
       images: [`/images/og-${lang}.jpg`],
-      url: `https://olivea.com/${lang}`,
+      url: `https://oliveafarmtotable.com/${lang}`,
       type: "website",
       locale: lang,
-      siteName: "Olivea",
+      siteName: "Familia Olivea",
     },
     alternates: {
-      canonical: `https://olivea.com/${lang}`,
+      canonical: `https://oliveafarmtotable.com/${lang}`,
       languages: {
-        en: `https://olivea.com/en`,
-        es: `https://olivea.com/es`,
+        en: `https://oliveafarmtotable.com/en`,
+        es: `https://oliveafarmtotable.com/es`,
       },
     },
   };
@@ -63,9 +60,7 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
           <ScrollProvider>
             <ClientProviders>
               <LayoutShell lang={lang} dictionary={dict}>
-                {/* Mount ReservationModal uniquely here */}
                 <ReservationModal lang={lang} />
-
                 {children}
               </LayoutShell>
             </ClientProviders>

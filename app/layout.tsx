@@ -9,7 +9,7 @@ const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], di
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Grupo Olivea",
+  title: "Familia Olivea",
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-icon.png',
@@ -17,13 +17,13 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   appleWebApp: {
-    title: "Grupo Olivea",
+    title: "Familia Olivea",
   },
   other: {
-    'preload': [
-      { url: '/videos/homepage-temp.mp4', as: 'video', type: 'video/mp4' },
-      { url: '/assets/alebrije-1.svg', as: 'image', type: 'image/svg+xml' },
-    ],
+    preload: [
+      '<link rel="preload" href="/videos/homepage-temp.mp4" as="video" type="video/mp4" />',
+      '<link rel="preload" href="/assets/alebrije-1.svg" as="image" type="image/svg+xml" />'
+    ]
   }
 };
 
