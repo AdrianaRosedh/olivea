@@ -100,33 +100,43 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               </div>
 
               {/* Tabs */}
-              <div className="flex bg-[var(--olivea-cream)] flex-shrink-0 pointer-events-auto">
-                {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => (
+              <div
+                className="
+                  flex 
+                  bg-[var(--olivea-cream)] 
+                  flex-shrink-0 
+                  pointer-events-auto 
+
+                  /* mobile only: small horizontal padding */
+                  px-4 
+                  md:px-0
+                "
+              >
+                {(["restaurant","hotel","cafe"] as ReservationType[]).map( id => (
                   <button
                     key={id}
                     onClick={() => setReservationType(id)}
                     className={`
                       relative flex-1 py-3 text-center uppercase tracking-[0.15em] transition-colors
-                      ${
-                        reservationType === id
-                          ? "text-[var(--olivea-olive)] font-semibold"
-                          : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
+                      ${reservationType===id
+                        ? "text-[var(--olivea-olive)] font-semibold"
+                        : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
                       }
                     `}
-                    style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 16 : 18, fontWeight: 400 }}
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontSize: isMobile ? 16 : 18,
+                      fontWeight: 400,
+                    }}
                   >
-                    {id === "restaurant"
-                      ? lang === "es"
-                        ? "Restaurante"
-                        : "Restaurant"
-                      : id === "hotel"
-                      ? "Hotel"
-                      : lang === "es"
-                      ? "Café"
-                      : "Cafe"}
+                    { id==="restaurant"
+                        ? lang==="es" ? "Restaurante" : "Restaurant"
+                        : id==="hotel"
+                          ? "Hotel"
+                          : lang==="es" ? "Café" : "Cafe"
+                    }
 
-                    {/* Active underline indicator */}
-                    {reservationType === id && (
+                    {reservationType===id && (
                       <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[var(--olivea-olive)]" />
                     )}
                   </button>
