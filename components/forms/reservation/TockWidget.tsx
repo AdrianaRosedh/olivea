@@ -42,7 +42,7 @@ export default function TockWidget() {
 
 
       <div className="flex-1 flex justify-center items-start p-6">
-        <div className="p-6 bg-white rounded-xl w-full max-w-none overflow-auto">
+        <div className="p-6 bg-white rounded-xl w-full max-w-none ">
           <div
             id="Tock_widget_container"
             data-tock-display-mode="Inline"
