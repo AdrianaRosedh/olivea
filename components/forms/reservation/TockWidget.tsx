@@ -19,70 +19,95 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
-        /* Ensuring vertical stacking & elegant styling */
+        /* make the outer container flex-col, full width */
         #Tock_widget_container {
-          width: 100% !important;
           display: flex !important;
-          justify-content: center;
+          justify-content: center !important;
+          width: 100% !important;
         }
-            
+
+        /* drop the icon bar (powered-by) below, not beside */
         .TockSearchBar-container {
+          display: flex !important;
           flex-direction: column !important;
           align-items: stretch !important;
-          gap: 12px !important;
           width: 100% !important;
-          max-width: 350px !important;
-          padding: 20px !important;
+          max-width: 500px !important;   /* or whatever your white panel's inner max is */
+          margin: 0 auto !important;
+          gap: 1rem !important;
           box-sizing: border-box !important;
+          padding: 2rem 1rem !important;
         }
-            
-        .InlineWidgetDropDown-section,
-        .TockDropdown-container,
-        .InlineWidget-dropdownContainer,
-        .TockInlineButton {
+
+        /* force each section to fill the column */
+        .TockSearchBar-container > .InlineWidgetDropDown-section,
+        .TockSearchBar-container > .TockDropdown-container,
+        .TockSearchBar-container > .InlineWidget-dropdownContainer,
+        .TockSearchBar-container > .TockInlineButton {
           width: 100% !important;
         }
-            
-        /* Rounded corners, uniform padding, and elegant shadows */
+
+        /* style each control wrapper */
         .InlineWidgetDropDown-sectionDropdown,
         .TockDatePicker-container,
+        .InlineWidget-dropdownContainer,
         .TockInlineButton-container {
-          width: 100% !important;
-          border-radius: 10px !important;
-          box-shadow: none !important;
+          border-radius: 0 !important;
+          overflow: visible !important;
+        }
+
+        /* carve nice corners on the very top control */
+        .InlineWidgetDropDown-sectionDropdown {
+          border-top-left-radius: 12px !important;
+          border-top-right-radius: 12px !important;
+        }
+
+        /* carve nice corners on the very bottom control (the button) */
+        .TockInlineButton-container {
+          border-bottom-left-radius: 12px !important;
+          border-bottom-right-radius: 12px !important;
+        }
+
+        /* give each intermediate control a consistent border */
+        .InlineWidgetDropDown-sectionDropdown,
+        .TockDatePicker-container,
+        .InlineWidget-dropdownContainer {
           border: 1px solid #e2e8f0 !important;
-          padding: 12px 15px !important;
+          padding: 0.75rem 1rem !important;
+          background: #fafafa !important;
         }
-            
-        /* Adjust labels and texts for elegance */
-        .MainLabelSpan, .MainLabelLabel {
-          font-family: 'Plus Jakarta Sans', sans-serif !important;
-          font-size: 16px !important;
+
+        /* text styling */
+        .MainLabelLabel,
+        .MainLabelSpan {
+          font-family: "Plus Jakarta Sans", sans-serif !important;
+          color: #374151 !important;
         }
-            
-        /* Custom Button Styling */
+
+        /* restyle the “Book now” button */
         .TockInlineButton-container {
           background-color: var(--olivea-olive) !important;
           color: white !important;
           font-weight: 600 !important;
+          padding: 1rem !important;
+          text-align: center !important;
           border: none !important;
+          box-shadow: none !important;
         }
-            
         .TockInlineButton-container:hover {
           opacity: 0.9 !important;
         }
-            
-        /* Hide unwanted backgrounds or borders from Tock's original horizontal layout */
-        .InlineWidgetDropDown-sectionDropdown,
-        .TockDatePicker-container {
-          background-color: #f8f8f8 !important;
+
+        /* hide the little clock icon next to the button row */
+        .TockSearchBar-tockIcon {
+          display: none !important;
         }
-            
-        /* MOBILE STYLES: Below 1024px, slightly smaller max-width */
-        @media (max-width: 1024px) {
+
+        /* mobile tweak: reduce padding on tablet and below */
+        @media (max-width: 768px) {
           .TockSearchBar-container {
-            max-width: 100% !important;
-            padding: 12px !important;
+            padding: 1rem !important;
+            gap: 0.75rem !important;
           }
         }
       `}</style>
