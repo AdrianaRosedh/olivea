@@ -45,31 +45,36 @@ export default function CafeClientPage({
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
+    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/cafe.mp4";
 
     const animateSequence = async () => {
-      if (fromHomePage && playbackTime && videoRef.current) {
+      if (fromHomePage && videoRef.current && playbackTime) {
+        // Set correct video dynamically
+        videoRef.current.src = targetVideo;
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
-        await new Promise((r) => setTimeout(r, 800));
 
-        await controlsVideo.start({
-          y: "-100vh",
-          transition: { duration: 1, ease: "easeInOut" },
-        });
-        await controlsContent.start({
-          y: 0,
-          transition: { duration: 1, ease: "easeInOut" },
-        });
+        // Wait briefly for shared overlay fade-out
+        await new Promise((res) => setTimeout(res, 800));
 
+        // Animate video out and content in
+        await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
+        await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
+
+        // Cleanup
         sessionStorage.removeItem("fromHomePage");
         sessionStorage.removeItem("fromHomePageTime");
+        sessionStorage.removeItem("targetVideo");
       } else {
+        // Direct load (no transition), skip animations
         await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
         await controlsContent.start({ y: 0, transition: { duration: 0 } });
-      }      
+      }
     };
+
     animateSequence();
   }, [controlsVideo, controlsContent]);
+
 
   return (
     <>

@@ -6,7 +6,16 @@ import { useEffect, useRef } from "react";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 
 export default function SharedVideoTransition() {
-  const { videoSrc, videoPlaybackTime, active, targetHref, initialBounds, clearTransition } = useSharedTransition();
+  const {
+    videoSrc, // ✅ correct spelling
+    videoPlaybackTime,
+    active,
+    targetHref,
+    initialBounds,
+    clearTransition,
+    targetVideo,
+  } = useSharedTransition();
+
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoControls = useAnimation();
@@ -43,9 +52,8 @@ export default function SharedVideoTransition() {
           transition: { duration: 0.8, ease: "easeInOut" },
         });
 
-        // ✅ Preload the destination page before routing
         router.prefetch(targetHref);
-        router.push(targetHref);  // route after overlay animates:contentReference[oaicite:0]{index=0}
+        router.push(targetHref);
 
         setTimeout(clearTransition, 800);
       })();
@@ -64,7 +72,7 @@ export default function SharedVideoTransition() {
       >
         <video
           ref={videoRef}
-          src={videoSrc || ""}
+          src={targetVideo || videoSrc || ""}  
           muted
           autoPlay
           playsInline

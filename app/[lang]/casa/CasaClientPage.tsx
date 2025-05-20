@@ -37,30 +37,40 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // “Clicked from homepage” video transition
+  // MATCH Café LOGIC EXACTLY
   useEffect(() => {
-    const fromHomePage = sessionStorage.getItem("fromHomePage");
-    const playbackTime = sessionStorage.getItem("fromHomePageTime");
-  
+    const fromHomePage   = sessionStorage.getItem("fromHomePage");
+    const playbackTime   = sessionStorage.getItem("fromHomePageTime");
+    // note uppercase 'C' to match your file name: Casa.mp4
+    const targetVideo    = sessionStorage.getItem("targetVideo") || "/videos/Casa.mp4";
+
     const animateSequence = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
+        // 1) set and sync the video
+        videoRef.current.src = targetVideo;
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
-        await new Promise((r) => setTimeout(r, 800));
+
+        // 2) wait for the overlay to fade
+        await new Promise(res => setTimeout(res, 800));
+
+        // 3) slide the video up and content in
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
-        await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
-  
+        await controlsContent.start({ y: 0,       transition: { duration: 1, ease: "easeInOut" } });
+
+        // 4) cleanup
         sessionStorage.removeItem("fromHomePage");
         sessionStorage.removeItem("fromHomePageTime");
+        sessionStorage.removeItem("targetVideo");
       } else {
+        // direct load: skip animation
         await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
-        await controlsContent.start({ y: 0, transition: { duration: 0 } });
-      }      
+        await controlsContent.start({ y: 0,       transition: { duration: 0 } });
+      }
     };
-  
+
     animateSequence();
   }, [controlsVideo, controlsContent]);
-  
 
   return (
     <>
@@ -72,22 +82,25 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
       >
         <video
           ref={videoRef}
-          src="/videos/homepage-temp.mp4"
-          autoPlay muted loop playsInline
-          className={`object-cover ${isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"}`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className={`object-cover ${
+            isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"
+          }`}
         />
       </motion.div>
 
       {/* Page content */}
       <motion.div initial={{ y: "100vh" }} animate={controlsContent} className="relative">
         {SECTION_IDS.map((id) => {
-          const raw     = dict.casa.sections[id as SectionId];
-          const section = raw as SectionData;
+          const section = dict.casa.sections[id as SectionId] as SectionData;
 
-          // fallback image
-          const images = section.images && section.images.length
-            ? section.images
-            : [{ src: "/images/hero.jpg", alt: section.title }];
+          const images =
+            section.images && section.images.length
+              ? section.images
+              : [{ src: "/images/hero.jpg", alt: section.title }];
 
           return (
             <section
@@ -101,22 +114,20 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
                 <TypographyP className="mt-2">{section.description}</TypographyP>
               </div>
 
-              {/* image grid */}
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                 {images.map((img, idx) => (
                   <div key={idx} className="bg-white shadow rounded overflow-hidden">
                     <Image
                       src={img.src}
-                      alt={img.alt || ""}
-                      width={800}       // or whatever max layout width
-                      height={480}      // adjust to match your desired aspect
+                      alt={img.alt ?? ""}
+                      width={800}
+                      height={480}
                       className="object-cover w-full h-48"
                     />
                   </div>
                 ))}
               </div>
 
-              {/* subsections */}
               {section.subsections &&
                 Object.entries(section.subsections).map(([subId, sub]) => (
                   <section
@@ -125,16 +136,17 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
                     className="subsection min-h-screen flex flex-col items-start justify-center px-6"
                     aria-labelledby={`${subId}-heading`}
                   >
-                    <h4 id={`${subId}-heading`} className="text-2xl font-semibold mb-2">{sub.title}</h4>
+                    <h4 id={`${subId}-heading`} className="text-2xl font-semibold mb-2">
+                      {sub.title}
+                    </h4>
                     <TypographyP>{sub.description}</TypographyP>
-                    {/* subsection image */}
                     <div className="mt-4 bg-white shadow rounded overflow-hidden w-full sm:w-1/2 lg:w-1/3">
-                       <Image
-                         src="/images/hero.jpg"
-                         alt={sub.title}
-                         width={800}
-                         height={480}
-                         className="object-cover w-full h-48"
+                      <Image
+                        src="/images/hero.jpg"
+                        alt={sub.title}
+                        width={800}
+                        height={480}
+                        className="object-cover w-full h-48"
                       />
                     </div>
                   </section>

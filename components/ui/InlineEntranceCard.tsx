@@ -21,7 +21,7 @@ export default function InlineEntranceCard({
   title,
   href,
   description = "Ut lorem purus nam feugiat malesuada quis libero cursus.",
-  videoSrc = "/videos/homepage-temp.mp4",
+  videoSrc,
   Logo,
   className = "",
   onActivate = () => {},
@@ -29,6 +29,9 @@ export default function InlineEntranceCard({
 }: InlineEntranceCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { startTransition } = useSharedTransition();
+
+  const slug = href.split("/").pop() || "";
+  const targetVideo = slug ? `/videos/${slug}.mp4` : (videoSrc || "");
 
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -106,28 +109,29 @@ export default function InlineEntranceCard({
   }, [isHovered, isOpened, isMobile]);
 
   const handleClick = async (e: MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  
-    const playbackTime = videoRef.current?.currentTime || 0;
-    const bounds = videoRef.current?.getBoundingClientRect();
-  
-    if (!bounds) return; // safety check
-  
-    onActivate?.();
-    const slug = href.split("/").pop() || "";                          
-    const targetVideo = slug ? `/videos/${slug}.mp4` : videoSrc;       
-    sessionStorage.setItem("fromHomePage", "true");
-    sessionStorage.setItem("fromHomePageTime", String(playbackTime));
-    sessionStorage.setItem("targetVideo", targetVideo);   
-  
-    if (isMobile) {
-      await new Promise((res) => setTimeout(res, 800)); 
-      setIsOpened(true);
-    } else {
-      startTransition(videoSrc, playbackTime, href, bounds, targetVideo); 
-    }
-  };
+  e.preventDefault();
+  e.stopPropagation();
+
+  const playbackTime = videoRef.current?.currentTime || 0;
+  const bounds = videoRef.current?.getBoundingClientRect();
+
+  if (!bounds) return;
+
+  onActivate?.();
+
+  sessionStorage.setItem("fromHomePage", "true");
+  sessionStorage.setItem("fromHomePageTime", String(playbackTime));
+  sessionStorage.setItem("targetVideo", targetVideo);
+
+  if (isMobile) {
+    await new Promise((res) => setTimeout(res, 800));
+    setIsOpened(true);
+  } else {
+    startTransition(videoSrc || "", playbackTime, href, bounds, targetVideo);
+  }
+};
+
+
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (isMobile) return;
@@ -181,13 +185,12 @@ export default function InlineEntranceCard({
                 const playbackTime = videoRef.current?.currentTime || 0;
                 const bounds = videoRef.current?.getBoundingClientRect();
                 if (!bounds) return;
-                const slug = href.split("/").pop() || "";                
-                const targetVideo = slug ? `/videos/${slug}.mp4` : videoSrc; 
-                startTransition(videoSrc, playbackTime, href, bounds, targetVideo);
+                startTransition(videoSrc || "", playbackTime, href, bounds, targetVideo);
                 setIsOpened(false);
-              }, 200); // ✅ wait extra 0.2s for smoother transition
+              }, 200);
             }
-          }}          
+          }}
+         
           onMouseMove={handleMouseMove}
           style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}
         >
@@ -202,7 +205,7 @@ export default function InlineEntranceCard({
             >
               <video
                 ref={videoRef}
-                src={videoSrc}
+                src={targetVideo || videoSrc || ""}
                 muted
                 loop
                 playsInline
