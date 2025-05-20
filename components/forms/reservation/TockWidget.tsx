@@ -19,55 +19,59 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
-        /* 1) make the overall Tock container a vertical flexbox */
-        #Tock_widget_container {
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: stretch !important;
-          width: 100% !important;
-          max-width: 500px !important;
-          margin: 0 auto !important;
-        }
-            
-        /* 2) target only the immediate TockSearchBar sections */
-        #Tock_widget_container .TockSearchBar-container {
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: stretch !important;
-          gap: 1rem !important;
-          padding: 2rem 1rem !important;
-        }
-            
-        /* 3) make each direct child flex:1 so they all grow equally */
-        #Tock_widget_container .TockSearchBar-container > * {
-          flex: 1 1 auto !important;
-          width: 100% !important;
-          box-sizing: border-box !important;
-        }
-            
-        /* 4) style only the outermost card’s corners */
-        #Tock_widget_container > .TockSearchBar-container {
-          background: transparent !important;
-        }
-        /* Let Tock keep its own inner corners—so we remove our previous radius hacks */
-            
-        /* 5) button styling stays the same */
-        #Tock_widget_container button.TockInlineButton-container {
-          background-color: var(--olivea-olive) !important;
-          color: white !important;
-          border-radius: 8px !important;
-          font-weight: 600 !important;
-          padding: 1rem !important;
-        }
-        #Tock_widget_container button.TockInlineButton-container:hover {
-          opacity: 0.9 !important;
-        }
-            
-        /* 6) hide “Powered by Tock” icon */
-        #Tock_widget_container .TockSearchBar-tockIcon {
-          display: none !important;
-        }
-      `}</style>
+  /* 1) Turn the root widget into a vertical stack and center it */
+  #Tock_widget_container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 600px !important;  /* desktop cap */
+    margin: 0 auto !important;
+  }
+
+  /* 2) Target the search‐bar wrapper that actually holds the three drop-downs + book button */
+  #Tock_widget_container .TockSearchBar-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    padding: 2rem !important;
+    background: transparent !important;
+  }
+
+  /* 3) Stretch each of the three selector panels to full width and round their corners */
+  #Tock_widget_container .TockSearchBar-container > .InlineWidgetDropDown-section,
+  #Tock_widget_container .TockSearchBar-container > .TockDropdown-container,
+  #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  #Tock_widget_container .TockSearchBar-container > .InlineWidgetDropDown-section button,
+  #Tock_widget_container .TockSearchBar-container > .TockDropdown-container button,
+  #Tock_widget_container .TockSearchBar-container > .InlineWidget-dropdownContainer button {
+    width: 100% !important;
+    border-radius: 8px !important;
+  }
+
+  /* 4) Style the “Book now” button green + white text */
+  #Tock_widget_container .TockInlineButton-container {
+    background-color: var(--olivea-olive) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 1rem 0 !important;
+    text-align: center !important;
+  }
+  /* book-now label */
+  #Tock_widget_container .TockInlineButton-container .MainLabelSpan {
+    color: #fff !important;
+  }
+
+  /* 5) Hide the “Powered by Tock” link in the corner */
+  #Tock_widget_container .TockSearchBar-tockIcon {
+    display: none !important;
+  }
+`}</style>
+
 
 
 
