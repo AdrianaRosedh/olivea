@@ -243,7 +243,9 @@ export default function InlineEntranceCard({
                   fontWeight: isMobile ? 600 : 300,
                   marginTop: !isMobile && isHovered ? 40 : 5,
                   transition: "margin-top 0.5s ease",
+                  fontStyle: "normal"  
                 }}
+                className="not-italic"
               >
                 {title}
               </h3>
