@@ -19,98 +19,56 @@ export default function TockWidget() {
   return (
     <>
       <style jsx global>{`
-        /* make the outer container flex-col, full width */
+        /* 1) make the overall Tock container a vertical flexbox */
         #Tock_widget_container {
-          display: flex !important;
-          justify-content: center !important;
-          width: 100% !important;
-        }
-
-        /* drop the icon bar (powered-by) below, not beside */
-        .TockSearchBar-container {
           display: flex !important;
           flex-direction: column !important;
           align-items: stretch !important;
           width: 100% !important;
-          max-width: 500px !important;   /* or whatever your white panel's inner max is */
+          max-width: 500px !important;
           margin: 0 auto !important;
+        }
+            
+        /* 2) target only the immediate TockSearchBar sections */
+        #Tock_widget_container .TockSearchBar-container {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
           gap: 1rem !important;
-          box-sizing: border-box !important;
           padding: 2rem 1rem !important;
         }
-
-        /* force each section to fill the column */
-        .TockSearchBar-container > .InlineWidgetDropDown-section,
-        .TockSearchBar-container > .TockDropdown-container,
-        .TockSearchBar-container > .InlineWidget-dropdownContainer,
-        .TockSearchBar-container > .TockInlineButton {
+            
+        /* 3) make each direct child flex:1 so they all grow equally */
+        #Tock_widget_container .TockSearchBar-container > * {
+          flex: 1 1 auto !important;
           width: 100% !important;
+          box-sizing: border-box !important;
         }
-
-        /* style each control wrapper */
-        .InlineWidgetDropDown-sectionDropdown,
-        .TockDatePicker-container,
-        .InlineWidget-dropdownContainer,
-        .TockInlineButton-container {
-          border-radius: 0 !important;
-          overflow: visible !important;
+            
+        /* 4) style only the outermost card’s corners */
+        #Tock_widget_container > .TockSearchBar-container {
+          background: transparent !important;
         }
-
-        /* carve nice corners on the very top control */
-        .InlineWidgetDropDown-sectionDropdown {
-          border-top-left-radius: 12px !important;
-          border-top-right-radius: 12px !important;
-        }
-
-        /* carve nice corners on the very bottom control (the button) */
-        .TockInlineButton-container {
-          border-bottom-left-radius: 12px !important;
-          border-bottom-right-radius: 12px !important;
-        }
-
-        /* give each intermediate control a consistent border */
-        .InlineWidgetDropDown-sectionDropdown,
-        .TockDatePicker-container,
-        .InlineWidget-dropdownContainer {
-          border: 1px solid #e2e8f0 !important;
-          padding: 0.75rem 1rem !important;
-          background: #fafafa !important;
-        }
-
-        /* text styling */
-        .MainLabelLabel,
-        .MainLabelSpan {
-          font-family: "Plus Jakarta Sans", sans-serif !important;
-          color: #374151 !important;
-        }
-
-        /* restyle the “Book now” button */
-        .TockInlineButton-container {
+        /* Let Tock keep its own inner corners—so we remove our previous radius hacks */
+            
+        /* 5) button styling stays the same */
+        #Tock_widget_container button.TockInlineButton-container {
           background-color: var(--olivea-olive) !important;
           color: white !important;
+          border-radius: 8px !important;
           font-weight: 600 !important;
           padding: 1rem !important;
-          text-align: center !important;
-          border: none !important;
-          box-shadow: none !important;
         }
-        .TockInlineButton-container:hover {
+        #Tock_widget_container button.TockInlineButton-container:hover {
           opacity: 0.9 !important;
         }
-
-        /* hide the little clock icon next to the button row */
-        .TockSearchBar-tockIcon {
+            
+        /* 6) hide “Powered by Tock” icon */
+        #Tock_widget_container .TockSearchBar-tockIcon {
           display: none !important;
         }
-
-        /* mobile tweak: reduce padding on tablet and below */
-        @media (max-width: 768px) {
-          .TockSearchBar-container {
-            padding: 1rem !important;
-            gap: 0.75rem !important;
-          }
-        }
       `}</style>
+
 
 
       <div className="flex-1 flex justify-center items-start p-6">
