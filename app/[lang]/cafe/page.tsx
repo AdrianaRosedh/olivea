@@ -22,7 +22,7 @@ export async function generateMetadata({
         url: "/images/cafe.png",
         width: 1200,
         height: 630,
-        alt: "Café",
+        alt: "Olivea Café",
       }],
       locale: lang,
       type: "website",
