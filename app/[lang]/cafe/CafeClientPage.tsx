@@ -1,39 +1,41 @@
+// app/[lang]/cafe/CafeClientPage.tsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
 import type { AppDictionary } from "@/app/[lang]/dictionaries";
-import { TypographyH2, TypographyP } from "@/components/ui/Typography";
+import { TypographyH2, TypographyH3, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 import { motion, useAnimation } from "framer-motion";
+import Image from "next/image";
 
-export interface MenuItem {
-  id: number;
-  name: string;
-  price: number;
-  available: boolean;
-  category?: string;
+interface SectionData {
+  title: string;
+  description: string;
+  images?: { src: string; alt?: string }[];
+  subsections?: Record<string, { title: string; description: string }>;
 }
 
 interface CafeClientPageProps {
   dict: AppDictionary;
-  itemsByCategory: Record<string, MenuItem[]>;
 }
 
-export default function CafeClientPage({
-  dict,
-  itemsByCategory,
-}: CafeClientPageProps) {
-  const controlsVideo = useAnimation();
+// 1️⃣ Define the exact JSON order here
+const CAFÉ_SECTION_ORDER = [
+  "all_day",    // 01 Experiences
+  "padel",      // 02 Padel
+  "menu",       // 03 Garden-Inspired
+  "community",  // 04 Community
+  "ambience",   // 05 Atmosphere
+] as const;
+
+export default function CafeClientPage({ dict }: CafeClientPageProps) {
+  const controlsVideo   = useAnimation();
   const controlsContent = useAnimation();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const videoRef        = useRef<HTMLVideoElement>(null);
+  const [isMobile, setIsMobile]         = useState(false);
+  const [transitionDone, setTransitionDone] = useState(false);
 
-  const staticIds = Object.keys(dict.cafe.sections) as Array<
-    keyof typeof dict.cafe.sections
-  >;
-  const dynamicIds = Object.keys(itemsByCategory);
-  const sectionIds = [...staticIds, ...dynamicIds];
-
+  // Mobile detection
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
@@ -41,51 +43,64 @@ export default function CafeClientPage({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // MATCH CASA LOGIC EXACTLY
+  // Shared-element transition logic
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
-    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/cafe.mp4";
+    const targetVideo  = sessionStorage.getItem("targetVideo") || "/videos/cafe.mp4";
 
-    const animateSequence = async () => {
+    const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        // Set correct video dynamically
-        videoRef.current.src = targetVideo;
+        videoRef.current.src         = targetVideo;
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
+        // wait for the card-grow animation
+        await new Promise((r) => setTimeout(r, 1_300));
 
-        // Wait briefly for shared overlay fade-out
-        await new Promise((res) => setTimeout(res, 800));
-
-        // Animate video out and content in
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
-        await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
-
-        // Cleanup
-        sessionStorage.removeItem("fromHomePage");
-        sessionStorage.removeItem("fromHomePageTime");
-        sessionStorage.removeItem("targetVideo");
+        await controlsContent.start({ y: 0,        transition: { duration: 1, ease: "easeInOut" } });
       } else {
-        // Direct load (no transition), skip animations
+        // no transition
         await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
-        await controlsContent.start({ y: 0, transition: { duration: 0 } });
+        await controlsContent.start({ y: 0,        transition: { duration: 0 } });
       }
+
+      sessionStorage.removeItem("fromHomePage");
+      sessionStorage.removeItem("fromHomePageTime");
+      sessionStorage.removeItem("targetVideo");
+      setTransitionDone(true);
     };
 
-    animateSequence();
+    run();
   }, [controlsVideo, controlsContent]);
 
+  // Don't show anything until transition finishes
+  if (!transitionDone) return null;
+
+  // 2️⃣ Build an ordered list of section keys from your dict, in the exact JSON order:
+  const sectionKeys = CAFÉ_SECTION_ORDER.filter((key) =>
+    key in dict.cafe.sections
+  ) as Array<keyof typeof dict.cafe.sections>;
+
+  // 3️⃣ Flatten out into [ section, ...subsections ] for the mobile tracker
+  const sectionIds = sectionKeys.flatMap((key) => [
+    key,
+    ...(dict.cafe.sections[key].subsections
+      ? Object.keys(dict.cafe.sections[key].subsections!)
+      : []),
+  ]);
 
   return (
     <>
+      {/* Video overlay */}
       <motion.div
         initial={{ y: 0 }}
         animate={controlsVideo}
-        className="fixed inset-0 flex justify-center overflow-hidden z-[1000]"
+        className="fixed inset-0 flex justify-center overflow-hidden pointer-events-none z-[1000]"
+        style={{ zIndex: transitionDone ? -1 : 1000 }}
       >
         <video
           ref={videoRef}
-          src="/videos/cafe.mp4"
           autoPlay
           muted
           loop
@@ -96,57 +111,64 @@ export default function CafeClientPage({
         />
       </motion.div>
 
+      {/* Page content */}
       <motion.div
         initial={{ y: "100vh" }}
         animate={controlsContent}
         className="relative"
       >
-        {sectionIds.map((id) => {
-          if (id in dict.cafe.sections) {
-            const { title, description } =
-              dict.cafe.sections[id as keyof typeof dict.cafe.sections];
-            return (
-              <section
-                key={id}
-                id={id}
-                className="min-h-screen snap-start flex items-center justify-center px-6"
-                aria-labelledby={`${id}-heading`}
-              >
-                <div id={`${id}-heading`} className="max-w-2xl text-center">
-                  <TypographyH2>{title}</TypographyH2>
-                  <TypographyP className="mt-2">{description}</TypographyP>
-                </div>
-              </section>
-            );
-          }
+        {sectionKeys.map((key) => {
+          const sec    = dict.cafe.sections[key] as SectionData;
+          const images = sec.images?.length
+            ? sec.images
+            : [{ src: "/images/hero.jpg", alt: sec.title }];
 
-          const items = itemsByCategory[id]!;
           return (
             <section
-              key={id}
-              id={id}
-              className="min-h-screen snap-start flex items-center justify-center px-6"
-              aria-labelledby={`${id}-heading`}
+              key={key}
+              id={key}
+              className="main-section min-h-screen flex flex-col items-center justify-center px-6"
             >
-              <div id={`${id}-heading`} className="max-w-2xl text-center">
-                <TypographyH2>{id}</TypographyH2>
-                <div className="mt-4 space-y-3 text-left">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between border-b py-2"
-                    >
-                      <span>{item.name}</span>
-                      <span>${item.price.toFixed(2)}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="max-w-2xl text-center">
+                <TypographyH2>{sec.title}</TypographyH2>
+                <TypographyP className="mt-2">{sec.description}</TypographyP>
               </div>
+
+              {/* Optional image grid */}
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                {images.map((img, idx) => (
+                  <div key={idx} className="bg-white shadow rounded overflow-hidden">
+                    <Image
+                      src={img.src}
+                      alt={img.alt || ""}
+                      width={800}
+                      height={480}
+                      className="object-cover w-full h-48"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Sub-sections */}
+              {sec.subsections &&
+                Object.entries(sec.subsections).map(([subId, sub]) => (
+                  <section
+                    key={subId}
+                    id={subId}
+                    className="subsection min-h-screen flex flex-col items-center justify-center px-6"
+                  >
+                    <div className="max-w-2xl text-center">
+                      <TypographyH3>{sub.title}</TypographyH3>
+                      <TypographyP className="mt-2">{sub.description}</TypographyP>
+                    </div>
+                  </section>
+                ))}
             </section>
           );
         })}
       </motion.div>
 
+      {/* Mobile snap-tracker */}
       <MobileSectionTracker sectionIds={sectionIds} />
     </>
   );

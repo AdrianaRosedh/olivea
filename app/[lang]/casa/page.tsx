@@ -30,10 +30,10 @@ export async function generateMetadata({
       type:   "website",
     },
     alternates: {
-      canonical: `https://olivea.com/${lang}/casa`,
+      canonical: `https://oliveafarmtotable.com/${lang}/casa`,
       languages: {
-        en: `https://olivea.com/en/casa`,
-        es: `https://olivea.com/es/casa`,
+        en: `https://oliveafarmtotable.com/en/casa`,
+        es: `https://oliveafarmtotable.com/es/casa`,
       },
     },
   };

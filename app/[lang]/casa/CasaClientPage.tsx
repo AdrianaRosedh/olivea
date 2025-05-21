@@ -1,16 +1,16 @@
 // app/[lang]/casa/CasaClientPage.tsx
-
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { AppDictionary } from "../dictionaries";
+import type { AppDictionary } from "@/app/[lang]/dictionaries";
 import Image from "next/image";
-import { TypographyH2, TypographyP } from "@/components/ui/Typography";
+import {
+  TypographyH2,
+  TypographyH3,
+  TypographyP,
+} from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 import { motion, useAnimation } from "framer-motion";
-
-const SECTION_IDS = ["rooms", "mornings", "experiences", "ambience"] as const;
-type SectionId = typeof SECTION_IDS[number];
 
 interface SectionData {
   title: string;
@@ -23,13 +23,23 @@ interface CasaClientPageProps {
   dict: AppDictionary;
 }
 
+// 1️⃣ EXACT order of your JSON keys under `casa.sections`
+const SECTION_ORDER = [
+  "rooms",
+  "mornings",
+  "experiences",
+  "ambience",
+] as const;
+type SectionKey = typeof SECTION_ORDER[number];
+
 export default function CasaClientPage({ dict }: CasaClientPageProps) {
   const controlsVideo   = useAnimation();
   const controlsContent = useAnimation();
   const videoRef        = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile]           = useState(false);
+  const [transitionDone, setTransitionDone] = useState(false);
 
-  // Responsive check
+  // ── MOBILE DETECTION ──────────────────────────────────────────────────────────
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
@@ -37,40 +47,51 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // MATCH Café LOGIC EXACTLY
+  // ── SHARED‐ELEMENT TRANSITION ─────────────────────────────────────────────────
   useEffect(() => {
-    const fromHomePage   = sessionStorage.getItem("fromHomePage");
-    const playbackTime   = sessionStorage.getItem("fromHomePageTime");
-    // note uppercase 'C' to match your file name: Casa.mp4
-    const targetVideo    = sessionStorage.getItem("targetVideo") || "/videos/Casa.mp4";
+    const fromHomePage = sessionStorage.getItem("fromHomePage");
+    const playbackTime = sessionStorage.getItem("fromHomePageTime");
+    const targetVideo  = sessionStorage.getItem("targetVideo") || "/videos/casa.mp4";
 
-    const animateSequence = async () => {
+    const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        // 1) set and sync the video
-        videoRef.current.src = targetVideo;
+        videoRef.current.src         = targetVideo;
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
+        // wait for the “card-grow” animation
+        await new Promise((r) => setTimeout(r, 1300));
 
-        // 2) wait for the overlay to fade
-        await new Promise(res => setTimeout(res, 800));
-
-        // 3) slide the video up and content in
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
-        await controlsContent.start({ y: 0,       transition: { duration: 1, ease: "easeInOut" } });
-
-        // 4) cleanup
-        sessionStorage.removeItem("fromHomePage");
-        sessionStorage.removeItem("fromHomePageTime");
-        sessionStorage.removeItem("targetVideo");
+        await controlsContent.start({ y: 0,        transition: { duration: 1, ease: "easeInOut" } });
       } else {
-        // direct load: skip animation
+        // skip immediately
         await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
-        await controlsContent.start({ y: 0,       transition: { duration: 0 } });
+        await controlsContent.start({ y: 0,        transition: { duration: 0 } });
       }
+
+      sessionStorage.removeItem("fromHomePage");
+      sessionStorage.removeItem("fromHomePageTime");
+      sessionStorage.removeItem("targetVideo");
+      setTransitionDone(true);
     };
 
-    animateSequence();
+    run();
   }, [controlsVideo, controlsContent]);
+
+  if (!transitionDone) return null;
+
+  // ── 2️⃣ keep only the keys that actually exist in your dict, in the JSON order
+  const sectionKeys = SECTION_ORDER.filter(
+    (key) => key in dict.casa.sections
+  ) as SectionKey[];
+
+  // ── 3️⃣ flatten into [ section, ...its subsections ] for scroll + mobile nav
+  const sectionIds = sectionKeys.flatMap((key) => [
+    key,
+    ...(dict.casa.sections[key].subsections
+      ? Object.keys(dict.casa.sections[key].subsections!)
+      : []),
+  ]);
 
   return (
     <>
@@ -78,7 +99,8 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
       <motion.div
         initial={{ y: 0 }}
         animate={controlsVideo}
-        className="fixed inset-0 flex justify-center overflow-hidden z-[1000]"
+        className="fixed inset-0 flex justify-center overflow-hidden pointer-events-none z-[1000]"
+        style={{ zIndex: transitionDone ? -1 : 1000 }}
       >
         <video
           ref={videoRef}
@@ -92,26 +114,23 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
         />
       </motion.div>
 
-      {/* Page content */}
+      {/* Page Content */}
       <motion.div initial={{ y: "100vh" }} animate={controlsContent} className="relative">
-        {SECTION_IDS.map((id) => {
-          const section = dict.casa.sections[id as SectionId] as SectionData;
-
-          const images =
-            section.images && section.images.length
-              ? section.images
-              : [{ src: "/images/hero.jpg", alt: section.title }];
+        {sectionKeys.map((key) => {
+          const sec    = dict.casa.sections[key] as SectionData;
+          const images = sec.images?.length
+            ? sec.images
+            : [{ src: "/images/hero.jpg", alt: sec.title }];
 
           return (
             <section
-              key={id}
-              id={id}
+              key={key}
+              id={key}
               className="main-section min-h-screen flex flex-col items-center justify-center px-6"
-              aria-labelledby={`${id}-heading`}
             >
-              <div id={`${id}-heading`} className="max-w-2xl text-center">
-                <TypographyH2>{section.title}</TypographyH2>
-                <TypographyP className="mt-2">{section.description}</TypographyP>
+              <div className="max-w-2xl text-center">
+                <TypographyH2>{sec.title}</TypographyH2>
+                <TypographyP className="mt-2">{sec.description}</TypographyP>
               </div>
 
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
@@ -128,26 +147,16 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
                 ))}
               </div>
 
-              {section.subsections &&
-                Object.entries(section.subsections).map(([subId, sub]) => (
+              {sec.subsections &&
+                Object.entries(sec.subsections).map(([subId, sub]) => (
                   <section
                     key={subId}
                     id={subId}
-                    className="subsection min-h-screen flex flex-col items-start justify-center px-6"
-                    aria-labelledby={`${subId}-heading`}
+                    className="subsection min-h-screen flex flex-col items-center justify-center px-6"
                   >
-                    <h4 id={`${subId}-heading`} className="text-2xl font-semibold mb-2">
-                      {sub.title}
-                    </h4>
-                    <TypographyP>{sub.description}</TypographyP>
-                    <div className="mt-4 bg-white shadow rounded overflow-hidden w-full sm:w-1/2 lg:w-1/3">
-                      <Image
-                        src="/images/hero.jpg"
-                        alt={sub.title}
-                        width={800}
-                        height={480}
-                        className="object-cover w-full h-48"
-                      />
+                    <div className="max-w-2xl text-center">
+                      <TypographyH3>{sub.title}</TypographyH3>
+                      <TypographyP className="mt-2">{sub.description}</TypographyP>
                     </div>
                   </section>
                 ))}
@@ -156,8 +165,8 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
         })}
       </motion.div>
 
-      {/* Mobile nav */}
-      <MobileSectionTracker sectionIds={SECTION_IDS as readonly string[]} />
+      {/* Mobile snap‐tracker */}
+      <MobileSectionTracker sectionIds={sectionIds} />
     </>
   );
 }

@@ -166,7 +166,6 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
           <DockLeft
             dict={dictionary}
             identity={identity}
-            dynamicCafeCategories={isCafePage ? cafeCategories : []}
           />
           <DockRight items={dockRightItems} />
         </ClientOnly>

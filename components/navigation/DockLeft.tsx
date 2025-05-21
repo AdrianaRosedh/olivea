@@ -1,3 +1,4 @@
+// components/navigation/DockLeft.tsx
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -10,19 +11,24 @@ type Identity = "casa" | "cafe" | "restaurant";
 interface DockLeftProps {
   dict: AppDictionary;
   identity: Identity;
-  dynamicCafeCategories?: string[];
 }
 
-// Variants for subsections animation
+// exact 5-item order for Café
+const CAFE_SECTION_ORDER = [
+  "all_day",    // 01 Experiences
+  "padel",      // 02 Padel
+  "menu",       // 03 Garden-Inspired
+  "community",  // 04 Community
+  "ambience",   // 05 Atmosphere
+] as const;
+
 const subContainerVariants = {
   open: {
     opacity: 1,
     height: "auto",
     marginTop: 8,
     transition: {
-      delay: 0.2,
       when: "beforeChildren",
-      delayChildren: 0.1,
       staggerChildren: 0.05,
       ease: "easeInOut",
       duration: 0.3,
@@ -40,87 +46,84 @@ const subContainerVariants = {
   },
 };
 
-const handleSmoothScroll = (e: React.MouseEvent, id: string) => {
-  e.preventDefault();
-  const el = document.getElementById(id);
-  if (el) {
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.history.pushState(null, "", `#${id}`);
-  }
-};
-
 const subItemVariants = {
-  open: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+  open:      { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
   collapsed: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
 };
 
-export default function DockLeft({ dict, identity, dynamicCafeCategories = [] }: DockLeftProps) {
-  // pull in sections
+const handleSmoothScroll = (e: React.MouseEvent, id: string) => {
+  e.preventDefault();
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.history.pushState(null, "", `#${id}`);
+};
+
+export default function DockLeft({ dict, identity }: DockLeftProps) {
+  // pull in the raw sections block
   const sections = useMemo(
-    () => (dict[identity]?.sections ?? {}) as Record<
-      string,
-      { title: string; description: string; subsections?: Record<string, { title: string; description: string }> }
-    >,
+    () => dict[identity].sections as Record<string, { title: string; description: string; subsections?: Record<string, {title:string;description:string}> }>,
     [dict, identity]
   );
 
-  // top-level nav items
-  const items = useMemo(
-    () => Object.entries(sections).map(([id, sec], idx) => ({ id, label: sec.title, number: `0${idx + 1}` })),
-    [sections]
-  );
+  // decide top-level keys in the exact order
+  const keysInOrder = useMemo(() => {
+    if (identity === "cafe") {
+      return CAFE_SECTION_ORDER.filter((k) => k in sections);
+    }
+    return Object.keys(sections);
+  }, [identity, sections]);
 
-  // map subsections to parent section
+  // build main nav items
+  const items = keysInOrder.map((id, i) => ({
+    id,
+    label:  sections[id].title,
+    number: `0${i + 1}`,
+  }));
+
+  // map each subsection id → its parent section
   const subToParent = useMemo(() => {
-    const map: Record<string,string> = {};
-    for (const [pid, sec] of Object.entries(sections)) {
-      if (sec.subsections) {
-        for (const sid of Object.keys(sec.subsections)) {
-          map[sid] = pid;
-        }
-      }
-      if (identity === "cafe" && pid === "menu") {
-        for (const cat of dynamicCafeCategories) {
-          map[cat] = pid;
+    const m: Record<string, string> = {};
+    for (const pid of keysInOrder) {
+      const ss = sections[pid].subsections;
+      if (ss) {
+        for (const sid of Object.keys(ss)) {
+          m[sid] = pid;
         }
       }
     }
-    return map;
-  }, [sections, identity, dynamicCafeCategories]);
+    return m;
+  }, [keysInOrder, sections]);
 
-  const subIds = useMemo(() => Object.keys(subToParent), [subToParent]);
+  const subIds = Object.keys(subToParent);
 
-  // state
+  // scroll–spy state
   const [activeSection, setActiveSection] = useState(items[0]?.id || "");
   const [activeSub, setActiveSub] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  // scroll watcher
   const updateActive = useCallback(() => {
     const mid = window.innerHeight / 2;
-    // check subsections first
+
+    // subsections first
     for (const sid of subIds) {
       const el = document.querySelector<HTMLElement>(`.subsection#${sid}`);
-      if (el) {
-        const r = el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom >= mid) {
-          setActiveSub(sid);
-          setActiveSection(subToParent[sid]);
-          return;
-        }
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (r.top <= mid && r.bottom >= mid) {
+        setActiveSub(sid);
+        setActiveSection(subToParent[sid]);
+        return;
       }
     }
-    // no subsection -> clear
     setActiveSub(null);
-    // check main sections
+
+    // then main sections
     for (const { id } of items) {
       const el = document.querySelector<HTMLElement>(`.main-section#${id}`);
-      if (el) {
-        const r = el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom >= mid) {
-          setActiveSection(id);
-          return;
-        }
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (r.top <= mid && r.bottom >= mid) {
+        setActiveSection(id);
+        return;
       }
     }
   }, [items, subIds, subToParent]);
@@ -134,20 +137,14 @@ export default function DockLeft({ dict, identity, dynamicCafeCategories = [] }:
   return (
     <nav className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40">
       <div className="flex flex-col gap-6">
-        {items.map(item => {
-          const isActive = item.id === activeSection;
-          const isHovered = item.id === hoveredId;
+        {items.map((item) => {
+          const isActive   = item.id === activeSection;
+          const isHovered  = item.id === hoveredId;
           const isAnimated = isActive || isHovered;
-
-          // build subsections list
-          let subs = sections[item.id].subsections ?? {};
-          if (identity === "cafe" && item.id === "menu") {
-            subs = dynamicCafeCategories.reduce((a,cat) => ({...a,[cat]:{title:cat,description:""}}),{} as Record<string,{title:string;description:string}>);
-          }
+          const subs       = sections[item.id].subsections ?? {};
 
           return (
             <div key={item.id} className="flex flex-col">
-              {/* main link */}
               <a
                 href={`#${item.id}`}
                 onClick={(e) => handleSmoothScroll(e, item.id)}
@@ -161,40 +158,47 @@ export default function DockLeft({ dict, identity, dynamicCafeCategories = [] }:
                 )}
                 aria-current={isActive ? "location" : undefined}
               >
-                <span className="text-2xl tabular-nums font-extrabold w-10">{item.number}</span>
+                <span className="text-2xl tabular-nums font-extrabold w-10">
+                  {item.number}
+                </span>
                 <div className="relative h-8 overflow-hidden min-w-[200px]">
-                  <div className="relative">
-                    {/* outgoing */}
-                    <motion.div
-                      className="block text-2xl font-bold whitespace-nowrap"
-                      initial={false}
-                      animate={{
-                        y: isAnimated ? -28 : 0,
-                        opacity: isAnimated ? 0 : 1,
-                        filter: isAnimated ? "blur(1px)" : "blur(0px)",
-                      }}
-                      transition={{ y:{type:"spring",stiffness:200,damping:20},opacity:{duration:0.2},filter:{duration:0.2}}}
-                    >
-                      {item.label.toUpperCase()}
-                    </motion.div>
-                    {/* incoming */}
-                    <motion.div
-                      className="block text-2xl font-bold absolute top-0 left-0 whitespace-nowrap"
-                      initial={{ y:28, opacity:0, filter:"blur(1px)" }}
-                      animate={{
-                        y: isAnimated ? 0 : 28,
-                        opacity: isAnimated ? 1 : 0,
-                        filter: isAnimated ? "blur(0px)" : "blur(1px)",
-                      }}
-                      transition={{ y:{type:"spring",stiffness:200,damping:20},opacity:{duration:0.2},filter:{duration:0.2}}}
-                    >
-                      {item.label.toUpperCase()}
-                    </motion.div>
-                  </div>
+                  {/* outgoing */}
+                  <motion.div
+                    className="block text-2xl font-bold whitespace-nowrap"
+                    initial={false}
+                    animate={{
+                      y:       isAnimated ? -28 : 0,
+                      opacity: isAnimated ? 0 : 1,
+                      filter:  isAnimated ? "blur(1px)" : "blur(0px)",
+                    }}
+                    transition={{
+                      y:       { type: "spring", stiffness: 200, damping: 20 },
+                      opacity: { duration: 0.2 },
+                      filter:  { duration: 0.2 },
+                    }}
+                  >
+                    {item.label.toUpperCase()}
+                  </motion.div>
+                  {/* incoming */}
+                  <motion.div
+                    className="block text-2xl font-bold absolute top-0 left-0 whitespace-nowrap"
+                    initial={{ y: 28, opacity: 0, filter: "blur(1px)" }}
+                    animate={{
+                      y:       isAnimated ? 0 : 28,
+                      opacity: isAnimated ? 1 : 0,
+                      filter:  isAnimated ? "blur(0px)" : "blur(1px)",
+                    }}
+                    transition={{
+                      y:       { type: "spring", stiffness: 200, damping: 20 },
+                      opacity: { duration: 0.2 },
+                      filter:  { duration: 0.2 },
+                    }}
+                  >
+                    {item.label.toUpperCase()}
+                  </motion.div>
                 </div>
               </a>
 
-              {/* subsections */}
               <AnimatePresence initial={false}>
                 {isActive && Object.keys(subs).length > 0 && (
                   <motion.div
@@ -211,7 +215,7 @@ export default function DockLeft({ dict, identity, dynamicCafeCategories = [] }:
                         <motion.a
                           key={subId}
                           href={`#${subId}`}
-                          onClick={(e) => handleSmoothScroll(e, subId)} // ← add this line
+                          onClick={(e) => handleSmoothScroll(e, subId)}
                           variants={subItemVariants}
                           className={cn(
                             "block text-sm transition-colors",

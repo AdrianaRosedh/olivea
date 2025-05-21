@@ -1,42 +1,56 @@
 // app/[lang]/cafe/page.tsx
-import type { Lang } from "@/app/[lang]/dictionaries";
-import { getDictionary } from "@/app/[lang]/dictionaries";
+import type { Metadata, Viewport } from "next";
+import { loadLocale } from "@/lib/i18n";
 import CafeClientPage from "./CafeClientPage";
-import { supabase } from "@/lib/supabase";
 
-export default async function CafePage({ params }: { params: { lang: Lang } }) {
-  const dict = await getDictionary(params.lang);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const p = await params;
+  const { lang, dict } = await loadLocale(p);
 
-  const { data, error } = await supabase
-    .from("cafe_menu")
-    .select("id, name, price, available, category")
-    .order("category")
-    .order("name");
-
-  if (error) {
-    return (
-      <div className="p-8 text-red-700 bg-red-100">
-        {dict.cafe.error}: {error.message}
-      </div>
-    );
-  }
-
-  const available = (data ?? []).filter((i) => i.available);
-  if (available.length === 0) {
-    return (
-      <p className="p-8 text-center text-muted-foreground">
-        {params.lang === "es"
-          ? "No hay elementos de menú disponibles."
-          : "No menu items available yet."}
-      </p>
-    );
-  }
-
-  const itemsByCategory: Record<string, typeof available> = {};
-  for (const item of available) {
-    const cat = item.category ?? (params.lang === "es" ? "Otros" : "Others");
-    (itemsByCategory[cat] ||= []).push(item);
-  }
-
-  return <CafeClientPage dict={dict} itemsByCategory={itemsByCategory} />;
+  return {
+    title: `${dict.cafe.title}`,
+    description: dict.cafe.description,
+    metadataBase: new URL("https://oliveafarmtotable.com"),
+    openGraph: {
+      title: `${dict.cafe.title}`,
+      description: dict.cafe.description,
+      images: [{
+        url: "/images/cafe.png",
+        width: 1200,
+        height: 630,
+        alt: "Café",
+      }],
+      locale: lang,
+      type: "website",
+    },
+    alternates: {
+      canonical: `https://oliveafarmtotable.com/${lang}/cafe`,
+      languages: {
+        en: `https://oliveafarmtotable.com/en/cafe`,
+        es: `https://oliveafarmtotable.com/es/cafe`,
+      },
+    },
+  };
 }
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#65735b",
+};
+
+export default async function CafePage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const p = await params;
+  const { dict } = await loadLocale(p);
+
+  return <CafeClientPage dict={dict} />;
+} 

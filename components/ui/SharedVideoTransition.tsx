@@ -7,7 +7,7 @@ import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 
 export default function SharedVideoTransition() {
   const {
-    videoSrc, // ✅ correct spelling
+    videoSrc,
     videoPlaybackTime,
     active,
     targetHref,
@@ -15,7 +15,6 @@ export default function SharedVideoTransition() {
     clearTransition,
     targetVideo,
   } = useSharedTransition();
-
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoControls = useAnimation();
@@ -23,9 +22,10 @@ export default function SharedVideoTransition() {
   useEffect(() => {
     if (active && videoRef.current && initialBounds) {
       videoRef.current.currentTime = videoPlaybackTime;
-      videoRef.current.play();
+      videoRef.current.play().catch(() => {});
 
       (async () => {
+        // 📍 Start exactly over the card
         videoControls.set({
           top: initialBounds.top,
           left: initialBounds.left,
@@ -33,28 +33,30 @@ export default function SharedVideoTransition() {
           height: initialBounds.height,
           borderRadius: "1.5rem",
         });
-
         await new Promise(requestAnimationFrame);
 
-        const isMobileMain = window.innerWidth < 768;
-        const finalAnimation = isMobileMain
+        // 📈 Grow to full-screen (98% on desktop, 100% on mobile)
+        const isMobile = window.innerWidth < 768;
+        const finalAnim = isMobile
           ? { top: 0, left: 0, width: "100vw", height: "100vh", borderRadius: "0rem" }
           : {
               width: window.innerWidth * 0.98,
               height: window.innerHeight * 0.98,
-              top: (window.innerHeight - window.innerHeight * 0.98) / 2,
-              left: (window.innerWidth - window.innerWidth * 0.98) / 2,
+              top: (window.innerHeight * 0.01),
+              left: (window.innerWidth * 0.01),
               borderRadius: "1.5rem",
             };
 
-        await videoControls.start({
-          ...finalAnimation,
-          transition: { duration: 0.8, ease: "easeInOut" },
-        });
+        await videoControls.start({ ...finalAnim, transition: { duration: 0.8, ease: "easeInOut" } });
 
+        // ⏸ Pause so the user actually sees it full-screen
+        await new Promise(res => setTimeout(res, 500));
+
+        // 🚀 Now navigate
         router.prefetch(targetHref);
         router.push(targetHref);
 
+        // 🧹 Clear after navigation & fade-out
         setTimeout(clearTransition, 800);
       })();
     }
@@ -72,7 +74,7 @@ export default function SharedVideoTransition() {
       >
         <video
           ref={videoRef}
-          src={targetVideo || videoSrc || ""}  
+          src={targetVideo || videoSrc || ""}
           muted
           autoPlay
           playsInline

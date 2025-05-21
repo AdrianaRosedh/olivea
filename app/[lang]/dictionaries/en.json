@@ -4,145 +4,222 @@
     "description": "Our story, philosophy, and the people behind the vision."
   },
   "cafe": {
-    "title": "Olivea Café",
-    "description": "Our casual, garden-facing café.",
+    "title": "Café",
+    "description": "A cozy spot inspired by our garden, local flavors, and community connections.",
     "error": "Error loading menu:",
     "sections": {
       "all_day": {
-        "title": "All-Day Experience",
+        "title": "Experiences",
         "description": "Breakfast, specialty coffee, and evening wine & tapas.",
         "subsections": {
           "breakfast_coffee_pastries": {
             "title": "Breakfast & Pastries",
             "description": "Handcrafted coffee, fresh pastries (no seed oils)."
           },
-          "evening_wine_tapas": {
+          "all_day_evening_tapas": {
             "title": "Evening Wine & Tapas",
             "description": "Curated cheese boards, small plates & natural wines."
           }
         }
-      },
+    },
       "padel": {
-        "title": "Padel Courts",
-        "description": "Court booking details and experiences.",
+        "title": "Padel",
+        "description": "Friendly matches and competition on our singles and doubles courts.",
         "subsections": {
           "booking": {
-            "title": "Booking Info",
-            "description": "Reserve a court online or on arrival."
+            "title": "Court Reservations",
+            "description": "Reserve your court online or at arrival."
           },
           "guest_benefits": {
-            "title": "Guest Benefits",
-            "description": "Free morning access for hotel guests."
-          }
-        }
-      },
-      "community": {
-        "title": "Community & Events",
-        "description": "Local & industry discounts, workshops, and gatherings.",
-        "subsections": {
-          "discounts": {
-            "title": "Local Discounts",
-            "description": "10% off for neighbors & hospitality professionals."
-          },
-          "events": {
-            "title": "Upcoming Workshops",
-            "description": "Garden cooking, floral design, & more."
-          },
-          "playlists": {
-            "title": "Curated Playlists",
-            "description": "Spotify mixes to match our garden vibes."
+            "title": "Guest Privileges",
+            "description": "Complimentary morning access for Casa Olivea guests."
           }
         }
       },
       "menu": {
-        "title": "Menu Highlights",
-        "description": "Featured items with garden connections.",
+        "title": "Garden-Inspired",
+        "description": "Curated by chef Eduardo Zaragoza from Olivea Farm To Table, inspired by garden and Mexican comfort food.",
         "subsections": {
           "signature_dishes": {
-            "title": "Signature Dishes",
-            "description": "Chef-curated plates celebrating local produce."
+            "title": "Chef’s Creations",
+            "description": "Dishes highlighting fresh ingredients from our garden."
+          },
+          "beverages": {
+            "title": "Drinks & Ceremonial Matcha",
+            "description": "Specialty coffees, ceremonial matcha, and bi-weekly seasonal drinks."
+          },
+          "evening_wine_tapas": {
+            "title": "Evening Wine & Cheese",
+            "description": "Enjoy wines, cocktails, and cheese plates around our cozy firepits."
           },
           "sustainable_sourcing": {
-            "title": "Sustainable Sourcing",
-            "description": "We never use seed oils; always local & organic."
+            "title": "Pure Ingredients",
+            "description": "All dishes crafted using avocado and olive oils—never seed oils."
+          }
+        }
+      },
+      "community": {
+        "title": "Community",
+        "description": "Supporting local industry with discounts, special events, and industry gatherings.",
+        "subsections": {
+          "industry_day": {
+            "title": "Industry Tuesdays",
+            "description": "Special offers every Tuesday for hospitality professionals."
+          },
+          "discounts": {
+            "title": "Local Industry Discounts",
+            "description": "Always 10% off for local hospitality and industry neighbors."
+          },
+          "events": {
+            "title": "Events & Workshops",
+            "description": "Regular events including tastings, workshops, and social evenings."
+          }
+        }
+      },
+      "ambience": {
+        "title": "Atmosphere",
+        "description": "A relaxing environment infused with garden scents, curated music, and storytelling.",
+        "subsections": {
+          "playlists": {
+            "title": "Curated Playlists",
+            "description": "Music thoughtfully selected to match Olivea Café’s mood."
+          },
+          "garden_immersion": {
+            "title": "Garden Immersion",
+            "description": "Enjoy immersive garden views and scents all year round."
           }
         }
       }
     }
   },
+
   "casa": {
     "title": "Casa Olivea",
     "description": "Stay with us. Rooms, amenities, and reservations coming soon.",
     "sections": {
       "rooms": {
         "title": "Rooms",
-        "description": "Peaceful spaces designed with comfort and elegance.",
-        "subsections": {
-          "room_types": {
-            "title": "Room Types",
-            "description": "King, Queen, and Garden-view suite options."
-          },
-          "amenities": {
-            "title": "Amenities",
-            "description": "In-room spa, terrace, private garden access."
-          },
-          "packages": {
-            "title": "Olivea Packages",
-            "description": "Honeymoon & anniversary offerings."
-          }
+      "description": "Peaceful spaces designed with comfort and elegance.",
+      "subsections": {
+        "room_types": {
+          "title": "Room Types",
+          "description": "King, Queen, Garden-View Suites, Poolside Bungalows."
+        },
+        "in_room_amenities": {
+          "title": "Amenities",
+          "description": "Spa-style baths, Nespresso machines, smart climate control."
+        },
+        "design_decor": {
+          "title": "Design",
+          "description": "Handcrafted furnishings, local art, and earthy palettes."
+        }
         }
       },
       "mornings": {
-        "title": "Mornings",
-        "description": "Complimentary breakfast by Olivea Café.",
-        "subsections": {
-          "garden_fresh": {
-            "title": "Olivea Café",
-            "description": "Access to our café’s morning menu ."
-          },
-          "cafe_connection": {
-            "title": "Garden Fresh",
-            "description": "Seasonal produce straight from our garden."
-          },
-          "padel_bonus": {
-            "title": "Padel Courts",
-            "description": "Free morning court time for guests."
-          }
+      "title": "Mornings",
+      "description": "Rise and shine with garden-fresh breakfasts and wellness rituals.",
+      "subsections": {
+        "breakfast_service": {
+          "title": "Breakfast",
+          "description": "Fresh juices, pastries, and made-to-order eggs."
+        },
+        "garden_to_table": {
+          "title": "Garden",
+          "description": "Seasonal herbs and fruit picked that very morning."
+        },
+        "wellness_rituals": {
+          "title": "Wellness",
+          "description": "Sunrise yoga, guided meditation spots in the garden."
         }
+      }
       },
       "experiences": {
-        "title": "Guest Experiences",
-        "description": "Curated activities, local moments, & unique events.",
+        "title": "Experiences",
+        "description": "Dive into sport, nature, and hands-on workshops.",
         "subsections": {
-          "walk_and_wine": {
-            "title": "Walk & Wine",
-            "description": "Stroll with Marciel Vineyard and taste."
+          "padel_courts": {
+            "title": "Padel",
+            "description": "Court booking, private lessons & weekend tournaments."
           },
-          "spa": {
-            "title": "Spa Experiences",
-            "description": "Relax with treatments from our Roseiies alliance."
+          "garden_tours": {
+            "title": "Tours",
+            "description": "Meet the gardener, seasonal planting workshops."
           },
-          "tours": {
-            "title": "Valle de Guadalupe",
-            "description": "Private court sessions & guided garden walks."
+          "spa_wellness": {
+            "title": "Spa",
+            "description": "Massage, beauty treatments, aromatherapy sessions."
           }
         }
       },
-      "ambience": {
-        "title": "Atmosphere & Ambience",
-        "description": "Garden immersion, music philosophy, & testimonials.",
+      "dining": {
+        "title": "Dining",
+        "description": "From casual fireside bites to private chef’s table.",
         "subsections": {
-          "playlists": {
-            "title": "Digital Playlists",
-            "description": "Spotify mixes curated for each mood."
+          "chef_table": {
+            "title": "Chef’s Table",
+            "description": "Exclusive sit-down breakfasts with the chef."
           },
-          "garden_immersion": {
-            "title": "360° Garden Immersion",
-            "description": "Experience our orchards in every season."
+          "in_room_dining": {
+            "title": "Room Service",
+            "description": "Customizable menus delivered to your suite."
           },
-          "testimonials": {
-            "title": "Guest Testimonials",
-            "description": "Hear what our visitors love most."
+          "firepit_evenings": {
+            "title": "Firepit",
+            "description": "Evening s’mores, storytelling by the fire."
+          }
+        }
+      },
+      "wellness": {
+        "title": "Wellness",
+        "description": "Mind, body & soul—activities for total rejuvenation.",
+        "subsections": {
+          "yoga_classes": {
+            "title": "Yoga",
+            "description": "Daily group sessions in the garden pavilion."
+          },
+          "bikes_hikes": {
+            "title": "Outdoors",
+            "description": "Guided bike & hike routes through Valle de Guadalupe."
+          },
+          "art_music": {
+            "title": "Culture",
+            "description": "Local art exhibitions & live music nights."
+          }
+        }
+      },
+      "community": {
+        "title": "Community",
+        "description": "How we engage, give back, and celebrate local culture.",
+        "subsections": {
+          "zero_waste": {
+            "title": "Zero-Waste",
+            "description": "Composting, upcycling & repurposing harvest."
+          },
+          "local_partners": {
+            "title": "Partners",
+            "description": "Collaborations with nearby farms, wineries & artisans."
+          },
+          "industry_tuesdays": {
+            "title": "Industry Day",
+            "description": "Every Tuesday: 10% off for hospitality pros."
+          }
+        }
+      },
+      "packages": {
+        "title": "Packages",
+        "description": "Tailored experiences, from romance to family fun.",
+        "subsections": {
+          "romance_retreat": {
+            "title": "Romance",
+            "description": "Wine, rose petals & couples massage package."
+          },
+          "wellness_escape": {
+            "title": "Wellness",
+            "description": "Spa credit, yoga pass & healthy menu tasting."
+          },
+          "family_fun": {
+            "title": "Family",
+            "description": "Kids’ cooking class, garden scavenger hunts."
           }
         }
       }
@@ -152,67 +229,115 @@
     "title": "Olivea Farm To Table",
     "description": "Seasonal menus, chef stories, and a true farm-to-table experience.",
     "sections": {
-      "philosophy": {
-        "title": "Culinary Philosophy",
-        "description": "Garden-to-plate, no seed oils, dietary inclusivity.",
+      "culinary_philosophy": {
+        "title": "Philosophy",
+        "description": "Garden-to-plate, no seed oils, dietary inclusivity, and sustainability.",
         "subsections": {
           "ingredient_story": {
-            "title": "Ingredient Story",
+            "title": "Stories",
             "description": "How our garden shapes every plate."
           },
           "no_seed_oils": {
-            "title": "No Seed Oils",
+            "title": "Oils",
             "description": "Our commitment to healthier fats only."
           },
-          "dietary_accommodations": {
-            "title": "Accommodations",
+          "dietary_inclusivity": {
+            "title": "Inclusive",
             "description": "Gluten-free, vegan, kosher, halal & more."
+          },
+          "sustainability_commitment": {
+            "title": "Sustainability",
+            "description": "How we maintain ecological balance and support our local environment."
           }
         }
       },
-      "menu_experience": {
-        "title": "Menu & Experience",
-        "description": "Seasonal tasting menus & wine pairings.",
+      "garden": {
+        "title": "Garden",
+        "description": "Our on-site garden, local sourcing, and zero-waste practices.",
+        "subsections": {
+          "on_site_garden": {
+            "title": "On-Site",
+            "description": "Growing practices, seasonal rotations, and heirloom varieties."
+          },
+          "local_partners": {
+            "title": "Partners",
+            "description": "Collaborations with nearby farms, wineries, and artisan producers."
+          },
+          "zero_waste": {
+            "title": "Zero-Waste",
+            "description": "Initiatives to minimize waste and repurpose every harvest."
+          }
+        }
+      },
+      "dining_experiences": {
+        "title": "Experiences",
+        "description": "Seasonal tasting menus, garden-dinners & wine pairings.",
         "subsections": {
           "tasting_menu": {
-            "title": "Tasting Menu",
+            "title": "Tasting",
             "description": "A curated multi-course seasonal journey."
           },
           "wine_pairings": {
-            "title": "Wine Pairings",
+            "title": "Pairings",
             "description": "Natural wines matched to each course."
           },
-          "special_events": {
-            "title": "Chef’s Table",
-            "description": "Exclusive chef-hosted dinners."
+          "chef_garden_table": {
+            "title": "Garden Table",
+            "description": "Exclusive dinners hosted by the chef in our garden."
+          },
+          "private_events": {
+            "title": "Private",
+            "description": "Custom events, workshops, and chef-led tastings."
           }
         }
       },
       "atmosphere": {
-        "title": "Dining Atmosphere",
-        "description": "Elegant decor, curated playlists, and tableware.",
+        "title": "Atmosphere",
+        "description": "Elegant space, curated music, and local craftsmanship.",
         "subsections": {
-          "music_philosophy": {
-            "title": "Music & Ambience",
-            "description": "Our soundscapes, chosen for each season."
-          },
           "interior_design": {
-            "title": "Interior Design",
-            "description": "Natural materials & handcrafted furnishings."
+            "title": "Design",
+            "description": "Natural materials and hand-crafted furnishings."
+          },
+          "seasonal_ambience": {
+            "title": "Ambience",
+            "description": "Soundscapes and lighting tuned to each season."
+          },
+          "tableware": {
+            "title": "Tableware",
+            "description": "Artisan plates, glassware, and locally made linens."
           }
         }
       },
-      "team": {
-        "title": "Meet the Chef & Team",
-        "description": "Our chefs’ vision, backgrounds, and awards.",
+      "chef_team": {
+        "title": "Team",
+        "description": "Our chefs’ backgrounds, awards, and service ethos.",
         "subsections": {
           "chef_bio": {
-            "title": "Chef’s Background",
-            "description": "Training, inspirations, and journey."
+            "title": "Chef",
+            "description": "Training, inspirations, and their farm-to-table journey."
           },
-          "awards": {
-            "title": "Awards & Recognition",
-            "description": "Press features, Michelin mentions, and more."
+          "awards_recognition": {
+            "title": "Awards",
+            "description": "Press features, Michelin mentions, and industry honors."
+          },
+          "service_philosophy": {
+            "title": "Service",
+            "description": "Our ‘Colibrí’ approach—warmth, knowledge, and attention to detail."
+          }
+        }
+      },
+      "community": {
+        "title": "Community",
+        "description": "Engagements, press features, and our local impact.",
+        "subsections": {
+          "programs": {
+            "title": "Programs",
+            "description": "Workshops, pop-ups, and internship initiatives."
+          },
+          "press_awards": {
+            "title": "Press",
+            "description": "Reviews, articles, and accolades in the media."
           }
         }
       }
