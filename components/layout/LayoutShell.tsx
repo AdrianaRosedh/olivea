@@ -1,3 +1,4 @@
+// components/layout/LayoutShell.tsx
 "use client";
 
 import React, { memo, useEffect, useState } from "react";
@@ -11,11 +12,9 @@ import ClientOnly from "@/components/providers/ClientOnly";
 import { BookOpen, Leaf, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useLenis } from "@/components/providers/ScrollProvider";
-import { supabase } from "@/lib/supabase";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer";
 import NextGenBackground from "@/components/animations/NextGenBackground";
-import DesktopChatButton from "@/components/ui/DesktopChatButton";
 
 // import only the Lang & AppDictionary types
 import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
@@ -43,101 +42,70 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
     return () => void lenis.off("scroll", onScroll);
   }, [lenis]);
 
-  // Café categories state (for mobile bottom nav & dynamic subsections)
-  const [cafeCategories, setCafeCategories] = useState<string[]>([]);
-  const [isLoading, setIsLoading]           = useState(pathname.includes("/cafe"));
-
-  // Mark mounted so we don’t SSR-nav before hydration
+  // Mark as mounted (so we never SSR‐render navs before hydration)
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const isHome           = pathname === `/${lang}`;
   const isCasaPage       = pathname.includes("/casa");
-  const isCafePage       = pathname.includes("/cafe");
   const isRestaurantPage = pathname.includes("/restaurant");
 
-  // Fetch dynamic café categories
-  useEffect(() => {
-    if (!isCafePage) {
-      setIsLoading(false);
-      return;
-    }
-    let active = true;
-    (async () => {
-      const { data, error } = await supabase
-        .from("cafe_menu")
-        .select("category")
-        .eq("available", true)
-        .order("category");
-
-      if (!active) return;
-      if (error) console.error(error);
-      else {
-        const cats = Array.from(
-          new Set((data ?? []).map((i) => i.category).filter(Boolean))
-        );
-        setCafeCategories(cats as string[]);
-      }
-      setIsLoading(false);
-    })();
-    return () => { active = false; };
-  }, [isCafePage]);
-
   //
-  // ─── MOBILE NAV ITEMS ─────────────────────────────────────────────────────────
+  // ─── MOBILE BOTTOM NAV ITEMS ─────────────────────────────────────────────────
   //
-
-  type CasaSection       = keyof AppDictionary["casa"]["sections"];
-  type RestaurantSection = keyof AppDictionary["restaurant"]["sections"];
-  type CafeSection       = keyof AppDictionary["cafe"]["sections"];
-
+  // Only Casa and Restaurant now; Café has been removed.
   const mobileNavItems = (() => {
+    // Casa sections from dictionary.casa.sections
     if (isCasaPage) {
-      const keys = Object.keys(dictionary.casa.sections) as CasaSection[];
+      const keys = Object.keys(dictionary.casa.sections) as Array<keyof AppDictionary["casa"]["sections"]>;
       return keys.map((id) => ({
         id,
         label: dictionary.casa.sections[id].title,
       }));
     }
+    // Restaurant sections from dictionary.restaurant.sections
     if (isRestaurantPage) {
-      const keys = Object.keys(dictionary.restaurant.sections) as RestaurantSection[];
+      const keys = Object.keys(dictionary.restaurant.sections) as Array<keyof AppDictionary["restaurant"]["sections"]>;
       return keys.map((id) => ({
         id,
         label: dictionary.restaurant.sections[id].title,
       }));
     }
-    if (isCafePage) {
-      const baseKeys = Object.keys(dictionary.cafe.sections) as CafeSection[];
-      const base = baseKeys.map((id) => ({
-        id,
-        label: dictionary.cafe.sections[id].title,
-      }));
-      const dyn = cafeCategories.map((cat) => ({ id: cat, label: cat }));
-      return [...base, ...dyn];
-    }
+    // Otherwise, nothing
     return [];
   })();
 
   //
-  // ─── DOCK‐RIGHT ITEMS ──────────────────────────────────────────────────────────
+  // ─── DESKTOP DOCK‐RIGHT ITEMS ─────────────────────────────────────────────────
   //
-
   const dockRightItems: DockItem[] = [
-    { id: "journal",        href: `/${lang}/journal`,        label: dictionary.journal.title,        icon: <BookOpen /> },
-    { id: "sustainability", href: `/${lang}/sustainability`, label: dictionary.sustainability.title, icon: <Leaf />     },
-    { id: "policies",       href: `/${lang}/legal`,           label: dictionary.legal.title,           icon: <FileText />},
+    {
+      id: "journal",
+      href: `/${lang}/journal`,
+      label: dictionary.journal.title,
+      icon: <BookOpen />,
+    },
+    {
+      id: "sustainability",
+      href: `/${lang}/sustainability`,
+      label: dictionary.sustainability.title,
+      icon: <Leaf />,
+    },
+    {
+      id: "policies",
+      href: `/${lang}/legal`,
+      label: dictionary.legal.title,
+      icon: <FileText />,
+    },
   ];
 
   //
-  // ─── WHICH IDENTITY FOR DOCKLEFT? ───────────────────────────────────────────────
+  // ─── WHICH IDENTITY FOR DOCK‐LEFT? ─────────────────────────────────────────────
   //
-
-  const identity: "casa" | "restaurant" | "cafe" =
-       isCasaPage       ? "casa"
-     : isRestaurantPage ? "restaurant"
-     : isCafePage       ? "cafe"
-     : "casa"; // fallback
+  // Only Casa or Restaurant now
+  const identity: "casa" | "restaurant" =
+    isCasaPage ? "casa" : isRestaurantPage ? "restaurant" : "casa";
 
   return (
     <>
@@ -153,40 +121,31 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
             : "max-w-7xl mx-auto px-4 md:px-8 pt-28 pb-20"
         }
       >
-        {(isCasaPage || isCafePage || isRestaurantPage)
+        {(isCasaPage || isRestaurantPage)
           ? <NavigationProvider>{children}</NavigationProvider>
           : children}
       </main>
 
       {mounted && !isHome && <Footer />}
 
-      {/* ── DESKTOP DOCKS ─────────────────────────────────────────────────────────── */}
+      {/* ── DESKTOP DOCKS ─────────────────────────────────────────────── */}
       {mounted && !isHome && !isMobile && (
         <ClientOnly>
-          <DockLeft
-            dict={dictionary}
-            identity={identity}
-          />
+          <DockLeft dict={dictionary} identity={identity} />
           <DockRight items={dockRightItems} />
         </ClientOnly>
       )}
 
-      {/* ── MOBILE BOTTOM NAV ──────────────────────────────────────────────────────── */}
-      {mounted && !isHome && isMobile && !isLoading && mobileNavItems.length > 0 && (
+      {/* ── MOBILE BOTTOM NAV ───────────────────────────────────────── */}
+      {mounted && !isHome && isMobile && mobileNavItems.length > 0 && (
         <ClientOnly>
           <div className="fixed bottom-[68px] inset-x-0 z-40 border-[var(--olivea-soil)]/10">
             <MobileSectionNav items={mobileNavItems} />
           </div>
         </ClientOnly>
       )}
-
-      {/* ── CHAT BUTTON ───────────────────────────────────────────────────────────── */}
-      {mounted && !isHome && !isMobile && (
-        <ClientOnly>
-          <DesktopChatButton lang={lang} />
-        </ClientOnly>
-      )}
     </>
   );
 }
+
 export default memo(LayoutShell);

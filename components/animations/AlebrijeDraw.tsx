@@ -16,8 +16,8 @@ interface Props {
 
 export default function AlebrijeDraw({
   size = 1000,
-  strokeDuration = 100,
-  fillDuration = 100,
+  strokeDuration = 150,
+  fillDuration = 200,
   fillDelay = 4,
   onComplete,
 }: Props) {

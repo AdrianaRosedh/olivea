@@ -37,6 +37,7 @@ export default function InlineEntranceCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
   const [tiltStyle, setTiltStyle] = useState<CSSProperties>({});
+  const [isInView, setIsInView] = useState(false);
 
   // Dimension constants
   const DESKTOP_SCALE = 1.3;
@@ -90,17 +91,43 @@ export default function InlineEntranceCard({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // IntersectionObserver to check when the video enters the viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsInView(true); // Set to true when the video enters the viewport
+        }
+      },
+      { threshold: 0.1 } // Load video when 10% of it is visible
+    );
+  
+    const videoElement = videoRef.current; // Store the ref in a variable
+  
+    if (videoElement) {
+      observer.observe(videoElement); // Observe the video
+    }
+  
+    return () => {
+      if (videoElement) {
+        observer.unobserve(videoElement); // Unobserve the video when component is unmounted
+      }
+    };
+  }, []);
+  
+
   // Video playback on hover/open
   useEffect(() => {
     const vid = videoRef.current;
-    if (!vid) return;
+    if (!vid || !isInView) return; // Don't load or play video until it's in view
+
     const shouldPlay = (!isMobile && isHovered) || (isMobile && isOpened);
     if (shouldPlay) {
       vid.play().catch(() => {});
     } else {
       vid.pause();
     }
-  }, [isHovered, isOpened, isMobile]);
+  }, [isHovered, isOpened, isMobile, isInView]);
 
   // Handler for pointer down: open on mobile or start transition
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
