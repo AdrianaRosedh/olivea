@@ -99,13 +99,9 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 w-full z-[50] bg-transparent backdrop-blur-md">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-0 h-20 md:h-24 lg:h-28 w-full">
-        <Link href={`/}`} locale={false} aria-label="Home">
-          <OliveaFTTLogo
-            className={`h-10 md:h-16 lg:h-20 ${
-              pathname === `/}` ? "text-[var(--olivea-olive)]" : isDark ? "text-white" : "text-[var(--olivea-olive)]"
-            }`}
-          />
-        </Link>
+        <Link href="/" locale={false} aria-label="Home">
+        <OliveaFTTLogo className={`h-10 md:h-16 lg:h-20 w-auto ${logoColorClass}`} />
+      </Link>
         <div className="flex flex-1 justify-center gap-4 fill-nav">
           {navItems.map((it) => (
             <CenterLink key={it.href} href={it.href} label={it.label} isActive={pathname === it.href} />
