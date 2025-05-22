@@ -175,6 +175,7 @@ export default function InlineEntranceCard({
               <video
                 ref={videoRef}
                 src={targetVideo || videoSrc || ""}
+                autoPlay
                 muted
                 loop
                 playsInline

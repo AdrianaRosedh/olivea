@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 
 export default function SharedVideoTransition() {
@@ -22,7 +22,7 @@ export default function SharedVideoTransition() {
   const controls = useAnimation();
 
   // Run before paint to prevent any flash of default positioning
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!active || !initialBounds || !videoRef.current) return;
 
     const video = videoRef.current;
@@ -116,6 +116,7 @@ export default function SharedVideoTransition() {
       >
         <video
           ref={videoRef}
+          src={targetVideo ?? videoSrc ?? ""} 
           autoPlay 
           muted
           playsInline

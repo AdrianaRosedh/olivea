@@ -51,14 +51,20 @@ export default function CafeClientPage({ dict }: CafeClientPageProps) {
       if (fromHomePage && videoRef.current && playbackTime) {
         videoRef.current.src = targetVideo || "/videos/restaurant.mp4";
         videoRef.current.currentTime = parseFloat(playbackTime);
-        await videoRef.current.play().catch(() => {});
+
+        try {
+          await videoRef.current.play(); // Ensure video plays once it's ready
+        } catch (err) {
+          console.error("Error playing video:", err);
+        }
+
         // wait for the card-grow animation
-        await new Promise((r) => setTimeout(r, 1_300));
+        await new Promise((r) => setTimeout(r, 1300));
 
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
         await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
       } else {
-        // no transition: set positions immediately
+        // No transition: set positions immediately
         controlsVideo.set({ y: "-100vh" });
         controlsContent.set({ y: 0 });
       }
@@ -95,6 +101,7 @@ export default function CafeClientPage({ dict }: CafeClientPageProps) {
       >
         <video
           ref={videoRef}
+          src="/videos/cafe.mp4"
           autoPlay
           muted
           loop
