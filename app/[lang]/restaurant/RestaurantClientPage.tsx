@@ -1,4 +1,3 @@
-// app/[lang]/restaurant/RestaurantClientPage.tsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -22,31 +21,29 @@ interface RestaurantClientPageProps {
   dict: AppDictionary;
 }
 
-// 1️⃣ Here’s the **exact** order of every top‐level section key
-//     **Must** match your JSON keys under `restaurant.sections`
 const RESTAURANT_SECTION_ORDER = [
-  "culinary_philosophy",      // Philosophy
-  "garden",                   // Garden
-  "dining_experiences",       // Experiences
-  "atmosphere",               // Atmosphere
-  "chef_team",                // Team
-  "community",                // Community
-  "sustainability_commitment",// Sustainability
-  "chef_garden_table",        // Chef’s Garden Table
-  "local_artisans",           // Local Artisans
-  "colibri_service",          // Colibrí Service Philosophy
+  "culinary_philosophy",
+  "garden",
+  "dining_experiences",
+  "atmosphere",
+  "chef_team",
+  "community",
+  "sustainability_commitment",
+  "chef_garden_table",
+  "local_artisans",
+  "colibri_service",
 ] as const;
 
 type SectionKey = typeof RESTAURANT_SECTION_ORDER[number];
 
 export default function RestaurantClientPage({ dict }: RestaurantClientPageProps) {
-  const controlsVideo   = useAnimation();
+  const controlsVideo = useAnimation();
   const controlsContent = useAnimation();
-  const videoRef        = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile]           = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [transitionDone, setTransitionDone] = useState(false);
 
-  // ── MOBILE DETECTION ──────────────────────────────────────────────────────────
+  // Mobile detection
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
@@ -54,27 +51,26 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // ── SHARED-ELEMENT TRANSITION ─────────────────────────────────────────────────
+  // Shared-element transition logic
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
-    const targetVideo  = sessionStorage.getItem("targetVideo") || "/videos/restaurant.mp4";
+    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/restaurant.mp4";
 
     const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        videoRef.current.src         = targetVideo;
+        videoRef.current.src = targetVideo;
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
-        // wait for your hero-card grow animation
+        // wait for the hero-card grow animation
         await new Promise((r) => setTimeout(r, 1300));
-
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
-        await controlsContent.start({ y: 0,       transition: { duration: 1, ease: "easeInOut" } });
+        await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
       } else {
-        // immediate skip
-        await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
-        await controlsContent.start({ y: 0,       transition: { duration: 0 } });
-      }
+        // immediately position off-screen / content
+        controlsVideo.set({ y: "-100vh" });
+        controlsContent.set({ y: 0 });
+      }   
 
       sessionStorage.removeItem("fromHomePage");
       sessionStorage.removeItem("fromHomePageTime");
@@ -85,15 +81,12 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
     run();
   }, [controlsVideo, controlsContent]);
 
-  if (!transitionDone) return null;
-
-  // ── PICK UP ONLY THE KEYS THAT EXIST ────────────────────────────────────────────
+  // Filter only existing sections in JSON order
   const sectionKeys = RESTAURANT_SECTION_ORDER.filter(
     (key) => key in dict.restaurant.sections
   ) as SectionKey[];
 
-  // ── FLATTEN FOR MOBILE-SNAP & DOCK-LEFT NAV ────────────────────────────────────
-  // [ "culinary_philosophy", ...its subsection IDs, "garden", ..., etc ]
+  // Flatten for mobile snap-tracker
   const sectionIds = sectionKeys.flatMap((key) => [
     key,
     ...(dict.restaurant.sections[key].subsections
@@ -103,7 +96,7 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
 
   return (
     <>
-      {/* Video overlay */}
+      {/* Video overlay always mounts */}
       <motion.div
         initial={{ y: 0 }}
         animate={controlsVideo}
@@ -122,47 +115,56 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
         />
       </motion.div>
 
-      {/* Page content */}
-      <motion.div initial={{ y: "100vh" }} animate={controlsContent} className="relative">
-        <header className="text-center py-12 px-6">
-          <TypographyH1>{dict.restaurant.title}</TypographyH1>
-          <TypographyP className="mt-2">{dict.restaurant.description}</TypographyP>
-        </header>
+      {/* Page content after video transition */}
+      {transitionDone && (
+        <>
+          <motion.div
+            initial={{ y: "100vh" }}
+            animate={controlsContent}
+            className="relative"
+          >
+            <header className="text-center py-12 px-6">
+              <TypographyH1>{dict.restaurant.title}</TypographyH1>
+              <TypographyP className="mt-2">
+                {dict.restaurant.description}
+              </TypographyP>
+            </header>
 
-        {sectionKeys.map((key) => {
-          const sec = dict.restaurant.sections[key] as SectionData;
-          return (
-            <section
-              key={key}
-              id={key}
-              className="main-section min-h-screen snap-start flex flex-col items-center justify-center px-6"
-            >
-              <div className="max-w-2xl text-center">
-                <TypographyH2>{sec.title}</TypographyH2>
-                <TypographyP className="mt-2">{sec.description}</TypographyP>
-              </div>
+            {sectionKeys.map((key) => {
+              const sec = dict.restaurant.sections[key] as SectionData;
+              return (
+                <section
+                  key={key}
+                  id={key}
+                  className="main-section min-h-screen snap-start flex flex-col items-center justify-center px-6"
+                >
+                  <div className="max-w-2xl text-center">
+                    <TypographyH2>{sec.title}</TypographyH2>
+                    <TypographyP className="mt-2">{sec.description}</TypographyP>
+                  </div>
 
-              {/* every subsection becomes its own full‐screen block */}
-              {sec.subsections &&
-                Object.entries(sec.subsections).map(([subId, sub]) => (
-                  <section
-                    key={subId}
-                    id={subId}
-                    className="subsection min-h-screen snap-start flex flex-col items-center justify-center px-6"
-                  >
-                    <div className="max-w-2xl text-center">
-                      <TypographyH3>{sub.title}</TypographyH3>
-                      <TypographyP className="mt-2">{sub.description}</TypographyP>
-                    </div>
-                  </section>
-                ))}
-            </section>
-          );
-        })}
-      </motion.div>
+                  {/* Sub-sections */}
+                  {sec.subsections &&
+                    Object.entries(sec.subsections).map(([subId, sub]) => (
+                      <section
+                        key={subId}
+                        id={subId}
+                        className="subsection min-h-screen snap-start flex flex-col items-center justify-center px-6"
+                      >
+                        <div className="max-w-2xl text-center">
+                          <TypographyH3>{sub.title}</TypographyH3>
+                          <TypographyP className="mt-2">{sub.description}</TypographyP>
+                        </div>
+                      </section>
+                    ))}
+                </section>
+              );
+            })}
+          </motion.div>
 
-      {/* mobile snap‐tracker (and dock-left clicks use the same list) */}
-      <MobileSectionTracker sectionIds={sectionIds} />
+          <MobileSectionTracker sectionIds={sectionIds} />
+        </>
+      )}
     </>
   );
 }

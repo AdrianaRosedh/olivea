@@ -1,4 +1,3 @@
-// app/[lang]/casa/CasaClientPage.tsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -23,23 +22,23 @@ interface CasaClientPageProps {
   dict: AppDictionary;
 }
 
-// 1️⃣ EXACT order of your JSON keys under `casa.sections`
 const SECTION_ORDER = [
   "rooms",
   "mornings",
   "experiences",
   "ambience",
 ] as const;
+
 type SectionKey = typeof SECTION_ORDER[number];
 
 export default function CasaClientPage({ dict }: CasaClientPageProps) {
-  const controlsVideo   = useAnimation();
+  const controlsVideo = useAnimation();
   const controlsContent = useAnimation();
-  const videoRef        = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile]           = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [transitionDone, setTransitionDone] = useState(false);
 
-  // ── MOBILE DETECTION ──────────────────────────────────────────────────────────
+  // Mobile detection
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
@@ -47,26 +46,24 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // ── SHARED‐ELEMENT TRANSITION ─────────────────────────────────────────────────
+  // Shared-element transition logic
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
-    const targetVideo  = sessionStorage.getItem("targetVideo") || "/videos/casa.mp4";
+    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/casa.mp4";
 
     const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        videoRef.current.src         = targetVideo;
+        videoRef.current.src = targetVideo;
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
-        // wait for the “card-grow” animation
         await new Promise((r) => setTimeout(r, 1300));
-
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
-        await controlsContent.start({ y: 0,        transition: { duration: 1, ease: "easeInOut" } });
+        await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
       } else {
-        // skip immediately
-        await controlsVideo.start({ y: "-100vh", transition: { duration: 0 } });
-        await controlsContent.start({ y: 0,        transition: { duration: 0 } });
+        // immediately position off-screen / content
+        controlsVideo.set({ y: "-100vh" });
+        controlsContent.set({ y: 0 });
       }
 
       sessionStorage.removeItem("fromHomePage");
@@ -78,14 +75,11 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     run();
   }, [controlsVideo, controlsContent]);
 
-  if (!transitionDone) return null;
-
-  // ── 2️⃣ keep only the keys that actually exist in your dict, in the JSON order
-  const sectionKeys = SECTION_ORDER.filter(
-    (key) => key in dict.casa.sections
+  // Determine which sections to render
+  const sectionKeys = SECTION_ORDER.filter((key) =>
+    key in dict.casa.sections
   ) as SectionKey[];
 
-  // ── 3️⃣ flatten into [ section, ...its subsections ] for scroll + mobile nav
   const sectionIds = sectionKeys.flatMap((key) => [
     key,
     ...(dict.casa.sections[key].subsections
@@ -95,7 +89,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
 
   return (
     <>
-      {/* Video overlay */}
+      {/* Video overlay always mounts */}
       <motion.div
         initial={{ y: 0 }}
         animate={controlsVideo}
@@ -114,59 +108,66 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
         />
       </motion.div>
 
-      {/* Page Content */}
-      <motion.div initial={{ y: "100vh" }} animate={controlsContent} className="relative">
-        {sectionKeys.map((key) => {
-          const sec    = dict.casa.sections[key] as SectionData;
-          const images = sec.images?.length
-            ? sec.images
-            : [{ src: "/images/hero.jpg", alt: sec.title }];
+      {/* Page content after video transition */}
+      {transitionDone && (
+        <>
+          <motion.div
+            initial={{ y: "100vh" }}
+            animate={controlsContent}
+            className="relative"
+          >
+            {sectionKeys.map((key) => {
+              const sec = dict.casa.sections[key] as SectionData;
+              const images = sec.images?.length
+                ? sec.images
+                : [{ src: "/images/hero.jpg", alt: sec.title }];
 
-          return (
-            <section
-              key={key}
-              id={key}
-              className="main-section min-h-screen flex flex-col items-center justify-center px-6"
-            >
-              <div className="max-w-2xl text-center">
-                <TypographyH2>{sec.title}</TypographyH2>
-                <TypographyP className="mt-2">{sec.description}</TypographyP>
-              </div>
-
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                {images.map((img, idx) => (
-                  <div key={idx} className="bg-white shadow rounded overflow-hidden">
-                    <Image
-                      src={img.src}
-                      alt={img.alt ?? ""}
-                      width={800}
-                      height={480}
-                      className="object-cover w-full h-48"
-                    />
+              return (
+                <section
+                  key={key}
+                  id={key}
+                  className="main-section min-h-screen flex flex-col items-center justify-center px-6"
+                >
+                  <div className="max-w-2xl text-center">
+                    <TypographyH2>{sec.title}</TypographyH2>
+                    <TypographyP className="mt-2">{sec.description}</TypographyP>
                   </div>
-                ))}
-              </div>
 
-              {sec.subsections &&
-                Object.entries(sec.subsections).map(([subId, sub]) => (
-                  <section
-                    key={subId}
-                    id={subId}
-                    className="subsection min-h-screen flex flex-col items-center justify-center px-6"
-                  >
-                    <div className="max-w-2xl text-center">
-                      <TypographyH3>{sub.title}</TypographyH3>
-                      <TypographyP className="mt-2">{sub.description}</TypographyP>
-                    </div>
-                  </section>
-                ))}
-            </section>
-          );
-        })}
-      </motion.div>
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="bg-white shadow rounded overflow-hidden">
+                        <Image
+                          src={img.src}
+                          alt={img.alt ?? ""}
+                          width={800}
+                          height={480}
+                          className="object-cover w-full h-48"
+                        />
+                      </div>
+                    ))}
+                  </div>
 
-      {/* Mobile snap‐tracker */}
-      <MobileSectionTracker sectionIds={sectionIds} />
+                  {sec.subsections &&
+                    Object.entries(sec.subsections).map(([subId, sub]) => (
+                      <section
+                        key={subId}
+                        id={subId}
+                        className="subsection min-h-screen flex flex-col items-center justify-center px-6"
+                      >
+                        <div className="max-w-2xl text-center">
+                          <TypographyH3>{sub.title}</TypographyH3>
+                          <TypographyP className="mt-2">{sub.description}</TypographyP>
+                        </div>
+                      </section>
+                    ))}
+                </section>
+              );
+            })}
+          </motion.div>
+
+          <MobileSectionTracker sectionIds={sectionIds} />
+        </>
+      )}
     </>
   );
 }
