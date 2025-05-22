@@ -3,7 +3,7 @@ import "./globals.css";
 import { Inter, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import type { Metadata } from "next";
-import { Providers } from "./providers";   // ← import your Providers
+import { AppProviders } from "./providers";  // ← correct path
 
 const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
@@ -11,39 +11,34 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "
 
 export const metadata: Metadata = {
   title: "Grupo Olivea",
-  icons: { icon: "/favicon.ico", apple: "/apple-icon.png", shortcut: "/favicon.ico" },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+    shortcut: "/favicon.ico",
+  },
   manifest: "/manifest.json",
   appleWebApp: { title: "Grupo Olivea" },
   other: {
     preload: [
-      // Hero video (MP4 + WebM)
-      '<link rel="preload" href="/videos/homepage-temp.webm" as="video" type="video/webm" fetchpriority="high" />',
-      '<link rel="preload" href="/videos/homepage-temp.mp4"  as="video" type="video/mp4"  fetchpriority="high" />',
-
-      // Card transition clips (WebM + MP4)
-      '<link rel="preload" href="/videos/transition1.webm" as="video" type="video/webm" fetchpriority="low" />',
-      '<link rel="preload" href="/videos/transition1.mp4"  as="video" type="video/mp4"  fetchpriority="low" />',
-      '<link rel="preload" href="/videos/transition2.webm" as="video" type="video/webm" fetchpriority="low" />',
-      '<link rel="preload" href="/videos/transition2.mp4"  as="video" type="video/mp4"  fetchpriority="low" />',
-      '<link rel="preload" href="/videos/transition3.webm" as="video" type="video/webm" fetchpriority="low" />',
-      '<link rel="preload" href="/videos/transition3.mp4"  as="video" type="video/mp4"  fetchpriority="low" />',
-
-      // any other critical assets
+      // any global preloads (e.g. icon)
       '<link rel="preload" href="/assets/alebrije-1.svg" as="image" type="image/svg+xml" />',
-    ]
-  }
+    ],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${inter.className} ${corm.className} ${jakarta.className}`}>
+    <html
+      lang="es"
+      className={`${inter.className} ${corm.className} ${jakarta.className}`}
+    >
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
-        {/* ← now every page is wrapped in Providers (client only) */}
-        <Providers>
+        {/* Wrap *all* pages in your global providers */}
+        <AppProviders>
           {children}
-        </Providers>
+        </AppProviders>
 
-        {/* Tock Script */}
+        {/* Global third‐party scripts */}
         <Script id="tock-script" strategy="beforeInteractive">
           {`
             !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?
@@ -55,7 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
 
-        {/* Whistle Live Chat */}
         <Script id="whistle-config" strategy="afterInteractive">
           {`
             window.WhistleLiveChat = {

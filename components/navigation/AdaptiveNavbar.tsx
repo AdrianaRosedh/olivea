@@ -18,7 +18,6 @@ export interface AdaptiveNavbarProps {
 }
 
 export default function AdaptiveNavbar({
-  lang,
   isDrawerOpen,
   onToggleDrawer,
 }: AdaptiveNavbarProps) {
@@ -52,7 +51,7 @@ export default function AdaptiveNavbar({
       )}
     >
       <div className="flex items-center justify-between px-4 h-16">
-        <Link href={`/${lang}`} aria-label="Home">
+        <Link href={`/`} aria-label="Home">
           <OliveaFTTLogo className={cn("h-10 w-auto", logoColor)} />
         </Link>
         <MenuToggle
