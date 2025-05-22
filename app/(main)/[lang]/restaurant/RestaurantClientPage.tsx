@@ -43,7 +43,7 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
   const [isMobile, setIsMobile] = useState(false);
   const [transitionDone, setTransitionDone] = useState(false);
 
-  // Mobile detection
+  // 1️⃣ Mobile detection
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
@@ -51,27 +51,64 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Shared-element transition logic
+  // 2️⃣ Shared-element transition logic (robust across browsers)
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
-    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/restaurant.mp4";
+    const stored = sessionStorage.getItem("targetVideo");
+    const targetVideo = (stored || "/videos/restaurant.mp4").trim();
 
     const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        videoRef.current.src = targetVideo || "/videos/restaurant.mp4";
-        videoRef.current.currentTime = parseFloat(playbackTime);
-        await videoRef.current.play().catch(() => {});
-        // wait for the hero-card grow animation
+        const vid = videoRef.current;
+
+        // Compute WebM fallback
+        const mp4 = targetVideo;
+        const webm = mp4.replace(/\.mp4$/, ".webm");
+
+        // Assign into <source> tags if present
+        const sources = Array.from(vid.querySelectorAll("source"));
+        if (sources[0] && sources[1]) {
+          sources[0].src = webm;
+          sources[1].src = mp4;
+          vid.load();
+        } else {
+          // fallback to setting .src directly
+          vid.src = mp4;
+          vid.load();
+        }
+
+        // Wait for metadata (or 500ms max) so we can seek
+        await Promise.race([
+          new Promise<void>((res) => {
+            if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) {
+              return res();
+            }
+            vid.addEventListener("loadedmetadata", () => res(), { once: true });
+          }),
+          new Promise<void>((res) => setTimeout(res, 500)),
+        ]);
+
+        // Seek to saved time
+        vid.currentTime = parseFloat(playbackTime);
+
+        // Play (some browsers need this user-initiated)
+        await vid.play().catch(() => {});
+
+        // Wait for the hero-card grow animation
         await new Promise((r) => setTimeout(r, 1300));
+
+        // Animate video overlay out
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
+        // Animate content in
         await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
       } else {
-        // immediately position off-screen / content
+        // No transition: set positions immediately
         controlsVideo.set({ y: "-100vh" });
         controlsContent.set({ y: 0 });
-      }   
+      }
 
+      // Clean up session storage and mark done
       sessionStorage.removeItem("fromHomePage");
       sessionStorage.removeItem("fromHomePageTime");
       sessionStorage.removeItem("targetVideo");
@@ -81,12 +118,10 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
     run();
   }, [controlsVideo, controlsContent]);
 
-  // Filter only existing sections in JSON order
+  // Filter and flatten sections for content and tracker
   const sectionKeys = RESTAURANT_SECTION_ORDER.filter(
     (key) => key in dict.restaurant.sections
   ) as SectionKey[];
-
-  // Flatten for mobile snap-tracker
   const sectionIds = sectionKeys.flatMap((key) => [
     key,
     ...(dict.restaurant.sections[key].subsections
@@ -105,7 +140,6 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
       >
         <video
           ref={videoRef}
-          src="/videos/restaurant.mp4"
           autoPlay
           muted
           loop
@@ -115,16 +149,9 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
           }`}
         >
           {/* WebM first */}
-          <source
-            src="/videos/restaurant.webm"
-            type="video/webm"
-          />
+          <source src="/videos/restaurant.webm" type="video/webm" />
           {/* MP4 fallback */}
-          <source
-            src="/videos/restaurant.mp4"
-            type="video/mp4"
-          />
-          {/* accessibility fallback */}
+          <source src="/videos/restaurant.mp4" type="video/mp4" />
           Your browser doesn’t support this video.
         </video>
       </motion.div>
@@ -139,9 +166,7 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
           >
             <header className="text-center py-12 px-6">
               <TypographyH1>{dict.restaurant.title}</TypographyH1>
-              <TypographyP className="mt-2">
-                {dict.restaurant.description}
-              </TypographyP>
+              <TypographyP className="mt-2">{dict.restaurant.description}</TypographyP>
             </header>
 
             {sectionKeys.map((key) => {
@@ -156,8 +181,6 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
                     <TypographyH2>{sec.title}</TypographyH2>
                     <TypographyP className="mt-2">{sec.description}</TypographyP>
                   </div>
-
-                  {/* Sub-sections */}
                   {sec.subsections &&
                     Object.entries(sec.subsections).map(([subId, sub]) => (
                       <section

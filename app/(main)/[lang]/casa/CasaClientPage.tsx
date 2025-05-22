@@ -38,7 +38,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [transitionDone, setTransitionDone] = useState(false);
 
-  // Mobile detection
+  // 1️⃣ Mobile detection
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
@@ -46,26 +46,68 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Shared-element transition logic
+  // 2️⃣ Shared-element transition logic (robust)
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
-    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/casa.mp4";
+    const stored = sessionStorage.getItem("targetVideo");
+    const targetVideo = (stored || "/videos/casa.mp4").trim();
 
     const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        videoRef.current.src = targetVideo || "/videos/casa.mp4";
-        videoRef.current.currentTime = parseFloat(playbackTime);
-        await videoRef.current.play().catch(() => {});
+        const vid = videoRef.current;
+
+        // Compute WebM fallback
+        const mp4 = targetVideo;
+        const webm = mp4.replace(/\.mp4$/, ".webm");
+
+        // Assign into <source> tags if present
+        const sources = Array.from(vid.querySelectorAll("source"));
+        if (sources[0] && sources[1]) {
+          sources[0].src = webm;
+          sources[1].src = mp4;
+          vid.load();
+        } else {
+          // fallback to setting .src directly
+          vid.src = mp4;
+          vid.load();
+        }
+
+        // Race loadedmetadata vs a 500ms timeout so we never hang
+        await Promise.race([
+          new Promise<void>((res) => {
+            if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) {
+              return res();
+            }
+            vid.addEventListener("loadedmetadata", () => res(), { once: true });
+          }),
+          new Promise<void>((res) => setTimeout(res, 500)),
+        ]);
+
+        // Seek then play
+        vid.currentTime = parseFloat(playbackTime);
+        await vid.play().catch(() => {});
+
+        // Wait for the hero-card grow animation
         await new Promise((r) => setTimeout(r, 1300));
-        await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
-        await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
+
+        // Animate the video overlay up
+        await controlsVideo.start({
+          y: "-100vh",
+          transition: { duration: 1, ease: "easeInOut" },
+        });
+        // Animate content in
+        await controlsContent.start({
+          y: 0,
+          transition: { duration: 1, ease: "easeInOut" },
+        });
       } else {
-        // immediately position off-screen / content
+        // No transition: position off-screen immediately
         controlsVideo.set({ y: "-100vh" });
         controlsContent.set({ y: 0 });
       }
 
+      // Clean up
       sessionStorage.removeItem("fromHomePage");
       sessionStorage.removeItem("fromHomePageTime");
       sessionStorage.removeItem("targetVideo");
@@ -75,11 +117,10 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
     run();
   }, [controlsVideo, controlsContent]);
 
-  // Determine which sections to render
-  const sectionKeys = SECTION_ORDER.filter((key) =>
-    key in dict.casa.sections
+  // 3️⃣ Prepare section keys & IDs
+  const sectionKeys = SECTION_ORDER.filter(
+    (key) => key in dict.casa.sections
   ) as SectionKey[];
-
   const sectionIds = sectionKeys.flatMap((key) => [
     key,
     ...(dict.casa.sections[key].subsections
@@ -98,7 +139,6 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
       >
         <video
           ref={videoRef}
-          src="/videos/casa.mp4"
           autoPlay
           muted
           loop
@@ -108,16 +148,9 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
           }`}
         >
           {/* WebM first */}
-          <source
-            src="/videos/casa.webm"
-            type="video/webm"
-          />
+          <source src="/videos/casa.webm" type="video/webm" />
           {/* MP4 fallback */}
-          <source
-            src="/videos/casa.mp4"
-            type="video/mp4"
-          />
-          {/* accessibility fallback */}
+          <source src="/videos/casa.mp4" type="video/mp4" />
           Your browser doesn’t support this video.
         </video>
       </motion.div>
