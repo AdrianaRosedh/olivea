@@ -16,7 +16,19 @@ export const metadata: Metadata = {
   appleWebApp: { title: "Grupo Olivea" },
   other: {
     preload: [
-      '<link rel="preload" href="/videos/homepage-temp.mp4" as="video" type="video/mp4" />',
+      // Hero video (MP4 + WebM)
+      '<link rel="preload" href="/videos/homepage-temp.webm" as="video" type="video/webm" fetchpriority="high" />',
+      '<link rel="preload" href="/videos/homepage-temp.mp4"  as="video" type="video/mp4"  fetchpriority="high" />',
+
+      // Card transition clips (WebM + MP4)
+      '<link rel="preload" href="/videos/transition1.webm" as="video" type="video/webm" fetchpriority="low" />',
+      '<link rel="preload" href="/videos/transition1.mp4"  as="video" type="video/mp4"  fetchpriority="low" />',
+      '<link rel="preload" href="/videos/transition2.webm" as="video" type="video/webm" fetchpriority="low" />',
+      '<link rel="preload" href="/videos/transition2.mp4"  as="video" type="video/mp4"  fetchpriority="low" />',
+      '<link rel="preload" href="/videos/transition3.webm" as="video" type="video/webm" fetchpriority="low" />',
+      '<link rel="preload" href="/videos/transition3.mp4"  as="video" type="video/mp4"  fetchpriority="low" />',
+
+      // any other critical assets
       '<link rel="preload" href="/assets/alebrije-1.svg" as="image" type="image/svg+xml" />',
     ]
   }
