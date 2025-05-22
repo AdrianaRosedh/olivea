@@ -18,11 +18,11 @@ export async function generateMetadata({
   const { lang, dict } = await loadLocale(await params);
 
   return {
-    title: `${dict.restaurant.title} | Olivea`,
+    title: `${dict.restaurant.title}`,
     description: dict.restaurant.description,
     metadataBase: new URL("https://oliveafarmtotable.com"),
     openGraph: {
-      title: `${dict.restaurant.title} | Olivea`,
+      title: `${dict.restaurant.title}`,
       description: dict.restaurant.description,
       images: [
         {
