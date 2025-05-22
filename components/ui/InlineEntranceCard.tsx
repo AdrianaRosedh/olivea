@@ -33,6 +33,7 @@ export default function InlineEntranceCard({
   const slug = href.split("/").pop() || "";
   const targetVideo = slug ? `/videos/${slug}.mp4` : videoSrc || "";
   const targetWebM   = targetVideo.replace(/\.mp4$/, ".webm");
+  const firstSrc = targetWebM; 
 
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -145,7 +146,7 @@ export default function InlineEntranceCard({
     if (isMobile) {
       setIsOpened(true);
     } else {
-      startTransition(videoSrc || "", playbackTime, href, bounds, targetVideo);
+      startTransition(firstSrc, playbackTime, href, bounds, targetVideo );
     }
   };
 
@@ -180,7 +181,7 @@ export default function InlineEntranceCard({
       <div
         className="relative overflow-visible cursor-pointer"
         style={{ filter: isMobile ? "drop-shadow(0 8px 12px rgba(0,0,0,0.15))" : undefined }}
-        onPointerDown={handlePointerDown}
+        onClick={handlePointerDown}
       >
         <motion.div
           initial={{ height: isMobile ? MOBILE_COLLAPSED : CARD_HEIGHT }}
@@ -191,7 +192,7 @@ export default function InlineEntranceCard({
               const playbackTime = videoRef.current?.currentTime || 0;
               const bounds = videoRef.current?.getBoundingClientRect();
               if (!bounds) return;
-              startTransition(videoSrc || "", playbackTime, href, bounds, targetVideo);
+              startTransition(firstSrc, playbackTime, href, bounds, targetVideo);
               setIsOpened(false);
             }
           }}
@@ -202,19 +203,24 @@ export default function InlineEntranceCard({
             <motion.div initial={{ height: TOP_DESKTOP }} animate={{ height: topHeight }} transition={{ duration: 0.5 }} style={{ position: "relative", overflow: "hidden" }}>
               <video
                 ref={videoRef}
-                src={targetVideo || videoSrc || ""}
                 autoPlay
                 muted
                 loop
                 playsInline
-                preload="none" 
-                style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.5s", opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0 }}
+                preload="none"
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  transition: "opacity 0.5s",
+                  opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0,
+                }}
               >
-                {/* try WebM first */}
+                {/* WebM first */}
                 <source src={targetWebM}   type="video/webm" />
                 {/* MP4 fallback */}
                 <source src={targetVideo} type="video/mp4" />
-                {/* for very old browsers */}
                 Your browser doesn’t support this video.
               </video>
             </motion.div>

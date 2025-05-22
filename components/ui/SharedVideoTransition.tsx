@@ -40,6 +40,7 @@ export default function SharedVideoTransition() {
       webmSource.src = webmUrl;
       mp4Source.src = mp4Url;
       video.load(); // pick up the new <source> URLs
+      console.log("▶️ Loaded transition sources:", { webmUrl, mp4Url });
     } else {
       // Fallback: if sources not found, set src directly to MP4
       video.src = mp4Url;
