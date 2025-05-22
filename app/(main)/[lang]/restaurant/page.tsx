@@ -18,11 +18,11 @@ export async function generateMetadata({
   const { lang, dict } = await loadLocale(await params);
 
   return {
-    title: `${dict.restaurant.title}`,
+    title: dict.restaurant.title,
     description: dict.restaurant.description,
     metadataBase: new URL("https://oliveafarmtotable.com"),
     openGraph: {
-      title: `${dict.restaurant.title}`,
+      title: dict.restaurant.title,
       description: dict.restaurant.description,
       images: [
         {
@@ -41,6 +41,14 @@ export async function generateMetadata({
         en: "https://oliveafarmtotable.com/en/restaurant",
         es: "https://oliveafarmtotable.com/es/restaurant",
       },
+    },
+
+    // ← preload the Restaurant identity clip
+    other: {
+      preload: [
+        '<link rel="preload" href="/videos/restaurant.webm" as="video" type="video/webm" />',
+        '<link rel="preload" href="/videos/restaurant.mp4"  as="video" type="video/mp4"  />',
+      ],
     },
   };
 }
@@ -68,7 +76,7 @@ export default async function RestaurantPage({
           </div>
         }
       >
-        {/* Pass the full dict through, just like Cafe & Casa */}
+        {/* Pass the full dict */}
         <RestaurantClientPage dict={dict} />
       </Suspense>
     </div>

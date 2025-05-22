@@ -1,33 +1,33 @@
 // app/[lang]/casa/page.tsx
 import type { Metadata, Viewport } from "next";
-import { loadLocale }               from "@/lib/i18n";
-import CasaClientPage               from "./CasaClientPage";
+import { loadLocale } from "@/lib/i18n";
+import CasaClientPage from "./CasaClientPage";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
-  // 1️⃣ Await the params promise
   const p = await params;
-  // 2️⃣ Delegate locale+dict loading
   const { lang, dict } = await loadLocale(p);
 
   return {
-    title:       `${dict.casa.title}`,
+    title: dict.casa.title,
     description: dict.casa.description,
     metadataBase: new URL("https://oliveafarmtotable.com"),
     openGraph: {
-      title:       `${dict.casa.title}`,
+      title: dict.casa.title,
       description: dict.casa.description,
-      images: [{
-        url:   "/images/casa.png",
-        width: 1200,
-        height: 630,
-        alt:   "Casa",
-      }],
+      images: [
+        {
+          url: "/images/casa.png",
+          width: 1200,
+          height: 630,
+          alt: "Casa Olivea",
+        },
+      ],
       locale: lang,
-      type:   "website",
+      type: "website",
     },
     alternates: {
       canonical: `https://oliveafarmtotable.com/${lang}/casa`,
@@ -36,14 +36,22 @@ export async function generateMetadata({
         es: `https://oliveafarmtotable.com/es/casa`,
       },
     },
+
+    // ← HERE: warm up the Casa identity clip
+    other: {
+      preload: [
+        '<link rel="preload" href="/videos/casa.webm" as="video" type="video/webm" />',
+        '<link rel="preload" href="/videos/casa.mp4"  as="video" type="video/mp4"  />',
+      ],
+    },
   };
 }
 
 export const viewport: Viewport = {
-  width:        "device-width",
+  width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor:   "#65735b",
+  themeColor: "#65735b",
 };
 
 export default async function CasaPage({
@@ -51,11 +59,7 @@ export default async function CasaPage({
 }: {
   params: Promise<{ lang: string }>;
 }) {
-  // 1️⃣ Await params
   const p = await params;
-  // 2️⃣ Pull in dictionary only
   const { dict } = await loadLocale(p);
-
-  // 3️⃣ Hand off to client component
   return <CasaClientPage dict={dict} />;
 }

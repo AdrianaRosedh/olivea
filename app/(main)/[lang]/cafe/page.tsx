@@ -12,18 +12,20 @@ export async function generateMetadata({
   const { lang, dict } = await loadLocale(p);
 
   return {
-    title: `${dict.cafe.title}`,
+    title: dict.cafe.title,
     description: dict.cafe.description,
     metadataBase: new URL("https://oliveafarmtotable.com"),
     openGraph: {
-      title: `${dict.cafe.title}`,
+      title: dict.cafe.title,
       description: dict.cafe.description,
-      images: [{
-        url: "/images/cafe.png",
-        width: 1200,
-        height: 630,
-        alt: "Olivea Café",
-      }],
+      images: [
+        {
+          url: "/images/cafe.png",
+          width: 1200,
+          height: 630,
+          alt: "Olivea Café",
+        },
+      ],
       locale: lang,
       type: "website",
     },
@@ -33,6 +35,15 @@ export async function generateMetadata({
         en: `https://oliveafarmtotable.com/en/cafe`,
         es: `https://oliveafarmtotable.com/es/cafe`,
       },
+    },
+
+    // ← Add your video‐preload hints here:
+    other: {
+      preload: [
+        // WebM first, then MP4
+        '<link rel="preload" href="/videos/cafe.webm" as="video" type="video/webm" />',
+        '<link rel="preload" href="/videos/cafe.mp4"  as="video" type="video/mp4"  />',
+      ],
     },
   };
 }
@@ -51,6 +62,5 @@ export default async function CafePage({
 }) {
   const p = await params;
   const { dict } = await loadLocale(p);
-
   return <CafeClientPage dict={dict} />;
-} 
+}
