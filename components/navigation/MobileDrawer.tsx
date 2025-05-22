@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
-import type { AppDictionary } from "@/app/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { FaYoutube, FaInstagram, FaTiktok, FaLinkedin, FaSpotify, FaPinterest } from "react-icons/fa";
 
 interface Props {

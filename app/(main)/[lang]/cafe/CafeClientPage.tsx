@@ -1,42 +1,32 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { AppDictionary } from "@/app/[lang]/dictionaries";
-import {
-  TypographyH1,
-  TypographyH2,
-  TypographyH3,
-  TypographyP,
-} from "@/components/ui/Typography";
+import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import { TypographyH2, TypographyH3, TypographyP } from "@/components/ui/Typography";
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 import { motion, useAnimation } from "framer-motion";
+import Image from "next/image";
 
 interface SectionData {
   title: string;
   description: string;
+  images?: { src: string; alt?: string }[];
   subsections?: Record<string, { title: string; description: string }>;
 }
 
-interface RestaurantClientPageProps {
+interface CafeClientPageProps {
   dict: AppDictionary;
 }
 
-const RESTAURANT_SECTION_ORDER = [
-  "culinary_philosophy",
-  "garden",
-  "dining_experiences",
-  "atmosphere",
-  "chef_team",
-  "community",
-  "sustainability_commitment",
-  "chef_garden_table",
-  "local_artisans",
-  "colibri_service",
+const CAFÉ_SECTION_ORDER = [
+  "all_day",    // 01 Experiences
+  "padel",      // 02 Padel
+  "menu",       // 03 Garden-Inspired
+  "community",  // 04 Community
+  "ambience",   // 05 Atmosphere
 ] as const;
 
-type SectionKey = typeof RESTAURANT_SECTION_ORDER[number];
-
-export default function RestaurantClientPage({ dict }: RestaurantClientPageProps) {
+export default function CafeClientPage({ dict }: CafeClientPageProps) {
   const controlsVideo = useAnimation();
   const controlsContent = useAnimation();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -55,22 +45,23 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
   useEffect(() => {
     const fromHomePage = sessionStorage.getItem("fromHomePage");
     const playbackTime = sessionStorage.getItem("fromHomePageTime");
-    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/restaurant.mp4";
+    const targetVideo = sessionStorage.getItem("targetVideo") || "/videos/cafe.mp4";
 
     const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
         videoRef.current.src = targetVideo || "/videos/restaurant.mp4";
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
-        // wait for the hero-card grow animation
-        await new Promise((r) => setTimeout(r, 1300));
+        // wait for the card-grow animation
+        await new Promise((r) => setTimeout(r, 1_300));
+
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
         await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
       } else {
-        // immediately position off-screen / content
+        // no transition: set positions immediately
         controlsVideo.set({ y: "-100vh" });
         controlsContent.set({ y: 0 });
-      }   
+      }
 
       sessionStorage.removeItem("fromHomePage");
       sessionStorage.removeItem("fromHomePageTime");
@@ -81,16 +72,15 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
     run();
   }, [controlsVideo, controlsContent]);
 
-  // Filter only existing sections in JSON order
-  const sectionKeys = RESTAURANT_SECTION_ORDER.filter(
-    (key) => key in dict.restaurant.sections
-  ) as SectionKey[];
+  // Build ordered section keys and flattened IDs
+  const sectionKeys = CAFÉ_SECTION_ORDER.filter((key) =>
+    key in dict.cafe.sections
+  ) as Array<keyof typeof dict.cafe.sections>;
 
-  // Flatten for mobile snap-tracker
   const sectionIds = sectionKeys.flatMap((key) => [
     key,
-    ...(dict.restaurant.sections[key].subsections
-      ? Object.keys(dict.restaurant.sections[key].subsections!)
+    ...(dict.cafe.sections[key].subsections
+      ? Object.keys(dict.cafe.sections[key].subsections!)
       : []),
   ]);
 
@@ -115,7 +105,7 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
         />
       </motion.div>
 
-      {/* Page content after video transition */}
+      {/* Page content only after transition */}
       {transitionDone && (
         <>
           <motion.div
@@ -123,24 +113,36 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
             animate={controlsContent}
             className="relative"
           >
-            <header className="text-center py-12 px-6">
-              <TypographyH1>{dict.restaurant.title}</TypographyH1>
-              <TypographyP className="mt-2">
-                {dict.restaurant.description}
-              </TypographyP>
-            </header>
-
             {sectionKeys.map((key) => {
-              const sec = dict.restaurant.sections[key] as SectionData;
+              const sec = dict.cafe.sections[key] as SectionData;
+              const images = sec.images?.length
+                ? sec.images
+                : [{ src: "/images/hero.jpg", alt: sec.title }];
+
               return (
                 <section
                   key={key}
                   id={key}
-                  className="main-section min-h-screen snap-start flex flex-col items-center justify-center px-6"
+                  className="main-section min-h-screen flex flex-col items-center justify-center px-6"
                 >
                   <div className="max-w-2xl text-center">
                     <TypographyH2>{sec.title}</TypographyH2>
                     <TypographyP className="mt-2">{sec.description}</TypographyP>
+                  </div>
+
+                  {/* Optional image grid */}
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="bg-white shadow rounded overflow-hidden">
+                        <Image
+                          src={img.src}
+                          alt={img.alt || ""}
+                          width={800}
+                          height={480}
+                          className="object-cover w-full h-48"
+                        />
+                      </div>
+                    ))}
                   </div>
 
                   {/* Sub-sections */}
@@ -149,7 +151,7 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
                       <section
                         key={subId}
                         id={subId}
-                        className="subsection min-h-screen snap-start flex flex-col items-center justify-center px-6"
+                        className="subsection min-h-screen flex flex-col items-center justify-center px-6"
                       >
                         <div className="max-w-2xl text-center">
                           <TypographyH3>{sub.title}</TypographyH3>

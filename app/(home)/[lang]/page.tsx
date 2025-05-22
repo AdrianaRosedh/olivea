@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
 import dynamic from "next/dynamic";
-import ReservationButton from "./ReservationButton";
+import ReservationButton from "@lang/ReservationButton";
 
 import CasaLogo from "@/assets/alebrije-2.svg";
 import FarmLogo from "@/assets/alebrije-1-Green.svg";

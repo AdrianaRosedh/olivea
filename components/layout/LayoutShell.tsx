@@ -18,7 +18,7 @@ import NextGenBackground from "@/components/animations/NextGenBackground";
 import DesktopChatButton from "@/components/ui/DesktopChatButton";
 
 // import only the Lang & AppDictionary types
-import type { Lang, AppDictionary } from "@/app/[lang]/dictionaries";
+import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
 interface LayoutShellProps {
   lang: Lang;

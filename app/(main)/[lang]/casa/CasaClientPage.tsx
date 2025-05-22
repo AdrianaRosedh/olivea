@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { AppDictionary } from "@/app/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import Image from "next/image";
 import {
   TypographyH2,

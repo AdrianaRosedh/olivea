@@ -2,7 +2,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { Lang, AppDictionary } from "@/app/[lang]/dictionaries";
+import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import LayoutShell from "./LayoutShell";
 import ClientProviders from "@/components/providers/ClientProviders";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";

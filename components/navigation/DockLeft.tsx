@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { AppDictionary } from "@/app/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
 type Identity = "casa" | "cafe" | "restaurant";
 

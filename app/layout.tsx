@@ -3,22 +3,17 @@ import "./globals.css";
 import { Inter, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import type { Metadata } from "next";
+import { Providers } from "./providers";   // ← import your Providers
 
 const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Familia Olivea",
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon.png',
-    shortcut: '/favicon.ico'
-  },
-  manifest: '/manifest.json',
-  appleWebApp: {
-    title: "Familia Olivea",
-  },
+  title: "Grupo Olivea",
+  icons: { icon: "/favicon.ico", apple: "/apple-icon.png", shortcut: "/favicon.ico" },
+  manifest: "/manifest.json",
+  appleWebApp: { title: "Grupo Olivea" },
   other: {
     preload: [
       '<link rel="preload" href="/videos/homepage-temp.mp4" as="video" type="video/mp4" />',
@@ -31,7 +26,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${inter.className} ${corm.className} ${jakarta.className}`}>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
-        {children}
+        {/* ← now every page is wrapped in Providers (client only) */}
+        <Providers>
+          {children}
+        </Providers>
 
         {/* Tock Script */}
         <Script id="tock-script" strategy="beforeInteractive">

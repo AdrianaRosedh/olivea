@@ -26,9 +26,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "baseUrl": ".",
-    "paths": {
+    "paths": { 
+      "@lang/*": ["app/(main)/[lang]/*"],
       "@/*": [
-        "./*"
+        "./*",
       ],
       "@types": [
         "types"

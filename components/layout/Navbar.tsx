@@ -11,7 +11,7 @@ import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection
 import AdaptiveNavbar from "@/components/navigation/AdaptiveNavbar";
 import MobileDrawer from "@/components/navigation/MobileDrawer";
 import { MobileNav } from "@/components/navigation/MobileNav";
-import type { AppDictionary } from "@/app/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
 // CenterLink for the desktop navbar
 interface CenterLinkProps {
