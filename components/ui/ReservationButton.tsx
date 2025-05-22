@@ -8,6 +8,7 @@ import { useReservation } from "@/contexts/ReservationContext";
 interface ReservationButtonProps {
   /** Optional extra classes to apply to both mobile and desktop wrappers */
   className?: string;
+  onClick?: () => void;
 }
 
 export default function ReservationButton({ className = "" }: ReservationButtonProps) {

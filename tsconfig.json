@@ -25,15 +25,11 @@
     ],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "baseUrl": ".",
-    "paths": { 
-      "@lang/*": ["app/(main)/[lang]/*"],
-      "@/*": [
-        "./*",
-      ],
-      "@types": [
-        "types"
-      ]
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./*"],  // This maps the '@' alias to the root directory
+      "@components/*": ["./components/*"], // This maps '@components' to the components folder
+      "@types/*": ["types/*"]
     }
   },
   "include": [
