@@ -15,6 +15,7 @@ import { useLenis } from "@/components/providers/ScrollProvider";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer";
 import NextGenBackground from "@/components/animations/NextGenBackground";
+import DesktopChatButton from "@/components/ui/DesktopChatButton";
 
 // import only the Lang & AppDictionary types
 import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
@@ -142,6 +143,12 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
           <div className="fixed bottom-[68px] inset-x-0 z-40 border-[var(--olivea-soil)]/10">
             <MobileSectionNav items={mobileNavItems} />
           </div>
+        </ClientOnly>
+      )}
+      {/* ── CHAT BUTTON ───────────────────────────────────────────────────────────── */}
+      {mounted && !isHome && !isMobile && (
+        <ClientOnly>
+          <DesktopChatButton lang={lang} />
         </ClientOnly>
       )}
     </>
