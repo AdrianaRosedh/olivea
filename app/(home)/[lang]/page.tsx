@@ -87,25 +87,40 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    document.body.classList.add("overflow-hidden");
+  // Lock the body scroll during the intro
+  document.body.classList.add("overflow-hidden");
 
-    const handleInitialAnimation = async () => {
-      await new Promise(res => setTimeout(res, 1500));
+  let isCancelled = false;
+
+  const handleInitialAnimation = async () => {
+    try {
+      // 1️⃣ Wait your fixed intro delay
+      await new Promise((res) => setTimeout(res, 1500));
+      if (isCancelled) return;
       setDrawComplete(true);
 
       const vid = videoRef.current;
       const logoTarget = logoTargetRef.current;
-
       if (!vid || !logoTarget) return;
 
-      if (vid.readyState < 2) {
-        await new Promise<void>(res => vid.addEventListener("loadeddata", () => res(), { once: true }));
-      }
+      // 2️⃣ Race loadedmetadata against a 1s timeout so we never wait forever
+      await Promise.race([
+        new Promise<void>((res) => {
+          if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) {
+            // metadata already loaded
+            return res();
+          }
+          vid.addEventListener("loadedmetadata", () => res(), { once: true });
+        }),
+        new Promise<void>((res) => setTimeout(res, 1000)),
+      ]);
+      if (isCancelled) return;
 
+      // 3️⃣ Reveal the main content
       setRevealMain(true);
 
+      // 4️⃣ Animate the overlay from the video's current position
       const rect = vid.getBoundingClientRect();
-
       await overlayControls.start({
         top: rect.top + window.scrollY,
         left: rect.left + window.scrollX,
@@ -114,11 +129,14 @@ export default function HomePage() {
         borderRadius: "1.5rem",
         transition: { duration: 0.8, ease: "easeInOut" },
       });
+      if (isCancelled) return;
 
-      await new Promise(res => setTimeout(res, 400));
+      // 5️⃣ Brief pause before the logo animation
+      await new Promise((res) => setTimeout(res, 400));
+      if (isCancelled) return;
 
+      // 6️⃣ Animate the logo into place
       const pad = logoTarget.getBoundingClientRect();
-
       await logoControls.start({
         top: pad.top + pad.height / 2 + window.scrollY,
         left: pad.left + pad.width / 2 + window.scrollX,
@@ -127,14 +145,31 @@ export default function HomePage() {
         scale: pad.width / 240,
         transition: { type: "spring", stiffness: 200, damping: 25 },
       });
+      if (isCancelled) return;
 
-      await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
-      setShowLoader(false);
-      document.body.classList.remove("overflow-hidden");
-    };
+      // 7️⃣ Fade out the overlay
+      await overlayControls.start({
+        opacity: 0,
+        transition: { duration: 0.4 },
+      });
+    } catch (err) {
+      console.error("Intro animation error:", err);
+    } finally {
+      // 8️⃣ Always remove loader and restore scroll
+      if (!isCancelled) {
+        setShowLoader(false);
+        document.body.classList.remove("overflow-hidden");
+      }
+    }
+  };
 
-    handleInitialAnimation();
-  }, [overlayControls, logoControls]);
+  handleInitialAnimation();
+
+  return () => {
+    // signal to cancel any in-flight animation steps
+    isCancelled = true;
+  };
+}, [overlayControls, logoControls]);
 
   return (
     <>
