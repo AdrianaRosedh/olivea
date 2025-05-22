@@ -116,6 +116,7 @@ export default function SharedVideoTransition() {
       >
         <video
           ref={videoRef}
+          autoPlay 
           muted
           playsInline
           loop

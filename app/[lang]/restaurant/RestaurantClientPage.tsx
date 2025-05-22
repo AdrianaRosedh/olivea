@@ -59,7 +59,7 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
 
     const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        videoRef.current.src = targetVideo;
+        videoRef.current.src = targetVideo || "/videos/restaurant.mp4";
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
         // wait for the hero-card grow animation

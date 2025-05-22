@@ -6,14 +6,14 @@ type TransitionState = {
   videoPlaybackTime: number;
   active: boolean;
   targetHref: string;
-  targetVideo: string | null;         // ✅ added: target video path for destination
-  initialBounds?: DOMRect;            // ✅ added previously
+  targetVideo: string | null;
+  initialBounds?: DOMRect;
   startTransition: (
     src: string,
     playbackTime: number,
     href: string,
-    bounds: DOMRect,                 // ✅ added
-    targetVideo: string              // ✅ added
+    bounds: DOMRect,
+    targetVideo: string
   ) => void;
   clearTransition: () => void;
 };
@@ -21,28 +21,36 @@ type TransitionState = {
 const SharedTransitionContext = createContext<TransitionState | undefined>(undefined);
 
 export function SharedTransitionProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<Omit<TransitionState, "startTransition" | "clearTransition">>({
+  const [state, setState] = useState<{
+    videoSrc: string | null;
+    videoPlaybackTime: number;
+    active: boolean;
+    targetHref: string;
+    targetVideo: string | null;
+    initialBounds?: DOMRect;
+  }>({
     videoSrc: null,
     videoPlaybackTime: 0,
     active: false,
     targetHref: "",
-    targetVideo: null,              // ✅ added
+    targetVideo: null,
+    initialBounds: undefined,
   });
 
   const startTransition = (
     src: string,
     playbackTime: number,
     href: string,
-    bounds: DOMRect,               // ✅ added
-    targetVideo: string            // ✅ added
+    bounds: DOMRect,
+    targetVideo: string
   ) => {
     setState({
       videoSrc: src,
       videoPlaybackTime: playbackTime,
       active: true,
       targetHref: href,
-      targetVideo: targetVideo,    // ✅ added
-      initialBounds: bounds,       // ✅ added
+      targetVideo: targetVideo,
+      initialBounds: bounds,
     });
   };
 
@@ -52,7 +60,8 @@ export function SharedTransitionProvider({ children }: { children: ReactNode }) 
       videoPlaybackTime: 0,
       active: false,
       targetHref: "",
-      targetVideo: null,           // ✅ added
+      targetVideo: null,
+      initialBounds: undefined,
     });
   };
 

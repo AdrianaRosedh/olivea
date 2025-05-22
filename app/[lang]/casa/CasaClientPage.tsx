@@ -54,7 +54,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
 
     const run = async () => {
       if (fromHomePage && videoRef.current && playbackTime) {
-        videoRef.current.src = targetVideo;
+        videoRef.current.src = targetVideo || "/videos/casa.mp4";
         videoRef.current.currentTime = parseFloat(playbackTime);
         await videoRef.current.play().catch(() => {});
         await new Promise((r) => setTimeout(r, 1300));
