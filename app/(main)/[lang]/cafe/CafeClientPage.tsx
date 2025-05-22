@@ -62,6 +62,7 @@ export default function CafeClientPage({ dict }: CafeClientPageProps) {
         await new Promise((r) => setTimeout(r, 1300));
 
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
+        videoRef.current?.pause();
         await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
       } else {
         // No transition: set positions immediately

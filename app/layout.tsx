@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AppProviders>
 
         {/* Global third‐party scripts */}
-        <Script id="tock-script" strategy="beforeInteractive">
+        <Script id="tock-script" strategy="afterInteractive">
           {`
             !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?
             e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
 
-        <Script id="whistle-config" strategy="afterInteractive">
+        <Script id="whistle-config" strategy="lazyOnload">
           {`
             window.WhistleLiveChat = {
               company: "295565",
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script
           id="whistle-script"
           src="https://plugins.whistle.cloudbeds.com/live-chat/initialize.js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
         <button id="chatbot-toggle" style={{ display: "none" }} />
       </body>

@@ -100,6 +100,7 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
 
         // Animate video overlay out
         await controlsVideo.start({ y: "-100vh", transition: { duration: 1, ease: "easeInOut" } });
+        videoRef.current?.pause();
         // Animate content in
         await controlsContent.start({ y: 0, transition: { duration: 1, ease: "easeInOut" } });
       } else {

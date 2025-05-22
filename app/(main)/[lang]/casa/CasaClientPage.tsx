@@ -96,6 +96,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
           y: "-100vh",
           transition: { duration: 1, ease: "easeInOut" },
         });
+        videoRef.current?.pause();
         // Animate content in
         await controlsContent.start({
           y: 0,
