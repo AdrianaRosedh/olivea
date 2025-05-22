@@ -51,7 +51,7 @@ export default function AdaptiveNavbar({
       )}
     >
       <div className="flex items-center justify-between px-4 h-16">
-        <Link href={`/`} aria-label="Home">
+        <Link href={`/`} locale={false} aria-label="Home">
           <OliveaFTTLogo className={cn("h-10 w-auto", logoColor)} />
         </Link>
         <MenuToggle

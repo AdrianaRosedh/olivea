@@ -99,10 +99,10 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 w-full z-[50] bg-transparent backdrop-blur-md">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-0 h-20 md:h-24 lg:h-28 w-full">
-        <Link href={`/}`} aria-label="Home">
+        <Link href={`/}`} locale={false} aria-label="Home">
           <OliveaFTTLogo
             className={`h-10 md:h-16 lg:h-20 ${
-              pathname === `/${lang}` ? "text-[var(--olivea-olive)]" : isDark ? "text-white" : "text-[var(--olivea-olive)]"
+              pathname === `/}` ? "text-[var(--olivea-olive)]" : isDark ? "text-white" : "text-[var(--olivea-olive)]"
             }`}
           />
         </Link>
