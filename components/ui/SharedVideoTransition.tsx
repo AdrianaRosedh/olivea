@@ -24,26 +24,40 @@ export default function SharedVideoTransition() {
   // Run before paint to prevent any flash of default positioning
   useEffect(() => {
     if (!active || !initialBounds || !videoRef.current) return;
-
+    
     const video = videoRef.current;
-    // Choose a non-null source string (fallback to empty string if needed)
-    const src = targetVideo ?? videoSrc ?? "";
-    video.src = src;
-    video.load();
-
+    
+    // 1️⃣ Compute source URLs
+    const mp4Url = (targetVideo ?? videoSrc ?? "").trim();
+    const webmUrl = mp4Url.replace(/\.mp4$/, ".webm");
+    
+    // 2️⃣ Update <source> tags
+    const sources = Array.from(video.querySelectorAll("source"));
+    const webmSource = sources.find(s => s.getAttribute("data-type") === "webm");
+    const mp4Source = sources.find(s => s.getAttribute("data-type") === "mp4");
+    
+    if (webmSource && mp4Source) {
+      webmSource.src = webmUrl;
+      mp4Source.src = mp4Url;
+      video.load(); // pick up the new <source> URLs
+    } else {
+      // Fallback: if sources not found, set src directly to MP4
+      video.src = mp4Url;
+      video.load();
+    }
+  
     const performTransition = async () => {
-      // Wait until metadata/data is available for seeking
-      await new Promise<void>((resolve) => {
+      // Wait for enough data to seek
+      await new Promise<void>(resolve => {
         if (video.readyState >= 2) return resolve();
-        const onLoaded = () => resolve();
-        video.addEventListener("loadeddata", onLoaded, { once: true });
+        video.addEventListener("loadeddata", () => resolve(), { once: true });
       });
-
-      // Seek and play
+    
+      // Seek & play
       video.currentTime = videoPlaybackTime;
       await video.play().catch(() => {});
-
-      // Place overlay exactly over the source card
+    
+      // Position overlay over the card
       controls.set({
         top: initialBounds.top,
         left: initialBounds.left,
@@ -51,11 +65,11 @@ export default function SharedVideoTransition() {
         height: initialBounds.height,
         borderRadius: "1.5rem",
       });
-
-      // Wait one frame for the DOM to apply the set
+    
+      // One frame for the set to apply
       await new Promise(requestAnimationFrame);
-
-      // Animate to full-screen (98% on desktop, 100% on mobile)
+    
+      // Animate to full-screen
       const isMobile = window.innerWidth < 768;
       const finalAnim = isMobile
         ? { top: 0, left: 0, width: "100vw", height: "100vh", borderRadius: "0rem" }
@@ -66,19 +80,22 @@ export default function SharedVideoTransition() {
             height: window.innerHeight * 0.98,
             borderRadius: "1.5rem",
           };
-
-      await controls.start({ ...finalAnim, transition: { duration: 0.8, ease: "easeInOut" } });
-
-      // Brief pause at full-screen
-      await new Promise((r) => setTimeout(r, 300));
-
-      // Navigate once animation completes
+        
+      await controls.start({
+        ...finalAnim,
+        transition: { duration: 0.8, ease: "easeInOut" },
+      });
+    
+      // Pause briefly at full-screen
+      await new Promise(r => setTimeout(r, 300));
+    
+      // Navigate
       await router.prefetch(targetHref);
       await router.push(targetHref);
-
-      // Clear will be triggered once route has changed below
+    
+      // clearTransition will run after route change
     };
-
+  
     performTransition();
   }, [
     active,
@@ -90,6 +107,7 @@ export default function SharedVideoTransition() {
     controls,
     router,
   ]);
+
 
   // Once the URL updates to targetHref, fade out and clear
   useEffect(() => {
@@ -116,17 +134,18 @@ export default function SharedVideoTransition() {
       >
         <video
           ref={videoRef}
-          src={targetVideo ?? videoSrc ?? ""} 
-          autoPlay 
+          autoPlay
           muted
           playsInline
           loop
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-        />
+          style={{ width:"100%", height:"100%", objectFit:"cover" }}
+        >
+          {/* 1️⃣ WebM first */}
+          <source data-type="webm" />
+          {/* 2️⃣ MP4 fallback */}
+          <source data-type="mp4" />
+          Your browser doesn’t support this video.
+        </video>
       </motion.div>
     </AnimatePresence>
   );

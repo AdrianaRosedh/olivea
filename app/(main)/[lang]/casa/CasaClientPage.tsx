@@ -98,6 +98,7 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
       >
         <video
           ref={videoRef}
+          src="/videos/casa.mp4"
           autoPlay
           muted
           loop
@@ -105,7 +106,20 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
           className={`object-cover ${
             isMobile ? "w-full h-full" : "w-[98vw] h-[98vh] rounded-3xl mt-[1vh]"
           }`}
-        />
+        >
+          {/* WebM first */}
+          <source
+            src="/videos/casa.webm"
+            type="video/webm"
+          />
+          {/* MP4 fallback */}
+          <source
+            src="/videos/casa.mp4"
+            type="video/mp4"
+          />
+          {/* accessibility fallback */}
+          Your browser doesn’t support this video.
+        </video>
       </motion.div>
 
       {/* Page content after video transition */}

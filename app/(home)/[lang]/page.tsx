@@ -202,17 +202,24 @@ export default function HomePage() {
       borderRadius: "1.5rem",
           }}
         >
-          <video
-            ref={videoRef}
-            src="/videos/homepage-temp.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            aria-label="Welcome to Olivea"
-            className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
-          />
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-label="Welcome to Olivea"
+          className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
+        >
+          {/* WebM first, for supporting browsers */}
+          <source src="/videos/homepage-temp.webm" type="video/webm" />
+          {/* MP4 fallback */}
+          <source src="/videos/homepage-temp.mp4" type="video/mp4" />
+          {/* in case neither is supported */}
+          Your browser doesn’t support this video.
+        </video>
+
           <div className="absolute inset-0 flex justify-center items-start">
             <div
               ref={logoTargetRef}

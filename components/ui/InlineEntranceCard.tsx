@@ -32,6 +32,7 @@ export default function InlineEntranceCard({
 
   const slug = href.split("/").pop() || "";
   const targetVideo = slug ? `/videos/${slug}.mp4` : videoSrc || "";
+  const targetWebM   = targetVideo.replace(/\.mp4$/, ".webm");
 
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -206,8 +207,16 @@ export default function InlineEntranceCard({
                 muted
                 loop
                 playsInline
+                preload="none" 
                 style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.5s", opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0 }}
-              />
+              >
+                {/* try WebM first */}
+                <source src={targetWebM}   type="video/webm" />
+                {/* MP4 fallback */}
+                <source src={targetVideo} type="video/mp4" />
+                {/* for very old browsers */}
+                Your browser doesn’t support this video.
+              </video>
             </motion.div>
             <motion.div
               initial={{ height: BOTTOM_DEFAULT }}
