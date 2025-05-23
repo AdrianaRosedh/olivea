@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AppProviders>
 
         {/* Global third‐party scripts */}
-        <Script id="tock-script" strategy="lazyOnload">
+        <Script id="tock-script" strategy="beforeInteractive">
           {`
             !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?    
             e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),    
