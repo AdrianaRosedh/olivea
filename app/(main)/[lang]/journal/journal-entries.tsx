@@ -1,18 +1,18 @@
-
+// app/(main)/[lang]/journal/journal-entries.tsx
 import { Suspense } from "react";
-import type { Lang } from "../dictionaries"
-import { supabase } from "@/lib/supabase"
-import Link from "next/link"
-import Image from "next/image"
+import type { Lang } from "../dictionaries";
+import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+import Image from "next/image";
 
 // 1️⃣ Data shape for a post
 export type JournalPost = {
-  id:           number
-  title:        string
-  slug:         string
-  cover_image:  string | null
-  published_at: string
-}
+  id:           number;
+  title:        string;
+  slug:         string;
+  cover_image:  string | null;
+  published_at: string;
+};
 
 // 2️⃣ A little loading placeholder — returns JSX directly
 export function EntryLoading() {
@@ -22,7 +22,7 @@ export function EntryLoading() {
       <div className="h-8 bg-gray-200 rounded w-3/4 mb-2" />
       <div className="h-4 bg-gray-200 rounded w-1/4" />
     </li>
-  )
+  );
 }
 
 // 3️⃣ Render one post
@@ -30,8 +30,8 @@ export function JournalEntry({
   post,
   lang,
 }: {
-  post: JournalPost
-  lang: Lang
+  post: JournalPost;
+  lang: Lang;
 }) {
   return (
     <li key={post.id}>
@@ -58,26 +58,26 @@ export function JournalEntry({
         </p>
       </Link>
     </li>
-  )
+  );
 }
 
 // 4️⃣ Server component to fetch & stream
 export default async function JournalEntries({
   lang,
 }: {
-  lang: Lang
+  lang: Lang;
 }) {
   const { data, error } = await supabase
     .from("journal_posts")
-    .select("id, title, slug, cover_image, published_at")
+    .select("id, title, slug, cover_image, published_at");
 
   if (error) {
-    throw new Error(error.message)
+    throw new Error(error.message);
   }
 
-  const posts = (data ?? []) as JournalPost[]
+  const posts = (data ?? []) as JournalPost[];
   if (posts.length === 0) {
-    return <p className="text-center text-muted-foreground">No posts yet.</p>
+    return <p className="text-center text-muted-foreground">No posts yet.</p>;
   }
 
   return (
@@ -88,5 +88,5 @@ export default async function JournalEntries({
         </Suspense>
       ))}
     </ul>
-  )
+  );
 }
