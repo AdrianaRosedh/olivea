@@ -1,7 +1,12 @@
 // components/TockWidget.tsx
 "use client";
 
-export default function TockWidget() {
+interface TockWidgetProps {
+  /** the “offering” ID that Tock will render */
+  offeringId: string;
+}
+
+export default function TockWidget({ offeringId }: TockWidgetProps) {
   return (
     <>
       <style jsx global>{`
@@ -25,7 +30,7 @@ export default function TockWidget() {
             id="Tock_widget_container"
             data-tock-display-mode="Inline"
             data-tock-widget="data-tock-offering"
-            data-tock-offering-id="528232"
+            data-tock-offering-id={offeringId}
             data-tock-color-mode="White"
             data-tock-locale="es-mx"
             data-tock-timezone="America/Tijuana"
