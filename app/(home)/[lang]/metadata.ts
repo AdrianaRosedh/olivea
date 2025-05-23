@@ -1,31 +1,33 @@
 // app/(home)/[lang]/metadata.ts
-
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export async function generateMetadata({
   params,
 }: {
   params: { lang: "es" | "en" };
 }): Promise<Metadata> {
-  const lang = params.lang;  // You can use a default or fetch locale-specific metadata if needed
+  const { lang } = params;
 
   return {
-    title: { template: "%s | Olivea", default: "Familia Olivea" },
-    description: "Olivea Farm to Table - A garden experience for your senses", // You can customize this per language
-    openGraph: {
-      title: "Olivea Farm To Table",
-      description: "Olivea Farm to Table - A garden experience for your senses",
-      images: [`/images/og-${lang}.jpg`],  // Dynamic OG image depending on language
-      url: `https://oliveafarmtotable.com/${lang}`,  // Dynamic URL
-      locale: lang,
-      siteName: "Familia Olivea",
-    },
+    title: lang === "es" ? "Grupo Olivea" : "Olivea Family",
+    description: "Olivea Farm to Table – A garden experience for your senses",
     alternates: {
-      canonical: `https://oliveafarmtotable.com/${lang}`,
+      canonical: `https://wwww.oliveafarmtotable.com/${lang}`,
       languages: {
-        en: `https://oliveafarmtotable.com/en`,
-        es: `https://oliveafarmtotable.com/es`,
+        en: "https://wwww.oliveafarmtotable.com/en",
+        es: "https://wwww.oliveafarmtotable.com/es",
       },
+    },
+    openGraph: {
+      title: lang === "es" ? "Olivea Farm to Table" : "Olivea Farm to Table",
+      description: "Olivea Farm to Table – A garden experience for your senses",
+      url: `https://wwww.oliveafarmtotable.com/${lang}`,
+      locale: lang,
+      siteName: "Grupo Olivea",
+      images: [
+        `/images/og-${lang}.jpg`,
+        "/images/og-default.jpg", // fallback
+      ],
     },
   };
 }

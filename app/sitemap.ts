@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://oliveafarmtotable.com"
+  const baseUrl = "https://www.oliveafarmtotable.com"
 
   // Define all routes that should be in the sitemap
   const routes = [
@@ -13,7 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/sustainability",
     "/journal",
     "/legal",
-    "/reservations",
     "/restaurant",
   ]
 

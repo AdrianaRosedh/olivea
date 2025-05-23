@@ -1,6 +1,6 @@
-// app/(home)/layout.tsx
+// this lives in: app/(home)/[lang]/layout.tsx
 import { ReactNode } from "react";
-import { HomeProviders } from "./HomeProviders";
+import { HomeProviders } from "../HomeProviders";
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
   return <HomeProviders>{children}</HomeProviders>;

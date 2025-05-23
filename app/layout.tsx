@@ -3,7 +3,7 @@ import "./globals.css";
 import { Inter, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import type { Metadata } from "next";
-import { AppProviders } from "./providers";  // ← correct path
+import { AppProviders } from "./providers";  
 
 const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });

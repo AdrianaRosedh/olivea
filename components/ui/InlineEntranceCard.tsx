@@ -237,7 +237,7 @@ export default function InlineEntranceCard({
                 {/* WebM first */}
                 <source src={webmUrl}   type="video/webm" />
                 {/* MP4 fallback */}
-                <source src={webmUrl} type="video/mp4" />
+                <source src={mp4Url} type="video/mp4" />
                 Your browser doesn’t support this video.
               </video>
             </motion.div>
