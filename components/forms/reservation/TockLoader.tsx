@@ -8,7 +8,7 @@ export default function TockLoader() {
     <>
       <Script
         id="tock-script"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             !function(t,o,c,k){
