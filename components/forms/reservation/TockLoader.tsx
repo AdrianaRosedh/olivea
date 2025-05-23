@@ -1,4 +1,4 @@
-// components/forms/reservation/TockLoader.tsx
+
 "use client";
 
 import Script from "next/script";
