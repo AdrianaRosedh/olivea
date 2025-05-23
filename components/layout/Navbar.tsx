@@ -11,6 +11,7 @@ import AdaptiveNavbar from "@/components/navigation/AdaptiveNavbar";
 import MobileDrawer from "@/components/navigation/MobileDrawer";
 import { MobileNav } from "@/components/navigation/MobileNav";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 
 // CenterLink for the desktop navbar
 interface CenterLinkProps {
@@ -72,6 +73,7 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
     },
     { href: `${base}/cafe`, label: pathname.startsWith(`${base}/cafe`) ? "Olivea Café" : "Café" },
   ];
+  const { clearTransition } = useSharedTransition();
 
   // Mobile: use AdaptiveNavbar + Drawer + MobileNav
   if (isMobile) {
@@ -97,8 +99,16 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 w-full z-[50] bg-transparent backdrop-blur-md">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-0 h-20 md:h-24 lg:h-28 w-full">
-        <Link href="/" locale={false} aria-label="Home">
-        <OliveaFTTLogo className={`h-10 md:h-16 lg:h-20 w-auto`} />
+        <Link
+        href="/"
+        locale={false}
+        aria-label="Home"
+        onClick={() => {
+          // wipe out any active shared‐element transition before we go home
+          clearTransition();
+        }}
+      >
+        <OliveaFTTLogo className="h-10 md:h-16 lg:h-20 w-auto" />
       </Link>
         <div className="flex flex-1 justify-center gap-4 fill-nav">
           {navItems.map((it) => (

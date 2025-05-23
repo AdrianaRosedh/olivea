@@ -30,10 +30,23 @@ export default function InlineEntranceCard({
   const videoRef = useRef<HTMLVideoElement>(null);
   const { startTransition } = useSharedTransition();
 
-  const slug = href.split("/").pop() || "";
-  const targetVideo = slug ? `/videos/${slug}.mp4` : videoSrc || "";
-  const targetWebM   = targetVideo.replace(/\.mp4$/, ".webm");
-  const firstSrc = targetWebM; 
+  const slug   = href.split("/").pop() || "";
+  const mp4Url = slug ? `/videos/${slug}.mp4` : videoSrc || "";
+  const webmUrl = mp4Url.replace(/\.mp4$/, ".webm");
+  // ───── warmUpVideo: injects <link rel="preload"> once per slug ─────
+  const warmUpVideo = () => {
+    if (document.head.querySelector(`link[data-preload="${slug}"]`)) return;
+    [webmUrl, mp4Url].forEach((url) => {
+      const link = document.createElement("link");
+      link.rel  = "preload";
+      link.as   = "video";
+      link.href = url;
+      link.type = url.endsWith(".webm") ? "video/webm" : "video/mp4";
+      link.setAttribute("data-preload", slug);
+      document.head.appendChild(link);
+    });
+  };
+  const firstSrc = webmUrl; 
 
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -135,18 +148,19 @@ export default function InlineEntranceCard({
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    warmUpVideo();
     const playbackTime = videoRef.current?.currentTime || 0;
     const bounds = videoRef.current?.getBoundingClientRect();
     if (!bounds) return;
     onActivate();
     sessionStorage.setItem("fromHomePage", "true");
     sessionStorage.setItem("fromHomePageTime", String(playbackTime));
-    sessionStorage.setItem("targetVideo", targetVideo);
+    sessionStorage.setItem("targetVideo", mp4Url);
 
     if (isMobile) {
       setIsOpened(true);
     } else {
-      startTransition(firstSrc, playbackTime, href, bounds, targetVideo );
+      startTransition(firstSrc, playbackTime, href, bounds, mp4Url);
     }
   };
 
@@ -175,7 +189,10 @@ export default function InlineEntranceCard({
       tiltMaxAngleX={10}
       tiltMaxAngleY={10}
       glareEnable={false}
-      onEnter={() => setIsHovered(true)}
+      onEnter={() => {
+        warmUpVideo();
+        setIsHovered(true);
+      }}
       onLeave={handleMouseLeave}
     >
       <div
@@ -192,7 +209,7 @@ export default function InlineEntranceCard({
               const playbackTime = videoRef.current?.currentTime || 0;
               const bounds = videoRef.current?.getBoundingClientRect();
               if (!bounds) return;
-              startTransition(firstSrc, playbackTime, href, bounds, targetVideo);
+              startTransition(firstSrc, playbackTime, href, bounds, mp4Url);
               setIsOpened(false);
             }
           }}
@@ -218,9 +235,9 @@ export default function InlineEntranceCard({
                 }}
               >
                 {/* WebM first */}
-                <source src={targetWebM}   type="video/webm" />
+                <source src={webmUrl}   type="video/webm" />
                 {/* MP4 fallback */}
-                <source src={targetVideo} type="video/mp4" />
+                <source src={webmUrl} type="video/mp4" />
                 Your browser doesn’t support this video.
               </video>
             </motion.div>

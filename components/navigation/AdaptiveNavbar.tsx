@@ -4,6 +4,7 @@ import { useState, useEffect  } from "react";
 import Link from "next/link";
 import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection";
 import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import OliveaFTTLogo from "@/assets/OliveaFTTIcon.svg";
 import MenuToggle from "./MenuToggle";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ export default function AdaptiveNavbar({
 }: AdaptiveNavbarProps) {
   const isMobile = useIsMobile();
   const { isDark, elementRef } = useBackgroundColorDetection(300);
+  const { clearTransition } = useSharedTransition();  
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -51,7 +53,14 @@ export default function AdaptiveNavbar({
       )}
     >
       <div className="flex items-center justify-between px-4 h-16">
-        <Link href={`/`} locale={false} aria-label="Home">
+        <Link
+          href="/"
+          locale={false}
+          aria-label="Home"
+          onClick={() => {
+            clearTransition();       
+          }}
+        >
           <OliveaFTTLogo className={cn("h-10 w-auto", logoColor)} />
         </Link>
         <MenuToggle

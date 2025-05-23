@@ -119,20 +119,19 @@ export default function SharedVideoTransition() {
   // Once navigation hits the target URL, fade out and clear the overlay
   useEffect(() => {
     if (active && pathname === targetHref) {
-      controls
-        .start({ opacity: 0, transition: { duration: 0.2 } })
-        .then(() => clearTransition());
+      clearTransition();
     }
-  }, [active, pathname, targetHref, controls, clearTransition]);
+  }, [active, pathname, targetHref, clearTransition]);
 
   if (!active || !initialBounds) return null;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key="sharedTransition"
         initial={false}
         animate={controls}
+        exit={{ opacity: 1 }}
         style={{
           position: "fixed",
           overflow: "hidden",
