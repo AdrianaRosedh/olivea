@@ -101,7 +101,6 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-0 h-20 md:h-24 lg:h-28 w-full">
         <Link
         href="/"
-        locale={false}
         aria-label="Home"
         onClick={() => {
           // wipe out any active shared‐element transition before we go home

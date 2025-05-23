@@ -55,7 +55,6 @@ export default function AdaptiveNavbar({
       <div className="flex items-center justify-between px-4 h-16">
         <Link
           href="/"
-          locale={false}
           aria-label="Home"
           onClick={() => {
             clearTransition();       
