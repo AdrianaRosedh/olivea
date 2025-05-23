@@ -1,26 +1,26 @@
 // app/(main)/[lang]/journal/[slug]/page.tsx
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import Image from "next/image";
-import { createServerSupabaseClient } from "@/lib/supabase";
-import { getDictionary, type Lang } from "../../dictionaries";
+import { notFound } from "next/navigation"
+import type { Metadata } from "next"
+import Image from "next/image"
+import { createServerSupabaseClient } from "@/lib/supabase"
+import { getDictionary, type Lang } from "../../dictionaries"
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: string; slug: string }>;
+  params: Promise<{ lang: string; slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const supabase = await createServerSupabaseClient();
+  const { slug } = await params
+  const supabase = createServerSupabaseClient()
 
   const { data } = await supabase
     .from("journal_posts")
     .select("title, description, cover_image")
     .eq("slug", slug)
-    .single();
+    .single()
 
   if (!data) {
-    return { title: "Journal Post" };
+    return { title: "Journal Post" }
   }
 
   return {
@@ -29,37 +29,38 @@ export async function generateMetadata({
     openGraph: data.cover_image
       ? { images: [{ url: data.cover_image }] }
       : undefined,
-  };
+  }
 }
 
 export default async function JournalPostPage({
   params,
 }: {
-  params: Promise<{ lang: string; slug: string }>;
+  params: Promise<{ lang: string; slug: string }>
 }) {
-  const { lang: rawLang, slug } = await params;
-  const lang: Lang = rawLang === "es" ? "es" : "en";
-
-  const dict = await getDictionary(lang);
-  const supabase = await createServerSupabaseClient();
+  const { lang: rawLang, slug } = await params
+  const lang: Lang = rawLang === "es" ? "es" : "en"
+  const dict = await getDictionary(lang)
+  const supabase = createServerSupabaseClient()
 
   const { data, error } = await supabase
     .from("journal_posts")
     .select("title, cover_image, published_at, author_name, body")
     .eq("slug", slug)
     .eq("visible", true)
-    .single();
+    .single()
 
-  if (error || !data) return notFound();
+  if (error || !data) {
+    return notFound()
+  }
 
   // fire-and-forget view tracking
   ;(async () => {
     try {
-      await supabase.rpc("increment_post_views", { post_slug: slug });
+      await supabase.rpc("increment_post_views", { post_slug: slug })
     } catch {
       /* ignore */
     }
-  })();
+  })()
 
   return (
     <main className="p-10 max-w-2xl mx-auto">
@@ -75,7 +76,9 @@ export default async function JournalPostPage({
         </div>
       )}
 
-      <h1 className="text-3xl font-semibold mb-2">{data.title}</h1>
+      <h1 className="text-3xl font-semibold mb-2">
+        {data.title}
+      </h1>
 
       <p className="text-sm text-muted-foreground mb-6">
         {new Date(data.published_at).toLocaleDateString()} —{" "}
@@ -86,5 +89,5 @@ export default async function JournalPostPage({
         {data.body}
       </article>
     </main>
-  );
+  )
 }
