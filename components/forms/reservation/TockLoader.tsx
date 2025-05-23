@@ -9,7 +9,7 @@ export default function TockLoader() {
       <Script
         id="tock-script"
         src="https://www.exploretock.com/tock.js"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
       />
       {/* once it’s on the page, init it in a client useEffect */}
       <InitTock />
