@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 
-export default function TockWidget() {
+interface TockWidgetProps {
+  offeringId: string;
+}
+
+export default function TockWidget({ offeringId }: TockWidgetProps){
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (window.tock) {
@@ -47,7 +51,7 @@ export default function TockWidget() {
             id="Tock_widget_container"
             data-tock-display-mode="Inline"
             data-tock-widget="data-tock-offering"
-            data-tock-offering-id="528232"
+            data-tock-offering-id={offeringId}
             data-tock-color-mode="White"
             data-tock-locale="es-mx"
             data-tock-timezone="America/Tijuana"

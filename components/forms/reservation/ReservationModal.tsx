@@ -10,6 +10,7 @@ import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
+const TockLoader = dynamic(() => import("./TockLoader"), { ssr: false });
 const TockWidget = dynamic(() => import("./TockWidget"), { ssr: false });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
@@ -182,8 +183,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
                 </div>
         
-                  {/* Tock Widget container */}               
-                  {reservationType === "restaurant" && <TockWidget />}
+                   {/* 1) Load the Tock stub + script */}
+                    {reservationType === "restaurant" && ( <TockLoader /> )}
+
+                    {/* 2) Once Tock is ready, show the real widget */}
+                    {reservationType === "restaurant" && (<TockWidget offeringId="528232" />)}
                 </div>
 
                 {/* Café Pane */}
