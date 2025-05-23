@@ -1,4 +1,3 @@
-// this lives in: app/(home)/[lang]/layout.tsx
 import { ReactNode } from "react";
 import { HomeProviders } from "../HomeProviders";
 

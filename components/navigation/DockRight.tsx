@@ -79,8 +79,8 @@ function IconContainer({
         className={cn(
           "flex items-center justify-center transition-colors",
           active
-            ? "bg-[var(--olivea-clay)] text-white"
-            : "bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] hover:text-white"
+            ? "bg-[var(--olivea-olive)] text-white"
+            : "bg-[var(--olivea-clay)] text-white hover:bg-[var(--olivea-olive)] hover:text-white"
         )}
       >
         <motion.div style={{ width: animatedIcon, height: animatedIcon }} className="flex items-center justify-center">

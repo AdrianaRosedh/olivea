@@ -136,6 +136,7 @@ export default function SharedVideoTransition() {
           position: "fixed",
           overflow: "hidden",
           zIndex: 9999,
+          background: "var(--olivea-olive)",
           willChange: "transform, opacity",
         }}
       >

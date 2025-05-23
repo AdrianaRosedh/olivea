@@ -14,7 +14,7 @@ export async function generateMetadata({
   return {
     title: dict.casa.title,
     description: dict.casa.description,
-    metadataBase: new URL("https://oliveafarmtotable.com"),
+    metadataBase: new URL("https://www.oliveafarmtotable.com"),
     openGraph: {
       title: dict.casa.title,
       description: dict.casa.description,
@@ -30,10 +30,10 @@ export async function generateMetadata({
       type: "website",
     },
     alternates: {
-      canonical: `https://oliveafarmtotable.com/${lang}/casa`,
+      canonical: `https://www.oliveafarmtotable.com/${lang}/casa`,
       languages: {
-        en: `https://oliveafarmtotable.com/en/casa`,
-        es: `https://oliveafarmtotable.com/es/casa`,
+        en: `https://www.oliveafarmtotable.com/en/casa`,
+        es: `https://www.oliveafarmtotable.com/es/casa`,
       },
     },
 

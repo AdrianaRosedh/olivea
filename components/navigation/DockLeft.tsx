@@ -153,8 +153,8 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                 className={cn(
                   "group flex items-center gap-4 cursor-pointer overflow-hidden",
                   isActive
-                    ? "text-[var(--olivea-clay)]"
-                    : "text-[var(--olivea-olive)] opacity-80 hover:opacity-100"
+                    ? "text-[var(--olivea-olive)]"
+                    : "text-[var(--olivea-clay)] opacity-80 hover:opacity-100"
                 )}
                 aria-current={isActive ? "location" : undefined}
               >
@@ -220,8 +220,8 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                           className={cn(
                             "block text-sm transition-colors",
                             isSubActive
-                              ? "text-[var(--olivea-clay)]"
-                              : "text-[var(--olivea-olive)] hover:text-[var(--olivea-clay)]"
+                              ? "text-[var(--olivea-olive)]"
+                              : "text-[var(--olivea-clay)] hover:text-[var(--olivea-olive)]"
                           )}
                           aria-current={isSubActive ? "location" : undefined}
                         >

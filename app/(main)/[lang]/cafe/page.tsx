@@ -14,7 +14,7 @@ export async function generateMetadata({
   return {
     title: dict.cafe.title,
     description: dict.cafe.description,
-    metadataBase: new URL("https://oliveafarmtotable.com"),
+    metadataBase: new URL("https://www.oliveafarmtotable.com"),
     openGraph: {
       title: dict.cafe.title,
       description: dict.cafe.description,
@@ -30,10 +30,10 @@ export async function generateMetadata({
       type: "website",
     },
     alternates: {
-      canonical: `https://oliveafarmtotable.com/${lang}/cafe`,
+      canonical: `https://www.oliveafarmtotable.com/${lang}/cafe`,
       languages: {
-        en: `https://oliveafarmtotable.com/en/cafe`,
-        es: `https://oliveafarmtotable.com/es/cafe`,
+        en: `https://www.oliveafarmtotable.com/en/cafe`,
+        es: `https://www.oliveafarmtotable.com/es/cafe`,
       },
     },
 
