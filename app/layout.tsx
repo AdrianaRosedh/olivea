@@ -3,7 +3,8 @@ import "./globals.css";
 import { Inter, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import type { Metadata } from "next";
-import { AppProviders } from "./providers";  // ← correct path
+import { AppProviders } from "./providers";  
+import TockLoader from "@/components/forms/reservation/TockLoader";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
@@ -39,16 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AppProviders>
 
         {/* Global third‐party scripts */}
-        <Script id="tock-script" strategy="beforeInteractive">
-          {`
-            !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?    
-            e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),    
-            e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];var f=o.createElement(c);f.async=!0,    
-            f.src=k;var g=o.getElementsByTagName(c)[0];g.parentNode.insertBefore(f,g)}}(    
-            window,document,'script','https://www.exploretock.com/tock.js');    
-            tock('init', 'olivea-farm-to-table');
-          `}
-        </Script>
+        <TockLoader/>
           
 
         <Script id="whistle-config" strategy="lazyOnload">
