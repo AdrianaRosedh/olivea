@@ -8,7 +8,6 @@ import dynamic from "next/dynamic";
 import OliveaLogo from "@/assets/oliveaFTT1.svg";
 import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import TockLoader from "./TockLoader";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
 const TockWidget = dynamic(() => import("./TockWidget"), { ssr: false });
@@ -183,9 +182,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
                 </div>
         
-                  {/* Tock Widget container */}  
-                  <TockLoader />             
-                  {reservationType === "restaurant" && <TockWidget offeringId="528232"/>}
+                  {/* Tock Widget container */}               
+                  {reservationType === "restaurant" && <TockWidget />}
                 </div>
 
                 {/* Café Pane */}
