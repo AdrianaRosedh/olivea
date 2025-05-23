@@ -1,3 +1,4 @@
+// components/forms/reservation/TockLoader.tsx
 "use client";
 import { useEffect } from "react";
 import Script from "next/script";
@@ -5,13 +6,14 @@ import Script from "next/script";
 export default function TockLoader() {
   return (
     <>
-      {/* just load the script itself (no onLoad handler here) */}
+      {/* Load Tock itself once hydration finishes */}
       <Script
         id="tock-script"
         src="https://www.exploretock.com/tock.js"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
       />
-      {/* once it’s on the page, init it in a client useEffect */}
+
+      {/* Once it’s on window, call init */}
       <InitTock />
     </>
   );
@@ -19,13 +21,7 @@ export default function TockLoader() {
 
 function InitTock() {
   useEffect(() => {
-    if (window.tock) {
-      window.tock("init", "olivea-farm-to-table");
-    }
-    else {
-      console.error("📛 tock.js failed to load?");
-    }
+    window.tock?.("init", "olivea-farm-to-table");
   }, []);
-
   return null;
 }
