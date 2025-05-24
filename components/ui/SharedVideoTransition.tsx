@@ -130,7 +130,7 @@ export default function SharedVideoTransition() {
         style={{
           position: "fixed",
           overflow: "hidden",
-          zIndex: 2147483647,
+          zIndex: 500,
           background: "var(--olivea-olive)",
           willChange: "transform, opacity",
         }}

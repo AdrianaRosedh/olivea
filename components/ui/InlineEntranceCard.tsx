@@ -228,7 +228,7 @@ export default function InlineEntranceCard({
               style={{ 
                 position: "relative", 
                 overflow: "hidden",
-                zIndex: 10, // explicitly lower and stable
+                zIndex: 2000, // explicitly lower and stable
               }}
             >
               <video
@@ -244,6 +244,7 @@ export default function InlineEntranceCard({
                   height: "100%",
                   objectFit: "cover",
                   opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0,
+                  zIndex: 2001,
                 }}
               >
                 <source src={webmUrl} type="video/webm" />
