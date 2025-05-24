@@ -68,8 +68,8 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
   const navItems = [
     { href: `${base}/casa`, label: pathname.startsWith(`${base}/casa`) ? "Casa Olivea" : "Hotel" },
     {
-      href: `${base}/restaurant`,
-      label: pathname.startsWith(`${base}/restaurant`) ? "Olivea Farm To Table" : "Restaurant",
+      href: `${base}/farmtotable`,
+      label: pathname.startsWith(`${base}/farmtotable`) ? "Olivea Farm To Table" : "Restaurant",
     },
     { href: `${base}/cafe`, label: pathname.startsWith(`${base}/cafe`) ? "Olivea Café" : "Café" },
   ];

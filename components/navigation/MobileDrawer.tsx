@@ -29,7 +29,7 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
   const [showMore, setShowMore] = useState(false);
 
   const mainLinks = [
-    { href: `/${lang}/restaurant`, label: dict.drawer.main.restaurant },
+    { href: `/${lang}/farmtotable`, label: dict.drawer.main.restaurant },
     { href: `/${lang}/casa`, label: dict.drawer.main.casa },
     { href: `/${lang}/cafe`, label: dict.drawer.main.cafe },
   ];
