@@ -45,13 +45,9 @@ export default function SharedVideoTransition() {
     }
 
     const performTransition = async () => {
-      // 3️⃣ Seek to the correct frame
       video.currentTime = videoPlaybackTime;
-
-      // 4️⃣ Start playback immediately (unmuted is not needed)
       const playPromise = video.play().catch(() => {});
 
-      // 5️⃣ Wait until we have enough buffer to play through, or timeout after 200ms
       await Promise.race([
         new Promise<void>((res) => {
           if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
@@ -61,25 +57,10 @@ export default function SharedVideoTransition() {
         }),
         new Promise<void>((res) => setTimeout(res, 200)),
       ]);
-
-      // Ensure the play promise resolves before continuing
+    
       await playPromise;
-
-      // 6️⃣ Immediately position the overlay over the source card
-      controls.set({
-        top: initialBounds.top,
-        left: initialBounds.left,
-        width: initialBounds.width,
-        height: initialBounds.height,
-        borderRadius: "1.5rem",
-        // keep it visible until we animate out
-        opacity: 1,
-      });
-
-      // 7️⃣ Allow one frame for the styles to apply
-      await new Promise(requestAnimationFrame);
-
-      // 8️⃣ Animate overlay + video mask to full-screen in parallel
+    
+      // DIRECTLY animate overlay from initial position to fullscreen clearly
       const isMobile = window.innerWidth < 768;
       const finalAnim = isMobile
         ? { top: 0, left: 0, width: "100vw", height: "100vh", borderRadius: "0rem" }
@@ -90,19 +71,18 @@ export default function SharedVideoTransition() {
             height: window.innerHeight * 0.98,
             borderRadius: "1.5rem",
           };
+        
       await controls.start({
         ...finalAnim,
         transition: { duration: 0.8, ease: "easeInOut" },
       });
-
-      // 9️⃣ Pause briefly so the user sees the full-screen frame
+    
       await new Promise((res) => setTimeout(res, 300));
-
-      //  🔟 Navigate
+    
       await router.prefetch(targetHref);
       await router.push(targetHref);
-      // clearTransition happens in the next useEffect
     };
+
 
     performTransition();
   }, [
@@ -126,20 +106,37 @@ export default function SharedVideoTransition() {
   if (!active || !initialBounds) return null;
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+  <AnimatePresence mode="wait" initial={true}>
+    {active && initialBounds && (
       <motion.div
         key="sharedTransition"
-        initial={false}
-        animate={controls}
-        exit={{ opacity: 1 }}
+        initial={{
+          top: initialBounds.top,
+          left: initialBounds.left,
+          width: initialBounds.width,
+          height: initialBounds.height,
+          borderRadius: "1.5rem",
+          opacity: 0, // explicitly start invisible
+        }}
+        animate={{
+          top: window.innerWidth < 768 ? 0 : window.innerHeight * 0.01,
+          left: window.innerWidth < 768 ? 0 : window.innerWidth * 0.01,
+          width: window.innerWidth < 768 ? "100vw" : window.innerWidth * 0.98,
+          height: window.innerWidth < 768 ? "100vh" : window.innerHeight * 0.98,
+          borderRadius: window.innerWidth < 768 ? "0rem" : "1.5rem",
+          opacity: 1, // explicitly fade in smoothly
+        }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
         style={{
           position: "fixed",
           overflow: "hidden",
-          zIndex: 9999,
+          zIndex: 2147483647,
           background: "var(--olivea-olive)",
           willChange: "transform, opacity",
         }}
+        exit={{ opacity: 0, transition: { duration: 0.3 } }}
       >
+
         <video
           ref={videoRef}
           autoPlay
@@ -153,6 +150,8 @@ export default function SharedVideoTransition() {
           Your browser doesn’t support this video.
         </video>
       </motion.div>
-    </AnimatePresence>
-  );
+    )}
+  </AnimatePresence>
+);
+
 }

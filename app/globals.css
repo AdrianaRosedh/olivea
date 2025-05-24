@@ -139,6 +139,11 @@
     font-weight: 600;
   }
 
+  video, .video-container, .shared-overlay {
+    background-color: var(--olivea-olive); 
+  }
+
+
   /* Snapping sections */
   section {
     scroll-snap-align: start;

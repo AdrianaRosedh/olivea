@@ -44,25 +44,30 @@ export function SharedTransitionProvider({ children }: { children: ReactNode }) 
     bounds: DOMRect,
     targetVideo: string
   ) => {
-    setState({
-      videoSrc: src,
-      videoPlaybackTime: playbackTime,
-      active: true,
-      targetHref: href,
-      targetVideo: targetVideo,
-      initialBounds: bounds,
-    });
+    const delay = 500; 
+    setTimeout(() => {
+      setState({
+        videoSrc: src,
+        videoPlaybackTime: playbackTime,
+        active: true,
+        targetHref: href,
+        targetVideo: targetVideo,
+        initialBounds: bounds,
+      });
+    }, delay);
   };
 
   const clearTransition = () => {
-    setState({
-      videoSrc: null,
-      videoPlaybackTime: 0,
-      active: false,
-      targetHref: "",
-      targetVideo: null,
-      initialBounds: undefined,
-    });
+    setTimeout(() => {
+      setState({
+        videoSrc: null,
+        videoPlaybackTime: 0,
+        active: false,
+        targetHref: "",
+        targetVideo: null,
+        initialBounds: undefined,
+      });
+    }, 300); // ← ensures the overlay finishes fading out before removal
   };
 
   return (

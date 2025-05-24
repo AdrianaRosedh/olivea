@@ -71,7 +71,7 @@ export default function HomePage() {
 
   const sections = [
     { href: "/es/casa", title: "Casa Olivea", description: "A home you can stay in.", Logo: CasaLogo },
-    { href: "/es/restaurant", title: "Olivea Farm To Table", description: "A garden you can eat from.", Logo: FarmLogo },
+    { href: "/es/farmtotable", title: "Olivea Farm To Table", description: "A garden you can eat from.", Logo: FarmLogo },
     { href: "/es/cafe", title: "Olivea Café", description: "Wake up with flavor.", Logo: CafeLogo },
   ];
 
@@ -230,7 +230,7 @@ export default function HomePage() {
       <main className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${revealMain ? "opacity-100" : "opacity-0"}`}>
         {/* Background video hero */}
         <div
-          className="relative overflow-hidden shadow-xl mt-1 md:mt-0 bg-[var(--olivea-olive)]"
+          className="relative overflow-hidden shadow-xl mt-1 md:mt-0 "
     style={{
       width: "98vw",
       height: isMobileMain ? "30vh" : "98vh",

@@ -46,7 +46,6 @@ export default function InlineEntranceCard({
       document.head.appendChild(link);
     });
   };
-  const firstSrc = webmUrl; 
 
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -149,18 +148,21 @@ export default function InlineEntranceCard({
     e.preventDefault();
     e.stopPropagation();
     warmUpVideo();
+
     const playbackTime = videoRef.current?.currentTime || 0;
     const bounds = videoRef.current?.getBoundingClientRect();
     if (!bounds) return;
+
     onActivate();
     sessionStorage.setItem("fromHomePage", "true");
     sessionStorage.setItem("fromHomePageTime", String(playbackTime));
-    sessionStorage.setItem("targetVideo", mp4Url);
+    const currentSrc = videoRef.current?.currentSrc || mp4Url;
+    sessionStorage.setItem("targetVideo", currentSrc);
 
     if (isMobile) {
       setIsOpened(true);
     } else {
-      startTransition(firstSrc, playbackTime, href, bounds, mp4Url);
+      startTransition(currentSrc, playbackTime, href, bounds, currentSrc); // immediate call clearly
     }
   };
 
@@ -209,7 +211,8 @@ export default function InlineEntranceCard({
               const playbackTime = videoRef.current?.currentTime || 0;
               const bounds = videoRef.current?.getBoundingClientRect();
               if (!bounds) return;
-              startTransition(firstSrc, playbackTime, href, bounds, mp4Url);
+              const currentSrc = videoRef.current?.currentSrc || mp4Url;
+              startTransition(currentSrc, playbackTime, href, bounds, currentSrc);
               setIsOpened(false);
             }
           }}
@@ -217,7 +220,17 @@ export default function InlineEntranceCard({
           style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}
         >
           <div style={{ border: "4px solid #e8e4d5", borderRadius: 24, overflow: "hidden", height: "100%" }}>
-            <motion.div initial={{ height: TOP_DESKTOP }} animate={{ height: topHeight }} transition={{ duration: 0.5 }} style={{ position: "relative", overflow: "hidden" }}>
+            {/* Example within InlineEntranceCard */}
+            <motion.div
+              initial={{ height: TOP_DESKTOP }}
+              animate={{ height: topHeight }}
+              transition={{ duration: 0.5 }}
+              style={{ 
+                position: "relative", 
+                overflow: "hidden",
+                zIndex: 10, // explicitly lower and stable
+              }}
+            >
               <video
                 ref={videoRef}
                 autoPlay
@@ -230,17 +243,14 @@ export default function InlineEntranceCard({
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  transition: "opacity 0.5s",
                   opacity: (!isMobile && isHovered) || (isMobile && isOpened) ? 1 : 0,
                 }}
               >
-                {/* WebM first */}
-                <source src={webmUrl}   type="video/webm" />
-                {/* MP4 fallback */}
+                <source src={webmUrl} type="video/webm" />
                 <source src={mp4Url} type="video/mp4" />
-                Your browser doesn’t support this video.
               </video>
             </motion.div>
+
             <motion.div
               initial={{ height: BOTTOM_DEFAULT }}
               animate={{ height: bottomHeight }}
