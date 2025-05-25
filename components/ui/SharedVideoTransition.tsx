@@ -1,9 +1,8 @@
-// components/ui/SharedVideoTransition.tsx
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 
 export default function SharedVideoTransition() {
@@ -12,143 +11,85 @@ export default function SharedVideoTransition() {
     videoPlaybackTime,
     active,
     targetHref,
-    initialBounds,
     clearTransition,
-    targetVideo,
   } = useSharedTransition();
 
   const router = useRouter();
   const pathname = usePathname();
   const videoRef = useRef<HTMLVideoElement>(null);
   const controls = useAnimation();
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    if (!active || !initialBounds || !videoRef.current) return;
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (!active || !videoSrc) return;
+
     const video = videoRef.current;
+    if (!video) return;
 
-    // 1️⃣ Compute MP4 and WebM URLs
-    const mp4Url = (targetVideo ?? videoSrc ?? "").trim();
-    const webmUrl = mp4Url.replace(/\.mp4$/, ".webm");
-
-    // 2️⃣ Assign into <source> tags
-    const sources = Array.from(video.querySelectorAll("source"));
-    const webmSource = sources.find((s) => s.getAttribute("data-type") === "webm");
-    const mp4Source = sources.find((s) => s.getAttribute("data-type") === "mp4");
-    if (webmSource && mp4Source) {
-      webmSource.src = webmUrl;
-      mp4Source.src = mp4Url;
-      video.load();
-    } else {
-      // Fallback if your <source> tags are missing
-      video.src = mp4Url;
-      video.load();
-    }
+    video.src = videoSrc;
+    video.currentTime = videoPlaybackTime;
+    video.play().catch(() => {});
 
     const performTransition = async () => {
-  video.currentTime = videoPlaybackTime;
-  const playPromise = video.play().catch(() => {});
+      await new Promise(res => setTimeout(res, 300)); // Ensure buffering
 
-  await Promise.race([
-    new Promise<void>((res) => {
-      if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
-        return res();
-      }
-      video.addEventListener("canplaythrough", () => res(), { once: true });
-    }),
-    new Promise<void>((res) => setTimeout(res, 200)),
-  ]);
+      const finalAnim = isMobile
+        ? { top: 0, opacity: 1 }
+        : { opacity: 1 };
 
-  await playPromise;
+      await controls.start(finalAnim, {
+        duration: 1.2,
+        ease: [0.22, 1, 0.36, 1],
+      });
 
-  // Ensure full viewport coverage animation finishes completely FIRST
-  const isMobile = window.innerWidth < 768;
-  const finalAnim = isMobile
-    ? { top: 0, left: 0, width: "100vw", height: "100vh", borderRadius: "0rem" }
-    : {
-        top: window.innerHeight * 0.01,
-        left: window.innerWidth * 0.01,
-        width: window.innerWidth * 0.98,
-        height: window.innerHeight * 0.98,
-        borderRadius: "1.5rem",
-      };
+      await new Promise(res => setTimeout(res, 100));
 
-  // Ensure the animation is fully completed BEFORE routing
-  await controls.start({
-    ...finalAnim,
-    transition: { duration: 0.8, ease: "easeInOut" },
-  });
-
-  // Only after the transition fully finishes, push new route
-  await router.prefetch(targetHref);
-  await router.push(targetHref);
-};
-
-
-
+      router.push(targetHref);
+    };
 
     performTransition();
-  }, [
-    active,
-    initialBounds,
-    videoPlaybackTime,
-    targetHref,
-    targetVideo,
-    videoSrc,
-    controls,
-    router,
-  ]);
+  }, [active, videoPlaybackTime, targetHref, videoSrc, controls, router, isMobile]);
 
-  // Once navigation hits the target URL, fade out and clear the overlay
   useEffect(() => {
-    if (active && pathname === targetHref) {
+    if (pathname === targetHref && active) {
       clearTransition();
     }
-  }, [active, pathname, targetHref, clearTransition]);
+  }, [pathname, active, targetHref, clearTransition]);
 
-  useEffect(() => {
-  const video = videoRef.current;
-  return () => {
-    if (video) {
-      video.pause();             
-      video.currentTime = 0;    
-    }
-  };
-}, []);
+  if (!active) return null;
 
 
-  if (!active || !initialBounds) return null;
 
-return (
-  <AnimatePresence mode="wait" initial={true}>
-    {active && initialBounds && (
+
+
+  return (
+    <AnimatePresence>
       <motion.div
-        key="sharedTransition"
-        initial={{
-          top: window.innerWidth < 768 ? "100vh" : initialBounds.top,
-          left: window.innerWidth < 768 ? 0 : initialBounds.left,
-          width: window.innerWidth < 768 ? "100vw" : initialBounds.width,
-          height: window.innerWidth < 768 ? "100vh" : initialBounds.height,
-          borderRadius: window.innerWidth < 768 ? "0rem" : "1.5rem",
-          opacity: 1,
-        }}
-        animate={{
-          top: window.innerWidth < 768 ? 0 : window.innerHeight * 0.01,
-          left: window.innerWidth < 768 ? 0 : window.innerWidth * 0.01,
-          width: window.innerWidth < 768 ? "100vw" : window.innerWidth * 0.98,
-          height: window.innerWidth < 768 ? "100vh" : window.innerHeight * 0.98,
-          borderRadius: window.innerWidth < 768 ? "0rem" : "1.5rem",
-          opacity: 1,
-        }}
-        exit={{ opacity: 1, transition: { duration: 0.3 } }}
-        transition={{ duration: 0.7, ease: [0.25, 0.8, 0.25, 1] }} // smooth ease-out
-        style={{
-          position: "fixed",
-          overflow: "hidden",
-          zIndex: 500,
-          background: "var(--olivea-olive)",
-          willChange: "transform, opacity",
-        }}
-      >
+  key="sharedTransition"
+  initial={isMobile ? { top: "100vh", opacity: 1 } : { opacity: 0 }}
+  animate={isMobile ? { top: 0, opacity: 1 } : { opacity: 1 }}
+  exit={{ opacity: 0, transition: { duration: 0.3 } }}
+  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+  style={{
+    position: "fixed",
+    overflow: "hidden",
+    zIndex: 500,
+    background: "var(--olivea-olive)",
+    width: isMobile ? "100vw" : "98vw",
+    height: isMobile ? "100vh" : "98vh",
+    top: isMobile ? "100vh" : "1vh",
+    left: isMobile ? 0 : "1vw",
+    borderRadius: isMobile ? 0 : "1.5rem",
+  }}
+>
+
         <video
           ref={videoRef}
           autoPlay
@@ -156,15 +97,8 @@ return (
           loop
           playsInline
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        >
-          <source data-type="webm" />
-          <source data-type="mp4" />
-          Your browser doesn’t support this video.
-        </video>
+        />
       </motion.div>
-    )}
-  </AnimatePresence>
-);
-
-
+    </AnimatePresence>
+  );
 }

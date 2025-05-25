@@ -2,18 +2,17 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
 type TransitionState = {
+  active: boolean;
   videoSrc: string | null;
   videoPlaybackTime: number;
-  active: boolean;
   targetHref: string;
-  targetVideo: string | null;
+  
   initialBounds?: DOMRect;
   startTransition: (
     src: string,
     playbackTime: number,
     href: string,
     bounds: DOMRect,
-    targetVideo: string
   ) => void;
   clearTransition: () => void;
 };
@@ -21,53 +20,32 @@ type TransitionState = {
 const SharedTransitionContext = createContext<TransitionState | undefined>(undefined);
 
 export function SharedTransitionProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<{
-    videoSrc: string | null;
-    videoPlaybackTime: number;
-    active: boolean;
-    targetHref: string;
-    targetVideo: string | null;
-    initialBounds?: DOMRect;
-  }>({
+  const [state, setState] = useState<TransitionState>({
+    active: false,
     videoSrc: null,
     videoPlaybackTime: 0,
-    active: false,
     targetHref: "",
-    targetVideo: null,
     initialBounds: undefined,
+    startTransition: () => {},
+    clearTransition: () => {},
   });
 
-  const startTransition = (
-    src: string,
-    playbackTime: number,
-    href: string,
-    bounds: DOMRect,
-    targetVideo: string
-  ) => {
-    const delay = 500; 
-    setTimeout(() => {
-      setState({
-        videoSrc: src,
-        videoPlaybackTime: playbackTime,
-        active: true,
-        targetHref: href,
-        targetVideo: targetVideo,
-        initialBounds: bounds,
-      });
-    }, delay);
+  const startTransition = (src: string, playbackTime: number, href: string, bounds: DOMRect) => {
+    setState({
+      active: true,
+      videoSrc: src,
+      videoPlaybackTime: playbackTime,
+      targetHref: href,
+      initialBounds: bounds,
+      startTransition,
+      clearTransition,
+    });
   };
 
   const clearTransition = () => {
     setTimeout(() => {
-      setState({
-        videoSrc: null,
-        videoPlaybackTime: 0,
-        active: false,
-        targetHref: "",
-        targetVideo: null,
-        initialBounds: undefined,
-      });
-    }, 300); // ← ensures the overlay finishes fading out before removal
+      setState(prev => ({ ...prev, active: false }));
+    }, 300);
   };
 
   return (

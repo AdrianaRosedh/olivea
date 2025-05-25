@@ -152,7 +152,7 @@ export default function InlineEntranceCard({
   const currentSrc = videoRef.current?.currentSrc || mp4Url;
   sessionStorage.setItem("targetVideo", currentSrc);
 
-  startTransition(currentSrc, playbackTime, href, bounds, currentSrc);
+  startTransition(currentSrc, playbackTime, href, bounds)
 };
   return (
   <Tilt
