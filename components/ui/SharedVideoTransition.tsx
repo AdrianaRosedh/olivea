@@ -60,7 +60,7 @@ export default function SharedVideoTransition() {
 
   await playPromise;
 
-  // Final animation to full viewport
+  // Ensure full viewport coverage animation finishes completely FIRST
   const isMobile = window.innerWidth < 768;
   const finalAnim = isMobile
     ? { top: 0, left: 0, width: "100vw", height: "100vh", borderRadius: "0rem" }
@@ -72,19 +72,17 @@ export default function SharedVideoTransition() {
         borderRadius: "1.5rem",
       };
 
-  // Wait for animation to finish explicitly before navigation
+  // Ensure the animation is fully completed BEFORE routing
   await controls.start({
     ...finalAnim,
-    transition: { duration: 0.8, ease: [0.25, 0.8, 0.25, 1] },
+    transition: { duration: 0.8, ease: "easeInOut" },
   });
 
-  // Add a slight delay to ensure animation fully settles visually
-  await new Promise((res) => setTimeout(res, 150));
-
-  // Then navigate
+  // Only after the transition fully finishes, push new route
   await router.prefetch(targetHref);
   await router.push(targetHref);
 };
+
 
 
 
