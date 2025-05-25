@@ -13,10 +13,18 @@ import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
 const AnimatedDesktopLoader = () => {
   const [progress, setProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     let start: number | null = null;
-    const duration = 3500;
+    const duration = isMobile ? 1800 : 3500; // Shorter duration on mobile
 
     const step = (timestamp: number) => {
       if (!start) start = timestamp;
@@ -27,23 +35,31 @@ const AnimatedDesktopLoader = () => {
     };
 
     requestAnimationFrame(step);
-  }, []);
+  }, [isMobile]);
+
+  // Allow skipping loader by clicking anywhere
+  const handleSkip = () => setProgress(100);
 
   return (
-    <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-none">
+    <div
+      className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-auto"
+      onClick={handleSkip}
+      style={{ cursor: "pointer" }}
+    >
       <span>Donde El Corazón es el Huerto</span>
       <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: "#e2be8f20" }}>
         <motion.div
           className="absolute top-0 left-0 h-full rounded-full bg-[#e2be8f]"
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
-          transition={{ duration: 3.5, ease: "linear" }}
+          transition={{ duration: isMobile ? 1.8 : 3.5, ease: "linear" }}
         />
       </div>
       <span>{progress}%</span>
     </div>
   );
 };
+
 
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
@@ -62,6 +78,7 @@ export default function HomePage() {
   const logoControls = useAnimation();
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const logoTargetRef = useRef<HTMLDivElement>(null);
 
   const [drawComplete, setDrawComplete] = useState(false);
@@ -84,6 +101,10 @@ export default function HomePage() {
     resizeHandler();
     window.addEventListener("resize", resizeHandler);
     return () => window.removeEventListener("resize", resizeHandler);
+  }, []);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
   }, []);
 
   useEffect(() => {
@@ -238,22 +259,20 @@ export default function HomePage() {
           }}
         >
         <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-label="Welcome to Olivea"
-          className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
-        >
-          {/* WebM first, for supporting browsers */}
-          <source src="/videos/homepage-temp.webm" type="video/webm" />
-          {/* MP4 fallback */}
-          <source src="/videos/homepage-temp.mp4" type="video/mp4" />
-          {/* in case neither is supported */}
-          Your browser doesn’t support this video.
-        </video>
+         ref={videoRef}
+         autoPlay
+         muted
+         loop
+         playsInline
+         preload={isMobile ? "metadata" : "auto"}
+         poster="/images/hero.jpg"
+         aria-label="Welcome to Olivea"
+         className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
+       >
+         <source src="/videos/homepage-temp.webm" type="video/webm" />
+         <source src="/videos/homepage-temp.mp4" type="video/mp4" />
+         Your browser doesn’t support this video.
+       </video>
 
           <div className="absolute inset-0 flex justify-center items-start">
             <div
@@ -274,24 +293,25 @@ export default function HomePage() {
           animate={!showLoader ? "show" : "hidden"}
         >
           <div className="space-y-12">
-            {mobileSections.map((sec, i) => (
-              <motion.div
-                key={sec.href}
-                variants={itemVariants}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                <InlineEntranceCard
-                  title={sec.title}
-                  href={sec.href}
-                  description={sec.description}
-                  Logo={sec.Logo}
-                  onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                  index={i}
-                />
-              </motion.div>
-            ))}
+            {/* Mobile sections */}
+              {mobileSections.map((sec) => (
+                <motion.div
+                  key={sec.href}
+                  variants={itemVariants}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.2 }}
+                >
+                  <InlineEntranceCard
+                    title={sec.title}
+                    href={sec.href}
+                    description={sec.description}
+                    Logo={sec.Logo}
+                    onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                  />
+                </motion.div>
+              ))}
+
           </div>
           <motion.div
             variants={itemVariants}
@@ -312,7 +332,8 @@ export default function HomePage() {
           animate={!showLoader ? "show" : "hidden"}
         >
           <div className="flex gap-6 md:pt-16 mb-0">
-            {sections.map((sec, i) => (
+            {/* Desktop sections */}
+            {sections.map((sec) => (
               <motion.div
                 key={sec.href}
                 variants={itemVariants}
@@ -326,10 +347,10 @@ export default function HomePage() {
                   description={sec.description}
                   Logo={sec.Logo}
                   onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                  index={i}
                 />
               </motion.div>
             ))}
+
           </div>
           <motion.div
             variants={itemVariants}
