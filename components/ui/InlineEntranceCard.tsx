@@ -72,13 +72,6 @@ export default function InlineEntranceCard({
   const topHeight = isMobile ? 0 : TOP_DESKTOP;
   const bottomHeight = isMobile ? MOBILE_COLLAPSED : BOTTOM_DEFAULT;
 
-
-  // Circle positioning
-  const circleStyle: CSSProperties = isMobile
-    ? { top: 0, transform: "translate(-50%, -50%)" }
-    : { top: topHeight, transform: "translate(-50%, -50%)" };
-
-
   // Detect mobile
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -198,7 +191,8 @@ export default function InlineEntranceCard({
               position: "relative",
               overflow: "hidden",
               zIndex: 2000,
-              height: topHeight,
+              height: isHovered ? topHeight * 0.7 : topHeight, // animate height change
+              transition: "height 0.4s ease",
             }}
           >
             <video
@@ -223,39 +217,55 @@ export default function InlineEntranceCard({
             </video>
           </div>
 
-          {/* Bottom Text Container (NO ANIMATION) */}
-          <div
-            style={{
-              height: bottomHeight,
-              background: "#e8e4d5",
-              padding: "10px 16px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: isHovered ? "flex-start" : "center",
-            }}
-          >
-            <h3
-              style={{
-                margin: 1,
-                zIndex: 2,
-                fontFamily: "var(--font-serif)",
-                fontSize: isMobile ? 28 : 24,
-                fontWeight: isMobile ? 600 : 300,
-                marginTop: !isMobile && isHovered ? 40 : 5,
-                transition: "margin-top 0.5s ease",
-                fontStyle: "normal",
-              }}
-              className="not-italic"
-            >
-              {title}
-            </h3>
-            {!isMobile && isHovered ? (
-              <p style={{ marginTop: 10, textAlign: "center", fontSize: 16, maxWidth: 224 }}>
-                {description}
-              </p>
-            ) : null}
-          </div>
+          {/* Bottom Text Container (WITH subtle ANIMATION) */}
+          {/* Bottom Text Container (Final Corrected Version) */}
+<motion.div
+  initial={{ height: bottomHeight }}
+  animate={{ height: isHovered ? bottomHeight + UNDERLAY_HEIGHT + 15 : bottomHeight }}
+  transition={{ duration: 0.4, ease: "easeInOut" }}
+  style={{
+    background: "#e8e4d5",
+    padding: "10px 16px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    overflow: "hidden",
+    borderBottomLeftRadius: 24,  // <-- explicitly added radius
+    borderBottomRightRadius: 24, // <-- explicitly added radius
+  }}
+>
+  <h3
+    style={{
+      margin: 1,
+      zIndex: 2,
+      fontFamily: "var(--font-serif)",
+      fontSize: isMobile ? 28 : 24,
+      fontWeight: isMobile ? 600 : 300,
+      marginTop: isHovered ? 25 : 33, 
+      transition: "margin-top 0.4s ease",
+    }}
+    className="not-italic"
+  >
+    {title}
+  </h3>
+
+  {!isMobile && isHovered && (
+    <p
+      style={{
+        marginTop: 6,
+        textAlign: "center",
+        fontSize: 16,
+        maxWidth: 224,
+        opacity: isHovered ? 1 : 0,
+        transition: "opacity 0.4s ease",
+      }}
+    >
+      {description}
+    </p>
+  )}
+</motion.div>
+
         </div>
       </div>
 
@@ -288,19 +298,21 @@ export default function InlineEntranceCard({
             position: "absolute",
             zIndex: 1,
             left: "50%",
-            width: CIRCLE_SIZE,
-            height: CIRCLE_SIZE,
-            borderRadius: CIRCLE_SIZE / 2,
+            width: isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE, // shrink size on hover
+            height: isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE,
+            borderRadius: "50%",
             border: "4px solid #e8e4d5",
             background: "#e8e4d5",
             overflow: "hidden",
-            ...circleStyle,
-            transition: "top 0.5s",
+            top: isHovered ? topHeight * 0.6 : topHeight, // move up on hover
+            transform: "translate(-50%, -50%)",
+            transition: "top 0.4s ease, width 0.4s ease, height 0.4s ease",
           }}
         >
           <Logo width="100%" height="100%" />
         </div>
       )}
+
     </motion.div>
   </Tilt>
 );
