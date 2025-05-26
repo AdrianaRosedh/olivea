@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useRef, CSSProperties } from "react";
+import { useState, useEffect, useRef, CSSProperties } from "react";
 import type { ComponentType, SVGProps } from "react";
 import Tilt from "react-parallax-tilt";
 import { motion } from "framer-motion";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
+import type { VideoKey } from "@/contexts/SharedTransitionContext";
+import { usePathname, useRouter } from "next/navigation";
 
 export interface InlineEntranceCardProps {
   title: string;
   href: string;
+  videoKey: VideoKey;
   description?: string;
   videoSrc?: string;
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
@@ -19,6 +22,7 @@ export interface InlineEntranceCardProps {
 export default function InlineEntranceCard({
   title,
   href,
+  videoKey,
   description = "Ut lorem purus nam feugiat malesuada quis libero cursus.",
   videoSrc,
   Logo,
@@ -27,6 +31,8 @@ export default function InlineEntranceCard({
 }: InlineEntranceCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { startTransition } = useSharedTransition();
+  const router = useRouter();  
+  const pathname = usePathname();
 
   const slug   = href.split("/").pop() || "";
   const mp4Url = slug ? `/videos/${slug}.mp4` : videoSrc || "";
@@ -138,22 +144,21 @@ export default function InlineEntranceCard({
   };
 
   const handleActivate = (e: React.MouseEvent | React.KeyboardEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
-  warmUpVideo();
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // are we on the home page?
+    const isHome = pathname === "/" || /^\/(en|es)$/.test(pathname)
+    
+    if (isHome) {
+      warmUpVideo()
+      onActivate?.()
+      startTransition(videoKey, href)
+    } else {
+      router.push(href)
+    }
+  }
 
-  const playbackTime = videoRef.current?.currentTime || 0;
-  const bounds = videoRef.current?.getBoundingClientRect();
-  if (!bounds) return;
-
-  onActivate();
-  sessionStorage.setItem("fromHomePage", "true");
-  sessionStorage.setItem("fromHomePageTime", String(playbackTime));
-  const currentSrc = videoRef.current?.currentSrc || mp4Url;
-  sessionStorage.setItem("targetVideo", currentSrc);
-
-  startTransition(currentSrc, playbackTime, href, bounds)
-};
   return (
   <Tilt
     className={className}

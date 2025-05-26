@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import type { ComponentType, SVGProps } from "react";
 import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
 import dynamic from "next/dynamic";
 import ReservationButton from "@components/ui/ReservationButton";
-
+import type { VideoKey } from "@/contexts/SharedTransitionContext";
 import CasaLogo from "@/assets/alebrije-2.svg";
 import FarmLogo from "@/assets/alebrije-1-Green.svg";
 import CafeLogo from "@/assets/alebrije-3.svg";
@@ -86,11 +87,18 @@ export default function HomePage() {
   const [revealMain, setRevealMain] = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
 
-  const sections = [
-    { href: "/es/casa", title: "Casa Olivea", description: "A home you can stay in.", Logo: CasaLogo },
-    { href: "/es/farmtotable", title: "Olivea Farm To Table", description: "A garden you can eat from.", Logo: FarmLogo },
-    { href: "/es/cafe", title: "Olivea Café", description: "Wake up with flavor.", Logo: CafeLogo },
+  const sections: Array<{
+    href: string;
+    title: string;
+    description: string;
+    Logo: ComponentType<SVGProps<SVGSVGElement>>;
+    videoKey: VideoKey;
+  }> = [
+    { href: "/es/casa",       title: "Casa Olivea",         description: "A home you can stay in.",    Logo: CasaLogo,    videoKey: "casa" },
+    { href: "/es/farmtotable",title: "Olivea Farm To Table", description: "A garden you can eat from.", Logo: FarmLogo,    videoKey: "farmtotable" },
+    { href: "/es/cafe",       title: "Olivea Café",          description: "Wake up with flavor.",        Logo: CafeLogo,    videoKey: "cafe" },
   ];
+
 
   const mobileSections = isMobileMain
     ? [sections[1], sections[0], sections[2]]
@@ -252,11 +260,11 @@ export default function HomePage() {
         {/* Background video hero */}
         <div
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0 "
-    style={{
-      width: "98vw",
-      height: isMobileMain ? "30vh" : "98vh",
-      borderRadius: "1.5rem",
-          }}
+          style={{
+            width: "98vw",
+            height: isMobileMain ? "30vh" : "98vh",
+            borderRadius: "1.5rem",
+                }}
         >
         <video
          ref={videoRef}
@@ -295,16 +303,11 @@ export default function HomePage() {
           <div className="space-y-12">
             {/* Mobile sections */}
               {mobileSections.map((sec) => (
-                <motion.div
-                  key={sec.href}
-                  variants={itemVariants}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: 0.2 }}
-                >
+                <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
                   <InlineEntranceCard
                     title={sec.title}
                     href={sec.href}
+                    videoKey={sec.videoKey}            /* ← don’t forget this! */
                     description={sec.description}
                     Logo={sec.Logo}
                     onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
@@ -334,16 +337,11 @@ export default function HomePage() {
           <div className="flex gap-6 md:pt-16 mb-0">
             {/* Desktop sections */}
             {sections.map((sec) => (
-              <motion.div
-                key={sec.href}
-                variants={itemVariants}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.2 }}
-              >
+              <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
                 <InlineEntranceCard
                   title={sec.title}
                   href={sec.href}
+                  videoKey={sec.videoKey}            /* ← and this! */
                   description={sec.description}
                   Logo={sec.Logo}
                   onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
