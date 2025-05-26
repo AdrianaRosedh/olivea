@@ -132,27 +132,28 @@ export default function InlineEntranceCard({
       }
     }, [isHovered, isMobile, isInView]);
 
-
-
   const throttledMouseMove = useRef(
-    throttle((e: React.MouseEvent<HTMLDivElement>, isMobile: boolean, setTiltStyle: React.Dispatch<React.SetStateAction<CSSProperties>>
-) => {
+    throttle((rect: DOMRect, clientX: number, clientY: number, isMobile: boolean) => {
       if (isMobile) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const x = (clientX - rect.left) / rect.width - 0.5;
+      const y = (clientY - rect.top) / rect.height - 0.5;
       setTiltStyle({
         transform: `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`,
         boxShadow: `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`,
         transition: "transform 0.1s ease-out, boxShadow 0.2s ease-out",
       });
-    }, 20)
+    }, 20),
+  );
+  
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const { clientX, clientY } = e;
+      throttledMouseMove.current(rect, clientX, clientY, isMobile);
+    },
+    [isMobile],
   );
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => throttledMouseMove.current(e, isMobile, setTiltStyle),
-    [isMobile]
-  );
 
   const handleMouseLeave = () => {
     if (isMobile) return;
