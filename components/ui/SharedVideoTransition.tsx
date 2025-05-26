@@ -83,9 +83,10 @@ export default function SharedVideoTransition() {
           key="sharedVideo"
           // 3) initial: desktop full-screen no transform; mobile off-screen bottom
           initial={
+            
             isMobile
               ? { top: 0, left: 0, width: "100vw", height: "100vh", y: "100vh", borderRadius: 0 }
-              : { top: 0, left: 0, width: "100vw", height: "100vh", y: 0, borderRadius: 0 }
+              : { top: "1vh", left: "1vw", width: "98vw", height: "98vh", y: 0, borderRadius: "1.5rem", opacity: 0  }
           }
           // 4) animate: desktop inset + round; mobile slide-in to full-screen
           animate={
@@ -97,19 +98,11 @@ export default function SharedVideoTransition() {
                   height: "100vh",
                   y: 0,
                   borderRadius: 0,
-                  transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                  transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
                 }
               : {
-                  top: "1vh",
-                  left: "1vw",
-                  width: "98vw",
-                  height: "98vh",
-                  y: 0,
-                  borderRadius: "1.5rem",
-                  transition: {
-                    duration: 0.8,
-                    ease: [0.22, 1, 0.36, 1],
-                  },
+                  opacity: 1, 
+                  transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
                 }
           }
           // 5) exit: slide up out for both
