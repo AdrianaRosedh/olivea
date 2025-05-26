@@ -74,56 +74,46 @@ export default function InlineEntranceCard({
   const bottomHeight = isMobile ? MOBILE_COLLAPSED : BOTTOM_DEFAULT;
 
   // Detect mobile
-    useEffect(() => {
-      let resizeTimeout: NodeJS.Timeout;
-    
-      const onResize = () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          setIsMobile(window.innerWidth < 768);
-        }, 150);
-      };
-    
-      onResize(); // set initial value immediately
-      window.addEventListener("resize", onResize);
-    
-      return () => {
-        clearTimeout(resizeTimeout);
-        window.removeEventListener("resize", onResize);
-      };
-    }, []);
-
+  useEffect(() => {
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768);
+      }, 100); // Shorter debounce duration
+    };
+  
+    onResize();
+    window.addEventListener("resize", onResize);
+  
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
     // IntersectionObserver to check when the video enters the viewport
+
     useEffect(() => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (entries[0].isIntersecting) {
-        setIsInView(true); // Set to true when the video enters the viewport
-      }
-    },
-    { threshold: 0.1 } // Load video when 10% of it is visible
-  );
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsInView(entry.isIntersecting);
+        },
+        { threshold: 0.1 }
+      );    
 
-  const videoElement = videoRef.current;
+      const videoElement = videoRef.current;
+      if (videoElement) observer.observe(videoElement);   
 
-  if (videoElement) {
-    observer.observe(videoElement);
-  }
-
-  return () => {
-    if (videoElement) {
-      observer.unobserve(videoElement);
-    }
-    observer.disconnect(); // <-- Correct place for disconnect
-  };
-    }, []);
-
-
+      return () => {
+        if (videoElement) observer.unobserve(videoElement);
+        observer.disconnect();
+      };
+    }, []);   
 
       // Video playback on hover/open
-      useEffect(() => {
-      const vid = videoRef.current;
+  useEffect(() => {
+    const vid = videoRef.current;
       if (!vid || !isInView || isMobile) return; // Never play inline videos on mobile
       if (isHovered) {
         vid.play().catch(() => {});
@@ -132,28 +122,28 @@ export default function InlineEntranceCard({
       }
     }, [isHovered, isMobile, isInView]);
 
-  const throttledMouseMove = useRef(
-    throttle((rect: DOMRect, clientX: number, clientY: number, isMobile: boolean) => {
-      if (isMobile) return;
-      const x = (clientX - rect.left) / rect.width - 0.5;
-      const y = (clientY - rect.top) / rect.height - 0.5;
-      setTiltStyle({
-        transform: `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`,
-        boxShadow: `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`,
-        transition: "transform 0.1s ease-out, boxShadow 0.2s ease-out",
-      });
-    }, 20),
-  );
-  
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const { clientX, clientY } = e;
-      throttledMouseMove.current(rect, clientX, clientY, isMobile);
-    },
-    [isMobile],
-  );
+    const throttledMouseMove = useRef(
+      throttle((rect: DOMRect | null, clientX: number, clientY: number, isMobile: boolean) => {
+        if (isMobile || !rect) return; // ensure rect isn't null
+        const x = (clientX - rect.left) / rect.width - 0.5;
+        const y = (clientY - rect.top) / rect.height - 0.5;
+        setTiltStyle({
+          transform: `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`,
+          boxShadow: `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`,
+          transition: "transform 0.1s ease-out, boxShadow 0.2s ease-out",
+        });
+      }, 20)
+    );    
 
+    const handleMouseMove = useCallback(
+      (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget?.getBoundingClientRect();
+        if (rect) {
+          throttledMouseMove.current(rect, e.clientX, e.clientY, isMobile);
+        }
+      },
+      [isMobile]
+    );
 
   const handleMouseLeave = () => {
     if (isMobile) return;
@@ -226,7 +216,7 @@ export default function InlineEntranceCard({
               muted
               loop
               playsInline
-              preload="none"
+              preload="metadata"
               style={{
                 position: "absolute",
                 width: "100%",
