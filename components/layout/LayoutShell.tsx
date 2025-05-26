@@ -50,32 +50,38 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
   const isHome           = pathname === `/${lang}`;
   const isCasaPage       = pathname.includes("/casa");
-  const isRestaurantPage = pathname.includes("/restaurant");
+  const isRestaurantPage = pathname.includes("/farmtotable");
+  const isCafePage       = pathname.includes("/cafe");
 
   //
   // ─── MOBILE BOTTOM NAV ITEMS ─────────────────────────────────────────────────
   //
   // Only Casa and Restaurant now; Café has been removed.
   const mobileNavItems = (() => {
-    // Casa sections from dictionary.casa.sections
     if (isCasaPage) {
-      const keys = Object.keys(dictionary.casa.sections) as Array<keyof AppDictionary["casa"]["sections"]>;
+      const keys = Object.keys(dictionary.casa.sections);
       return keys.map((id) => ({
         id,
         label: dictionary.casa.sections[id].title,
       }));
     }
-    // Restaurant sections from dictionary.restaurant.sections
     if (isRestaurantPage) {
-      const keys = Object.keys(dictionary.restaurant.sections) as Array<keyof AppDictionary["restaurant"]["sections"]>;
+      const keys = Object.keys(dictionary.farmtotable.sections);
       return keys.map((id) => ({
         id,
-        label: dictionary.restaurant.sections[id].title,
+        label: dictionary.farmtotable.sections[id].title,
       }));
     }
-    // Otherwise, nothing
+    if (isCafePage) { // <-- explicitly handle Cafe!
+      const keys = Object.keys(dictionary.cafe.sections);
+      return keys.map((id) => ({
+        id,
+        label: dictionary.cafe.sections[id].title,
+      }));
+    }
     return [];
   })();
+
 
   //
   // ─── DESKTOP DOCK‐RIGHT ITEMS ─────────────────────────────────────────────────
@@ -105,8 +111,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   // ─── WHICH IDENTITY FOR DOCK‐LEFT? ─────────────────────────────────────────────
   //
   // Only Casa or Restaurant now
-  const identity: "casa" | "restaurant" =
-    isCasaPage ? "casa" : isRestaurantPage ? "restaurant" : "casa";
+  const identity: "casa" | "farmtotable" | "cafe" | null =
+    isCasaPage ? "casa"
+    : isRestaurantPage ? "farmtotable"
+    : isCafePage ? "cafe"
+    : null; 
 
   return (
     <>
@@ -122,7 +131,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
             : "max-w-7xl mx-auto px-4 md:px-8 pt-28 pb-20"
         }
       >
-        {(isCasaPage || isRestaurantPage)
+        {(isCasaPage || isRestaurantPage || isCafePage)
           ? <NavigationProvider>{children}</NavigationProvider>
           : children}
       </main>
@@ -130,12 +139,13 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {mounted && !isHome && <Footer />}
 
       {/* ── DESKTOP DOCKS ─────────────────────────────────────────────── */}
-      {mounted && !isHome && !isMobile && (
+      {mounted && !isHome && !isMobile && identity && (
         <ClientOnly>
           <DockLeft dict={dictionary} identity={identity} />
           <DockRight items={dockRightItems} />
         </ClientOnly>
       )}
+
 
       {/* ── MOBILE BOTTOM NAV ───────────────────────────────────────── */}
       {mounted && !isHome && isMobile && mobileNavItems.length > 0 && (

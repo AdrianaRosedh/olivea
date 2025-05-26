@@ -1,4 +1,4 @@
-// app/[lang]/restaurant/page.tsx
+// app/[lang]/farmtotable/page.tsx
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { loadLocale } from "@/lib/i18n";
@@ -18,12 +18,12 @@ export async function generateMetadata({
   const { lang, dict } = await loadLocale(await params);
 
   return {
-    title: dict.restaurant.title,
-    description: dict.restaurant.description,
+    title: dict.farmtotable.title,
+    description: dict.farmtotable.description,
     metadataBase: new URL("https://wwww.oliveafarmtotable.com"),
     openGraph: {
-      title: dict.restaurant.title,
-      description: dict.restaurant.description,
+      title: dict.farmtotable.title,
+      description: dict.farmtotable.description,
       images: [
         {
           url: "/images/farmtotable.png",

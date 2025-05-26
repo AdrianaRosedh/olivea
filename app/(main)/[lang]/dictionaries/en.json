@@ -225,7 +225,7 @@
       }
     }
   },
-  "restaurant": {
+  "farmtotable": {
     "title": "Olivea Farm To Table",
     "description": "Seasonal menus, chef stories, and a true farm-to-table experience.",
     "sections": {
@@ -382,7 +382,7 @@
   },
   "drawer": {
     "main": {
-      "restaurant": "Olivea Farm To Table",
+      "farmtotable": "Olivea Farm To Table",
       "casa": "Casa Olivea",
       "cafe": "Olivea Café"
     },

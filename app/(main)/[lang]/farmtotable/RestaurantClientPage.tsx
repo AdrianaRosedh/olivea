@@ -56,13 +56,13 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
 
   // 2) Build your section keys & flattened IDs for the tracker
   const sectionKeys = RESTAURANT_SECTION_ORDER.filter((key) =>
-    key in dict.restaurant.sections
+    key in dict.farmtotable.sections
   ) as SectionKey[];
 
   const sectionIds = sectionKeys.flatMap((key) => [
     key,
-    ...(dict.restaurant.sections[key].subsections
-      ? Object.keys(dict.restaurant.sections[key].subsections!)
+    ...(dict.farmtotable.sections[key].subsections
+      ? Object.keys(dict.farmtotable.sections[key].subsections!)
       : []),
   ]);
 
@@ -76,14 +76,14 @@ export default function RestaurantClientPage({ dict }: RestaurantClientPageProps
         className="relative"
       >
         <header className="text-center py-12 px-6">
-          <TypographyH1>{dict.restaurant.title}</TypographyH1>
+          <TypographyH1>{dict.farmtotable.title}</TypographyH1>
           <TypographyP className="mt-2">
-            {dict.restaurant.description}
+            {dict.farmtotable.description}
           </TypographyP>
         </header>
 
         {sectionKeys.map((key) => {
-          const sec = dict.restaurant.sections[key] as SectionData;
+          const sec = dict.farmtotable.sections[key] as SectionData;
           return (
             <section
               key={key}

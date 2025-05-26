@@ -39,10 +39,10 @@ export const dictionarySchema = z.object({
     sections:    z.record(Section),
   }),
 
-  restaurant: z.object({
+  farmtotable: z.object({
     title:       z.string(),
     description: z.string(),
-    // <- and restaurant too
+    // <- and farmtotable too
     sections:    z.record(Section),
   }),
 
@@ -75,7 +75,7 @@ export const dictionarySchema = z.object({
 
   drawer: z.object({
     main: z.object({
-      restaurant: z.string(),
+      farmtotable: z.string(),
       casa:       z.string(),
       cafe:       z.string(),
     }),
