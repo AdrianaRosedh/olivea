@@ -1,7 +1,7 @@
 // app/(home)/HomeProviders.tsx
 "use client";
 
-import { ReactNode, useEffect, useState, Fragment } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Head from "next/head";
 import SharedVideoTransition from "@/components/ui/SharedVideoTransition";
 
@@ -48,25 +48,6 @@ export function HomeProviders({ children }: HomeProvidersProps) {
             fetchPriority="high"
           />
 
-          {/* Transition videos (low priority) */}
-          {["transition1", "transition2", "transition3"].map((n) => (
-            <Fragment key={n}>
-              <link
-                rel="preload"
-                href={`/videos/${n}.webm`}
-                as="video"
-                type="video/webm"
-                fetchPriority="low"
-              />
-              <link
-                rel="preload"
-                href={`/videos/${n}.mp4`}
-                as="video"
-                type="video/mp4"
-                fetchPriority="low"
-              />
-            </Fragment>
-          ))}
         </Head>
       )}
 
