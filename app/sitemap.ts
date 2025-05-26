@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/sustainability",
     "/journal",
     "/legal",
-    "/restaurant",
+    "/farmtotable",
   ]
 
   // Create sitemap entries for both languages

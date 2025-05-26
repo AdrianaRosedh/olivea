@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, CSSProperties } from "react";
+import { useState, useEffect, useCallback, useRef, CSSProperties } from "react";
 import type { ComponentType, SVGProps } from "react";
 import Tilt from "react-parallax-tilt";
 import { motion } from "framer-motion";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import type { VideoKey } from "@/contexts/SharedTransitionContext";
 import { usePathname, useRouter } from "next/navigation";
+import throttle from 'lodash.throttle';
 
 export interface InlineEntranceCardProps {
   title: string;
@@ -38,7 +39,7 @@ export default function InlineEntranceCard({
   const mp4Url = slug ? `/videos/${slug}.mp4` : videoSrc || "";
   const webmUrl = mp4Url.replace(/\.mp4$/, ".webm");
   // ───── warmUpVideo: injects <link rel="preload"> once per slug ─────
-  const warmUpVideo = () => {
+  const warmUpVideo = useCallback(() => {
     if (document.head.querySelector(`link[data-preload="${slug}"]`)) return;
     [webmUrl, mp4Url].forEach((url) => {
       const link = document.createElement("link");
@@ -49,7 +50,7 @@ export default function InlineEntranceCard({
       link.setAttribute("data-preload", slug);
       document.head.appendChild(link);
     });
-  };
+  }, [slug, webmUrl, mp4Url]);
 
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -73,62 +74,85 @@ export default function InlineEntranceCard({
   const bottomHeight = isMobile ? MOBILE_COLLAPSED : BOTTOM_DEFAULT;
 
   // Detect mobile
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+    useEffect(() => {
+      let resizeTimeout: NodeJS.Timeout;
+    
+      const onResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          setIsMobile(window.innerWidth < 768);
+        }, 150);
+      };
+    
+      onResize(); // set initial value immediately
+      window.addEventListener("resize", onResize);
+    
+      return () => {
+        clearTimeout(resizeTimeout);
+        window.removeEventListener("resize", onResize);
+      };
+    }, []);
 
-  // IntersectionObserver to check when the video enters the viewport
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsInView(true); // Set to true when the video enters the viewport
-        }
-      },
-      { threshold: 0.1 } // Load video when 10% of it is visible
-    );
-  
-    const videoElement = videoRef.current; // Store the ref in a variable
-  
-    if (videoElement) {
-      observer.observe(videoElement); // Observe the video
-    }
-  
-    return () => {
-      if (videoElement) {
-        observer.unobserve(videoElement); // Unobserve the video when component is unmounted
+
+    // IntersectionObserver to check when the video enters the viewport
+    useEffect(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        setIsInView(true); // Set to true when the video enters the viewport
       }
-    };
-  }, []);
-  
+    },
+    { threshold: 0.1 } // Load video when 10% of it is visible
+  );
 
-  // Video playback on hover/open
-  useEffect(() => {
-  const vid = videoRef.current;
-  if (!vid || !isInView || isMobile) return; // Never play inline videos on mobile
-  if (isHovered) {
-    vid.play().catch(() => {});
-  } else {
-    vid.pause();
+  const videoElement = videoRef.current;
+
+  if (videoElement) {
+    observer.observe(videoElement);
   }
-}, [isHovered, isMobile, isInView]);
 
-
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isMobile) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTiltStyle({
-      transform: `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`,
-      boxShadow: `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`,
-      transition: "transform 0.1s ease-out, boxShadow 0.2s ease-out",
-    });
+  return () => {
+    if (videoElement) {
+      observer.unobserve(videoElement);
+    }
+    observer.disconnect(); // <-- Correct place for disconnect
   };
+    }, []);
+
+
+
+      // Video playback on hover/open
+      useEffect(() => {
+      const vid = videoRef.current;
+      if (!vid || !isInView || isMobile) return; // Never play inline videos on mobile
+      if (isHovered) {
+        vid.play().catch(() => {});
+      } else {
+        vid.pause();
+      }
+    }, [isHovered, isMobile, isInView]);
+
+
+
+  const throttledMouseMove = useRef(
+    throttle((e: React.MouseEvent<HTMLDivElement>, isMobile: boolean, setTiltStyle: React.Dispatch<React.SetStateAction<CSSProperties>>
+) => {
+      if (isMobile) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      setTiltStyle({
+        transform: `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`,
+        boxShadow: `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`,
+        transition: "transform 0.1s ease-out, boxShadow 0.2s ease-out",
+      });
+    }, 20)
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => throttledMouseMove.current(e, isMobile, setTiltStyle),
+    [isMobile]
+  );
 
   const handleMouseLeave = () => {
     if (isMobile) return;

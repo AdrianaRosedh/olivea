@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   appleWebApp: { title: "Grupo Olivea" },
   other: {
     preload: [
-      // any global preloads (e.g. icon)
       '<link rel="preload" href="/assets/alebrije-1.svg" as="image" type="image/svg+xml" />',
     ],
   },
@@ -32,13 +31,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="es"
       className={`${inter.className} ${corm.className} ${jakarta.className}`}
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)] font-inter">
-        {/* Wrap *all* pages in your global providers */}
         <AppProviders>
           {children}
         </AppProviders>
 
-        {/* Global third‐party scripts */}
         <Script id="tock-script" strategy="beforeInteractive">
           {`
             !function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?    
@@ -49,7 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             tock('init', 'olivea-farm-to-table');
           `}
         </Script>
-          
 
         <Script id="whistle-config" strategy="lazyOnload">
           {`
