@@ -1,3 +1,4 @@
+// components/forms/reservation/ReservationModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,9 +11,8 @@ import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
-const TockWidget = dynamic(() => import("./TockWidget"), { ssr: false });
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
-
+const TockWidget      = dynamic(() => import("./TockWidget"),      { ssr: false });
+const jakarta         = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400","500","700","800"], display: "swap" });
 
 interface ReservationModalProps {
   lang: "es" | "en";
@@ -20,11 +20,15 @@ interface ReservationModalProps {
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
   const { isOpen, closeReservationModal, reservationType, setReservationType } = useReservation();
-  const [isMobile, setIsMobile] = useState(false);
+
+  // 1) initialize from window.matchMedia so Framer sees correct
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width:767px)").matches;
+  });
 
   useEffect(() => {
     const mql = window.matchMedia("(max-width:767px)");
-    setIsMobile(mql.matches);
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", onChange);
     return () => mql.removeEventListener("change", onChange);
@@ -52,11 +56,12 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     : { duration: 0.4, ease: "easeOut" };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait" initial={false}>
       {isOpen && (
         <>
           {/* Backdrop */}
           <motion.div
+            key="backdrop"
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
             variants={backdropVariants}
             initial="hidden"
@@ -68,7 +73,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
           {/* Modal Container */}
           <motion.div
-            className={`fixed inset-0 z-[1300] flex ${isMobile ? "items-end" : "items-center justify-center p-4"}`}
+            key={`panel-${isMobile ? "m" : "d"}`}         
+            className={`fixed inset-0 z-[1300] flex ${
+              isMobile ? "items-end justify-center" : "items-center justify-center p-4"
+            }`}
             variants={modalVariants}
             initial="hidden"
             animate="visible"
@@ -100,19 +108,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               </div>
 
               {/* Tabs */}
-              <div
-                className="
-                  flex 
-                  bg-[var(--olivea-cream)] 
-                  flex-shrink-0 
-                  pointer-events-auto 
-
-                  /* mobile only: small horizontal padding */
-                  px-4 
-                  md:px-0
-                "
-              >
-                {(["restaurant","hotel","cafe"] as ReservationType[]).map( id => (
+              <div className="flex bg-[var(--olivea-cream)] flex-shrink-0 pointer-events-auto px-4 md:px-0">
+                {(["restaurant","hotel","cafe"] as ReservationType[]).map((id) => (
                   <button
                     key={id}
                     onClick={() => setReservationType(id)}
@@ -129,13 +126,12 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                       fontWeight: 400,
                     }}
                   >
-                    { id==="restaurant"
-                        ? lang==="es" ? "Restaurante" : "Restaurant"
-                        : id==="hotel"
-                          ? "Hotel"
-                          : lang==="es" ? "Café" : "Cafe"
+                    {id === "restaurant"
+                      ? lang === "es" ? "Restaurante" : "Restaurant"
+                      : id === "hotel"
+                        ? "Hotel"
+                        : lang === "es" ? "Café" : "Cafe"
                     }
-
                     {reservationType===id && (
                       <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[var(--olivea-olive)]" />
                     )}
@@ -164,39 +160,28 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                       : "opacity-0 pointer-events-none"
                   }`}
                 >
-
-                <div className="flex items-center justify-start px-4 py-3 md:px-6 md:py-4 border-b border-neutral-300 bg-[var(--olivea-cream)] shadow-md">
-
-                  {/* Slightly Larger Logo */}
-                  <div className="h-[45px] w-auto md:h-[65px] flex-shrink-0">
-                    <OliveaLogo className="h-full w-auto object-contain" />
+                  <div className="flex items-center justify-start px-4 py-3 md:px-6 md:py-4 border-b border-neutral-300 bg-[var(--olivea-cream)] shadow-md">
+                    <div className="h-[45px] w-auto md:h-[65px] flex-shrink-0">
+                      <OliveaLogo className="h-full w-auto object-contain" />
+                    </div>
+                    <span
+                      className={`${jakarta.className} font-bold whitespace-nowrap ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                      style={{ fontSize: "clamp(0.9rem, 2vw, 1.15rem)" }}
+                    >
+                      Olivea Farm To Table
+                    </span>
                   </div>
-
-                  {/* Further increased margin-left */}
-                  <span
-                    className={`${jakarta.className} font-bold whitespace-nowrap ml-5 md:ml-7 text-[var(--olivea-ink)]`}
-                    style={{ fontSize: "clamp(0.9rem, 2vw, 1.15rem)" }}
-                  >
-                    Olivea Farm To Table
-                  </span>
-
-                </div>
-
-                    {/* 2) Once Tock is ready, show the real widget */}
-                    {reservationType === "restaurant" && (<TockWidget offeringId="528232" />)}
+                  {reservationType === "restaurant" && <TockWidget offeringId="528232" />}
                 </div>
 
                 {/* Café Pane */}
                 <div
-                  className={`
-                    absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto
-                    ${reservationType === "cafe"
+                  className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto ${
+                    reservationType === "cafe"
                       ? "opacity-100 pointer-events-auto"
                       : "opacity-0 pointer-events-none"
-                    }
-                  `}
+                  }`}
                 >
-                  {/* 1) exactly the same header bar as Restaurant */}
                   <div className="flex items-center justify-start px-4 py-3 md:px-6 md:py-4 border-b border-neutral-300 bg-[var(--olivea-cream)] shadow-md">
                     <div className="h-[45px] w-auto md:h-[65px] flex-shrink-0">
                       <OliveaCafe className="h-full w-auto object-contain" />
@@ -208,8 +193,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                       Olivea Café
                     </span>
                   </div>
-                  
-                  {/* 2) then your “coming soon” body, centered in the rest of the space */}
                   <div className="flex-1 flex items-center justify-center italic text-neutral-500 p-6">
                     {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
                   </div>
