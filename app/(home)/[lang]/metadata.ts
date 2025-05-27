@@ -12,21 +12,27 @@ export async function generateMetadata({
     title: lang === "es" ? "Grupo Olivea" : "Olivea Family",
     description: "Olivea Farm to Table – A garden experience for your senses",
     alternates: {
-      canonical: `https://wwww.oliveafarmtotable.com/${lang}`,
+      canonical: `https://www.oliveafarmtotable.com/${lang}`,
       languages: {
-        en: "https://wwww.oliveafarmtotable.com/en",
-        es: "https://wwww.oliveafarmtotable.com/es",
+        en: "https://www.oliveafarmtotable.com/en",
+        es: "https://www.oliveafarmtotable.com/es",
       },
     },
     openGraph: {
-      title: lang === "es" ? "Olivea Farm to Table" : "Olivea Farm to Table",
+      title: "Olivea Farm to Table",
       description: "Olivea Farm to Table – A garden experience for your senses",
-      url: `https://wwww.oliveafarmtotable.com/${lang}`,
+      url: `https://www.oliveafarmtotable.com/${lang}`,
       locale: lang,
       siteName: "Grupo Olivea",
       images: [
         `/images/og-${lang}.jpg`,
-        "/images/og-default.jpg", // fallback
+        "/images/og-default.jpg",
+      ],
+    },
+    other: {
+      preload: [
+        '<link rel="preload" href="/videos/homepage-temp.webm" as="video" type="video/webm" fetchpriority="high">',
+        '<link rel="preload" href="/videos/homepage-temp.mp4" as="video" type="video/mp4" fetchpriority="high">'
       ],
     },
   };
