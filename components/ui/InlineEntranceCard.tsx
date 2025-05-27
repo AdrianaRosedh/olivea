@@ -92,22 +92,22 @@ export default function InlineEntranceCard({
     };
   }, []);
 
-    // IntersectionObserver to check when the video enters the viewport
-
+  // IntersectionObserver — once we see it, mark `isInView` and disconnect
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsInView(entry.isIntersecting),
+    const vidEl = videoRef.current;
+    if (!vidEl) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          obs.disconnect();
+        }
+      },
       { threshold: 0.1 }
-    );    
-  
-    const videoElement = videoRef.current;
-    if (videoElement) observer.observe(videoElement);   
-  
-    return () => {
-      if (videoElement) observer.unobserve(videoElement);
-      observer.disconnect();
-    };
-  }, []);  
+    );
+    obs.observe(vidEl);
+    return () => obs.disconnect();
+  }, []); 
   
 
       // Video playback on hover/open
