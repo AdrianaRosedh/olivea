@@ -272,7 +272,7 @@ export default function HomePage() {
           muted
           loop
           playsInline
-          preload={isMobile ? "metadata" : "metadata"}
+          preload={isMobile ? "metadata" : "auto"}
           poster="/images/hero.jpg"
           className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
         >
