@@ -9,13 +9,6 @@ export default function Head() {
         type="video/webm"
         fetchPriority="high"
       />
-      <link
-        rel="preload"
-        href="/videos/homepage-temp.mp4"
-        as="video"
-        type="video/mp4"
-        fetchPriority="high"
-      />
     </>
   );
 }
