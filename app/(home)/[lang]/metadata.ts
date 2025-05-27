@@ -29,11 +29,5 @@ export async function generateMetadata({
         "/images/og-default.jpg",
       ],
     },
-    other: {
-      preload: [
-        '<link rel="preload" href="/videos/homepage-temp.webm" as="video" type="video/webm" fetchpriority="high">',
-        '<link rel="preload" href="/videos/homepage-temp.mp4" as="video" type="video/mp4" fetchpriority="high">'
-      ],
-    },
   };
 }

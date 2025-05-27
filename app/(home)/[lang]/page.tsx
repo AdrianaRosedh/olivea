@@ -267,20 +267,20 @@ export default function HomePage() {
                 }}
         >
         <video
-         ref={videoRef}
-         autoPlay
-         muted
-         loop
-         playsInline
-         preload={isMobile ? "metadata" : "auto"}
-         poster="/images/hero.jpg"
-         aria-label="Welcome to Olivea"
-         className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
-       >
-         <source src="/videos/homepage-temp.webm" type="video/webm" />
-         <source src="/videos/homepage-temp.mp4" type="video/mp4" />
-         Your browser doesn’t support this video.
-       </video>
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload={isMobile ? "metadata" : "auto"}
+          poster="/images/hero.jpg"
+          className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
+        >
+          <source src="/videos/homepage-temp.webm" type="video/webm" />
+          <source src="/videos/homepage-temp.mp4" type="video/mp4" />
+          Your browser doesn’t support this video.
+        </video>
+
 
           <div className="absolute inset-0 flex justify-center items-start">
             <div
