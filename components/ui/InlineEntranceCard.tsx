@@ -94,22 +94,21 @@ export default function InlineEntranceCard({
 
     // IntersectionObserver to check when the video enters the viewport
 
-    useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setIsInView(entry.isIntersecting);
-        },
-        { threshold: 0.1 }
-      );    
-
-      const videoElement = videoRef.current;
-      if (videoElement) observer.observe(videoElement);   
-
-      return () => {
-        if (videoElement) observer.unobserve(videoElement);
-        observer.disconnect();
-      };
-    }, []);   
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.1 }
+    );    
+  
+    const videoElement = videoRef.current;
+    if (videoElement) observer.observe(videoElement);   
+  
+    return () => {
+      if (videoElement) observer.unobserve(videoElement);
+      observer.disconnect();
+    };
+  }, []);  
+  
 
       // Video playback on hover/open
   useEffect(() => {
@@ -145,6 +144,7 @@ export default function InlineEntranceCard({
       [isMobile]
     );
 
+  
   const handleMouseLeave = () => {
     if (isMobile) return;
     setTiltStyle({ transform: "perspective(1000px) translateY(0) rotateX(0) rotateY(0)", boxShadow: "none", transition: "transform 0.5s ease, boxShadow 0.3s ease" });
@@ -166,7 +166,13 @@ export default function InlineEntranceCard({
       router.push(href)
     }
   }
-
+  const handleMouseEnter = () => {
+    if (videoRef.current && videoRef.current.readyState === 0) {
+      videoRef.current.load();  // Explicitly load video on hover only
+    }
+    warmUpVideo();
+    setIsHovered(true);
+  };
   return (
   <Tilt
     className={className}
@@ -174,10 +180,7 @@ export default function InlineEntranceCard({
     tiltMaxAngleX={10}
     tiltMaxAngleY={10}
     glareEnable={false}
-    onEnter={() => {
-      warmUpVideo();
-      setIsHovered(true);
-    }}
+    onEnter={handleMouseEnter}
     onLeave={handleMouseLeave}
   >
     <motion.div
@@ -216,7 +219,7 @@ export default function InlineEntranceCard({
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="none"
               style={{
                 position: "absolute",
                 width: "100%",

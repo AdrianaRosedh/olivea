@@ -45,7 +45,6 @@ export function HomeProviders({ children }: HomeProvidersProps) {
             href="/videos/homepage-temp.mp4"
             as="video"
             type="video/mp4"
-            fetchPriority="high"
           />
 
         </Head>
