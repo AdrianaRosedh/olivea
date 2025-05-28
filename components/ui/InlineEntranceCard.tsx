@@ -6,7 +6,6 @@ import Tilt from "react-parallax-tilt";
 import { motion } from "framer-motion";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import type { VideoKey } from "@/contexts/SharedTransitionContext";
-import { usePathname, useRouter } from "next/navigation";
 import throttle from 'lodash.throttle';
 
 export interface InlineEntranceCardProps {
@@ -32,8 +31,6 @@ export default function InlineEntranceCard({
 }: InlineEntranceCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { startTransition } = useSharedTransition();
-  const router = useRouter();  
-  const pathname = usePathname();
 
   const slug   = href.split("/").pop() || "";
   const mp4Url = slug ? `/videos/${slug}.mp4` : videoSrc || "";
@@ -151,28 +148,26 @@ export default function InlineEntranceCard({
     setIsHovered(false);
   };
 
-  const handleActivate = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    // are we on the home page?
-    const isHome = pathname === "/" || /^\/(en|es)$/.test(pathname)
-    
-    if (isHome) {
-      warmUpVideo()
-      onActivate?.()
-      startTransition(videoKey, href)
-    } else {
-      router.push(href)
-    }
-  }
   const handleMouseEnter = () => {
     if (videoRef.current && videoRef.current.readyState === 0) {
-      videoRef.current.load();  // Explicitly load video on hover only
+      videoRef.current.load();
     }
     warmUpVideo();
     setIsHovered(true);
   };
+
+  const handleActivate = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 1) warm-up the target video
+    warmUpVideo();
+    onActivate?.();
+
+    // 2) kick off the shared transition and let it do the navigation for you
+    startTransition(videoKey, href);
+  };
+
   return (
   <Tilt
     className={className}
@@ -183,20 +178,18 @@ export default function InlineEntranceCard({
     onEnter={handleMouseEnter}
     onLeave={handleMouseLeave}
   >
-    <motion.div
-      role="link"
-      tabIndex={0}
-      aria-label={`Go to ${title}`}
-      onClick={handleActivate}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          handleActivate(e);
-        }
-      }}
-      whileTap={{ scale: 0.97 }}
-      style={{ filter: isMobile ? "drop-shadow(0 8px 12px rgba(0,0,0,0.15))" : undefined }}
-      className="relative overflow-visible cursor-pointer"
+   <a
+     href={href}
+     role="link"
+     tabIndex={0}
+     aria-label={`Go to ${title}`}
+     onClick={handleActivate}
+     onKeyDown={(e) => {
+       if (e.key === "Enter" || e.key === " ") handleActivate(e);
+     }}
+     className={`relative overflow-visible cursor-pointer ${isMobile ? 'drop-shadow-lg' : ''}`}
     >
+    <motion.div whileTap={{ scale: 0.97 }} className="relative overflow-visible">
       <div
         onMouseMove={handleMouseMove}
         style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}
@@ -235,55 +228,53 @@ export default function InlineEntranceCard({
             </video>
           </div>
 
-          {/* Bottom Text Container (WITH subtle ANIMATION) */}
           {/* Bottom Text Container (Final Corrected Version) */}
-<motion.div
-  initial={{ height: bottomHeight }}
-  animate={{ height: isHovered ? bottomHeight + UNDERLAY_HEIGHT + 15 : bottomHeight }}
-  transition={{ duration: 0.4, ease: "easeInOut" }}
-  style={{
-    background: "#e8e4d5",
-    padding: "10px 16px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    overflow: "hidden",
-    borderBottomLeftRadius: 24,  // <-- explicitly added radius
-    borderBottomRightRadius: 24, // <-- explicitly added radius
-  }}
->
-  <h3
-    style={{
-      margin: 1,
-      zIndex: 2,
-      fontFamily: "var(--font-serif)",
-      fontSize: isMobile ? 28 : 24,
-      fontWeight: isMobile ? 600 : 300,
-      marginTop: isHovered ? 25 : 33, 
-      transition: "margin-top 0.4s ease",
-    }}
-    className="not-italic"
-  >
-    {title}
-  </h3>
-
-  {!isMobile && isHovered && (
-    <p
-      style={{
-        marginTop: 6,
-        textAlign: "center",
-        fontSize: 16,
-        maxWidth: 224,
-        opacity: isHovered ? 1 : 0,
-        transition: "opacity 0.4s ease",
-      }}
-    >
-      {description}
-    </p>
-  )}
-</motion.div>
-
+          <motion.div
+            initial={{ height: bottomHeight }}
+            animate={{ height: isHovered ? bottomHeight + UNDERLAY_HEIGHT + 15 : bottomHeight }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            style={{
+              background: "#e8e4d5",
+              padding: "10px 16px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              overflow: "hidden",
+              borderBottomLeftRadius: 24,  // <-- explicitly added radius
+              borderBottomRightRadius: 24, // <-- explicitly added radius
+            }}
+          >
+            <h3
+              style={{
+                margin: 1,
+                zIndex: 2,
+                fontFamily: "var(--font-serif)",
+                fontSize: isMobile ? 28 : 24,
+                fontWeight: isMobile ? 600 : 300,
+                marginTop: isHovered ? 25 : 33, 
+                transition: "margin-top 0.4s ease",
+              }}
+              className="not-italic"
+            >
+              {title}
+            </h3>
+            
+            {!isMobile && isHovered && (
+              <p
+                style={{
+                  marginTop: 6,
+                  textAlign: "center",
+                  fontSize: 16,
+                  maxWidth: 224,
+                  opacity: isHovered ? 1 : 0,
+                  transition: "opacity 0.4s ease",
+                }}
+              >
+                {description}
+              </p>
+            )}
+          </motion.div>
         </div>
       </div>
 
@@ -332,6 +323,7 @@ export default function InlineEntranceCard({
       )}
 
     </motion.div>
+  </a>
   </Tilt>
 );
 
