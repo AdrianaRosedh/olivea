@@ -187,9 +187,9 @@ export default function InlineEntranceCard({
      onKeyDown={(e) => {
        if (e.key === "Enter" || e.key === " ") handleActivate(e);
      }}
-     className={`relative overflow-visible cursor-pointer ${isMobile ? 'drop-shadow-lg' : ''}`}
+     className="block relative cursor-pointer"
     >
-    <motion.div whileTap={{ scale: 0.97 }} className="relative overflow-visible">
+    <motion.div whileTap={{ scale: 0.97 }} className={`relative overflow-visible cursor-pointer ${isMobile ? 'drop-shadow-lg' : ''}`}>
       <div
         onMouseMove={handleMouseMove}
         style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}
