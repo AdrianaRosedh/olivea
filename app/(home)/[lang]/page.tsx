@@ -79,8 +79,15 @@ export default function HomePage() {
   const logoControls = useAnimation();
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
   const logoTargetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+    vid.muted = true;
+    vid.play().catch(() => {
+    });
+  }, []);
 
   const [drawComplete, setDrawComplete] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
@@ -109,10 +116,6 @@ export default function HomePage() {
     resizeHandler();
     window.addEventListener("resize", resizeHandler);
     return () => window.removeEventListener("resize", resizeHandler);
-  }, []);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
   }, []);
 
   useEffect(() => {
@@ -272,12 +275,12 @@ export default function HomePage() {
           muted
           loop
           playsInline
-          preload={isMobile ? "metadata" : "auto"}
+          preload="auto"
           poster="/images/hero.jpg"
           className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
         >
-          <source src="/videos/homepage-temp.webm" type="video/webm" />
           <source src="/videos/homepage-temp.mp4" type="video/mp4" />
+          <source src="/videos/homepage-temp.webm" type="video/webm" />
           Your browser doesn’t support this video.
         </video>
 
