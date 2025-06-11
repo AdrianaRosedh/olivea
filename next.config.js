@@ -110,6 +110,12 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/', destination: '/es', permanent: false },
+            // redirect ANY lang/oliveafarmtotable to the new domain
+      {
+        source: '/:lang/oliveafarmtotable',
+        destination: 'https://www.oliveafarmtotable.com',
+        permanent: true,
+      },
     ]
   },
 }
