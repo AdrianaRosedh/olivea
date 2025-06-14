@@ -24,9 +24,9 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
         <Button
           onClick={handleClick}
           size="lg"
-          className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans"
+          className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans tracking-wider"
         >
-          Reservar
+          RESERVAR
         </Button>
       </div>
 
@@ -34,9 +34,9 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
       <div className={`hidden md:block ${className}`}>
         <MagneticButton
           onClick={handleClick}
-          className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors font-sans"
+          className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors font-sans tracking-wider"
         >
-          Reservar
+          RESERVAR
         </MagneticButton>
       </div>
     </>
