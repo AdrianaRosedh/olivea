@@ -9,7 +9,7 @@ export async function generateMetadata({
   const { lang } = params;
 
   return {
-    title: lang === "es" ? "Grupo Olivea" : "Olivea Family",
+    title: lang === "es" ? "Familia Olivea" : "Olivea Family",
     description: "Olivea Farm to Table – A garden experience for your senses",
     alternates: {
       canonical: `https://www.oliveafarmtotable.com/${lang}`,
@@ -23,7 +23,7 @@ export async function generateMetadata({
       description: "Olivea Farm to Table – A garden experience for your senses",
       url: `https://www.oliveafarmtotable.com/${lang}`,
       locale: lang,
-      siteName: "Grupo Olivea",
+      siteName: "Familia Olivea",
       images: [
         `/images/og-${lang}.jpg`,
         "/images/og-default.jpg",

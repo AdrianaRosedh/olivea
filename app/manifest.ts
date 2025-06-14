@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Grupo Olivea",
+    name: "Familia Olivea",
     short_name: "Olivea",
     description: "A farm-to-table sanctuary where nature, nourishment, and design meet.",
     start_url: "/",
