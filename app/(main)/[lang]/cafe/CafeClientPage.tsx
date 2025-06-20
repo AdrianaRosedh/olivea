@@ -1,3 +1,4 @@
+// app/(main)/[lang]/cafe/CafeClientPage.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -7,18 +8,23 @@ import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 import { motion, Variants, useAnimation } from "framer-motion";
 import Image from "next/image";
 
-interface SectionData {
+interface Subsection {
   title: string;
   description: string;
-  images?: { src: string; alt?: string }[];
-  subsections?: Record<string, { title: string; description: string }>;
+}
+
+interface SectionData {
+  title:       string;
+  description: string;
+  images?:     { src: string; alt?: string }[];
+  subsections?: Record<string, Subsection>;
 }
 
 interface CafeClientPageProps {
   dict: AppDictionary;
 }
 
-const CAFÉ_SECTION_ORDER = [
+const CAFE_SECTION_ORDER = [
   "all_day",
   "padel",
   "menu",
@@ -26,26 +32,24 @@ const CAFÉ_SECTION_ORDER = [
   "ambience",
 ] as const;
 
+type SectionKey = typeof CAFE_SECTION_ORDER[number];
+
 const contentVariants: Variants = {
-  hidden: { y: "100vh" },
-  visible: {
-    y: "0",
-    transition: { duration: 1, ease: "easeInOut" },
-  },
+  hidden:  { y: "100vh" },
+  visible: { y: "0", transition: { duration: 1, ease: "easeInOut" } },
 };
 
 export default function CafeClientPage({ dict }: CafeClientPageProps) {
   const controlsContent = useAnimation();
 
-  // Slide the content up after a brief delay
   useEffect(() => {
     const timer = setTimeout(() => controlsContent.start("visible"), 100);
     return () => clearTimeout(timer);
   }, [controlsContent]);
 
-  const sectionKeys = CAFÉ_SECTION_ORDER.filter((key) =>
-    key in dict.cafe.sections
-  ) as Array<keyof typeof dict.cafe.sections>;
+  const sectionKeys = CAFE_SECTION_ORDER.filter(
+    (key) => key in dict.cafe.sections
+  ) as SectionKey[];
 
   const sectionIds = sectionKeys.flatMap((key) => [
     key,
@@ -84,7 +88,7 @@ export default function CafeClientPage({ dict }: CafeClientPageProps) {
                   <div key={idx} className="bg-white shadow rounded overflow-hidden">
                     <Image
                       src={img.src}
-                      alt={img.alt || ""}
+                      alt={img.alt ?? ""}
                       width={800}
                       height={480}
                       className="object-cover w-full h-48"
@@ -94,18 +98,21 @@ export default function CafeClientPage({ dict }: CafeClientPageProps) {
               </div>
 
               {sec.subsections &&
-                Object.entries(sec.subsections).map(([subId, sub]) => (
-                  <section
-                    key={subId}
-                    id={subId}
-                    className="subsection min-h-screen flex flex-col items-center justify-center px-6"
-                  >
-                    <div className="max-w-2xl text-center">
-                      <TypographyH3>{sub.title}</TypographyH3>
-                      <TypographyP className="mt-2">{sub.description}</TypographyP>
-                    </div>
-                  </section>
-                ))}
+                (Object.entries(sec.subsections) as [string, Subsection][])
+                  .map(([subId, sub]) => (
+                    <section
+                      key={subId}
+                      id={subId}
+                      className="subsection min-h-screen flex flex-col items-center justify-center px-6"
+                    >
+                      <div className="max-w-2xl text-center">
+                        <TypographyH3>{sub.title}</TypographyH3>
+                        <TypographyP className="mt-2">
+                          {sub.description}
+                        </TypographyP>
+                      </div>
+                    </section>
+                  ))}
             </section>
           );
         })}

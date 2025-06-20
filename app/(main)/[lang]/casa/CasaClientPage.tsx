@@ -1,3 +1,4 @@
+// app/(main)/[lang]/casa/CasaClientPage.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -11,11 +12,16 @@ import {
 import MobileSectionTracker from "@/components/navigation/MobileSectionTracker";
 import { motion, Variants, useAnimation } from "framer-motion";
 
-interface SectionData {
+interface Subsection {
   title: string;
   description: string;
-  images?: { src: string; alt?: string }[];
-  subsections?: Record<string, { title: string; description: string }>;
+}
+
+interface SectionData {
+  title:       string;
+  description: string;
+  images?:     { src: string; alt?: string }[];
+  subsections?: Record<string, Subsection>;
 }
 
 interface CasaClientPageProps {
@@ -32,7 +38,7 @@ const SECTION_ORDER = [
 type SectionKey = typeof SECTION_ORDER[number];
 
 const contentVariants: Variants = {
-  hidden: { y: "100vh" },
+  hidden:  { y: "100vh" },
   visible: {
     y: "0",
     transition: { duration: 1, ease: "easeInOut" },
@@ -42,7 +48,7 @@ const contentVariants: Variants = {
 export default function CasaClientPage({ dict }: CasaClientPageProps) {
   const controlsContent = useAnimation();
 
-  // Slide the content up after a tiny delay (give the overlay time to exit)
+  // Slide the content up after a tiny delay (give overlay time to exit)
   useEffect(() => {
     const timer = setTimeout(() => controlsContent.start("visible"), 100);
     return () => clearTimeout(timer);
@@ -100,18 +106,23 @@ export default function CasaClientPage({ dict }: CasaClientPageProps) {
               </div>
 
               {sec.subsections &&
-                Object.entries(sec.subsections).map(([subId, sub]) => (
-                  <section
-                    key={subId}
-                    id={subId}
-                    className="subsection min-h-screen flex flex-col items-center justify-center px-6"
-                  >
-                    <div className="max-w-2xl text-center">
-                      <TypographyH3>{sub.title}</TypographyH3>
-                      <TypographyP className="mt-2">{sub.description}</TypographyP>
-                    </div>
-                  </section>
-                ))}
+                // tell TS what shape entries have
+                (Object.entries(sec.subsections) as [string, Subsection][]).map(
+                  ([subId, sub]) => (
+                    <section
+                      key={subId}
+                      id={subId}
+                      className="subsection min-h-screen flex flex-col items-center justify-center px-6"
+                    >
+                      <div className="max-w-2xl text-center">
+                        <TypographyH3>{sub.title}</TypographyH3>
+                        <TypographyP className="mt-2">
+                          {sub.description}
+                        </TypographyP>
+                      </div>
+                    </section>
+                  )
+                )}
             </section>
           );
         })}

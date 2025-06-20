@@ -44,10 +44,10 @@ export default function FarmToTableClient({ dict }: { dict: AppDictionary }) {
     return () => clearTimeout(t)
   }, [controls])
 
-  // properly typed dictionary
+  // Load and type your sections
   const sections = dict.farmtotable.sections as Record<SectionKey, SectionData>
   const sectionKeys = SECTION_ORDER.filter((k) => k in sections)
-  const sectionIds  = sectionKeys.flatMap((key) => [
+  const sectionIds = sectionKeys.flatMap((key) => [
     key,
     ...(sections[key].subsections
       ? Object.keys(sections[key].subsections)
@@ -79,7 +79,7 @@ export default function FarmToTableClient({ dict }: { dict: AppDictionary }) {
             <section
               key={key}
               id={key}
-              className="min-h-screen flex flex-col items-center justify-center space-y-4"
+              className="main-section min-h-screen flex flex-col items-center justify-center space-y-4"
             >
               <TypographyH2>{sec.title}</TypographyH2>
               <TypographyP className="max-w-xl text-center">{sec.description}</TypographyP>
@@ -89,7 +89,7 @@ export default function FarmToTableClient({ dict }: { dict: AppDictionary }) {
                   <section
                     key={subId}
                     id={subId}
-                    className="min-h-screen flex flex-col items-center justify-center space-y-2"
+                    className="subsection min-h-screen flex flex-col items-center justify-center space-y-2"
                   >
                     <TypographyH3>{sub.title}</TypographyH3>
                     <TypographyP className="max-w-lg text-center">

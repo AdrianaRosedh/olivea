@@ -20,24 +20,28 @@ export default function SectionObserver({ sections }: SectionObserverProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Define the order of sections
-  const sectionIds = ["story", "garden", "menu", "wines"];
+  const sectionIds = Object.keys(sections);
 
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const onClick = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement).closest("a[href^='#']");
       if (!link) return;
       e.preventDefault();
-      const sectionId = link.getAttribute("href")!.slice(1);
-      const sectionEl = document.getElementById(sectionId);
-      if (sectionEl && containerRef.current) {
-        sectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
-        window.history.pushState(null, "", `#${sectionId}`);
-        setTimeout(() => window.dispatchEvent(new Event("scroll")), 600);
+      const id = link.getAttribute("href")!.slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.history.replaceState(null, "", `#${id}`);
       }
     };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+  
+    container.addEventListener("click", onClick);
+    return () => container.removeEventListener("click", onClick);
   }, []);
+
 
   return (
     <>

@@ -1,65 +1,69 @@
-// app/[lang]/casa/page.tsx
-import type { Metadata, Viewport } from "next";
-import { loadLocale } from "@/lib/i18n";
-import CasaClientPage from "./CasaClientPage";
+import { Suspense } from "react"
+import type { Metadata, Viewport } from "next"
+import { loadLocale } from "@/lib/i18n"
+import Casa from "./content.mdx"
+
+export async function generateStaticParams() {
+  return (["en", "es"] as const).map((lang) => ({ lang }))
+}
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: string }>;
+  params: { lang: string }
 }): Promise<Metadata> {
-  const p = await params;
-  const { lang, dict } = await loadLocale(p);
-
+  const { lang: L, dict } = await loadLocale(params)
   return {
-    title: dict.casa.title,
+    title:       dict.casa.title,
     description: dict.casa.description,
-    metadataBase: new URL("https://www.oliveafarmtotable.com"),
-    openGraph: {
-      title: dict.casa.title,
-      description: dict.casa.description,
-      images: [
-        {
-          url: "/images/casa.png",
-          width: 1200,
-          height: 630,
-          alt: "Casa Olivea",
-        },
-      ],
-      locale: lang,
-      type: "website",
-    },
-    alternates: {
-      canonical: `https://www.oliveafarmtotable.com/${lang}/casa`,
+    alternates:  {
+      canonical: `https://oliveafarmtotable.com/${L}/casa`,
       languages: {
-        en: `https://www.oliveafarmtotable.com/en/casa`,
-        es: `https://www.oliveafarmtotable.com/es/casa`,
+        en: `https://oliveafarmtotable.com/en/casa`,
+        es: `https://oliveafarmtotable.com/es/casa`,
       },
     },
-
-    // ← HERE: warm up the Casa identity clip
-    other: {
-      preload: [
-        '<link rel="preload" href="/videos/casa.webm" as="video" type="video/webm" />',
-        '<link rel="preload" href="/videos/casa.mp4"  as="video" type="video/mp4"  />',
+    openGraph: {
+      title:       dict.casa.title,
+      description: dict.casa.description,
+      locale:      L,
+      type:        "website",
+      images: [
+        {
+          url:    "/images/casa-og.png",
+          width:  1200,
+          height: 630,
+          alt:    dict.casa.title,
+        },
       ],
     },
-  };
+  }
 }
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width:        "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#65735b",
-};
+  themeColor:   "#65735b",
+}
 
-export default async function CasaPage({
+export default async function Page({
   params,
 }: {
-  params: Promise<{ lang: string }>;
+  params: { lang: string }
 }) {
-  const p = await params;
-  const { dict } = await loadLocale(p);
-  return <CasaClientPage dict={dict} />;
+  const { dict } = await loadLocale(params)
+  return (
+    <div suppressHydrationWarning>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            Loading…
+          </div>
+        }
+      >
+        <Casa dict={dict} />
+      </Suspense>
+    </div>
+  )
 }
