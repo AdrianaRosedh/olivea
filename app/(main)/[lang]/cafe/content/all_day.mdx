@@ -1,11 +1,11 @@
 import { Section } from "@/components/sections/Section"
 
-export default function Garden({ dict }) {
-  const sec = dict.farmtotable.sections.garden
+export default function AllDay({ dict }) {
+  const sec = dict.cafe.sections.all_day
 
   return (
-    <Section id="garden" className="main-section">
-      <h2 id="garden-heading">{sec.title}</h2>
+    <Section id="all_day" className="main-section">
+      <h2 id="all_day-heading">{sec.title}</h2>
       <p>{sec.description}</p>
 
       {sec.subsections &&

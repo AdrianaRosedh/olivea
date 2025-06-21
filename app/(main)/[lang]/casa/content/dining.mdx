@@ -1,11 +1,11 @@
 import { Section } from "@/components/sections/Section"
 
-export default function Garden({ dict }) {
-  const sec = dict.farmtotable.sections.garden
+export default function Dining({ dict }) {
+  const sec = dict.casa.sections.dining
 
   return (
-    <Section id="garden" className="main-section">
-      <h2 id="garden-heading">{sec.title}</h2>
+    <Section id="dining" className="main-section">
+      <h2 id="dining-heading">{sec.title}</h2>
       <p>{sec.description}</p>
 
       {sec.subsections &&

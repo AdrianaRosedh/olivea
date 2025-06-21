@@ -1,7 +1,43 @@
 export const metadata = {}
 
-import CasaClientPage from './CasaClientPage'
+import Rooms       from "./content/rooms.mdx"
+import Mornings    from "./content/mornings.mdx"
+import Experiences from "./content/experiences.mdx"
+import Dining      from "./content/dining.mdx"
+import Wellness    from "./content/wellness.mdx"
+import Community   from "./content/community.mdx"
+import Packages    from "./content/packages.mdx"
+import MobileSectionTracker from "@/components/navigation/MobileSectionTracker"
 
 export default function Casa({ dict }) {
-  return <CasaClientPage dict={dict} />
+  const SECTION_ORDER = [
+    "rooms",
+    "mornings",
+    "experiences",
+    "dining",
+    "wellness",
+    "community",
+    "packages",
+  ]
+
+  const sectionIds = SECTION_ORDER.flatMap((key) => [
+    key,
+    ...(dict.casa.sections[key].subsections
+      ? Object.keys(dict.casa.sections[key].subsections)
+      : []),
+  ])
+
+  return (
+    <>
+      <Rooms       dict={dict} />
+      <Mornings    dict={dict} />
+      <Experiences dict={dict} />
+      <Dining      dict={dict} />
+      <Wellness    dict={dict} />
+      <Community   dict={dict} />
+      <Packages    dict={dict} />
+
+      <MobileSectionTracker sectionIds={sectionIds} />
+    </>
+  )
 }
