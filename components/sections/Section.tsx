@@ -1,24 +1,20 @@
 // components/sections/Section.tsx
-'use client'
+"use client"
 
-import { ReactNode } from 'react'
+import React from "react"
 
 interface SectionProps {
   id: string
-  children: ReactNode
-  className?: string   // allow callers to inject "main‐section" or "subsection"
+  className?: string
+  children: React.ReactNode
 }
 
-export function Section({ id, children, className = '' }: SectionProps) {
+export function Section({ id, className = "", children }: SectionProps) {
   return (
     <section
       id={id}
-      data-section-id={id}
-      className={
-        `min-h-screen w-full flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px] ` +
-        className
-      }
       aria-labelledby={`${id}-heading`}
+      className={`section-center ${className}`}
     >
       {children}
     </section>

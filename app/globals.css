@@ -173,6 +173,16 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
+  .section-center {
+    @apply
+      min-h-screen       /* full viewport height */
+      flex flex-col      /* flex + column direction */
+      items-center       /* center horizontally */
+      justify-center     /* center vertically */
+      px-6               /* horizontal padding */
+      snap-center        /* scroll-snap alignment */
+      scroll-mt-[120px]; /* anchor-offset */
+  }
 }
 
 /* Liquid fill hover effect */
