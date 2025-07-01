@@ -40,7 +40,7 @@ export default function Footer() {
       <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-2 lg:px-0 py-2 flex justify-between items-center">
         <div className="flex-1">
           <span className="cursor-default transition-colors hover:text-[var(--olivea-clay)]">
-            © {new Date().getFullYear()} Inmobilaria MYA by DH
+            © {new Date().getFullYear()} Familia Olivea
           </span>
         </div>
 

@@ -148,7 +148,7 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
                     onClick={() => handleClick(`/${lang}/about`)}
                     className="text-xs text-[var(--olivea-shell)] hover:underline"
                   >
-                    © 2025 Inmobiliaria MYA by DH
+                    © 2025 Familia Olivea
                   </button>
                 </div>
               </motion.div>
