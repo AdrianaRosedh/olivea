@@ -7,9 +7,13 @@ import Cookies from "js-cookie"
 import { AnimatePresence, motion } from "framer-motion"
 import { GlobeIcon } from "lucide-react"
 import { FaYoutube, FaInstagram, FaTiktok, FaLinkedin, FaSpotify, FaPinterest } from "react-icons/fa";
+import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries"
 
+interface FooterProps {
+  dict: AppDictionary
+}
 
-export default function Footer() {
+export default function Footer({ dict }: FooterProps) {
   const pathname = usePathname()
   const router = useRouter()
   const lang = pathname.split("/")[1] as "en" | "es"
@@ -45,34 +49,70 @@ export default function Footer() {
         </div>
 
         <div className="flex-1 flex justify-center items-center gap-4">
-          <a href="#" aria-label="YouTube" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+          <a
+            href="https://www.youtube.com/@GrupoOlivea"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="YouTube"
+            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+          >
             <FaYoutube size={20} />
           </a>
-          <a href="#" aria-label="Instagram" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+          <a
+            href="http://instagram.com/oliveafarmtotable/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+          >
             <FaInstagram size={20} />
           </a>
-          <a href="#" aria-label="TikTok" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+          <a
+            href="https://www.tiktok.com/@grupoolivea"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="TikTok"
+            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+          >
             <FaTiktok size={20} />
           </a>
-          <a href="#" aria-label="LinkedIn" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+          <a
+            href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn"
+            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+          >
             <FaLinkedin size={20} />
           </a>
-          <a href="#" aria-label="Spotify" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+          <a
+            href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Spotify"
+            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+          >
             <FaSpotify size={20} />
           </a>
-          <a href="#" aria-label="Pinterest" className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity">
+          <a
+            href="https://mx.pinterest.com/familiaolivea/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Pinterest"
+            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+          >
             <FaPinterest size={20} />
           </a>
         </div>
-
-
         <div className="flex-1 flex items-center justify-end gap-6 relative" ref={dropdownRef}>
-          <Link href={`/${lang}/contact`} className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100">
-            Contact
-          </Link>
-          <Link href={`/${lang}/legal`} className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100">
-            Legal
-          </Link>
+         <Link href={`/${lang}/carreras`}
+           className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100" >
+           {dict.footer.careers}
+         </Link>
+         <Link href={`/${lang}/legal`}
+           className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100" >
+           {dict.footer.legal}
+         </Link>
 
           <button
             onClick={() => setOpen(!open)}

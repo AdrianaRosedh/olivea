@@ -87,6 +87,10 @@ export const dictionarySchema = z.object({
       legal:          z.string(),
     }),
   }),
+  footer: z.object({
+    careers: z.string(),
+    legal: z.string() 
+  }),  
 });
 
 // for convenience later in your loader:

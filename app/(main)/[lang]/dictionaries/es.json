@@ -395,5 +395,9 @@
       "hide": "Ocultar",
       "copyright": "© 2025 Inmobiliaria MYA by DH"
     }
-  }  
+  },
+  "footer": {
+    "careers":   "Trabaja con Nosotros",
+    "legal":     "Legal & Politicas"
+ }  
 }

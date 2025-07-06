@@ -100,9 +100,9 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       icon: <Leaf />,
     },
     {
-      id: "policies",
-      href: `/${lang}/legal`,
-      label: dictionary.legal.title,
+      id: "contact",
+      href: `/${lang}/contact`,
+      label: dictionary.contact.title,
       icon: <FileText />,
     },
   ];
@@ -136,15 +136,17 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
           : children}
       </main>
 
-      {mounted && !isHome && <Footer />}
+      {mounted && !isHome && <Footer dict={dictionary} />}
 
       {/* ── DESKTOP DOCKS ─────────────────────────────────────────────── */}
-      {mounted && !isHome && !isMobile && identity && (
-        <ClientOnly>
-          <DockLeft dict={dictionary} identity={identity} />
-          <DockRight items={dockRightItems} />
-        </ClientOnly>
-      )}
+       {mounted && !isHome && !isMobile && (
+         <ClientOnly>
+           {/* only show the left dock when we have an identity */}
+           {identity && <DockLeft dict={dictionary} identity={identity} />}
+           {/* always show the right dock */}
+           <DockRight items={dockRightItems} />
+         </ClientOnly>
+       )}
 
 
       {/* ── MOBILE BOTTOM NAV ───────────────────────────────────────── */}

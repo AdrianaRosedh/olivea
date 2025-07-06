@@ -92,7 +92,6 @@
       }
     }
   },
-
   "casa": {
     "title": "Casa Olivea",
     "description": "Stay with us. Rooms, amenities, and reservations coming soon.",
@@ -396,5 +395,9 @@
       "hide": "Hide",
       "copyright": "© 2025 Inmobiliaria MYA by DH"
     }
-  } 
+  } ,
+  "footer": {
+   "careers":   "Work with Us",
+   "legal":     "Legal & Policies"
+ }
 }
