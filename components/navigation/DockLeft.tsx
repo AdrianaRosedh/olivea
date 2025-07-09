@@ -5,6 +5,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import { useLenis } from "@/components/providers/ScrollProvider"; 
+
 
 type Identity = "casa" | "cafe" | "farmtotable";
 
@@ -12,6 +14,7 @@ interface DockLeftProps {
   dict: AppDictionary;
   identity: Identity;
 }
+
 
 // exact 5-item order for Café
 const CAFE_SECTION_ORDER = [
@@ -51,13 +54,41 @@ const subItemVariants = {
   collapsed: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
 };
 
-const handleSmoothScroll = (e: React.MouseEvent, id: string) => {
-  e.preventDefault();
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  window.history.pushState(null, "", `#${id}`);
-};
+
 
 export default function DockLeft({ dict, identity }: DockLeftProps) {
+  const lenis = useLenis();
+
+  const handleSmoothScroll = useCallback(
+    (e: React.MouseEvent, id: string) => {
+      e.preventDefault();
+      const el = document.getElementById(id);
+      if (!el) return;
+    
+      // absolute Y position of `el` in the document, minus your 120px scroll-margin-top
+      const targetY =
+        window.pageYOffset +
+        el.getBoundingClientRect().top -
+        120;
+    
+      if (lenis && typeof lenis.scrollTo === "function") {
+        // use Lenis if available
+        lenis.scrollTo(targetY, {
+          duration: 1.2,
+          easing: (t: number) => 1 - Math.pow(1 - t, 3), // easeOutCubic
+        });
+      } else {
+        // fallback to native smooth scroll
+        window.scrollTo({ top: targetY, behavior: "smooth" });
+      }
+    
+      // update the URL hash
+      window.history.pushState(null, "", `#${id}`);
+    },
+    [lenis]
+  );
+  
+
   // pull in the raw sections block
   const sections = useMemo(
     () => dict[identity].sections as Record<string, { title: string; description: string; subsections?: Record<string, {title:string;description:string}> }>,

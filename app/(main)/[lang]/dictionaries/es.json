@@ -269,7 +269,7 @@
         }
       },
       "dining_experiences": {
-        "title": "Experiencias",
+        "title": "Menú",
         "description": "Menús degustación, cenas en el huerto y maridajes.",
         "subsections": {
           "tasting_menu": {

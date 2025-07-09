@@ -269,7 +269,7 @@
         }
       },
       "dining_experiences": {
-        "title": "Experiences",
+        "title": "Menu",
         "description": "Seasonal tasting menus, garden-dinners & wine pairings.",
         "subsections": {
           "tasting_menu": {
