@@ -41,7 +41,7 @@ export default function Footer({ dict }: FooterProps) {
 
   return (
     <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[50] bg-transparent backdrop-blur-md text-[13px] text-[var(--olivea-ink)] font-light tracking-wide">
-      <div className="max-w-screen-2xl w-full mx-auto px-4 md:px-2 lg:px-0 py-2 flex justify-between items-center">
+      <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <div className="flex-1">
           <span className="cursor-default transition-colors hover:text-[var(--olivea-clay)]">
             © {new Date().getFullYear()} Familia Olivea

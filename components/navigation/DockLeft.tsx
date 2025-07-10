@@ -5,24 +5,22 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
-import { useLenis } from "@/components/providers/ScrollProvider"; 
+import { useLenis } from "@/components/providers/ScrollProvider";
 
+// Minimal local type for Lenis (no @studio-freight/react-lenis types needed)
+type Lenis = {
+  scrollTo: (target: number, options?: { duration?: number; easing?: (t: number) => number }) => void;
+};
 
 type Identity = "casa" | "cafe" | "farmtotable";
-
 interface DockLeftProps {
   dict: AppDictionary;
   identity: Identity;
 }
 
-
-// exact 5-item order for Café
+// Section order for Cafe specifically
 const CAFE_SECTION_ORDER = [
-  "all_day",    // 01 Experiences
-  "padel",      // 02 Padel
-  "menu",       // 03 Garden-Inspired
-  "community",  // 04 Community
-  "ambience",   // 05 Atmosphere
+  "all_day", "padel", "menu", "community", "ambience"
 ] as const;
 
 const subContainerVariants = {
@@ -48,93 +46,108 @@ const subContainerVariants = {
     },
   },
 };
-
 const subItemVariants = {
   open:      { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
   collapsed: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
 };
 
-
+// Helper with retry for hash deep links
+function scrollToSectionWithRetry(id: string, lenis: Lenis | null, maxTries = 40) {
+  let tries = 0;
+  const tryScroll = () => {
+    const el = document.getElementById(id);
+    if (!el) {
+      if (++tries < maxTries) setTimeout(tryScroll, 50);
+      return;
+    }
+    const y = el.getBoundingClientRect().top + window.pageYOffset - 120;
+    if (lenis && typeof lenis.scrollTo === "function") {
+      lenis.scrollTo(y, { duration: 1.2, easing: (t: number) => 1 - Math.pow(1 - t, 3) });
+      setTimeout(() => {
+        if (Math.abs(window.scrollY - y) > 10) {
+          window.scrollTo({ top: y, behavior: "auto" });
+        }
+      }, 180);
+    } else {
+      window.scrollTo({ top: y, behavior: "auto" });
+    }
+  };
+  tryScroll();
+}
 
 export default function DockLeft({ dict, identity }: DockLeftProps) {
-  const lenis = useLenis();
+  const lenis = useLenis() as Lenis | null;
 
-  const handleSmoothScroll = useCallback(
-    (e: React.MouseEvent, id: string) => {
-      e.preventDefault();
-      const el = document.getElementById(id);
-      if (!el) return;
-    
-      // absolute Y position of `el` in the document, minus your 120px scroll-margin-top
-      const targetY =
-        window.pageYOffset +
-        el.getBoundingClientRect().top -
-        120;
-    
-      if (lenis && typeof lenis.scrollTo === "function") {
-        // use Lenis if available
-        lenis.scrollTo(targetY, {
-          duration: 1.2,
-          easing: (t: number) => 1 - Math.pow(1 - t, 3), // easeOutCubic
-        });
-      } else {
-        // fallback to native smooth scroll
-        window.scrollTo({ top: targetY, behavior: "smooth" });
-      }
-    
-      // update the URL hash
-      window.history.pushState(null, "", `#${id}`);
-    },
-    [lenis]
-  );
-  
-
-  // pull in the raw sections block
+  // Memoized sections
   const sections = useMemo(
-    () => dict[identity].sections as Record<string, { title: string; description: string; subsections?: Record<string, {title:string;description:string}> }>,
+    () => dict[identity].sections as Record<string, { title: string; description: string; subsections?: Record<string, { title: string; description: string }> }>,
     [dict, identity]
   );
-
-  // decide top-level keys in the exact order
   const keysInOrder = useMemo(() => {
-    if (identity === "cafe") {
-      return CAFE_SECTION_ORDER.filter((k) => k in sections);
-    }
+    if (identity === "cafe") return CAFE_SECTION_ORDER.filter(k => k in sections);
     return Object.keys(sections);
   }, [identity, sections]);
 
-  // build main nav items
   const items = keysInOrder.map((id, i) => ({
     id,
-    label:  sections[id].title,
+    label: sections[id].title,
     number: `0${i + 1}`,
   }));
 
-  // map each subsection id → its parent section
+  // Subsection parent lookup
   const subToParent = useMemo(() => {
     const m: Record<string, string> = {};
     for (const pid of keysInOrder) {
       const ss = sections[pid].subsections;
-      if (ss) {
-        for (const sid of Object.keys(ss)) {
-          m[sid] = pid;
-        }
-      }
+      if (ss) for (const sid of Object.keys(ss)) m[sid] = pid;
     }
     return m;
   }, [keysInOrder, sections]);
-
   const subIds = Object.keys(subToParent);
 
-  // scroll–spy state
+  // Active/hover state
   const [activeSection, setActiveSection] = useState(items[0]?.id || "");
   const [activeSub, setActiveSub] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
+  // Click handler
+  const scrollToSection = useCallback((id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.pageYOffset - 120;
+    if (lenis && typeof lenis.scrollTo === "function") {
+      lenis.scrollTo(y, { duration: 1.2, easing: (t: number) => 1 - Math.pow(1 - t, 3) });
+      setTimeout(() => {
+        if (Math.abs(window.scrollY - y) > 10) {
+          window.scrollTo({ top: y, behavior: "auto" });
+        }
+      }, 180);
+    } else {
+      window.scrollTo({ top: y, behavior: "auto" });
+    }
+    if (window.location.hash.slice(1) !== id) {
+      window.history.replaceState(null, "", `#${id}`);
+    }
+  }, [lenis]);
+  const handleSmoothScroll = useCallback(
+    (e: React.MouseEvent, id: string) => {
+      e.preventDefault();
+      scrollToSection(id);
+    },
+    [scrollToSection]
+  );
+
+  // On mount, scroll to hash if present (for reload/deep link)
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      scrollToSectionWithRetry(hash, lenis);
+    }
+  }, [lenis]);
+
+  // Update active state on scroll
   const updateActive = useCallback(() => {
     const mid = window.innerHeight / 2;
-
-    // subsections first
     for (const sid of subIds) {
       const el = document.querySelector<HTMLElement>(`.subsection#${sid}`);
       if (!el) continue;
@@ -146,8 +159,6 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
       }
     }
     setActiveSub(null);
-
-    // then main sections
     for (const { id } of items) {
       const el = document.querySelector<HTMLElement>(`.main-section#${id}`);
       if (!el) continue;
@@ -169,10 +180,10 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
     <nav className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40">
       <div className="flex flex-col gap-6">
         {items.map((item) => {
-          const isActive   = item.id === activeSection;
-          const isHovered  = item.id === hoveredId;
+          const isActive = item.id === activeSection;
+          const isHovered = item.id === hoveredId;
           const isAnimated = isActive || isHovered;
-          const subs       = sections[item.id].subsections ?? {};
+          const subs = sections[item.id].subsections ?? {};
 
           return (
             <div key={item.id} className="flex flex-col">
@@ -198,14 +209,14 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                     className="block text-2xl font-bold whitespace-nowrap"
                     initial={false}
                     animate={{
-                      y:       isAnimated ? -28 : 0,
+                      y: isAnimated ? -28 : 0,
                       opacity: isAnimated ? 0 : 1,
-                      filter:  isAnimated ? "blur(1px)" : "blur(0px)",
+                      filter: isAnimated ? "blur(1px)" : "blur(0px)",
                     }}
                     transition={{
-                      y:       { type: "spring", stiffness: 200, damping: 20 },
+                      y: { type: "spring", stiffness: 200, damping: 20 },
                       opacity: { duration: 0.2 },
-                      filter:  { duration: 0.2 },
+                      filter: { duration: 0.2 },
                     }}
                   >
                     {item.label.toUpperCase()}
@@ -215,14 +226,14 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                     className="block text-2xl font-bold absolute top-0 left-0 whitespace-nowrap"
                     initial={{ y: 28, opacity: 0, filter: "blur(1px)" }}
                     animate={{
-                      y:       isAnimated ? 0 : 28,
+                      y: isAnimated ? 0 : 28,
                       opacity: isAnimated ? 1 : 0,
-                      filter:  isAnimated ? "blur(0px)" : "blur(1px)",
+                      filter: isAnimated ? "blur(0px)" : "blur(1px)",
                     }}
                     transition={{
-                      y:       { type: "spring", stiffness: 200, damping: 20 },
+                      y: { type: "spring", stiffness: 200, damping: 20 },
                       opacity: { duration: 0.2 },
-                      filter:  { duration: 0.2 },
+                      filter: { duration: 0.2 },
                     }}
                   >
                     {item.label.toUpperCase()}
