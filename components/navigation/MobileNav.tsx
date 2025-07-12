@@ -4,47 +4,59 @@
 import { Calendar, MessageSquare } from "lucide-react";
 import { useReservation } from "@/contexts/ReservationContext";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import type { ReservationType } from "@/contexts/ReservationContext";
 
 export function MobileNav() {
   const { openReservationModal } = useReservation();
+  const pathname = usePathname();
   const [chatAvailable, setChatAvailable] = useState(false);
 
+  // pick the initial tab based on URL
+  const reserveTab: ReservationType = pathname?.includes("/casa")
+    ? "hotel"
+    : pathname?.includes("/cafe")
+      ? "cafe"
+      : "restaurant";
+
   useEffect(() => {
-    const updateChatAvailability = () => {
+    const updateChat = () => {
       const now = new Date().toLocaleString("en-US", {
         timeZone: "America/Tijuana",
         hour12: false,
       });
-      const hourMinute = new Date(now).getHours() * 60 + new Date(now).getMinutes();
-      const chatStart = 8 * 60; // 8:00 AM
-      const chatEnd = 21 * 60 + 30; // 9:30 PM
-      setChatAvailable(hourMinute >= chatStart && hourMinute <= chatEnd);
+      const d = new Date(now);
+      const minutes = d.getHours() * 60 + d.getMinutes();
+      setChatAvailable(minutes >= 8 * 60 && minutes <= 21 * 60 + 30);
     };
-    updateChatAvailability();
-    const timer = setInterval(updateChatAvailability, 60 * 1000);
-    return () => clearInterval(timer);
+    updateChat();
+    const id = setInterval(updateChat, 60_000);
+    return () => clearInterval(id);
   }, []);
 
   return (
     <div className="fixed bottom-16 right-3 z-50 flex flex-col gap-2 md:hidden">
-      {/* Reserve Button */}
+      {/* Reserve button */}
       <button
         id="reserve-toggle"
-        onClick={() => openReservationModal("restaurant")}
-        className="flex flex-col items-center justify-center rounded-[60%_40%_70%_30%] bg-[var(--olivea-olive)] text-white shadow-md px-2 py-1.5 transition-transform active:scale-95"
+        onClick={() => openReservationModal(reserveTab)}
+        className="flex flex-col items-center justify-center rounded-[60%_40%_70%_30%]
+                   bg-[var(--olivea-olive)] text-white shadow-md px-2 py-1.5
+                   transition-transform active:scale-95"
         aria-label="Reserve"
       >
         <Calendar className="w-5 h-5" />
         <span className="text-[10px] font-medium mt-0.5">Reserve</span>
       </button>
 
-      {/* Mobile Chat Button (clearly triggers global button) */}
+      {/* Chat button */}
       <button
         id="mobile-chat-button"
-        onClick={() => {
-          document.getElementById("chatbot-toggle")?.click();
-        }}
-        className="relative flex flex-col items-center justify-center rounded-[40%_60%_30%_70%] bg-[var(--olivea-shell)] text-[var(--olivea-olive)] shadow-md px-2 py-1.5 transition-transform active:scale-95"
+        onClick={() => document.getElementById("chatbot-toggle")?.click()}
+        className="relative flex flex-col items-center justify-center
+                   rounded-[40%_60%_30%_70%] bg-[var(--olivea-shell)]
+                   text-[var(--olivea-olive)] shadow-md px-2 py-1.5
+                   transition-transform active:scale-95"
         aria-label="Chat"
       >
         <MessageSquare className="w-5 h-5" />
