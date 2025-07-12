@@ -61,7 +61,16 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
   }, []);
 
   // Reserve button handler
-  const handleReserve = useCallback(() => openReservationModal("restaurant"), [openReservationModal]);
+  const handleReserve = useCallback(() => {
+    const tab = pathname?.includes("/casa")
+      ? "hotel"
+      : pathname?.includes("/cafe")
+        ? "cafe"
+        : "restaurant";
+  
+    openReservationModal(tab);
+  }, [openReservationModal, pathname]);
+
 
   // Build the top‐level nav items
   const base = `/${lang}`;

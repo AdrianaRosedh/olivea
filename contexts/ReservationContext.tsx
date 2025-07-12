@@ -1,16 +1,15 @@
-// contexts/ReservationContext.tsx
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
 
-export type ReservationType = "restaurant"|"hotel"|"cafe";
+export type ReservationType = "restaurant" | "hotel" | "cafe";
 
 interface ReservationContextType {
   isOpen: boolean;
   reservationType: ReservationType;
-  openReservationModal: (type?:ReservationType) => void;
+  openReservationModal: (type?: ReservationType) => void;
   closeReservationModal: () => void;
-  setReservationType: (type:ReservationType) => void;
+  setReservationType: (type: ReservationType) => void;
 }
 
 const ReservationContext = createContext<ReservationContextType>({} as any);
@@ -26,11 +25,9 @@ export const ReservationProvider = ({ children }: { children: React.ReactNode })
   const closeReservationModal = () => setIsOpen(false);
 
   return (
-    <ReservationContext.Provider value={{
-      isOpen, reservationType,
-      openReservationModal, closeReservationModal,
-      setReservationType
-    }}>
+    <ReservationContext.Provider
+      value={{ isOpen, reservationType, openReservationModal, closeReservationModal,setReservationType }}
+    >
       {children}
     </ReservationContext.Provider>
   );
