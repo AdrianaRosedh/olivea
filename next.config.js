@@ -57,8 +57,9 @@ const nextConfig = {
   images: {
     formats: ['image/avif','image/webp'],
     remotePatterns: [
-      { protocol: 'https', hostname: 'olivea.com' },
+      { protocol: 'https', hostname: 'oliveafarmtotable.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'maps.googleapis.com' },
     ],
     unoptimized: false, // ← same as your original
   },
@@ -90,7 +91,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
               "style-src-elem 'self' https://www.exploretock.com",
               "font-src 'self' data: https://www.exploretock.com",
-              "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com",
+              "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com",
               "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.exploretock.com https://*.execute-api.us-west-2.amazonaws.com",
               "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.exploretock.com",
             ].join('; '),
