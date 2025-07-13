@@ -57,7 +57,7 @@ export default function LangLayout({ children, params }: LangLayoutProps) {
       }
     >
       {/* 4️⃣ SEO JSON-LD */}
-      <StructuredData lang={lang} />
+      <StructuredData/>
 
       {/* 5️⃣ Wrap everything in your global providers + shell */}
       <AppProviders>
