@@ -136,13 +136,61 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
                   currentLang={lang}
                   className="border-[var(--olivea-cream)] text-[var(--olivea-cream)] hover:bg-[var(--olivea-cream)] hover:text-[var(--olivea-olive)]"
                 />
-                  <div className="flex gap-3">
-                    <FaYoutube className="text-[var(--olivea-shell)]" size={20} />
-                    <FaInstagram className="text-[var(--olivea-shell)]" size={20} />
-                    <FaTiktok className="text-[var(--olivea-shell)]" size={20} />
-                    <FaLinkedin className="text-[var(--olivea-shell)]" size={20} />
-                    <FaSpotify className="text-[var(--olivea-shell)]" size={20} />
-                    <FaPinterest className="text-[var(--olivea-shell)]" size={20} />
+                  <div className="flex gap-4">
+                    <a
+                      href="https://www.youtube.com/@GrupoOlivea"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="YouTube"
+                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
+                    >
+                      <FaYoutube size={20} />
+                    </a>
+                    <a
+                      href="https://instagram.com/oliveafarmtotable/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Instagram"
+                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
+                    >
+                      <FaInstagram size={20} />
+                    </a>
+                    <a
+                      href="https://www.tiktok.com/@grupoolivea"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="TikTok"
+                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
+                    >
+                      <FaTiktok size={20} />
+                    </a>
+                    <a
+                      href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="LinkedIn"
+                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
+                    >
+                      <FaLinkedin size={20} />
+                    </a>
+                    <a
+                      href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Spotify"
+                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
+                    >
+                      <FaSpotify size={20} />
+                    </a>
+                    <a
+                      href="https://mx.pinterest.com/familiaolivea/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Pinterest"
+                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
+                    >
+                      <FaPinterest size={20} />
+                    </a>
                   </div>
                   <button
                     onClick={() => handleClick(`/${lang}/about`)}
