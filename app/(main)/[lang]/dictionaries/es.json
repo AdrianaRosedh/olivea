@@ -101,12 +101,12 @@
         "description": "Espacios tranquilos diseñados con comodidad y elegancia.",
         "subsections": {
           "room_types": {
-            "title": "Tipos",
-            "description": "King, Queen, Suites con vista al jardín, Bungalows junto a la piscina."
+            "title": "Tipo",
+            "description": "Habitación Deluxe: Habitación para 2 personas, con cama king size, 2 buros con lámpara de lectura, ac, calefacción, ventilador de techo, cortinas black out, mesa con 2 sillas, closet, ganchos de ropa, plancha, tabla para planchar, secadora de cabello, toallas, batas, amenidades de aseo personal, agua natural embotellada."
           },
           "in_room_amenities": {
             "title": "Servicios",
-            "description": "Baños estilo spa, máquinas Nespresso, control de clima inteligente."
+            "description": "Aire acondicionado, Bar, Agua embotellada, Calefacción, Aire acondicionado, Masajes, Desayuno incluido, Restaurante, Internet, Masajes."
           },
           "design_decor": {
             "title": "Diseño",
@@ -128,7 +128,7 @@
           },
           "wellness_rituals": {
             "title": "Bienestar",
-            "description": "Yoga al amanecer y meditación guiada en el jardín."
+            "description": "Jugar Padel por las mañanas con un cafe"
           }
         }
       },
@@ -173,16 +173,16 @@
         "description": "Actividades para mente, cuerpo y alma.",
         "subsections": {
           "yoga_classes": {
-            "title": "Yoga",
-            "description": "Clases diarias en el pabellón del jardín."
+            "title": "Walk and Wine",
+            "description": "Camina 2km y termina degustando los vinos de Cava Maciel"
           },
           "bikes_hikes": {
             "title": "Aire Libre",
-            "description": "Rutas en bici y senderismo por Valle de Guadalupe."
+            "description": "Les recomendamos experencias por Valle de Guadalupe."
           },
           "art_music": {
             "title": "Cultura",
-            "description": "Exposiciones de arte local y música en vivo."
+            "description": "Vive las raices del Valle"
           }
         }
       },
@@ -214,11 +214,7 @@
           },
           "wellness_escape": {
             "title": "Bienestar",
-            "description": "Crédito de spa, pase de yoga y menú saludable."
-          },
-          "family_fun": {
-            "title": "Familia",
-            "description": "Clases de cocina para niños y búsqueda del tesoro."
+            "description": "Experencia del Spa, Walk and Wine."
           }
         }
       }
