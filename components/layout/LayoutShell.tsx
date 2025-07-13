@@ -9,7 +9,7 @@ import DockLeft from "@/components/navigation/DockLeft";
 import DockRight from "@/components/navigation/DockRight";
 import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 import ClientOnly from "@/components/providers/ClientOnly";
-import { BookOpen, Leaf, FileText } from "lucide-react";
+import { BookOpen, Leaf, Map } from "lucide-react";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useLenis } from "@/components/providers/ScrollProvider";
 import { NavigationProvider } from "@/contexts/NavigationContext";
@@ -103,7 +103,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       id: "contact",
       href: `/${lang}/contact`,
       label: dictionary.contact.title,
-      icon: <FileText />,
+      icon: <Map />,
     },
   ];
 
