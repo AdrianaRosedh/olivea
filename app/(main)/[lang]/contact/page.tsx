@@ -16,7 +16,7 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="-mt-16 md:mt-0 px-4 md:px-8 lg:px-16 pt-0 md:pt-8 pb-8">
+    <main className="-mt-16 md:mt-0 px-4 md:px-8 lg:px-16 pt-0 md:pt-20 pb-8">
       <div
         className={`
           mx-auto
