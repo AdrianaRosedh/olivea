@@ -107,7 +107,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   <button
                     key={id}
                     onClick={() => setReservationType(id)}
-                    className={`flex-1 py-3 text-center uppercase tracking-[0.15em] transition-colors ${
+                    className={`relative flex-1 py-3 text-center uppercase tracking-[0.15em] transition-colors ${
                       reservationType === id
                         ? "text-[var(--olivea-olive)] font-semibold"
                         : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
