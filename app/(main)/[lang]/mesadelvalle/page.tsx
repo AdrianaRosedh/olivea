@@ -21,8 +21,8 @@ export async function generateMetadata({
   const dict = await getDictionary(lang)
 
   return {
-    title:       `${dict.legal.title} | Olivea`,
-    description: dict.legal.description,
+    title:       `${dict.mesadelvalle.title} | Olivea`,
+    description: dict.mesadelvalle.description.join(" "),
   }
 }
 
@@ -49,9 +49,9 @@ export default async function LegalPage({
 
   return (
     <main className="p-10">
-      <h1 className="text-3xl font-semibold">{dict.legal.title}</h1>
+      <h1 className="text-3xl font-semibold">{dict.mesadelvalle.title}</h1>
       <p className="mt-2 text-muted-foreground">
-        {dict.legal.description}
+        {dict.mesadelvalle.description}
       </p>
     </main>
   )
