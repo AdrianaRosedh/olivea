@@ -362,6 +362,15 @@
     "title": "Reservations",
     "description": "Choose where you'd like to reserve: restaurant, café, or hotel."
   },
+  "mesadelvalle": {
+    "title":    "Mesa del Valle",
+    "tagline":  "A collective platform uniting the leading voices in gastronomy, wine, and hospitality across Valle de Guadalupe and Ensenada.",
+    "description": [
+      "Born from a shared desire to elevate the region’s identity, Mesa del Valle brings together chefs, winemakers, hoteliers, and artisans to tell a unified story of excellence, sustainability, and cultural pride.",
+      "Through strategic collaborations, international press outreach, and shared events, we aim to position Valle de Guadalupe as the gastronomic and cultural capital of Latin America.",
+      "The table is set. The future is shared."
+    ]
+  },
   "notFound": {
     "message": "The page you're looking for doesn't exist.",
     "cta": "Return Home"

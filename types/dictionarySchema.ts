@@ -46,6 +46,12 @@ export const dictionarySchema = z.object({
     sections:    z.record(Section),
   }),
 
+  mesadelvalle: z.object({
+    title:   z.string(),
+    tagline: z.string(),
+    description: z.array(z.string()),
+  }),
+
   contact:        z.object({ title: z.string(), description: z.string() }),
   sustainability: z.object({ title: z.string(), description: z.string() }),
 

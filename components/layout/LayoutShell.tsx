@@ -9,7 +9,7 @@ import DockLeft from "@/components/navigation/DockLeft";
 import DockRight from "@/components/navigation/DockRight";
 import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 import ClientOnly from "@/components/providers/ClientOnly";
-import { BookOpen, Leaf, Map } from "lucide-react";
+import { BookOpen, Leaf, Map, Users, Wine } from "lucide-react";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useLenis } from "@/components/providers/ScrollProvider";
 import { NavigationProvider } from "@/contexts/NavigationContext";
@@ -88,6 +88,12 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   //
   const dockRightItems: DockItem[] = [
     {
+      id: "about",
+      href: `/${lang}/about`,
+      label: dictionary.about.title,
+      icon: <Users />,
+    },
+    {
       id: "journal",
       href: `/${lang}/journal`,
       label: dictionary.journal.title,
@@ -104,6 +110,12 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       href: `/${lang}/contact`,
       label: dictionary.contact.title,
       icon: <Map />,
+    },
+    {
+      id: "mesadelvalle",
+      href: `/${lang}/mesadelvalle`,
+      label: dictionary.mesadelvalle.title,
+      icon: <Wine />,
     },
   ];
 
