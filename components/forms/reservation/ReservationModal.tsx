@@ -10,7 +10,7 @@ import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), { ssr: false });
-const TockWidget      = dynamic(() => import("./TockWidget"),      { ssr: false });
+const OpentableWidget      = dynamic(() => import("./OpentableWidget"),      { ssr: false });
 const jakarta         = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400","500","700","800"], display: "swap" });
 
 interface ReservationModalProps {
@@ -82,7 +82,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             transition={transition}
           >
             <div className={`bg-[var(--olivea-cream)] flex flex-col overflow-hidden ${
-              isMobile ? "w-full h-full rounded-t-2xl" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
+              isMobile ? "w-full h-full rounded-none" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
             }`}>
               {/* header */}
               <div className="relative flex items-center px-6 py-4 border-b flex-shrink-0">
@@ -154,7 +154,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                       Olivea Farm To Table
                     </span>
                   </div>
-                  {reservationType === "restaurant" && <TockWidget offeringId="528232" />}
+                  {reservationType === "restaurant" && <OpentableWidget/>}
                 </div>
 
                 {/* cafe */}
