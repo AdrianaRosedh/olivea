@@ -75,7 +75,13 @@ export default async function JournalEntries({
     .select("id, title, slug, cover_image, published_at")
 
   if (error) {
-    throw new Error(error.message)
+    // Optionally log the error for debugging, but don't throw
+    // console.error("Supabase error:", error.message)
+    return (
+      <p className="text-center text-muted-foreground">
+        No posts yet.
+      </p>
+    )
   }
 
   const posts = (data ?? []) as JournalPost[]
