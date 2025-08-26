@@ -148,7 +148,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
                 }`}>
-                  <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)]">
+                  <div className="flex z-10 items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)]">
                     <OliveaLogo className="h-[45px] md:h-[65px]" />
                     <span className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`} style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}>
                       Olivea Farm To Table
