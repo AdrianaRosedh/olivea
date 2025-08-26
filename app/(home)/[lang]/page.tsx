@@ -47,7 +47,7 @@ const AnimatedDesktopLoader = () => {
       onClick={handleSkip}
       style={{ cursor: "pointer" }}
     >
-      <span>Donde El Corazón es el Huerto</span>
+      <span>Donde el Huerto es la Esencia</span>
       <div className="flex-1 h-2 rounded-full mx-6 relative" style={{ backgroundColor: "#e2be8f20" }}>
         <motion.div
           className="absolute top-0 left-0 h-full rounded-full bg-[#e2be8f]"
