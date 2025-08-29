@@ -283,15 +283,30 @@ export default function HomePage() {
           <source src="/videos/homepage-temp.webm" type="video/webm" />
           Your browser doesn’t support this video.
         </video>
+        {/* ✅ Mobile-only title over the video */}
+          <motion.div
+            className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
+            variants={itemVariants}
+            initial="hidden"
+            animate={!showLoader ? "show" : "hidden"}
+          >
+            <span className="text-[var(--olivea-mist)] font-serif text-lg italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center">
+              OLIVEA, la Experiencia
+            </span>
+          </motion.div>
 
-
-          <div className="absolute inset-0 flex justify-center items-start">
+         <div className="absolute inset-0 hidden md:flex flex-col items-center justify-start z-30">
             <div
               ref={logoTargetRef}
               className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56"
             >
-              <OliveaLogo className="hidden md:block w-full h-full" />
+              <OliveaLogo className="w-full h-full" />
             </div>
+
+            {/* Phrase directly under the logo */}
+            <span className="mt-3 mb-6 text-[var(--olivea-mist)] font-serif text-2xl lg:text-[26px] italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]">
+              OLIVEA, la Experiencia
+            </span>
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
@@ -315,6 +330,7 @@ export default function HomePage() {
                     Logo={sec.Logo}
                     onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                   />
+                  
                 </motion.div>
               ))}
 
