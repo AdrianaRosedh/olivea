@@ -353,7 +353,7 @@ export default function HomePage() {
           initial="hidden"
           animate={!showLoader ? "show" : "hidden"}
         >
-          <div className="flex gap-6 md:pt-16 mb-0">
+          <div className="flex gap-6 mt-[12vh]">
             {/* Desktop sections */}
             {sections.map((sec) => (
               <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
