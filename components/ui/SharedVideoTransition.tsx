@@ -105,6 +105,7 @@ export default function SharedVideoTransition() {
   }, [isActive]);
 
   return (
+    <>
     <AnimatePresence mode="wait">
       {isActive && (
         <motion.div
@@ -206,5 +207,24 @@ export default function SharedVideoTransition() {
         </motion.div>
       )}
     </AnimatePresence>
+    {/* ✅ Preload transition videos in background (always mounted) */}
+      <div
+        style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+        aria-hidden
+      >
+        {Object.values(VIDEO_MAP).map(([webm, mp4]) => (
+          <video
+            key={mp4}
+            preload="auto"
+            muted
+            playsInline
+            crossOrigin="anonymous"
+          >
+            <source src={mp4} type="video/mp4" />
+            <source src={webm} type="video/webm" />
+          </video>
+        ))}
+      </div>
+    </>
   );
 }
