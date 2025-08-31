@@ -291,7 +291,7 @@ export default function HomePage() {
             animate={!showLoader ? "show" : "hidden"}
           >
             <span className="text-[var(--olivea-mist)] font-serif text-lg italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center">
-              OLIVEA, la Experiencia
+              OLIVEA La Experiencia
             </span>
           </motion.div>
 
@@ -305,7 +305,7 @@ export default function HomePage() {
 
             {/* Phrase directly under the logo */}
             <span className="mt-3 mb-6 text-[var(--olivea-mist)] font-serif text-2xl lg:text-[26px] italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]">
-              OLIVEA, la Experiencia
+              OLIVEA La Experiencia
             </span>
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
