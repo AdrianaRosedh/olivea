@@ -2,21 +2,35 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import Cookies from "js-cookie"
 import { AnimatePresence, motion } from "framer-motion"
 import { GlobeIcon } from "lucide-react"
-import { FaYoutube, FaInstagram, FaTiktok, FaLinkedin, FaSpotify, FaPinterest } from "react-icons/fa";
+import {
+  FaYoutube,
+  FaInstagram,
+  FaTiktok,
+  FaLinkedin,
+  FaSpotify,
+  FaPinterest,
+} from "react-icons/fa"
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries"
 
 interface FooterProps {
   dict: AppDictionary
 }
 
+type SocialItem = {
+  id: string
+  href: string
+  label: string
+  icon: ReactNode
+}
+
 export default function Footer({ dict }: FooterProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const lang = pathname.split("/")[1] as "en" | "es"
+  const lang = (pathname.split("/")[1] as "en" | "es") || "es"
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -39,82 +53,48 @@ export default function Footer({ dict }: FooterProps) {
     setOpen(false)
   }
 
+  const rightsText =
+    lang === "en" ? "All rights reserved." : "Todos los derechos reservados."
+
+  const socialItems: SocialItem[] = [
+    { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <FaYoutube /> },
+    { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram", icon: <FaInstagram /> },
+    { id: "tt", href: "https://www.tiktok.com/@grupoolivea", label: "TikTok", icon: <FaTiktok /> },
+    { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <FaLinkedin /> },
+    { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <FaSpotify /> },
+    { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <FaPinterest /> },
+  ]
+
   return (
-    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[50] bg-transparent backdrop-blur-md text-[13px] text-[var(--olivea-ink)] font-light tracking-wide">
-      <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-        <div className="flex-1">
+    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[80] bg-transparent backdrop-blur-md text-[12px] text-[var(--olivea-ink)] font-light tracking-wide">
+      <div className="w-full flex justify-between items-center px-2 sm:px-3 py-2">
+        {/* Left */}
+        <div className="flex-1 whitespace-nowrap">
           <span className="cursor-default transition-colors hover:text-[var(--olivea-clay)]">
-            © {new Date().getFullYear()} Familia Olivea
+            © {new Date().getFullYear()} Casa Olivea AC. {rightsText}
           </span>
         </div>
 
-        <div className="flex-1 flex justify-center items-center gap-4">
-          <a
-            href="https://www.youtube.com/@GrupoOlivea"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="YouTube"
-            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+        {/* Center: Social Dock */}
+        <FooterSocialDock items={socialItems} />
+
+        {/* Right */}
+        <div className="flex-1 flex items-center justify-end gap-4 relative" ref={dropdownRef}>
+          <Link
+            href={`/${lang}/carreras`}
+            className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100"
           >
-            <FaYoutube size={20} />
-          </a>
-          <a
-            href="http://instagram.com/oliveafarmtotable/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
+            {dict.footer.careers}
+          </Link>
+          <Link
+            href={`/${lang}/legal`}
+            className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100"
           >
-            <FaInstagram size={20} />
-          </a>
-          <a
-            href="https://www.tiktok.com/@grupoolivea"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="TikTok"
-            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <FaTiktok size={20} />
-          </a>
-          <a
-            href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn"
-            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <FaLinkedin size={20} />
-          </a>
-          <a
-            href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Spotify"
-            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <FaSpotify size={20} />
-          </a>
-          <a
-            href="https://mx.pinterest.com/familiaolivea/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Pinterest"
-            className="text-[var(--olivea-olive)] opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <FaPinterest size={20} />
-          </a>
-        </div>
-        <div className="flex-1 flex items-center justify-end gap-6 relative" ref={dropdownRef}>
-         <Link href={`/${lang}/carreras`}
-           className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100" >
-           {dict.footer.careers}
-         </Link>
-         <Link href={`/${lang}/legal`}
-           className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100" >
-           {dict.footer.legal}
-         </Link>
+            {dict.footer.legal}
+          </Link>
 
           <button
+            type="button"
             onClick={() => setOpen(!open)}
             className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
           >
@@ -128,15 +108,17 @@ export default function Footer({ dict }: FooterProps) {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
-                className="absolute bottom-full mb-2 right-0 bg-transparent backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-50 w-32"
+                className="absolute bottom-full mb-2 right-0 bg-[#c6b7a8] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[90] w-32"
               >
                 <button
+                  type="button"
                   onClick={() => switchLocale("en")}
                   className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
                 >
                   🇺🇸 English
                 </button>
                 <button
+                  type="button"
                   onClick={() => switchLocale("es")}
                   className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
                 >
@@ -148,5 +130,48 @@ export default function Footer({ dict }: FooterProps) {
         </div>
       </div>
     </footer>
+  )
+}
+
+/** --- Footer Social Dock (hover-based clean icons) --- */
+function FooterSocialDock({ items }: { items: SocialItem[] }) {
+  return (
+    <div className="flex-1 flex justify-center items-center gap-3">
+      {items.map((it) => (
+        <FooterSocialIcon key={it.id} item={it} />
+      ))}
+    </div>
+  )
+}
+
+function FooterSocialIcon({ item }: { item: SocialItem }) {
+  const CELL_W = 36
+  const CELL_H = 36
+  const ICON_BASE_PX = 22 // adjust to taste
+
+  return (
+    <motion.a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={item.label}
+      initial="rest"
+      whileHover="hover"
+      animate="rest"
+      className="flex items-center justify-center text-[var(--olivea-olive)] opacity-85 hover:opacity-100 transition-[opacity,transform]"
+      style={{ width: CELL_W, height: CELL_H }}
+    >
+      <motion.span
+        variants={{
+          rest: { scale: 1.0, filter: "drop-shadow(0 0 0 rgba(0,0,0,0))" },
+          hover: { scale: 1.15, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))" },
+        }}
+        transition={{ type: "spring", stiffness: 220, damping: 18, mass: 0.2 }}
+        className="leading-none"
+        style={{ fontSize: ICON_BASE_PX }}
+      >
+        {item.icon}
+      </motion.span>
+    </motion.a>
   )
 }
