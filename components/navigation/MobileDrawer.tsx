@@ -63,6 +63,8 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
+  const rightsText = lang === "en" ? "All rights reserved." : "Todos los derechos reservados."
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -196,7 +198,7 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
                     onClick={() => handleClick(`/${lang}/about`)}
                     className="text-xs text-[var(--olivea-shell)] hover:underline"
                   >
-                    © 2025 Familia Olivea
+                    Copyright © {new Date().getFullYear()} Casa Olivea AC. <br /> {rightsText}
                   </button>
                 </div>
               </motion.div>
