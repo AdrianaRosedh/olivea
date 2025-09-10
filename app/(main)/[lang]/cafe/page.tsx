@@ -2,6 +2,8 @@ import { Suspense } from "react"
 import type { Metadata, Viewport } from "next"
 import { loadLocale } from "@/lib/i18n"
 import Cafe from "./content.mdx"
+import UnderConstructionNotice from "@/components/forms/UnderConstructionNotice";
+
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }))
@@ -69,7 +71,9 @@ export default async function Page({
         }
       >
         <Cafe dict={dict} />
+        
       </Suspense>
+      <UnderConstructionNotice storageScope="route"/>
     </div>
   )
 }

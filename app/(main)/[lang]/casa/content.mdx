@@ -1,13 +1,14 @@
-export const metadata = {}
+import AnimatedSection from "@/components/animations/AnimatedSection";
+import ParallaxImage    from "@/components/animations/ParallaxImage";
 
-import Rooms       from "./content/rooms.mdx"
-import Mornings    from "./content/mornings.mdx"
-import Experiences from "./content/experiences.mdx"
-import Dining      from "./content/dining.mdx"
-import Wellness    from "./content/wellness.mdx"
-import Community   from "./content/community.mdx"
-import Packages    from "./content/packages.mdx"
-import MobileSectionTracker from "@/components/navigation/MobileSectionTracker"
+import Rooms       from "./content/rooms.mdx";
+import Mornings    from "./content/mornings.mdx";
+import Experiences from "./content/experiences.mdx";
+import Dining      from "./content/dining.mdx";
+import Wellness    from "./content/wellness.mdx";
+import Community   from "./content/community.mdx";
+import Packages    from "./content/packages.mdx";
+import MobileSectionTracker from "@/components/navigation/MobileSectionTracker"; // still a client component
 
 export default function Casa({ dict }) {
   const SECTION_ORDER = [
@@ -18,26 +19,55 @@ export default function Casa({ dict }) {
     "wellness",
     "community",
     "packages",
-  ]
-
+  ];
   const sectionIds = SECTION_ORDER.flatMap((key) => [
     key,
     ...(dict.casa.sections[key].subsections
       ? Object.keys(dict.casa.sections[key].subsections)
       : []),
-  ])
+  ]);
 
   return (
     <>
-      <Rooms       dict={dict} />
-      <Mornings    dict={dict} />
-      <Experiences dict={dict} />
-      <Dining      dict={dict} />
-      <Wellness    dict={dict} />
-      <Community   dict={dict} />
-      <Packages    dict={dict} />
+      {/* Hero with gentle parallax */}
+      <ParallaxImage
+        src="/images/casa/hero.jpg"
+        alt={dict.casa.title}
+        speed={0.15}
+        className="h-[60vh] rounded-b-3xl mb-12 relative"
+      >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h1 className="text-5xl text-white font-bold drop-shadow-lg">
+            {dict.casa.title}
+          </h1>
+        </div>
+      </ParallaxImage>
 
+      {/* Each section animates into view on scroll */}
+      <AnimatedSection className="mb-12">
+        <Rooms dict={dict} />
+      </AnimatedSection>
+      <AnimatedSection className="mb-12">
+        <Mornings dict={dict} />
+      </AnimatedSection>
+      <AnimatedSection className="mb-12">
+        <Experiences dict={dict} />
+      </AnimatedSection>
+      <AnimatedSection className="mb-12">
+        <Dining dict={dict} />
+      </AnimatedSection>
+      <AnimatedSection className="mb-12">
+        <Wellness dict={dict} />
+      </AnimatedSection>
+      <AnimatedSection className="mb-12">
+        <Community dict={dict} />
+      </AnimatedSection>
+      <AnimatedSection className="mb-12">
+        <Packages dict={dict} />
+      </AnimatedSection>
+
+      {/* Hydrate tracker too (TrackerLoader will mount it) */}
       <MobileSectionTracker sectionIds={sectionIds} />
     </>
-  )
+  );
 }

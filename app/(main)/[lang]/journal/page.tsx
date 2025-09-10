@@ -1,4 +1,6 @@
 // app/[lang]/journal/page.tsx
+export const dynamic = "force-dynamic";
+
 import { Suspense } from "react";
 import type { Metadata } from "next"
 import { getDictionary, type Lang } from "../dictionaries"

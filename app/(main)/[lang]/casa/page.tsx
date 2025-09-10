@@ -1,18 +1,21 @@
-import { Suspense } from "react"
-import type { Metadata, Viewport } from "next"
-import { loadLocale } from "@/lib/i18n"
-import Casa from "./content.mdx"
+import { Suspense } from "react";
+import type { Metadata, Viewport } from "next";
+import { loadLocale } from "@/lib/i18n";
+import Casa from "./content.mdx";
+import TrackerLoader from "@/components/animations/TrackerLoader";
+import UnderConstructionNotice from "@/components/forms/UnderConstructionNotice";
+
 
 export async function generateStaticParams() {
-  return (["en", "es"] as const).map((lang) => ({ lang }))
+  return (["en", "es"] as const).map((lang) => ({ lang }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { lang: string }
+  params: { lang: string };
 }): Promise<Metadata> {
-  const { lang: L, dict } = await loadLocale(params)
+  const { lang: L, dict } = await loadLocale(params);
   return {
     title:       dict.casa.title,
     description: dict.casa.description,
@@ -37,7 +40,7 @@ export async function generateMetadata({
         },
       ],
     },
-  }
+  };
 }
 
 export const viewport: Viewport = {
@@ -45,14 +48,32 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor:   "#65735b",
-}
+};
 
 export default async function Page({
   params,
 }: {
-  params: { lang: string }
+  params: { lang: string };
 }) {
-  const { dict } = await loadLocale(params)
+  const { dict } = await loadLocale(params);
+
+  // build the same sectionIds array for the tracker
+  const SECTION_ORDER = [
+    "rooms",
+    "mornings",
+    "experiences",
+    "dining",
+    "wellness",
+    "community",
+    "packages",
+  ];
+  const sectionIds = SECTION_ORDER.flatMap((key) => [
+    key,
+    ...(dict.casa.sections[key].subsections
+      ? Object.keys(dict.casa.sections[key].subsections)
+      : []),
+  ]);
+
   return (
     <div suppressHydrationWarning>
       <Suspense
@@ -62,8 +83,14 @@ export default async function Page({
           </div>
         }
       >
+        {/* Server-rendered MDX */}
         <Casa dict={dict} />
+
+        {/* Client-only mobile tracker */}
+        <TrackerLoader sectionIds={sectionIds} />
       </Suspense>
+      {/* Under construction popup (ES first, then EN) */}
+        <UnderConstructionNotice storageScope="route"/>
     </div>
-  )
+  );
 }

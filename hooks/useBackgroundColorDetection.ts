@@ -43,7 +43,7 @@ export function useBackgroundColorDetection(interval = 500) {
         if (bgColor === "rgba(0, 0, 0, 0)" || bgColor === "transparent") continue
 
         // Parse RGB values
-        const rgbMatch = bgColor.match(/rgba?$$(\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?$$/)
+        const rgbMatch = bgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/)
 
         if (rgbMatch) {
           const r = Number.parseInt(rgbMatch[1], 10)

@@ -3,6 +3,8 @@ import { Suspense } from 'react'
 import type { Metadata, Viewport } from 'next'
 import { loadLocale } from '@/lib/i18n'
 import FarmToTable from './content.mdx'
+import UnderConstructionNotice from "@/components/forms/UnderConstructionNotice";
+
 
 export async function generateStaticParams() {
   return (['en','es'] as const).map(lang => ({ lang }))
@@ -51,6 +53,8 @@ export default async function Page({ params }: { params: { lang: string } }) {
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
         <FarmToTable dict={dict} />
       </Suspense>
+      {/* Under construction popup (ES first, then EN) */}
+        <UnderConstructionNotice storageScope="route"/>
     </div>
   )
 }

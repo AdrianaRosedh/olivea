@@ -5,88 +5,88 @@
   },
   "cafe": {
     "title": "Olivea Café",
-    "description": "Un espacio acogedor inspirado en nuestro huerto, sabores locales y conexiones comunitarias.",
+    "description": "",
     "error": "Error al cargar el menú:",
     "sections": {
       "all_day": {
         "title": "Experiencias",
-        "description": "Desayuno, café de especialidad y vino & tapas por la tarde.",
+        "description": "",
         "subsections": {
           "breakfast_coffee_pastries": {
             "title": "Desayuno & Repostería",
-            "description": "Café artesanal y repostería fresca (sin aceites vegetales)."
+            "description": ""
           },
           "all_day_evening_tapas": {
             "title": "Vino & Tapas",
-            "description": "Tablas de quesos, platos pequeños y vinos naturales."
+            "description": ""
           }
         }
     },
       "padel": {
         "title": "Pádel",
-        "description": "Partidos amistosos y competencia en nuestras canchas individuales y dobles.",
+        "description": "",
         "subsections": {
           "booking": {
             "title": "Reservas de Cancha",
-            "description": "Reserva tu cancha en línea o al llegar."
+            "description": ""
           },
           "guest_benefits": {
             "title": "Privilegios para Huéspedes",
-            "description": "Acceso matutino gratuito para huéspedes de Casa Olivea."
+            "description": ""
           }
         }
       },
       "menu": {
         "title": "El Huerto",
-        "description": "Curado por el chef Eduardo Zaragoza de Olivea Farm To Table, inspirado en el huerto y comida mexicana casera.",
+        "description": "",
         "subsections": {
           "signature_dishes": {
             "title": "Creaciones del Chef",
-            "description": "Platos que destacan ingredientes frescos de nuestro huerto."
+            "description": ""
           },
           "beverages": {
             "title": "Bebidas & Matcha Ceremonial",
-            "description": "Cafés especiales, matcha ceremonial y bebidas quincenales de temporada."
+            "description": ""
           },
           "evening_wine_tapas": {
             "title": "Vino y Quesos por la Noche",
-            "description": "Disfruta vinos, cócteles y tablas de quesos junto a nuestras acogedoras fogatas."
+            "description": ""
           },
           "sustainable_sourcing": {
             "title": "Ingredientes Puros",
-            "description": "Todos los platillos elaborados con aceites de aguacate y oliva, jamás aceites vegetales."
+            "description": ""
           }
         }
       },
       "community": {
         "title": "Comunidad",
-        "description": "Apoyamos a la industria local con descuentos, eventos especiales y reuniones comunitarias.",
+        "description": "",
         "subsections": {
           "industry_day": {
             "title": "Martes de Industria",
-            "description": "Ofertas especiales cada martes para profesionales de la hospitalidad."
+            "description": ""
           },
           "discounts": {
             "title": "Descuentos Locales",
-            "description": "Siempre 10% de descuento para vecinos y profesionales de la industria."
+            "description": ""
           },
           "events": {
             "title": "Eventos & Talleres",
-            "description": "Eventos regulares incluyendo catas, talleres y noches sociales."
+            "description": ""
           }
         }
       },
       "ambience": {
         "title": "Ambiente",
-        "description": "Un entorno relajante con aromas del huerto, música curada e historias envolventes.",
+        "description": "",
         "subsections": {
           "playlists": {
             "title": "Música Curada",
-            "description": "Música cuidadosamente seleccionada para acompañar el ambiente del Café Olivea."
+            "description": ""
           },
           "garden_immersion": {
             "title": "Inmersión en el Jardín",
-            "description": "Disfruta vistas y aromas envolventes del huerto todo el año."
+            "description": ""
           }
         }
       }
@@ -208,13 +208,9 @@
         "title": "Paquetes",
         "description": "Experiencias a medida: romance, familia y bienestar.",
         "subsections": {
-          "romance_retreat": {
-            "title": "Romance",
-            "description": "Vino, pétalos y masaje en pareja."
-          },
-          "wellness_escape": {
-            "title": "Bienestar",
-            "description": "Experencia del Spa, Walk and Wine."
+          "gastronomic": {
+            "title": "Olivea Farm To Table",
+            "description": "Duerme y cena para una estancia Michelin"
           }
         }
       }
@@ -222,117 +218,117 @@
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": "Menús de temporada, historias del chef y una verdadera experiencia farm-to-table.",
+    "description": "",
     "sections": {
       "culinary_philosophy": {
         "title": "Filosofía",
-        "description": "De la huerta al plato, sin aceites vegetales, inclusividad dietética y sostenibilidad.",
+        "description": "",
         "subsections": {
           "ingredient_story": {
             "title": "Historias",
-            "description": "Cómo nuestro huerto da forma a cada plato."
+            "description": ""
           },
           "no_seed_oils": {
             "title": "Aceites",
-            "description": "Nuestro compromiso con grasas más saludables."
+            "description": ""
           },
           "dietary_inclusivity": {
             "title": "Inclusivo",
-            "description": "Sin gluten, vegano, kosher, halal y más."
+            "description": ""
           },
           "sustainability_commitment": {
             "title": "Sostenible",
-            "description": "Cómo mantenemos el equilibrio ecológico y contribuimos a nuestro entorno."
+            "description": ""
           }
         }
       },
       "garden": {
         "title": "Huerto",
-        "description": "Nuestro huerto en el sitio, abastecimiento local y prácticas cero-residuos.",
+        "description": "",
         "subsections": {
           "on_site_garden": {
             "title": "En sitio",
-            "description": "Prácticas de cultivo, rotaciones estacionales y variedades autóctonas."
+            "description": ""
           },
           "local_partners": {
             "title": "Socios",
-            "description": "Colaboraciones con fincas, bodegas y productores artesanales cercanos."
+            "description": ""
           },
           "zero_waste": {
             "title": "Cero-Residuos",
-            "description": "Iniciativas para minimizar residuos y reutilizar cada cosecha."
+            "description": ""
           }
         }
       },
       "dining_experiences": {
         "title": "Menú",
-        "description": "Menús degustación, cenas en el huerto y maridajes.",
+        "description": "",
         "subsections": {
           "tasting_menu": {
             "title": "Degustación",
-            "description": "Un recorrido estacional de varios platos."
+            "description": ""
           },
           "wine_pairings": {
             "title": "Maridajes",
-            "description": "Vinos naturales combinados con cada plato."
+            "description": ""
           },
           "chef_garden_table": {
             "title": "Mesa Huerto",
-            "description": "Cenas exclusivas del chef directamente en nuestro huerto."
+            "description": ""
           },
           "private_events": {
             "title": "Privados",
-            "description": "Eventos personalizados, talleres y catas."
+            "description": ""
           }
         }
       },
       "atmosphere": {
         "title": "Ambiente",
-        "description": "Espacio elegante, música curada y artesanía local.",
+        "description": "",
         "subsections": {
           "interior_design": {
             "title": "Diseño",
-            "description": "Materiales naturales y mobiliario artesanal."
+            "description": ""
           },
           "seasonal_ambience": {
             "title": "Atmósfera",
-            "description": "Ambientes sonoros y luces para cada estación."
+            "description": ""
           },
           "tableware": {
             "title": "Vajilla",
-            "description": "Platos, cristalería y mantelería hechos por artesanos locales."
+            "description": "."
           }
         }
       },
       "chef_team": {
         "title": "Equipo",
-        "description": "Trayectorias del chef, premios y nuestra ética de servicio.",
+        "description": "",
         "subsections": {
           "chef_bio": {
             "title": "Chef",
-            "description": "Formación, inspiraciones y su camino farm-to-table."
+            "description": ""
           },
           "awards_recognition": {
             "title": "Premios",
-            "description": "Reseñas, menciones Michelin y reconocimientos."
+            "description": ""
           },
           "service_philosophy": {
             "title": "Servicio",
-            "description": "Enfoque ‘Colibrí’: calidez, conocimiento y atención al detalle."
+            "description": ""
           }
         }
       },
       "community": {
         "title": "Comunidad",
-        "description": "Iniciativas, prensa y nuestro impacto local.",
+        "description": "",
         "subsections": {
           "programs": {
             "title": "Programas",
-            "description": "Talleres, pop-ups e iniciativas de pasantías."
+            "description": ""
           },
           "press_awards": {
             "title": "Prensa",
-            "description": "Reseñas, artículos y reconocimientos en medios."
+            "description": ""
           }
         }
       }
