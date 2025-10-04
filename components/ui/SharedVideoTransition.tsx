@@ -165,6 +165,7 @@ export default function SharedVideoTransition() {
         >
           {/* Snapshot shown only during exit */}
           {snapUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={snapUrl}
               alt=""
@@ -180,7 +181,6 @@ export default function SharedVideoTransition() {
               }}
             />
           )}
-
           <video
             key={videoKey}
             ref={videoRef}
