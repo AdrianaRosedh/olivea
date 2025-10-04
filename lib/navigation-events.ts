@@ -1,4 +1,5 @@
-// Define custom events
+// lib/navigation-events.ts
+
 export const EVENTS = {
   NAVIGATION_START: "navigation:start",
   NAVIGATION_COMPLETE: "navigation:complete",
@@ -6,29 +7,27 @@ export const EVENTS = {
   SCROLL_START: "scroll:start",
   SCROLL_PROGRESS: "scroll:progress",
   SCROLL_COMPLETE: "scroll:complete",
-
-  // ← add this line:
   MOBILE_SCROLL_INITIALIZED: "mobile:scroll:initialized",
-
   SECTION_CHANGE: "section:change",
   SECTION_SNAP_START: "section:snap:start",
   SECTION_SNAP_COMPLETE: "section:snap:complete",
 } as const;
 
-// Helper to emit custom events
-export function emitEvent(eventName: string, detail?: any) {
+/** Emit a typed CustomEvent */
+export function emitEvent<T = unknown>(eventName: string, detail?: T): void {
   if (typeof window === "undefined") return;
   console.log(`[Navigation] Emitting event: ${eventName}`, detail);
-  const event = new CustomEvent(eventName, { detail });
+  const event = new CustomEvent<T>(eventName, { detail });
   document.dispatchEvent(event);
 }
 
-// Initialize the navigation event system
-export function initNavigationEvents() {
-  if (typeof window === "undefined") return;
+/** Initialize the navigation event system */
+export function initNavigationEvents(): () => void {
+  if (typeof window === "undefined") return () => {};
 
   let navigationInProgress = false;
-  const observer = new MutationObserver((mutations) => {
+
+  const observer = new MutationObserver((mutations: MutationRecord[]) => {
     if (!navigationInProgress && mutations.length > 5) {
       navigationInProgress = true;
       emitEvent(EVENTS.NAVIGATION_START);
@@ -39,28 +38,26 @@ export function initNavigationEvents() {
       }, 100);
     }
   });
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
 
-  window.addEventListener("popstate", () => {
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  const onPopState = (): void => {
     emitEvent(EVENTS.NAVIGATION_START);
     setTimeout(() => {
       emitEvent(EVENTS.NAVIGATION_COMPLETE);
       setTimeout(() => emitEvent(EVENTS.SCROLL_INITIALIZE), 100);
     }, 100);
-  });
+  };
+  window.addEventListener("popstate", onPopState);
 
   console.log("[Navigation] Event system initialized");
 
   return () => {
     observer.disconnect();
-    window.removeEventListener("popstate", () => {});
+    window.removeEventListener("popstate", onPopState);
   };
 }
 
-// Helper to get the current scroll progress (0-1)
 export function getScrollProgress(): number {
   if (typeof window === "undefined") return 0;
   const scrollContainer =
@@ -73,11 +70,8 @@ export function getScrollProgress(): number {
   return Math.min(1, scrollTop / maxScroll);
 }
 
-// Helper to get the current active section
 export function getCurrentSection(): string | null {
   if (typeof window === "undefined") return null;
-
-  // Force TS to treat these as HTMLElements
   const raw = document.querySelectorAll("section[id]") as NodeListOf<HTMLElement>;
   const sections = Array.prototype.slice.call(raw) as HTMLElement[];
   if (sections.length === 0) return null;
@@ -95,6 +89,5 @@ export function getCurrentSection(): string | null {
       activeSection = section;
     }
   }
-
   return activeSection ? activeSection.id : null;
 }

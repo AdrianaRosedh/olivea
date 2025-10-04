@@ -29,20 +29,6 @@ const nextConfig = {
   // make Next pick up .ts, .tsx and .mdx files as routes/components
   pageExtensions: ['ts','tsx','mdx'],
 
-  // ─── Experimental / Turbopack ────────────────────────────────
-  experimental: {
-    optimizeCss: true,
-    serverActions: { enabled: true },
-  },
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
-  },
-
   // ─── SVG Loader for SSR ────────────────────────────────────────
   webpack(config) {
     config.module.rules.push({
@@ -74,8 +60,8 @@ const nextConfig = {
   },
 
   poweredByHeader: false,
-  eslint:          { ignoreDuringBuilds: true },
-  typescript:      { ignoreBuildErrors: true },
+  eslint:          { ignoreDuringBuilds: false },
+  typescript:      { ignoreBuildErrors: false },
 
   // ─── Security Headers ─────────────────────────────────────────
   async headers() {
