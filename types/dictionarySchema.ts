@@ -42,8 +42,6 @@ export const dictionarySchema = z.object({
   farmtotable: z.object({
     title:       z.string(),
     description: z.string(),
-    // <- and farmtotable too
-    sections:    z.record(Section),
   }),
 
   mesadelvalle: z.object({
