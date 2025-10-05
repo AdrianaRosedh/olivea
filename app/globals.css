@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ────────────────────────────────────────────────────────────────── */
+/* Theme tokens                                                       */
+/* ────────────────────────────────────────────────────────────────── */
 :root {
   --olivea-cream: #e8e4d5;
   --olivea-shell: #e0d9c5;
@@ -63,6 +66,9 @@
   --sidebar-foreground: #fdfdfd;
 }
 
+/* ────────────────────────────────────────────────────────────────── */
+/* Base                                                              */
+/* ────────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     border-color: var(--border);
@@ -79,114 +85,109 @@
     font-family: var(--font-sans);
     line-height: var(--line-height-body);
     overscroll-behavior: none;
-    scroll-behavior: smooth;
+    /* Let Lenis control smoothness */
+    scroll-behavior: auto;
     @apply antialiased;
   }
 
-  /* reset & root-level scroll */
-  html, body, #__next {
+  /* root-level scroll */
+  html,
+  body,
+  #__next {
     height: 100%;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    scroll-behavior: smooth;
+    /* Let Lenis control smoothness */
+    scroll-behavior: auto;
     overscroll-behavior: none;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-serif);
     line-height: 1.2;
     font-weight: 500;
   }
 
-  h1 {
-    font-size: 2.5rem;
-    @apply md:text-5xl lg:text-6xl;
-  }
+  h1 { font-size: 2.5rem; @apply md:text-5xl lg:text-6xl; }
+  h2 { font-size: 2rem;   @apply md:text-4xl; }
+  h3 { font-size: 1.75rem; @apply md:text-3xl; font-style: italic; }
+  h4 { font-size: 1.5rem;  @apply md:text-2xl; font-style: italic; }
 
-  h2 {
-    font-size: 2rem;
-    @apply md:text-4xl;
-  }
-
-  h3 {
-    font-size: 1.75rem;
-    @apply md:text-3xl;
-    font-style: italic;
-  }
-
-  h4 {
-    font-size: 1.5rem;
-    @apply md:text-2xl;
-    font-style: italic;
-  }
-
-  p, li, blockquote {
+  p,
+  li,
+  blockquote {
     font-size: 1rem;
     @apply md:text-lg;
     line-height: var(--line-height-body);
   }
 
-  nav a, button, .nav-item {
+  nav a,
+  button,
+  .nav-item {
     font-family: var(--font-sans);
     font-weight: 500;
     letter-spacing: var(--letter-spacing-nav);
   }
 
-  blockquote, .accent-text, .cta {
+  blockquote,
+  .accent-text,
+  .cta {
     font-family: var(--font-serif);
     font-weight: 600;
   }
 
-  video, .video-container, .shared-overlay {
-    background-color: var(--olivea-olive); 
+  video,
+  .video-container,
+  .shared-overlay {
+    background-color: var(--olivea-olive);
   }
 
-
-  /* Snapping sections */
-  section {
-    scroll-snap-align: start;
-    min-height: 100vh;
-  }
-
+  /* Anchor offset for native anchor jumps */
   section[id] {
     scroll-margin-top: 8rem;
     scroll-margin-bottom: 3rem;
   }
 
-    nav, footer, .dock-left, .dock-right {
-      color: var(--olivea-ink);
-    }
+  nav,
+  footer,
+  .dock-left,
+  .dock-right {
+    color: var(--olivea-ink);
   }
+}
 
+/* ────────────────────────────────────────────────────────────────── */
+/* Utilities                                                         */
+/* ────────────────────────────────────────────────────────────────── */
 @layer utilities {
   .origin-\[var\(--hover-x\)_50\%\] {
     transform-origin: var(--hover-x) 50%;
   }
 
-  .no-scrollbar::-webkit-scrollbar {
-    display: none !important;
-  }
+  .no-scrollbar::-webkit-scrollbar { display: none !important; }
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
-  .no-scrollbar {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
+  /* A centered section helper if you need it */
   .section-center {
-    @apply
-      min-h-screen       /* full viewport height */
-      flex flex-col      /* flex + column direction */
-      items-center       /* center horizontally */
-      justify-center     /* center vertically */
-      px-6               /* horizontal padding */
-      snap-center        /* scroll-snap alignment */
-      scroll-mt-[120px]; /* anchor-offset */
+    @apply min-h-screen flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px];
   }
 }
 
-/* Liquid fill hover effect */
+/* ────────────────────────────────────────────────────────────────── */
+/* Snap helpers — desktop only; disabled on mobile                   */
+/* ────────────────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
+  .snap-container { scroll-snap-type: y proximity; }
+  .snap-center    { scroll-snap-align: center; scroll-margin-top: 120px; } /* 120 = TOP_OFFSET_PX */
+
+  /* Fancy desktop navbar fill effect (kept from your file) */
   .fill-nav a {
     --hover-x: 50%;
     position: relative;
@@ -197,13 +198,11 @@
     transition: color 0.3s ease;
     background: var(--olivea-mist);
   }
-
   .fill-nav a.active {
     background: var(--olivea-clay) !important;
     color: white !important;
     border-color: var(--olivea-clay) !important;
   }
-
   .fill-nav a::before {
     content: "";
     position: absolute;
@@ -213,43 +212,50 @@
     transition: clip-path 0.6s ease-out;
     z-index: -1;
   }
-
-  .fill-nav a:not(.active):hover::before {
-    clip-path: circle(150% at var(--hover-x) 50%);
-  }
-
-  .fill-nav a:not(.active):hover {
-    color: white;
-  }
+  .fill-nav a:not(.active):hover::before { clip-path: circle(150% at var(--hover-x) 50%); }
+  .fill-nav a:not(.active):hover { color: white; }
 }
 
-/* Lenis scrolling fix */
+/* Disable snap on mobile to avoid fighting Lenis */
+@media (max-width: 767px) {
+  .snap-container { scroll-snap-type: none !important; }
+}
+
+/* Subsections are the CONTENT block (no fixed 2px anchors) */
+.subsection { display: block; }
+/* Nice anchor offset on mobile too */
+@media (max-width: 767px) {
+  .subsection { scroll-margin-top: 120px; }
+}
+
+/* Disable snap briefly during manual navigation (tap → smooth ease) */
+.snap-disable .snap-container { scroll-snap-type: none !important; }
+
+/* Mobile nav bar perf helpers */
+.mobile-section-nav {
+  -webkit-overflow-scrolling: touch;
+  contain: content;
+  will-change: scroll-position;
+}
+
+/* ────────────────────────────────────────────────────────────────── */
+/* Lenis integration                                                 */
+/* ────────────────────────────────────────────────────────────────── */
 html.lenis,
 html.lenis body {
   height: auto;
   overflow-y: auto;
   overflow-x: hidden;
 }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
+/* ────────────────────────────────────────────────────────────────── */
+/* Scrollbar styling                                                 */
+/* ────────────────────────────────────────────────────────────────── */
+:root { --scroll-per: 0; }
 
-/* Scrollbar styling */
-:root {
-  --scroll-per: 0;
-}
-
-html {
-  scrollbar-width: none;
-  scrollbar-color: var(--scrollbar-fill) var(--scrollbar-bg);
-}
-
-html::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
+html { scrollbar-width: none; scrollbar-color: var(--scrollbar-fill) var(--scrollbar-bg); }
+html::-webkit-scrollbar { width: 8px; height: 8px; }
 html::-webkit-scrollbar-track {
   background: linear-gradient(
     to bottom,
@@ -259,31 +265,22 @@ html::-webkit-scrollbar-track {
     var(--scrollbar-bg) 100%
   );
 }
-
 html::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-fill);
   border-radius: 4px;
   border: 2px solid var(--scrollbar-bg);
 }
+html::-webkit-scrollbar-thumb:hover { background-color: var(--olivea-olive); }
 
-html::-webkit-scrollbar-thumb:hover {
-  background-color: var(--olivea-olive);
-}
+/* ────────────────────────────────────────────────────────────────── */
+/* Forms & widgets                                                   */
+/* ────────────────────────────────────────────────────────────────── */
+input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom */
 
-/* Prevent mobile zoom on form inputs */
-input, textarea, select {
-  font-size: 16px !important;
-}
-
-/* Prevent mobile browser zoom on Whistle Chat input */
 .whistle-widget input,
-.whistle-widget textarea {
-  font-size: 16px !important;
-}
+.whistle-widget textarea { font-size: 16px !important; }
 
 .shared-overlay {
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
-
- 

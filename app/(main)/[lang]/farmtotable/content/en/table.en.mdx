@@ -1,0 +1,24 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="mesa"
+  className="main-section snap-center"
+  title={<Reveal preset="right" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">The table</h2></Reveal>}
+>
+  <Sub id="hospitalidad">
+    We host friends. Service is present and discreet, tuned to the room’s rhythm and to silence when needed.
+  </Sub>
+
+  <Sub id="atencion" preset="left">
+    We read the table—culture, allergies, preferences. Timing and temperature are adjusted to serve each plate at its peak.
+  </Sub>
+
+  <Sub id="narrativa" preset="fade">
+    Each course adds context: origin, the hands behind it and pairing rationale. Honest storytelling, never ornamental.
+  </Sub>
+</StickyBlock>
+
+<ParallaxImage src="/images/farm/dining.jpg" alt="Dining room rhythm" heightVh={68} speed={0.30} />

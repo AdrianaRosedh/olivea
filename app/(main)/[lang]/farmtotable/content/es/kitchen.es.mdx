@@ -1,0 +1,28 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="cocina"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">La cocina</h2></Reveal>}
+>
+  <Sub id="equilibrio_cocina">
+    El producto lidera. Platos que equilibran el huerto con proteínas de la zona en capas limpias y reconocibles.
+  </Sub>
+
+  <Sub id="estetica" preset="left">
+    Estética sobria y precisa; vajilla que narra el paisaje. Elegancia sin exceso: forma al servicio del sabor.
+  </Sub>
+
+  <Sub id="tecnica" preset="right">
+    Fondos claros, fermentos controlados, curaciones y cocciones exactas. Amargor y umami se afinan con acidez nítida y temperatura intencional.
+  </Sub>
+
+  <ParallaxImage src="/images/farm/kitchen.jpg" alt="Técnica y precisión" heightVh={50} axis="x" range={[-70,70]} rotate={[-0.6,0]} />
+
+  <Sub id="vision" preset="fade">
+    Investigación continua y respeto al productor. Objetivo: claridad de sabor y emoción contenida.
+  </Sub>
+</StickyBlock>

@@ -1,0 +1,24 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="experiencia"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">01 Olivea, the experience</h2></Reveal>}
+>
+  <Sub id="origen" preset="blur-up">
+    We begin in the garden. The kitchen interprets climate and soil; the table turns landscape into memory.
+  </Sub>
+
+  <Sub id="equilibrio" preset="up">
+    Valle de Guadalupe offers land, sea and farm. We balance acidity and fat, bitterness and sweetness, heat and texture.
+  </Sub>
+
+  <ParallaxImage src="/images/farm/garden.jpg" alt="Garden" heightVh={46} speed={0.22} />
+
+  <Sub id="valores" preset="fade">
+    Traceability, water care and circularity. Sustainability, technique and responsibility guide every decision.
+  </Sub>
+</StickyBlock>

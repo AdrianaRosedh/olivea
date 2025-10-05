@@ -1,0 +1,32 @@
+import Reveal from '@/components/scroll/Reveal'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Sub from '@/components/scroll/Sub'
+
+<section id="menu" className="main-section snap-center w-[min(1000px,92vw)] mx-auto py-16 md:py-24">
+  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">The menu</h2></Reveal>
+
+  <Sub id="estructura_menu" minH={200}>
+    An eight-course tasting menu. Three small off-menu gestures gently open, reset and close the journey.
+  </Sub>
+
+  <Sub id="maridaje" preset="left" minH={200}>
+    Pairings from Valle wines and a non-alcoholic route built with flavor science—infusions, controlled ferments and clarifications.
+  </Sub>
+
+  <Sub id="preferencias" preset="fade" minH={200}>
+    We accommodate allergies, faith and preferences with notice. A vegetarian path is available upon request.
+  </Sub>
+
+  <div className="mt-6 flex flex-wrap gap-3">
+    <a href="/pdfs/menu.pdf" target="_blank" rel="noopener noreferrer"
+       className="px-5 py-3 rounded-xl border border-black/15 hover:bg-black hover:text-white transition">
+      View current menu (PDF)
+    </a>
+    <a href="/en/journal"
+       className="px-5 py-3 rounded-xl border border-black/15 hover:bg-black hover:text-white transition">
+      Non-alcoholic pairing
+    </a>
+  </div>
+</section>
+
+<ParallaxImage src="/images/farm/table.jpg" alt="Table & pairing" heightVh={60} speed={0.33} />

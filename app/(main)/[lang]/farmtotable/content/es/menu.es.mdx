@@ -1,0 +1,32 @@
+import Reveal from '@/components/scroll/Reveal'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Sub from '@/components/scroll/Sub'
+
+<section id="menu" className="main-section snap-center w-[min(1000px,92vw)] mx-auto py-16 md:py-24">
+  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">El menú</h2></Reveal>
+
+  <Sub id="estructura_menu" minH={200}>
+    Degustación de 8 tiempos. Tres pequeños gestos fuera de carta abren, ordenan y cierran el recorrido.
+  </Sub>
+
+  <Sub id="maridaje" preset="left" minH={200}>
+    Maridaje con vinos del Valle y ruta no alcohólica diseñada con ciencia del sabor: infusiones, fermentos y clarificaciones.
+  </Sub>
+
+  <Sub id="preferencias" preset="fade" minH={200}>
+    Atendemos alergias, religión y preferencias con aviso. Versión vegetariana disponible bajo solicitud.
+  </Sub>
+
+  <div className="mt-6 flex flex-wrap gap-3">
+    <a href="/pdfs/menu.pdf" target="_blank" rel="noopener noreferrer"
+       className="px-5 py-3 rounded-xl border border-black/15 hover:bg-black hover:text-white transition">
+      Ver menú actual (PDF)
+    </a>
+    <a href="/es/journal"
+       className="px-5 py-3 rounded-xl border border-black/15 hover:bg-black hover:text-white transition">
+      Maridaje sin alcohol
+    </a>
+  </div>
+</section>
+
+<ParallaxImage src="/images/farm/table.jpg" alt="Mesa y maridaje" heightVh={60} speed={0.33} />

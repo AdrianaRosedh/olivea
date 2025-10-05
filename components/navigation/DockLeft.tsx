@@ -7,21 +7,62 @@ import { cn } from "@/lib/utils";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { useLenis } from "@/components/providers/ScrollProvider";
 
-// Minimal local type for Lenis (no @studio-freight/react-lenis types needed)
+// ----- Types -----
 type Lenis = {
-  scrollTo: (target: number, options?: { duration?: number; easing?: (t: number) => number }) => void;
+  scrollTo: (
+    target: number,
+    options?: { duration?: number; easing?: (t: number) => number }
+  ) => void;
 };
 
 type Identity = "casa" | "cafe" | "farmtotable";
+
+/** Optional override shape for MDX-driven pages */
+type NavOverride = Array<{
+  id: string;
+  label: string;
+  subs?: Array<{ id: string; label: string }>;
+}>;
+
 interface DockLeftProps {
   dict: AppDictionary;
   identity: Identity;
+  /** Provide to bypass dict sections (e.g., farmtotable via MDX IDs) */
+  sectionsOverride?: NavOverride;
 }
 
-// Section order for Cafe specifically
-const CAFE_SECTION_ORDER = [
-  "all_day", "padel", "menu", "community", "ambience"
-] as const;
+type DictSub = { title: string; description?: string };
+type DictSection = {
+  title: string;
+  description?: string;
+  subsections?: Record<string, DictSub>;
+};
+type DictSections = Record<string, DictSection>;
+
+// ----- UI / behavior constants -----
+const CAFE_SECTION_ORDER = ["all_day", "padel", "menu", "community", "ambience"] as const;
+
+// center alignment helpers
+const TOP_OFFSET_PX = 120;  // navbar + breathing room
+const CENTER_PAD_PX = 8;    // tolerance around center line
+
+function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
+  const vh = window.innerHeight;
+  const rect = el.getBoundingClientRect();
+  const pageY = window.pageYOffset;
+  const h = Math.max(el.offsetHeight, 1);
+
+  // Prefer perfectly centered; if taller than viewport, align top
+  const idealY = rect.top + pageY - (vh - h) / 2 - topOffset;
+  const alignTop = rect.top + pageY - topOffset;
+
+  return h > vh ? Math.max(0, alignTop) : Math.max(0, idealY);
+}
+
+function clampToMaxScroll(y: number) {
+  const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  return Math.min(Math.max(0, y), maxY);
+}
 
 const subContainerVariants = {
   open: {
@@ -47,11 +88,11 @@ const subContainerVariants = {
   },
 };
 const subItemVariants = {
-  open:      { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+  open: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
   collapsed: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
 };
 
-// Helper with retry for hash deep links
+// Helper with retry for hash deep links (centers & clamps target)
 function scrollToSectionWithRetry(id: string, lenis: Lenis | null, maxTries = 40) {
   let tries = 0;
   const tryScroll = () => {
@@ -60,13 +101,13 @@ function scrollToSectionWithRetry(id: string, lenis: Lenis | null, maxTries = 40
       if (++tries < maxTries) setTimeout(tryScroll, 50);
       return;
     }
-    const y = el.getBoundingClientRect().top + window.pageYOffset - 120;
+    const y0 = centerYFor(el);
+    const y = clampToMaxScroll(y0);
+
     if (lenis && typeof lenis.scrollTo === "function") {
       lenis.scrollTo(y, { duration: 1.2, easing: (t: number) => 1 - Math.pow(1 - t, 3) });
       setTimeout(() => {
-        if (Math.abs(window.scrollY - y) > 10) {
-          window.scrollTo({ top: y, behavior: "auto" });
-        }
+        if (Math.abs(window.scrollY - y) > 10) window.scrollTo({ top: y, behavior: "auto" });
       }, 180);
     } else {
       window.scrollTo({ top: y, behavior: "auto" });
@@ -75,34 +116,59 @@ function scrollToSectionWithRetry(id: string, lenis: Lenis | null, maxTries = 40
   tryScroll();
 }
 
-export default function DockLeft({ dict, identity }: DockLeftProps) {
+export default function DockLeft({ dict, identity, sectionsOverride }: DockLeftProps) {
   const lenis = useLenis() as Lenis | null;
+  const hasOverride = Array.isArray(sectionsOverride) && sectionsOverride.length > 0;
 
-  // Memoized sections
-  const sections = useMemo(
-    () => dict[identity].sections as Record<string, { title: string; description: string; subsections?: Record<string, { title: string; description: string }> }>,
-    [dict, identity]
+  // ---- Source sections (override or dictionary) ----
+  const sectionsFromDict: DictSections = useMemo(() => {
+    if (hasOverride) return {};
+    const byIdentity = (dict as Record<string, unknown>)[identity];
+    if (typeof byIdentity !== "object" || byIdentity === null) return {};
+    const maybeSections = (byIdentity as { sections?: unknown }).sections;
+    if (typeof maybeSections !== "object" || maybeSections === null) return {};
+    return maybeSections as DictSections;
+  }, [dict, identity, hasOverride]);
+
+  const keysInOrder: string[] = useMemo(() => {
+    if (hasOverride) return sectionsOverride!.map((s) => s.id);
+    if (identity === "cafe") {
+      return CAFE_SECTION_ORDER.filter((k) => k in sectionsFromDict) as string[];
+    }
+    return Object.keys(sectionsFromDict);
+  }, [hasOverride, sectionsOverride, identity, sectionsFromDict]);
+
+  const items = useMemo(
+    () =>
+      hasOverride
+        ? sectionsOverride!.map((s, i) => ({ id: s.id, label: s.label, number: `0${i + 1}` }))
+        : keysInOrder.map((id, i) => ({
+            id,
+            label: sectionsFromDict[id]?.title ?? id,
+            number: `0${i + 1}`,
+          })),
+    [hasOverride, sectionsOverride, keysInOrder, sectionsFromDict]
   );
-  const keysInOrder = useMemo(() => {
-    if (identity === "cafe") return CAFE_SECTION_ORDER.filter(k => k in sections);
-    return Object.keys(sections);
-  }, [identity, sections]);
 
-  const items = keysInOrder.map((id, i) => ({
-    id,
-    label: sections[id].title,
-    number: `0${i + 1}`,
-  }));
+  // Helper: get subs list for a given section id (normalized to array)
+  const subsForSection = useCallback(
+    (sectionId: string): Array<{ id: string; label: string }> => {
+      if (hasOverride) {
+        const s = sectionsOverride!.find((x) => x.id === sectionId);
+        return s?.subs ?? [];
+      }
+      const dictSubs = sectionsFromDict[sectionId]?.subsections ?? {};
+      return Object.entries(dictSubs).map(([sid, s]) => ({ id: sid, label: s.title }));
+    },
+    [hasOverride, sectionsOverride, sectionsFromDict]
+  );
 
   // Subsection parent lookup
   const subToParent = useMemo(() => {
     const m: Record<string, string> = {};
-    for (const pid of keysInOrder) {
-      const ss = sections[pid].subsections;
-      if (ss) for (const sid of Object.keys(ss)) m[sid] = pid;
-    }
+    for (const id of keysInOrder) for (const sub of subsForSection(id)) m[sub.id] = id;
     return m;
-  }, [keysInOrder, sections]);
+  }, [keysInOrder, subsForSection]);
   const subIds = Object.keys(subToParent);
 
   // Active/hover state
@@ -110,25 +176,27 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
   const [activeSub, setActiveSub] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  // Click handler
-  const scrollToSection = useCallback((id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const y = el.getBoundingClientRect().top + window.pageYOffset - 120;
-    if (lenis && typeof lenis.scrollTo === "function") {
-      lenis.scrollTo(y, { duration: 1.2, easing: (t: number) => 1 - Math.pow(1 - t, 3) });
-      setTimeout(() => {
-        if (Math.abs(window.scrollY - y) > 10) {
-          window.scrollTo({ top: y, behavior: "auto" });
-        }
-      }, 180);
-    } else {
-      window.scrollTo({ top: y, behavior: "auto" });
-    }
-    if (window.location.hash.slice(1) !== id) {
-      window.history.replaceState(null, "", `#${id}`);
-    }
-  }, [lenis]);
+  // Click handler (center & clamp)
+  const scrollToSection = useCallback(
+    (id: string) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const y0 = centerYFor(el);
+      const y = clampToMaxScroll(y0);
+
+      if (lenis && typeof lenis.scrollTo === "function") {
+        lenis.scrollTo(y, { duration: 1.2, easing: (t: number) => 1 - Math.pow(1 - t, 3) });
+        setTimeout(() => {
+          if (Math.abs(window.scrollY - y) > 10) window.scrollTo({ top: y, behavior: "auto" });
+        }, 180);
+      } else {
+        window.scrollTo({ top: y, behavior: "auto" });
+      }
+      if (window.location.hash.slice(1) !== id) window.history.replaceState(null, "", `#${id}`);
+    },
+    [lenis]
+  );
+
   const handleSmoothScroll = useCallback(
     (e: React.MouseEvent, id: string) => {
       e.preventDefault();
@@ -140,30 +208,32 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
   // On mount, scroll to hash if present (for reload/deep link)
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (hash) {
-      scrollToSectionWithRetry(hash, lenis);
-    }
+    if (hash) scrollToSectionWithRetry(hash, lenis);
   }, [lenis]);
 
-  // Update active state on scroll
+  // Update active state based on what's at the viewport center
   const updateActive = useCallback(() => {
     const mid = window.innerHeight / 2;
+
+    // Subsections first
     for (const sid of subIds) {
       const el = document.querySelector<HTMLElement>(`.subsection#${sid}`);
       if (!el) continue;
       const r = el.getBoundingClientRect();
-      if (r.top <= mid && r.bottom >= mid) {
+      if (r.top <= mid + CENTER_PAD_PX && r.bottom >= mid - CENTER_PAD_PX) {
         setActiveSub(sid);
         setActiveSection(subToParent[sid]);
         return;
       }
     }
+
+    // Then main sections
     setActiveSub(null);
     for (const { id } of items) {
       const el = document.querySelector<HTMLElement>(`.main-section#${id}`);
       if (!el) continue;
       const r = el.getBoundingClientRect();
-      if (r.top <= mid && r.bottom >= mid) {
+      if (r.top <= mid + CENTER_PAD_PX && r.bottom >= mid - CENTER_PAD_PX) {
         setActiveSection(id);
         return;
       }
@@ -183,7 +253,7 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
           const isActive = item.id === activeSection;
           const isHovered = item.id === hoveredId;
           const isAnimated = isActive || isHovered;
-          const subs = sections[item.id].subsections ?? {};
+          const subs = subsForSection(item.id);
 
           return (
             <div key={item.id} className="flex flex-col">
@@ -194,9 +264,7 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                 onMouseLeave={() => setHoveredId(null)}
                 className={cn(
                   "group flex items-center gap-4 cursor-pointer overflow-hidden",
-                  isActive
-                    ? "text-[var(--olivea-olive)]"
-                    : "text-[var(--olivea-clay)] opacity-80 hover:opacity-100"
+                  isActive ? "text-[var(--olivea-olive)]" : "text-[var(--olivea-clay)] opacity-80 hover:opacity-100"
                 )}
                 aria-current={isActive ? "location" : undefined}
               >
@@ -219,7 +287,7 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                       filter: { duration: 0.2 },
                     }}
                   >
-                    {item.label.toUpperCase()}
+                    {item.label}
                   </motion.div>
                   {/* incoming */}
                   <motion.div
@@ -236,13 +304,13 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                       filter: { duration: 0.2 },
                     }}
                   >
-                    {item.label.toUpperCase()}
+                    {item.label}
                   </motion.div>
                 </div>
               </a>
 
               <AnimatePresence initial={false}>
-                {isActive && Object.keys(subs).length > 0 && (
+                {isActive && subs.length > 0 && (
                   <motion.div
                     key="subs"
                     initial="collapsed"
@@ -251,23 +319,21 @@ export default function DockLeft({ dict, identity }: DockLeftProps) {
                     variants={subContainerVariants}
                     className="ml-14 overflow-hidden"
                   >
-                    {Object.entries(subs).map(([subId, sub]) => {
-                      const isSubActive = subId === activeSub;
+                    {subs.map((sub) => {
+                      const isSubActive = sub.id === activeSub;
                       return (
                         <motion.a
-                          key={subId}
-                          href={`#${subId}`}
-                          onClick={(e) => handleSmoothScroll(e, subId)}
+                          key={sub.id}
+                          href={`#${sub.id}`}
+                          onClick={(e) => handleSmoothScroll(e, sub.id)}
                           variants={subItemVariants}
                           className={cn(
                             "block text-sm transition-colors",
-                            isSubActive
-                              ? "text-[var(--olivea-olive)]"
-                              : "text-[var(--olivea-clay)] hover:text-[var(--olivea-olive)]"
+                            isSubActive ? "text-[var(--olivea-olive)]" : "text-[var(--olivea-clay)] hover:text-[var(--olivea-olive)]"
                           )}
                           aria-current={isSubActive ? "location" : undefined}
                         >
-                          {sub.title}
+                          {sub.label}
                         </motion.a>
                       );
                     })}

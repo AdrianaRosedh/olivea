@@ -1,0 +1,24 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="despensa"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">La despensa</h2></Reveal>}
+>
+  <Sub id="proximidad">
+    Cosecha propia y productores cercanos: textura viva y aromáticos en su punto.
+  </Sub>
+
+  <Sub id="temporada" preset="left">
+    El menú respira con la estación. Cambios pequeños y frecuentes; el calendario del huerto ordena el relato.
+  </Sub>
+
+  <Sub id="trazabilidad" preset="fade">
+    Documentamos lotes y procesos, de la semilla a la sala. Compostaje y aprovechamiento integral cierran el ciclo.
+  </Sub>
+</StickyBlock>
+
+<ParallaxImage src="/images/farm/garden.jpg" alt="Huerto y cercanía" heightVh={56} speed={0.26} scale={[1.04,1]} />

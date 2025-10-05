@@ -1,0 +1,24 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="mesa"
+  className="main-section snap-center"
+  title={<Reveal preset="right" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">La mesa</h2></Reveal>}
+>
+  <Sub id="hospitalidad">
+    Hospedamos amigos. Servicio presente y discreto, atento al pulso de la sala y al silencio cuando conviene.
+  </Sub>
+
+  <Sub id="atencion" preset="left">
+    Leemos la mesa: alergias, cultura y preferencias. Ajustamos tiempos y temperatura para servir cada plato en su punto.
+  </Sub>
+
+  <Sub id="narrativa" preset="fade">
+    Cada curso suma contexto: origen, manos que lo cuidan y razón del maridaje. Narrativa honesta, sin artificio.
+  </Sub>
+</StickyBlock>
+
+<ParallaxImage src="/images/farm/dining.jpg" alt="Ritmo y hospitalidad" heightVh={68} speed={0.30} />

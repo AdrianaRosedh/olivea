@@ -1,0 +1,24 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="despensa"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">The larder</h2></Reveal>}
+>
+  <Sub id="proximidad">
+    Our own harvest and nearby producers: living texture and peak aromatics.
+  </Sub>
+
+  <Sub id="temporada" preset="left">
+    The menu breathes with the season. Small, frequent changes—the garden calendar orders the narrative.
+  </Sub>
+
+  <Sub id="trazabilidad" preset="fade">
+    We document lots and processes—from seed to service. Compost and whole-use practices close the loop.
+  </Sub>
+</StickyBlock>
+
+<ParallaxImage src="/images/farm/garden.jpg" alt="Garden proximity" heightVh={56} speed={0.26} scale={[1.04,1]} />
