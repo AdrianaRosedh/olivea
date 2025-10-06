@@ -16,6 +16,7 @@ import { NavigationProvider } from "@/contexts/NavigationContext";
 import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer";
 import NextGenBackground from "@/components/animations/NextGenBackground";
 import DesktopChatButton from "@/components/ui/DesktopChatButton";
+import UnderConstructionNotice from "@/components/forms/UnderConstructionNotice";
 
 // types
 import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
@@ -137,6 +138,17 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
             />
           )}
           <DockRight items={dockRightItems} />
+        </ClientOnly>
+      )}
+      {/* ── UNDER CONSTRUCTION ───────────────────────────────────────── */}
+      {mounted && (isCasaPage || isRestaurantPage || isCafePage) && (
+        <ClientOnly>
+          {/* shows once per *route* (includes /[lang]/...), re-shows daily, bump version to re-show */}
+          <UnderConstructionNotice
+            storageScope="route"
+            ttlMs={24 * 60 * 60 * 1000}   // show at most once per 24h per route
+            version="v2"                  // bump when you want to re-show to everyone
+          />
         </ClientOnly>
       )}
 
