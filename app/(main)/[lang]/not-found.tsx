@@ -1,34 +1,36 @@
-// app/[lang]/not-found.tsx
-
+// app/(main)/[lang]/not-found.tsx
 "use client"
 
-import { useEffect, useState }    from "react"
-import { useParams }               from "next/navigation"
-import Image                       from "next/image"
-import Link                        from "next/link"
-import { Button }                  from "@/components/ui/button"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { getDictionary, type Lang } from "./dictionaries"
 
 export default function NotFound() {
-  // 1️⃣ Grab lang from the client-side router
+  // 1) get lang from route
   const { lang: rawLang } = useParams<{ lang?: string }>() || {}
-  const lang: Lang        = rawLang === "es" ? "es" : "en"
+  const lang: Lang = rawLang === "es" ? "es" : "en"
 
-  // 2️⃣ Load only the 404 segment of your dict
+  // 2) just keep the piece we need
   const [dict, setDict] = useState<{
     notFound: { title?: string; message?: string; cta?: string }
   } | null>(null)
 
   useEffect(() => {
-    getDictionary(lang).then((d) => {
-      setDict({ notFound: d.notFound! })
+    // getDictionary is synchronous
+    const d = getDictionary(lang)
+    setDict({
+      notFound: d.notFound ?? {
+        title:   lang === "es" ? "404" : "404",
+        message: lang === "es" ? "La página que buscas no existe." : "Page not found.",
+        cta:     lang === "es" ? "Volver al inicio" : "Go Home",
+      },
     })
   }, [lang])
 
-  if (!dict) {
-    // waiting on translations
-    return null
-  }
+  if (!dict) return null
 
   const { title, message, cta } = dict.notFound
 
@@ -42,16 +44,10 @@ export default function NotFound() {
         priority
       />
       <div className="bg-black/60 p-10 rounded-xl max-w-lg">
-        <h1 className="text-5xl font-light mb-4">
-          {title ?? "404"}
-        </h1>
-        <p className="text-xl font-light mb-6">
-          {message ?? "Page not found."}
-        </p>
+        <h1 className="text-5xl font-light mb-4">{title ?? "404"}</h1>
+        <p className="text-xl font-light mb-6">{message ?? "Page not found."}</p>
         <Link href={`/${lang}`}>
-          <Button variant="secondary">
-            {cta ?? "Go Home"}
-          </Button>
+          <Button variant="secondary">{cta ?? "Go Home"}</Button>
         </Link>
       </div>
     </main>

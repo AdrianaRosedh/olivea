@@ -1,232 +1,64 @@
 {
   "about": {
     "title": "About Olivea",
-    "description": "Our story, philosophy, and the people behind the vision."
+    "description": "Farm-to-table hospitality in Valle de Guadalupe—our story, philosophy, and the people behind the vision.",
+    "meta": {
+      "title": "About Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
+      "description": "Learn how Olivea brings the Valley’s light, soil and producers to the table—our team, values and design approach in Ensenada, Baja California.",
+      "keywords": ["Olivea", "about", "Valle de Guadalupe", "Ensenada", "farm-to-table", "team", "design"],
+      "ogImage": "/images/seo/about-og.jpg"
+    }
   },
   "cafe": {
     "title": "Olivea Cafe",
-    "description": "",
+    "description": "House coffee, bread and unhurried mornings in Valle de Guadalupe.",
     "error": "Error loading menu:",
-    "sections": {
-      "all_day": {
-        "title": "Experiences",
-        "description": "",
-        "subsections": {
-          "breakfast_coffee_pastries": {
-            "title": "Breakfast & Pastries",
-            "description": ""
-          },
-          "all_day_evening_tapas": {
-            "title": "Evening Wine & Tapas",
-            "description": ""
-          }
-        }
-    },
-      "padel": {
-        "title": "Padel",
-        "description": "",
-        "subsections": {
-          "booking": {
-            "title": "Court Reservations",
-            "description": ""
-          },
-          "guest_benefits": {
-            "title": "Guest Privileges",
-            "description": ""
-          }
-        }
-      },
-      "menu": {
-        "title": "Garden-Inspired",
-        "description": "",
-        "subsections": {
-          "signature_dishes": {
-            "title": "Chef’s Creations",
-            "description": ""
-          },
-          "beverages": {
-            "title": "Drinks & Ceremonial Matcha",
-            "description": ""
-          },
-          "evening_wine_tapas": {
-            "title": "Evening Wine & Cheese",
-            "description": ""
-          },
-          "sustainable_sourcing": {
-            "title": "Pure Ingredients",
-            "description": ""
-          }
-        }
-      },
-      "community": {
-        "title": "Community",
-        "description": "",
-        "subsections": {
-          "industry_day": {
-            "title": "Industry Tuesdays",
-            "description": ""
-          },
-          "discounts": {
-            "title": "Local Industry Discounts",
-            "description": ""
-          },
-          "events": {
-            "title": "Events & Workshops",
-            "description": "."
-          }
-        }
-      },
-      "ambience": {
-        "title": "Atmosphere",
-        "description": "",
-        "subsections": {
-          "playlists": {
-            "title": "Curated Playlists",
-            "description": ""
-          },
-          "garden_immersion": {
-            "title": "Garden Immersion",
-            "description": ""
-          }
-        }
-      }
+    "meta": {
+      "title": "Olivea Café | Coffee, Bread & Mornings in Valle de Guadalupe",
+      "description": "Single-origin coffee roasted in Ensenada, house bread and a calm courtyard. Breakfast from the garden—Olivea Café in Valle de Guadalupe.",
+      "keywords": ["Olivea Cafe", "coffee", "Valle de Guadalupe", "breakfast", "house bread", "Ensenada", "padel"],
+      "ogImage": "/images/seo/cafe-og.jpg"
     }
   },
   "casa": {
     "title": "Casa Olivea",
     "description": "Stay with us. Rooms, amenities, and reservations coming soon.",
-    "sections": {
-      "rooms": {
-        "title": "Rooms",
-      "description": "Peaceful spaces designed with comfort and elegance.",
-      "subsections": {
-        "room_types": {
-          "title": "Room Type",
-          "description": "Deluxe Room: Room for 2 people, with a king-size bed, 2 bedside tables with reading lamps, air conditioning, heating, ceiling fan, blackout curtains, table with 2 chairs, closet, hangers, iron, ironing board, hair dryer, towels, bathrobes, personal care amenities, and bottled natural water."
-        },
-        "in_room_amenities": {
-          "title": "Amenities",
-          "description": "Air conditioning, Bar, Bottled water, Heating, Air conditioning, Massages, Breakfast included, Restaurant, Internet, Massages."
-        },
-        "design_decor": {
-          "title": "Design",
-          "description": "Handcrafted furnishings, local art, and earthy palettes."
-        }
-        }
-      },
-      "mornings": {
-      "title": "Mornings",
-      "description": "Rise and shine with garden-fresh breakfasts and wellness rituals.",
-      "subsections": {
-        "breakfast_service": {
-          "title": "Breakfast",
-          "description": "Fresh juices, pastries, and made-to-order eggs."
-        },
-        "garden_to_table": {
-          "title": "Garden",
-          "description": "Seasonal herbs and fruit picked that very morning."
-        },
-        "wellness_rituals": {
-          "title": "Wellness",
-          "description": "Play Padel in the mornings with your cup of coffee."
-        }
-      }
-      },
-      "experiences": {
-        "title": "Experiences",
-        "description": "Dive into sport, nature, and hands-on workshops.",
-        "subsections": {
-          "padel_courts": {
-            "title": "Padel",
-            "description": "Court booking, private lessons & weekend tournaments."
-          },
-          "garden_tours": {
-            "title": "Tours",
-            "description": "Meet the gardener, seasonal planting workshops."
-          },
-          "spa_wellness": {
-            "title": "Spa",
-            "description": "Massage, beauty treatments, aromatherapy sessions."
-          }
-        }
-      },
-      "dining": {
-        "title": "Dining",
-        "description": "From casual fireside bites to private chef’s table.",
-        "subsections": {
-          "chef_table": {
-            "title": "Chef’s Table",
-            "description": "Exclusive sit-down breakfasts with the chef."
-          },
-          "in_room_dining": {
-            "title": "Room Service",
-            "description": "Customizable menus delivered to your suite."
-          },
-          "firepit_evenings": {
-            "title": "Firepit",
-            "description": "Evening s’mores, storytelling by the fire."
-          }
-        }
-      },
-      "wellness": {
-        "title": "Wellness",
-        "description": "Mind, body & soul—activities for total rejuvenation.",
-        "subsections": {
-          "yoga_classes": {
-            "title": "Walk and Wine",
-            "description": "Walk 2km and drink wine at Cava Maciel."
-          },
-          "bikes_hikes": {
-            "title": "Outdoors",
-            "description": "We recomened outdoor experiences within Valle de Guadalupe."
-          },
-          "art_music": {
-            "title": "Culture",
-            "description": "Get to know Valle's roots"
-          }
-        }
-      },
-      "community": {
-        "title": "Community",
-        "description": "How we engage, give back, and celebrate local culture.",
-        "subsections": {
-          "zero_waste": {
-            "title": "Zero-Waste",
-            "description": "Composting, upcycling & repurposing harvest."
-          },
-          "local_partners": {
-            "title": "Partners",
-            "description": "Collaborations with nearby farms, wineries & artisans."
-          },
-          "industry_tuesdays": {
-            "title": "Industry Day",
-            "description": "Every Tuesday: 10% off for hospitality pros."
-          }
-        }
-      },
-      "packages": {
-        "title": "Packages",
-        "description": "A gastronomic experiences.",
-        "subsections": {
-          "gastronomic": {
-            "title": "Olivea Farm To Table",
-            "description": "Sleep and Dine for a Michelin Stay"
-          }
-        }
-      }
+    "meta": {
+      "title": "Casa Olivea | Rooms & Quiet Design in Valle de Guadalupe",
+      "description": "Light, quiet and honest comfort. Rooms with natural materials, effective blackout and thoughtful amenities—Casa Olivea, Ensenada, Baja California.",
+      "keywords": ["Casa Olivea", "hotel", "rooms", "Valle de Guadalupe", "Ensenada", "quiet", "design hotel"],
+      "ogImage": "/images/seo/casa-og.jpg"
     }
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": ""
+    "description": "Garden, kitchen and table—an eight-course menu shaped by season and soil.",
+    "meta": {
+      "title": "Olivea Farm-to-Table | Seasonal Tasting Menu in Valle de Guadalupe",
+      "description": "From garden to table: an 8-course seasonal tasting menu, non-alcoholic pairings and a dining room set to the Valley’s rhythm.",
+      "keywords": ["farm to table", "tasting menu", "Valle de Guadalupe", "Ensenada", "non-alcoholic pairing", "restaurant"],
+      "ogImage": "/images/seo/restaurant-og.jpg"
+    }
   },
   "contact": {
     "title": "Contact",
-    "description": "Press, inquiries, and how to reach us."
+    "description": "Press, inquiries, and how to reach us.",
+    "meta": {
+      "title": "Contact Olivea | Reservations & Press",
+      "description": "Contact Olivea for reservations, events and press inquiries in Valle de Guadalupe, Ensenada.",
+      "keywords": ["Olivea contact", "reservations", "press", "Valle de Guadalupe", "Ensenada"],
+      "ogImage": "/images/seo/contact-og.jpg"
+    }
   },
   "sustainability": {
     "title": "Sustainability",
-    "description": "Our commitment to sustainable practices and environmental stewardship."
+    "description": "Our commitment to sustainable practices and environmental stewardship.",
+    "meta": {
+      "title": "Sustainability at Olivea | Water, Waste & Local Partnerships",
+      "description": "Refillables, water care, responsible sourcing and compost—how Olivea reduces waste and supports local producers in Valle de Guadalupe.",
+      "keywords": ["sustainability", "refillables", "compost", "local producers", "Valle de Guadalupe", "Olivea"],
+      "ogImage": "/images/seo/sustainability-og.jpg"
+    }
   },
   "journal": {
     "title": "Olivea Journal",
@@ -234,37 +66,66 @@
     "loading": "Loading journal entries…",
     "empty": "No journal entries available yet.",
     "error": "Error loading journal:",
-    "by": "by"
+    "by": "by",
+    "meta": {
+      "title": "Olivea Journal | Stories from the Valley",
+      "description": "Dispatches from the garden and kitchen—technique, producers and seasonal notes from Valle de Guadalupe.",
+      "keywords": ["Olivea Journal", "stories", "Valle de Guadalupe", "seasonal", "producers"],
+      "ogImage": "/images/seo/journal-og.jpg"
+    }
   },
   "legal": {
     "title": "Legal",
-    "description": "Legal entity details and terms for all Olivea properties."
+    "description": "Legal entity details and terms for all Olivea properties.",
+    "meta": {
+      "title": "Legal & Policies | Olivea",
+      "description": "Legal entity details, privacy, cookie and booking policies for Olivea.",
+      "keywords": ["legal", "privacy", "policies", "Olivea"],
+      "ogImage": "/images/seo/legal-og.jpg"
+    }
   },
   "reservations": {
     "title": "Reservations",
-    "description": "Choose where you'd like to reserve: restaurant, café, or hotel."
+    "description": "Choose where you'd like to reserve: restaurant, café, or hotel.",
+    "meta": {
+      "title": "Reservations | Olivea Restaurant, Café & Casa",
+      "description": "Reserve the tasting menu, book a morning at Olivea Café or stay with us at Casa Olivea in Valle de Guadalupe.",
+      "keywords": ["reservations", "book", "tasting menu", "cafe booking", "hotel", "Valle de Guadalupe"],
+      "ogImage": "/images/seo/reservations-og.jpg"
+    }
   },
   "mesadelvalle": {
-    "title":    "Mesa del Valle",
-    "tagline":  "A collective platform uniting the leading voices in gastronomy, wine, and hospitality across Valle de Guadalupe and Ensenada.",
+    "title": "Mesa del Valle",
+    "tagline": "A collective platform uniting the leading voices in gastronomy, wine, and hospitality across Valle de Guadalupe and Ensenada.",
     "description": [
       "Born from a shared desire to elevate the region’s identity, Mesa del Valle brings together chefs, winemakers, hoteliers, and artisans to tell a unified story of excellence, sustainability, and cultural pride.",
       "Through strategic collaborations, international press outreach, and shared events, we aim to position Valle de Guadalupe as the gastronomic and cultural capital of Latin America.",
       "The table is set. The future is shared."
-    ]
-  },
-  "notFound": {
-    "message": "The page you're looking for doesn't exist.",
-    "cta": "Return Home"
+    ],
+    "meta": {
+      "title": "Mesa del Valle | A Collective from Valle de Guadalupe",
+      "description": "Chefs, winemakers, hoteliers and artisans shaping the region’s identity—press, collaborations and shared events.",
+      "keywords": ["Mesa del Valle", "collective", "press", "Valle de Guadalupe", "wine", "gastronomy"],
+      "ogImage": "/images/seo/mesa-og.jpg"
+    }
   },
   "home": {
     "title": "Welcome to Olivea",
     "subtitle": "A farm-to-table sanctuary where nature, nourishment, and design meet.",
     "cta_restaurant": "Visit the Restaurant",
-    "cta_casa": "Stay at Casa Olivea"
+    "cta_casa": "Stay at Casa Olivea",
+    "meta": {
+      "title": "Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
+      "description": "A sanctuary where nature, nourishment and design meet—restaurant, café and rooms in Valle de Guadalupe, Ensenada, Baja California.",
+      "keywords": ["Olivea", "Valle de Guadalupe", "Ensenada", "restaurant", "cafe", "hotel", "farm-to-table"],
+      "ogImage": "/images/seo/home-og.jpg"
+    }
   },
   "metadata": {
-    "description": "A farm-to-table sanctuary where nature, nourishment, and design meet."
+    "description": "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+    "siteName": "Olivea",
+    "twitter": "@yourhandle",
+    "ogDefault": "/images/seo/default-og.jpg"
   },
   "drawer": {
     "main": {
@@ -280,11 +141,20 @@
       "legal": "Legal & Policies",
       "seeMore": "See More",
       "hide": "Hide",
-      "copyright": "© 2025 Inmobiliaria MYA by DH"
+      "copyright": "© 2025 Casa Olivea"
     }
-  } ,
+  },
   "footer": {
-   "careers":   "Work with Us",
-   "legal":     "Legal & Policies"
- }
+    "careers": "Work with Us",
+    "legal": "Legal & Policies"
+  },
+  "notFound": {
+    "message": "The page you're looking for doesn't exist.",
+    "cta": "Return Home",
+    "meta": {
+      "title": "Page not found | Olivea",
+      "description": "The page you’re looking for doesn’t exist. Return to Olivea home.",
+      "ogImage": "/images/seo/default-og.jpg"
+    }
+  }
 }

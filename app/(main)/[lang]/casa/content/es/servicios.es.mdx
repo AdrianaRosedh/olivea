@@ -1,0 +1,34 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="servicios"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Servicios</h2></Reveal>}
+>
+  <Sub id="conectividad" preset="up">
+    Wi-Fi rápido, enchufes universales y USB-C en los puntos clave. Mesa sencilla, silla cómoda
+    y buena luz para leer o escribir.
+  </Sub>
+
+  <Sub id="confort_termico" preset="left">
+    Blackout efectivo, ventilación natural y clima regulable. Ropa de cama transpirable y
+    almohadas de distintas densidades bajo solicitud.
+  </Sub>
+
+  <Sub id="agua_amenities" preset="right">
+    Agua filtrada en cristal, vasos reales y amenities rellenables de aroma neutro.
+    Secadora, plancha y caja fuerte en habitación.
+  </Sub>
+
+  <Sub id="accesibilidad" preset="fade">
+    Habitaciones en planta baja bajo petición, luz de cortesía nocturna y pasillos amplios.
+    Estacionamiento dentro de la propiedad y rutas señalizadas.
+  </Sub>
+
+  <Sub id="concierge" preset="up">
+    Concierge por WhatsApp para recomendaciones y reservas. Check-in 15:00 / Check-out 11:00.
+    Espacio libre de humo; mascotas bajo solicitud. Cancelación flexible según tarifa.
+  </Sub>
+</StickyBlock>

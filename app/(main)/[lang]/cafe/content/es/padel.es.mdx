@@ -1,0 +1,34 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="padel"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Pádel</h2></Reveal>}
+>
+  <Sub id="canchas" preset="up">
+    Un juego en parejas y una excusa perfecta para moverse. Nuestras canchas son modernas y bien cuidadas.
+  </Sub>
+
+  <Sub id="luz" preset="left">
+    Contamos con iluminación para extender la sesión y mantener un ritmo amable con el día.
+  </Sub>
+
+  {/* imagen: /images/cafe/padel.jpg */}
+  <ParallaxImage
+    src="/images/cafe/padel.jpg"
+    alt="Canchas de pádel en Olivea Café"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="juego" preset="right">
+    Reservar es sencillo; el pádel complementa el ambiente en el que habitamos la Experiencia Olivea.
+  </Sub>
+
+  <Sub id="vida" preset="fade">
+    Además de buen café y pan, celebramos la vida sana: clima, espacios y sol juegan a favor.
+  </Sub>
+</StickyBlock>

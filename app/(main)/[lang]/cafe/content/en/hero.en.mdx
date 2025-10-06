@@ -2,18 +2,19 @@ import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
 
 <section id="hero" className="relative">
+  {/* image: /images/cafe/hero.jpg */}
   <ParallaxImage
-    src="/images/farm/hero.jpg"
-    alt="Olivea Farm to Table — our garden"
+    src="/images/cafe/hero.jpg"
+    alt="Olivea Café — bar, patio and house bread"
     heightVh={92}
     speed={0.42}
     priority
   />
   <div className="pointer-events-none absolute inset-0 grid place-items-center">
     <Reveal y={16} delay={0.1} className="text-center pointer-events-auto">
-      <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">Olivea Farm to Table</h1>
+      <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">Olivea Café</h1>
       <p className="mt-4 max-w-2xl mx-auto text-base md:text-lg text-black/75">
-        Garden, kitchen and table—an seven-course seasonal journey shaped by the Valley.
+        Coffee with memory, house bread and unhurried mornings.
       </p>
     </Reveal>
   </div>

@@ -1,0 +1,39 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="diseno"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Diseño</h2></Reveal>}
+>
+  <Sub id="luz" preset="up">
+    La luz guía la arquitectura: suave por la mañana, cálida al caer la tarde.
+    Evitamos deslumbramientos; preferimos luz indirecta y amable.
+  </Sub>
+
+  <Sub id="acustica" preset="left">
+    El sonido se calma con masa y textiles: muros sólidos, cortinas con cuerpo y tapetes.
+    Buscamos un silencio que deje oír el Valle.
+  </Sub>
+
+  {/* imagen: /images/casa/diseno.jpg */}
+  <ParallaxImage
+    src="/images/casa/diseno.jpg"
+    alt="Materiales honestos: piedra, madera, lino"
+    heightVh={48}
+    speed={0.24}
+    scale={[1.04,1]}
+  />
+
+  <Sub id="materiales" preset="right">
+    Piedra, madera, lino y barro. Texturas que envejecen bien y aromas neutros;
+    superficies que invitan a tocar y reposar.
+  </Sub>
+
+  <Sub id="sostenibilidad" preset="fade">
+    Agua en cristal, amenities rellenables y solar. Menos plástico, más eficiencia:
+    sostenibilidad que se siente sin anunciarse.
+  </Sub>
+</StickyBlock>

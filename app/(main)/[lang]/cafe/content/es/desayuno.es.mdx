@@ -1,0 +1,35 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="desayuno"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Desayuno</h2></Reveal>}
+>
+  <Sub id="sazon" preset="up">
+    En el plato más sencillo buscamos sabor de casa y cercanía. Cada mañana, un gran inicio sin artificio.
+  </Sub>
+
+  <Sub id="origen" preset="left">
+    Ingredientes con seguimiento de origen; la carta respira con la estación y con el huerto.
+  </Sub>
+
+  {/* imagen: /images/cafe/desayuno.jpg */}
+  <ParallaxImage
+    src="/images/cafe/desayuno.jpg"
+    alt="Desayuno del huerto y sazón de casa"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="sustentable" preset="fade">
+    El diseño del menú responde a nuestra línea de sostenibilidad para toda la experiencia Olivea:
+    menos desperdicio, más intención.
+  </Sub>
+
+  <Sub id="manana" preset="right">
+    No inventamos historias para complacerte; traemos el cariño de casa con el mejor sazón para tus mañanas.
+  </Sub>
+</StickyBlock>

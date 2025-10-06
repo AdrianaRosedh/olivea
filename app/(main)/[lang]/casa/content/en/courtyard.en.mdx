@@ -1,0 +1,33 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="patio"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Courtyard</h2></Reveal>}
+>
+  <Sub id="memoria" preset="up">
+    Like family homes of old, the central courtyard opens with two long corridors
+    where peace is felt in every step.
+  </Sub>
+
+  <Sub id="estetica_equilibrio" preset="left">
+    Aromatic plants, clean gravel, and at the center—a cheerful pool.
+    An aesthetic, balanced frame to recharge at any hour.
+  </Sub>
+
+  {/* image: /images/casa/patio.jpg */}
+  <ParallaxImage
+    src="/images/casa/patio.jpg"
+    alt="Central courtyard — memory and serenity"
+    heightVh={50}
+    speed={0.26}
+    scale={[1.04, 1]}
+  />
+
+  <Sub id="serenidad_clima" preset="fade">
+    A comfort zone with a quiet gifted by nature and climate. It shelters you through every season.
+  </Sub>
+</StickyBlock>

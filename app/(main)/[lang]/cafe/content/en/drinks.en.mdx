@@ -1,0 +1,26 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="bebidas"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Drinks</h2></Reveal>}
+>
+  <Sub id="espresso" preset="up">
+    Espresso calibrated each morning—sweetness and acidity in balance.
+    Classic and alternative milks available.
+  </Sub>
+
+  <Sub id="filter" preset="left">
+    Clean filter methods—V60, Chemex, press. Ground to order; recipe by origin.
+  </Sub>
+
+  <Sub id="tea" preset="right">
+    Teas and infusions with appropriate water temperature and mineral profile; local honey and garden citrus.
+  </Sub>
+
+  <Sub id="cold" preset="fade">
+    Seasonal colds: cold brew, lemonades, kombucha and non-alcoholic pairings for the day.
+  </Sub>
+</StickyBlock>

@@ -1,0 +1,32 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="patio"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Patio</h2></Reveal>}
+>
+  <Sub id="memoria" preset="up">
+    Como las casas de antaño, el patio central abre con dos pasillos largos donde la paz se siente a cada paso.
+  </Sub>
+
+  <Sub id="estetica_equilibrio" preset="left">
+    Plantas aromáticas, grava limpia y, al centro, una piscina alegre.
+    Un cuadro estético y equilibrado para recargar energía a cualquier hora.
+  </Sub>
+
+  {/* imagen: /images/casa/patio.jpg */}
+  <ParallaxImage
+    src="/images/casa/patio.jpg"
+    alt="Patio central — memoria y serenidad"
+    heightVh={50}
+    speed={0.26}
+    scale={[1.04, 1]}
+  />
+
+  <Sub id="serenidad_clima" preset="fade">
+    Un área de confort donde el clima y la naturaleza regalan silencio. Cobija en todas las estaciones.
+  </Sub>
+</StickyBlock>

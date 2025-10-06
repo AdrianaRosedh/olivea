@@ -1,0 +1,37 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="habitaciones"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Rooms</h2></Reveal>}
+>
+  <Sub id="esencia" preset="blur-up">
+    We’re a warm extension of your home. Fourteen rooms named after aromatic plants
+    welcome you with what matters most: rest and peace.
+  </Sub>
+
+  <Sub id="confort_detalle" preset="up">
+    Beds, linens and every detail are chosen for comfort. Filtered water in glass is refreshed
+    daily; we avoid visual noise so sleep comes easily.
+  </Sub>
+
+  {/* image: /images/casa/room.jpg */}
+  <ParallaxImage
+    src="/images/casa/room.jpg"
+    alt="Room — light, order and calm"
+    heightVh={48}
+    speed={0.24}
+  />
+
+  <Sub id="amplitud_luz" preset="left">
+    Rooms and bathrooms are generous; natural light plays a central role.
+    It feels like arriving at your own room—and letting the space settle you.
+  </Sub>
+
+  <Sub id="paz_silencio" preset="fade">
+    You’ll find a dryer, iron and safe, but above all: quiet and harmony in every room.
+  </Sub>
+</StickyBlock>

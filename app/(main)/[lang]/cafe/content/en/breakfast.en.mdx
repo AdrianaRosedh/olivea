@@ -1,0 +1,36 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="desayuno"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Breakfast</h2></Reveal>}
+>
+  <Sub id="flavor" preset="up">
+    On the simplest plate, we highlight home flavor and nearby produce.
+    Each morning begins well—without ornament.
+  </Sub>
+
+  <Sub id="source" preset="left">
+    Ingredients are followed back to source; the menu breathes with the season and with the garden.
+  </Sub>
+
+  {/* image: /images/cafe/breakfast.jpg */}
+  <ParallaxImage
+    src="/images/cafe/breakfast.jpg"
+    alt="Breakfast from the garden"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="sustainable" preset="fade">
+    The menu design follows our sustainability line for the whole Olivea experience:
+    less waste, more intention.
+  </Sub>
+
+  <Sub id="morning" preset="right">
+    No made-up stories—just the warmth of home with the right seasoning for your morning.
+  </Sub>
+</StickyBlock>

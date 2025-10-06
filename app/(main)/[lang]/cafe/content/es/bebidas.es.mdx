@@ -1,0 +1,25 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="bebidas"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Bebidas</h2></Reveal>}
+>
+  <Sub id="espresso" preset="up">
+    Espresso calibrado cada mañana; dulzor y acidez en equilibrio. Leches clásicas y vegetales a elección.
+  </Sub>
+
+  <Sub id="filtro" preset="left">
+    Métodos de filtro limpios: V60, Chemex y prensa. Molido al momento y receta por origen.
+  </Sub>
+
+  <Sub id="te" preset="right">
+    Tés e infusiones con agua en temperatura y mineralidad adecuadas; miel local y cítricos del huerto.
+  </Sub>
+
+  <Sub id="frio" preset="fade">
+    Fríos de estación: cold brew, limonadas, kombucha y bebidas sin alcohol para acompañar el día.
+  </Sub>
+</StickyBlock>

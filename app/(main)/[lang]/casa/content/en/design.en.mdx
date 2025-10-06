@@ -1,0 +1,39 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="diseno"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Design</h2></Reveal>}
+>
+  <Sub id="luz" preset="up">
+    Natural light leads the architecture: soft in the morning, warmer by afternoon.
+    We avoid glare and favor indirect, gentle lighting.
+  </Sub>
+
+  <Sub id="acustica" preset="left">
+    Sound is calmed by mass and textiles—solid walls, weighted curtains, soft rugs.
+    The goal is a silence that lets you hear the Valley: wind, leaves, water.
+  </Sub>
+
+  {/* image: /images/casa/diseno.jpg */}
+  <ParallaxImage
+    src="/images/casa/diseno.jpg"
+    alt="Honest materials: stone, wood, linen"
+    heightVh={48}
+    speed={0.24}
+    scale={[1.04,1]}
+  />
+
+  <Sub id="materiales" preset="right">
+    Honest materials—stone, wood, linen and clay. Textures that age well and neutral aromas;
+    surfaces that invite you to touch and linger.
+  </Sub>
+
+  <Sub id="sostenibilidad" preset="fade">
+    Glass water, refillable amenities and solar power. Less plastic, more efficiency—
+    sustainability you feel without shouting.
+  </Sub>
+</StickyBlock>

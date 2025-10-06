@@ -1,232 +1,64 @@
 {
   "about": {
     "title": "Sobre Olivea",
-    "description": "Nuestra historia, filosofía y las personas detrás de la visión."
+    "description": "Nuestra historia, filosofía y las personas detrás de la visión.",
+    "meta": {
+      "title": "Sobre Olivea | Hospitalidad de granja a la mesa en Valle de Guadalupe",
+      "description": "Cómo Olivea lleva la luz, la tierra y a los productores del Valle a la mesa: equipo, valores y diseño en Ensenada, Baja California.",
+      "keywords": ["Olivea", "sobre", "Valle de Guadalupe", "Ensenada", "granja a la mesa", "equipo", "diseño"],
+      "ogImage": "/images/seo/about-og.jpg"
+    }
   },
   "cafe": {
     "title": "Olivea Café",
-    "description": "",
+    "description": "Café de casa, pan propio y mañanas serenas en Valle de Guadalupe.",
     "error": "Error al cargar el menú:",
-    "sections": {
-      "all_day": {
-        "title": "Experiencias",
-        "description": "",
-        "subsections": {
-          "breakfast_coffee_pastries": {
-            "title": "Desayuno & Repostería",
-            "description": ""
-          },
-          "all_day_evening_tapas": {
-            "title": "Vino & Tapas",
-            "description": ""
-          }
-        }
-    },
-      "padel": {
-        "title": "Pádel",
-        "description": "",
-        "subsections": {
-          "booking": {
-            "title": "Reservas de Cancha",
-            "description": ""
-          },
-          "guest_benefits": {
-            "title": "Privilegios para Huéspedes",
-            "description": ""
-          }
-        }
-      },
-      "menu": {
-        "title": "El Huerto",
-        "description": "",
-        "subsections": {
-          "signature_dishes": {
-            "title": "Creaciones del Chef",
-            "description": ""
-          },
-          "beverages": {
-            "title": "Bebidas & Matcha Ceremonial",
-            "description": ""
-          },
-          "evening_wine_tapas": {
-            "title": "Vino y Quesos por la Noche",
-            "description": ""
-          },
-          "sustainable_sourcing": {
-            "title": "Ingredientes Puros",
-            "description": ""
-          }
-        }
-      },
-      "community": {
-        "title": "Comunidad",
-        "description": "",
-        "subsections": {
-          "industry_day": {
-            "title": "Martes de Industria",
-            "description": ""
-          },
-          "discounts": {
-            "title": "Descuentos Locales",
-            "description": ""
-          },
-          "events": {
-            "title": "Eventos & Talleres",
-            "description": ""
-          }
-        }
-      },
-      "ambience": {
-        "title": "Ambiente",
-        "description": "",
-        "subsections": {
-          "playlists": {
-            "title": "Música Curada",
-            "description": ""
-          },
-          "garden_immersion": {
-            "title": "Inmersión en el Jardín",
-            "description": ""
-          }
-        }
-      }
+    "meta": {
+      "title": "Olivea Café | Café, pan y mañanas en Valle de Guadalupe",
+      "description": "Café de origen tostado en Ensenada, pan de casa y patio tranquilo. Desayuno desde el huerto en Olivea Café.",
+      "keywords": ["Olivea Café", "café", "desayuno", "panadería", "Valle de Guadalupe", "Ensenada", "pádel"],
+      "ogImage": "/images/seo/cafe-og.jpg"
     }
   },
   "casa": {
     "title": "Casa Olivea",
-    "description": "Quédate con nosotros. Habitaciones, servicios y reservas próximamente.",
-    "sections": {
-      "rooms": {
-        "title": "Habitaciones",
-        "description": "Espacios tranquilos diseñados con comodidad y elegancia.",
-        "subsections": {
-          "room_types": {
-            "title": "Tipo",
-            "description": "Habitación Deluxe: Habitación para 2 personas, con cama king size, 2 buros con lámpara de lectura, ac, calefacción, ventilador de techo, cortinas black out, mesa con 2 sillas, closet, ganchos de ropa, plancha, tabla para planchar, secadora de cabello, toallas, batas, amenidades de aseo personal, agua natural embotellada."
-          },
-          "in_room_amenities": {
-            "title": "Servicios",
-            "description": "Aire acondicionado, Bar, Agua embotellada, Calefacción, Aire acondicionado, Masajes, Desayuno incluido, Restaurante, Internet, Masajes."
-          },
-          "design_decor": {
-            "title": "Diseño",
-            "description": "Muebles artesanales, arte local y paletas de colores tierra."
-          }
-        }
-      },
-      "mornings": {
-        "title": "Amaneceres",
-        "description": "Desayunos frescos y rituales de bienestar al amanecer.",
-        "subsections": {
-          "breakfast_service": {
-            "title": "Desayuno",
-            "description": "Jugos frescos, repostería y huevos al gusto."
-          },
-          "garden_to_table": {
-            "title": "Huerto",
-            "description": "Hierbas y frutas de temporada cosechadas esa misma mañana."
-          },
-          "wellness_rituals": {
-            "title": "Bienestar",
-            "description": "Jugar Padel por las mañanas con un cafe"
-          }
-        }
-      },
-      "experiences": {
-        "title": "Experiencias",
-        "description": "Deporte, naturaleza y talleres prácticos.",
-        "subsections": {
-          "padel_courts": {
-            "title": "Pádel",
-            "description": "Reservas, lecciones privadas y torneos."
-          },
-          "garden_tours": {
-            "title": "Tours",
-            "description": "Conoce al jardinero y participa en talleres de siembra."
-          },
-          "spa_wellness": {
-            "title": "Spa",
-            "description": "Masajes, tratamientos de belleza y aromaterapia."
-          }
-        }
-      },
-      "dining": {
-        "title": "Gastronomía",
-        "description": "Desde bocados junto al fuego hasta mesa del chef privada.",
-        "subsections": {
-          "chef_table": {
-            "title": "Mesa Chef",
-            "description": "Desayunos exclusivos con el chef."
-          },
-          "in_room_dining": {
-            "title": "Servicio",
-            "description": "Menús personalizados en la habitación."
-          },
-          "firepit_evenings": {
-            "title": "Fogata",
-            "description": "S’mores y cuentos junto al fuego."
-          }
-        }
-      },
-      "wellness": {
-        "title": "Bienestar",
-        "description": "Actividades para mente, cuerpo y alma.",
-        "subsections": {
-          "yoga_classes": {
-            "title": "Walk and Wine",
-            "description": "Camina 2km y termina degustando los vinos de Cava Maciel"
-          },
-          "bikes_hikes": {
-            "title": "Aire Libre",
-            "description": "Les recomendamos experencias por Valle de Guadalupe."
-          },
-          "art_music": {
-            "title": "Cultura",
-            "description": "Vive las raices del Valle"
-          }
-        }
-      },
-      "community": {
-        "title": "Comunidad",
-        "description": "Compromiso, alianzas y cultura local.",
-        "subsections": {
-          "zero_waste": {
-            "title": "Cero Desechos",
-            "description": "Compostaje, reciclaje y reutilización de cosechas."
-          },
-          "local_partners": {
-            "title": "Aliados",
-            "description": "Colaboración con granjas, bodegas y artesanos cercanos."
-          },
-          "industry_tuesdays": {
-            "title": "Martes Pro",
-            "description": "10% de descuento para profesionales de hospitalidad."
-          }
-        }
-      },
-      "packages": {
-        "title": "Paquetes",
-        "description": "Experiencias a medida: romance, familia y bienestar.",
-        "subsections": {
-          "gastronomic": {
-            "title": "Olivea Farm To Table",
-            "description": "Duerme y cena para una estancia Michelin"
-          }
-        }
-      }
+    "description": "Quédate con nosotros. Habitaciones, servicios y reservas.",
+    "meta": {
+      "title": "Casa Olivea | Habitaciones y diseño en Valle de Guadalupe",
+      "description": "Luz, silencio y confort honesto. Habitaciones con materiales naturales, blackout efectivo y amenities pensadas—Casa Olivea, Ensenada.",
+      "keywords": ["Casa Olivea", "hotel", "habitaciones", "Valle de Guadalupe", "Ensenada", "diseño"],
+      "ogImage": "/images/seo/casa-og.jpg"
     }
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": ""
+    "description": "Huerto, cocina y mesa—menú de degustación marcado por la estación y el suelo.",
+    "meta": {
+      "title": "Olivea Farm-to-Table | Menú de degustación en Valle de Guadalupe",
+      "description": "Del huerto a la mesa: menú de 8 tiempos, maridaje sin alcohol y una sala que sigue el ritmo del Valle.",
+      "keywords": ["granja a la mesa", "menú degustación", "Valle de Guadalupe", "Ensenada", "maridaje sin alcohol", "restaurante"],
+      "ogImage": "/images/seo/restaurant-og.jpg"
+    }
   },
   "contact": {
     "title": "Contacto",
-    "description": "Prensa, consultas y cómo contactarnos."
+    "description": "Prensa, consultas y cómo contactarnos.",
+    "meta": {
+      "title": "Contacto Olivea | Reservas y prensa",
+      "description": "Escríbenos para reservas, eventos y prensa en Valle de Guadalupe, Ensenada.",
+      "keywords": ["Olivea contacto", "reservas", "prensa", "Valle de Guadalupe", "Ensenada"],
+      "ogImage": "/images/seo/contact-og.jpg"
+    }
   },
   "sustainability": {
     "title": "Sostenibilidad",
-    "description": "Nuestro compromiso con prácticas sostenibles y la gestión ambiental."
+    "description": "Nuestro compromiso con prácticas sostenibles y gestión ambiental.",
+    "meta": {
+      "title": "Sostenibilidad en Olivea | Agua, residuos y productores locales",
+      "description": "Rellenables, cuidado del agua, compras responsables y compost: así reducimos residuos y apoyamos a productores del Valle.",
+      "keywords": ["sostenibilidad", "rellenables", "compost", "productores locales", "Valle de Guadalupe", "Olivea"],
+      "ogImage": "/images/seo/sustainability-og.jpg"
+    }
   },
   "journal": {
     "title": "Diario de Olivea",
@@ -234,37 +66,76 @@
     "loading": "Cargando entradas…",
     "empty": "Aún no hay entradas disponibles.",
     "error": "Error al cargar el diario:",
-    "by": "por"
+    "by": "por",
+    "meta": {
+      "title": "Diario de Olivea | Historias desde el Valle",
+      "description": "Notas del huerto y la cocina: técnica, productores y temporada en Valle de Guadalupe.",
+      "keywords": ["Diario Olivea", "historias", "Valle de Guadalupe", "temporada", "productores"],
+      "ogImage": "/images/seo/journal-og.jpg"
+    }
   },
   "legal": {
     "title": "Información Legal",
-    "description": "Detalles legales y términos para todas las propiedades Olivea."
+    "description": "Detalles legales y términos para todas las propiedades Olivea.",
+    "meta": {
+      "title": "Avisos legales y políticas | Olivea",
+      "description": "Entidad legal, privacidad, cookies y políticas de reserva de Olivea.",
+      "keywords": ["legal", "privacidad", "políticas", "Olivea"],
+      "ogImage": "/images/seo/legal-og.jpg"
+    }
   },
   "reservations": {
     "title": "Reservas",
-    "description": "Elige dónde te gustaría reservar: restaurante, café u hotel."
+    "description": "Elige dónde te gustaría reservar: restaurante, café u hotel.",
+    "meta": {
+      "title": "Reservas | Restaurante, Café y Casa Olivea",
+      "description": "Reserva el menú de degustación, un desayuno en Olivea Café o tu estancia en Casa Olivea, Valle de Guadalupe.",
+      "keywords": ["reservas", "restaurante", "café", "hotel", "Valle de Guadalupe", "Ensenada"],
+      "ogImage": "/images/seo/reservations-og.jpg"
+    }
   },
   "mesadelvalle": {
-    "title":    "Mesa del Valle",
-    "tagline":  "Una plataforma colectiva que une las voces más destacadas de la gastronomía, el vino y la hospitalidad del Valle de Guadalupe y Ensenada.",
+    "title": "Mesa del Valle",
+    "tagline": "Una plataforma colectiva que une a las voces de gastronomía, vino y hospitalidad del Valle de Guadalupe y Ensenada.",
     "description": [
       "Nacida del deseo compartido de elevar la identidad de la región, Mesa del Valle reúne a chefs, enólogos, hoteleros y artesanos para contar una historia unificada de excelencia, sostenibilidad y orgullo cultural.",
       "A través de colaboraciones estratégicas, difusión internacional y eventos conjuntos, buscamos posicionar al Valle de Guadalupe como la capital gastronómica y cultural de América Latina.",
       "La mesa está puesta. El futuro se comparte."
-    ]
+    ],
+    "meta": {
+      "title": "Mesa del Valle | Colectivo del Valle de Guadalupe",
+      "description": "Chefs, enólogos, hoteleros y artesanos que proyectan la identidad del Valle—prensa, colaboraciones y eventos compartidos.",
+      "keywords": ["Mesa del Valle", "colectivo", "prensa", "Valle de Guadalupe", "vino", "gastronomía"],
+      "ogImage": "/images/seo/mesa-og.jpg"
+    }
   },
   "notFound": {
     "message": "La página que buscas no existe.",
-    "cta": "Volver al inicio"
+    "cta": "Volver al inicio",
+    "meta": {
+      "title": "Página no encontrada | Olivea",
+      "description": "La página que buscas no existe. Regresa al inicio de Olivea.",
+      "keywords": ["404", "no encontrada", "Olivea"],
+      "ogImage": "/images/seo/default-og.jpg"
+    }
   },
   "home": {
     "title": "Bienvenidos a Olivea",
-    "subtitle": "Un santuario de la granja a la mesa donde la naturaleza, la comida y el diseño se unen.",
+    "subtitle": "Un santuario de granja a la mesa donde naturaleza, alimento y diseño se unen.",
     "cta_restaurant": "Visitar el Restaurante",
-    "cta_casa": "Hospedarse en Casa Olivea"
+    "cta_casa": "Hospedarse en Casa Olivea",
+    "meta": {
+      "title": "Olivea | Hospitalidad de granja a la mesa en Valle de Guadalupe",
+      "description": "Un santuario donde naturaleza, alimento y diseño se encuentran—restaurante, café y habitaciones en Valle de Guadalupe, Ensenada, Baja California.",
+      "keywords": ["Olivea", "Valle de Guadalupe", "Ensenada", "restaurante", "café", "hotel", "granja a la mesa"],
+      "ogImage": "/images/seo/home-og.jpg"
+    }
   },
   "metadata": {
-    "description": "Un santuario de la granja a la mesa donde la naturaleza, la comida y el diseño se unen."
+    "description": "Un santuario de granja a la mesa donde naturaleza, alimento y diseño se unen.",
+    "siteName": "Olivea",
+    "twitter": "@tuusuario",
+    "ogDefault": "/images/seo/default-og.jpg"
   },
   "drawer": {
     "main": {
@@ -274,17 +145,26 @@
     },
     "more": {
       "journal": "Diario",
-      "sustainability": "Sustentabilidad",
+      "sustainability": "Sostenibilidad",
       "awards": "Premios y Reseñas",
       "contact": "Contáctanos",
       "legal": "Avisos Legales",
-      "seeMore": "Ver Más",
+      "seeMore": "Ver más",
       "hide": "Ocultar",
-      "copyright": "© 2025 Inmobiliaria MYA by DH"
+      "copyright": "© 2025 Casa Olivea"
     }
   },
   "footer": {
-    "careers":   "Trabaja con Nosotros",
-    "legal":     "Legal & Politicas"
- }  
+    "careers": "Trabaja con Nosotros",
+    "legal": "Avisos Legales & Políticas"
+  },
+  "notFound": {
+    "message": "La página que buscas no existe.",
+    "cta": "Volver al inicio",
+    "meta": {
+      "title": "Página no encontrada | Olivea",
+      "description": "La página que buscas no existe. Regresa al inicio de Olivea.",
+      "ogImage": "/images/seo/default-og.jpg"
+    }
+  }
 }

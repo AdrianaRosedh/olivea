@@ -1,96 +1,56 @@
-import { Suspense } from "react";
-import type { Metadata, Viewport } from "next";
-import { loadLocale } from "@/lib/i18n";
-import Casa from "./content.mdx";
-import TrackerLoader from "@/components/animations/TrackerLoader";
-import UnderConstructionNotice from "@/components/forms/UnderConstructionNotice";
+import { Suspense } from 'react';
+import type { Metadata, Viewport } from 'next';
+import { loadLocale } from '@/lib/i18n';
+import ContentEs from './ContentEs';
+import ContentEn from './ContentEn';
+import UnderConstructionNotice from '@/components/forms/UnderConstructionNotice';
 
+type Lang = 'en' | 'es';
 
 export async function generateStaticParams() {
-  return (["en", "es"] as const).map((lang) => ({ lang }));
+  return (['en','es'] as const).map(lang => ({ lang }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { lang: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { lang: Lang } }): Promise<Metadata> {
   const { lang: L, dict } = await loadLocale(params);
   return {
-    title:       dict.casa.title,
-    description: dict.casa.description,
-    alternates:  {
-      canonical: `https://oliveafarmtotable.com/${L}/casa`,
+    title: dict.farmtotable.title,
+    description: dict.farmtotable.description,
+    metadataBase: new URL('https://oliveafarmtotable.com'),
+    alternates: {
+      canonical: `https://oliveafarmtotable.com/${L}/farmtotable`,
       languages: {
-        en: `https://oliveafarmtotable.com/en/casa`,
-        es: `https://oliveafarmtotable.com/es/casa`,
+        en: `https://oliveafarmtotable.com/en/farmtotable`,
+        es: `https://oliveafarmtotable.com/es/farmtotable`,
       },
     },
     openGraph: {
-      title:       dict.casa.title,
-      description: dict.casa.description,
-      locale:      L,
-      type:        "website",
-      images: [
-        {
-          url:    "/images/casa-og.png",
-          width:  1200,
-          height: 630,
-          alt:    dict.casa.title,
-        },
-      ],
+      title: dict.farmtotable.title,
+      description: dict.farmtotable.description,
+      locale: L,
+      type: 'website',
+      images: [{ url: '/images/farmtotable.png', width: 1200, height: 630, alt: dict.farmtotable.title }],
     },
   };
 }
 
 export const viewport: Viewport = {
-  width:        "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor:   "#65735b",
+  themeColor: '#65735b',
 };
 
-export default async function Page({
-  params,
-}: {
-  params: { lang: string };
-}) {
-  const { dict } = await loadLocale(params);
-
-  // build the same sectionIds array for the tracker
-  const SECTION_ORDER = [
-    "rooms",
-    "mornings",
-    "experiences",
-    "dining",
-    "wellness",
-    "community",
-    "packages",
-  ];
-  const sectionIds = SECTION_ORDER.flatMap((key) => [
-    key,
-    ...(dict.casa.sections[key].subsections
-      ? Object.keys(dict.casa.sections[key].subsections)
-      : []),
-  ]);
+export default async function Page({ params }: { params: { lang: Lang } }) {
+  const { lang: L } = await loadLocale(params);
+  const Content = L === 'en' ? ContentEn : ContentEs;
 
   return (
     <div suppressHydrationWarning>
-      <Suspense
-        fallback={
-          <div className="min-h-screen flex items-center justify-center">
-            Loading…
-          </div>
-        }
-      >
-        {/* Server-rendered MDX */}
-        <Casa dict={dict} />
-
-        {/* Client-only mobile tracker */}
-        <TrackerLoader sectionIds={sectionIds} />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
+        <Content />
       </Suspense>
-      {/* Under construction popup (ES first, then EN) */}
-        <UnderConstructionNotice storageScope="route"/>
+      <UnderConstructionNotice storageScope="route" />
     </div>
   );
 }

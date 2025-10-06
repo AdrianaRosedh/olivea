@@ -1,0 +1,34 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="padel"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Padel</h2></Reveal>}
+>
+  <Sub id="courts" preset="up">
+    A doubles game and the perfect excuse to move. Our courts are modern and well-kept.
+  </Sub>
+
+  <Sub id="lights" preset="left">
+    Lighting extends play and keeps the rhythm friendly with the day.
+  </Sub>
+
+  {/* image: /images/cafe/padel.jpg */}
+  <ParallaxImage
+    src="/images/cafe/padel.jpg"
+    alt="Padel courts at Olivea Café"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="play" preset="right">
+    Booking is simple; padel complements the atmosphere we inhabit at Olivea.
+  </Sub>
+
+  <Sub id="life" preset="fade">
+    Beyond good coffee and bread, we enjoy a healthy life: climate, space and sun on our side.
+  </Sub>
+</StickyBlock>

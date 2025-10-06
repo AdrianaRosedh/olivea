@@ -1,0 +1,37 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="habitaciones"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Habitaciones</h2></Reveal>}
+>
+  <Sub id="esencia" preset="blur-up">
+    Somos la extensión cálida de tu casa. Catorce habitaciones con nombres de plantas aromáticas
+    te reciben con lo que importa: descanso y paz.
+  </Sub>
+
+  <Sub id="confort_detalle" preset="up">
+    Camas, textiles y cada detalle se eligieron para el confort. Agua filtrada en cristal a diario,
+    sin ruido visual: el sueño llega fácil.
+  </Sub>
+
+  {/* imagen: /images/casa/room.jpg */}
+  <ParallaxImage
+    src="/images/casa/room.jpg"
+    alt="Habitación — luz, orden y calma"
+    heightVh={48}
+    speed={0.24}
+  />
+
+  <Sub id="amplitud_luz" preset="left">
+    Habitaciones y baños generosos; la luz natural es protagonista.
+    Es llegar y sentir que el espacio te acomoda.
+  </Sub>
+
+  <Sub id="paz_silencio" preset="fade">
+    Secadora, plancha y caja fuerte; pero sobre todo, silencio y armonía en cada habitación.
+  </Sub>
+</StickyBlock>

@@ -1,0 +1,40 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="experiencia"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Experience</h2></Reveal>}
+>
+  <Sub id="origin" preset="blur-up">
+    Our coffee begins with many hands: cultivation, harvest, processing and care at origin.
+    Each bean holds a story of soil, climate and patience.
+  </Sub>
+
+  <Sub id="bean" preset="up">
+    We select traceable lots and honor each producer’s work and terroir profile.
+    Every kilo arrives with a name and a place.
+  </Sub>
+
+  {/* image: /images/cafe/roast.jpg */}
+  <ParallaxImage
+    src="/images/cafe/roast.jpg"
+    alt="Precise roast to elevate origin"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="roast" preset="left">
+    Roasting is precise and restrained—clean acidity and natural sweetness without masking origin.
+  </Sub>
+
+  <Sub id="water" preset="right">
+    Water is part of the recipe: hardness and temperature calibrated so the bean can tell its story.
+  </Sub>
+
+  <Sub id="bar" preset="fade">
+    At the bar we serve coffee with memory—grown in Veracruz, roasted in Ensenada and poured with a smile.
+  </Sub>
+</StickyBlock>

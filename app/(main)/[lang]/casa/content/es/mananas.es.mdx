@@ -1,0 +1,33 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="mananas"
+  className="main-section snap-center"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Mañanas</h2></Reveal>}
+>
+  <Sub id="desayuno" preset="up">
+    Desayuno desde el huerto: pan del día, fruta de temporada, mantequilla batida y mermeladas de casa.
+    Ligero o completo, a tu ritmo.
+  </Sub>
+
+  <Sub id="programa_cafe" preset="left">
+    Café de origen y métodos limpios; té e infusiones a pedido.
+    Leches vegetales disponibles; molienda al momento para preservar los aromas.
+  </Sub>
+
+  {/* imagen: /images/casa/cafe.jpg */}
+  <ParallaxImage
+    src="/images/casa/cafe.jpg"
+    alt="Mañanas: café, luz y calma"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="ritmo" preset="fade">
+    Horario de piscina y “quiet hours” para cuidar el descanso. ¿Salida temprana?
+    Preparamos canasta con fruta, pan y bebida para llevar.
+  </Sub>
+</StickyBlock>

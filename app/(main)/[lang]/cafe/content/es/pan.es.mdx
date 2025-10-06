@@ -1,0 +1,34 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="pan"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Pan</h2></Reveal>}
+>
+  <Sub id="harinas" preset="up">
+    Nuestro amor por el pan es de toda la vida. Harinas elegidas con criterio; cortezas doradas y migas que invitan a untar.
+  </Sub>
+
+  <Sub id="recetas" preset="left">
+    Recetario propio y diálogo con panaderos de la región: escuela honesta y manos que amasan memoria.
+  </Sub>
+
+  {/* imagen: /images/cafe/pan.jpg */}
+  <ParallaxImage
+    src="/images/cafe/pan.jpg"
+    alt="Pan de casa — corteza, miga y aroma"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="obradores" preset="right">
+    Cada harina usada en nuestro pan tiene dos vertientes: nuestras recetas y la herencia de obradores locales.
+  </Sub>
+
+  <Sub id="rito" preset="fade">
+    Queremos que el pan complete tu café: bajo sombra, con brisa y con tiempo suficiente para conversar.
+  </Sub>
+</StickyBlock>

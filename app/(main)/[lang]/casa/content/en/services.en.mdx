@@ -1,0 +1,39 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+
+<StickyBlock
+  id="servicios"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Services</h2></Reveal>}
+>
+  {/* WI-FI */}
+  <Sub id="conectividad" preset="up">
+    Fast Wi-Fi, universal outlets and USB-C at key spots. Simple desk, comfortable chair,
+    good light for reading or writing.
+  </Sub>
+
+  {/* COMFORT */}
+  <Sub id="confort_termico" preset="left">
+    Effective blackout, natural ventilation and controllable climate.
+    Breathable linens; pillows of different densities on request.
+  </Sub>
+
+  {/* AMENITIES */}
+  <Sub id="agua_amenities" preset="right">
+    Filtered water in glass, real tumblers and refillable, neutral-aroma amenities.
+    In-room dryer, iron and safe.
+  </Sub>
+
+  {/* ACCESS */}
+  <Sub id="accesibilidad" preset="fade">
+    Ground-floor rooms on request, courtesy night-lights and wide corridors.
+    Parking within the property and clearly marked routes.
+  </Sub>
+
+  {/* CONCIERGE */}
+  <Sub id="concierge" preset="up">
+    WhatsApp concierge for local tips and bookings. Check-in 3:00 pm / Check-out 11:00 am.
+    Smoke-free policy; pets on request. Flexible cancellation per rate.
+  </Sub>
+</StickyBlock>

@@ -1,0 +1,41 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="experiencia"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Experiencia</h2></Reveal>}
+>
+  <Sub id="origen" preset="blur-up">
+    Nuestro café nace de muchas manos: cultivo, recolección, beneficio y cuidado en origen.
+    Cada grano contiene una historia de suelo, clima y paciencia.
+  </Sub>
+
+  <Sub id="grano" preset="up">
+    Seleccionamos lotes con trazabilidad; respetamos el trabajo del productor y el perfil que
+    expresa su terroir. Cada kilo llega con nombre y lugar.
+  </Sub>
+
+  {/* imagen: /images/cafe/tueste.jpg */}
+  <ParallaxImage
+    src="/images/cafe/tueste.jpg"
+    alt="Tueste preciso para resaltar el origen"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="tueste" preset="left">
+    El tueste es preciso y medido; buscamos elevar acidez limpia y dulzor natural, sin ocultar el origen.
+  </Sub>
+
+  <Sub id="agua" preset="right">
+    El agua es parte de la receta: dureza y temperatura calibradas para que el grano cuente su historia.
+  </Sub>
+
+  <Sub id="barra" preset="fade">
+    En barra servimos café con memoria; llega desde Veracruz, se tuesta en Ensenada y
+    se acompaña con una sonrisa. Con sabor a México.
+  </Sub>
+</StickyBlock>

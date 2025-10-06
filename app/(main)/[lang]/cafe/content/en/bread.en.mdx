@@ -1,0 +1,34 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
+import Reveal from '@/components/scroll/Reveal'
+import Sub from '@/components/scroll/Sub'
+import ParallaxImage from '@/components/scroll/ParallaxImage'
+
+<StickyBlock
+  id="pan"
+  className="main-section snap-center"
+  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Bread</h2></Reveal>}
+>
+  <Sub id="flours" preset="up">
+    Our love for bread is lifelong. Flours chosen with care; crusts that sing and crumbs that invite butter.
+  </Sub>
+
+  <Sub id="recipes" preset="left">
+    A house recipe book in dialogue with local bakers—honest craft and hands that knead memory.
+  </Sub>
+
+  {/* image: /images/cafe/bread.jpg */}
+  <ParallaxImage
+    src="/images/cafe/bread.jpg"
+    alt="House bread—crust, crumb and aroma"
+    heightVh={46}
+    speed={0.22}
+  />
+
+  <Sub id="bakers" preset="right">
+    Every flour we use carries two roots: our recipes and the legacy of regional bakehouses.
+  </Sub>
+
+  <Sub id="ritual" preset="fade">
+    Bread completes your coffee—under shade, with breeze, and enough time to talk.
+  </Sub>
+</StickyBlock>
