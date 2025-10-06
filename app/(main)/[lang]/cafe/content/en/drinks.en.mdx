@@ -3,24 +3,17 @@ import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
 
 <StickyBlock
-  id="bebidas"
+  id="drinks"
   className="main-section snap-center"
-  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Drinks</h2></Reveal>}
+  title={null}
+  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
 >
-  <Sub id="espresso" preset="up">
-    Espresso calibrated each morning—sweetness and acidity in balance.
-    Classic and alternative milks available.
-  </Sub>
+  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Drinks</h2></Reveal>
 
-  <Sub id="filter" preset="left">
-    Clean filter methods—V60, Chemex, press. Ground to order; recipe by origin.
-  </Sub>
-
-  <Sub id="tea" preset="right">
-    Teas and infusions with appropriate water temperature and mineral profile; local honey and garden citrus.
-  </Sub>
-
-  <Sub id="cold" preset="fade">
-    Seasonal colds: cold brew, lemonades, kombucha and non-alcoholic pairings for the day.
-  </Sub>
+  <div className="space-y-6 md:space-y-8">
+    <Sub id="espresso" preset="up">Dialed-in espresso each morning…</Sub>
+    <Sub id="filter" preset="left">Clean filter methods—V60, Chemex, press…</Sub>
+    <Sub id="tea" preset="right">Teas and infusions with proper water…</Sub>
+    <Sub id="cold" preset="fade">Seasonal colds: cold brew, lemonades, kombucha…</Sub>
+  </div>
 </StickyBlock>

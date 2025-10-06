@@ -3,37 +3,18 @@ import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
 
 <StickyBlock
-  id="servicios"
+  id="services"
   className="main-section snap-center"
-  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Services</h2></Reveal>}
+  title={null}
+  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
 >
-  {/* WI-FI */}
-  <Sub id="conectividad" preset="up">
-    Fast Wi-Fi, universal outlets and USB-C at key spots. Simple desk, comfortable chair,
-    good light for reading or writing.
-  </Sub>
+  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Services</h2></Reveal>
 
-  {/* COMFORT */}
-  <Sub id="confort_termico" preset="left">
-    Effective blackout, natural ventilation and controllable climate.
-    Breathable linens; pillows of different densities on request.
-  </Sub>
-
-  {/* AMENITIES */}
-  <Sub id="agua_amenities" preset="right">
-    Filtered water in glass, real tumblers and refillable, neutral-aroma amenities.
-    In-room dryer, iron and safe.
-  </Sub>
-
-  {/* ACCESS */}
-  <Sub id="accesibilidad" preset="fade">
-    Ground-floor rooms on request, courtesy night-lights and wide corridors.
-    Parking within the property and clearly marked routes.
-  </Sub>
-
-  {/* CONCIERGE */}
-  <Sub id="concierge" preset="up">
-    WhatsApp concierge for local tips and bookings. Check-in 3:00 pm / Check-out 11:00 am.
-    Smoke-free policy; pets on request. Flexible cancellation per rate.
-  </Sub>
+  <div className="space-y-6 md:space-y-8">
+    <Sub id="conectividad" preset="up">Fast Wi-Fi, universal outlets and USB-C at key spots…</Sub>
+    <Sub id="confort" preset="left">Effective blackout, natural ventilation and controllable climate…</Sub>
+    <Sub id="agua" preset="right">Filtered water in glass, refillable amenities…</Sub>
+    <Sub id="accesibilidad" preset="fade">Ground-floor rooms on request…</Sub>
+    <Sub id="concierge" preset="up">WhatsApp concierge for local tips and bookings…</Sub>
+  </div>
 </StickyBlock>

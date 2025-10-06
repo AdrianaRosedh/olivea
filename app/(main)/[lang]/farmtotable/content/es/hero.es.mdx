@@ -5,16 +5,19 @@ import HeroFarmLogo from '@/assets/herofarm.svg'   /* SVGR import */
 <section
   id="hero"
   className="
-    relative mx-auto w-[min(1100px,94vw)]
-    h-[calc(100svh-7rem-var(--mobile-nav-h,84px))]
+    relative mx-auto w-full
+    md:max-w-[min(1100px,92vw)]
+    -mt-2                 /* lift the card slightly on mobile */
     flex items-center justify-center
-    mt-0 pb-0
+    pb-0
   "
 >
   <div
     className="
       relative w-full
-      h-[calc(100svh-7rem-var(--mobile-nav-h,84px))]   /* longer card: no extra subtraction */
+      /* MOBILE: fill the viewport after header + bottom nav (use dvh) */
+      h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+6px)]
+      /* DESKTOP/TABLET caps */
       md:h-[720px] lg:h-[800px]
       overflow-hidden rounded-[28px]
       ring-1 ring-black/10
@@ -32,7 +35,6 @@ import HeroFarmLogo from '@/assets/herofarm.svg'   /* SVGR import */
       objectPosition="50% 40%"
     />
 
-    {/* Scrim + centered logo/phrase */}
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
 
@@ -45,7 +47,7 @@ import HeroFarmLogo from '@/assets/herofarm.svg'   /* SVGR import */
           </Reveal>
           <Reveal preset="up" delay={0.12}>
             <p className="mt-4 text-white/90 md:text-lg drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
-              Donde el huerto es la esencia.
+              Donde El Huerto Es La Esencia
             </p>
           </Reveal>
         </div>

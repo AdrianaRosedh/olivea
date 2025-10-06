@@ -42,6 +42,7 @@ type Override = Array<{ id: string; label: string; subs?: Array<{ id: string; la
 type StyleVars = React.CSSProperties & {
   ["--dock-gutter"]?: string;
   ["--mobile-nav-h"]?: string;
+  ["--header-h"]?: string; 
 };
 
 const mapSections = (
@@ -82,10 +83,21 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const dockGapPx   = 24;  // extra breathing room on both sides
   const dockGutter  = dockLeftPx + dockRightPx + dockGapPx * 2;
   const mobileBarPx = 84;
-
-  const mainStyle: StyleVars | undefined = !isMobile
-    ? { "--dock-gutter": `${dockGutter}px` }
-    : { "--mobile-nav-h": `${mobileBarPx}px` };
+  
+  const headerH = isMobile ? 64 : 112; 
+  const mainStyle: StyleVars | undefined = isMobile
+    ? {
+        // MOBILE: one symmetric gutter source (with notch support)
+        paddingLeft:  "max(16px, env(safe-area-inset-left))",
+        paddingRight: "max(16px, env(safe-area-inset-right))",
+        "--mobile-nav-h": `${mobileBarPx}px`,
+        "--header-h": `${headerH}px`,
+      }
+    : {
+        // DESKTOP: keep your dock gutter var
+        "--dock-gutter": `${dockGutter}px`,
+        "--header-h": `${headerH}px`,
+      };
 
   // ─── MOBILE BOTTOM NAV ITEMS ─────────────────────────────────────────────────
   const mobileNavItems = (() => {
@@ -136,7 +148,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
       {mounted && !isHome && <Navbar lang={lang} dictionary={dictionary} />}
 
-      <main className={isHome ? "p-0 m-0 overflow-hidden" : "max-w-7xl mx-auto px-4 md:px-8 pt-28 pb-20"} style={mainStyle}>
+      <main className={isHome ? "p-0 m-0 overflow-hidden" : "mx-auto w-full max-w-[1100px] pt-16 md:pt-28 md:px-8 pb-20"} style={mainStyle}>
         {(isCasaPage || isRestaurantPage || isCafePage)
           ? <NavigationProvider>{children}</NavigationProvider>
           : children}

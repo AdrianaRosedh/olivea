@@ -5,21 +5,15 @@ import Sub from '@/components/scroll/Sub'
 <StickyBlock
   id="bebidas"
   className="main-section snap-center"
-  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Bebidas</h2></Reveal>}
+  title={null}
+  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
 >
-  <Sub id="espresso" preset="up">
-    Espresso calibrado cada mañana; dulzor y acidez en equilibrio. Leches clásicas y vegetales a elección.
-  </Sub>
+  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Bebidas</h2></Reveal>
 
-  <Sub id="filtro" preset="left">
-    Métodos de filtro limpios: V60, Chemex y prensa. Molido al momento y receta por origen.
-  </Sub>
-
-  <Sub id="te" preset="right">
-    Tés e infusiones con agua en temperatura y mineralidad adecuadas; miel local y cítricos del huerto.
-  </Sub>
-
-  <Sub id="frio" preset="fade">
-    Fríos de estación: cold brew, limonadas, kombucha y bebidas sin alcohol para acompañar el día.
-  </Sub>
+  <div className="space-y-6 md:space-y-8">
+    <Sub id="espresso" preset="up">Espresso calibrado cada mañana…</Sub>
+    <Sub id="filtro" preset="left">Métodos de filtro limpios: V60, Chemex, prensa…</Sub>
+    <Sub id="te" preset="right">Tés e infusiones con agua adecuada…</Sub>
+    <Sub id="frio" preset="fade">Fríos de estación: cold brew, limonadas, kombucha…</Sub>
+  </div>
 </StickyBlock>

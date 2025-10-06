@@ -4,34 +4,30 @@ import Sub from '@/components/scroll/Sub'
 import ParallaxImage from '@/components/scroll/ParallaxImage'
 
 <StickyBlock
-  id="habitaciones"
+  id="rooms"
   className="main-section snap-center"
-  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Rooms</h2></Reveal>}
+  title={null}
+  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
 >
-  <Sub id="esencia" preset="blur-up">
-    We’re a warm extension of your home. Fourteen rooms named after aromatic plants
-    welcome you with what matters most: rest and peace.
-  </Sub>
+  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Rooms</h2></Reveal>
 
-  <Sub id="confort_detalle" preset="up">
-    Beds, linens and every detail are chosen for comfort. Filtered water in glass is refreshed
-    daily; we avoid visual noise so sleep comes easily.
-  </Sub>
+  <div className="space-y-6 md:space-y-8">
+    <Sub id="esencia" preset="blur-up">
+      We’re a warm extension of your home. Fourteen rooms named after aromatic plants welcome you with what matters most: rest and peace.
+    </Sub>
+    <Sub id="detalle" preset="up">
+      Beds, linens and every detail are chosen for comfort. Filtered water in glass is refreshed daily; we avoid visual noise so sleep comes easily.
+    </Sub>
 
-  {/* image: /images/casa/room.jpg */}
-  <ParallaxImage
-    src="/images/casa/room.jpg"
-    alt="Room — light, order and calm"
-    heightVh={48}
-    speed={0.24}
-  />
+    <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
+      <ParallaxImage src="/images/casa/room.jpg" alt="Room — light, order and calm" heightVh={46} speed={0.24} />
+    </div>
 
-  <Sub id="amplitud_luz" preset="left">
-    Rooms and bathrooms are generous; natural light plays a central role.
-    It feels like arriving at your own room—and letting the space settle you.
-  </Sub>
-
-  <Sub id="paz_silencio" preset="fade">
-    You’ll find a dryer, iron and safe, but above all: quiet and harmony in every room.
-  </Sub>
+    <Sub id="luz" preset="left">
+      Rooms and bathrooms are generous; natural light plays a central role. It feels like arriving at your own room—and letting the space settle you.
+    </Sub>
+    <Sub id="silencio" preset="fade">
+      You’ll find a dryer, iron and safe, but above all: quiet and harmony in every room.
+    </Sub>
+  </div>
 </StickyBlock>

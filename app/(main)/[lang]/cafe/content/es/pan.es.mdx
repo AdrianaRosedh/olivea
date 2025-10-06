@@ -6,29 +6,20 @@ import ParallaxImage from '@/components/scroll/ParallaxImage'
 <StickyBlock
   id="pan"
   className="main-section snap-center"
-  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">Pan</h2></Reveal>}
+  title={null}
+  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
 >
-  <Sub id="harinas" preset="up">
-    Nuestro amor por el pan es de toda la vida. Harinas elegidas con criterio; cortezas doradas y migas que invitan a untar.
-  </Sub>
+  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Pan</h2></Reveal>
 
-  <Sub id="recetas" preset="left">
-    Recetario propio y diálogo con panaderos de la región: escuela honesta y manos que amasan memoria.
-  </Sub>
+  <div className="space-y-6 md:space-y-8">
+    <Sub id="harinas" preset="up">Nuestro amor por el pan es de toda la vida…</Sub>
+    <Sub id="recetas" preset="left">Recetario propio y diálogo con panaderos…</Sub>
 
-  {/* imagen: /images/cafe/pan.jpg */}
-  <ParallaxImage
-    src="/images/cafe/pan.jpg"
-    alt="Pan de casa — corteza, miga y aroma"
-    heightVh={46}
-    speed={0.22}
-  />
+    <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
+      <ParallaxImage src="/images/cafe/pan.jpg" alt="Pan de casa — corteza, miga y aroma" heightVh={46} speed={0.22} />
+    </div>
 
-  <Sub id="obradores" preset="right">
-    Cada harina usada en nuestro pan tiene dos vertientes: nuestras recetas y la herencia de obradores locales.
-  </Sub>
-
-  <Sub id="rito" preset="fade">
-    Queremos que el pan complete tu café: bajo sombra, con brisa y con tiempo suficiente para conversar.
-  </Sub>
+    <Sub id="obradores" preset="right">Cada harina usada tiene dos vertientes…</Sub>
+    <Sub id="rito" preset="fade">Queremos que el pan complete tu café…</Sub>
+  </div>
 </StickyBlock>
