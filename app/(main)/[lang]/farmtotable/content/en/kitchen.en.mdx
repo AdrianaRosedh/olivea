@@ -1,26 +1,37 @@
 import StickyBlock from '@/components/scroll/StickyBlock'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
+import CardParallax from '@/components/mdx/CardParallax'
 
 <StickyBlock
   id="cocina"
-  className="main-section snap-center"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">The kitchen</h2></Reveal>}
+  variant="top"
+  containerClassName="w-[min(900px,90vw)]"
+  className="py-12 md:py-20"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Kitchen</h2></Reveal>}
 >
-  <Sub id="equilibrio_cocina">
+  <Sub id="plate_balance" preset="up">
     Product leads. Plates that balance the garden with local proteins in clean, legible layers.
   </Sub>
 
-  <Sub id="estetica" preset="left">
-    Sober, precise aesthetics; tableware that speaks of place. Elegance without excess: form in service of flavor.
+  <Sub id="aesthetics" preset="left">
+    Sober, precise aesthetics; tableware that speaks of place. Elegance without excess.
   </Sub>
 
-  <Sub id="tecnica" preset="right">
-    Clear broths, controlled ferments, exact curing and doneness. Bitterness and umami are tuned with clean acidity and intentional temperature.
+  <Sub id="technique" preset="right">
+    Clear broths, controlled ferments, exact curing and doneness. Bitterness and umami tuned by clean acidity and intentional temperature.
   </Sub>
 
-  <ParallaxImage src="/images/farm/kitchen.jpg" alt="Technique & precision" heightVh={50} axis="x" range={[-70,70]} rotate={[-0.6,0]} />
+  <CardParallax
+    src="/images/farm/kitchen.jpg"
+    alt="Technique & precision"
+    widthVariant="narrow"
+    align="right"
+    speed={0.24}
+    heightVh={100}
+    hVh={{ mobile: 52, md: 62 }}
+    style={{ objectPosition: "center 40%" }}
+  />
 
   <Sub id="vision" preset="fade">
     Ongoing research and respect for producers. Aim: clarity of flavor and measured emotion.

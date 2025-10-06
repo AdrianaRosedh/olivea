@@ -1,24 +1,40 @@
 import StickyBlock from '@/components/scroll/StickyBlock'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
+import CardParallax from '@/components/mdx/CardParallax'
+import CardGrid from '@/components/mdx/CardGrid'
 
 <StickyBlock
   id="mesa"
-  className="main-section snap-center"
-  title={<Reveal preset="right" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">La mesa</h2></Reveal>}
+  variant="top"
+  containerClassName="w-[min(900px,90vw)]"
+  className="py-12 md:py-20"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">La mesa</h2></Reveal>}
 >
-  <Sub id="hospitalidad">
-    Hospedamos amigos. Servicio presente y discreto, atento al pulso de la sala y al silencio cuando conviene.
+  <Sub id="hospitalidad" preset="up">
+    Hospedamos amigos. Servicio presente y discreto, atento al ritmo de sala y al silencio cuando conviene.
   </Sub>
 
   <Sub id="atencion" preset="left">
-    Leemos la mesa: alergias, cultura y preferencias. Ajustamos tiempos y temperatura para servir cada plato en su punto.
+    Leemos la mesa: cultura, alergias y preferencias. Ajustamos tiempos y temperatura para servir cada plato en su punto.
   </Sub>
+
+  <CardParallax
+    src="/images/farm/dining.jpg"
+    alt="Ritmo y hospitalidad"
+    widthVariant="bleed"
+    align="center"
+    speed={0.30}
+    heightVh={100}
+    hVh={{ mobile: 56, md: 60 }}
+  />
 
   <Sub id="narrativa" preset="fade">
     Cada curso suma contexto: origen, manos que lo cuidan y razón del maridaje. Narrativa honesta, sin artificio.
   </Sub>
-</StickyBlock>
 
-<ParallaxImage src="/images/farm/dining.jpg" alt="Ritmo y hospitalidad" heightVh={68} speed={0.30} />
+  <CardGrid imgs={[
+    { src:'/images/farm/plates-1.jpg', alt:'Temperatura correcta' },
+    { src:'/images/farm/plates-2.jpg', alt:'Cadencia de platos' },
+  ]}/>
+</StickyBlock>

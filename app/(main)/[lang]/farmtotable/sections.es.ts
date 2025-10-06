@@ -15,7 +15,7 @@ export const SECTIONS_ES: NavSection[] = [
     id: "cocina",
     title: "La cocina",
     subs: [
-      { id: "equilibrio_cocina", title: "Equilibrio" },
+      { id: "equilibrio", title: "Equilibrio" },
       { id: "estetica",          title: "Estética" },
       { id: "tecnica",           title: "Técnica" },
       { id: "vision",            title: "Visión" },
@@ -43,7 +43,7 @@ export const SECTIONS_ES: NavSection[] = [
     id: "menu",
     title: "Menú",
     subs: [
-      { id: "estructura_menu", title: "Estructura" },
+      { id: "estructura", title: "Estructura" },
       { id: "maridaje",        title: "Maridaje" },
       { id: "preferencias",    title: "Preferencias" },
     ],

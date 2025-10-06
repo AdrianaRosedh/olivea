@@ -1,14 +1,17 @@
 import StickyBlock from '@/components/scroll/StickyBlock'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
+import CardParallax from '@/components/mdx/CardParallax'
+import SeasonTimeline from '@/components/mdx/SeasonTimeline'
 
 <StickyBlock
   id="despensa"
-  className="main-section snap-center"
+  variant="top"
+  containerClassName="w-[min(900px,90vw)]"
+  className="py-12 md:py-20"
   title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">La despensa</h2></Reveal>}
 >
-  <Sub id="proximidad">
+  <Sub id="proximidad" preset="up">
     Cosecha propia y productores cercanos: textura viva y aromáticos en su punto.
   </Sub>
 
@@ -16,9 +19,23 @@ import Sub from '@/components/scroll/Sub'
     El menú respira con la estación. Cambios pequeños y frecuentes; el calendario del huerto ordena el relato.
   </Sub>
 
+  <CardParallax
+    src="/images/farm/garden.jpg"
+    alt="Huerto y cercanía"
+    widthVariant="content"
+    align="left"
+    speed={0.26}
+    heightVh={100}
+    hVh={{ mobile: 46, md: 50 }}
+  />
+
+  <SeasonTimeline items={[
+    { title: "Inicio de primavera", text: "Habas, arvejas, hierbas tiernas" },
+    { title: "Media primavera",     text: "Alcachofa, hinojo, flor de calabaza" },
+    { title: "Fin de primavera",     text: "Tomate, albahaca, frutales de hueso" },
+  ]}/>
+
   <Sub id="trazabilidad" preset="fade">
-    Documentamos lotes y procesos, de la semilla a la sala. Compostaje y aprovechamiento integral cierran el ciclo.
+    Documentamos lotes y procesos: de la semilla a la sala. Compost y aprovechamiento integral cierran el ciclo.
   </Sub>
 </StickyBlock>
-
-<ParallaxImage src="/images/farm/garden.jpg" alt="Huerto y cercanía" heightVh={56} speed={0.26} scale={[1.04,1]} />

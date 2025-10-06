@@ -1,95 +1,69 @@
+// components/scroll/ParallaxImage.tsx
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
-import { useMemo, useRef } from "react";
+import Image, { type ImageProps } from "next/image";
+import { cn } from "@/lib/utils";
+import React from "react";
 
-type Axis = "y" | "x";
-type Range2 = [number, number];
+type StyleVars = React.CSSProperties & Record<string, string | number | undefined>;
 
-type Props = {
+type ParallaxImageProps = {
   src: string;
   alt: string;
+  /** Used only if parent surface didn't provide a height */
   heightVh?: number;
-  axis?: Axis;                 // 'y' (default) or 'x'
-  range?: Range2;              // px translate range; overrides speed
-  speed?: number;              // fallback if no 'range' is provided
-  scale?: Range2;              // e.g., [1.06, 1]
-  opacity?: Range2;            // e.g., [0.9, 1]
-  rotate?: Range2;             // degrees, e.g., [-1, 0]
-  priority?: boolean;
+  /** Exposed for future effect / diagnostics */
+  speed?: number;
+  /** Applied to <Image/> (not wrapper) */
   className?: string;
+  /** Applied to wrapper */
+  style?: StyleVars;
+  onError?: ImageProps["onError"];
+  sizes?: ImageProps["sizes"];
+  priority?: ImageProps["priority"];
+  /** How the image should fit the surface */
+  fit?: "cover" | "contain";
+  /** Optional focal point (e.g., "50% 40%") */
+  objectPosition?: string;
 };
 
 export default function ParallaxImage({
   src,
   alt,
-  heightVh = 80,
-  axis = "y",
-  range,
-  speed = 0.35,
-  scale,
-  opacity,
-  rotate,
-  priority = false,
-  className = "",
-}: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
+  heightVh = 100,
+  speed = 0.26,
+  className,
+  style,
+  onError,
+  sizes,
+  priority,
+  fit = "cover",                    // ← default: fill the card
+  objectPosition,
+}: ParallaxImageProps) {
+  // If caller passes "h-full", make wrapper 100% high so <Image fill/> has a box.
+  const wrapperStyle: StyleVars = {
+    ...(className?.includes("h-full") ? { height: "100%" } : { height: `${heightVh}vh` }),
+    ...style,
+    ["--pi-speed"]: String(speed),
+  };
 
-  // Always call hooks in the same order — use identity ranges when a prop isn't provided.
-  const translate = useTransform(
-    scrollYProgress,
-    [0, 1],
-    (range ?? [speed * -120, speed * 120]) as Range2
-  );
-  const scaleT = useTransform(
-    scrollYProgress,
-    [0, 1],
-    (scale ?? [1, 1]) as Range2
-  );
-  const opacityT = useTransform(
-    scrollYProgress,
-    [0, 1],
-    (opacity ?? [1, 1]) as Range2
-  );
-  const rotateT = useTransform(
-    scrollYProgress,
-    [0, 1],
-    (rotate ?? [0, 0]) as Range2
-  );
-
-  // Build style object; always include transforms (identity = no visible change)
-  const style = useMemo(
-    () => ({
-      ...(axis === "y" ? { y: translate } : { x: translate }),
-      scale: scaleT,
-      opacity: opacityT,
-      rotate: rotateT,
-    }),
-    [axis, translate, scaleT, opacityT, rotateT]
-  );
+  const fitClass = fit === "contain" ? "object-contain" : "object-cover";
 
   return (
-    <section
-      ref={ref}
-      className={`relative w-full overflow-hidden ${className}`}
-      style={{ height: `${heightVh}vh` }}
-      aria-label={alt}
-    >
-      <motion.div style={style} className="absolute inset-0">
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          priority={priority}
-          sizes="100vw"
-          className="object-cover"
-        />
-      </motion.div>
-    </section>
+    <div className="relative w-full" style={wrapperStyle} data-parallax-speed={speed}>
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        priority={priority}
+        onError={(e) => {
+          console.error("[ParallaxImage] failed to load:", src);
+          onError?.(e);
+        }}
+        className={cn("w-full h-full", fitClass, className)}
+        style={objectPosition ? { objectPosition } : undefined}
+      />
+    </div>
   );
 }

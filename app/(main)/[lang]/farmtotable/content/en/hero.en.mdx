@@ -1,20 +1,54 @@
 import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
+import HeroFarmLogo from '@/assets/herofarm.svg'
 
-<section id="hero" className="relative">
-  <ParallaxImage
-    src="/images/farm/hero.jpg"
-    alt="Olivea Farm to Table — our garden"
-    heightVh={92}
-    speed={0.42}
-    priority
-  />
-  <div className="pointer-events-none absolute inset-0 grid place-items-center">
-    <Reveal y={16} delay={0.1} className="text-center pointer-events-auto">
-      <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">Olivea Farm to Table</h1>
-      <p className="mt-4 max-w-2xl mx-auto text-base md:text-lg text-black/75">
-        Garden, kitchen and table—an seven-course seasonal journey shaped by the Valley.
-      </p>
-    </Reveal>
+<section
+  id="hero"
+  className="
+    relative mx-auto w-[min(1100px,94vw)]
+    h-[calc(100svh-7rem-var(--mobile-nav-h,84px))]
+    flex items-center justify-center
+    mt-0 pb-0
+  "
+>
+  <div
+    className="
+      relative w-full
+      h-[calc(100svh-7rem-var(--mobile-nav-h,84px))]
+      md:h-[720px] lg:h-[800px]
+      overflow-hidden rounded-[28px]
+      ring-1 ring-black/10
+      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
+    "
+  >
+    <ParallaxImage
+      src="/images/farm/hero.jpg"
+      alt="Olivea Farm-to-Table — our garden"
+      heightVh={100}
+      speed={0.30}
+      priority
+      className="h-full"
+      fit="cover"
+      objectPosition="50% 40%"
+    />
+
+    <div className="pointer-events-none absolute inset-0">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
+
+      <h1 className="sr-only">Olivea Farm-to-Table</h1>
+
+      <div className="relative h-full flex items-center justify-center">
+        <div className="pointer-events-auto text-center px-4">
+          <Reveal preset="fade" delay={0.05}>
+            <HeroFarmLogo className="mx-auto w-[180px] md:w-[220px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] text-white fill-white" />
+          </Reveal>
+          <Reveal preset="up" delay={0.12}>
+            <p className="mt-4 text-white/90 md:text-lg drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+              Donde el huerto es la esencia.
+            </p>
+          </Reveal>
+        </div>
+      </div>
+    </div>
   </div>
 </section>

@@ -1,24 +1,41 @@
 import StickyBlock from '@/components/scroll/StickyBlock'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
+import CardParallax from '@/components/mdx/CardParallax'
+import SeasonTimeline from '@/components/mdx/SeasonTimeline'
 
 <StickyBlock
   id="despensa"
-  className="main-section snap-center"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">The larder</h2></Reveal>}
+  variant="top"
+  containerClassName="w-[min(900px,90vw)]"
+  className="py-12 md:py-20"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Larder</h2></Reveal>}
 >
-  <Sub id="proximidad">
+  <Sub id="proximity" preset="up">
     Our own harvest and nearby producers: living texture and peak aromatics.
   </Sub>
 
-  <Sub id="temporada" preset="left">
+  <CardParallax
+    src="/images/farm/garden.jpg"
+    alt="Garden proximity"
+    widthVariant="content"
+    align="left"
+    speed={0.26}
+    heightVh={100}
+    hVh={{ mobile: 46, md: 50 }}
+  />
+
+  <Sub id="season" preset="left">
     The menu breathes with the season. Small, frequent changes—the garden calendar orders the narrative.
   </Sub>
 
-  <Sub id="trazabilidad" preset="fade">
+  <SeasonTimeline items={[
+    { title:"Early Spring", text:"Favas, peas, tender herbs" },
+    { title:"Mid Spring",   text:"Artichoke, fennel, zucchini blossom" },
+    { title:"Late Spring",  text:"Tomato, basil, stone fruit" },
+  ]}/>
+
+  <Sub id="traceability" preset="fade">
     We document lots and processes—from seed to service. Compost and whole-use practices close the loop.
   </Sub>
 </StickyBlock>
-
-<ParallaxImage src="/images/farm/garden.jpg" alt="Garden proximity" heightVh={56} speed={0.26} scale={[1.04,1]} />

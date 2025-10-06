@@ -1,14 +1,16 @@
 import StickyBlock from '@/components/scroll/StickyBlock'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
+import CardParallax from '@/components/mdx/CardParallax'
 
 <StickyBlock
   id="cocina"
-  className="main-section snap-center"
+  variant="top"
+  containerClassName="w-[min(900px,90vw)]"
+  className="py-12 md:py-20"
   title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">La cocina</h2></Reveal>}
 >
-  <Sub id="equilibrio_cocina">
+  <Sub id="equilibrio_cocina" preset="up">
     El producto lidera. Platos que equilibran el huerto con proteínas de la zona en capas limpias y reconocibles.
   </Sub>
 
@@ -20,7 +22,16 @@ import Sub from '@/components/scroll/Sub'
     Fondos claros, fermentos controlados, curaciones y cocciones exactas. Amargor y umami se afinan con acidez nítida y temperatura intencional.
   </Sub>
 
-  <ParallaxImage src="/images/farm/kitchen.jpg" alt="Técnica y precisión" heightVh={50} axis="x" range={[-70,70]} rotate={[-0.6,0]} />
+  <CardParallax
+    src="/images/farm/kitchen.jpg"
+    alt="Técnica y precisión"
+    widthVariant="narrow"
+    align="right"
+    speed={0.24}
+    heightVh={100}
+    hVh={{ mobile: 52, md: 62 }}
+    style={{ objectPosition: "center 40%" }}
+  />
 
   <Sub id="vision" preset="fade">
     Investigación continua y respeto al productor. Objetivo: claridad de sabor y emoción contenida.

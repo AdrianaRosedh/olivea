@@ -1,19 +1,32 @@
+import StickyBlock from '@/components/scroll/StickyBlock'
 import Reveal from '@/components/scroll/Reveal'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Sub from '@/components/scroll/Sub'
+import CardImage from '@/components/mdx/CardImage'
 
-<section id="menu" className="main-section snap-center w-[min(1000px,92vw)] mx-auto py-16 md:py-24">
-  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">The menu</h2></Reveal>
+<StickyBlock
+  id="menu"
+  variant="top"
+  containerClassName="w-[min(900px,90vw)]"
+  className="py-16 md:py-24"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Menu</h2></Reveal>}
+>
+  <CardImage
+    src="/images/farm/table.jpg"
+    alt="Menu banner"
+    widthVariant="content"
+    align="center"
+    hPx={{ mobile: 220, md: 320 }}
+  />
 
-  <Sub id="estructura_menu" minH={200}>
+  <Sub id="menu_structure" minH={200}>
     An eight-course tasting menu. Three small off-menu gestures gently open, reset and close the journey.
   </Sub>
 
-  <Sub id="maridaje" preset="left" minH={200}>
-    Pairings from Valle wines and a non-alcoholic route built with flavor science—infusions, controlled ferments and clarifications.
+  <Sub id="pairing" preset="left" minH={200}>
+    Pairings from Valley wines and a non-alcoholic route built with flavor science—infusions, ferments and clarifications.
   </Sub>
 
-  <Sub id="preferencias" preset="fade" minH={200}>
+  <Sub id="preferences" preset="fade" minH={200}>
     We accommodate allergies, faith and preferences with notice. A vegetarian path is available upon request.
   </Sub>
 
@@ -27,6 +40,4 @@ import Sub from '@/components/scroll/Sub'
       Non-alcoholic pairing
     </a>
   </div>
-</section>
-
-<ParallaxImage src="/images/farm/table.jpg" alt="Table & pairing" heightVh={60} speed={0.33} />
+</StickyBlock>

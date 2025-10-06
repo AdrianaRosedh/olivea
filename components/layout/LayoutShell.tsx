@@ -38,6 +38,12 @@ interface LayoutShellProps {
 type DockItem = { id: string; href: string; label: string; icon: React.ReactNode };
 type Override = Array<{ id: string; label: string; subs?: Array<{ id: string; label: string }> }>;
 
+// Add this helper type near the top of the file
+type StyleVars = React.CSSProperties & {
+  ["--dock-gutter"]?: string;
+  ["--mobile-nav-h"]?: string;
+};
+
 const mapSections = (
   arr: Array<{ id: string; title: string; subs?: Array<{ id: string; title: string }> }>
 ): Override =>
@@ -69,9 +75,19 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const isRestaurantPage = pathname.includes("/farmtotable");
   const isCafePage       = pathname.includes("/cafe");
 
-  //
+  
+  /** ---------- NEW: safe gutter for desktop so media never sits under docks ---------- */
+  const dockLeftPx  = 240; // left column + gap (tune to your exact dock left width)
+  const dockRightPx = 96;  // right icon rail + gap
+  const dockGapPx   = 24;  // extra breathing room on both sides
+  const dockGutter  = dockLeftPx + dockRightPx + dockGapPx * 2;
+  const mobileBarPx = 84;
+
+  const mainStyle: StyleVars | undefined = !isMobile
+    ? { "--dock-gutter": `${dockGutter}px` }
+    : { "--mobile-nav-h": `${mobileBarPx}px` };
+
   // ─── MOBILE BOTTOM NAV ITEMS ─────────────────────────────────────────────────
-  //
   const mobileNavItems = (() => {
     if (isCasaPage) {
       const src = lang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN;
@@ -120,7 +136,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
       {mounted && !isHome && <Navbar lang={lang} dictionary={dictionary} />}
 
-      <main className={isHome ? "p-0 m-0 overflow-hidden" : "max-w-7xl mx-auto px-4 md:px-8 pt-28 pb-20"}>
+      <main className={isHome ? "p-0 m-0 overflow-hidden" : "max-w-7xl mx-auto px-4 md:px-8 pt-28 pb-20"} style={mainStyle}>
         {(isCasaPage || isRestaurantPage || isCafePage)
           ? <NavigationProvider>{children}</NavigationProvider>
           : children}

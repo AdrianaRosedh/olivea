@@ -1,24 +1,44 @@
 import StickyBlock from '@/components/scroll/StickyBlock'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
+import CardParallax from '@/components/mdx/CardParallax'
+import StatChips from '@/components/mdx/StatChips'
+import FieldNote from '@/components/mdx/FieldNote'
 
 <StickyBlock
   id="experiencia"
-  className="main-section snap-center"
-  title={<Reveal preset="left" distance={36}><h2 className="text-2xl md:text-4xl font-semibold">01 Olivea, la experiencia</h2></Reveal>}
+  variant="top"
+  containerClassName="w-[min(900px,90vw)]"
+  className="py-12 md:py-20"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">La experiencia</h2></Reveal>}
 >
   <Sub id="origen" preset="blur-up">
     Nacemos en el huerto. La cocina interpreta clima y suelo; la mesa transforma ese paisaje en memoria.
   </Sub>
 
+  <StatChips items={[
+    { label: "Temporada", value: "Primavera 2025" },
+    { label: "Huerto", value: "Km 0" },
+    { label: "Origen", value: "Valle de Guadalupe" },
+  ]}/>
+
+  <CardParallax
+    src="/images/farm/garden.jpg"
+    alt="Huerto"
+    widthVariant="wide"
+    align="center"
+    speed={0.22}
+    heightVh={100}
+    hVh={{ mobile: 46, md: 56 }}
+  />
+
   <Sub id="equilibrio" preset="up">
-    Valle de Guadalupe nos da tierra, mar y granja. Buscamos equilibrio entre acidez y grasa, amargor y dulzor, temperatura y textura.
+    El Valle nos da tierra, mar y granja. Buscamos equilibrio entre acidez y grasa, amargor y dulzor, temperatura y textura.
   </Sub>
 
-  <ParallaxImage src="/images/farm/garden.jpg" alt="Huerto" heightVh={46} speed={0.22} />
+  <FieldNote>El ciclo de compost alimenta los bancales que alimentan el menú. Trazabilidad de la semilla al servicio.</FieldNote>
 
   <Sub id="valores" preset="fade">
-    Trazabilidad, cuidado del agua y compostaje. Sostenibilidad, técnica y responsabilidad guían cada decisión.
+    Trazabilidad, cuidado del agua y circularidad. Sostenibilidad, técnica y responsabilidad guían cada decisión.
   </Sub>
 </StickyBlock>

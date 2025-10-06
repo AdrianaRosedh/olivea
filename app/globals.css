@@ -186,6 +186,11 @@
 @media (min-width: 768px) {
   .snap-container { scroll-snap-type: y proximity; }
   .snap-center    { scroll-snap-align: center; scroll-margin-top: 120px; } /* 120 = TOP_OFFSET_PX */
+  .md\:card-md { height: var(--card-md-h, 56vh); }
+
+@media (min-width: 1024px) {
+  .lg\:card-lg { height: var(--card-lg-h, var(--card-md-h, 56vh)); }
+}
 
   /* Fancy desktop navbar fill effect (kept from your file) */
   .fill-nav a {
