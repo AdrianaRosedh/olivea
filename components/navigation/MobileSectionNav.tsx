@@ -7,154 +7,121 @@ import {
   useState,
   useMemo,
   useCallback,
-  Fragment,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { useLenis } from "@/components/providers/ScrollProvider";
+
+// GSAP scroll (works with window or any scroll container)
+import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+gsap.registerPlugin(ScrollToPlugin);
 
 /* Types */
-type Lenis = {
-  scrollTo: (y: number, opts?: { duration?: number; easing?: (t: number) => number }) => void;
-};
 export interface MobileSectionNavItem { id: string; label: string; }
 interface Props { items: MobileSectionNavItem[]; }
-type NavSub = { id: string; label: string };
 
-/* Constants (align with DockLeft) */
-const TOP_OFFSET_PX  = 120;
-const MANUAL_MS      = 600;                  // ignore updates briefly after taps
-const STABLE_MS      = 160;                  // hysteresis window
-const IO_ROOT_MARGIN = "-50% 0px -50% 0px";  // centerline strip
-const RAF_MIN_MS     = 16;                   // throttle to ~1/frame
-
-const EMPTY_SUBS: NavSub[] = [];
+/* Constants */
+const MANUAL_MS = 1000; // matches easing duration
+const STABLE_MS = 300;  // hysteresis for active
+const RAF_MIN_MS = 16;  // ~1 frame
 
 /* Helpers */
-const isSub = (el: Element) => el.classList.contains("subsection");
-const labelFor = (el: HTMLElement) =>
-  el.getAttribute("data-label")?.trim() ||
-  el.getAttribute("aria-label")?.trim() ||
-  el.querySelector<HTMLElement>("h2,h3,h4")?.innerText?.trim() ||
-  el.id || "…";
-
-function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
-  const vh = window.innerHeight;
-  const r  = el.getBoundingClientRect();
-  const pageY = window.pageYOffset;
-  const h  = Math.max(el.offsetHeight, 1);
-  const ideal    = r.top + pageY - (vh - h) / 2 - topOffset;
-  const alignTop = r.top + pageY - topOffset;
-  return h > vh ? Math.max(0, alignTop) : Math.max(0, ideal);
-}
-function clampToMaxScroll(y: number) {
-  const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-  return Math.min(Math.max(0, y), maxY);
+function headerPx(): number {
+  const v = getComputedStyle(document.documentElement).getPropertyValue("--header-h");
+  const n = parseInt(v || "", 10);
+  return Number.isFinite(n) && n > 0 ? n : 64;
 }
 function setSnapDisabled(disabled: boolean) {
   document.documentElement.classList.toggle("snap-disable", disabled);
 }
 
+/** Find the nearest vertical scrollable ancestor (else fall back to window) */
+function getScrollableAncestor(el: Element): Window | Element {
+  let node: Element | null = el.parentElement;
+  const isScrollable = (x: Element | null) =>
+    !!x && /auto|scroll|overlay/i.test(getComputedStyle(x).overflowY);
+
+  while (node && node !== document.body && !isScrollable(node)) {
+    node = node.parentElement;
+  }
+  return node && node !== document.body && node !== document.documentElement ? node : window;
+}
+
 export default function MobileSectionNav({ items }: Props) {
   const pathname = usePathname();
-  const lenis = useLenis() as Lenis | null;
 
   const [activeId, setActiveId] = useState(items[0]?.id || "");
-  const [subsMap, setSubsMap] = useState<Record<string, NavSub[]>>({});
 
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRefs   = useRef<Record<string, HTMLAnchorElement | null>>({});
 
   // manual navigation guard
-  const manualRef    = useRef(false);
-  const manualTO     = useRef<number | null>(null);
+  const manualRef = useRef(false);
+  const manualTO  = useRef<number | null>(null);
 
   // hysteresis on id
   const pendingIdRef = useRef<string | null>(null);
   const pendingAtRef = useRef<number>(0);
 
-  // IO & scroll fallback caches
-  const interSet     = useRef<Set<HTMLElement>>(new Set());
-  const allTargets   = useRef<HTMLElement[]>([]);
+  // IO & scroll caches
+  const interSet   = useRef<Set<HTMLElement>>(new Set());
+  const allTargets = useRef<HTMLElement[]>([]);
 
   // rAF throttle
-  const tickingRef   = useRef(false);
-  const lastTsRef    = useRef(0);
+  const tickingRef = useRef(false);
+  const lastTsRef  = useRef(0);
 
   const mainIds = useMemo(() => items.map(i => i.id), [items]);
-  const getSubs = useCallback((mainId: string): NavSub[] => subsMap[mainId] ?? EMPTY_SUBS, [subsMap]);
 
-  /* Build target list (subs first, then mains) */
+  /* Build target list (MAINS ONLY) */
   const rebuildTargets = useCallback(() => {
-    const targets = [
-      ...Array.from(document.querySelectorAll<HTMLElement>(".subsection[id]")),
-      ...mainIds
-        .map((id) => document.querySelector<HTMLElement>(`.main-section#${id}`))
-        .filter(Boolean) as HTMLElement[],
-    ];
+    const targets = mainIds
+      .map(id => document.querySelector<HTMLElement>(`.main-section#${id}`))
+      .filter((x): x is HTMLElement => Boolean(x));
     allTargets.current = targets;
     return targets;
   }, [mainIds]);
 
-  /* Tap → center; suppress IO/snap briefly */
+  /* Tap → smooth GSAP scroll; suppress IO/snap briefly */
   const scrollToId = useCallback((id: string) => {
     const el =
-      (document.querySelector<HTMLElement>(`.subsection#${id}`)) ||
-      (document.querySelector<HTMLElement>(`.main-section#${id}`)) ||
+      document.querySelector<HTMLElement>(`.main-section#${id}`) ||
       document.getElementById(id);
-    if (!el) return;
+    if (!el) {
+      console.warn(`[MobileSectionNav] target not found: #${id}`);
+      return;
+    }
 
-    const y = clampToMaxScroll(centerYFor(el));
     manualRef.current = true;
     setSnapDisabled(true);
-    if (manualTO.current) clearTimeout(manualTO.current);
+    if (manualTO.current) window.clearTimeout(manualTO.current);
     manualTO.current = window.setTimeout(() => {
       manualRef.current = false;
       setSnapDisabled(false);
     }, MANUAL_MS);
 
-    if (lenis && typeof lenis.scrollTo === "function") {
-      lenis.scrollTo(y, { duration: 1.0, easing: (t) => 1 - Math.pow(1 - t, 3) });
-      setTimeout(() => { if (Math.abs(window.scrollY - y) > 10) window.scrollTo({ top: y, behavior: "auto" }); }, 160);
-    } else {
-      window.scrollTo({ top: y, behavior: "smooth" as ScrollBehavior });
-    }
+    const topOffset = headerPx() + 8;
+    const scroller = getScrollableAncestor(el);
 
+    gsap.to(scroller, {
+      duration: 0.9,
+      ease: "power3.out",
+      scrollTo: { y: el, offsetY: topOffset, autoKill: true },
+      // onStart/onComplete available if you want to flip extra flags
+    });
+
+    // reflect in UI + URL
     setActiveId(id);
-    if (window.location.hash.slice(1) !== id) window.history.replaceState(null, "", `#${id}`);
-    navigator.vibrate?.(10);
-  }, [lenis]);
-
-  /* Discover subsections (document order) */
-  const computeSubs = useCallback(() => {
-    const map: Record<string, NavSub[]> = {};
-    for (const main of items) {
-      const sectionEl =
-        document.querySelector<HTMLElement>(`.main-section#${main.id}`) ||
-        document.getElementById(main.id);
-      const list: NavSub[] = [];
-      if (sectionEl) {
-        sectionEl.querySelectorAll<HTMLElement>(".subsection[id]").forEach((subEl) => {
-          list.push({ id: subEl.id, label: labelFor(subEl) });
-        });
-      }
-      map[main.id] = list;
+    if (window.location.hash.slice(1) !== id) {
+      history.replaceState(null, "", `#${id}`);
     }
-    setSubsMap(map);
-  }, [items]);
+    navigator.vibrate?.(8);
+  }, []);
 
+  /* IO: maintain a pool of visible MAINS; actual picking happens in rAF */
   useEffect(() => {
-    const t = window.setTimeout(computeSubs, 150);
-    window.addEventListener("resize", computeSubs);
-    return () => { clearTimeout(t); window.removeEventListener("resize", computeSubs); };
-  }, [computeSubs, pathname]);
-
-  // When subsMap changes (late MDX/image mounts), refresh targets
-  useEffect(() => { rebuildTargets(); }, [subsMap, rebuildTargets]);
-
-  /* IO: update interSet and try to select candidate; otherwise rely on scroll fallback */
-  useEffect(() => {
+    const top = headerPx() + 8;
     const io = new IntersectionObserver((entries) => {
       if (manualRef.current) return;
       for (const e of entries) {
@@ -162,16 +129,19 @@ export default function MobileSectionNav({ items }: Props) {
         if (e.isIntersecting) interSet.current.add(el);
         else interSet.current.delete(el);
       }
-      // We do not pick candidate here; scroll fallback will do it continuously.
-      // IO only maintains interSet for an accurate pool when available.
-    }, { root: null, rootMargin: IO_ROOT_MARGIN, threshold: 0 });
+    }, {
+      root: null,
+      // calmer “center band” (top offset aware)
+      rootMargin: `-${top}px 0px -66% 0px`,
+      threshold: [0.25],
+    });
 
     const targets = rebuildTargets();
     targets.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, [rebuildTargets, pathname]);
 
-  /* Scroll fallback (rAF throttled): pick nearest to center when IO has none or during scroll) */
+  /* Scroll fallback (rAF throttled): pick top-most visible MAIN deterministically */
   useEffect(() => {
     const onScroll = (ts?: number) => {
       const now = ts ?? performance.now();
@@ -180,22 +150,18 @@ export default function MobileSectionNav({ items }: Props) {
 
       requestAnimationFrame(() => {
         tickingRef.current = false;
-        if (manualRef.current) return; // let tap easing finish
+        if (manualRef.current) return;
 
         const pool = interSet.current.size > 0 ? Array.from(interSet.current) : allTargets.current;
         if (pool.length === 0) return;
 
+        // choose the top-most main in view; stable before switching
         let candidateId: string | null = null;
-        let best = Number.POSITIVE_INFINITY;
-        const mid = window.innerHeight / 2;
+        let bestTop = Number.POSITIVE_INFINITY;
 
         for (const el of pool) {
-          const r = el.getBoundingClientRect();
-          const center = r.top + r.height / 2;
-          const delta  = Math.abs(center - mid);
-          const bias   = isSub(el) ? 0 : 4;
-          const score  = delta + bias;
-          if (score < best) { best = score; candidateId = el.id || null; }
+          const t = el.getBoundingClientRect().top;
+          if (t >= 0 && t < bestTop) { bestTop = t; candidateId = el.id || null; }
         }
         if (!candidateId || candidateId === activeId) return;
 
@@ -233,58 +199,27 @@ export default function MobileSectionNav({ items }: Props) {
   return (
     <nav
       ref={containerRef}
-      className="mobile-section-nav fixed bottom-1 inset-x-0 z-40 flex gap-3 py-3 px-2 overflow-x-auto no-scrollbar bg-transparent backdrop-blur supports-[backdrop-filter]:bg-transparent"
+      className="mobile-section-nav fixed bottom-1 inset-x-0 z-[96] pointer-events-auto flex gap-3 py-3 px-2 overflow-x-auto no-scrollbar bg-transparent backdrop-blur supports-[backdrop-filter]:bg-transparent"
       aria-label="Mobile section navigation"
     >
-      {items.map((main) => {
-        const subs = getSubs(main.id);
-
-        return (
-          <Fragment key={main.id}>
-            {/* Main pill */}
-            <motion.a
-              ref={(el: HTMLAnchorElement | null) => { buttonRefs.current[main.id] = el; }}
-              href={`#${main.id}`}
-              onClick={(e) => { e.preventDefault(); scrollToId(main.id); }}
-              aria-current={activeId === main.id ? "location" : undefined}
-              className={cn(
-                "px-4 py-2 rounded-md text-sm font-medium uppercase border whitespace-nowrap",
-                activeId === main.id
-                  ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)]"
-                  : "bg-[var(--olivea-cream)] text-[var(--olivea-olive)] border-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/10"
-              )}
-              initial={false}
-            >
-              {main.label}
-            </motion.a>
-
-            {/* Inline subsections */}
-            <AnimatePresence initial={false}>
-              {subs.map((sub) => (
-                <motion.a
-                  key={sub.id}
-                  ref={(el: HTMLAnchorElement | null) => { buttonRefs.current[sub.id] = el; }}
-                  href={`#${sub.id}`}
-                  onClick={(e) => { e.preventDefault(); scrollToId(sub.id); }}
-                  aria-current={activeId === sub.id ? "location" : undefined}
-                  className={cn(
-                    "px-4 py-2 rounded-md text-sm font-medium uppercase border whitespace-nowrap ml-2",
-                    activeId === sub.id
-                      ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)]"
-                      : "bg-[var(--olivea-cream)] text-[var(--olivea-olive)] border-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/10"
-                  )}
-                  initial={{ x: 10, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: 10, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                >
-                  {sub.label}
-                </motion.a>
-              ))}
-            </AnimatePresence>
-          </Fragment>
-        );
-      })}
+      {items.map((main) => (
+        <motion.a
+          key={main.id}
+          ref={(el: HTMLAnchorElement | null) => { buttonRefs.current[main.id] = el; }}
+          href={`#${main.id}`}
+          onClick={(e) => { e.preventDefault(); scrollToId(main.id); }}
+          aria-current={activeId === main.id ? "location" : undefined}
+          className={cn(
+            "px-4 py-2 rounded-md text-sm font-medium uppercase border whitespace-nowrap",
+            activeId === main.id
+              ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)]"
+              : "bg-[var(--olivea-cream)] text-[var(--olivea-olive)] border-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/10"
+          )}
+          initial={false}
+        >
+          {main.label}
+        </motion.a>
+      ))}
     </nav>
   );
 }

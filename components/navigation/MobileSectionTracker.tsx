@@ -44,8 +44,8 @@ export default function MobileSectionTracker({ sectionIds }: MobileSectionTracke
         },
         {
           root: null,
-          rootMargin: "-10% 0px -20% 0px",
-          threshold: [0.1, 0.2, 0.3, 0.4, 0.5],
+          rootMargin: `-${top}px 0px -66% 0px`,
+          threshold: [0.25],
         }
       )
       obs.observe(el)
