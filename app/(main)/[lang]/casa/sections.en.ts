@@ -3,50 +3,48 @@ export type NavSection = { id: string; title: string; subs?: NavSub[] };
 
 export const SECTIONS_CASA_EN: NavSection[] = [
   {
-    id: "habitaciones",
+    id: "rooms",
     title: "Rooms",
     subs: [
       { id: "esencia",         title: "Essence" },
-      { id: "confort_detalle", title: "Comfort" },
-      { id: "amplitud_luz",    title: "Light" },
-      { id: "paz_silencio",    title: "Quiet" },
+      { id: "detalle", title: "Comfort" },
+      { id: "luz",    title: "Light" },
     ],
   },
   {
-    id: "patio",
+    id: "courtyard",
     title: "Courtyard",
     subs: [
       { id: "memoria",             title: "Memory" },
-      { id: "estetica_equilibrio", title: "Balance" },
-      { id: "serenidad_clima",     title: "Serenity" },
+      { id: "estetica", title: "Balance" },
+      { id: "serenidad",     title: "Serenity" },
     ],
   },
   {
-    id: "diseno",
+    id: "design",
     title: "Design",
     subs: [
       { id: "luz",            title: "Light" },
-      { id: "acustica",       title: "Acoustics" },
       { id: "materiales",     title: "Materials" },
       { id: "sostenibilidad", title: "Sustainable" },
     ],
   },
   {
-    id: "mananas",
+    id: "mornings",
     title: "Mornings",
     subs: [
-      { id: "desayuno",       title: "Breakfast" },
-      { id: "programa_cafe",  title: "Coffee" },
+      { id: "breakfast",       title: "Breakfast" },
+      { id: "cafe",  title: "Coffee" },
       { id: "ritmo",          title: "Tempo" },
     ],
   },
   {
-    id: "servicios",
+    id: "services",
     title: "Services",
     subs: [
       { id: "conectividad",    title: "Wi-Fi" },
-      { id: "confort_termico", title: "Comfort" },
-      { id: "agua_amenities",  title: "Amenities" },
+      { id: "confort", title: "Comfort" },
+      { id: "amenities",  title: "Amenities" },
       { id: "accesibilidad",   title: "Access" },
       { id: "concierge",       title: "Concierge" },
     ],

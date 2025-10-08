@@ -8,9 +8,8 @@ export const SECTIONS_CASA_ES: NavSection[] = [
     title: "Habitaciones",
     subs: [
       { id: "esencia",         title: "Esencia" },
-      { id: "confort_detalle", title: "Confort" },
-      { id: "amplitud_luz",    title: "Luz" },
-      { id: "paz_silencio",    title: "Silencio" },
+      { id: "detalle", title: "Confort" },
+      { id: "luz",    title: "Luz" },
     ],
   },
   {

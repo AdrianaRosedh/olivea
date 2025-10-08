@@ -44,8 +44,8 @@ export const SECTIONS_CAFE_ES: NavSection[] = [
     ],
   },
   {
-    id: "bebidas",
-    title: "Bebidas",
+    id: "menu",
+    title: "Menú",
     subs: [
       { id: "espresso", title: "Espresso" },
       { id: "filtro",   title: "Filtro" },
