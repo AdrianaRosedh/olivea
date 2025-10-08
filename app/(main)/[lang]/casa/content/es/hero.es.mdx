@@ -81,17 +81,17 @@ import CasaLogo from '@/assets/herocasa.svg'
               </button>
 
               <a
-                href="#habitaciones"
-                aria-label="Ver habitaciones"
+                href="#servicios"
+                aria-label="Ver servicios"
                 onClick={(e) => {
                   e.preventDefault();
-                  const el = document.getElementById('habitaciones') || document.querySelector('.main-section#habitaciones');
+                  const el = document.getElementById('servicios') || document.querySelector('.main-section#servicios');
                   if (!el) return;
                   const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
                   const header = Number.parseInt(v || '64', 10) || 64;
                   const top = window.scrollY + el.getBoundingClientRect().top - header - 8;
                   window.scrollTo({ top, behavior: 'smooth' });
-                  if (window.location.hash.slice(1) !== 'habitaciones') history.replaceState(null, '', '#habitaciones');
+                  if (window.location.hash.slice(1) !== 'servicios') history.replaceState(null, '', '#servicios');
                 }}
                 className="
                   inline-flex items-center justify-center
@@ -103,7 +103,7 @@ import CasaLogo from '@/assets/herocasa.svg'
                   active:scale-[0.98]
                 "
               >
-                Habitaciones
+                Servicios
               </a>
             </div>
           </Reveal>

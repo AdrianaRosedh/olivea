@@ -81,19 +81,19 @@ import CasaLogo from '@/assets/herocasa.svg'
                 Reserve
               </button>
 
-              {/* Scroll to Rooms (change target id if your section differs) */}
+              {/* Scroll to services (change target id if your section differs) */}
               <a
-                href="#rooms"
-                aria-label="View rooms"
+                href="#services"
+                aria-label="View services"
                 onClick={(e) => {
                   e.preventDefault();
-                  const el = document.getElementById('rooms') || document.querySelector('.main-section#rooms');
+                  const el = document.getElementById('services') || document.querySelector('.main-section#services');
                   if (!el) return;
                   const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
                   const header = Number.parseInt(v || '64', 10) || 64;
                   const top = window.scrollY + el.getBoundingClientRect().top - header - 8;
                   window.scrollTo({ top, behavior: 'smooth' });
-                  if (window.location.hash.slice(1) !== 'rooms') history.replaceState(null, '', '#rooms');
+                  if (window.location.hash.slice(1) !== 'services') history.replaceState(null, '', '#services');
                 }}
                 className="
                   inline-flex items-center justify-center
@@ -105,7 +105,7 @@ import CasaLogo from '@/assets/herocasa.svg'
                   active:scale-[0.98]
                 "
               >
-                Rooms
+                Services
               </a>
             </div>
           </Reveal>
