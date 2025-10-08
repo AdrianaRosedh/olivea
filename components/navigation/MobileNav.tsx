@@ -35,7 +35,7 @@ export function MobileNav() {
   }, []);
 
   return (
-    <div className="fixed bottom-16 right-3 z-50 flex flex-col gap-2 md:hidden">
+    <div className="fixed bottom-16 right-3 z-200 flex flex-col gap-2 md:hidden">
       {/* Reserve button */}
       <button
         id="reserve-toggle"
