@@ -169,6 +169,14 @@
   .fill-nav a:not(.active):hover::before { clip-path: circle(150% at var(--hover-x) 50%); }
   .fill-nav a:not(.active):hover { color: white; }
 
+/* Background gradient */
+@property --scroll-per {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+:root { --scroll-per: 0; }
+
 /* ────────────────────────────────────────────────────────────────── */
 /* Utilities                                                         */
 /* ────────────────────────────────────────────────────────────────── */
