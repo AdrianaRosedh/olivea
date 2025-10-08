@@ -41,8 +41,10 @@ type Override = Array<{ id: string; label: string; subs?: Array<{ id: string; la
 // Add this helper type near the top of the file
 type StyleVars = React.CSSProperties & {
   ["--dock-gutter"]?: string;
+  ["--dock-left"]?: string;
+  ["--dock-right"]?: string;
   ["--mobile-nav-h"]?: string;
-  ["--header-h"]?: string; 
+  ["--header-h"]?: string;
 };
 
 const mapSections = (
@@ -81,23 +83,25 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const dockLeftPx  = 240; // left column + gap (tune to your exact dock left width)
   const dockRightPx = 96;  // right icon rail + gap
   const dockGapPx   = 24;  // extra breathing room on both sides
-  const dockGutter  = dockLeftPx + dockRightPx + dockGapPx * 2;
-  const mobileBarPx = 84;
+
   
   const headerH = isMobile ? 64 : 112; 
-  const mainStyle: StyleVars | undefined = isMobile
+  const mainStyle = (isMobile
     ? {
-        // MOBILE: one symmetric gutter source (with notch support)
         paddingLeft:  "max(16px, env(safe-area-inset-left))",
         paddingRight: "max(16px, env(safe-area-inset-right))",
-        "--mobile-nav-h": `${mobileBarPx}px`,
+        "--mobile-nav-h": `${84}px`,
         "--header-h": `${headerH}px`,
       }
     : {
-        // DESKTOP: keep your dock gutter var
-        "--dock-gutter": `${dockGutter}px`,
-        "--header-h": `${headerH}px`,
-      };
+        "--dock-gutter": `${dockLeftPx + dockRightPx + dockGapPx * 2}px`,
+        "--dock-left":   `${dockLeftPx + dockGapPx}px`,
+        "--dock-right":  `${dockRightPx + dockGapPx}px`,
+        "--header-h":    `${headerH}px`,
+      }
+  ) satisfies StyleVars;
+  // let Casa/Farm/Café pages opt-in (or just always 'true' if you prefer)
+  const allowHeroBreakout = isCasaPage || isRestaurantPage || isCafePage;
 
   // ─── MOBILE BOTTOM NAV ITEMS ─────────────────────────────────────────────────
   const mobileNavItems = (() => {
@@ -148,7 +152,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
       {mounted && !isHome && <Navbar lang={lang} dictionary={dictionary} />}
 
-      <main className={isHome ? "p-0 m-0 overflow-hidden" : "mx-auto w-full max-w-[1100px] pt-16 md:pt-28 md:px-8 pb-20"} style={mainStyle}>
+      <main data-hero-breakout={allowHeroBreakout ? "true" : "false"} className={isHome ? "p-0 m-0 overflow-hidden" : "mx-auto w-full max-w-[1100px] pt-16 md:pt-28 md:px-8 pb-20"} style={mainStyle}>
         {(isCasaPage || isRestaurantPage || isCafePage)
           ? <NavigationProvider>{children}</NavigationProvider>
           : children}

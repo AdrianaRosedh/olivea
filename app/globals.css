@@ -277,3 +277,33 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
+
+/* ────────────────────────────────────────────────────────────────── */
+/* Dock metrics (desktop)                                                */
+/* ────────────────────────────────────────────────────────────────── */
+
+:root {
+  --dock-left: 240px;   /* left column + its gap */
+  --dock-right: 96px;   /* right rail + its gap */
+}
+
+@media (min-width: 768px) {
+  /* Ensure the section itself ignores container caps/padding */
+  main[data-hero-breakout="true"] section#hero {
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    /* Do the breakout directly on the section (strongest + simplest) */
+    width: calc(100vw - var(--dock-left, 264px) - var(--dock-right, 120px)) !important;
+    margin-left: calc(50% - 50vw + var(--dock-left, 264px)) !important;
+    margin-right: calc(50% - 50vw + var(--dock-right, 120px)) !important;
+  }
+
+  /* If your card is inside wrappers, also expand the first few containers. */
+  main[data-hero-breakout="true"] section#hero > *,
+  main[data-hero-breakout="true"] section#hero > * > *,
+  main[data-hero-breakout="true"] section#hero > * > * > * {
+    max-width: none !important;
+  }
+}

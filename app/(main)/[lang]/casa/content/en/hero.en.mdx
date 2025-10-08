@@ -5,16 +5,16 @@ import CasaLogo from '@/assets/herocasa.svg'
 <section
   id="hero"
   className="
-    relative mx-auto w-full
-    md:max-w-[min(1100px,92vw)]
-    -mt-2
-    flex items-center justify-center
-    pb-0
+    relative w-full mx-auto
+    md:max-w-none md:w-full
+    -mt-2 flex items-center justify-center pb-0
   "
 >
   <div
     className="
-      relative w-full
+      relative
+      md:!max-w-none md:!w-[min(1600px,calc(100vw-var(--dock-left,220px)-var(--dock-right,96px)-48px))]
+      w-full
       h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+6px)]
       md:h-[720px] lg:h-[800px]
       overflow-hidden rounded-[28px]
@@ -33,7 +33,7 @@ import CasaLogo from '@/assets/herocasa.svg'
       priority
       fetchPriority="high"
       loading="eager"
-      sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+      sizes="(max-width: 768px) 100vw, min(1600px, calc(100vw - var(--dock-left,220px) - var(--dock-right,96px) - 48px))"
       placeholder="blur"
       blurDataURL="data:image/jpeg;base64,REPLACE_WITH_REAL_BASE64_LQIP"
     />
@@ -43,35 +43,82 @@ import CasaLogo from '@/assets/herocasa.svg'
       <h1 className="sr-only">Casa Olivea</h1>
 
       <div className="relative h-full flex items-center justify-center">
-        <div className="pointer-events-auto text-center px-4">
+        <div
+          className="
+            pointer-events-auto text-center px-4
+            relative md:[left:calc((var(--dock-right,120px)-var(--dock-left,264px))/2)]
+            flex flex-col items-center
+            gap-[var(--hero-gap,14px)] md:[--hero-gap:22px] lg:[--hero-gap:26px]
+            -mt-2                                   /* mobile lift without transform */
+            md:[top:calc(-1*clamp(12px,3vh,48px))]  /* desktop lift via position, not transform */
+            lg:[top:calc(-1*clamp(16px,4vh,64px))]
+            max-w-[min(92vw,420px)] md:max-w-none mx-auto
+          "
+        >
+          {/* LOGO (slightly smaller on desktop) */}
           <Reveal preset="fade" delay={0.05}>
-            <CasaLogo className="mx-auto w-[180px] md:w-[220px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] text-white fill-white" />
+            <CasaLogo className="mx-auto w-[170px] md:w-[240px] lg:w-[280px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] text-white fill-white" />
           </Reveal>
 
+          {/* PHRASE — no extra margins; stays exactly midway thanks to the shared gap */}
           <Reveal preset="up" delay={0.12}>
-            <p className="mt-4 text-white/90 md:text-lg drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
-              Where The Garden Is The Essence
-            </p>
+            <div className="w-full text-center">
+              {/* MOBILE: single-line, no side rules */}
+              <span
+                className="
+                  md:hidden
+                  inline-block whitespace-nowrap leading-tight
+                  font-serif italic uppercase text-white/95
+                  tracking-[0.035em]               /* tighter so it fits */
+                  text-[clamp(11px,2.6vw,12.5px)]  /* smaller clamp to avoid wrap */
+                  drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
+                "
+              >
+                Where The Garden Is The Essence
+              </span>
+
+              {/* DESKTOP: side rules + one line */}
+              <span className="hidden md:inline-flex items-center md:gap-4 md:[--rule:2.5rem] lg:[--rule:3.5rem]">
+                <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
+                <span
+                  className="
+                    inline-block leading-tight md:whitespace-nowrap
+                    font-serif italic uppercase text-white/95
+                    tracking-[0.14em] md:text-base lg:text-lg
+                    drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
+                  "
+                >
+                  Where The Garden Is The Essence
+                </span>
+                <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
+              </span>
+            </div>
           </Reveal>
 
-          <Reveal preset="up" delay={0.18}>
-            <div className="mt-6 flex items-center justify-center gap-3">
-              {/* Reserve: desktop dispatches event to Navbar; mobile clicks existing trigger */}
+          {/* BUTTONS — no mt; the same gap applies */}
+          <Reveal preset="fade" delay={0.18}>
+            <div className="flex items-center justify-center gap-2.5 md:gap-4 pb-[max(0px,env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 aria-label="Reserve a room"
                 onClick={() => {
-                  const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+                  const isDesktop =
+                    typeof window !== "undefined" &&
+                    window.matchMedia("(min-width: 768px)").matches;
                   if (isDesktop) {
                     window.dispatchEvent(new Event("olivea:reserve"));
                   } else {
-                    document.getElementById("reserve-toggle")?.click();
+                    const t = document.getElementById("reserve-toggle");
+                    if (t && typeof t.click === "function") t.click();
                   }
                 }}
                 className="
                   inline-flex items-center justify-center
-                  rounded-full px-4 py-2 text-sm font-medium tracking-wide
-                  text-white/90 border border-white/35 bg-white/0 backdrop-blur-[2px]
+                  rounded-full px-3.5 py-1.5 text-[15px]   /* smaller mobile */
+                  md:px-5 md:py-2.5 md:text-base
+                  lg:px-6 lg:py-3   lg:text-[17px]
+                  font-medium tracking-wide
+                  text-white/90 border border-white/35 bg-white/[0.01] backdrop-blur-[2px]
                   shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
                   transition hover:bg-white/8 hover:text-white
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
@@ -81,7 +128,6 @@ import CasaLogo from '@/assets/herocasa.svg'
                 Reserve
               </button>
 
-              {/* Scroll to services (change target id if your section differs) */}
               <a
                 href="#services"
                 aria-label="View services"
@@ -97,8 +143,11 @@ import CasaLogo from '@/assets/herocasa.svg'
                 }}
                 className="
                   inline-flex items-center justify-center
-                  rounded-full px-4 py-2 text-sm font-medium tracking-wide
-                  text-white/80 border border-white/30 bg-white/0 backdrop-blur-[2px]
+                  rounded-full px-3.5 py-1.5 text-[15px]   /* smaller mobile */
+                  md:px-5 md:py-2.5 md:text-base
+                  lg:px-6 lg:py-3   lg:text-[17px]
+                  font-medium tracking-wide
+                  text-white/80 border border-white/30 bg-white/[0.01] backdrop-blur-[2px]
                   shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
                   transition hover:bg-white/6 hover:text-white
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
