@@ -66,7 +66,7 @@ export default function Footer({ dict }: FooterProps) {
   ]
 
   return (
-    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[80] bg-transparent backdrop-blur-md text-[12px] text-[var(--olivea-ink)] font-light tracking-wide">
+    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[200] bg-transparent backdrop-blur-md text-[12px] text-[var(--olivea-ink)] font-light tracking-wide pointer-events-auto isolate">
       <div className="w-full flex justify-between items-center px-2 sm:px-3 py-2">
         {/* Left */}
         <div className="flex-1 whitespace-nowrap">
@@ -95,10 +95,12 @@ export default function Footer({ dict }: FooterProps) {
 
           <button
             type="button"
-            onClick={() => setOpen(!open)}
+            onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+            aria-haspopup="menu"
+            aria-expanded={open}
             className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
           >
-            <GlobeIcon className="w-4 h-4 text-[var(--olivea-olive)] transition-colors" />
+            <GlobeIcon className="w-4 h-4 text-current transition-colors" />
             {lang.toUpperCase()}
           </button>
 
