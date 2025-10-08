@@ -22,16 +22,18 @@ import CafeLogo from '@/assets/herocafe.svg'   /* SVGR import */
       shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
     "
   >
-    <ParallaxImage
-      src="/images/cafe/hero.jpg"
-      alt="Olivea Café — garden, coffee and community"
-      heightVh={100}
-      speed={0.30}
-      priority
-      className="h-full"
-      fit="cover"
-      objectPosition="50% 40%"
-    />
+  <ParallaxImage
+    src="/images/cafe/hero.jpg"
+    alt="Olivea Café — garden, coffee and community"
+    heightVh={100}
+    speed={0.30}
+    priority
+    fetchPriority="high"
+    loading="eager"
+    sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+    placeholder="blur"
+    blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZTVlMWNkIi8+PC9zdmc+"
+  />
 
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />

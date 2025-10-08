@@ -10,20 +10,22 @@ type StyleVars = React.CSSProperties & Record<string, string | number | undefine
 type ParallaxImageProps = {
   src: string;
   alt: string;
-  /** Used only if parent surface didn't provide a height */
-  heightVh?: number;
-  /** Exposed for future effect / diagnostics */
-  speed?: number;
-  /** Applied to <Image/> (not wrapper) */
-  className?: string;
-  /** Applied to wrapper */
-  style?: StyleVars;
+  heightVh?: number;                 // wrapper height if no parent height
+  speed?: number;                    // exposed for diagnostics
+  className?: string;                // applied to <Image/>
+  style?: StyleVars;                 // applied to wrapper
   onError?: ImageProps["onError"];
-  sizes?: ImageProps["sizes"];
-  priority?: ImageProps["priority"];
-  /** How the image should fit the surface */
+
+  /** === Performance controls (match CardParallax) === */
+  sizes?: ImageProps["sizes"];               // responsive width hints
+  priority?: ImageProps["priority"];         // true for the ONE LCP image
+  fetchPriority?: ImageProps["fetchPriority"]; // "high" for the LCP
+  loading?: ImageProps["loading"];           // "eager" for the LCP
+  quality?: number;
+  placeholder?: "blur" | "empty";
+  blurDataURL?: string;
+
   fit?: "cover" | "contain";
-  /** Optional focal point (e.g., "50% 40%") */
   objectPosition?: string;
 };
 
@@ -35,12 +37,20 @@ export default function ParallaxImage({
   className,
   style,
   onError,
+
+  // perf props
   sizes,
   priority,
-  fit = "cover",                    // ← default: fill the card
+  fetchPriority,
+  loading,
+  quality,
+  placeholder,
+  blurDataURL,
+
+  fit = "cover",
   objectPosition,
 }: ParallaxImageProps) {
-  // If caller passes "h-full", make wrapper 100% high so <Image fill/> has a box.
+  // If caller passes "h-full", make wrapper fill parent so <Image fill/> has a box
   const wrapperStyle: StyleVars = {
     ...(className?.includes("h-full") ? { height: "100%" } : { height: `${heightVh}vh` }),
     ...style,
@@ -57,6 +67,11 @@ export default function ParallaxImage({
         fill
         sizes={sizes}
         priority={priority}
+        fetchPriority={fetchPriority}
+        loading={priority ? "eager" : loading}
+        quality={quality}
+        placeholder={blurDataURL ? "blur" : placeholder}
+        blurDataURL={blurDataURL}
         onError={(e) => {
           console.error("[ParallaxImage] failed to load:", src);
           onError?.(e);

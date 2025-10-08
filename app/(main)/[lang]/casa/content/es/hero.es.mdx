@@ -1,6 +1,6 @@
 import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
-import CasaLogo from '@/assets/herocasa.svg'   /* SVGR import */
+import CasaLogo from '@/assets/herocasa.svg'
 
 <section
   id="hero"
@@ -27,15 +27,19 @@ import CasaLogo from '@/assets/herocasa.svg'   /* SVGR import */
       alt="Casa Olivea — nuestro refugio"
       heightVh={100}
       speed={0.30}
-      priority
       className="h-full"
       fit="cover"
       objectPosition="50% 40%"
+      priority
+      fetchPriority="high"
+      loading="eager"
+      sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+      placeholder="blur"
+      blurDataURL="data:image/svg+xml;base64,PHN2Zy8+"
     />
 
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
-
       <h1 className="sr-only">Casa Olivea</h1>
 
       <div className="relative h-full flex items-center justify-center">

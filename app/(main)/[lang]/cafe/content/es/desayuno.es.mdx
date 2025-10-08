@@ -9,14 +9,25 @@ import ParallaxImage from '@/components/scroll/ParallaxImage'
   title={null}
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
 >
-  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Desayuno</h2></Reveal>
+  <Reveal preset="up">
+    <h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Desayuno</h2>
+  </Reveal>
 
   <div className="space-y-6 md:space-y-8">
     <Sub id="sabor" preset="up">En el plato más sencillo resaltamos el sabor de casa…</Sub>
     <Sub id="origen" preset="left">Los ingredientes se siguen hasta el origen…</Sub>
 
     <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
-      <ParallaxImage src="/images/cafe/breakfast.jpg" alt="Desayuno desde el huerto" heightVh={46} speed={0.22} />
+      <ParallaxImage
+        src="/images/cafe/breakfast.jpg"
+        alt="Desayuno desde el huerto"
+        heightVh={46}
+        speed={0.22}
+        sizes="(max-width: 768px) 100vw, 900px"
+        loading="lazy"
+        placeholder="blur"
+        blurDataURL="data:image/svg+xml;base64,PHN2Zy8+"
+      />
     </div>
 
     <Sub id="sostenible" preset="fade">El menú sigue nuestra línea de sostenibilidad…</Sub>

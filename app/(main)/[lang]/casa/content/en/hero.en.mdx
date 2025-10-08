@@ -1,13 +1,13 @@
 import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
-import CasaLogo from '@/assets/herocasa.svg'   /* SVGR import */
+import CasaLogo from '@/assets/herocasa.svg'
 
 <section
   id="hero"
   className="
     relative mx-auto w-full
     md:max-w-[min(1100px,92vw)]
-    -mt-2                 /* lift the card slightly on mobile */
+    -mt-2
     flex items-center justify-center
     pb-0
   "
@@ -15,29 +15,32 @@ import CasaLogo from '@/assets/herocasa.svg'   /* SVGR import */
   <div
     className="
       relative w-full
-      /* MOBILE: fill the viewport after header + bottom nav (use dvh) */
       h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+6px)]
-      /* DESKTOP/TABLET caps */
       md:h-[720px] lg:h-[800px]
       overflow-hidden rounded-[28px]
       ring-1 ring-black/10
       shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
     "
   >
+    {/* LQIP: replace with a real tiny base64 preview of /images/casa/hero.jpg */}
     <ParallaxImage
       src="/images/casa/hero.jpg"
       alt="Casa Olivea — our refuge"
       heightVh={100}
       speed={0.30}
-      priority
       className="h-full"
       fit="cover"
       objectPosition="50% 40%"
+      priority
+      fetchPriority="high"
+      loading="eager"
+      sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+      placeholder="blur"
+      blurDataURL="data:image/jpeg;base64,/* REAL_BASE64_LQIP */"
     />
 
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
-
       <h1 className="sr-only">Casa Olivea</h1>
 
       <div className="relative h-full flex items-center justify-center">

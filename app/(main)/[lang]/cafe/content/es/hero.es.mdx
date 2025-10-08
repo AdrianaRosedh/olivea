@@ -1,6 +1,6 @@
 import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
-import CafeLogo from '@/assets/herocafe.svg'   /* SVGR import */
+import CafeLogo from '@/assets/herocafe.svg'
 
 <section
   id="hero"
@@ -27,10 +27,15 @@ import CafeLogo from '@/assets/herocafe.svg'   /* SVGR import */
       alt="Olivea Café — jardín, café y comunidad"
       heightVh={100}
       speed={0.30}
-      priority
       className="h-full"
       fit="cover"
       objectPosition="50% 40%"
+      priority
+      fetchPriority="high"
+      loading="eager"
+      sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+      placeholder="blur"
+      blurDataURL="data:image/svg+xml;base64,PHN2Zy8+"
     />
 
     <div className="pointer-events-none absolute inset-0">

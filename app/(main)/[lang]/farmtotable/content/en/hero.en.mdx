@@ -7,7 +7,7 @@ import HeroFarmLogo from '@/assets/herofarm.svg'
   className="
     relative mx-auto w-full
     md:max-w-[min(1100px,92vw)]
-    -mt-2                 /* lift the card slightly on mobile */
+    -mt-2
     flex items-center justify-center
     pb-0
   "
@@ -15,9 +15,7 @@ import HeroFarmLogo from '@/assets/herofarm.svg'
   <div
     className="
       relative w-full
-      /* MOBILE: fill the viewport after header + bottom nav (use dvh) */
       h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+6px)]
-      /* DESKTOP/TABLET caps */
       md:h-[720px] lg:h-[800px]
       overflow-hidden rounded-[28px]
       ring-1 ring-black/10
@@ -29,15 +27,21 @@ import HeroFarmLogo from '@/assets/herofarm.svg'
       alt="Olivea Farm to Table — our garden"
       heightVh={100}
       speed={0.30}
-      priority
       className="h-full"
       fit="cover"
       objectPosition="50% 40%"
+      priority
+      fetchPriority="high"
+      loading="eager"
+      sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+      placeholder="blur"
+      blurDataURL="data:image/svg+xml;base64,PHN2Zy8+"
     />
 
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
       <h1 className="sr-only">Olivea Farm-to-Table</h1>
+
       <div className="relative h-full flex items-center justify-center">
         <div className="pointer-events-auto text-center px-4">
           <Reveal preset="fade" delay={0.05}>
@@ -53,5 +57,3 @@ import HeroFarmLogo from '@/assets/herofarm.svg'
     </div>
   </div>
 </section>
-
-
