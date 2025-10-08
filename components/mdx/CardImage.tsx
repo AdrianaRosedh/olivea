@@ -3,55 +3,83 @@
 
 import Image, { type ImageProps } from "next/image";
 import CardFrame from "./CardFrame";
-import { cn } from "@/lib/utils";
 
-type Width = "narrow" | "content" | "wide" | "bleed";
-type Align = "center" | "left" | "right";
-
-type CardImageProps = Omit<ImageProps, "alt"> & {
-  alt: string;
-  widthVariant?: Width;
-  align?: Align;
-  /** fixed banner height (px) per breakpoint; omit for intrinsic height */
-  hPx?: { mobile?: number; md?: number; lg?: number };
-  caption?: string;
-  frameClassName?: string;
-};
+type StyleVars = React.CSSProperties & Record<string, string | number | undefined>;
 
 export default function CardImage({
+  src,
   alt,
   widthVariant = "content",
   align = "center",
-  hPx,
+  hPx = { mobile: 220 },        // px heights per breakpoint
   className,
   frameClassName,
-  caption,
+
+  // NEW perf props
   sizes,
-  ...img
-}: CardImageProps) {
-  const style: React.CSSProperties = {};
-  if (hPx?.mobile) style.height = `${hPx.mobile}px`;
-  if (hPx?.md || hPx?.lg) {
-    // optional: you can add CSS helpers similar to CardParallax if needed
-  }
+  loading,
+  quality,
+  placeholder,
+  blurDataURL,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  widthVariant?: "narrow" | "content" | "wide" | "bleed";
+  align?: "center" | "left" | "right";
+  hPx?: { mobile?: number; md?: number; lg?: number };
+  className?: string;
+  frameClassName?: string;
+
+  sizes?: ImageProps["sizes"];
+  loading?: ImageProps["loading"];
+  quality?: number;
+  placeholder?: "blur" | "empty";
+  blurDataURL?: string;
+  priority?: boolean;
+}) {
+  const surfaceStyle: StyleVars = {};
+  // inline base height
+  if (hPx?.mobile) surfaceStyle.height = `${hPx.mobile}px`;
+  // CSS vars for md/lg (so Tailwind utils can apply)
+  if (hPx?.md) surfaceStyle["--card-md-h"] = `${hPx.md}px`;
+  if (hPx?.lg) surfaceStyle["--card-lg-h"] = `${hPx.lg}px`;
+
+  // width hints
+  const sizesDefault =
+    widthVariant === "bleed"
+      ? "100vw"
+      : widthVariant === "wide"
+      ? "(max-width: 768px) 100vw, 1100px"
+      : widthVariant === "content"
+      ? "(max-width: 768px) 100vw, 880px"
+      : "(max-width: 768px) 100vw, 640px";
+
+  const effectiveSizes = sizes ?? sizesDefault;
+  const effectivePlaceholder: "blur" | "empty" =
+    blurDataURL ? "blur" : (placeholder ?? "empty");
+  const effectiveLoading: ImageProps["loading"] = priority ? "eager" : loading;
 
   return (
-    <figure className="my-6 md:my-8">
+    <div className="my-6 md:my-8">
       <CardFrame width={widthVariant} align={align} className={frameClassName}>
-        <div className="relative w-full md:h-auto" style={style}>
+        {/* Add utilities in your CSS: .md:card-md { height: var(--card-md-h) } .lg:card-lg { height: var(--card-lg-h) } */}
+        <div className={`relative w-full md:card-md lg:card-lg`} style={surfaceStyle}>
           <Image
-            {...img}
+            src={src}
             alt={alt}
-            sizes={sizes ?? "(min-width:1024px) 900px, 92vw"}
-            className={cn("w-full h-full object-cover", className)}  // fill by default
-            priority={img.priority ?? false}
             fill
+            sizes={effectiveSizes}
+            priority={priority}
+            loading={effectiveLoading}
+            fetchPriority={priority ? "high" : undefined}
+            quality={quality}
+            placeholder={effectivePlaceholder}
+            blurDataURL={blurDataURL}
+            className={`w-full h-full object-cover ${className ?? ""}`}
           />
         </div>
       </CardFrame>
-      {caption ? (
-        <figcaption className="mt-2 text-center text-sm text-black/60">{caption}</figcaption>
-      ) : null}
-    </figure>
+    </div>
   );
 }

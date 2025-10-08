@@ -10,17 +10,17 @@ type StyleVars = React.CSSProperties & Record<string, string | number | undefine
 type ParallaxImageProps = {
   src: string;
   alt: string;
-  heightVh?: number;                 // wrapper height if no parent height
-  speed?: number;                    // exposed for diagnostics
-  className?: string;                // applied to <Image/>
-  style?: StyleVars;                 // applied to wrapper
+  heightVh?: number;
+  speed?: number;
+  className?: string;        // applied to <Image/>
+  style?: StyleVars;         // applied to wrapper
   onError?: ImageProps["onError"];
 
-  /** === Performance controls (match CardParallax) === */
-  sizes?: ImageProps["sizes"];               // responsive width hints
-  priority?: ImageProps["priority"];         // true for the ONE LCP image
-  fetchPriority?: ImageProps["fetchPriority"]; // "high" for the LCP
-  loading?: ImageProps["loading"];           // "eager" for the LCP
+  // perf props (optional per call)
+  sizes?: ImageProps["sizes"];
+  priority?: ImageProps["priority"];
+  fetchPriority?: ImageProps["fetchPriority"];
+  loading?: ImageProps["loading"];
   quality?: number;
   placeholder?: "blur" | "empty";
   blurDataURL?: string;
@@ -38,7 +38,6 @@ export default function ParallaxImage({
   style,
   onError,
 
-  // perf props
   sizes,
   priority,
   fetchPriority,
@@ -50,7 +49,7 @@ export default function ParallaxImage({
   fit = "cover",
   objectPosition,
 }: ParallaxImageProps) {
-  // If caller passes "h-full", make wrapper fill parent so <Image fill/> has a box
+  // Wrapper always has a real height
   const wrapperStyle: StyleVars = {
     ...(className?.includes("h-full") ? { height: "100%" } : { height: `${heightVh}vh` }),
     ...style,
@@ -59,18 +58,25 @@ export default function ParallaxImage({
 
   const fitClass = fit === "contain" ? "object-contain" : "object-cover";
 
+  // SAFETY DEFAULTS (computed inside the component)
+  const effectiveSizes = sizes ?? "(max-width: 768px) 100vw, 900px";
+  // If caller asked for blur but didn't supply data, use "empty" to avoid blank paint
+  const effectivePlaceholder: "blur" | "empty" =
+    blurDataURL ? "blur" : (placeholder ?? "empty");
+  const effectiveLoading: ImageProps["loading"] = priority ? "eager" : loading;
+
   return (
     <div className="relative w-full" style={wrapperStyle} data-parallax-speed={speed}>
       <Image
         src={src}
         alt={alt}
         fill
-        sizes={sizes}
+        sizes={effectiveSizes}
         priority={priority}
         fetchPriority={fetchPriority}
-        loading={priority ? "eager" : loading}
+        loading={effectiveLoading}
         quality={quality}
-        placeholder={blurDataURL ? "blur" : placeholder}
+        placeholder={effectivePlaceholder}
         blurDataURL={blurDataURL}
         onError={(e) => {
           console.error("[ParallaxImage] failed to load:", src);

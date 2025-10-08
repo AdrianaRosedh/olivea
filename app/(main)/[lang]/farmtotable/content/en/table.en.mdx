@@ -19,6 +19,7 @@ import CardGrid from '@/components/mdx/CardGrid'
     We read the table—culture, allergies, preferences. Timing and temperature are adjusted to serve each plate at its peak.
   </Sub>
 
+  {/* optional: replace blurDataURL with a real tiny base64 preview */}
   <CardParallax
     src="/images/farm/dining.jpg"
     alt="Dining room rhythm"
@@ -27,6 +28,10 @@ import CardGrid from '@/components/mdx/CardGrid'
     speed={0.30}
     heightVh={100}
     hVh={{ mobile: 56, md: 60 }}
+    sizes="100vw"
+    loading="lazy"
+    placeholder="blur"
+    blurDataURL="data:image/svg+xml;base64,PHN2Zy8+"
   />
 
   <Sub id="narrative" preset="fade">
@@ -34,7 +39,21 @@ import CardGrid from '@/components/mdx/CardGrid'
   </Sub>
 
   <CardGrid imgs={[
-    { src:'/images/farm/room-temp.jpg', alt:'Right temperature' },
-    { src:'/images/farm/plates.jpg',    alt:'Dish cadence' }
+    {
+      src:'/images/farm/room-temp.jpg',
+      alt:'Right temperature',
+      sizes:'(max-width:768px) 100vw, 900px',
+      placeholder:'blur',
+      blurDataURL:'data:image/svg+xml;base64,PHN2Zy8+',
+      aspect:'4/3'
+    },
+    {
+      src:'/images/farm/plates.jpg',
+      alt:'Dish cadence',
+      sizes:'(max-width:768px) 100vw, 900px',
+      placeholder:'blur',
+      blurDataURL:'data:image/svg+xml;base64,PHN2Zy8+',
+      aspect:'4/3'
+    }
   ]}/>
 </StickyBlock>
