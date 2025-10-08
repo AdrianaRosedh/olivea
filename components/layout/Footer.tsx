@@ -35,13 +35,13 @@ export default function Footer({ dict }: FooterProps) {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: PointerEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false)
       }
     }
-    document.addEventListener("click", handleClickOutside)
-    return () => document.removeEventListener("click", handleClickOutside)
+     document.addEventListener("pointerdown", handleClickOutside, { passive: true })
+     return () => document.removeEventListener("pointerdown", handleClickOutside)
   }, [])
 
   const switchLocale = (newLang: "en" | "es") => {
@@ -95,7 +95,8 @@ export default function Footer({ dict }: FooterProps) {
 
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); setOpen(v => !v); }}
             aria-haspopup="menu"
             aria-expanded={open}
             className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
@@ -107,10 +108,11 @@ export default function Footer({ dict }: FooterProps) {
           <AnimatePresence>
             {open && (
               <motion.div
+                onPointerDown={(e) => e.stopPropagation()}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
-                className="absolute bottom-full mb-2 right-0 bg-[#c6b7a8] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[90] w-32"
+                className="absolute bottom-full mb-2 right-0 bg-[#c6b7a8] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[220] w-32 pointer-events-auto"
               >
                 <button
                   type="button"
