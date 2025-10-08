@@ -1,68 +1,80 @@
-// components/navigation/MobileSectionTracker.tsx
-"use client"
+"use client";
 
-import { useEffect, useRef, useCallback } from "react"
-import { usePathname } from "next/navigation"
-import { useNavigation } from "@/contexts/NavigationContext"
+import { useEffect, useRef, useCallback } from "react";
+import { usePathname } from "next/navigation";
+import { useNavigation } from "@/contexts/NavigationContext";
 
 interface MobileSectionTrackerProps {
-  sectionIds: readonly string[]
+  sectionIds: readonly string[];
 }
 
 /**
- * Component that specifically handles mobile section tracking
- * This ensures the mobile navigation properly highlights active sections
+ * Watches main sections and updates activeSection while NOT in manual navigation.
  */
 export default function MobileSectionTracker({ sectionIds }: MobileSectionTrackerProps) {
-  const pathname = usePathname()
-  const observersRef = useRef<IntersectionObserver[]>([])
-  const { setActiveSection, isManualNavigation } = useNavigation()
+  const pathname = usePathname();
+  const observersRef = useRef<IntersectionObserver[]>([]);
+  const { setActiveSection, isManualNavigation } = useNavigation();
 
-  // 1) Wrap in useCallback so we can safely list as a dependency
+  const headerPx = () => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--header-h");
+    const n = parseInt(v || "", 10);
+    return Number.isFinite(n) && n > 0 ? n + 8 : 72; // header + a little breathing room
+  };
+
   const initializeObservers = useCallback(() => {
-    // Clean up any existing observers
-    observersRef.current.forEach((obs) => obs.disconnect())
-    observersRef.current = []
+    // cleanup any previous
+    observersRef.current.forEach((obs) => obs.disconnect());
+    observersRef.current = [];
 
-    // Skip if manual nav is in progress
-    if (isManualNavigation) return
+    if (isManualNavigation) return;
 
-    // Observe each section
+    const top = headerPx();
+
     sectionIds.forEach((id) => {
-      const el = document.getElementById(id)
+      const el = document.getElementById(id);
       if (!el) {
-        console.warn(`Section with id "${id}" not found`)
-        return
+        console.warn(`MobileSectionTracker: section "${id}" not found`);
+        return;
       }
+
       const obs = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.3 && !isManualNavigation) {
-              setActiveSection(id)
+          if (isManualNavigation) return;
+          // choose the top-most visible section deterministically
+          let candidate: HTMLElement | null = null;
+          let bestTop = Number.POSITIVE_INFINITY;
+
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            const t = (e.target as HTMLElement).getBoundingClientRect().top;
+            if (t >= 0 && t < bestTop) {
+              bestTop = t;
+              candidate = e.target as HTMLElement;
             }
-          })
+          }
+
+          if (candidate?.id) setActiveSection(candidate.id);
         },
         {
           root: null,
           rootMargin: `-${top}px 0px -66% 0px`,
-          threshold: [0.25],
+          threshold: [0.25], // calmer, fewer flips
         }
-      )
-      obs.observe(el)
-      observersRef.current.push(obs)
-    })
-  }, [sectionIds, isManualNavigation, setActiveSection])
+      );
+
+      obs.observe(el);
+      observersRef.current.push(obs);
+    });
+  }, [sectionIds, isManualNavigation, setActiveSection]);
 
   useEffect(() => {
-    // Initialize after a slight delay
-    const timer = window.setTimeout(initializeObservers, 200)
-
+    const timer = window.setTimeout(initializeObservers, 200);
     return () => {
-      // Clean up observers + timer
-      observersRef.current.forEach((obs) => obs.disconnect())
-      clearTimeout(timer)
-    }
-  }, [initializeObservers, pathname])  // now including initializeObservers
+      observersRef.current.forEach((obs) => obs.disconnect());
+      window.clearTimeout(timer);
+    };
+  }, [initializeObservers, pathname]);
 
-  return null
+  return null;
 }

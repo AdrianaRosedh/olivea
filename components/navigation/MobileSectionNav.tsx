@@ -11,6 +11,7 @@ import {
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { useNavigation } from "@/contexts/NavigationContext";
 
 // GSAP scroll (works with window or any scroll container)
 import gsap from "gsap";
@@ -22,7 +23,7 @@ export interface MobileSectionNavItem { id: string; label: string; }
 interface Props { items: MobileSectionNavItem[]; }
 
 /* Constants */
-const MANUAL_MS = 1000; // matches easing duration
+const MANUAL_MS = 900;  // matches easing duration with small buffer
 const STABLE_MS = 300;  // hysteresis for active
 const RAF_MIN_MS = 16;  // ~1 frame
 
@@ -35,7 +36,6 @@ function headerPx(): number {
 function setSnapDisabled(disabled: boolean) {
   document.documentElement.classList.toggle("snap-disable", disabled);
 }
-
 /** Find the nearest vertical scrollable ancestor (else fall back to window) */
 function getScrollableAncestor(el: Element): Window | Element {
   let node: Element | null = el.parentElement;
@@ -50,15 +50,12 @@ function getScrollableAncestor(el: Element): Window | Element {
 
 export default function MobileSectionNav({ items }: Props) {
   const pathname = usePathname();
+  const { isManualNavigation, setIsManualNavigation, setActiveSection } = useNavigation();
 
   const [activeId, setActiveId] = useState(items[0]?.id || "");
 
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRefs   = useRef<Record<string, HTMLAnchorElement | null>>({});
-
-  // manual navigation guard
-  const manualRef = useRef(false);
-  const manualTO  = useRef<number | null>(null);
 
   // hysteresis on id
   const pendingIdRef = useRef<string | null>(null);
@@ -67,8 +64,6 @@ export default function MobileSectionNav({ items }: Props) {
   // IO & scroll caches
   const interSet   = useRef<Set<HTMLElement>>(new Set());
   const allTargets = useRef<HTMLElement[]>([]);
-
-  // rAF throttle
   const tickingRef = useRef(false);
   const lastTsRef  = useRef(0);
 
@@ -83,7 +78,7 @@ export default function MobileSectionNav({ items }: Props) {
     return targets;
   }, [mainIds]);
 
-  /* Tap → smooth GSAP scroll; suppress IO/snap briefly */
+  /* Tap → smooth GSAP scroll; use shared manual lock; suppress snap & defer hash */
   const scrollToId = useCallback((id: string) => {
     const el =
       document.querySelector<HTMLElement>(`.main-section#${id}`) ||
@@ -93,37 +88,56 @@ export default function MobileSectionNav({ items }: Props) {
       return;
     }
 
-    manualRef.current = true;
+    setIsManualNavigation(true);
     setSnapDisabled(true);
-    if (manualTO.current) window.clearTimeout(manualTO.current);
-    manualTO.current = window.setTimeout(() => {
-      manualRef.current = false;
-      setSnapDisabled(false);
-    }, MANUAL_MS);
-
-    const topOffset = headerPx() + 8;
+    const header = headerPx() + 8;
     const scroller = getScrollableAncestor(el);
 
     gsap.to(scroller, {
       duration: 0.9,
       ease: "power3.out",
-      scrollTo: { y: el, offsetY: topOffset, autoKill: true },
-      // onStart/onComplete available if you want to flip extra flags
+      overwrite: "auto",
+      scrollTo: { y: el, offsetY: header, autoKill: false },
+      onComplete: () => {
+        // tiny instant settle (avoid second smooth)
+        const miss = el.getBoundingClientRect().top - header;
+        if (Math.abs(miss) > 10) {
+          if (scroller === window) window.scrollBy({ top: miss, behavior: "auto" });
+          else (scroller as Element).scrollBy({ top: miss, behavior: "auto" });
+        }
+
+        // set the hash AFTER we arrive (prevents instant browser jump)
+        if (window.location.hash.slice(1) !== id) {
+          history.replaceState(null, "", `#${id}`);
+        }
+
+        setIsManualNavigation(false);
+        setSnapDisabled(false);
+      },
     });
 
-    // reflect in UI + URL
+    // reflect selection immediately + safety unlock
     setActiveId(id);
-    if (window.location.hash.slice(1) !== id) {
-      history.replaceState(null, "", `#${id}`);
-    }
-    navigator.vibrate?.(8);
-  }, []);
+    setActiveSection(id);
+    window.setTimeout(() => {
+      setIsManualNavigation(false);
+      setSnapDisabled(false);
+    }, MANUAL_MS);
+  }, [setIsManualNavigation, setActiveSection]);
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent, id: string) => {
+      e.preventDefault();
+      scrollToId(id);
+    },
+    [scrollToId]
+  );
 
   /* IO: maintain a pool of visible MAINS; actual picking happens in rAF */
   useEffect(() => {
     const top = headerPx() + 8;
     const io = new IntersectionObserver((entries) => {
-      if (manualRef.current) return;
+      if (isManualNavigation) return;
       for (const e of entries) {
         const el = e.target as HTMLElement;
         if (e.isIntersecting) interSet.current.add(el);
@@ -139,7 +153,7 @@ export default function MobileSectionNav({ items }: Props) {
     const targets = rebuildTargets();
     targets.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [rebuildTargets, pathname]);
+  }, [rebuildTargets, pathname, isManualNavigation]);
 
   /* Scroll fallback (rAF throttled): pick top-most visible MAIN deterministically */
   useEffect(() => {
@@ -150,7 +164,7 @@ export default function MobileSectionNav({ items }: Props) {
 
       requestAnimationFrame(() => {
         tickingRef.current = false;
-        if (manualRef.current) return;
+        if (isManualNavigation) return;
 
         const pool = interSet.current.size > 0 ? Array.from(interSet.current) : allTargets.current;
         if (pool.length === 0) return;
@@ -183,7 +197,7 @@ export default function MobileSectionNav({ items }: Props) {
       window.removeEventListener("scroll", handler);
       window.removeEventListener("resize", handler);
     };
-  }, [activeId]);
+  }, [activeId, isManualNavigation]);
 
   /* Keep active pill centered horizontally */
   useEffect(() => {
@@ -207,7 +221,7 @@ export default function MobileSectionNav({ items }: Props) {
           key={main.id}
           ref={(el: HTMLAnchorElement | null) => { buttonRefs.current[main.id] = el; }}
           href={`#${main.id}`}
-          onClick={(e) => { e.preventDefault(); scrollToId(main.id); }}
+          onClick={(e) => handleClick(e, main.id)}
           aria-current={activeId === main.id ? "location" : undefined}
           className={cn(
             "px-4 py-2 rounded-md text-sm font-medium uppercase border whitespace-nowrap",
