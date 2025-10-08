@@ -40,8 +40,8 @@ export default function Footer({ dict }: FooterProps) {
         setOpen(false)
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
+    document.addEventListener("click", handleClickOutside)
+    return () => document.removeEventListener("click", handleClickOutside)
   }, [])
 
   const switchLocale = (newLang: "en" | "es") => {
