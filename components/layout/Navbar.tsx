@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, MouseEvent  } from "react";
+import { useState, useCallback, useRef, MouseEvent, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import OliveaFTTLogo from "@/assets/alebrije-1-Green.svg";
@@ -13,12 +13,8 @@ import { MobileNav } from "@/components/navigation/MobileNav";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 
-// CenterLink for the desktop navbar
-interface CenterLinkProps {
-  href: string;
-  label: string;
-  isActive: boolean;
-}
+/* CenterLink unchanged */
+interface CenterLinkProps { href: string; label: string; isActive: boolean; }
 function CenterLink({ href, label, isActive }: CenterLinkProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   const onMouseMove = (e: MouseEvent<HTMLAnchorElement>) => {
@@ -48,10 +44,12 @@ interface NavbarProps {
   lang: "en" | "es";
   dictionary: AppDictionary;
 }
+
 export default function Navbar({ lang, dictionary }: NavbarProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const { openReservationModal } = useReservation();
+  const { clearTransition } = useSharedTransition();
 
   // drawer state (for mobile)
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -60,31 +58,36 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
     setDrawerOpen((v) => !v);
   }, []);
 
-  // Reserve button handler
+  // Reserve button handler (shared)
   const handleReserve = useCallback(() => {
-    const tab = pathname?.includes("/casa")
-      ? "hotel"
-      : pathname?.includes("/cafe")
-        ? "cafe"
-        : "restaurant";
-  
+    const tab =
+      pathname?.includes("/casa") ? "hotel" :
+      pathname?.includes("/cafe") ? "cafe"  :
+      "restaurant";
     openReservationModal(tab);
   }, [openReservationModal, pathname]);
 
+  // 🔧 Register desktop reserve event BEFORE any early return
+  useEffect(() => {
+    const onReserve = () => {
+      // only act on desktop; harmless on mobile but we can guard
+      if (window.matchMedia("(min-width: 768px)").matches) {
+        handleReserve();
+      }
+    };
+    window.addEventListener("olivea:reserve", onReserve);
+    return () => window.removeEventListener("olivea:reserve", onReserve);
+  }, [handleReserve]);
 
-  // Build the top‐level nav items
+  // Build nav items
   const base = `/${lang}`;
   const navItems = [
-    { href: `${base}/casa`, label: pathname.startsWith(`${base}/casa`) ? "Casa Olivea" : "Hotel" },
-    {
-      href: `${base}/farmtotable`,
-      label: pathname.startsWith(`${base}/farmtotable`) ? "Olivea Farm To Table" : "Restaurant",
-    },
-    { href: `${base}/cafe`, label: pathname.startsWith(`${base}/cafe`) ? "Olivea Café" : "Café" },
+    { href: `${base}/casa`,        label: pathname.startsWith(`${base}/casa`)        ? "Casa Olivea"          : "Hotel" },
+    { href: `${base}/farmtotable`, label: pathname.startsWith(`${base}/farmtotable`) ? "Olivea Farm To Table" : "Restaurant" },
+    { href: `${base}/cafe`,        label: pathname.startsWith(`${base}/cafe`)        ? "Olivea Café"          : "Café" },
   ];
-  const { clearTransition } = useSharedTransition();
 
-  // Mobile: use AdaptiveNavbar + Drawer + MobileNav
+  // Mobile UI
   if (isMobile) {
     return (
       <>
@@ -99,30 +102,37 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
           lang={lang}
           dict={dictionary}
         />
-        <MobileNav  />
+        <MobileNav />
       </>
     );
   }
 
-  // Desktop
+  // Desktop UI
   return (
-    <nav className="fixed top-0 left-0 w-full z-[50] bg-transparent ">
+    <nav className="fixed top-0 left-0 w-full z-[50] bg-transparent">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-0 h-20 md:h-24 lg:h-28 w-full">
         <Link
-        href="/"
-        aria-label="Home"
-        onClick={() => {
-          // wipe out any active shared‐element transition before we go home
-          clearTransition();
-        }}
-      >
-        <OliveaFTTLogo className="h-10 md:h-16 lg:h-20 w-auto" />
-      </Link>
+          href="/"
+          aria-label="Home"
+          onClick={() => {
+            // wipe out any active shared-element transition before we go home
+            clearTransition();
+          }}
+        >
+          <OliveaFTTLogo className="h-10 md:h-16 lg:h-20 w-auto" />
+        </Link>
+
         <div className="flex flex-1 justify-center gap-4 fill-nav">
           {navItems.map((it) => (
-            <CenterLink key={it.href} href={it.href} label={it.label} isActive={pathname === it.href} />
+            <CenterLink
+              key={it.href}
+              href={it.href}
+              label={it.label}
+              isActive={pathname === it.href}
+            />
           ))}
         </div>
+
         <MagneticButton
           onClick={handleReserve}
           className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"

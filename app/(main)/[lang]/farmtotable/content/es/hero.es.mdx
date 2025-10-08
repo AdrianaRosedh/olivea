@@ -1,13 +1,13 @@
 import ParallaxImage from '@/components/scroll/ParallaxImage'
 import Reveal from '@/components/scroll/Reveal'
-import HeroFarmLogo from '@/assets/herofarm.svg'   /* SVGR import */
+import HeroFarmLogo from '@/assets/herofarm.svg'
 
 <section
   id="hero"
   className="
     relative mx-auto w-full
     md:max-w-[min(1100px,92vw)]
-    -mt-2                 /* lift the card slightly on mobile */
+    -mt-2
     flex items-center justify-center
     pb-0
   "
@@ -15,9 +15,7 @@ import HeroFarmLogo from '@/assets/herofarm.svg'   /* SVGR import */
   <div
     className="
       relative w-full
-      /* MOBILE: fill the viewport after header + bottom nav (use dvh) */
       h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+6px)]
-      /* DESKTOP/TABLET caps */
       md:h-[720px] lg:h-[800px]
       overflow-hidden rounded-[28px]
       ring-1 ring-black/10
@@ -29,10 +27,15 @@ import HeroFarmLogo from '@/assets/herofarm.svg'   /* SVGR import */
       alt="Olivea Farm-to-Table — nuestro huerto"
       heightVh={100}
       speed={0.30}
-      priority
       className="h-full"
       fit="cover"
       objectPosition="50% 40%"
+      priority
+      fetchPriority="high"
+      loading="eager"
+      sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+      placeholder="blur"
+      blurDataURL="data:image/jpeg;base64,REPLACE_WITH_REAL_BASE64_LQIP"
     />
 
     <div className="pointer-events-none absolute inset-0">
@@ -45,10 +48,65 @@ import HeroFarmLogo from '@/assets/herofarm.svg'   /* SVGR import */
           <Reveal preset="fade" delay={0.05}>
             <HeroFarmLogo className="mx-auto w-[180px] md:w-[220px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] text-white fill-white" />
           </Reveal>
+
           <Reveal preset="up" delay={0.12}>
             <p className="mt-4 text-white/90 md:text-lg drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
               Donde El Huerto Es La Esencia
             </p>
+          </Reveal>
+
+          <Reveal preset="up" delay={0.18}>
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                aria-label="Reservar"
+                onClick={() => {
+                  const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+                  if (isDesktop) {
+                    window.dispatchEvent(new Event("olivea:reserve"));
+                  } else {
+                    document.getElementById("reserve-toggle")?.click();
+                  }
+                }}
+                className="
+                  inline-flex items-center justify-center
+                  rounded-full px-4 py-2 text-sm font-medium tracking-wide
+                  text-white/90 border border-white/35 bg-white/0 backdrop-blur-[2px]
+                  shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
+                  transition hover:bg-white/8 hover:text-white
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
+                  active:scale-[0.98]
+                "
+              >
+                Reservar
+              </button>
+
+              <a
+                href="#menu"
+                aria-label="Ver menú"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById('menu') || document.querySelector('.main-section#menu');
+                  if (!el) return;
+                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
+                  const header = Number.parseInt(v || '64', 10) || 64;
+                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8;
+                  window.scrollTo({ top, behavior: 'smooth' });
+                  if (window.location.hash.slice(1) !== 'menu') history.replaceState(null, '', '#menu');
+                }}
+                className="
+                  inline-flex items-center justify-center
+                  rounded-full px-4 py-2 text-sm font-medium tracking-wide
+                  text-white/80 border border-white/30 bg-white/0 backdrop-blur-[2px]
+                  shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
+                  transition hover:bg-white/6 hover:text-white
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
+                  active:scale-[0.98]
+                "
+              >
+                Menú
+              </a>
+            </div>
           </Reveal>
         </div>
       </div>
