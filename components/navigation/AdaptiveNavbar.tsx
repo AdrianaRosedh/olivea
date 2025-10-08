@@ -23,7 +23,7 @@ export default function AdaptiveNavbar({
   onToggleDrawer,
 }: AdaptiveNavbarProps) {
   const isMobile = useIsMobile();
-  const { isDark, elementRef } = useBackgroundColorDetection(300);
+  const { isDark, elementRef } = useBackgroundColorDetection();
   const { clearTransition } = useSharedTransition();  
   const [isScrolled, setIsScrolled] = useState(false);
 

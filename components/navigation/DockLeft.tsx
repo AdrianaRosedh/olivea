@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useLenis } from "@/components/providers/ScrollProvider";
+
+/* GSAP scroll (works with window or any scrollable container) */
+import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+gsap.registerPlugin(ScrollToPlugin);
 
 /* ── Types ───────────────────────────────────────────────────────── */
-type Lenis = {
-  scrollTo: (y: number, options?: { duration?: number; easing?: (t: number) => number }) => void;
-};
-
 type Identity = "casa" | "cafe" | "farmtotable";
 
 export type NavOverride = Array<{
@@ -26,6 +26,7 @@ interface DockLeftProps {
 /* ── Constants ───────────────────────────────────────────────────── */
 const TOP_OFFSET_PX = 120;  // navbar + breathing room
 const CENTER_PAD_PX = 8;    // activation tolerance around center line
+const MANUAL_MS = 1000;     // duration of programmatic scroll lock
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
@@ -40,6 +41,18 @@ function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
 function clampToMaxScroll(y: number) {
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   return Math.min(Math.max(0, y), maxY);
+}
+function setSnapDisabled(disabled: boolean) {
+  document.documentElement.classList.toggle("snap-disable", disabled);
+}
+function getScrollableAncestor(el: Element): Window | Element {
+  let node: Element | null = el.parentElement;
+  const isScrollable = (x: Element | null) =>
+    !!x && /auto|scroll|overlay/i.test(getComputedStyle(x).overflowY);
+  while (node && node !== document.body && !isScrollable(node)) {
+    node = node.parentElement;
+  }
+  return node && node !== document.body && node !== document.documentElement ? node : window;
 }
 
 /* ── Animations ──────────────────────────────────────────────────── */
@@ -64,8 +77,6 @@ const subItemVariants = {
 
 /* ── Component ───────────────────────────────────────────────────── */
 export default function DockLeft({ sectionsOverride }: DockLeftProps) {
-  const lenis = useLenis() as Lenis | null;
-
   // left nav items (number, id, label)
   const items = useMemo(
     () => sectionsOverride.map((s, i) => ({ id: s.id, label: s.label, number: `0${i + 1}` })),
@@ -88,25 +99,50 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
   const [activeSub, setActiveSub] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  // Centered smooth scroll on click
+  // Centered smooth scroll on click (GSAP)
   const scrollToSection = useCallback(
     (id: string) => {
       const el =
-        (document.querySelector<HTMLElement>(`.subsection#${id}`) as HTMLElement) ||
-        (document.querySelector<HTMLElement>(`.main-section#${id}`) as HTMLElement) ||
+        (document.querySelector<HTMLElement>(`.subsection#${id}`)) ||
+        (document.querySelector<HTMLElement>(`.main-section#${id}`)) ||
         document.getElementById(id);
       if (!el) return;
 
-      const y = clampToMaxScroll(centerYFor(el));
-      if (lenis && typeof lenis.scrollTo === "function") {
-        lenis.scrollTo(y, { duration: 1.2, easing: (t) => 1 - Math.pow(1 - t, 3) });
-        setTimeout(() => { if (Math.abs(window.scrollY - y) > 10) window.scrollTo({ top: y, behavior: "auto" }); }, 180);
-      } else {
-        window.scrollTo({ top: y, behavior: "auto" });
+      // disable CSS snap during animation (prevents instant jump)
+      setSnapDisabled(true);
+      const unlock = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS);
+
+      const scroller = getScrollableAncestor(el);
+
+      // Use GSAP ScrollTo to the element with header offset
+      gsap.to(scroller, {
+        duration: 1.1,
+        ease: "power3.out",
+        overwrite: "auto",  
+        scrollTo: { y: el, offsetY: TOP_OFFSET_PX, autoKill: false },
+        onComplete: () => {
+          // tiny instant settle (avoid second smooth)
+          const targetY = clampToMaxScroll(centerYFor(el));
+          const currentY = scroller === window ? window.scrollY : (scroller as Element).scrollTop;
+          const miss = Math.abs(currentY - targetY);
+          if (miss > 10) {
+            if (scroller === window) window.scrollTo({ top: targetY, behavior: "auto" });
+            else (scroller as Element).scrollTo({ top: targetY, behavior: "auto" });
+          }
+          setSnapDisabled(false);
+        },
+      });
+
+      // Reflect selection in URL (no history spam)
+      if (window.location.hash.slice(1) !== id) {
+        window.history.replaceState(null, "", `#${id}`);
       }
-      if (window.location.hash.slice(1) !== id) window.history.replaceState(null, "", `#${id}`);
+
+      // safety unlock
+      window.setTimeout(() => setSnapDisabled(false), MANUAL_MS + 150);
+      return () => window.clearTimeout(unlock);
     },
-    [lenis]
+    []
   );
 
   const handleSmoothScroll = useCallback(
@@ -117,23 +153,26 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
     [scrollToSection]
   );
 
-  // Deep-link on mount
+  // Deep-link on mount (same smooth behavior)
   useEffect(() => {
     const hash = window.location.hash.slice(1);
     if (!hash) return;
-    // retry until element renders
     let tries = 0;
-    const tryScroll = () => {
+    const kick = () => {
       const el = document.getElementById(hash);
-      if (!el && ++tries < 40) return setTimeout(tryScroll, 50);
-      if (el) {
-        const y = clampToMaxScroll(centerYFor(el));
-        if (lenis && typeof lenis.scrollTo === "function") lenis.scrollTo(y, { duration: 0.8 });
-        else window.scrollTo({ top: y, behavior: "auto" });
-      }
+      if (!el && ++tries < 40) return window.setTimeout(kick, 50);
+      if (!el) return;
+
+      const scroller = getScrollableAncestor(el);
+      gsap.to(scroller, {
+        duration: 0.9,
+        ease: "power3.out",
+        overwrite: "auto", 
+        scrollTo: { y: el, offsetY: TOP_OFFSET_PX, autoKill: false },
+      });
     };
-    tryScroll();
-  }, [lenis]);
+    kick();
+  }, []);
 
   // Active state based on centerline
   const updateActive = useCallback(() => {
@@ -173,7 +212,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
   if (items.length === 0) return null;
 
   return (
-    <nav className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40">
+    <nav className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 pointer-events-auto">
       <div className="flex flex-col gap-6">
         {items.map((item) => {
           const isActive = item.id === activeSection;
@@ -255,7 +294,9 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                           variants={subItemVariants}
                           className={cn(
                             "block text-sm transition-colors",
-                            isSubActive ? "text-[var(--olivea-olive)]" : "text-[var(--olivea-clay)] hover:text-[var(--olivea-olive)]"
+                            isSubActive
+                              ? "text-[var(--olivea-olive)]"
+                              : "text-[var(--olivea-clay)] hover:text-[var(--olivea-olive)]"
                           )}
                           aria-current={isSubActive ? "location" : undefined}
                         >
