@@ -307,3 +307,7 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
     max-width: none !important;
   }
 }
+
+/* Whistle click-through control */
+#w-live-chat { pointer-events: none !important; }
+body.olivea-chat-open #w-live-chat { pointer-events: auto !important; }

@@ -18,7 +18,51 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
   const [extraBottom, setExtraBottom] = useState(0); // dynamic lift to avoid overlap
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // --- Availability (kept) ---
+  // --- Whistle host helpers ---------------------------------------------------
+  const getWhistleHost = () => document.getElementById("w-live-chat") as HTMLElement | null;
+  const setWhistleInteractive = (enabled: boolean) => {
+    const host = getWhistleHost();
+    if (!host) return;
+    host.style.pointerEvents = enabled ? "auto" : "none";
+    host.style.zIndex = enabled ? "2147483645" : "";
+    document.body.classList.toggle("olivea-chat-open", enabled);
+  };
+
+  // Make Whistle click-through by default
+  useEffect(() => {
+    setWhistleInteractive(false);
+    return () => setWhistleInteractive(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // If user closes chat from inside Whistle, revert interactivity
+  useEffect(() => {
+    const host = getWhistleHost();
+    if (!host) return;
+
+    const check = () => {
+      const r = host.getBoundingClientRect();
+      const hidden =
+        r.width === 0 ||
+        r.height === 0 ||
+        getComputedStyle(host).display === "none" ||
+        getComputedStyle(host).visibility === "hidden";
+      if (hidden) setWhistleInteractive(false);
+    };
+
+    const mo = new MutationObserver(check);
+    mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+    window.addEventListener("resize", check, { passive: true });
+    check();
+
+    return () => {
+      mo.disconnect();
+      window.removeEventListener("resize", check);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- Availability (kept) ---------------------------------------------------
   useEffect(() => {
     const updateAvailability = () => {
       const now = new Date().toLocaleString("en-US", {
@@ -34,9 +78,8 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     return () => clearInterval(interval);
   }, []);
 
-  // --- Dynamic offset to avoid overlapping with language button / whistle ---
+  // --- Dynamic offset to avoid overlapping with language button / whistle ----
   useEffect(() => {
-    // Try multiple selectors if none passed
     const candidates = [
       avoidSelector,
       '[data-lang-switcher]',
@@ -52,24 +95,16 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
       const host = rootRef.current;
       if (!host) return;
 
-      // Our button box (where it is right now)
       const selfRect = host.getBoundingClientRect();
+      const target =
+        candidates.map((sel) => document.querySelector<HTMLElement>(sel!))
+          .find((el) => el && el.offsetParent !== null) ?? null;
 
-      // Find the first visible candidate to avoid
-      const target = candidates
-        .map((sel) => document.querySelector<HTMLElement>(sel!))
-        .find((el) => el && el.offsetParent !== null) ?? null;
-
-      if (!target) {
-        setExtraBottom(0);
-        return;
-      }
+      if (!target) { setExtraBottom(0); return; }
 
       const tRect = target.getBoundingClientRect();
-
-      // If the target sits within our horizontal lane near bottom-right, lift us above it.
       const horizontallyOverlaps = tRect.left < selfRect.right && tRect.right > selfRect.left;
-      const verticallyOverlaps = tRect.top < selfRect.bottom && tRect.bottom > selfRect.top;
+      const verticallyOverlaps   = tRect.top  < selfRect.bottom && tRect.bottom > selfRect.top;
 
       if (horizontallyOverlaps && verticallyOverlaps) {
         const neededLift = Math.ceil(selfRect.bottom - tRect.top) + 12; // 12px breathing room
@@ -79,16 +114,14 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
       }
     }
 
-    // Recompute on resize / scroll / DOM mutations
     const ro = new ResizeObserver(computeOffset);
     const mo = new MutationObserver(computeOffset);
 
     computeOffset();
     window.addEventListener("resize", computeOffset, { passive: true });
-    window.addEventListener("scroll", computeOffset, { passive: true });
+    window.addEventListener("scroll",  computeOffset, { passive: true });
     mo.observe(document.body, { childList: true, subtree: true });
 
-    // Observe candidate if present
     candidates.forEach((sel) => {
       const n = document.querySelector<HTMLElement>(sel!);
       if (n) ro.observe(n);
@@ -98,7 +131,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
       ro.disconnect();
       mo.disconnect();
       window.removeEventListener("resize", computeOffset);
-      window.removeEventListener("scroll", computeOffset);
+      window.removeEventListener("scroll",  computeOffset);
     };
   }, [avoidSelector]);
 
@@ -109,6 +142,9 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
   const currentLabel = chatAvailable ? labels[lang].available : labels[lang].unavailable;
 
   const handleClick = () => {
+    // Enable Whistle interactions only while opening chat
+    setWhistleInteractive(true);
+
     const globalToggle = document.getElementById("chatbot-toggle");
     if (globalToggle) globalToggle.click();
   };
@@ -120,7 +156,6 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
   return (
     <div
       ref={rootRef}
-      // fixed, md+ only, with safe-area and dynamic lifting to clear other UI
       className="fixed z-60 hidden md:block"
       style={{
         right: `max(${BASE_RIGHT}px, env(safe-area-inset-right))`,
