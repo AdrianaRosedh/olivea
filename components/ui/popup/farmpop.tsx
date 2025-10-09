@@ -2,7 +2,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { AnimatePresence, motion, type Variants, type Transition } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useDragControls,
+  type Variants,
+  type Transition,
+} from "framer-motion";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -30,12 +36,27 @@ export default function Farmpop({
     typeof window === "undefined" ? false : window.matchMedia("(max-width: 767px)").matches
   );
 
+  // NEW: mobile drag bounds (how far up the sheet can travel)
+  const [dragBounds, setDragBounds] = useState<{ top: number; bottom: number }>({ top: -600, bottom: 0 });
+
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)");
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", onChange);
     return () => mql.removeEventListener("change", onChange);
   }, []);
+
+  // compute a generous upward drag range (~80% of viewport)
+  useEffect(() => {
+    if (!isMobile) return;
+    const onResize = () => {
+      const h = window.innerHeight || 800;
+      setDragBounds({ top: -Math.round(h * 0.8), bottom: 0 });
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isMobile]);
 
   const embedUrl = useMemo(
     () => (canvaUrl?.includes("?embed") ? canvaUrl : `${canvaUrl}?embed`),
@@ -64,7 +85,6 @@ export default function Farmpop({
   const openPopup  = useCallback(() => setOpen(true), []);
   const closePopup = useCallback(() => setOpen(false), []);
 
-  // Mobile slides FROM TOP; desktop is centered
   const modalVariants: Variants = {
     hidden:  isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0, filter: "blur(6px)" },
     visible: isMobile ? { y: 0,        opacity: 1 } : { scale: 1,   opacity: 1, filter: "blur(0px)" },
@@ -74,6 +94,9 @@ export default function Farmpop({
   const transition: Transition = isMobile
     ? { type: "spring", stiffness: 220, damping: 28 }
     : { duration: 0.4, ease: "easeOut" };
+
+  // Only the handle should start the drag so iframe remains fully interactive
+  const dragControls = useDragControls();
 
   return (
     <>
@@ -96,7 +119,6 @@ export default function Farmpop({
       <AnimatePresence mode="wait" initial={false}>
         {open && (
           <>
-            {/* Backdrop (tap to close) */}
             <motion.div
               key="farmpop-backdrop"
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
@@ -108,7 +130,6 @@ export default function Farmpop({
               onClick={closePopup}
             />
 
-            {/* Panel container */}
             <motion.div
               key={`farmpop-panel-${isMobile ? "m" : "d"}`}
               className={`fixed inset-0 z-[1300] flex ${
@@ -120,7 +141,6 @@ export default function Farmpop({
               exit="exit"
               transition={transition}
             >
-              {/* Content box — flex column so center pane can grow */}
               <motion.div
                 className={
                   (isMobile
@@ -130,36 +150,40 @@ export default function Farmpop({
                   "bg-[color:var(--olivea-cream)] backdrop-blur-xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.35)] flex flex-col"
                 }
                 onClick={(e) => e.stopPropagation()}
-                // MOBILE: swipe DOWN to close (handle at bottom)
                 drag={isMobile ? "y" : false}
-                dragConstraints={isMobile ? { top: 0, bottom: 0 } : undefined}
-                dragElastic={isMobile ? 0.08 : undefined}
+                dragListener={false}
+                dragControls={dragControls}
+                dragConstraints={isMobile ? dragBounds : undefined}
+                dragElastic={isMobile ? 0.1 : undefined}
                 onDragEnd={
                   isMobile
                     ? (_, info) => {
-                        if (info.offset.y > 120 || info.velocity.y > 500) closePopup();
+                        // CLOSE ON UPWARD swipe: offset.y negative when dragging up
+                        if (info.offset.y < -120 || info.velocity.y < -600) closePopup();
                       }
                     : undefined
                 }
               >
-                {/* Header (desktop); top edge of sheet (mobile) */}
-                <div className={`relative flex items-center ${isMobile ? "px-4 py-3" : "px-6 py-4"} border-b flex-shrink-0`}>
-                  <h2
-                    className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
-                    style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 22 : 28, fontWeight: 200 }}
-                  >
-                    {title}
-                  </h2>
-                  <button
-                    onClick={closePopup}
-                    aria-label="Cerrar"
-                    className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
+                {/* Desktop top header (unchanged) */}
+                {!isMobile && (
+                  <div className="relative flex items-center px-6 py-4 border-b flex-shrink-0">
+                    <h2
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
+                      style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 200 }}
+                    >
+                      {title}
+                    </h2>
+                    <button
+                      onClick={closePopup}
+                      aria-label="Cerrar"
+                      className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                )}
 
-                {/* Content: iframe fills the remaining height */}
+                {/* Content */}
                 <div className="flex-1 min-h-0 bg-[var(--olivea-cream)]">
                   <iframe
                     src={embedUrl}
@@ -173,10 +197,16 @@ export default function Farmpop({
                   />
                 </div>
 
-                {/* Grab handle at BOTTOM (since sheet drops from top) */}
+                {/* MOBILE bottom bar: handle only (no X) */}
                 {isMobile && (
-                  <div className="flex items-center justify-center py-2 pb-[max(0px,env(safe-area-inset-bottom))] flex-shrink-0">
-                    <span className="block h-1.5 w-12 rounded-full bg-black/15" />
+                  <div className="relative flex items-center justify-center py-3 border-t flex-shrink-0">
+                    {/* The handle starts the controlled drag */}
+                    <button
+                      aria-label="Drag to close"
+                      className="h-1.5 w-12 rounded-full bg-black/15 cursor-grab active:cursor-grabbing"
+                      style={{ touchAction: "none" }}
+                      onPointerDown={(e) => dragControls.start(e.nativeEvent as PointerEvent)}
+                    />
                   </div>
                 )}
               </motion.div>
