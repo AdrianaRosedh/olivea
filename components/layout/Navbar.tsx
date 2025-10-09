@@ -139,9 +139,17 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
         <div className="absolute right-4 md:right-8 lg:right-12 top-1/2 -translate-y-1/2">
           <MagneticButton
             onClick={handleReserve}
-            className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
+            aria-label="Reservar"
+            className={[
+              "bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md",
+              "hover:bg-[var(--olivea-clay)] transition-colors",
+              // typography
+              "font-sans antialiased uppercase leading-[1] font-semibold",
+              "font-[family-name:var(--font-jakarta)]", // ← overrides font-sans
+              "text-[13.5px] md:text-[14px] tracking-[0.5em]",
+            ].join(" ")}
           >
-            Reservar
+            {lang === "en" ? "Reserve" : "Reservar"}
           </MagneticButton>
         </div>
       </div>
