@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"], weight: ["400"], display: "swap" });
 const corm = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
+// app/layout.tsx
 export const metadata: Metadata = {
   title: "Familia Olivea",
   icons: {
@@ -16,8 +17,11 @@ export const metadata: Metadata = {
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
-  }
+    apple: [
+      { url: "/apple-touch-icon-180x180.png", sizes: "180x180" }, // versioned
+      { url: "/apple-touch-icon.png" },                           // root fallback
+    ],
+  },
 } as const;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
