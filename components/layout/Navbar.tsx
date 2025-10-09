@@ -12,6 +12,8 @@ import MobileDrawer from "@/components/navigation/MobileDrawer";
 import { MobileNav } from "@/components/navigation/MobileNav";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
+import { corm } from "@/lib/fonts"; // Cormorant_Garamond exported as `corm`
+
 
 /* CenterLink unchanged */
 interface CenterLinkProps { href: string; label: string; isActive: boolean; }
@@ -139,17 +141,22 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
         <div className="absolute right-4 md:right-8 lg:right-12 top-1/2 -translate-y-1/2">
           <MagneticButton
             onClick={handleReserve}
-            aria-label="Reservar"
-            className={[
-              "bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md",
-              "hover:bg-[var(--olivea-clay)] transition-colors",
-              // typography
-              "font-sans antialiased uppercase leading-[1] font-semibold",
-              "font-[family-name:var(--font-jakarta)]", // ← overrides font-sans
-              "text-[13.5px] md:text-[14px] tracking-[0.5em]",
-            ].join(" ")}
+            aria-label={lang === "en" ? "Reserve" : "Reservar"}
+            className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
           >
-            {lang === "en" ? "Reserve" : "Reservar"}
+            <span
+              className={[
+                // use the same serif as your tabs (import { corm } from "@/lib/fonts")
+                corm.className,
+                "uppercase font-semibold leading-none",
+                "!tracking-[0.18em] [letter-spacing:0.18em]",
+                // bigger, responsive text — scales a bit with viewport
+                "text-[clamp(1.05rem,1.35vw,1.45rem)]",
+              ].join(" ")}
+              style={{ letterSpacing: "0.18em" }}
+            >
+              {lang === "en" ? "RESERVE" : "RESERVAR"}
+            </span>
           </MagneticButton>
         </div>
       </div>
