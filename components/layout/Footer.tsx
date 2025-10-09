@@ -31,8 +31,12 @@ export default function Footer({ dict }: FooterProps) {
   const pathname = usePathname()
   const router = useRouter()
   const lang = (pathname.split("/")[1] as "en" | "es") || "es"
+
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // NEW: tiny, non-visual enhancement — lift lang button if a bubble overlaps
+  const [lift, setLift] = useState(0)
 
   useEffect(() => {
     const handleClickOutside = (event: PointerEvent) => {
@@ -40,8 +44,57 @@ export default function Footer({ dict }: FooterProps) {
         setOpen(false)
       }
     }
-     document.addEventListener("pointerdown", handleClickOutside, { passive: true })
-     return () => document.removeEventListener("pointerdown", handleClickOutside)
+    document.addEventListener("pointerdown", handleClickOutside, { passive: true })
+    return () => document.removeEventListener("pointerdown", handleClickOutside)
+  }, [])
+
+  // Detect Whistle / Cloudbeds bubbles and nudge the lang button up a bit if needed
+  useEffect(() => {
+    function calcLift() {
+      const bubble =
+        document.querySelector<HTMLElement>('[data-whistle-launcher]') ||
+        document.querySelector<HTMLElement>('#whistle-widget') ||
+        document.querySelector<HTMLElement>('.whistle-launcher') ||
+        document.querySelector<HTMLElement>('[data-widget="whistle"]') ||
+        document.querySelector<HTMLElement>('[id*="cloudbeds"]') ||
+        document.querySelector<HTMLElement>('[class*="cloudbeds"]')
+
+      if (!bubble) { setLift(0); return }
+
+      const r = bubble.getBoundingClientRect()
+      const barH = 52  // your footer bar height approx
+      const pad  = 16
+
+      const overlapsVert = r.bottom > (window.innerHeight - (pad + barH))
+      setLift(overlapsVert ? Math.ceil(r.height) + 8 : 0)
+    }
+
+    const ro = new ResizeObserver(calcLift)
+    const mo = new MutationObserver(calcLift)
+
+    ;[
+      '[data-whistle-launcher]',
+      '#whistle-widget',
+      '.whistle-launcher',
+      '[data-widget="whistle"]',
+      '[id*="cloudbeds"]',
+      '[class*="cloudbeds"]',
+    ].forEach(sel => {
+      const n = document.querySelector<HTMLElement>(sel)
+      if (n) ro.observe(n)
+    })
+
+    calcLift()
+    window.addEventListener("resize", calcLift, { passive: true })
+    window.addEventListener("scroll",  calcLift, { passive: true })
+    mo.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      ro.disconnect()
+      mo.disconnect()
+      window.removeEventListener("resize", calcLift)
+      window.removeEventListener("scroll",  calcLift)
+    }
   }, [])
 
   const switchLocale = (newLang: "en" | "es") => {
@@ -93,44 +146,52 @@ export default function Footer({ dict }: FooterProps) {
             {dict.footer.legal}
           </Link>
 
-          <button
-            type="button"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); setOpen(v => !v); }}
-            aria-haspopup="menu"
-            aria-expanded={open}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
+          {/* Lang button + dropdown — visually identical; only lifts if needed */}
+          <div
+            style={{
+              transform: lift ? `translateY(-${lift}px)` : undefined,
+              transition: "transform 200ms ease",
+            }}
           >
-            <GlobeIcon className="w-4 h-4 text-current transition-colors" />
-            {lang.toUpperCase()}
-          </button>
+            <button
+              type="button"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); setOpen(v => !v); }}
+              aria-haspopup="menu"
+              aria-expanded={open}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
+            >
+              <GlobeIcon className="w-4 h-4 text-current transition-colors" />
+              {lang.toUpperCase()}
+            </button>
 
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                onPointerDown={(e) => e.stopPropagation()}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 6 }}
-                className="absolute bottom-full mb-2 right-0 bg-[#c6b7a8] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[220] w-32 pointer-events-auto"
-              >
-                <button
-                  type="button"
-                  onClick={() => switchLocale("en")}
-                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
+            <AnimatePresence>
+              {open && (
+                <motion.div
+                  onPointerDown={(e) => e.stopPropagation()}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  className="absolute bottom-full mb-2 right-0 bg-[#c6b7a8] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[500] w-32 pointer-events-auto"
                 >
-                  🇺🇸 English
-                </button>
-                <button
-                  type="button"
-                  onClick={() => switchLocale("es")}
-                  className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
-                >
-                  🇲🇽 Español
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <button
+                    type="button"
+                    onClick={() => switchLocale("en")}
+                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
+                  >
+                    🇺🇸 English
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => switchLocale("es")}
+                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
+                  >
+                    🇲🇽 Español
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </footer>
