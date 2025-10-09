@@ -70,7 +70,6 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
   // 🔧 Register desktop reserve event BEFORE any early return
   useEffect(() => {
     const onReserve = () => {
-      // only act on desktop; harmless on mobile but we can guard
       if (window.matchMedia("(min-width: 768px)").matches) {
         handleReserve();
       }
@@ -107,10 +106,11 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
     );
   }
 
-  // Desktop UI
+  // Desktop UI (center links, logo/CTA near corners, extra inset padding)
   return (
-    <nav className="fixed top-0 left-0 w-full z-[50] bg-transparent">
-      <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-0 h-20 md:h-24 lg:h-28 w-full">
+    <nav className="fixed top-0 left-0 right-0 z-[50] bg-transparent">
+      <div className="relative w-full h-20 md:h-24 lg:h-28">
+        {/* Left: Logo, closer to the corner with a bit more padding */}
         <Link
           href="/"
           aria-label="Home"
@@ -118,11 +118,13 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
             // wipe out any active shared-element transition before we go home
             clearTransition();
           }}
+          className="absolute left-4 md:left-8 lg:left-12 top-[1rem] md:top-[1.5rem] lg:top-[1.5rem] inline-flex items-center"
         >
-          <OliveaFTTLogo className="h-10 md:h-16 lg:h-20 w-auto" />
+          <OliveaFTTLogo className="h-14 md:h-22 lg:h-40 w-auto transition-all duration-300" style={{ maxHeight: "16rem" }} />
         </Link>
 
-        <div className="flex flex-1 justify-center gap-4 fill-nav">
+        {/* Center: 3 buttons perfectly centered (keeps your original design) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-4 fill-nav">
           {navItems.map((it) => (
             <CenterLink
               key={it.href}
@@ -133,12 +135,15 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
           ))}
         </div>
 
-        <MagneticButton
-          onClick={handleReserve}
-          className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
-        >
-          Reservar
-        </MagneticButton>
+        {/* Right: Reservar, closer to the corner with a bit more padding */}
+        <div className="absolute right-4 md:right-8 lg:right-12 top-1/2 -translate-y-1/2">
+          <MagneticButton
+            onClick={handleReserve}
+            className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
+          >
+            Reservar
+          </MagneticButton>
+        </div>
       </div>
     </nav>
   );
