@@ -2,42 +2,78 @@ import StickyBlock from '@/components/scroll/StickyBlock'
 import Reveal from '@/components/scroll/Reveal'
 import Sub from '@/components/scroll/Sub'
 import CardImage from '@/components/mdx/CardImage'
+import Farmpop from '@/components/ui/popup/farmpop'  
 
 <StickyBlock
   id="menu"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
+  containerClassName="w-full md:max-w-[min(1180px,92vw)] md:mx-auto"
   className="py-16 md:py-24"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Menu</h2></Reveal>}
 >
-  <CardImage
-    src="/images/farm/table.jpg"
-    alt="Banner del menú"
-    widthVariant="content"
-    align="center"
-    hPx={{ mobile: 220, md: 320 }}
-  />
+  {/* Cinematic rail — subtle zoom on hover, soft glow */}
+  <div className="relative group mt-2">
+    <div className="absolute inset-0 rounded-[22px] shadow-[0_30px_60px_rgba(0,0,0,0.20)] opacity-60 pointer-events-none" />
+    <div className="overflow-hidden rounded-[22px]">
+      <div className="transition-transform duration-[1600ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.04]">
+        <CardImage
+          src="/images/farm/table.jpg"
+          alt="Menú — Olivea Farm To Table"
+          widthVariant="content"
+          align="center"
+          hPx={{ mobile: 300, md: 440 }}
+          imgClassName="object-[center_30%]"
+        />
+      </div>
+    </div>
+  </div>
 
-  <Sub id="estructura_menu" minH={200}>
-    Degustación de 8 tiempos. Tres pequeños gestos fuera de carta abren, ordenan y cierran el recorrido.
-  </Sub>
+  {/* Lead + capsule CTA (centered, premium) */}
+  <div className="mt-8 md:mt-9 text-center">
+    <p className="mx-auto max-w-[70ch] text-[17px] md:text-[18px] leading-[1.7] text-[var(--olivea-ink)]/90">
+      Degustación de 7 tiempos de temporada. Tres gestos fuera de carta abren, ordenan y cierran el recorrido.
+    </p>
 
-  <Sub id="maridaje" preset="left" minH={200}>
-    Maridaje con vinos del Valle y ruta no alcohólica diseñada con ciencia del sabor: infusiones, fermentos y clarificaciones.
-  </Sub>
+    <div className="mt-6 flex justify-center">
+      <Farmpop
+        canvaUrl="https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view?embed"
+        label="Ver menú en vivo"
+        triggerClassName="
+          rounded-full px-7 md:px-8 py-3 text-[13.5px] tracking-[0.20em] uppercase font-semibold
+          bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)]
+          shadow-[0_10px_28px_rgba(0,0,0,0.14)] ring-1 ring-white/10
+          transition-transform duration-300 hover:-translate-y-[1px]
+        "
+      />
+    </div>
 
-  <Sub id="preferencias" preset="fade" minH={200}>
-    Atendemos alergias, religión y preferencias con aviso. Versión vegetariana disponible bajo solicitud.
-  </Sub>
+    {/* hairline divider */}
+    <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+  </div>
 
-  <div className="mt-6 flex flex-wrap gap-3">
-    <a href="/pdfs/menu.pdf" target="_blank" rel="noopener noreferrer"
-       className="px-5 py-3 rounded-xl border border-black/15 hover:bg-black hover:text-white transition">
-      Ver menú actual (PDF)
-    </a>
-    <a href="/es/journal"
-       className="px-5 py-3 rounded-xl border border-black/15 hover:bg-black hover:text-white transition">
-      Maridaje sin alcohol
-    </a>
+  {/* Feature chips — light, interactive, no boxes */}
+  <div className="mt-8 grid gap-6 md:grid-cols-3">
+    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all
+                    hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
+      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Maridaje del Valle</div>
+      <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
+        Ruta de vinos locales y <em>ruta no alcohólica</em> diseñada con ciencia del sabor.
+      </p>
+    </div>
+
+    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all
+                    hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
+      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Preferencias & alergias</div>
+      <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
+        Adaptamos con aviso. <em>Versión vegetariana</em> bajo solicitud.
+      </p>
+    </div>
+
+    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all
+                    hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
+      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Huerto en el centro</div>
+      <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
+        Producto estacional; técnica precisa, balance y contraste en cada paso.
+      </p>
+    </div>
   </div>
 </StickyBlock>

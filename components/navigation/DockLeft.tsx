@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /* GSAP scroll (works with window or any scrollable container) */
@@ -56,23 +56,52 @@ function getScrollableAncestor(el: Element): Window | Element {
 }
 
 /* ── Animations ──────────────────────────────────────────────────── */
-const subContainerVariants = {
+/** Framer Motion typings require Easing arrays (or keyframes), not arbitrary strings */
+const EASE_IN_OUT: [number, number, number, number] = [0.4, 0, 0.2, 1];
+const EASE_OUT:    [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE_IN:     [number, number, number, number] = [0.12, 0, 0.39, 0];
+
+const subContainerVariants: Variants = {
   open: {
     opacity: 1,
     height: "auto",
     marginTop: 8,
-    transition: { when: "beforeChildren", staggerChildren: 0.05, ease: "easeInOut", duration: 0.3 },
+    transition: {
+      when: "beforeChildren",
+      staggerChildren: 0.05,
+      ease: EASE_IN_OUT,
+      duration: 0.3,
+    },
   },
   collapsed: {
     opacity: 0,
     height: 0,
     marginTop: 0,
-    transition: { when: "afterChildren", ease: "easeInOut", duration: 0.2 },
+    transition: {
+      when: "afterChildren",
+      ease: EASE_IN_OUT,
+      duration: 0.2,
+    },
   },
 };
-const subItemVariants = {
-  open: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
-  collapsed: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
+
+const subItemVariants: Variants = {
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.25,
+      ease: EASE_OUT,
+    },
+  },
+  collapsed: {
+    opacity: 0,
+    y: -8,
+    transition: {
+      duration: 0.15,
+      ease: EASE_IN,
+    },
+  },
 };
 
 /* ── Component ───────────────────────────────────────────────────── */

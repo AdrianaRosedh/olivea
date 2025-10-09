@@ -141,16 +141,56 @@ import Link from 'next/link'
                 aria-label="View menu"
                 onClick={(e) => {
                   e.preventDefault();
-                  const el =
+                
+                  // find the target section
+                  const target =
                     document.getElementById('menu') ||
                     document.querySelector('.main-section#menu');
-                  if (!el) return;
-                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
-                  const header = Number.parseInt(v || '64', 10) || 64;
-                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8;
+                  if (!target) return;
+                
+                  // defocus any active control (prevents focus ring flicker during scroll)
+                  const ae = document.activeElement;
+                  if (ae && typeof ae.blur === 'function') ae.blur();
+                
+                  // compute header-safe offset
+                  const hcss = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
+                  const header = parseInt(hcss || '64', 10) || 64;
+                  const top = window.scrollY + target.getBoundingClientRect().top - header - 8;
+                
+                  // begin smooth scroll
                   window.scrollTo({ top, behavior: 'smooth' });
-                  if (window.location.hash.slice(1) !== 'menu') history.replaceState(null, '', '#menu');
+                
+                  // when we arrive (or timeout), fix the hash and open the popup
+                  const OPEN_EVENT = 'olivea:menu:open';
+                  const start = performance.now();
+                  const TIMEOUT = 1800;   // ms
+                  const THRESH  = 2;      // px
+                  let lastY = -1;
+                  let stable = 0;
+                
+                  const tick = () => {
+                    const y = window.scrollY;
+                    const arrived = Math.abs(y - top) <= THRESH;
+                
+                    // consider "stopped" after 2 consecutive frames at target
+                    if (arrived && y === lastY) stable += 1;
+                    else stable = 0;
+                
+                    lastY = y;
+                
+                    const expired = performance.now() - start > TIMEOUT;
+                    if ((arrived && stable >= 2) || expired) {
+                      if (window.location.hash.slice(1) !== 'menu') {
+                        history.replaceState(null, '', '#menu');
+                      }
+                      window.dispatchEvent(new Event(OPEN_EVENT));
+                      return;
+                    }
+                    requestAnimationFrame(tick);
+                  };
+                  requestAnimationFrame(tick);
                 }}
+                
                 className="
                   inline-flex items-center justify-center
                   rounded-full px-3.5 py-1.5 text-[15px]
