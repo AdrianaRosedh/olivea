@@ -17,8 +17,7 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
-  },
-  manifest: "/manifest.json",
+  }
 } as const;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
