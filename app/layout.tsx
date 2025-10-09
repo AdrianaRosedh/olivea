@@ -11,7 +11,7 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "
 
 // app/layout.tsx
 export const metadata: Metadata = {
-  title: "Familia Olivea",
+  title: "Familia OLIVEA",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

@@ -4,9 +4,6 @@ import type { NextRequest } from "next/server";
 const locales = ["en", "es"];
 const defaultLocale = "es";
 
-const CANVA_MENU =
-  "https://www.canva.com/design/DAGWHOCI6cA/jwypGtVSSJMK3ra1ZZqfRg/view?utm_content=DAGWHOCI6cA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h053dea589d&success=true&continue_in_browser=true";
-
 function getLocale(request: NextRequest): string {
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
   if (cookieLocale && locales.includes(cookieLocale)) return cookieLocale;
@@ -21,17 +18,7 @@ function getLocale(request: NextRequest): string {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const pathNoTrailing = pathname.replace(/\/+$/, ""); // normalize "/menu/"
-
-  // --- MENU REDIRECT (runs before any other logic) ---------------------------
-  if (
-    pathNoTrailing === "/menu" ||
-    pathNoTrailing === "/en/menu" ||
-    pathNoTrailing === "/es/menu"
-  ) {
-    return NextResponse.redirect(CANVA_MENU, { status: 308 });
-  }
-  // --------------------------------------------------------------------------
+  const pathNoTrailing = pathname.replace(/\/+$/, ""); 
 
   // allow Cloudbeds iframe
   if (pathNoTrailing === "/cloudbeds-immersive.html") {

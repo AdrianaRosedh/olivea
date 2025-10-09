@@ -1,11 +1,4 @@
 {
-  "redirects": [
-    {
-      "source": "/:locale(en|es)?/menu",
-      "destination": "https://www.canva.com/design/DAGWHOCI6cA/jwypGtVSSJMK3ra1ZZqfRg/view?utm_content=DAGWHOCI6cA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h053dea589d&success=true&continue_in_browser=true",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",

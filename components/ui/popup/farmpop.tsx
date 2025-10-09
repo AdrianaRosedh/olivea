@@ -91,6 +91,29 @@ export default function Farmpop({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // inside components/ui/popup/farmpop.tsx
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+  
+    const shouldOpen = sessionStorage.getItem("olivea:autoopen-menu") === "1";
+    const atMenuHash = window.location.hash === "#menu";
+  
+    if (shouldOpen && atMenuHash) {
+      sessionStorage.removeItem("olivea:autoopen-menu");
+    
+      // optional: restore a requested tab
+      const savedTab = sessionStorage.getItem("olivea:autoopen-tab");
+      if (savedTab && tabs?.some(t => t.id === savedTab)) {
+        setActiveId(savedTab);
+      }
+      sessionStorage.removeItem("olivea:autoopen-tab");
+    
+      // wait a moment so the page finishes scrolling to #menu
+      const t = window.setTimeout(() => setOpen(true), openDelayMs + 150);
+      return () => window.clearTimeout(t);
+    }
+  }, [tabs, openDelayMs]);
+
   const openPopup  = useCallback(() => setOpen(true), []);
   const closePopup = useCallback(() => setOpen(false), []);
 
