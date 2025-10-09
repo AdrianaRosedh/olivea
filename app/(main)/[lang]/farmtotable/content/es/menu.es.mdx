@@ -1,6 +1,5 @@
 import StickyBlock from '@/components/scroll/StickyBlock'
 import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
 import CardImage from '@/components/mdx/CardImage'
 import Farmpop from '@/components/ui/popup/farmpop'  
 
@@ -10,7 +9,6 @@ import Farmpop from '@/components/ui/popup/farmpop'
   containerClassName="w-full md:max-w-[min(1180px,92vw)] md:mx-auto"
   className="py-16 md:py-24"
 >
-  {/* Cinematic rail — subtle zoom on hover, soft glow */}
   <div className="relative group mt-2">
     <div className="absolute inset-0 rounded-[22px] shadow-[0_30px_60px_rgba(0,0,0,0.20)] opacity-60 pointer-events-none" />
     <div className="overflow-hidden rounded-[22px]">
@@ -27,7 +25,6 @@ import Farmpop from '@/components/ui/popup/farmpop'
     </div>
   </div>
 
-  {/* Lead + capsule CTA (centered, premium) */}
   <div className="mt-8 md:mt-9 text-center">
     <p className="mx-auto max-w-[70ch] text-[17px] md:text-[18px] leading-[1.7] text-[var(--olivea-ink)]/90">
       Degustación de 7 tiempos de temporada. Tres gestos fuera de carta abren, ordenan y cierran el recorrido.
@@ -35,8 +32,15 @@ import Farmpop from '@/components/ui/popup/farmpop'
 
     <div className="mt-6 flex justify-center">
       <Farmpop
-        canvaUrl="https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view?embed"
+        title="Menú en vivo"
         label="Ver menú en vivo"
+        initialTabId="menu"
+        tabs={[
+          { id: 'menu',    label: 'Menú',    url: 'https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view', emoji: '🍽️' },
+          { id: 'licores', label: 'Licores', url: 'https://www.canva.com/design/DAGJkYeYkNM/vHYhvJ4AeHzpcORgUm5NLg/view', emoji: '🥃' },
+          { id: 'vinos',   label: 'Vinos',   url: 'https://www.canva.com/design/DAGyJcd44mQ/zwESVmQVXOQ5RwZI9k5fbw/view', emoji: '🍷' },
+          { id: 'bebidas', label: 'Bebidas', url: 'https://www.canva.com/design/DAGKBfcrXNw/tB4P2epiDJbu1tfvsaXBcg/view', emoji: '🍹' },
+        ]}
         triggerClassName="
           rounded-full px-7 md:px-8 py-3 text-[13.5px] tracking-[0.20em] uppercase font-semibold
           bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)]
@@ -46,30 +50,25 @@ import Farmpop from '@/components/ui/popup/farmpop'
       />
     </div>
 
-    {/* hairline divider */}
     <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
   </div>
 
-  {/* Feature chips — light, interactive, no boxes */}
   <div className="mt-8 grid gap-6 md:grid-cols-3">
-    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all
-                    hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
+    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
       <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Maridaje del Valle</div>
       <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
         Ruta de vinos locales y <em>ruta no alcohólica</em> diseñada con ciencia del sabor.
       </p>
     </div>
 
-    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all
-                    hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
+    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
       <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Preferencias & alergias</div>
       <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
         Adaptamos con aviso. <em>Versión vegetariana</em> bajo solicitud.
       </p>
     </div>
 
-    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all
-                    hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
+    <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
       <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Huerto en el centro</div>
       <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
         Producto estacional; técnica precisa, balance y contraste en cada paso.

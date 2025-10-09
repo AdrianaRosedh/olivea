@@ -12,18 +12,24 @@ import {
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
+type MenuTab = { id: string; label: string; url: string; emoji?: string; icon?: ReactNode };
+
 type FarmpopProps = {
-  canvaUrl: string;
+  canvaUrl?: string;              // single Canva url (ignored if tabs provided)
+  tabs?: MenuTab[];               // list of tabbed menus
+  initialTabId?: string;
   label?: string;
-  title?: string;                // desktop header title (mobile bar has no title)
+  title?: string;                 // desktop title
   trigger?: ReactNode;
   triggerClassName?: string;
-  autoOpenEvent?: string;       // event name from hero to auto-open
+  autoOpenEvent?: string;         // e.g., "olivea:menu:open"
   openDelayMs?: number;
 };
 
 export default function Farmpop({
   canvaUrl,
+  tabs,
+  initialTabId,
   label = "Ver menú en vivo",
   title = "Menú en vivo",
   trigger,
@@ -36,7 +42,15 @@ export default function Farmpop({
     typeof window === "undefined" ? false : window.matchMedia("(max-width: 767px)").matches
   );
 
-  // keep mobile/desktop flag updated
+  // --- active tab ---
+  const [activeId, setActiveId] = useState<string>(() => {
+    if (tabs && tabs.length) {
+      return initialTabId && tabs.some((t) => t.id === initialTabId) ? initialTabId : tabs[0].id;
+    }
+    return "single";
+  });
+
+  // --- responsive flag ---
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)");
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
@@ -44,13 +58,18 @@ export default function Farmpop({
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // normalize Canva URL (must be public view + ?embed)
-  const embedUrl = useMemo(
-    () => (canvaUrl?.includes("?embed") ? canvaUrl : `${canvaUrl}?embed`),
-    [canvaUrl]
-  );
+  // --- URL to embed ---
+  const embedUrl = useMemo(() => {
+    if (tabs && tabs.length) {
+      const t = tabs.find((x) => x.id === activeId) ?? tabs[0];
+      const url = t?.url || "";
+      return url.includes("?embed") ? url : `${url}?embed`;
+    }
+    const single = canvaUrl || "";
+    return single.includes("?embed") ? single : `${single}?embed`;
+  }, [tabs, activeId, canvaUrl]);
 
-  // auto-open after hero scroll
+  // --- auto-open from hero ---
   useEffect(() => {
     if (!autoOpenEvent) return;
     const handler = () => window.setTimeout(() => setOpen(true), openDelayMs);
@@ -58,15 +77,13 @@ export default function Farmpop({
     return () => window.removeEventListener(autoOpenEvent, handler);
   }, [autoOpenEvent, openDelayMs]);
 
-  // lock body scroll while open
+  // --- lock body scroll while open ---
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // close on ESC
+  // --- close on ESC ---
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -74,10 +91,10 @@ export default function Farmpop({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const openPopup = useCallback(() => setOpen(true), []);
+  const openPopup  = useCallback(() => setOpen(true), []);
   const closePopup = useCallback(() => setOpen(false), []);
 
-  // motion variants: mobile sheet drops FROM TOP, desktop scales in center
+  // --- motion variants ---
   const modalVariants: Variants = {
     hidden:  isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0, filter: "blur(6px)" },
     visible: isMobile ? { y: 0,        opacity: 1 } : { scale: 1,   opacity: 1, filter: "blur(0px)" },
@@ -88,10 +105,71 @@ export default function Farmpop({
     ? { type: "spring", stiffness: 220, damping: 28 }
     : { duration: 0.4, ease: "easeOut" };
 
-  // --- mobile drag: only allow UPWARD closes (no downward travel) ---
-  const dragControls = useDragControls();
-  const CLOSE_PX = 140;          // required upward distance to close
-  const CLOSE_VELOCITY = -600;   // fast upward flick closes (negative y)
+  // --- mobile drag: upward only to close ---
+  const dragControls = useDragControls(); // ← used by panel and started from bottom bar
+  const CLOSE_PX = 140;                   // distance required to close
+  const CLOSE_VELOCITY = -600;            // upward flick threshold (velocity.y is negative upward)
+
+  // --- glyphs for tabs (emoji fallback) ---
+  const tabGlyph = (t: MenuTab): ReactNode => {
+    if (t.icon) return t.icon;
+    if (t.emoji) return <span className="text-[16px] leading-none">{t.emoji}</span>;
+    const map: Record<string, string> = { menu: "🍽️", licores: "🥃", vinos: "🍷", bebidas: "🍹" };
+    return <span className="text-[16px] leading-none">{map[t.id] ?? "📄"}</span>;
+  };
+
+  // --- desktop rail tile ---
+  const RailTile = ({ t }: { t: MenuTab }) => {
+    const active = activeId === t.id;
+    return (
+      <button
+        role="tab"
+        aria-selected={active}
+        onClick={() => setActiveId(t.id)}
+        className={[
+          "group w-full rounded-xl transition-all text-left ring-1 ring-white/20",
+          active
+            ? "bg-[var(--olivea-olive)] text-white shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
+            : "bg-white/50 text-[var(--olivea-ink)]/90 hover:bg-white/70",
+        ].join(" ")}
+        style={{ height: 72 }} // fills your desktop rail “box”
+      >
+        <div className="h-full px-4 flex items-center gap-3">
+          <span
+            className={[
+              "h-10 w-[3px] rounded-full",
+              active ? "bg-white" : "bg-transparent group-hover:bg-black/20",
+            ].join(" ")}
+          />
+          <div className="flex items-center gap-2">
+            <span aria-hidden>{tabGlyph(t)}</span>
+            <span className="text-[12.5px] uppercase tracking-[0.18em]">{t.label}</span>
+          </div>
+        </div>
+      </button>
+    );
+  };
+
+// mobile chip (no icons on mobile to keep width compact)
+  const Chip = ({ t }: { t: MenuTab }) => {
+    const active = activeId === t.id;
+    return (
+      <button
+        data-no-drag="true"
+        role="tab"
+        aria-selected={active}
+        onClick={() => setActiveId(t.id)}
+        className={[
+          "shrink-0 inline-flex items-center text-[12px] uppercase tracking-[0.18em] pb-1",
+          active
+            ? "text-[var(--olivea-olive)] border-b-2 border-[var(--olivea-olive)]"
+            : "text-[var(--olivea-ink)]/80 hover:text-[var(--olivea-olive)]",
+        ].join(" ")}
+      >
+        {t.label}
+      </button>
+    );
+  };
 
   return (
     <>
@@ -115,7 +193,7 @@ export default function Farmpop({
       <AnimatePresence mode="wait" initial={false}>
         {open && (
           <>
-            {/* Backdrop (tap to close) */}
+            {/* Backdrop */}
             <motion.div
               key="farmpop-backdrop"
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
@@ -130,16 +208,14 @@ export default function Farmpop({
             {/* Panel container */}
             <motion.div
               key={`farmpop-panel-${isMobile ? "m" : "d"}`}
-              className={`fixed inset-0 z-[1300] flex ${
-                isMobile ? "items-start justify-center" : "items-center justify-center p-4"
-              }`}
+              className={`fixed inset-0 z-[1300] flex ${isMobile ? "items-start justify-center" : "items-center justify-center p-4"}`}
               variants={modalVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
               transition={transition}
             >
-              {/* Content panel (flex column so iframe grows) */}
+              {/* Panel */}
               <motion.div
                 className={
                   (isMobile
@@ -148,27 +224,27 @@ export default function Farmpop({
                   ) +
                   "bg-[color:var(--olivea-cream)] backdrop-blur-xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.35)] flex flex-col"
                 }
-                onClick={(e) => e.stopPropagation()} // keep clicks inside from closing
+                onClick={(e) => e.stopPropagation()}
+                // mobile drag — upward only to close (use controls started from bottom bar)
                 drag={isMobile ? "y" : false}
                 dragControls={dragControls}
-                dragListener={false}                         // only the bottom bar starts the drag
+                dragListener={false}
                 dragConstraints={isMobile ? { top: -CLOSE_PX, bottom: 0 } : undefined}
-                dragElastic={0}                              // no rubberband
-                dragMomentum={false}                         // no inertia
+                dragElastic={0}
+                dragMomentum={false}
                 onDragEnd={
                   isMobile
                     ? (_, info) => {
-                        // close only on UPWARD intent (negative offset/velocity)
-                        if (info.offset.y < -CLOSE_PX * 0.6 || info.velocity.y < CLOSE_VELOCITY) {
-                          closePopup();
+                        if (info.offset.y < -(CLOSE_PX * 0.6) || info.velocity.y < CLOSE_VELOCITY) {
+                          setOpen(false);
                         }
                       }
                     : undefined
                 }
               >
-                {/* Desktop header at TOP (unchanged) */}
+                {/* Desktop header at TOP */}
                 {!isMobile && (
-                  <div className="relative flex items-center px-6 py-4 border-b flex-shrink-0">
+                  <div className="relative flex items-center px-6 py-4 border-b border-white/20 flex-shrink-0 bg-[color:var(--olivea-cream)]/96">
                     <h2
                       className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
                       style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 200 }}
@@ -185,29 +261,51 @@ export default function Farmpop({
                   </div>
                 )}
 
-                {/* Content — iframe fills remaining height */}
-                <div className="flex-1 min-h-0 bg-[var(--olivea-cream)]">
-                  <iframe
-                    src={embedUrl}
-                    title="Menú en vivo"
-                    className="w-full h-full block"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                    allow="fullscreen"
-                    allowFullScreen
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
+                {/* CONTENT — two-column on desktop; single column on mobile */}
+                <div className="flex-1 min-h-0 bg-[color:var(--olivea-cream)] flex">
+                  {/* Desktop left rail — full-height tiles */}
+                  {!isMobile && (tabs?.length ?? 0) >= 2 && (
+                    <aside
+                      className="
+                        hidden md:flex flex-col shrink-0 w-[260px]
+                        bg-[color:var(--olivea-cream)]/96 border-r border-white/20
+                        px-4 py-4 gap-3
+                      "
+                      role="tablist"
+                      aria-orientation="vertical"
+                    >
+                      {tabs!.map((t) => (
+                        <RailTile key={t.id} t={t} />
+                      ))}
+                      <div className="flex-1" />
+                    </aside>
+                  )}
+
+                  {/* Right: iframe fills remaining space */}
+                  <div className="flex-1 min-h-0 bg-[color:var(--olivea-cream)]">
+                    <iframe
+                      key={embedUrl}
+                      src={embedUrl}
+                      title="Menú en vivo"
+                      className="w-full h-full block"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                      allow="fullscreen"
+                      allowFullScreen
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
                 </div>
 
-                {/* MOBILE bottom bar — full grab zone + X on the LEFT; no title */}
+                {/* MOBILE bottom bar — grab zone + X + scrollable chips + pill */}
                 {isMobile && (
                   <div
-                    className="relative flex items-center justify-between px-3 py-3 border-t flex-shrink-0 cursor-grab active:cursor-grabbing"
+                    className="relative flex items-center gap-2 px-2 py-2 border-t border-white/20 flex-shrink-0 cursor-grab active:cursor-grabbing bg-white/40"
                     style={{ touchAction: "none" }}
                     onPointerDown={(e) => {
                       const t = e.target as HTMLElement;
-                      if (t.closest('[data-no-drag="true"]')) return; // don’t start drag on the X
-                      dragControls.start(e.nativeEvent as PointerEvent);
+                      if (t.closest('[data-no-drag="true"]')) return;
+                      dragControls.start(e.nativeEvent as PointerEvent); // ← uses the controls defined above
                     }}
                   >
                     {/* X on the left */}
@@ -220,10 +318,19 @@ export default function Farmpop({
                       <X size={18} />
                     </button>
 
-                    {/* Centered pill inside the bar */}
-                    <span className="absolute left-1/2 -translate-x-1/2 h-1.5 w-12 rounded-full bg-black/15" />
+                    {/* Tabs strip */}
+                    {(tabs?.length ?? 0) >= 2 && (
+                      <div data-no-drag="true" className="flex-1 overflow-x-auto no-scrollbar">
+                        <div className="flex items-center gap-6 px-2" role="tablist" aria-orientation="horizontal">
+                          {tabs!.map((t) => (
+                            <Chip key={t.id} t={t} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                    {/* reserve space on the right for future tabs/actions */}
+                    {/* Center drag pill */}
+                    <span className="absolute left-1/2 -translate-x-1/2 -top-2 h-1.5 w-12 rounded-full bg-black/15" />
                     <span className="w-9" />
                   </div>
                 )}
