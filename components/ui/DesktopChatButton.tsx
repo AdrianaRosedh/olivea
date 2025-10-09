@@ -1,7 +1,7 @@
 // components/ui/DesktopChatButton.tsx
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MagneticButton from "@/components/ui/MagneticButton";
@@ -18,57 +18,74 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
   const [extraBottom, setExtraBottom] = useState(0); // dynamic lift to avoid overlap
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // --- Whistle host helpers ---------------------------------------------------
-  const getWhistleHost = () => document.getElementById("w-live-chat") as HTMLElement | null;
-  const setWhistleInteractive = (enabled: boolean) => {
-    const host = getWhistleHost();
-    if (!host) return;
-    host.style.pointerEvents = enabled ? "auto" : "none";
-    host.style.zIndex = enabled ? "2147483645" : "";
-    document.body.classList.toggle("olivea-chat-open", enabled);
-  };
+  /** ------------------------------------------------------------------------
+   * Whistle host helpers (stable)
+   * --------------------------------------------------------------------- */
+  const getWhistleHost = useCallback(
+    () => document.getElementById("w-live-chat") as HTMLElement | null,
+    []
+  );
 
-  // Make Whistle click-through by default
+  const setWhistleInteractive = useCallback(
+    (enabled: boolean) => {
+      const host = getWhistleHost();
+      if (!host) return;
+      host.style.pointerEvents = enabled ? "auto" : "none";
+      host.style.zIndex = enabled ? "2147483645" : "";
+      document.body.classList.toggle("olivea-chat-open", enabled);
+    },
+    [getWhistleHost]
+  );
+
+  // Make the widget click-through by default.
   useEffect(() => {
     setWhistleInteractive(false);
     return () => setWhistleInteractive(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setWhistleInteractive]);
 
-  // If user closes chat from inside Whistle, revert interactivity
+  // Heuristic: treat iframe as open only when it's a visible large panel.
+  const isWhistleOpen = useCallback(
+    (host: HTMLElement | null) => {
+      if (!host) return false;
+      const cs = getComputedStyle(host);
+      if (cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity || "1") < 0.05) return false;
+      const r = host.getBoundingClientRect();
+      return r.width >= 300 && r.height >= 300;
+    },
+    []
+  );
+
+  // Keep interactivity in sync with panel state (open vs. minimized/closed).
   useEffect(() => {
     const host = getWhistleHost();
     if (!host) return;
 
-    const check = () => {
-      const r = host.getBoundingClientRect();
-      const hidden =
-        r.width === 0 ||
-        r.height === 0 ||
-        getComputedStyle(host).display === "none" ||
-        getComputedStyle(host).visibility === "hidden";
-      if (hidden) setWhistleInteractive(false);
-    };
+    const sync = () => setWhistleInteractive(isWhistleOpen(getWhistleHost()));
 
-    const mo = new MutationObserver(check);
+    const mo = new MutationObserver(sync);
     mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
-    window.addEventListener("resize", check, { passive: true });
-    check();
 
+    const ro = new ResizeObserver(sync);
+    ro.observe(document.documentElement);
+    const h = getWhistleHost();
+    if (h) ro.observe(h);
+
+    const interval = setInterval(sync, 2000);
+
+    sync();
     return () => {
       mo.disconnect();
-      window.removeEventListener("resize", check);
+      ro.disconnect();
+      clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getWhistleHost, isWhistleOpen, setWhistleInteractive]);
 
-  // --- Availability (kept) ---------------------------------------------------
+  /** ------------------------------------------------------------------------
+   * Availability (kept)
+   * --------------------------------------------------------------------- */
   useEffect(() => {
     const updateAvailability = () => {
-      const now = new Date().toLocaleString("en-US", {
-        timeZone: "America/Tijuana",
-        hour12: false,
-      });
+      const now = new Date().toLocaleString("en-US", { timeZone: "America/Tijuana", hour12: false });
       const dt = new Date(now);
       const minutesNow = dt.getHours() * 60 + dt.getMinutes();
       setChatAvailable(minutesNow >= 480 && minutesNow <= 1290);
@@ -78,7 +95,9 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     return () => clearInterval(interval);
   }, []);
 
-  // --- Dynamic offset to avoid overlapping with language button / whistle ----
+  /** ------------------------------------------------------------------------
+   * Dynamic offset to avoid overlapping with language button / whistle
+   * --------------------------------------------------------------------- */
   useEffect(() => {
     const candidates = [
       avoidSelector,
@@ -135,18 +154,30 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     };
   }, [avoidSelector]);
 
+  /** ------------------------------------------------------------------------
+   * Labels
+   * --------------------------------------------------------------------- */
   const labels = {
     en: { available: "Live Chat — Available", unavailable: "Chat — Out of Office Hours", open: "Open Chat" },
     es: { available: "Chat en Vivo — Disponible", unavailable: "Chat — Fuera de Horario", open: "Abrir Chat" },
   };
   const currentLabel = chatAvailable ? labels[lang].available : labels[lang].unavailable;
 
+  /** ------------------------------------------------------------------------
+   * Click: open Whistle, then poll briefly to re-sync during animation
+   * --------------------------------------------------------------------- */
   const handleClick = () => {
-    // Enable Whistle interactions only while opening chat
-    setWhistleInteractive(true);
-
     const globalToggle = document.getElementById("chatbot-toggle");
-    if (globalToggle) globalToggle.click();
+    setWhistleInteractive(true);
+    globalToggle?.click();
+
+    const start = performance.now();
+    const tick = () => {
+      const host = getWhistleHost();
+      setWhistleInteractive(isWhistleOpen(host));
+      if (performance.now() - start < 4000) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   };
 
   // Base position (matches your old bottom-20 right-6 on md+):
