@@ -1,9 +1,12 @@
 // components/ui/ReservationButton.tsx
 "use client";
 
+import { usePathname } from "next/navigation";
 import MagneticButton from "@/components/ui/MagneticButton";
-import { Button }          from "@/components/ui/button";
-import { useReservation }  from "@/contexts/ReservationContext";
+import { Button } from "@/components/ui/button";
+import { useReservation } from "@/contexts/ReservationContext";
+import { corm } from "@/lib/fonts"; // same font as navbar
+import { cn } from "@/lib/utils";
 
 interface ReservationButtonProps {
   className?: string;
@@ -11,32 +14,48 @@ interface ReservationButtonProps {
 
 export default function ReservationButton({ className = "" }: ReservationButtonProps) {
   const { openReservationModal } = useReservation();
+  const pathname = usePathname();
+  const isES = pathname?.startsWith("/es");
+  const label = isES ? "RESERVAR" : "RESERVE";
 
   const handleClick = () => {
-    // tells context to open the modal (with whatever type you want)
     openReservationModal("restaurant");
   };
+
+  // exact same typography as the navbar RESERVE button
+  const labelClasses = cn(
+    corm.className,
+    "uppercase font-semibold leading-none",
+    "!tracking-[0.18em] [letter-spacing:0.18em]",
+    "text-[clamp(1.05rem,1.35vw,1.45rem)]"
+  );
 
   return (
     <>
       {/* Mobile Button */}
-      <div className={`md:hidden w-full px-4 pt-4 ${className}`}>
+      <div className={cn("md:hidden w-full px-4 pt-4", className)}>
         <Button
           onClick={handleClick}
           size="lg"
-          className="w-full h-[60px] text-base rounded-xl bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] transition-colors shadow-md font-sans tracking-wider"
+          className={cn(
+            "w-full h-[60px] rounded-xl bg-[var(--olivea-olive)] text-white",
+            "hover:bg-[var(--olivea-clay)] transition-colors shadow-md",
+            labelClasses
+          )}
         >
-          RESERVAR
+          {label}
         </Button>
       </div>
 
       {/* Desktop Magnetic Button */}
-      <div className={`hidden md:block ${className}`}>
+      <div className={cn("hidden md:block", className)}>
         <MagneticButton
           onClick={handleClick}
-          className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors font-sans tracking-wider"
+          className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors"
+          textClassName={labelClasses}
+          ariaLabel={isES ? "Reservar" : "Reserve"}
         >
-          RESERVAR
+          {label}
         </MagneticButton>
       </div>
     </>
