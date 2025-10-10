@@ -118,15 +118,31 @@ export default function Farmpop({
   const closePopup = useCallback(() => setOpen(false), []);
 
   // --- motion variants ---
+  // Desktop exactly like Reservation; Mobile unchanged
   const modalVariants: Variants = {
-    hidden:  isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0, filter: "blur(6px)" },
-    visible: isMobile ? { y: 0,        opacity: 1 } : { scale: 1,   opacity: 1, filter: "blur(0px)" },
-    exit:    isMobile ? { y: "-100%",  opacity: 0 } : { scale: 0.9, opacity: 0, filter: "blur(4px)" },
+    hidden:  isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
+    visible: isMobile ? { y: 0,        opacity: 1 } : { scale: 1,   opacity: 1 },
+    exit:    isMobile ? { y: "-100%",  opacity: 0 } : { scale: 0.9, opacity: 0 },
   };
-  const backdropVariants: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1 }, exit: { opacity: 0 } };
+
+  const backdropVariants: Variants = {
+    hidden:  { opacity: 0 },
+    visible: { opacity: 1 },
+    exit:    { opacity: 0 },
+  };
+
   const transition: Transition = isMobile
-    ? { type: "spring", stiffness: 220, damping: 28 }
-    : { duration: 0.4, ease: "easeOut" };
+    ? { type: "spring", stiffness: 200, damping: 25 } // keep mobile feel
+    : { duration: 0.4, ease: "easeOut" };  
+
+  const contentVariants: Variants = {
+    hidden:  isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 },
+    visible: isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 },
+    exit:    isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 },
+  };
+  const contentTransition: Transition = isMobile
+    ? { duration: 0 }                    // no change on mobile
+    : { duration: 0.25, ease: "easeOut", delay: 0.06 }; // starts with panel
 
   // --- mobile drag: upward only to close ---
   const dragControls = useDragControls(); // ← used by panel and started from bottom bar
@@ -224,7 +240,7 @@ export default function Farmpop({
               initial="hidden"
               animate="visible"
               exit="exit"
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.25 }} 
               onClick={closePopup}
             />
 
@@ -265,98 +281,107 @@ export default function Farmpop({
                     : undefined
                 }
               >
-                {/* Desktop header at TOP */}
-                {!isMobile && (
-                  <div className="relative flex items-center px-6 py-4 border-b border-white/20 flex-shrink-0 bg-[color:var(--olivea-cream)]/96">
-                    <h2
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
-                      style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 200 }}
-                    >
-                      {title}
-                    </h2>
-                    <button
-                      onClick={closePopup}
-                      aria-label="Cerrar"
-                      className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-                )}
-
-                {/* CONTENT — two-column on desktop; single column on mobile */}
-                <div className="flex-1 min-h-0 bg-[color:var(--olivea-cream)] flex">
-                  {/* Desktop left rail — full-height tiles */}
-                  {!isMobile && (tabs?.length ?? 0) >= 2 && (
-                    <aside
-                      className="
-                        hidden md:flex flex-col shrink-0 w-[260px]
-                        bg-[color:var(--olivea-cream)]/96 border-r border-white/20
-                        px-4 py-4 gap-3
-                      "
-                      role="tablist"
-                      aria-orientation="vertical"
-                    >
-                      {tabs!.map((t) => (
-                        <RailTile key={t.id} t={t} />
-                      ))}
-                      <div className="flex-1" />
-                    </aside>
+                <motion.div
+                  className="flex h-full w-full flex-col"
+                  variants={contentVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={contentTransition}
+                >
+                  {/* Desktop header at TOP */}
+                  {!isMobile && (
+                    <div className="relative flex items-center px-6 py-4 border-b border-white/20 flex-shrink-0 bg-[color:var(--olivea-cream)]/96">
+                      <h2
+                        className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
+                        style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 200 }}
+                      >
+                        {title}
+                      </h2>
+                      <button
+                        onClick={closePopup}
+                        aria-label="Cerrar"
+                        className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
                   )}
 
-                  {/* Right: iframe fills remaining space */}
-                  <div className="flex-1 min-h-0 bg-[color:var(--olivea-cream)]">
-                    <iframe
-                      key={embedUrl}
-                      src={embedUrl}
-                      title="Menú en vivo"
-                      className="w-full h-full block"
-                      style={{ border: 0 }}
-                      loading="lazy"
-                      allow="fullscreen"
-                      allowFullScreen
-                      referrerPolicy="no-referrer-when-downgrade"
-                    />
-                  </div>
-                </div>
-
-                {/* MOBILE bottom bar — grab zone + X + scrollable chips + pill */}
-                {isMobile && (
-                  <div
-                    className="relative flex items-center gap-2 px-2 py-2 border-t border-white/20 flex-shrink-0 cursor-grab active:cursor-grabbing bg-white/40"
-                    style={{ touchAction: "none" }}
-                    onPointerDown={(e) => {
-                      const t = e.target as HTMLElement;
-                      if (t.closest('[data-no-drag="true"]')) return;
-                      dragControls.start(e.nativeEvent as PointerEvent); // ← uses the controls defined above
-                    }}
-                  >
-                    {/* X on the left */}
-                    <button
-                      data-no-drag="true"
-                      onClick={closePopup}
-                      aria-label="Cerrar"
-                      className="p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
-                    >
-                      <X size={18} />
-                    </button>
-
-                    {/* Tabs strip */}
-                    {(tabs?.length ?? 0) >= 2 && (
-                      <div data-no-drag="true" className="flex-1 overflow-x-auto no-scrollbar">
-                        <div className="flex items-center gap-6 px-2" role="tablist" aria-orientation="horizontal">
-                          {tabs!.map((t) => (
-                            <Chip key={t.id} t={t} />
-                          ))}
-                        </div>
-                      </div>
+                  {/* CONTENT — two-column on desktop; single column on mobile */}
+                  <div className="flex-1 min-h-0 bg-[color:var(--olivea-cream)] flex">
+                    {/* Desktop left rail — full-height tiles */}
+                    {!isMobile && (tabs?.length ?? 0) >= 2 && (
+                      <aside
+                        className="
+                          hidden md:flex flex-col shrink-0 w-[260px]
+                          bg-[color:var(--olivea-cream)]/96 border-r border-white/20
+                          px-4 py-4 gap-3
+                        "
+                        role="tablist"
+                        aria-orientation="vertical"
+                      >
+                        {tabs!.map((t) => (
+                          <RailTile key={t.id} t={t} />
+                        ))}
+                        <div className="flex-1" />
+                      </aside>
                     )}
 
-                    {/* Center drag pill */}
-                    <span className="absolute left-1/2 -translate-x-1/2 -top-2 h-1.5 w-12 rounded-full bg-black/15" />
-                    <span className="w-9" />
+                    {/* Right: iframe fills remaining space */}
+                    <div className="flex-1 min-h-0 bg-[color:var(--olivea-cream)]">
+                      <iframe
+                        key={embedUrl}
+                        src={embedUrl}
+                        title="Menú en vivo"
+                        className="w-full h-full block"
+                        style={{ border: 0 }}
+                        loading="lazy"
+                        allow="fullscreen"
+                        allowFullScreen
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </div>
                   </div>
-                )}
+
+                  {/* MOBILE bottom bar — grab zone + X + scrollable chips + pill */}
+                  {isMobile && (
+                    <div
+                      className="relative flex items-center gap-2 px-2 py-2 border-t border-white/20 flex-shrink-0 cursor-grab active:cursor-grabbing bg-white/40"
+                      style={{ touchAction: "none" }}
+                      onPointerDown={(e) => {
+                        const t = e.target as HTMLElement;
+                        if (t.closest('[data-no-drag="true"]')) return;
+                        dragControls.start(e.nativeEvent as PointerEvent); // ← uses the controls defined above
+                      }}
+                    >
+                      {/* X on the left */}
+                      <button
+                        data-no-drag="true"
+                        onClick={closePopup}
+                        aria-label="Cerrar"
+                        className="p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
+                      >
+                        <X size={18} />
+                      </button>
+
+                      {/* Tabs strip */}
+                      {(tabs?.length ?? 0) >= 2 && (
+                        <div data-no-drag="true" className="flex-1 overflow-x-auto no-scrollbar">
+                          <div className="flex items-center gap-6 px-2" role="tablist" aria-orientation="horizontal">
+                            {tabs!.map((t) => (
+                              <Chip key={t.id} t={t} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Center drag pill */}
+                      <span className="absolute left-1/2 -translate-x-1/2 -top-2 h-1.5 w-12 rounded-full bg-black/15" />
+                      <span className="w-9" />
+                    </div>
+                  )}
+                </motion.div>
               </motion.div>
             </motion.div>
           </>
