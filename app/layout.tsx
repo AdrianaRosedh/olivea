@@ -11,15 +11,14 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "
 
 // app/layout.tsx
 export const metadata: Metadata = {
-  title: "Familia OLIVEA",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [
-      { url: "/apple-touch-icon-180x180.png", sizes: "180x180" }, // versioned
-      { url: "/apple-touch-icon.png" },                           // root fallback
+      { url: "/apple-touch-icon-180x180.png", sizes: "180x180" }, 
+      { url: "/apple-touch-icon.png" },                           
     ],
   },
 } as const;

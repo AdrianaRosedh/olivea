@@ -1,39 +1,26 @@
 // app/(home)/[lang]/metadata.ts
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 
-export async function generateMetadata({
-  params,
-}: {
+type Props = {
   params: { lang: "es" | "en" };
-}): Promise<Metadata> {
-  const { lang } = params;
+};
 
-  // Our richer, combined description:
-  const fullDescription =
-    lang === "es"
-      ? "Familia Olivea en Valle de Guadalupe: Olivea Farm To Table ofrece cocina de la granja a la mesa; Casa Olivea es un hotel boutique campestre; Olivea Café sirve café artesanal y repostería. Ubicado en Baja California, México."
-      : "Familia Olivea in Valle de Guadalupe: Olivea Farm To Table delivers farm-fresh Baja cuisine; Casa Olivea is a boutique country inn; Olivea Café serves artisanal coffee & pastries. Located in Baja California, México.";
+export async function generateMetadata(
+  { params: { lang } }: Props,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const title = lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
 
   return {
-    title: lang === "es" ? "Familia Olivea" : "Olivea Family",
-    description: fullDescription,
+    title,
+    openGraph: { title },
     alternates: {
-      canonical: `https://www.oliveafarmtotable.com/${lang}`,
       languages: {
-        en: "https://www.oliveafarmtotable.com/en",
-        es: "https://www.oliveafarmtotable.com/es",
+        "es-MX": "/es",
+        "en-US": "/en",
       },
     },
-    openGraph: {
-      title: "Olivea Farm to Table",
-      description: fullDescription,              // ← also update here
-      url: `https://www.oliveafarmtotable.com/${lang}`,
-      locale: lang,
-      siteName: "Familia Olivea",
-      images: [
-        `/images/og-${lang}.jpg`,
-        "/images/og-default.jpg",
-      ],
-    },
+    // Optional: if you want absolute OG/url generation
+    // metadataBase: new URL("https://www.oliveafarmtotable.com"),
   };
 }

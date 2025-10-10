@@ -14,7 +14,7 @@
     "description": "Café de casa, pan propio y mañanas serenas en Valle de Guadalupe.",
     "error": "Error al cargar el menú:",
     "meta": {
-      "title": "Olivea Café | Café, pan y mañanas en Valle de Guadalupe",
+      "title": "OLIVEA Café",
       "description": "Café de origen tostado en Ensenada, pan de casa y patio tranquilo. Desayuno desde el huerto en Olivea Café.",
       "keywords": ["Olivea Café", "café", "desayuno", "panadería", "Valle de Guadalupe", "Ensenada", "pádel"],
       "ogImage": "/images/seo/cafe-og.jpg"
@@ -24,7 +24,7 @@
     "title": "Casa Olivea",
     "description": "Quédate con nosotros. Habitaciones, servicios y reservas.",
     "meta": {
-      "title": "Casa Olivea | Habitaciones y diseño en Valle de Guadalupe",
+      "title": "Casa OLIVEA",
       "description": "Luz, silencio y confort honesto. Habitaciones con materiales naturales, blackout efectivo y amenities pensadas—Casa Olivea, Ensenada.",
       "keywords": ["Casa Olivea", "hotel", "habitaciones", "Valle de Guadalupe", "Ensenada", "diseño"],
       "ogImage": "/images/seo/casa-og.jpg"
@@ -34,7 +34,7 @@
     "title": "Olivea Farm To Table",
     "description": "Huerto, cocina y mesa—menú de degustación marcado por la estación y el suelo.",
     "meta": {
-      "title": "Olivea Farm-to-Table | Menú de degustación en Valle de Guadalupe",
+      "title": "OLIVEA Farm to Table",
       "description": "Del huerto a la mesa: menú de 8 tiempos, maridaje sin alcohol y una sala que sigue el ritmo del Valle.",
       "keywords": ["granja a la mesa", "menú degustación", "Valle de Guadalupe", "Ensenada", "maridaje sin alcohol", "restaurante"],
       "ogImage": "/images/seo/restaurant-og.jpg"
@@ -107,16 +107,6 @@
       "description": "Chefs, enólogos, hoteleros y artesanos que proyectan la identidad del Valle—prensa, colaboraciones y eventos compartidos.",
       "keywords": ["Mesa del Valle", "colectivo", "prensa", "Valle de Guadalupe", "vino", "gastronomía"],
       "ogImage": "/images/seo/mesa-og.jpg"
-    }
-  },
-  "notFound": {
-    "message": "La página que buscas no existe.",
-    "cta": "Volver al inicio",
-    "meta": {
-      "title": "Página no encontrada | Olivea",
-      "description": "La página que buscas no existe. Regresa al inicio de Olivea.",
-      "keywords": ["404", "no encontrada", "Olivea"],
-      "ogImage": "/images/seo/default-og.jpg"
     }
   },
   "home": {
