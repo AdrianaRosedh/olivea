@@ -72,6 +72,7 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
   const isMobile = useIsMobile();
   const { openReservationModal } = useReservation();
   const { clearTransition } = useSharedTransition();
+  const homeHref = lang === "en" ? "/en" : "/es";
 
   // mobile drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -262,7 +263,7 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
       <div className="relative w-full h-20 md:h-24 lg:h-28">
         {/* Left: Logo */}
         <Link
-          href="/"
+          href={homeHref} 
           aria-label="Home"
           onClick={() => {
             // wipe any active shared transition before going home
