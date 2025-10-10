@@ -177,6 +177,14 @@
 }
 :root { --scroll-per: 0; }
 
+@keyframes olivea-loader-bar {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+@keyframes olivea-loader-vert {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
 /* ────────────────────────────────────────────────────────────────── */
 /* Utilities                                                         */
 /* ────────────────────────────────────────────────────────────────── */
@@ -189,6 +197,21 @@
   /* A centered section helper if you need it */
   .section-center {
     @apply min-h-screen flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px];
+  }
+  .willfade {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+  .loader-bar {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    border-radius: inherit;
+    animation: olivea-loader-bar var(--bar-duration,3.5s) linear forwards;
+  }
+  .loader-vert {
+    transform-origin: bottom center;     /* grow from the bottom */
+    animation: olivea-loader-vert var(--bar-duration, 4s) linear forwards;
   }
 }
 

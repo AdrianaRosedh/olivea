@@ -1,19 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, CSSProperties } from "react";
-import type { ComponentType, SVGProps } from "react";
-import Tilt from "react-parallax-tilt";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+
+  type ComponentType,
+  type SVGProps,
+} from "react";
 import { motion } from "framer-motion";
+
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import type { VideoKey } from "@/contexts/SharedTransitionContext";
-import throttle from "lodash.throttle";
 
 export interface InlineEntranceCardProps {
   title: string;
   href: string;
   videoKey: VideoKey;
   description?: string;
-  videoSrc?: string; // (kept for API compatibility; not used with slugbed videos)
+  videoSrc?: string; // kept for API compatibility
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
   className?: string;
   onActivate?: () => void;
@@ -28,51 +34,47 @@ export default function InlineEntranceCard({
   className = "",
   onActivate = () => {},
 }: InlineEntranceCardProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const { startTransition } = useSharedTransition();
 
   // i18n CTA
   const isES = href.startsWith("/es");
   const ctaText = isES ? "Haz Click" : "Click Me";
 
-  // slug and responsive format selection
+  // slug for aria
   const slug = href.split("/").pop() || "";
 
+  // responsive
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    let resizeTimeout: ReturnType<typeof setTimeout>;
-    const onResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => setIsMobile(window.innerWidth < 768), 100);
-    };
+    const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
-    window.addEventListener("resize", onResize);
-    return () => {
-      clearTimeout(resizeTimeout);
-      window.removeEventListener("resize", onResize);
-    };
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // browser format support (client-only)
-  const [preferWebm, setPreferWebm] = useState(false);
+  // browser codec support (ref so we don't re-render)
+  const preferWebmRef = useRef(false);
   useEffect(() => {
     const v = document.createElement("video");
-    setPreferWebm(!!v.canPlayType?.('video/webm; codecs="vp9,vorbis"'));
+    preferWebmRef.current = !!v.canPlayType?.('video/webm; codecs="vp9,vorbis"');
   }, []);
 
-  // build chosen urls from new naming scheme: slug-<mobile|HD>.(webm|mp4)
+  // build chosen urls from naming scheme: slug-<mobile|HD>.(webm|mp4)
   const variantBase = slug ? `${slug}-${isMobile ? "mobile" : "HD"}` : "";
   const webmUrl = variantBase ? `/videos/${variantBase}.webm` : "";
-  const mp4Url = variantBase ? `/videos/${variantBase}.mp4` : "";
-  const primaryUrl = preferWebm ? webmUrl : mp4Url;
-  const fallbackUrl = preferWebm ? mp4Url : webmUrl;
+  const mp4Url  = variantBase ? `/videos/${variantBase}.mp4`  : "";
+  const primaryUrl  = preferWebmRef.current ? webmUrl : mp4Url;
+  const fallbackUrl = preferWebmRef.current ? mp4Url : webmUrl;
 
-  // warmup only chosen format+variant
+  // preload chosen format+variant (once)
+  const warmUpDone = useRef(false);
   const warmUpVideo = useCallback(() => {
-    if (!variantBase || !primaryUrl) return;
-    const mark = `iec-preload-${variantBase}-${preferWebm ? "webm" : "mp4"}`;
-    if (document.head.querySelector(`link[data-preload="${mark}"]`)) return;
-
+    if (!variantBase || !primaryUrl || warmUpDone.current) return;
+    const mark = `iec-preload-${variantBase}-${preferWebmRef.current ? "webm" : "mp4"}`;
+    if (document.head.querySelector(`link[data-preload="${mark}"]`)) {
+      warmUpDone.current = true;
+      return;
+    }
     const link = document.createElement("link");
     link.rel = "preload";
     link.as = "video";
@@ -80,16 +82,22 @@ export default function InlineEntranceCard({
     link.type = primaryUrl.endsWith(".webm") ? "video/webm" : "video/mp4";
     link.setAttribute("data-preload", mark);
     document.head.appendChild(link);
-  }, [variantBase, primaryUrl, preferWebm]);
+    warmUpDone.current = true;
+  }, [variantBase, primaryUrl]);
 
   // state
   const [isHovered, setIsHovered] = useState(false);
-  const [tiltStyle, setTiltStyle] = useState<CSSProperties>({});
   const [isInView, setIsInView] = useState(false);
 
-  // look-ahead IO to mark in-view (and allow early warmup)
+  // refs for imperative perf path
+  const cardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const rectRef  = useRef<DOMRect | null>(null);
+  const rafRef   = useRef<number | null>(null);
+
+  // in-view detection → enable hover playback
   useEffect(() => {
-    const node = videoRef.current;
+    const node = cardRef.current;
     if (!node) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
@@ -112,48 +120,62 @@ export default function InlineEntranceCard({
     else vid.pause();
   }, [isHovered, isMobile, isInView]);
 
-  // tilt throttling + cleanup
-  const throttledMouseMove = useRef(
-    throttle((rect: DOMRect | null, clientX: number, clientY: number, isMobileFlag: boolean) => {
-      if (isMobileFlag || !rect) return;
-      const x = (clientX - rect.left) / rect.width - 0.5;
-      const y = (clientY - rect.top) / rect.height - 0.5;
-      setTiltStyle({
-        transform: `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`,
-        boxShadow: `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`,
-        transition: "transform 0.1s ease-out, boxShadow 0.2s ease-out",
-      });
-    }, 20)
-  );
-  useEffect(() => {
-    const throttled = throttledMouseMove.current;
-    return () => throttled?.cancel?.();
-  }, []);
+  // ── Imperative tilt (no React state on move) ────────────────────────────────
+  const applyTilt = (clientX: number, clientY: number) => {
+    const node = cardRef.current;
+    const rect = rectRef.current;
+    if (!node || !rect) return;
+    const x = (clientX - rect.left) / rect.width - 0.5;
+    const y = (clientY - rect.top) / rect.height - 0.5;
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget?.getBoundingClientRect();
-      if (rect) throttledMouseMove.current(rect, e.clientX, e.clientY, isMobile);
-    },
-    [isMobile]
-  );
+    // transform + shadow (same look as before)
+    node.style.transform =
+      `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`;
+    node.style.boxShadow =
+      `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`;
+    // keep transition snappy but not jittery
+    node.style.transition = "transform 0.1s ease-out, box-shadow 0.2s ease-out";
+  };
+
+  const scheduleTilt = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return;
+    const { clientX, clientY, currentTarget } = e;
+    if (!rectRef.current) {
+      rectRef.current = currentTarget.getBoundingClientRect();
+    }
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => applyTilt(clientX, clientY));
+  };
+
+  const clearTilt = () => {
+    const node = cardRef.current;
+    rectRef.current = null;
+    if (!node) return;
+    node.style.transform = "perspective(1000px) translateY(0) rotateX(0) rotateY(0)";
+    node.style.boxShadow = "none";
+    node.style.transition = "transform 0.5s ease, box-shadow 0.3s ease";
+  };
+
+  // resize: invalidate cached rect
+  useEffect(() => {
+    const onResize = () => (rectRef.current = null);
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const handleMouseEnter = () => {
     if (isMobile) return;
-    if (videoRef.current && isInView && videoRef.current.readyState === 0) {
-      videoRef.current.load();
-    }
+    // ensure codec picked & preload kicked
     warmUpVideo();
+    // ensure <video> has sources wired
+    const v = videoRef.current;
+    if (v && isInView && v.readyState === 0) v.load();
     setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
     if (isMobile) return;
-    setTiltStyle({
-      transform: "perspective(1000px) translateY(0) rotateX(0) rotateY(0)",
-      boxShadow: "none",
-      transition: "transform 0.5s ease, boxShadow 0.3s ease",
-    });
+    clearTilt();
     setIsHovered(false);
   };
 
@@ -165,7 +187,7 @@ export default function InlineEntranceCard({
     startTransition(videoKey, href);
   };
 
-  // ——— Dimensions ———
+  // ── Dimensions (unchanged visuals) ─────────────────────────────────────────
   const DESKTOP_SCALE = 1.3;
   const scale = isMobile ? 1 : DESKTOP_SCALE;
   const CARD_WIDTH = 256 * scale;
@@ -180,15 +202,20 @@ export default function InlineEntranceCard({
   const topHeight = isMobile ? 0 : TOP_DESKTOP;
   const bottomHeight = isMobile ? MOBILE_COLLAPSED : BOTTOM_DEFAULT;
 
+  // Build URLs once per render (cheap) — the browser will pick the first playable <source>
+  const primarySrc = primaryUrl ? (
+    <source src={primaryUrl} type={primaryUrl.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+  ) : null;
+  const fallbackSrc = fallbackUrl ? (
+    <source src={fallbackUrl} type={fallbackUrl.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+  ) : null;
+
   return (
-    <Tilt
+    <div
       className={className}
       style={{ width: isMobile ? "100%" : CARD_WIDTH }}
-      tiltMaxAngleX={10}
-      tiltMaxAngleY={10}
-      glareEnable={false}
-      onEnter={handleMouseEnter}
-      onLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <a
         href={href}
@@ -202,11 +229,12 @@ export default function InlineEntranceCard({
         }}
         className="block relative cursor-pointer"
       >
-        <motion.div
-          whileTap={{ scale: 0.97 }}
-          className={`relative overflow-visible cursor-pointer ${isMobile ? "drop-shadow-lg" : ""}`}
-        >
-          <div onMouseMove={handleMouseMove} style={{ width: "100%", height: containerHeight, cursor: "pointer", ...tiltStyle }}>
+        <motion.div whileTap={{ scale: 0.97 }} className={`relative overflow-visible cursor-pointer ${isMobile ? "drop-shadow-lg" : ""}`}>
+          <div
+            ref={cardRef}
+            onMouseMove={scheduleTilt}
+            style={{ width: "100%", height: containerHeight, cursor: "pointer" }}
+          >
             <div style={{ border: "4px solid #e8e4d5", borderRadius: 24, overflow: "hidden", height: "100%" }}>
               {/* Top Video */}
               <div
@@ -235,19 +263,8 @@ export default function InlineEntranceCard({
                     willChange: "transform, opacity",
                   }}
                 >
-                  {/* Prefer supported format first */}
-                  {primaryUrl && (
-                    <source
-                      src={primaryUrl}
-                      type={primaryUrl.endsWith(".webm") ? "video/webm" : "video/mp4"}
-                    />
-                  )}
-                  {fallbackUrl && (
-                    <source
-                      src={fallbackUrl}
-                      type={fallbackUrl.endsWith(".webm") ? "video/webm" : "video/mp4"}
-                    />
-                  )}
+                  {primarySrc}
+                  {fallbackSrc}
                 </video>
               </div>
 
@@ -344,6 +361,6 @@ export default function InlineEntranceCard({
           )}
         </motion.div>
       </a>
-    </Tilt>
+    </div>
   );
 }
