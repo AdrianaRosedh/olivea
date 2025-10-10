@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { AnimatePresence, motion, useAnimation, Variants } from "framer-motion";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation"; // ⬅️ NEW
 import ReservationButton from "@components/ui/ReservationButton";
 import type { VideoKey } from "@/contexts/SharedTransitionContext";
 import CasaLogo from "@/assets/alebrije-2.svg";
@@ -61,7 +62,6 @@ const AnimatedDesktopLoader = () => {
   );
 };
 
-
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
 const containerVariants: Variants = {
@@ -85,15 +85,31 @@ export default function HomePage() {
   const [revealMain, setRevealMain] = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
 
+  // ⬇️ Language detection
+  const pathname = usePathname();
+  const isES = pathname?.startsWith("/es");
+  const base = isES ? "/es" : "/en";
+
   // ✅ kick the video only after the main UI is revealed
   useEffect(() => {
     if (!revealMain) return;
     queueMicrotask(() => {
-      videoRef.current?.play().catch(() => {
-      });
+      videoRef.current?.play().catch(() => {});
     });
   }, [revealMain]);
 
+  // ⬇️ Localized descriptions
+  const descs = isES
+    ? {
+        casa: "Un hogar donde puedes quedarte.",
+        farm: "Un jardín del que puedes comer.",
+        cafe: "Despierta con sabor.",
+      }
+    : {
+        casa: "A home you can stay in.",
+        farm: "A garden you can eat from.",
+        cafe: "Wake up with flavor.",
+      };
 
   const sections: Array<{
     href: string;
@@ -102,15 +118,12 @@ export default function HomePage() {
     Logo: ComponentType<SVGProps<SVGSVGElement>>;
     videoKey: VideoKey;
   }> = [
-    { href: "/es/casa",       title: "Casa Olivea",         description: "A home you can stay in.",    Logo: CasaLogo,    videoKey: "casa" },
-    { href: "/es/farmtotable",title: "Olivea Farm To Table", description: "A garden you can eat from.", Logo: FarmLogo,    videoKey: "farmtotable" },
-    { href: "/es/cafe",       title: "Olivea Café",          description: "Wake up with flavor.",        Logo: CafeLogo,    videoKey: "cafe" },
+    { href: `${base}/casa`,        title: "Casa Olivea",          description: descs.casa, Logo: CasaLogo, videoKey: "casa" },
+    { href: `${base}/farmtotable`, title: "Olivea Farm To Table",  description: descs.farm, Logo: FarmLogo, videoKey: "farmtotable" },
+    { href: `${base}/cafe`,        title: "Olivea Café",           description: descs.cafe, Logo: CafeLogo, videoKey: "cafe" },
   ];
 
-
-  const mobileSections = isMobileMain
-    ? [sections[1], sections[0], sections[2]]
-    : sections;
+  const mobileSections = isMobileMain ? [sections[1], sections[0], sections[2]] : sections;
 
   useEffect(() => {
     let isCancelled = false;
@@ -120,7 +133,6 @@ export default function HomePage() {
 
     const runIntro = async () => {
       try {
-        // 1) Wait your fixed intro delay
         await new Promise((res) => setTimeout(res, 1500));
         if (isCancelled) return;
         setDrawComplete(true);
@@ -129,7 +141,6 @@ export default function HomePage() {
         const logoTarget = logoTargetRef.current;
         if (!vid || !logoTarget) return;
 
-        // 2) Race loadedmetadata vs 1s timeout so we never wait forever
         await Promise.race([
           new Promise<void>((res) => {
             if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) return res();
@@ -139,10 +150,8 @@ export default function HomePage() {
         ]);
         if (isCancelled) return;
 
-        // 3) Reveal the main content (this triggers the separate effect to play the video)
         setRevealMain(true);
 
-        // 4) Animate the overlay from the video’s current position
         const rect = vid.getBoundingClientRect();
         await overlayControls.start({
           top: rect.top + window.scrollY,
@@ -154,11 +163,9 @@ export default function HomePage() {
         });
         if (isCancelled) return;
 
-        // 5) Brief pause before the logo animation
         await new Promise((res) => setTimeout(res, 400));
         if (isCancelled) return;
 
-        // 6) Animate the logo into place
         const pad = logoTarget.getBoundingClientRect();
         await logoControls.start({
           top: pad.top + pad.height / 2 + window.scrollY,
@@ -170,12 +177,10 @@ export default function HomePage() {
         });
         if (isCancelled) return;
 
-        // 7) Fade out the overlay
         await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
       } catch (err) {
         console.error("Intro animation error:", err);
       } finally {
-        // 8) Always remove loader and restore scroll
         if (!isCancelled) {
           setShowLoader(false);
           document.body.classList.remove("overflow-hidden");
@@ -187,11 +192,8 @@ export default function HomePage() {
 
     return () => {
       isCancelled = true;
-      // safety: ensure scroll is restored on unmount
       document.body.classList.remove("overflow-hidden");
     };
-    // Run once on mount; useAnimation() returns stable instances so it's safe
-    // If your linter complains, you can keep them in deps; just ensure it doesn't re-run.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -220,7 +222,6 @@ export default function HomePage() {
     return () => v.removeEventListener("ended", onEnded);
   }, []);
 
-
   return (
     <>
       {/* Loader Overlay */}
@@ -245,7 +246,7 @@ export default function HomePage() {
                 />
               </div>
             </div>
-        
+
             {/* Desktop Loader */}
             <AnimatedDesktopLoader />
           </motion.div>
@@ -268,16 +269,16 @@ export default function HomePage() {
               transformOrigin: "center center",
             }}
           >
-            <AlebrijeDraw
-              size={240}
-              strokeDuration={drawComplete ? 0 : 5}
-              fillDuration={drawComplete ? 0 : 7}
-            />
+            <AlebrijeDraw size={240} strokeDuration={drawComplete ? 0 : 5} fillDuration={drawComplete ? 0 : 7} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <main className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${revealMain ? "opacity-100" : "opacity-0"}`}>
+      <main
+        className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${
+          revealMain ? "opacity-100" : "opacity-0"
+        }`}
+      >
         {/* Background video hero */}
         <div
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0 "
@@ -285,50 +286,32 @@ export default function HomePage() {
             width: "98vw",
             height: isMobileMain ? "30vh" : "98vh",
             borderRadius: "1.5rem",
-                }}
+          }}
         >
-        <video
-          ref={videoRef}
-          className="
-            absolute inset-0 w-full h-full object-cover
-            [--video-brightness:0.96]
-            brightness-[var(--video-brightness)]
-            pointer-events-none
-          "
-          muted
-          loop
-          playsInline
-          preload="metadata"           // <— key: don't eagerly download the whole file
-          poster="/images/hero.jpg"    // <— ensure this exists; becomes your cheap LCP
-        >
-          {/* lightweight mobile encodes (≈480–720p) */}
-          <source
-            src="/videos/homepage-mobile.webm"
-            type="video/webm"
-            media="(max-width: 767px)"
-          />
-          <source
-            src="/videos/homepage-mobile.mp4"
-            type="video/mp4"
-            media="(max-width: 767px)"
-          />
+          <video
+            ref={videoRef}
+            className="
+              absolute inset-0 w-full h-full object-cover
+              [--video-brightness:0.96]
+              brightness-[var(--video-brightness)]
+              pointer-events-none
+            "
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="/images/hero.jpg"
+          >
+            {/* mobile */}
+            <source src="/videos/homepage-mobile.webm" type="video/webm" media="(max-width: 767px)" />
+            <source src="/videos/homepage-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
+            {/* desktop */}
+            <source src="/videos/homepage-HD.webm" type="video/webm" media="(min-width: 768px)" />
+            <source src="/videos/homepage-HD.mp4" type="video/mp4" media="(min-width: 768px)" />
+            Your browser does not support the video tag.
+          </video>
 
-          {/* desktop encodes (≈1080p) */}
-          <source
-            src="/videos/homepage-HD.webm"
-            type="video/webm"
-            media="(min-width: 768px)"
-          />
-          <source
-            src="/videos/homepage-HD.mp4"
-            type="video/mp4"
-            media="(min-width: 768px)"
-          />
-
-          Your browser does not support the video tag.
-        </video>
-
-        {/* ✅ Mobile-only title over the video */}
+          {/* ✅ Mobile-only title over the video (localized) */}
           <motion.div
             className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
             variants={itemVariants}
@@ -336,26 +319,24 @@ export default function HomePage() {
             animate={!showLoader ? "show" : "hidden"}
           >
             <span className="text-[var(--olivea-mist)] font-serif text-lg italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center">
-              OLIVEA La Experiencia
+              {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
             </span>
           </motion.div>
 
-         <div className="absolute inset-0 hidden md:flex flex-col items-center justify-start z-30">
-            <div
-              ref={logoTargetRef}
-              className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56"
-            >
+          <div className="absolute inset-0 hidden md:flex flex-col items-center justify-start z-30">
+            <div ref={logoTargetRef} className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56">
               <OliveaLogo className="w-full h-full" />
             </div>
 
-            {/* Phrase directly under the logo */}
+            {/* Phrase directly under the logo (localized) */}
             <span className="mt-3 mb-6 text-[var(--olivea-mist)] font-serif text-2xl lg:text-[26px] italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]">
-              OLIVEA La Experiencia
+              {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
             </span>
           </div>
+
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
-        
+
         {/* Mobile cards + button */}
         <motion.div
           className="flex flex-col md:hidden flex-1 w-full px-4 pt-4"
@@ -364,21 +345,18 @@ export default function HomePage() {
           animate={!showLoader ? "show" : "hidden"}
         >
           <div className="space-y-12">
-            {/* Mobile sections */}
-              {mobileSections.map((sec) => (
-                <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
-                  <InlineEntranceCard
-                    title={sec.title}
-                    href={sec.href}
-                    videoKey={sec.videoKey}            /* ← don’t forget this! */
-                    description={sec.description}
-                    Logo={sec.Logo}
-                    onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                  />
-                  
-                </motion.div>
-              ))}
-
+            {mobileSections.map((sec) => (
+              <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
+                <InlineEntranceCard
+                  title={sec.title}
+                  href={sec.href}
+                  videoKey={sec.videoKey}
+                  description={sec.description}
+                  Logo={sec.Logo}
+                  onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                />
+              </motion.div>
+            ))}
           </div>
           <motion.div
             variants={itemVariants}
@@ -390,7 +368,7 @@ export default function HomePage() {
             <ReservationButton />
           </motion.div>
         </motion.div>
-          
+
         {/* Desktop cards + button */}
         <motion.div
           className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
@@ -399,20 +377,18 @@ export default function HomePage() {
           animate={!showLoader ? "show" : "hidden"}
         >
           <div className="flex gap-6 mt-[12vh]">
-            {/* Desktop sections */}
             {sections.map((sec) => (
               <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
                 <InlineEntranceCard
                   title={sec.title}
                   href={sec.href}
-                  videoKey={sec.videoKey}            /* ← and this! */
+                  videoKey={sec.videoKey}
                   description={sec.description}
                   Logo={sec.Logo}
                   onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                 />
               </motion.div>
             ))}
-
           </div>
           <motion.div
             variants={itemVariants}
