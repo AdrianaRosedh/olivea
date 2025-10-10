@@ -18,16 +18,17 @@ function getLocale(request: NextRequest): string {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const pathNoTrailing = pathname.replace(/\/+$/, ""); 
+  const pathNoTrailing = pathname.replace(/\/+$/, "");
 
-  // allow Cloudbeds iframe
+  // ── Special case: allow Cloudbeds iframe page ──────────────────────────────
   if (pathNoTrailing === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
+    // Allow same-origin embedding for this one page only
     res.headers.set("X-Frame-Options", "SAMEORIGIN");
     return res;
   }
 
-  // skip assets & api
+  // ── Redirect locale-less routes to preferred locale ────────────────────────
   const isStatic =
     pathNoTrailing.startsWith("/_next") ||
     pathNoTrailing.startsWith("/api") ||
@@ -44,10 +45,13 @@ export function middleware(request: NextRequest) {
       ? NextResponse.next()
       : NextResponse.redirect(new URL(`/${getLocale(request)}${pathNoTrailing}`, request.url));
 
-  // inject CSP + security headers (unchanged)
+  // ── Security headers (single source of truth) ──────────────────────────────
+  const isDev = process.env.NODE_ENV !== "production";
+
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com.mx https://www.opentable.com https://*.canva.com",
+    // Keep 'unsafe-eval' in dev only; drop in prod for tighter CSP
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com.mx https://www.opentable.com https://*.canva.com`,
     "style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com.mx https://www.opentable.com",
     "img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com.mx https://www.opentable.com https://*.canva.com",
     "connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com.mx https://www.opentable.com https://*.execute-api.us-west-2.amazonaws.com https://*.canva.com",
@@ -56,12 +60,12 @@ export function middleware(request: NextRequest) {
 
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Frame-Options", "DENY"); // global default; the iframe page returns early above
   response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   return response;
 }
 
-// (optional) limit middleware to relevant paths:
-// export const config = { matcher: ["/((en|es)/)?menu", "/:path*"] };
+// Optional: restrict middleware surface if desired
+// export const config = { matcher: ["/((en|es)/)?(.*)"] };

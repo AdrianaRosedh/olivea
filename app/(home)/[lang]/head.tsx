@@ -1,3 +1,4 @@
+// app/(home)/[lang]/head.tsx
 export default function Head() {
   return (
     <>
@@ -8,9 +9,16 @@ export default function Head() {
         name="description"
         content="Olivea: Casa Olivea, Olivea Farm To Table y Olivea Café en Valle de Guadalupe."
       />
-      {/* keep font/icon preloads if you need them, but do NOT preload /videos/... here */}
-      {/* example safe preload (fonts/images only): */}
-      {/* <link rel="preload" href="/fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /> */}
+
+      {/* LCP poster preload */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/hero.jpg"
+        fetchPriority="high"
+        imageSrcSet="/images/hero.jpg 1x"
+        imageSizes="98vw"
+      />
     </>
   );
 }

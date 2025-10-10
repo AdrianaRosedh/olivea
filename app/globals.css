@@ -310,6 +310,11 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
   --dock-right: 96px;   /* right rail + its gap */
 }
 
+:root { --header-h: 112px; }        
+@media (max-width: 767px) {
+  :root { --header-h: 64px; }         
+}
+
 @media (min-width: 768px) {
   /* Ensure the section itself ignores container caps/padding */
   main[data-hero-breakout="true"] section#hero {

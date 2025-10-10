@@ -1,11 +1,11 @@
+// app/(main)/[lang]/layout.tsx
 import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
 import StructuredData from "@/components/seo/StructuredData";
 import LayoutShell from "@/components/layout/LayoutShell";
-import { AppProviders } from "@/app/providers";
 import { loadLocale } from "@/lib/i18n";
 import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
-import ClientPrewarm from "./prewarm-client"; 
+import ClientPrewarm from "./prewarm-client";
 
 type Params = { params: { lang: "es" | "en" } };
 
@@ -21,20 +21,26 @@ export async function generateMetadata(
   };
 }
 
-export default async function LangLayout(
-  { children, params: { lang: rawLang } }: { children: ReactNode; params: { lang: string } }
-) {
-  const { lang, dict } = (await loadLocale({ lang: rawLang })) as { lang: Lang; dict: AppDictionary };
+export default async function LangLayout({
+  children,
+  params: { lang: rawLang },
+}: {
+  children: ReactNode;
+  params: { lang: string };
+}) {
+  const { lang, dict } = (await loadLocale({ lang: rawLang })) as {
+    lang: Lang;
+    dict: AppDictionary;
+  };
 
   return (
     <>
       <StructuredData />
       <ClientPrewarm />
-      <AppProviders>
-        <LayoutShell lang={lang} dictionary={dict}>
-          {children}
-        </LayoutShell>
-      </AppProviders>
+      {/* AppProviders is already in app/layout.tsx; avoid double-wrapping */}
+      <LayoutShell lang={lang} dictionary={dict}>
+        {children}
+      </LayoutShell>
     </>
   );
 }
