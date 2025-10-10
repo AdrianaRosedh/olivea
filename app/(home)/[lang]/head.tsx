@@ -1,21 +1,16 @@
-// app/(home)/[lang]/head.tsx
 export default function Head() {
   return (
     <>
-      <link
-        rel="preload"
-        href="/videos/homepage-temp.webm"
-        as="video"
-        type="video/webm"
-        fetchPriority="high"
+      <title>Olivea — Donde el huerto es la esencia</title>
+      <meta charSet="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <meta
+        name="description"
+        content="Olivea: Casa Olivea, Olivea Farm To Table y Olivea Café en Valle de Guadalupe."
       />
-      <link
-        rel="preload"
-        href="/videos/homepage-temp.mp4"
-        as="video"
-        type="video/mp4"
-        fetchPriority="low"
-      />
+      {/* keep font/icon preloads if you need them, but do NOT preload /videos/... here */}
+      {/* example safe preload (fonts/images only): */}
+      {/* <link rel="preload" href="/fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /> */}
     </>
   );
 }

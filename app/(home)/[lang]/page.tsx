@@ -80,19 +80,20 @@ export default function HomePage() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const vid = videoRef.current;
-    if (!vid) return;
-    vid.muted = true;
-    vid.play().catch(() => {
-    });
-  }, []);
-
   const [drawComplete, setDrawComplete] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
   const [revealMain, setRevealMain] = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
+
+  // ✅ kick the video only after the main UI is revealed
+  useEffect(() => {
+    if (!revealMain) return;
+    queueMicrotask(() => {
+      videoRef.current?.play().catch(() => {
+      });
+    });
+  }, [revealMain]);
+
 
   const sections: Array<{
     href: string;
@@ -112,96 +113,113 @@ export default function HomePage() {
     : sections;
 
   useEffect(() => {
-    const resizeHandler = () => setIsMobileMain(window.innerWidth < 768);
-    resizeHandler();
-    window.addEventListener("resize", resizeHandler);
-    return () => window.removeEventListener("resize", resizeHandler);
+    let isCancelled = false;
+
+    // Lock the body scroll during the intro
+    document.body.classList.add("overflow-hidden");
+
+    const runIntro = async () => {
+      try {
+        // 1) Wait your fixed intro delay
+        await new Promise((res) => setTimeout(res, 1500));
+        if (isCancelled) return;
+        setDrawComplete(true);
+
+        const vid = videoRef.current;
+        const logoTarget = logoTargetRef.current;
+        if (!vid || !logoTarget) return;
+
+        // 2) Race loadedmetadata vs 1s timeout so we never wait forever
+        await Promise.race([
+          new Promise<void>((res) => {
+            if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) return res();
+            vid.addEventListener("loadedmetadata", () => res(), { once: true });
+          }),
+          new Promise<void>((res) => setTimeout(res, 1000)),
+        ]);
+        if (isCancelled) return;
+
+        // 3) Reveal the main content (this triggers the separate effect to play the video)
+        setRevealMain(true);
+
+        // 4) Animate the overlay from the video’s current position
+        const rect = vid.getBoundingClientRect();
+        await overlayControls.start({
+          top: rect.top + window.scrollY,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+          height: rect.height,
+          borderRadius: "1.5rem",
+          transition: { duration: 0.8, ease: "easeInOut" },
+        });
+        if (isCancelled) return;
+
+        // 5) Brief pause before the logo animation
+        await new Promise((res) => setTimeout(res, 400));
+        if (isCancelled) return;
+
+        // 6) Animate the logo into place
+        const pad = logoTarget.getBoundingClientRect();
+        await logoControls.start({
+          top: pad.top + pad.height / 2 + window.scrollY,
+          left: pad.left + pad.width / 2 + window.scrollX,
+          x: "-50%",
+          y: "-50%",
+          scale: pad.width / 240,
+          transition: { type: "spring", stiffness: 200, damping: 25 },
+        });
+        if (isCancelled) return;
+
+        // 7) Fade out the overlay
+        await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
+      } catch (err) {
+        console.error("Intro animation error:", err);
+      } finally {
+        // 8) Always remove loader and restore scroll
+        if (!isCancelled) {
+          setShowLoader(false);
+          document.body.classList.remove("overflow-hidden");
+        }
+      }
+    };
+
+    runIntro();
+
+    return () => {
+      isCancelled = true;
+      // safety: ensure scroll is restored on unmount
+      document.body.classList.remove("overflow-hidden");
+    };
+    // Run once on mount; useAnimation() returns stable instances so it's safe
+    // If your linter complains, you can keep them in deps; just ensure it doesn't re-run.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-  // Lock the body scroll during the intro
-  document.body.classList.add("overflow-hidden");
+    let raf = 0;
+    const onResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setIsMobileMain(window.innerWidth < 768));
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
-  let isCancelled = false;
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onEnded = () => {
+      v.currentTime = 0;
+      v.play().catch(() => {});
+    };
+    v.addEventListener("ended", onEnded);
+    return () => v.removeEventListener("ended", onEnded);
+  }, []);
 
-  const handleInitialAnimation = async () => {
-    try {
-      // 1️⃣ Wait your fixed intro delay
-      await new Promise((res) => setTimeout(res, 1500));
-      if (isCancelled) return;
-      setDrawComplete(true);
-
-      const vid = videoRef.current;
-      const logoTarget = logoTargetRef.current;
-      if (!vid || !logoTarget) return;
-
-      // 2️⃣ Race loadedmetadata against a 1s timeout so we never wait forever
-      await Promise.race([
-        new Promise<void>((res) => {
-          if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) {
-            // metadata already loaded
-            return res();
-          }
-          vid.addEventListener("loadedmetadata", () => res(), { once: true });
-        }),
-        new Promise<void>((res) => setTimeout(res, 1000)),
-      ]);
-      if (isCancelled) return;
-
-      // 3️⃣ Reveal the main content
-      setRevealMain(true);
-
-      // 4️⃣ Animate the overlay from the video's current position
-      const rect = vid.getBoundingClientRect();
-      await overlayControls.start({
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-        height: rect.height,
-        borderRadius: "1.5rem",
-        transition: { duration: 0.8, ease: "easeInOut" },
-      });
-      if (isCancelled) return;
-
-      // 5️⃣ Brief pause before the logo animation
-      await new Promise((res) => setTimeout(res, 400));
-      if (isCancelled) return;
-
-      // 6️⃣ Animate the logo into place
-      const pad = logoTarget.getBoundingClientRect();
-      await logoControls.start({
-        top: pad.top + pad.height / 2 + window.scrollY,
-        left: pad.left + pad.width / 2 + window.scrollX,
-        x: "-50%",
-        y: "-50%",
-        scale: pad.width / 240,
-        transition: { type: "spring", stiffness: 200, damping: 25 },
-      });
-      if (isCancelled) return;
-
-      // 7️⃣ Fade out the overlay
-      await overlayControls.start({
-        opacity: 0,
-        transition: { duration: 0.4 },
-      });
-    } catch (err) {
-      console.error("Intro animation error:", err);
-    } finally {
-      // 8️⃣ Always remove loader and restore scroll
-      if (!isCancelled) {
-        setShowLoader(false);
-        document.body.classList.remove("overflow-hidden");
-      }
-    }
-  };
-
-  handleInitialAnimation();
-
-  return () => {
-    // signal to cancel any in-flight animation steps
-    isCancelled = true;
-  };
-}, [overlayControls, logoControls]);
 
   return (
     <>
@@ -271,18 +289,45 @@ export default function HomePage() {
         >
         <video
           ref={videoRef}
-          autoPlay
+          className="
+            absolute inset-0 w-full h-full object-cover
+            [--video-brightness:0.96]
+            brightness-[var(--video-brightness)]
+            pointer-events-none
+          "
           muted
           loop
           playsInline
-          preload="auto"
-          poster="/images/hero.jpg"
-          className="absolute inset-0 w-full h-full object-cover rounded-[1.5rem]"
+          preload="metadata"           // <— key: don't eagerly download the whole file
+          poster="/images/hero.jpg"    // <— ensure this exists; becomes your cheap LCP
         >
-          <source src="/videos/homepage-temp.mp4" type="video/mp4" />
-          <source src="/videos/homepage-temp.webm" type="video/webm" />
-          Your browser doesn’t support this video.
+          {/* lightweight mobile encodes (≈480–720p) */}
+          <source
+            src="/videos/homepage-mobile.webm"
+            type="video/webm"
+            media="(max-width: 767px)"
+          />
+          <source
+            src="/videos/homepage-mobile.mp4"
+            type="video/mp4"
+            media="(max-width: 767px)"
+          />
+
+          {/* desktop encodes (≈1080p) */}
+          <source
+            src="/videos/homepage-HD.webm"
+            type="video/webm"
+            media="(min-width: 768px)"
+          />
+          <source
+            src="/videos/homepage-HD.mp4"
+            type="video/mp4"
+            media="(min-width: 768px)"
+          />
+
+          Your browser does not support the video tag.
         </video>
+
         {/* ✅ Mobile-only title over the video */}
           <motion.div
             className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
@@ -375,7 +420,7 @@ export default function HomePage() {
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 + sections.length * 0.2 }}
-            className="mt-8 md:mt-15"
+            className="mt-8 md:mt-16"
           >
             <ReservationButton />
           </motion.div>

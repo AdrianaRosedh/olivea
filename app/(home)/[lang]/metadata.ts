@@ -1,33 +1,19 @@
-// app/(home)/[lang]/metadata.ts
 import type { Metadata } from "next";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { lang: "es" | "en" };
-}): Promise<Metadata> {
-  const { lang } = params;
+const sharedOgImage = "/images/hero.jpg"; // same file used as <video> poster
 
-  return {
-    title: lang === "es" ? "Familia Olivea" : "Olivea Family",
-    description: "Olivea Farm to Table – A garden experience for your senses",
-    alternates: {
-      canonical: `https://www.oliveafarmtotable.com/${lang}`,
-      languages: {
-        en: "https://www.oliveafarmtotable.com/en",
-        es: "https://www.oliveafarmtotable.com/es",
-      },
-    },
-    openGraph: {
-      title: "Olivea Farm to Table",
-      description: "Olivea Farm to Table – A garden experience for your senses",
-      url: `https://www.oliveafarmtotable.com/${lang}`,
-      locale: lang,
-      siteName: "Familia Olivea",
-      images: [
-        `/images/og-${lang}.jpg`,
-        "/images/og-default.jpg",
-      ],
-    },
-  };
-}
+export const metadata: Metadata = {
+  title: "Olivea — Donde el huerto es la esencia",
+  description:
+    "Olivea: Casa Olivea, Olivea Farm To Table y Olivea Café en Valle de Guadalupe.",
+  openGraph: {
+    title: "Olivea",
+    description:
+      "Casa Olivea, Olivea Farm To Table y Olivea Café en Valle de Guadalupe.",
+    images: [{ url: sharedOgImage, width: 1200, height: 630, alt: "Olivea" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [sharedOgImage],
+  },
+};
