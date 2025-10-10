@@ -1,6 +1,7 @@
 import CardParallax from '@/components/mdx/CardParallax'
 import Reveal from '@/components/scroll/Reveal'
 import HeroFarmLogo from '@/assets/herofarm.svg'
+import MenuScrollButton from '@/components/links/MenuScrollButton'
 
 <section
   id="hero"
@@ -117,37 +118,7 @@ import HeroFarmLogo from '@/assets/herofarm.svg'
                     RESERVE
                   </button>
 
-                  <a
-                    href="#menu"
-                    aria-label="View menu"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      const target = document.getElementById('menu') || document.querySelector('.main-section#menu')
-                      if (!target) return
-                      const hcss = getComputedStyle(document.documentElement).getPropertyValue('--header-h')
-                      const header = parseInt(hcss || '64', 10) || 64
-                      const top = window.scrollY + target.getBoundingClientRect().top - header - 8
-                      window.scrollTo({ top, behavior: 'smooth' })
-                      const OPEN_EVENT = 'olivea:menu:open'
-                      const start = performance.now()
-                      const TIMEOUT = 1800
-                      const THRESH = 2
-                      let lastY = -1, stable = 0
-                      const tick = () => {
-                        const y = window.scrollY
-                        const arrived = Math.abs(y - top) <= THRESH
-                        if (arrived && y === lastY) stable += 1; else stable = 0
-                        lastY = y
-                        const expired = performance.now() - start > TIMEOUT
-                        if ((arrived && stable >= 2) || expired) {
-                          if (window.location.hash.slice(1) !== 'menu') history.replaceState(null, '', '#menu')
-                          window.dispatchEvent(new Event(OPEN_EVENT))
-                          return
-                        }
-                        requestAnimationFrame(tick)
-                      }
-                      requestAnimationFrame(tick)
-                    }}
+                  <MenuScrollButton
                     className="
                       inline-flex items-center justify-center
                       rounded-full px-3.5 py-1.5 text-[15px]
@@ -162,7 +133,8 @@ import HeroFarmLogo from '@/assets/herofarm.svg'
                     "
                   >
                     Menu
-                  </a>
+                  </MenuScrollButton>
+
                 </div>
               </Reveal>
             </div>
