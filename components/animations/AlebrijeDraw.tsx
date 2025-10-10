@@ -1,3 +1,4 @@
+// components/animations/AlebrijeDraw.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -7,23 +8,31 @@ type GsapContextLike = { revert(): void };
 
 interface Props {
   size?: number;                 // px
-  strokeDuration?: number;       // seconds (try 2.2–3.2 for a slower, calm draw)
-  microStaggerEach?: number;     // seconds per path, e.g. 0 or 0.002 for a whisper cascade
+  strokeDuration?: number;       // seconds (2.4–3.2 calm)
+  microStaggerEach?: number;     // 0 or ~0.001–0.002 for whisper cascade
   onComplete?: () => void;
 }
 
+/**
+ * Smooth “draw”:
+ * - SVG starts hidden on first paint (SSR-safe)
+ * - prepare dash (L L, offset L)
+ * - tiny stroke fade-in + constant-speed reveal
+ */
 export default function AlebrijeDraw({
   size = 1000,
-  strokeDuration = 2.8,          // slower default
-  microStaggerEach = 0,          // 0 = no stagger; set ~0.002 for subtle cascade
+  strokeDuration = 2.8,
+  microStaggerEach = 0,
   onComplete,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let ctx: GsapContextLike | undefined;
+    let raf1 = 0;
+    let raf2 = 0;
 
-    const raf = requestAnimationFrame(async () => {
+    const start = async () => {
       const { default: gsap } = await import("gsap");
 
       const el = containerRef.current;
@@ -32,49 +41,90 @@ export default function AlebrijeDraw({
       const svg = el.querySelector<SVGSVGElement>("svg");
       if (!svg) return;
 
-      const paths = Array.from(svg.querySelectorAll<SVGPathElement>("path"));
-      if (!paths.length) return;
+      // Keep hidden until fully prepared (we also set it inline at render)
+      svg.setAttribute("shape-rendering", "geometricPrecision");
 
-      // ——— prep once, then animate ———
-      const lengths = paths.map((p) => p.getTotalLength());
+      const raw = Array.from(svg.querySelectorAll<SVGPathElement>("path"));
+      if (!raw.length) return;
 
-      paths.forEach((p, i) => {
+      // Measure once
+      const pairs = raw.map((p) => [p, p.getTotalLength()] as const);
+
+      // Filter microscopic segments that create visual “ticks”
+      const MIN_LEN = 0.5;
+      const filtered = pairs.filter(([, L]) => L >= MIN_LEN);
+      if (!filtered.length) return;
+
+      // Prepare reveal
+      for (const [p, L] of filtered) {
         p.setAttribute("vector-effect", "non-scaling-stroke");
-        // better joins/caps = visually smoother lines while drawing
         p.style.strokeLinecap = "round";
         p.style.strokeLinejoin = "round";
         p.style.strokeMiterlimit = "1";
+        p.style.strokeDasharray = `${L} ${L}`;
+        p.style.strokeDashoffset = `${L}`;
+        p.style.fillOpacity = "0";
+        p.style.strokeOpacity = "0";  // fade-in strokes, not container
+        p.style.willChange = "stroke-dashoffset, stroke-opacity";
 
-        p.style.strokeDasharray = `${lengths[i]}`;
-        p.style.strokeDashoffset = `${lengths[i]}`;
-
-        // keep fill invisible; draw with the resolved (gold) fill color
-        const color = window.getComputedStyle(p).fill;
+        const color = getComputedStyle(p).fill;
         if (color && color !== "none") p.style.stroke = color;
         p.style.strokeWidth = ".3";
-        p.style.fillOpacity = "0";
+      }
+
+      const elements = filtered.map(([p]) => p);
+
+      // Ensure initial style is applied before showing svg
+      gsap.set(elements, {
+        strokeDashoffset: (_i, _t, targets) =>
+          (targets[_i] as SVGPathElement).style.strokeDashoffset,
       });
 
-      // Important: set initial state via gsap before animating (avoids a visible first tick)
-      gsap.set(paths, { strokeDashoffset: (i) => lengths[i] });
+      // Now that everything is prepped, show the svg and animate
+      svg.style.visibility = "visible";
 
       ctx = (gsap.context(() => {
-        const tl = gsap.timeline({ onComplete: () => onComplete?.() });
-
-        tl.to(paths, {
-          strokeDashoffset: 0,
-          duration: strokeDuration,
-          ease: "none",            // constant speed = no “speed bumps” at easing bends
-          autoRound: false,        // avoid integer snapping on tiny segments
-          stagger: microStaggerEach
-            ? { each: microStaggerEach, from: 0 }
-            : 0,
+        const tl = gsap.timeline({
+          onComplete: () => onComplete?.(),
+          defaults: { lazy: false },
         });
+
+        // Soft on-ramp (no pop)
+        tl.to(
+          elements,
+          {
+            strokeOpacity: 1,
+            duration: 0.18,
+            ease: "power1.out",
+          },
+          0
+        );
+
+        // Constant-speed draw
+        tl.to(
+          elements,
+          {
+            strokeDashoffset: 0,
+            duration: strokeDuration,
+            ease: "none",
+            autoRound: false,
+            stagger: microStaggerEach ? { each: microStaggerEach, from: 0 } : 0,
+          },
+          0
+        );
       }, el) as unknown) as GsapContextLike;
+    };
+
+    // Give layout two RAFs to settle (prevents initial batching artifacts)
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        void start();
+      });
     });
 
     return () => {
-      cancelAnimationFrame(raf);
+      if (raf1) cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
       ctx?.revert?.();
     };
   }, [strokeDuration, microStaggerEach, onComplete]);
@@ -82,14 +132,11 @@ export default function AlebrijeDraw({
   return (
     <div
       ref={containerRef}
-      style={{
-        width: size,
-        height: size,
-        contain: "paint",           // isolate paints to this box (helps Safari/WebKit)
-      }}
+      style={{ width: size, height: size, contain: "paint" }}
       className="flex items-center justify-center"
     >
-      <Alebrije1 className="w-full h-full" />
+      {/* SSR-safe: hidden on first paint to avoid a visible prepped/unprepped frame */}
+      <Alebrije1 className="w-full h-full" style={{ visibility: "hidden" }} />
     </div>
   );
 }

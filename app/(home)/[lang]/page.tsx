@@ -88,7 +88,7 @@ export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
 
-  const [drawComplete, setDrawComplete] = useState(false);
+
   const [showLoader, setShowLoader] = useState(true);
   const [revealMain, setRevealMain] = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
@@ -130,7 +130,6 @@ export default function HomePage() {
         // Let first paint happen; GSAP for Alebrije loads after paint
         await new Promise((res) => setTimeout(res, 800));
         if (isCancelled) return;
-        setDrawComplete(true);
 
         const vid = videoRef.current;
         const logoTarget = logoTargetRef.current;
@@ -294,7 +293,7 @@ export default function HomePage() {
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
             style={{ position: "fixed", zIndex: 100, width: 240, height: 240, transformOrigin: "center" }}
           >
-            <AlebrijeDraw size={240} strokeDuration={drawComplete ? 0 : 3}  />
+            <AlebrijeDraw size={240} strokeDuration={2.8} microStaggerEach={0.0015} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -317,7 +316,7 @@ export default function HomePage() {
             loop
             playsInline
             preload="metadata"
-            poster="/images/hero.jpg"
+            poster="/images/hero.avif"
           >
             {/* mobile */}
             <source src="/videos/homepage-mobile.webm" type="video/webm" media="(max-width: 767px)" />

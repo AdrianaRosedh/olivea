@@ -10,15 +10,8 @@ export default function Head() {
         content="Olivea: Casa Olivea, Olivea Farm To Table y Olivea Café en Valle de Guadalupe."
       />
 
-      {/* LCP poster preload */}
-      <link
-        rel="preload"
-        as="image"
-        href="/images/hero.jpg"
-        fetchPriority="high"
-        imageSrcSet="/images/hero.jpg 1x"
-        imageSizes="98vw"
-      />
+      {/* LCP poster preload (single asset) */}
+      <link rel="preload" as="image" href="/images/hero.avif" fetchPriority="high" />
     </>
   );
 }
