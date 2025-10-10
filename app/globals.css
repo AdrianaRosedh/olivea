@@ -311,3 +311,58 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
 /* Whistle click-through control */
 #w-live-chat { pointer-events: none !important; }
 body.olivea-chat-open #w-live-chat { pointer-events: auto !important; }
+
+/* globals.css */
+.card-mask {
+  overflow: hidden;
+  border-top-left-radius: 28px;
+  border-bottom-left-radius: 28px;
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+}
+@media (max-width: 767px) {
+  .card-mask { border-radius: 28px; }
+}
+/* ========================================================== */
+/* HERO CARD — perfectly smooth left ellipse + right semicircle */
+/* ========================================================== */
+/* One organic silhouette on the parent */
+.hero-pill{
+  position: relative;
+  overflow: hidden;        /* clips children */
+  isolation: isolate;
+  background-clip: padding-box;
+}
+
+/* Mobile */
+@media (max-width: 767px){
+  .hero-pill{ border-radius: 28px; }
+}
+
+/* Desktop: buttery left + semicircular right (no child radii) */
+@media (min-width: 768px){
+  .hero-pill{
+    /* Make the left ellipse wider (X) and shallower (Y) */
+    /* TL / BL: X=96px, Y=88px (tweak below if needed) */
+    border-top-left-radius:    104px 96px;
+    border-bottom-left-radius: 104px 96px;
+
+    /* Right end stays circular by being huge */
+    border-top-right-radius:    120vmax;
+    border-bottom-right-radius: 120vmax;
+
+    overflow: hidden;
+    isolation: isolate;
+    background-clip: padding-box;
+
+    /* AA helpers to avoid a 1px nick */
+    outline: 1px solid transparent;   /* nudges AA in Safari/WebKit */
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);          /* force a composited layer */
+  }
+
+  /* If you’re using an inner ring (::after), keep it — it follows the curve */
+  /* .hero-pill::after { ... border-radius: inherit; } */
+}
+

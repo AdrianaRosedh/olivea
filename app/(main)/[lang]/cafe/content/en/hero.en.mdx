@@ -1,4 +1,4 @@
-import ParallaxImage from '@/components/scroll/ParallaxImage'
+import CardParallax from '@/components/mdx/CardParallax'
 import Reveal from '@/components/scroll/Reveal'
 import CafeLogo from '@/assets/herocafe.svg'
 
@@ -15,30 +15,24 @@ import CafeLogo from '@/assets/herocafe.svg'
       relative
       md:!max-w-none md:!w-[min(1600px,calc(100vw-var(--dock-left,220px)-var(--dock-right,96px)-48px))]
       w-full
-      /* mobile */
       h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+24px)]
-      /* desktop: fill most of the viewport */
       md:h-[calc(100svh-var(--header-h,112px)-56px)]
       xl:max-h-[960px]
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
+      hero-pill
       shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
     "
   >
-    <ParallaxImage
+    <CardParallax
       src="/images/cafe/hero.jpg"
-      alt="Olivea Café — garden, coffee and community"
-      heightVh={100}
       speed={0.30}
-      className="h-full"
+      hVh={{ mobile: 100, md: 100 }}
+      surfaceClassName="h-full w-full"
+      className="-inset-[1px]"
       fit="cover"
       objectPosition="50% 40%"
       priority
-      fetchPriority="high"
-      loading="eager"
       sizes="(max-width: 768px) 100vw, min(1600px, calc(100vw - var(--dock-left,220px) - var(--dock-right,96px) - 48px))"
-      placeholder="blur"
-      blurDataURL="data:image/svg+xml;base64,PHN2Zy8+"
+      placeholder="empty"
     />
 
     <div className="pointer-events-none absolute inset-0">
@@ -52,8 +46,8 @@ import CafeLogo from '@/assets/herocafe.svg'
             relative md:[left:calc((var(--dock-right,120px)-var(--dock-left,264px))/2)]
             flex flex-col items-center
             gap-[var(--hero-gap,14px)] md:[--hero-gap:22px] lg:[--hero-gap:26px]
-            -mt-2                                   /* mobile lift without transform */
-            md:[top:calc(-1*clamp(12px,3vh,48px))]  /* desktop lift via position, not transform */
+            -mt-2
+            md:[top:calc(-1*clamp(12px,3vh,48px))]
             lg:[top:calc(-1*clamp(16px,4vh,64px))]
             max-w-[min(92vw,420px)] md:max-w-none mx-auto
           "
@@ -119,7 +113,7 @@ import CafeLogo from '@/assets/herocafe.svg'
                     window.dispatchEvent(new Event('olivea:reserve'));
                   } else {
                     const el = document.getElementById('reserve-toggle');
-                    if (el && 'click' in el && typeof el.click === 'function') el.click();
+                    if (el && typeof el.click === 'function') el.click();
                   }
                 }}
                 className="
