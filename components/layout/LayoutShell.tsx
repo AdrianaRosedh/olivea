@@ -16,7 +16,6 @@ import { NavigationProvider } from "@/contexts/NavigationContext";
 import NextGenBackgroundInitializer from "@/components/animations/NextGenBackgroundInitializer";
 import NextGenBackground from "@/components/animations/NextGenBackground";
 import DesktopChatButton from "@/components/ui/DesktopChatButton";
-import UnderConstructionNotice from "@/components/forms/UnderConstructionNotice";
 import LoadWhistleClient from "@/components/chat/LoadWhistleClient";
 import WhistleToggleMount from "@/components/chat/WhistleToggleMount";
 
@@ -170,13 +169,6 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         <ClientOnly>
           {identity && <DockLeft identity={identity} sectionsOverride={sectionsOverride ?? []} />}
           <DockRight items={dockRightItems} />
-        </ClientOnly>
-      )}
-
-      {/* UNDER CONSTRUCTION */}
-      {(isCasaPage || isRestaurantPage || isCafePage) && (
-        <ClientOnly>
-          <UnderConstructionNotice storageScope="route" ttlMs={24 * 60 * 60 * 1000} version="v2" />
         </ClientOnly>
       )}
 
