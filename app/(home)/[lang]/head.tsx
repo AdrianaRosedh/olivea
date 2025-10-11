@@ -9,8 +9,18 @@ export default function Head() {
         content="Olivea: Casa Olivea, Olivea Farm To Table y Olivea Café en Valle de Guadalupe."
       />
 
-      {/* Preload the overlay LCP plate */}
+      {/* Preload LCP plates (desktop + mobile) */}
       <link rel="preload" as="image" href="/images/olivea-olive-lcp.avif" fetchPriority="high" />
+      <link
+        rel="preload"
+        as="image"
+        href="/images/olivea-olive-lcp-mobile.avif"
+        media="(max-width: 767px)"
+        fetchPriority="high"
+      />
+
+      {/* Optional: poster used by the video, so it paints instantly when shown */}
+      <link rel="preload" as="image" href="/images/hero.avif" />
     </>
   );
 }

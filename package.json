@@ -13,8 +13,7 @@
     "start": "next start",
     "start:local": "cross-env HOST=olivea-localhost PORT=3000 next start",
     "lint": "next lint",
-    "analyze": "ANALYZE=true next build",
-    "make:poster": "node scripts/make-poster.mjs"
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
