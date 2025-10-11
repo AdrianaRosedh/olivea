@@ -1,4 +1,3 @@
-// app/(home)/[lang]/LcpPlate.tsx
 export default function LcpPlate() {
   return (
     <picture>
@@ -17,9 +16,9 @@ export default function LcpPlate() {
           width: "100vw",
           height: "100vh",
           objectFit: "cover",
-          zIndex: 60,                 // ⟵ ABOVE overlay so Chrome can pick it as LCP
+          zIndex: 20,                // keep above overlay until we hand off
           pointerEvents: "none",
-          backgroundColor: "var(--olivea-olive)",
+          backgroundColor: "var(--olivea-olive)"
         }}
       />
     </picture>
