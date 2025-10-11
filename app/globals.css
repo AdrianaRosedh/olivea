@@ -343,7 +343,13 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
 
 /* Whistle click-through control */
 #w-live-chat { pointer-events: none !important; }
-body.olivea-chat-open #w-live-chat { pointer-events: auto !important; }
+body.olivea-chat-open #w-live-chat {
+  pointer-events: auto !important;
+  z-index: 2147483645 !important;
+}
+
+body.olivea-chat-open #mobile-chat-button { visibility: hidden; }
+
 
 /* globals.css */
 .card-mask {

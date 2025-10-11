@@ -52,7 +52,18 @@ export function MobileNav() {
       {/* Chat button */}
       <button
         id="mobile-chat-button"
-        onClick={() => document.getElementById("chatbot-toggle")?.click()}
+        onClick={() => {
+          const toggleBtn = document.getElementById("chatbot-toggle");
+          toggleBtn?.click();  // open/close the Whistle chat
+                
+          const chatHost = document.getElementById("w-live-chat");
+          if (chatHost) {
+            document.body.classList.add("olivea-chat-open");       // add body class to enable chat
+            chatHost.style.zIndex = "2147483645";                  // ensure chat is top-most
+            chatHost.style.pointerEvents = "auto";                 // allow interaction on chat
+          }
+        }}
+        
         className="relative flex flex-col items-center justify-center
                    rounded-[40%_60%_30%_70%] bg-[var(--olivea-shell)]
                    text-[var(--olivea-olive)] shadow-md px-2 py-1.5
