@@ -181,6 +181,7 @@ export default function HomeClient() {
 
         // 3) SWITCH the overlay to solid green right before the morph so the shrink is visible
         setOverlayBg("var(--olivea-olive)");
+        document.body.classList.add("lcp-demote");
         await new Promise((r) => requestAnimationFrame(r)); // ensure style applies this frame
 
         // 4) Compute morph geometry

@@ -4,7 +4,7 @@ export default function LcpPlate() {
     <picture>
       <source srcSet="/images/olivea-olive-lcp-mobile.avif" media="(max-width: 767px)" />
       <img
-        id="lcp-plate"            // ← add this
+        id="lcp-plate"
         src="/images/olivea-olive-lcp.avif"
         alt="Olivea intro plate"
         width={1600}
@@ -17,9 +17,9 @@ export default function LcpPlate() {
           width: "100vw",
           height: "100vh",
           objectFit: "cover",
-          zIndex: 0,
+          zIndex: 60,                 // ⟵ ABOVE overlay so Chrome can pick it as LCP
+          pointerEvents: "none",
           backgroundColor: "var(--olivea-olive)",
-          clipPath: "inset(0px 0px 0px 0px round 0px)", // initial: full screen
         }}
       />
     </picture>

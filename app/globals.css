@@ -87,6 +87,11 @@
     scroll-behavior: auto;
     @apply antialiased;
   }
+  body.lcp-demote #lcp-plate {
+    z-index: 0;         /* send behind overlay/video */
+    opacity: 0;         /* fade it out when we hand off */
+    transition: opacity .4s ease;
+  }
 
   /* root-level scroll */
   html,
