@@ -1,4 +1,3 @@
-// app/(home)/[lang]/head.tsx
 export default function Head() {
   return (
     <>
@@ -10,8 +9,8 @@ export default function Head() {
         content="Olivea: Casa Olivea, Olivea Farm To Table y Olivea Café en Valle de Guadalupe."
       />
 
-      {/* LCP poster preload (single asset) */}
-      <link rel="preload" as="image" href="/images/hero.avif" fetchPriority="high" />
+      {/* Preload the overlay LCP plate */}
+      <link rel="preload" as="image" href="/images/olivea-olive-lcp.avif" fetchPriority="high" />
     </>
   );
 }

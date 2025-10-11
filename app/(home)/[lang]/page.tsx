@@ -22,7 +22,7 @@ import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 /** Typed helper for CSS vars without `any` */
 type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 
-/* ---------------- CSS-only desktop bar + % text; INSIDE morphing layer ---------------- */
+/* ---------------- CSS-only desktop bar + % text (lives inside overlay) ---------------- */
 function IntroLoaderInside() {
   const percentRef = useRef<HTMLSpanElement>(null);
   const barBoxRef = useRef<HTMLDivElement>(null);
@@ -31,7 +31,7 @@ function IntroLoaderInside() {
     const isMobile = window.innerWidth < 768;
     const duration = isMobile ? 1800 : 3500; // ms
 
-    // Drive % text without React re-renders
+    // run % counter without causing React re-renders
     let raf = 0;
     const t0 = performance.now();
     const tick = (now: number) => {
@@ -42,15 +42,15 @@ function IntroLoaderInside() {
     };
     raf = requestAnimationFrame(tick);
 
-    // Set CSS duration for the bar
     if (barBoxRef.current) {
       barBoxRef.current.style.setProperty("--bar-duration", `${duration / 1000}s`);
     }
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  // Optional skip
-  const handleSkip = () => { if (percentRef.current) percentRef.current.textContent = "100%"; };
+  const handleSkip = () => {
+    if (percentRef.current) percentRef.current.textContent = "100%";
+  };
 
   return (
     <div
@@ -79,15 +79,13 @@ const containerVariants: Variants = { hidden: {}, show: { transition: { delayChi
 const itemVariants: Variants = { hidden: { opacity: 0, y: 40 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } };
 
 export default function HomePage() {
-  // Outer controls: clip-path rectangle
+  // Overlay: outer clip-path/morph; inner content scales with it
   const overlayControls = useAnimation();
-  // Inner controls: scale/translate content so loaders visually "shrink"
   const innerScaleControls = useAnimation();
   const logoControls = useAnimation();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
-
 
   const [showLoader, setShowLoader] = useState(true);
   const [revealMain, setRevealMain] = useState(false);
@@ -117,17 +115,27 @@ export default function HomePage() {
     { href: `${base}/cafe`,        title: "Olivea Café",          description: descs.cafe, Logo: CafeLogo, videoKey: "cafe" },
   ];
 
-  // mobile-specific ordering (used below)
+  // mobile-specific ordering
+  useEffect(() => {
+    let raf = 0;
+    const onResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setIsMobileMain(window.innerWidth < 768));
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
+  }, []);
   const mobileSections = isMobileMain ? [sections[1], sections[0], sections[2]] : sections;
 
+  // intro
   useEffect(() => {
     let isCancelled = false;
-
     document.body.classList.add("overflow-hidden");
 
     const runIntro = async () => {
       try {
-        // Let first paint happen; GSAP for Alebrije loads after paint
+        // keep your brand pacing
         await new Promise((res) => setTimeout(res, 800));
         if (isCancelled) return;
 
@@ -135,7 +143,7 @@ export default function HomePage() {
         const logoTarget = logoTargetRef.current;
         if (!vid || !logoTarget) return;
 
-        // Wait for metadata or bail quickly; don't block intro on big video
+        // Wait for metadata OR short cap (don’t block)
         await Promise.race([
           new Promise<void>((res) => {
             if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) return res();
@@ -147,22 +155,20 @@ export default function HomePage() {
 
         setRevealMain(true);
 
-        // ---- compute target rect + transforms ----
+        // compute morph geometry
         const rect = vid.getBoundingClientRect();
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-
         const t = Math.max(0, rect.top);
         const l = Math.max(0, rect.left);
         const r = Math.max(0, vw - rect.right);
         const b = Math.max(0, vh - rect.bottom);
-
         const scaleX = rect.width / vw;
         const scaleY = rect.height / vh;
         const x = rect.left + rect.width / 2 - vw / 2;
         const y = rect.top + rect.height / 2 - vh / 2;
 
-        // Run both: clip-path for crisp corners + inner scale so the bar shrinks
+        // morph + inner scale
         await Promise.all([
           overlayControls.start({
             clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 24px)`,
@@ -175,28 +181,22 @@ export default function HomePage() {
         ]);
         if (isCancelled) return;
 
-        // Then move logo to the target pad center (match original behavior)
+        // settle then move logo to its target
         await new Promise((res) => setTimeout(res, 350));
-        await new Promise((r) => requestAnimationFrame(r)); // ensure layout settled post-morph
+        await new Promise((r) => requestAnimationFrame(r));
 
         const pad = logoTargetRef.current!.getBoundingClientRect();
-
-        const CAL_X = 0; // e.g., +2 or -2
-        const CAL_Y = 0;
-
         await logoControls.start({
-          top:  pad.top  + pad.height / 2 + window.scrollY + CAL_Y,
-          left: pad.left + pad.width  / 2 + window.scrollX + CAL_X,
+          top:  pad.top  + pad.height / 2 + window.scrollY,
+          left: pad.left + pad.width  / 2 + window.scrollX,
           x: "-50%",
           y: "-50%",
           scale: pad.width / 240,
           transition: { type: "spring", stiffness: 200, damping: 25 },
         });
-
         if (isCancelled) return;
 
         await overlayControls.start({ opacity: 0, transition: { duration: 0.4 } });
-
       } catch (err) {
         console.error("Intro animation error:", err);
       } finally {
@@ -208,24 +208,11 @@ export default function HomePage() {
     };
 
     runIntro();
-
     return () => {
       isCancelled = true;
       document.body.classList.remove("overflow-hidden");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // resize
-  useEffect(() => {
-    let raf = 0;
-    const onResize = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setIsMobileMain(window.innerWidth < 768));
-    };
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
   }, []);
 
   // loop video
@@ -237,43 +224,43 @@ export default function HomePage() {
     return () => v.removeEventListener("ended", onEnded);
   }, []);
 
-  // mobile loader duration var (typed, no any)
   const mobileLoaderStyle: WithBarVar = { "--bar-duration": "4s" };
 
   return (
     <>
-      {/* ------------------------------ Overlay shell ------------------------------ */}
+      {/* ------------------------------ OVERLAY (counts as LCP) ------------------------------ */}
       <AnimatePresence>
         {showLoader && (
-          <motion.div
-            key="overlay-shell"
-            className="fixed inset-0 z-50"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {/* OUTER: crisp rounded rectangle via clip-path */}
+          <motion.div key="overlay" className="fixed inset-0 z-50" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {/* OUTER: brand plate image is the background → LCP from t=0 */}
             <motion.div
               className="absolute inset-0 willfade"
               style={{
-                background: "var(--olivea-olive)",
-                clipPath: "inset(0px 0px 0px 0px round 0px)", // initial: full-screen
+                backgroundImage: "url(/images/olivea-olive-lcp.avif)", // lightweight plate
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                clipPath: "inset(0px 0px 0px 0px round 0px)",
               }}
               animate={overlayControls}
             >
-              {/* INNER: scaled/translated content so loader visually shrinks */}
+              {/* green tint so the intro still looks like your brand plate */}
+              <div className="absolute inset-0" style={{ background: "rgba(90,104,82,0.66)" }} />
+
+              {/* INNER: content that scales/shrinks with the morph */}
               <motion.div
                 className="absolute inset-0 willfade"
                 style={{ transformOrigin: "center" }}
                 initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
                 animate={innerScaleControls}
               >
-                {/* Loader UI (scales/clips with background) */}
                 {/* Mobile vertical filler — gold grows UP */}
                 <div className="absolute inset-0 md:hidden flex items-center justify-start pl-4 py-6 pointer-events-none select-none">
                   <div className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden" style={mobileLoaderStyle}>
                     <div className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full loader-vert" />
                   </div>
                 </div>
+
                 {/* Desktop bar + % */}
                 <IntroLoaderInside />
               </motion.div>
@@ -293,12 +280,12 @@ export default function HomePage() {
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
             style={{ position: "fixed", zIndex: 100, width: 240, height: 240, transformOrigin: "center" }}
           >
-            <AlebrijeDraw size={240} strokeDuration={2.8} microStaggerEach={0.0015} />
+            <AlebrijeDraw size={240} strokeDuration={2.8} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* --------------------------------- Main UI -------------------------------- */}
+      {/* --------------------------------- MAIN UI -------------------------------- */}
       <main
         className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${
           revealMain ? "opacity-100" : "opacity-0"
