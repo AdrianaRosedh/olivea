@@ -348,9 +348,6 @@ body.olivea-chat-open #w-live-chat {
   z-index: 2147483645 !important;
 }
 
-body.olivea-chat-open #mobile-chat-button { visibility: hidden; }
-
-
 /* globals.css */
 .card-mask {
   overflow: hidden;
