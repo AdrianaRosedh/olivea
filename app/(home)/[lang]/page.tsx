@@ -19,10 +19,9 @@ import CafeLogo from "@/assets/alebrije-3.svg";
 import OliveaLogo from "@/assets/alebrije-1.svg";
 import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
-/** Typed helper for CSS vars without `any` */
 type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 
-/* ---------------- CSS-only desktop bar + % text (lives inside overlay) ---------------- */
+/* --------------------------------- Desktop loader (% bar) --------------------------------- */
 function IntroLoaderInside() {
   const percentRef = useRef<HTMLSpanElement>(null);
   const barBoxRef = useRef<HTMLDivElement>(null);
@@ -31,7 +30,6 @@ function IntroLoaderInside() {
     const isMobile = window.innerWidth < 768;
     const duration = isMobile ? 1800 : 3500; // ms
 
-    // run % counter without causing React re-renders
     let raf = 0;
     const t0 = performance.now();
     const tick = (now: number) => {
@@ -71,18 +69,18 @@ function IntroLoaderInside() {
   );
 }
 
-/* -------------------------- Draw animation (lazy) --------------------------- */
+/* --------------------------------- Animated logo draw --------------------------------- */
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
-/* ----------------------------- Motion variants ------------------------------ */
+/* --------------------------------- Variants --------------------------------- */
 const containerVariants: Variants = { hidden: {}, show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } } };
 const itemVariants: Variants = { hidden: { opacity: 0, y: 40 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } };
 
 export default function HomePage() {
-  // Overlay: outer clip-path/morph; inner content scales with it
-  const overlayControls = useAnimation();
-  const innerScaleControls = useAnimation();
-  const logoControls = useAnimation();
+  const overlayControls = useAnimation();      // clip-path morph + overlay fade
+  const tintControls = useAnimation();         // overlay tint deepening (for look, after LCP)
+  const innerScaleControls = useAnimation();   // inner content scale/move
+  const logoControls = useAnimation();         // logo travel
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
@@ -91,12 +89,10 @@ export default function HomePage() {
   const [revealMain, setRevealMain] = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
 
-  // language detection
   const pathname = usePathname();
   const isES = pathname?.startsWith("/es");
   const base = isES ? "/es" : "/en";
 
-  // play video only after main UI is visible
   useEffect(() => {
     if (!revealMain) return;
     queueMicrotask(() => videoRef.current?.play().catch(() => {}));
@@ -115,7 +111,7 @@ export default function HomePage() {
     { href: `${base}/cafe`,        title: "Olivea Café",          description: descs.cafe, Logo: CafeLogo, videoKey: "cafe" },
   ];
 
-  // mobile-specific ordering
+  /* mobile order */
   useEffect(() => {
     let raf = 0;
     const onResize = () => {
@@ -128,22 +124,29 @@ export default function HomePage() {
   }, []);
   const mobileSections = isMobileMain ? [sections[1], sections[0], sections[2]] : sections;
 
-  // intro
+  /* intro choreography */
   useEffect(() => {
     let isCancelled = false;
     document.body.classList.add("overflow-hidden");
 
     const runIntro = async () => {
       try {
-        // keep your brand pacing
+        // Let first paint happen (LCP plate is already visible)
         await new Promise((res) => setTimeout(res, 800));
         if (isCancelled) return;
+
+        // Optionally deepen the tint AFTER LCP has likely fired
+        // (keeps look closer to solid, without hurting LCP)
+        tintControls.start({
+          backgroundColor: "rgba(90,104,82,0.95)",
+          transition: { duration: 0.35, ease: "easeOut" },
+        }).catch(() => {});
 
         const vid = videoRef.current;
         const logoTarget = logoTargetRef.current;
         if (!vid || !logoTarget) return;
 
-        // Wait for metadata OR short cap (don’t block)
+        // Wait for metadata OR short cap (don’t block intro)
         await Promise.race([
           new Promise<void>((res) => {
             if (vid.readyState >= HTMLMediaElement.HAVE_METADATA) return res();
@@ -168,7 +171,7 @@ export default function HomePage() {
         const x = rect.left + rect.width / 2 - vw / 2;
         const y = rect.top + rect.height / 2 - vh / 2;
 
-        // morph + inner scale
+        // morph + inner scale (same timing)
         await Promise.all([
           overlayControls.start({
             clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 24px)`,
@@ -215,7 +218,7 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // loop video
+  /* loop video */
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -228,24 +231,34 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ------------------------------ OVERLAY (counts as LCP) ------------------------------ */}
+      {/* STATIC LCP PLATE — SSR paints immediately (largest element at t=0) */}
+      <div
+        aria-hidden
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: "url(/images/olivea-olive-lcp.avif)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
+
+      {/* ------------------------------ OVERLAY (tint + motion) ------------------------------ */}
       <AnimatePresence>
         {showLoader && (
-          <motion.div key="overlay" className="fixed inset-0 z-50" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            {/* OUTER: brand plate image is the background → LCP from t=0 */}
+          <motion.div key="overlay" className="fixed inset-0 z-40" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {/* OUTER: only the tint; the static plate sits below and remains visible */}
             <motion.div
               className="absolute inset-0 willfade"
-              style={{
-                backgroundImage: "url(/images/olivea-olive-lcp.avif)", // lightweight plate
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                clipPath: "inset(0px 0px 0px 0px round 0px)",
-              }}
+              style={{ clipPath: "inset(0px 0px 0px 0px round 0px)" }}
               animate={overlayControls}
             >
-              {/* green tint so the intro still looks like your brand plate */}
-              <div className="absolute inset-0" style={{ background: "rgba(90,104,82,0.66)" }} />
+              {/* tint layer controlled separately so we can deepen after LCP */}
+              <motion.div
+                className="absolute inset-0"
+                style={{ backgroundColor: "rgba(90,104,82,0.72)" }}
+                animate={tintControls}
+              />
 
               {/* INNER: content that scales/shrinks with the morph */}
               <motion.div
@@ -287,7 +300,7 @@ export default function HomePage() {
 
       {/* --------------------------------- MAIN UI -------------------------------- */}
       <main
-        className={`fixed inset-0 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${
+        className={`fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${
           revealMain ? "opacity-100" : "opacity-0"
         }`}
       >
