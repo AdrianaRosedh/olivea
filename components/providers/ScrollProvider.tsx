@@ -89,6 +89,21 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
         lenis.destroy();
       },
     };
+    
+    // after starting the RAF
+    const onVisibility = () => {
+      const id = rafIdRef.current;
+      if (document.visibilityState === "hidden" && id !== null) {
+        cancelAnimationFrame(id);
+        rafIdRef.current = null;
+      } else if (document.visibilityState === "visible" && rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(loop);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);     
+
+    // in cleanup:
+    document.removeEventListener("visibilitychange", onVisibility);
 
     // Make the real API available to consumers
     setApi(exposed);
