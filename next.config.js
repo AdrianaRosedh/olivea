@@ -35,6 +35,11 @@ const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["ts", "tsx", "mdx"],
 
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ["lucide-react", "react-icons"], 
+  },
+
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

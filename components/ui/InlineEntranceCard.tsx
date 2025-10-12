@@ -212,7 +212,7 @@ export default function InlineEntranceCard({
 
   return (
     <div
-      className={className}
+      className={`relative ${className}`}
       style={{ width: isMobile ? "100%" : CARD_WIDTH }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -343,7 +343,7 @@ export default function InlineEntranceCard({
             <div
               style={{
                 position: "absolute",
-                zIndex: 1,
+                zIndex: 10,
                 left: "50%",
                 width: isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE,
                 height: isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE,
