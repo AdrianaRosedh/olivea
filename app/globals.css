@@ -87,11 +87,7 @@
     scroll-behavior: auto;
     @apply antialiased;
   }
-  body.lcp-demote #lcp-plate {
-    z-index: 0;         /* send behind overlay/video */
-    opacity: 0;         /* fade it out when we hand off */
-    transition: opacity .4s ease;
-  }
+
 
   /* root-level scroll */
   html,
@@ -401,3 +397,7 @@ body.olivea-chat-open #w-live-chat {
   /* If you’re using an inner ring (::after), keep it — it follows the curve */
   /* .hero-pill::after { ... border-radius: inherit; } */
 }
+
+.fixed-lcp { will-change: opacity; }
+.lcp-off { visibility: hidden; }
+body.lcp-demote .fixed-lcp { opacity: 0; visibility: hidden; }

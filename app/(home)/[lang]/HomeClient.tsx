@@ -8,6 +8,7 @@ import {
   type SVGProps,
   type CSSProperties,
 } from "react";
+import { watchLCP } from "@/lib/perf/watchLCP";
 import { AnimatePresence, motion, useAnimation, type Variants } from "framer-motion";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -24,26 +25,37 @@ import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 
 /* ===========================
-   Timing
+   Timing — image first, then intro
    =========================== */
 const TIMING = {
-  introHoldMs: 800,
+  introHoldMs: 450,
   morphSec: 0.8,
   settleMs: 350,
   crossfadeSec: 0.4,
 } as const;
 
+const SPLASH = {
+  // minimum time the Alebrije stays visible before any fade/move (even on fast loads)
+  holdMs: 900,
+
+  // extra time to keep it visible after the overlay crossfade completes (for style)
+  afterCrossfadeMs: 180,
+
+  // how long its final fade-out takes
+  fadeOutSec: 0.30,
+
+  // idle “bob” loop timing while centered
+  bobSec: 2.4,
+} as const;
+
+
 /* ===========================
-   Typed requestIdleCallback
+   requestIdleCallback shim
    =========================== */
 export {};
-
 declare global {
   interface Window {
-    requestIdleCallback: (
-      callback: IdleRequestCallback,
-      options?: IdleRequestOptions
-    ) => number;
+    requestIdleCallback: (cb: IdleRequestCallback, options?: IdleRequestOptions) => number;
     cancelIdleCallback: (handle: number) => void;
   }
 }
@@ -67,6 +79,7 @@ function LazyShow({
 }) {
   const [show, setShow] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  
 
   useEffect(() => {
     const el = ref.current;
@@ -87,19 +100,17 @@ function LazyShow({
   return <div ref={ref} style={!show ? { minHeight } : undefined}>{show ? children : null}</div>;
 }
 
-
 /* ===========================
-   Spacing controls (single source of truth)
+   Spacing controls
    =========================== */
 export const HERO = {
-  vh: 29,        // mobile hero height (vh)
-  overlapPx: 10,  // reduced from 10 -> lowers first card a touch
-  minGapPx: 25,  // guaranteed breathing room under hero
-  baseVh: 26,    // reference hero height
-  baseGapPx: 20, // reference gap at baseVh
+  vh: 29,
+  overlapPx: 10,
+  minGapPx: 25,
+  baseVh: 26,
+  baseGapPx: 20,
 } as const;
 
-/* Derived gap (auto-balance with floor) */
 const vhPx =
   typeof window !== "undefined"
     ? (window.visualViewport?.height ?? window.innerHeight) / 100
@@ -111,9 +122,9 @@ const HERO_EXTRA_GAP_PX = Math.max(
 );
 
 /* ===========================
-   Desktop loader (unchanged)
+   Desktop loader (percent bar)
    =========================== */
-function IntroLoaderInside() {
+function IntroBarFixed() {
   const percentRef = useRef<HTMLSpanElement>(null);
   const barBoxRef = useRef<HTMLDivElement>(null);
 
@@ -122,19 +133,21 @@ function IntroLoaderInside() {
     const duration = isMobile ? 1800 : 3500;
     let raf = 0;
     const t0 = performance.now();
+
     const tick = (now: number) => {
       const elapsed = Math.min(now - t0, duration);
       const pct = Math.floor((elapsed / duration) * 100);
       if (percentRef.current) percentRef.current.textContent = `${pct}%`;
       if (elapsed < duration) raf = requestAnimationFrame(tick);
     };
+
     raf = requestAnimationFrame(tick);
     barBoxRef.current?.style.setProperty("--bar-duration", `${duration / 1000}s`);
     return () => cancelAnimationFrame(raf);
   }, []);
 
   return (
-    <div className="absolute bottom-20 left-12 right-12 hidden md:flex items-center text-[#e2be8f] text-xl font-semibold pointer-events-auto select-none">
+    <div className="fixed bottom-20 left-12 right-12 hidden md:flex items-center z-50 text-[#e2be8f] text-xl font-semibold pointer-events-auto select-none">
       <span>Donde el Huerto es la Esencia</span>
       <div
         ref={barBoxRef}
@@ -148,6 +161,8 @@ function IntroLoaderInside() {
   );
 }
 
+
+/* Animated line-draw logo (splash) */
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
 const containerVariants: Variants = {
@@ -160,49 +175,81 @@ const itemVariants: Variants = {
 };
 
 export default function HomeClient() {
+  useEffect(() => { watchLCP(); }, []);
   const overlayControls = useAnimation();
   const innerScaleControls = useAnimation();
   const logoControls = useAnimation();
+  const logoBobControls = useAnimation();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const heroBoxRef = useRef<HTMLDivElement>(null);
   const logoTargetRef = useRef<HTMLDivElement>(null);
 
-  const [showLoader, setShowLoader] = useState(true);
-  const [revealMain, setRevealMain] = useState(false);
-  const [isMobileMain, setIsMobileMain] = useState(false);
+  // states
+  const [showLoader, setShowLoader] = useState(true);       // controls AlebrijeDraw splash
+  const [revealMain, setRevealMain] = useState(false);      // fades main in (under overlay)
+  const [introStarted, setIntroStarted] = useState(false);  // overlay visibility
+  const [overlayGone, setOverlayGone] = useState(false);    // marks overlay finished -> show mobile title
 
   // overlay tint + video gating
   const [overlayBg, setOverlayBg] = useState<string>("transparent");
-  const [showVideo, setShowVideo] = useState(false);
+  const [showVideo, setShowVideo] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 767px)").matches; // show video immediately on mobile
+  });
 
-  // Choose LCP image ONCE (avoid src flip/canceled reqs)
-  const lcpIsMobileRef = useRef(
-    typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 767px)").matches
-      : false
-  );
-  const lcpSrc = lcpIsMobileRef.current
-    ? "/images/olivea-olive-lcp-mobile.avif"
-    : "/images/olivea-olive-lcp.avif";
+  // LCP base fade controller (for fixed images outside <main>)
+  const [hideBase, setHideBase] = useState(false);
+  
+
+  function waitNextFrame() {
+    return new Promise<void>((r) => requestAnimationFrame(() => r()));
+  }
+  const [isMobileMain, setIsMobileMain] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false; // SSR default
+    return window.matchMedia("(max-width: 767px)").matches;
+  });
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => {
+      logoBobControls.start(
+        mq.matches
+          ? { y: 0, transition: { duration: 0 } }
+          : { y: [0, -6, 0], transition: { duration: SPLASH.bobSec, repeat: Infinity, ease: "easeInOut" } }
+      );
+    };
+    apply();
+    mq.addEventListener?.("change", apply);
+    mq.addListener?.(apply); // Safari fallback
+    return () => {
+      mq.removeEventListener?.("change", apply);
+      mq.removeListener?.(apply);
+    };
+  }, [logoBobControls]);
+
+  useEffect(() => {
+    let raf = 0;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setIsMobileMain(mq.matches));
+    };
+    // initial sync and subscribe
+    update();
+    mq.addEventListener?.("change", update);
+    // fallback for very old Safari:
+    mq.addListener?.(update);
+    return () => {
+      cancelAnimationFrame(raf);
+      mq.removeEventListener?.("change", update);
+      mq.removeListener?.(update);
+    };
+  }, []);
 
   const pathname = usePathname();
   const isES = pathname?.startsWith("/es");
   const base = isES ? "/es" : "/en";
-
-  useEffect(() => {
-    let raf = 0;
-    const onResize = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setIsMobileMain(window.innerWidth < 768));
-    };
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
 
   useEffect(() => {
     if (!revealMain) return;
@@ -210,16 +257,8 @@ export default function HomeClient() {
   }, [revealMain]);
 
   const descs = isES
-    ? {
-        casa: "Un hogar donde puedes quedarte.",
-        farm: "Un jardín del que puedes comer.",
-        cafe: "Despierta con sabor.",
-      }
-    : {
-        casa: "A home you can stay in.",
-        farm: "A garden you can eat from.",
-        cafe: "Wake up with flavor.",
-      };
+    ? { casa: "Un hogar donde puedes quedarte.", farm: "Un jardín del que puedes comer.", cafe: "Despierta con sabor." }
+    : { casa: "A home you can stay in.", farm: "A garden you can eat from.", cafe: "Wake up with flavor." };
 
   const sections: Array<{
     href: string;
@@ -228,27 +267,61 @@ export default function HomeClient() {
     Logo: ComponentType<SVGProps<SVGSVGElement>>;
     videoKey: VideoKey;
   }> = [
-    { href: `${base}/casa`, title: "Casa Olivea", description: descs.casa, Logo: CasaLogo, videoKey: "casa" },
-    { href: `${base}/farmtotable`, title: "Olivea Farm To Table", description: descs.farm, Logo: FarmLogo, videoKey: "farmtotable" },
-    { href: `${base}/cafe`, title: "Olivea Café", description: descs.cafe, Logo: CafeLogo, videoKey: "cafe" },
+    { href: `${base}/casa`,        title: "Casa Olivea",           description: descs.casa, Logo: CasaLogo, videoKey: "casa" },
+    { href: `${base}/farmtotable`, title: "Olivea Farm To Table",  description: descs.farm, Logo: FarmLogo, videoKey: "farmtotable" },
+    { href: `${base}/cafe`,        title: "Olivea Café",           description: descs.cafe, Logo: CafeLogo, videoKey: "cafe" },
   ];
 
   const mobileSections = isMobileMain ? [sections[1], sections[0], sections[2]] : sections;
 
-  /* ---------- Intro choreography ---------- */
+  /* ---------- Fade the FIXED base image AFTER LCP is observed ---------- */
+  useEffect(() => {
+    let lcpSeen = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    if ("PerformanceObserver" in window) {
+      try {
+        const po = new PerformanceObserver((list) => {
+          const last = list.getEntries().at(-1);
+          if (last && !lcpSeen) {
+            lcpSeen = true;
+            po.disconnect();
+            setHideBase(true); // vanish fixed base image before morph
+          }
+        });
+        po.observe({ type: "largest-contentful-paint", buffered: true });
+
+        // safety (lab/throttled runs)
+        timer = setTimeout(() => { if (!lcpSeen) setHideBase(true); }, 1200);
+      } catch {
+        timer = setTimeout(() => setHideBase(true), 1200);
+      }
+    } else {
+      timer = setTimeout(() => setHideBase(true), 1200);
+    }
+
+    return () => { if (timer) clearTimeout(timer); };
+  }, []);
+
+  // Apply any “demote” CSS AFTER the base image has faded
+  useEffect(() => {
+    if (hideBase) document.body.classList.add("lcp-demote");
+  }, [hideBase]);
+
+  /* ---------- Intro choreography (prep, then show overlay) ---------- */
   useEffect(() => {
     let isCancelled = false;
     document.body.classList.add("overflow-hidden");
 
     const runIntro = async () => {
       try {
-        await new Promise((res) => setTimeout(res, TIMING.introHoldMs));
+        // Let the fixed base image be first pixel
+        await new Promise((res) => setTimeout(res, Math.max(TIMING.introHoldMs, SPLASH.holdMs)));
         if (isCancelled) return;
 
         const box = heroBoxRef.current;
         const logoTarget = logoTargetRef.current;
         if (!box || !logoTarget) {
-          setShowLoader(false);
           document.body.classList.remove("overflow-hidden");
           return;
         }
@@ -263,64 +336,15 @@ export default function HomeClient() {
         ]);
         if (isCancelled) return;
 
+        // main shows under overlay; overlay starts
         setRevealMain(true);
-
-        // Tint + demote + mount mobile video
         setOverlayBg("var(--olivea-olive)");
-        document.body.classList.add("lcp-demote");
         setShowVideo(true);
-
-        // settle before measure
-        await new Promise((r) => requestAnimationFrame(r));
-        await new Promise((r) => requestAnimationFrame(r));
-
-        // READ
-        const rect = heroBoxRef.current!.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const t = Math.max(0, rect.top);
-        const l = Math.max(0, rect.left);
-        const r = Math.max(0, vw - rect.right);
-        const b = Math.max(0, vh - rect.bottom);
-        const scaleX = rect.width / vw;
-        const scaleY = rect.height / vh;
-        const x = rect.left + rect.width / 2 - vw / 2;
-        const y = rect.top + rect.height / 2 - vh / 2;
-
-        // WRITE
-        await Promise.all([
-          overlayControls.start({
-            clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 24px)`,
-            transition: { duration: TIMING.morphSec, ease: "easeInOut" },
-          }),
-          innerScaleControls.start({
-            x, y, scaleX, scaleY,
-            transition: { duration: TIMING.morphSec, ease: "easeInOut" },
-          }),
-        ]);
-
-        await new Promise((res) => setTimeout(res, TIMING.settleMs));
-        await new Promise((r) => requestAnimationFrame(r));
-
-        const pad = logoTarget.getBoundingClientRect();
-        await logoControls.start({
-          top:  pad.top  + pad.height / 2 + window.scrollY,
-          left: pad.left + pad.width  / 2 + window.scrollX,
-          x: "-50%",
-          y: "-50%",
-          scale: pad.width / 240,
-          transition: { type: "spring", stiffness: 200, damping: 25 },
-        });
-
-        await overlayControls.start({
-          opacity: 0,
-          transition: { duration: TIMING.crossfadeSec, ease: "easeOut" },
-        });
+        setIntroStarted(true);
       } catch (e) {
         console.error("Intro animation error:", e);
       } finally {
         if (!isCancelled) {
-          setShowLoader(false);
           document.body.classList.remove("overflow-hidden");
         }
       }
@@ -331,8 +355,71 @@ export default function HomeClient() {
       isCancelled = true;
       document.body.classList.remove("overflow-hidden");
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* ---------- Morph sequence: AFTER base is gone AND overlay has started ---------- */
+  useEffect(() => {
+    if (!hideBase || !introStarted) return;
+
+    (async () => {
+      await waitNextFrame(); // ensure base fade applied
+
+      // READ
+      const rect = heroBoxRef.current!.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const t = Math.max(0, rect.top);
+      const l = Math.max(0, rect.left);
+      const r = Math.max(0, vw - rect.right);
+      const b = Math.max(0, vh - rect.bottom);
+      const scaleX = rect.width / vw;
+      const scaleY = rect.height / vh;
+      const x = rect.left + rect.width / 2 - vw / 2;
+      const y = rect.top + rect.height / 2 - vh / 2;
+
+      // WRITE (original morph)
+      await Promise.all([
+        overlayControls.start({
+          clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 24px)`,
+          transition: { duration: TIMING.morphSec, ease: "easeInOut" },
+        }),
+        innerScaleControls.start({
+          x, y, scaleX, scaleY,
+          transition: { duration: TIMING.morphSec, ease: "easeInOut" },
+        }),
+      ]);
+
+      await new Promise((res) => setTimeout(res, TIMING.settleMs));
+      await waitNextFrame();
+
+      const pad = logoTargetRef.current!.getBoundingClientRect();
+      // pause the bob so the travel reads clean
+      logoBobControls.stop();
+      await logoBobControls.start({ y: 0, transition: { duration: 0.2 } });
+      await logoControls.start({
+        top:  pad.top  + pad.height / 2 + window.scrollY,
+        left: pad.left + pad.width  / 2 + window.scrollX,
+        x: "-50%",
+        y: "-50%",
+        scale: pad.width / 240,
+        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+      });
+
+      await overlayControls.start({
+        opacity: 0,
+        transition: { duration: TIMING.crossfadeSec, ease: "easeOut" },
+      });
+
+      // ✅ overlay finished — allow mobile phrase to appear
+      setOverlayGone(true);
+      // Keep Alebrije visible for a beat after crossfade, then fade it out
+      await new Promise((r) => setTimeout(r, SPLASH.afterCrossfadeMs));
+      // local fade on the logo container
+      logoControls.start({ opacity: 0, transition: { duration: SPLASH.fadeOutSec, ease: "easeOut" } });
+      await new Promise((r) => setTimeout(r, SPLASH.fadeOutSec * 1000));
+      setShowLoader(false); // now unmount it via AnimatePresence
+    })();
+  }, [hideBase, introStarted, overlayControls, innerScaleControls, logoControls, logoBobControls]);
 
   /* ---------- Reliable autoplay after mount ---------- */
   useEffect(() => {
@@ -393,9 +480,31 @@ export default function HomeClient() {
 
   return (
     <>
-      {/* OVERLAY — cinematic intro with LCP image */}
+      {/* ========== INTRO LOGO (AlebrijeDraw) — splash during intro prep ========== */}
       <AnimatePresence>
         {showLoader && (
+          <>
+            <motion.div
+              key="logo"
+              className="fixed z-50"
+              initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
+              animate={logoControls}
+              style={{ width: 240, height: 240, transformOrigin: "center" }}
+            >
+              <motion.div animate={logoBobControls}>
+                <AlebrijeDraw size={240} strokeDuration={2.8} />
+              </motion.div>
+            </motion.div>
+        
+            {/* NEW: progress bar mounts at the same time as Alebrije */}
+            
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ========== INTRO OVERLAY (above base, above main) ========== */}
+      <AnimatePresence>
+        {introStarted && (
           <motion.div key="overlay" className="fixed inset-0 z-40" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div
               className="absolute inset-0 willfade"
@@ -408,55 +517,26 @@ export default function HomeClient() {
                 initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
                 animate={innerScaleControls}
               >
-                {/* LCP image (chosen once) */}
-                <Image
-                  src={lcpSrc}
-                  alt=""
-                  fill
-                  priority
-                  fetchPriority="high"
-                  sizes="100vw"
-                  className="absolute inset-0 object-cover pointer-events-none select-none"
-                />
-
                 {/* Mobile vertical loader bar */}
                 <div className="absolute inset-0 md:hidden z-20 flex items-center justify-start pl-4 py-6 pointer-events-none select-none">
                   <div className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden" style={mobileLoaderStyle}>
                     <div className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full loader-vert" />
                   </div>
                 </div>
-
-                {/* Desktop loader bar + percent */}
-                <IntroLoaderInside />
+                <IntroBarFixed />
               </motion.div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* LOGO (same) */}
-      <AnimatePresence>
-        {showLoader && (
-          <motion.div
-            key="logo"
-            className="willfade"
-            initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.3 } }}
-            animate={logoControls}
-            style={{ position: "fixed", zIndex: 100, width: 240, height: 240, transformOrigin: "center" }}
-          >
-            <AlebrijeDraw size={240} strokeDuration={2.8} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* MAIN */}
+      {/* ========== MAIN (under overlay) ========== */}
       <main
-        className={`fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500 ${
-          revealMain ? "opacity-100" : "opacity-0"
-        }`}
+        className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500"
+        style={{ opacity: revealMain ? 1 : 0 }}   // <-- inline opacity for first paint
       >
-      <div
+        
+        <div
           ref={heroBoxRef}
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
           style={{
@@ -466,27 +546,34 @@ export default function HomeClient() {
             marginBottom: isMobileMain ? -HERO.overlapPx : 0,
           }}
         >
-          {/* MOBILE hero — becomes priority only after intro ends */}
-          <Image
-            src="/images/hero-mobile.avif"
-            alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
-            fill
-            priority={!showLoader}
-            fetchPriority={!showLoader ? "high" : undefined}
-            sizes="98vw"
-            quality={70}
-            className="object-cover md:hidden"
-          />
+          {/* MOBILE hero — only render on mobile to avoid desktop requests */}
+          {isMobileMain && !showVideo && (
+            <Image
+              src="/images/hero-mobile.avif"
+              alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
+              fill
+              priority={!introStarted}           // fine to keep
+              fetchPriority={!introStarted ? "high" : "auto"}
+              sizes="98vw"
+              quality={70}
+              className="object-cover"
+            />
+          )}
 
           {/* DESKTOP video */}
           <video
             ref={videoRef}
             className="absolute inset-0 hidden md:block w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
-            muted playsInline loop autoPlay preload="metadata" poster="/images/hero.avif"
+            muted
+            playsInline
+            loop
+            autoPlay
+            preload="metadata"
+            poster="/images/hero.avif"
           />
 
-          {/* OPTIONAL: mobile hand-off video layered on top AFTER intro */}
-          {showVideo && (
+          {/* OPTIONAL: mobile hand-off video */}
+          {isMobileMain && showVideo && (
             <video
               className="absolute inset-0 md:hidden w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
               muted playsInline loop autoPlay preload="none"
@@ -496,12 +583,12 @@ export default function HomeClient() {
             </video>
           )}
 
-          {/* Mobile title */}
+          {/* Mobile title — show AFTER overlay is gone */}
           <motion.div
             className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
             variants={itemVariants}
             initial="hidden"
-            animate={!showLoader ? "show" : "hidden"}
+            animate={overlayGone ? "show" : "hidden"}
           >
             <span
               className={`${corm.className} text-[var(--olivea-mist)] text-lg italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
@@ -533,10 +620,8 @@ export default function HomeClient() {
           className="relative z-10 flex flex-col md:hidden flex-1 w-full px-4"
           variants={containerVariants}
           initial="hidden"
-          animate={!showLoader ? "show" : "hidden"}
-          style={{
-            paddingTop: isMobileMain ? HERO.overlapPx + HERO_EXTRA_GAP_PX : 0,
-          }}
+          animate={introStarted ? "hidden" : "show"}
+          style={{ paddingTop: isMobileMain ? HERO.overlapPx + HERO_EXTRA_GAP_PX : 0 }}
         >
           <div className="space-y-12">
             {mobileSections.map((sec, i) => (
@@ -579,7 +664,7 @@ export default function HomeClient() {
           className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
           variants={containerVariants}
           initial="hidden"
-          animate={!showLoader ? "show" : "hidden"}
+          animate={introStarted ? "hidden" : "show"}
         >
           <div className="flex gap-6 mt-[12vh]">
             {sections.map((sec) => (
