@@ -399,3 +399,4 @@ body.olivea-chat-open #w-live-chat {
 .fixed-lcp { opacity: 1; transition: opacity 320ms ease; }
 body.lcp-demote .fixed-lcp { opacity: 0; }
 .home-section-late { content-visibility: auto; contain-intrinsic-size: 1000px; }
+

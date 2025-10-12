@@ -1,3 +1,11 @@
+// app/(home)/[lang]/page.tsx
+export const dynamic = "force-static";
+export const revalidate = false;
+
+export async function generateStaticParams() {
+  return [{ lang: "es" }, { lang: "en" }];
+}
+
 import FixedLCP from "./FixedLCP";
 import HomeClient from "./HomeClient";
 

@@ -1,24 +1,34 @@
+// app/fonts.ts
 import { Plus_Jakarta_Sans, Cormorant_Garamond, Inter } from "next/font/google";
 
-// The serif is what users see first → preload it (exact weight used above the fold)
+// 1) Preload the EXACT face used above the fold (italic 700)
 export const corm = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["700"],   // match what you actually render
+  style: ["italic"],        // <- important for your hero line
+  weight: ["700"],          // <- matches your heading weight
   display: "swap",
-  preload: true,
+  preload: true,            // preload only this face
+  fallback: ["Georgia", "Times New Roman", "serif"],
+  adjustFontFallback: true, // keeps metrics aligned to avoid CLS
 });
 
-// UI fonts used later → don't preload to avoid warnings
+// 2) UI fonts later → no preload (keeps DevTools clean)
 export const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["500","700"], // keep for later use, but:
+  weight: ["500", "700"],
+  style: ["normal"],        // add "italic" only if you actually use it
   display: "swap",
   preload: false,
+  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
+  adjustFontFallback: true,
 });
 
 export const inter = Inter({
   subsets: ["latin"],
   weight: ["400"],
+  style: ["normal"],
   display: "swap",
   preload: false,
+  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
+  adjustFontFallback: true,
 });

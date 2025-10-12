@@ -28,12 +28,7 @@ type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 /* ===========================
    Timing — image first, then intro
    =========================== */
-const TIMING = {
-  introHoldMs: 450,
-  morphSec: 0.8,
-  settleMs: 350,
-  crossfadeSec: 0.4,
-} as const;
+const TIMING = { introHoldMs: 180, morphSec: 0.6, settleMs: 180, crossfadeSec: 0.26 } as const;
 
 const SPLASH = {
   holdMs: 900,
@@ -153,7 +148,7 @@ function IntroBarFixed() {
 }
 
 /* Animated line-draw logo (splash) */
-const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
+const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false, loading: () => null });
 
 const containerVariants: Variants = {
   hidden: {},
@@ -181,12 +176,34 @@ export default function HomeClient() {
   const [introStarted, setIntroStarted] = useState(false);  // overlay visibility/mount
   const [overlayGone, setOverlayGone] = useState(false);    // for mobile phrase timing
 
+  const [allowLoader, setAllowLoader] = useState(false);
+
+  useEffect(() => {
+    // types that work in the browser (Next) without Node vs DOM confusion
+    type IdleId = number;
+
+    let ricId: IdleId | null = null;
+    let toId: ReturnType<typeof setTimeout> | null = null;
+
+    if ("requestIdleCallback" in window) {
+      ricId = window.requestIdleCallback(
+        () => setAllowLoader(true),
+        { timeout: 800 }
+      );
+    } else {
+      // ✅ use global setTimeout
+      toId = setTimeout(() => setAllowLoader(true), 300);
+    }
+
+    return () => {
+      if (ricId !== null && "cancelIdleCallback" in window) window.cancelIdleCallback(ricId);
+      if (toId !== null) clearTimeout(toId);
+    };
+  }, []);
+
   // overlay tint + video gating
   const [overlayBg, setOverlayBg] = useState<string>("transparent");
-  const [showVideo, setShowVideo] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(max-width: 767px)").matches; // show video immediately on mobile
-  });
+  const [showVideo, setShowVideo] = useState<boolean>(false);
 
   // LCP base fade controller (for fixed images outside <main>)
   const [hideBase, setHideBase] = useState(false);
@@ -239,9 +256,9 @@ export default function HomeClient() {
   const base = isES ? "/es" : "/en";
 
   useEffect(() => {
-    if (!revealMain) return;
-    queueMicrotask(() => videoRef.current?.play().catch(() => {}));
-  }, [revealMain]);
+  if (!revealMain) return;
+  queueMicrotask(() => setShowVideo(true));
+}, [revealMain]);
 
   const descs = isES
     ? { casa: "Un hogar donde puedes quedarte.", farm: "Un jardín del que puedes comer.", cafe: "Despierta con sabor." }
@@ -277,7 +294,7 @@ export default function HomeClient() {
     const minTimer = setTimeout(() => {
       minHold = true;
       maybeDemote();
-    }, 650);
+    }, 500);
 
     // Safety cap: if bg-ready never arrives, don't block forever
     const safetyCap = setTimeout(() => {
@@ -376,11 +393,6 @@ export default function HomeClient() {
     };
   }, []);
 
-  // (unchanged) side-effect when hideBase flips; keeps your previous semantics
-  useEffect(() => {
-    if (hideBase) document.body.classList.add("lcp-demote");
-  }, [hideBase]);
-
   /* ---------- Intro choreography (prep, then show overlay) ---------- */
   useEffect(() => {
     let isCancelled = false;
@@ -413,7 +425,6 @@ export default function HomeClient() {
         // main shows under overlay; overlay starts
         setRevealMain(true);
         setOverlayBg("var(--olivea-olive)");
-        setShowVideo(true);
         setIntroStarted(true);
 
         // NEW: signal that the green background/intro is now painting
@@ -580,7 +591,7 @@ export default function HomeClient() {
     <>
       {/* ========== INTRO LOGO (AlebrijeDraw) — splash during intro prep ========== */}
       <AnimatePresence>
-        {showLoader && (
+        {allowLoader && showLoader && (
           <>
             <motion.div
               key="logo"
@@ -647,13 +658,13 @@ export default function HomeClient() {
           }}
         >
           {/* MOBILE hero — only render on mobile to avoid desktop requests */}
-          {isMobileMain && !showVideo && (
+          {isMobileMain && revealMain && !showVideo && (
             <Image
               src="/images/hero-mobile.avif"
               alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
               fill
-              priority={!introStarted}
-              fetchPriority={!introStarted ? "high" : "auto"}
+              priority={false}
+              fetchPriority="low"
               sizes="98vw"
               quality={70}
               className="object-cover"
