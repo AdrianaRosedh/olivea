@@ -35,19 +35,11 @@ const TIMING = {
 } as const;
 
 const SPLASH = {
-  // minimum time the Alebrije stays visible before any fade/move (even on fast loads)
   holdMs: 900,
-
-  // extra time to keep it visible after the overlay crossfade completes (for style)
   afterCrossfadeMs: 180,
-
-  // how long its final fade-out takes
   fadeOutSec: 0.30,
-
-  // idle “bob” loop timing while centered
   bobSec: 2.4,
 } as const;
-
 
 /* ===========================
    requestIdleCallback shim
@@ -79,8 +71,6 @@ function LazyShow({
 }) {
   const [show, setShow] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -161,7 +151,6 @@ function IntroBarFixed() {
   );
 }
 
-
 /* Animated line-draw logo (splash) */
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false });
 
@@ -186,10 +175,10 @@ export default function HomeClient() {
   const logoTargetRef = useRef<HTMLDivElement>(null);
 
   // states
-  const [showLoader, setShowLoader] = useState(true);       // controls AlebrijeDraw splash
+  const [showLoader, setShowLoader] = useState(true);       // AlebrijeDraw splash
   const [revealMain, setRevealMain] = useState(false);      // fades main in (under overlay)
-  const [introStarted, setIntroStarted] = useState(false);  // overlay visibility
-  const [overlayGone, setOverlayGone] = useState(false);    // marks overlay finished -> show mobile title
+  const [introStarted, setIntroStarted] = useState(false);  // overlay visibility/mount
+  const [overlayGone, setOverlayGone] = useState(false);    // for mobile phrase timing
 
   // overlay tint + video gating
   const [overlayBg, setOverlayBg] = useState<string>("transparent");
@@ -200,7 +189,6 @@ export default function HomeClient() {
 
   // LCP base fade controller (for fixed images outside <main>)
   const [hideBase, setHideBase] = useState(false);
-  
 
   function waitNextFrame() {
     return new Promise<void>((r) => requestAnimationFrame(() => r()));
@@ -235,10 +223,8 @@ export default function HomeClient() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => setIsMobileMain(mq.matches));
     };
-    // initial sync and subscribe
     update();
     mq.addEventListener?.("change", update);
-    // fallback for very old Safari:
     mq.addListener?.(update);
     return () => {
       cancelAnimationFrame(raf);
@@ -290,8 +276,6 @@ export default function HomeClient() {
           }
         });
         po.observe({ type: "largest-contentful-paint", buffered: true });
-
-        // safety (lab/throttled runs)
         timer = setTimeout(() => { if (!lcpSeen) setHideBase(true); }, 1200);
       } catch {
         timer = setTimeout(() => setHideBase(true), 1200);
@@ -315,8 +299,8 @@ export default function HomeClient() {
 
     const runIntro = async () => {
       try {
-        // Let the fixed base image be first pixel
         await new Promise((res) => setTimeout(res, Math.max(TIMING.introHoldMs, SPLASH.holdMs)));
+
         if (isCancelled) return;
 
         const box = heroBoxRef.current;
@@ -405,19 +389,22 @@ export default function HomeClient() {
         transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
       });
 
+      // fade the overlay itself
       await overlayControls.start({
         opacity: 0,
         transition: { duration: TIMING.crossfadeSec, ease: "easeOut" },
       });
 
-      // ✅ overlay finished — allow mobile phrase to appear
+      // ✅ mark overlay finished so mobile title can appear
       setOverlayGone(true);
-      // Keep Alebrije visible for a beat after crossfade, then fade it out
+
+      // keep Alebrije on screen briefly, then fade it out
       await new Promise((r) => setTimeout(r, SPLASH.afterCrossfadeMs));
-      // local fade on the logo container
       logoControls.start({ opacity: 0, transition: { duration: SPLASH.fadeOutSec, ease: "easeOut" } });
       await new Promise((r) => setTimeout(r, SPLASH.fadeOutSec * 1000));
-      setShowLoader(false); // now unmount it via AnimatePresence
+
+      setShowLoader(false);       // unmount splash
+      setIntroStarted(false);     // 🔑 UNMOUNT OVERLAY → allow cards to show & be clickable
     })();
   }, [hideBase, introStarted, overlayControls, innerScaleControls, logoControls, logoBobControls]);
 
@@ -495,9 +482,6 @@ export default function HomeClient() {
                 <AlebrijeDraw size={240} strokeDuration={2.8} />
               </motion.div>
             </motion.div>
-        
-            {/* NEW: progress bar mounts at the same time as Alebrije */}
-            
           </>
         )}
       </AnimatePresence>
@@ -505,7 +489,13 @@ export default function HomeClient() {
       {/* ========== INTRO OVERLAY (above base, above main) ========== */}
       <AnimatePresence>
         {introStarted && (
-          <motion.div key="overlay" className="fixed inset-0 z-40" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div
+            key="overlay"
+            className="fixed inset-0 z-40"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={overlayGone ? { pointerEvents: "none" } : undefined} // safety during fade-out
+          >
             <motion.div
               className="absolute inset-0 willfade"
               style={{ background: overlayBg, clipPath: "inset(0px 0px 0px 0px round 0px)" }}
@@ -533,9 +523,8 @@ export default function HomeClient() {
       {/* ========== MAIN (under overlay) ========== */}
       <main
         className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500"
-        style={{ opacity: revealMain ? 1 : 0 }}   // <-- inline opacity for first paint
+        style={{ opacity: revealMain ? 1 : 0 }}
       >
-        
         <div
           ref={heroBoxRef}
           className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
@@ -552,7 +541,7 @@ export default function HomeClient() {
               src="/images/hero-mobile.avif"
               alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
               fill
-              priority={!introStarted}           // fine to keep
+              priority={!introStarted}
               fetchPriority={!introStarted ? "high" : "auto"}
               sizes="98vw"
               quality={70}
@@ -664,7 +653,7 @@ export default function HomeClient() {
           className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
           variants={containerVariants}
           initial="hidden"
-          animate={introStarted ? "hidden" : "show"}
+          animate={introStarted ? "hidden" : "show"}  // now flips to SHOW once overlay unmounts
         >
           <div className="flex gap-6 mt-[12vh]">
             {sections.map((sec) => (
