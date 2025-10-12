@@ -506,7 +506,7 @@ export default function HomeClient() {
             <span
               className={`${corm.className} text-[var(--olivea-mist)] text-lg italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
             >
-              {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
+              {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
             </span>
           </motion.div>
 
@@ -521,7 +521,7 @@ export default function HomeClient() {
             <span
               className={`${corm.className} mt-3 mb-6 text-[var(--olivea-mist)] text-2xl lg:text-[26px] italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]`}
             >
-              {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
+              {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
             </span>
           </div>
 

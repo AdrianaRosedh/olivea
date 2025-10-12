@@ -36,10 +36,12 @@ const nextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
 
   experimental: {
-    optimizeCss: true,
-    // ↓ add framer-motion to shrink client chunks
-    optimizePackageImports: ["lucide-react", "react-icons", "framer-motion"],
-  },
+      optimizePackageImports: [
+        "framer-motion"
+        // add any other heavy barrel-export libs you use
+      ],
+      optimizeCss: true,
+    },
 
   webpack(config) {
     config.module.rules.push({
