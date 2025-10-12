@@ -2,12 +2,22 @@
 export default function Head() {
   return (
     <>
+      {/* Mobile LCP */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/olivea-olive-lcp-mobile.avif"
+        media="(max-width: 767px)"
+        {...({ fetchpriority: "high" } as Record<string, string>)}
+      />
+
+      {/* Desktop LCP */}
       <link
         rel="preload"
         as="image"
         href="/images/olivea-olive-lcp.avif"
-        imageSrcSet="/images/olivea-olive-lcp-mobile.avif 767w, /images/olivea-olive-lcp.avif 1200w"
-        imageSizes="100vw"
+        media="(min-width: 768px)"
+        {...({ fetchpriority: "high" } as Record<string, string>)}
       />
     </>
   );

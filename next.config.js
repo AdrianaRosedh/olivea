@@ -23,7 +23,7 @@ const withMDXConfig = withMDX({
   },
 });
 
-/** 2) bundle analyzer (never in prod) */
+/** 2) bundle analyzer (disabled by default) */
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
   openAnalyzer: process.env.ANALYZE === "true",
@@ -33,15 +33,30 @@ const withBundleAnalyzer = bundleAnalyzer({
 /** 3) Next config */
 const nextConfig = {
   reactStrictMode: true,
+  compress: true,
+  productionBrowserSourceMaps: false,
   pageExtensions: ["ts", "tsx", "mdx"],
 
   experimental: {
-      optimizePackageImports: [
-        "framer-motion"
-        // add any other heavy barrel-export libs you use
-      ],
-      optimizeCss: true,
-    },
+    optimizeCss: true,
+    optimizePackageImports: [
+      "framer-motion",
+      "lucide-react",
+      "date-fns",
+      "lodash-es",
+      "react-icons",
+    ],
+  },
+
+  // ✅ modularizeImports belongs at the top level in Next 15
+  modularizeImports: {
+    "date-fns": { transform: "date-fns/{{member}}" },
+    "lodash-es": { transform: "lodash-es/{{member}}" },
+    // lucide-react icon paths differ per icon; this pattern works with ESM icon paths
+    "lucide-react": { transform: "lucide-react/dist/esm/icons/{{member}}" },
+    // react-icons is a collection of subpackages; keeping it here is optional.
+    // If you use specific packs (e.g., fa/fi), consider importing directly from them in code.
+  },
 
   webpack(config) {
     config.module.rules.push({
@@ -54,53 +69,36 @@ const nextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2560],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       { protocol: "https", hostname: "oliveafarmtotable.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "maps.googleapis.com" },
+      { protocol: "https", hostname: "maps.gstatic.com" },
       { protocol: "https", hostname: "static1.cloudbeds.com" },
       { protocol: "https", hostname: "www.opentable.com" },
       { protocol: "https", hostname: "www.opentable.com.mx" },
-      { protocol: "https", hostname: "maps.gstatic.com" },
     ],
     unoptimized: false,
-  },
-
-  compiler: {
-    styledComponents: true,
-    removeConsole:
-      process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
 
   poweredByHeader: false,
   eslint: { ignoreDuringBuilds: false },
   typescript: { ignoreBuildErrors: false },
 
-  /** 4) Long-cache headers for static assets (repeat-visit speed) */
   async headers() {
+    const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
     return [
-      {
-        source: "/images/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-      {
-        source: "/videos/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-      {
-        source: "/fonts/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-      {
-        source: "/_next/static/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
+      { source: "/images/:path*", headers: immutable },
+      { source: "/videos/:path*", headers: immutable },
+      { source: "/fonts/:path*",  headers: immutable },
+      { source: "/icons/:path*",  headers: immutable },
+      { source: "/_next/static/:path*", headers: immutable },
+      { source: "/:path*", headers: [{ key: "Timing-Allow-Origin", value: "*" }] },
     ];
   },
 
-  /** 5) Redirects (as-is) */
   async redirects() {
     return [
       { source: "/", destination: "/es", permanent: false },

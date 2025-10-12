@@ -1,3 +1,4 @@
+// app/(home)/[lang]/FixedLCP.tsx
 export default function FixedLCP() {
   return (
     <div
@@ -9,16 +10,28 @@ export default function FixedLCP() {
         zIndex: 0,
         pointerEvents: "none",
         userSelect: "none",
+        backgroundColor: "var(--olivea-olive)",
+        width: "100vw",
+        height: "100dvh",
       }}
     >
       <picture>
-        <source media="(max-width: 767px)" srcSet="/images/olivea-olive-lcp-mobile.avif" type="image/avif" />
+        {/* Mobile AVIF */}
+        <source
+          media="(max-width: 767px)"
+          type="image/avif"
+          srcSet="/images/olivea-olive-lcp-mobile.avif"
+          sizes="100vw"
+        />
+
+        {/* Desktop default AVIF */}
         <img
           src="/images/olivea-olive-lcp.avif"
           alt=""
           decoding="async"
           fetchPriority="high"
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          draggable={false}
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
         />
       </picture>
     </div>
