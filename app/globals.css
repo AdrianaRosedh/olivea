@@ -200,8 +200,6 @@
     @apply min-h-screen flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px];
   }
   .willfade {
-    will-change: transform, opacity;
-    transform: translateZ(0);
   }
   .loader-bar {
     position: absolute;
@@ -398,6 +396,5 @@ body.olivea-chat-open #w-live-chat {
   /* .hero-pill::after { ... border-radius: inherit; } */
 }
 
-.fixed-lcp { will-change: opacity; }
-.lcp-off { visibility: hidden; }
-body.lcp-demote .fixed-lcp { opacity: 0; visibility: hidden; }
+.fixed-lcp { opacity: 1; transition: opacity 320ms ease; }
+body.lcp-demote .fixed-lcp { opacity: 0; }

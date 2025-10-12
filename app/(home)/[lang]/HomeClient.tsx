@@ -1,3 +1,4 @@
+// app/(home)/[lang]/HomeClient.tsx
 "use client";
 
 import {
@@ -260,34 +261,122 @@ export default function HomeClient() {
 
   const mobileSections = isMobileMain ? [sections[1], sections[0], sections[2]] : sections;
 
-  /* ---------- Fade the FIXED base image AFTER LCP is observed ---------- */
+  /* ------------------------------------------------------------------
+     UPDATED: Gate removal of the fixed LCP layer
+     Conditions: (1) LCP observed, (2) min hold, (3) background ready.
+     Also set a safety cap so it never blocks indefinitely.
+  -------------------------------------------------------------------*/
+  // --- Replace your existing gating effect with this robust version ---
   useEffect(() => {
     let lcpSeen = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    let bgReady = false;
+    let minHold = false;
+    let done = false;
 
-    if ("PerformanceObserver" in window) {
-      try {
-        const po = new PerformanceObserver((list) => {
-          const last = list.getEntries().at(-1);
-          if (last && !lcpSeen) {
-            lcpSeen = true;
-            po.disconnect();
-            setHideBase(true); // vanish fixed base image before morph
-          }
-        });
-        po.observe({ type: "largest-contentful-paint", buffered: true });
-        timer = setTimeout(() => { if (!lcpSeen) setHideBase(true); }, 1200);
-      } catch {
-        timer = setTimeout(() => setHideBase(true), 1200);
-      }
-    } else {
-      timer = setTimeout(() => setHideBase(true), 1200);
+    // Small minimum hold to avoid ultra-fast flashes
+    const minTimer = setTimeout(() => {
+      minHold = true;
+      maybeDemote();
+    }, 650);
+
+    // Safety cap: if bg-ready never arrives, don't block forever
+    const safetyCap = setTimeout(() => {
+      bgReady = true;
+      maybeDemote();
+    }, 2000);
+
+    // Background/intro readiness handshake
+    const onBgReady = () => {
+      bgReady = true;
+      maybeDemote();
+    };
+    document.addEventListener("olivea:bg-ready", onBgReady, { once: true });
+
+    // ---- LCP support detection (typed; iOS-safe) ----
+    let po: PerformanceObserver | null = null;
+      
+    const supportsPO =
+      typeof window !== "undefined" && "PerformanceObserver" in window;
+      
+    // Narrow the global PerformanceObserver to a static type that may expose supportedEntryTypes
+    type POStatic = typeof PerformanceObserver & {
+      supportedEntryTypes?: ReadonlyArray<string>;
+    };
+    
+    let supportsLCP = false;
+    if (supportsPO) {
+      const PO = PerformanceObserver as POStatic;
+      supportsLCP =
+        Array.isArray(PO.supportedEntryTypes) &&
+        PO.supportedEntryTypes.includes("largest-contentful-paint");
     }
 
-    return () => { if (timer) clearTimeout(timer); };
+    // Backup timer in case the observer never yields (old Safari)
+    const lcpBackupTimer = setTimeout(() => {
+      if (!lcpSeen) {
+        lcpSeen = true;
+        maybeDemote();
+      }
+    }, 1200);
+
+    try {
+      if (supportsLCP) {
+        po = new PerformanceObserver((list) => {
+          if (list.getEntries().length) {
+            lcpSeen = true;
+            maybeDemote();
+          }
+        });      
+        po.observe({ type: "largest-contentful-paint", buffered: true });
+      } else {
+        // No LCP support → proceed as if we've seen LCP
+        lcpSeen = true;
+        maybeDemote();
+      }
+    } catch {
+      // If observe throws, also proceed
+      lcpSeen = true;
+      maybeDemote();
+    }
+
+    function maybeDemote() {
+      if (done) return;
+      if (lcpSeen && bgReady && minHold) {
+        done = true;
+      
+        // Add will-change just-in-time
+        const el = document.querySelector<HTMLElement>(".fixed-lcp");
+        if (el) {
+          el.style.willChange = "opacity";
+          el.addEventListener(
+            "transitionend",
+            () => { el.style.willChange = ""; },
+            { once: true }
+          );
+        }
+      
+        // Trigger the fade (CSS handles the transition)
+        setHideBase(true);
+        document.body.classList.add("lcp-demote");
+      
+        po?.disconnect();
+        clearTimeout(minTimer);
+        clearTimeout(safetyCap);
+        clearTimeout(lcpBackupTimer);
+        document.removeEventListener("olivea:bg-ready", onBgReady);
+      }
+    }
+
+    return () => {
+      po?.disconnect();
+      clearTimeout(minTimer);
+      clearTimeout(safetyCap);
+      clearTimeout(lcpBackupTimer);
+      document.removeEventListener("olivea:bg-ready", onBgReady);
+    };
   }, []);
 
-  // Apply any “demote” CSS AFTER the base image has faded
+  // (unchanged) side-effect when hideBase flips; keeps your previous semantics
   useEffect(() => {
     if (hideBase) document.body.classList.add("lcp-demote");
   }, [hideBase]);
@@ -310,6 +399,7 @@ export default function HomeClient() {
           return;
         }
 
+        // Wait for metadata or a short cap so we don't stall forever
         await Promise.race([
           new Promise<void>((res) => {
             const v = videoRef.current;
@@ -325,6 +415,11 @@ export default function HomeClient() {
         setOverlayBg("var(--olivea-olive)");
         setShowVideo(true);
         setIntroStarted(true);
+
+        // NEW: signal that the green background/intro is now painting
+        requestAnimationFrame(() => {
+          document.dispatchEvent(new Event("olivea:bg-ready"));
+        });
       } catch (e) {
         console.error("Intro animation error:", e);
       } finally {
@@ -430,9 +525,16 @@ export default function HomeClient() {
     window.addEventListener("touchstart", onTouch, { once: true, passive: true });
     document.addEventListener("visibilitychange", onVisible);
 
+    // NEW: when the video has its first frame, also assert bg-ready (belt & suspenders)
+    const onLoadedData = () => {
+      document.dispatchEvent(new Event("olivea:bg-ready"));
+    };
+    v.addEventListener("loadeddata", onLoadedData, { once: true });
+
     return () => {
       v.removeEventListener("loadedmetadata", onMeta);
       v.removeEventListener("canplay", onCanPlay);
+      v.removeEventListener("loadeddata", onLoadedData);
       window.removeEventListener("touchstart", onTouch);
       document.removeEventListener("visibilitychange", onVisible);
     };
@@ -462,6 +564,15 @@ export default function HomeClient() {
     if (showVideo) attach();
     else runWhenIdle(attach, 800);
   }, [showVideo]);
+
+  // Also emit bg-ready once the main has faded in (non-video/mobile image fallback)
+  useEffect(() => {
+    if (!revealMain) return;
+    const id = requestAnimationFrame(() => {
+      document.dispatchEvent(new Event("olivea:bg-ready"));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [revealMain]);
 
   const mobileLoaderStyle: WithBarVar = { "--bar-duration": "4s" };
 
