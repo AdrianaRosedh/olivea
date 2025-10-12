@@ -4,7 +4,6 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale } from "@/lib/i18n";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
-import UnderConstructionNotice from "@/components/forms/UnderConstructionNotice";
 
 type Lang = "en" | "es";
 
@@ -73,7 +72,6 @@ export default async function Page({ params }: { params: { lang: Lang } }) {
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
         <Content />
       </Suspense>
-      <UnderConstructionNotice storageScope="route" />
     </div>
   );
 }
