@@ -23,10 +23,10 @@ const withMDXConfig = withMDX({
   },
 });
 
-/** 2) bundle analyzer */
+/** 2) bundle analyzer (never in prod) */
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
-  openAnalyzer: true,
+  openAnalyzer: process.env.ANALYZE === "true",
   analyzerMode: "static",
 });
 
@@ -37,7 +37,8 @@ const nextConfig = {
 
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ["lucide-react", "react-icons"], 
+    // ↓ add framer-motion to shrink client chunks
+    optimizePackageImports: ["lucide-react", "react-icons", "framer-motion"],
   },
 
   webpack(config) {
@@ -67,7 +68,8 @@ const nextConfig = {
 
   compiler: {
     styledComponents: true,
-    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+    removeConsole:
+      process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
 
   poweredByHeader: false,
@@ -86,13 +88,17 @@ const nextConfig = {
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
+        source: "/fonts/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
         source: "/_next/static/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
     ];
   },
 
-  /** 5) Redirects (kept from your setup) */
+  /** 5) Redirects (as-is) */
   async redirects() {
     return [
       { source: "/", destination: "/es", permanent: false },

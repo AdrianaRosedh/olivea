@@ -36,7 +36,7 @@
     "@supabase/supabase-js": "^2.49.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "critters": "^0.0.23",
+    "critters": "^0.0.7",
     "focus-trap-react": "^11.0.3",
     "framer-motion": "^12.23.22",
     "granim": "^2.0.0",
