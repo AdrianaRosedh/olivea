@@ -3,6 +3,7 @@
 
 import { ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { LazyMotion, domAnimation } from "framer-motion";
 import { SharedTransitionProvider } from "@/contexts/SharedTransitionContext";
 import { ReservationProvider } from "@/contexts/ReservationContext";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
@@ -26,16 +27,18 @@ const ConditionalReservationModal = () => {
 
 export function AppProviders({ children }: AppProvidersProps) {
   return (
-    <SharedTransitionProvider>
-      <ReservationProvider>
-        <ScrollProvider>
-          <ClientProviders>
-            {children}
-            <ConditionalReservationModal /> {/* Render only if isOpen */}
-          </ClientProviders>
-        </ScrollProvider>
-      </ReservationProvider>
-      <SharedVideoTransition />
-    </SharedTransitionProvider>
+    <LazyMotion features={domAnimation}>
+      <SharedTransitionProvider>
+        <ReservationProvider>
+          <ScrollProvider>
+            <ClientProviders>
+              {children}
+              <ConditionalReservationModal />
+            </ClientProviders>
+          </ScrollProvider>
+        </ReservationProvider>
+        <SharedVideoTransition />
+      </SharedTransitionProvider>
+    </LazyMotion>
   );
 }

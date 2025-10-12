@@ -1,9 +1,40 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { AppProviders } from "./providers";
-import { jakarta } from "./fonts"; // ⬅️ only the default font at root
+import { jakarta } from "./fonts";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.oliveafarmtotable.com"),
+  title: "OLIVEA | The Experience",
+  description: "A 360° garden-rooted hospitality experience in Valle de Guadalupe.",
+  alternates: { canonical: "/", languages: { "es-MX": "/es", "en-US": "/en" } },
+  openGraph: {
+    type: "website",
+    url: "https://www.oliveafarmtotable.com",
+    title: "OLIVEA | The Experience",
+    description: "Garden, cuisine, hotel and café in Valle de Guadalupe.",
+    siteName: "OLIVEA",
+    images: [
+      { url: "/images/og/cover.jpg", width: 1200, height: 630, alt: "OLIVEA" }
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OLIVEA | The Experience",
+    description: "Garden-rooted, tech-enhanced hospitality in Valle de Guadalupe.",
+    images: ["/images/og/cover.jpg"]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1, // optional but common
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -14,12 +45,11 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png" },
     ],
   },
-} as const;
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={jakarta.className}>
-      {/* remove font-inter on body so Inter isn’t forced at T=0 */}
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
         <AppProviders>{children}</AppProviders>
       </body>

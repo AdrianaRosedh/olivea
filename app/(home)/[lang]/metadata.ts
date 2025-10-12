@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const sharedOgImage = "/images/hero.jpg"; // same file used as <video> poster
+const sharedOgImage = "/images/hero.jpg"; 
 
 export const metadata: Metadata = {
   title: "Olivea — Donde el huerto es la esencia",

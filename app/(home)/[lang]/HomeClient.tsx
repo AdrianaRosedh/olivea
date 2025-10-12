@@ -23,12 +23,30 @@ import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
 type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 
+/* ===========================
+   Timing
+   =========================== */
 const TIMING = {
   introHoldMs: 800,
   morphSec: 0.8,
   settleMs: 350,
   crossfadeSec: 0.4,
 } as const;
+
+/* ===========================
+   Typed requestIdleCallback
+   =========================== */
+export {};
+
+declare global {
+  interface Window {
+    requestIdleCallback: (
+      callback: IdleRequestCallback,
+      options?: IdleRequestOptions
+    ) => number;
+    cancelIdleCallback: (handle: number) => void;
+  }
+}
 
 function runWhenIdle(cb: () => void, timeout = 800) {
   if (typeof window !== "undefined" && "requestIdleCallback" in window) {
@@ -38,16 +56,50 @@ function runWhenIdle(cb: () => void, timeout = 800) {
   }
 }
 
-// ---- Controls (single source of truth)
+function LazyShow({
+  children,
+  minHeight = 1,
+  rootMargin = "600px 0px 600px 0px",
+}: {
+  children: React.ReactNode;
+  minHeight?: number;
+  rootMargin?: string;
+}) {
+  const [show, setShow] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShow(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [rootMargin]);
+
+  return <div ref={ref} style={!show ? { minHeight } : undefined}>{show ? children : null}</div>;
+}
+
+
+/* ===========================
+   Spacing controls (single source of truth)
+   =========================== */
 export const HERO = {
-  vh: 29,          // hero height on mobile (vh)
-  overlapPx: 10,   // how much the first card kisses the hero
-  minGapPx: 25,    // guaranteed breathing room under hero
-  baseVh: 26,      // reference hero height
-  baseGapPx: 20,   // reference gap at baseVh
+  vh: 29,        // mobile hero height (vh)
+  overlapPx: 10,  // reduced from 10 -> lowers first card a touch
+  minGapPx: 25,  // guaranteed breathing room under hero
+  baseVh: 26,    // reference hero height
+  baseGapPx: 20, // reference gap at baseVh
 } as const;
 
-// ---- Derived gap (auto-balance with a floor)
+/* Derived gap (auto-balance with floor) */
 const vhPx =
   typeof window !== "undefined"
     ? (window.visualViewport?.height ?? window.innerHeight) / 100
@@ -58,7 +110,9 @@ const HERO_EXTRA_GAP_PX = Math.max(
   Math.round(HERO.baseGapPx - (HERO.vh - HERO.baseVh) * vhPx)
 );
 
-/* ---------- Desktop loader bar ---------- */
+/* ===========================
+   Desktop loader (unchanged)
+   =========================== */
 function IntroLoaderInside() {
   const percentRef = useRef<HTMLSpanElement>(null);
   const barBoxRef = useRef<HTMLDivElement>(null);
@@ -100,7 +154,6 @@ const containerVariants: Variants = {
   hidden: {},
   show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } },
 };
-
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
@@ -119,9 +172,19 @@ export default function HomeClient() {
   const [revealMain, setRevealMain] = useState(false);
   const [isMobileMain, setIsMobileMain] = useState(false);
 
-  // overlay color + video gating
+  // overlay tint + video gating
   const [overlayBg, setOverlayBg] = useState<string>("transparent");
   const [showVideo, setShowVideo] = useState(false);
+
+  // Choose LCP image ONCE (avoid src flip/canceled reqs)
+  const lcpIsMobileRef = useRef(
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 767px)").matches
+      : false
+  );
+  const lcpSrc = lcpIsMobileRef.current
+    ? "/images/olivea-olive-lcp-mobile.avif"
+    : "/images/olivea-olive-lcp.avif";
 
   const pathname = usePathname();
   const isES = pathname?.startsWith("/es");
@@ -166,13 +229,7 @@ export default function HomeClient() {
     videoKey: VideoKey;
   }> = [
     { href: `${base}/casa`, title: "Casa Olivea", description: descs.casa, Logo: CasaLogo, videoKey: "casa" },
-    {
-      href: `${base}/farmtotable`,
-      title: "Olivea Farm To Table",
-      description: descs.farm,
-      Logo: FarmLogo,
-      videoKey: "farmtotable",
-    },
+    { href: `${base}/farmtotable`, title: "Olivea Farm To Table", description: descs.farm, Logo: FarmLogo, videoKey: "farmtotable" },
     { href: `${base}/cafe`, title: "Olivea Café", description: descs.cafe, Logo: CafeLogo, videoKey: "cafe" },
   ];
 
@@ -208,15 +265,16 @@ export default function HomeClient() {
 
         setRevealMain(true);
 
-        // Hand-off: color + demote plate + allow mobile video mount
+        // Tint + demote + mount mobile video
         setOverlayBg("var(--olivea-olive)");
         document.body.classList.add("lcp-demote");
         setShowVideo(true);
 
-        // ensure layout fully settled before measuring
+        // settle before measure
         await new Promise((r) => requestAnimationFrame(r));
         await new Promise((r) => requestAnimationFrame(r));
 
+        // READ
         const rect = heroBoxRef.current!.getBoundingClientRect();
         const vw = window.innerWidth;
         const vh = window.innerHeight;
@@ -229,28 +287,25 @@ export default function HomeClient() {
         const x = rect.left + rect.width / 2 - vw / 2;
         const y = rect.top + rect.height / 2 - vh / 2;
 
+        // WRITE
         await Promise.all([
           overlayControls.start({
             clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 24px)`,
             transition: { duration: TIMING.morphSec, ease: "easeInOut" },
           }),
           innerScaleControls.start({
-            x,
-            y,
-            scaleX,
-            scaleY,
+            x, y, scaleX, scaleY,
             transition: { duration: TIMING.morphSec, ease: "easeInOut" },
           }),
         ]);
-        if (isCancelled) return;
 
         await new Promise((res) => setTimeout(res, TIMING.settleMs));
         await new Promise((r) => requestAnimationFrame(r));
 
         const pad = logoTarget.getBoundingClientRect();
         await logoControls.start({
-          top: pad.top + pad.height / 2 + window.scrollY,
-          left: pad.left + pad.width / 2 + window.scrollX,
+          top:  pad.top  + pad.height / 2 + window.scrollY,
+          left: pad.left + pad.width  / 2 + window.scrollX,
           x: "-50%",
           y: "-50%",
           scale: pad.width / 240,
@@ -292,9 +347,7 @@ export default function HomeClient() {
     const onMeta = () => tryPlay();
     const onCanPlay = () => tryPlay();
     const onTouch = () => tryPlay();
-    const onVisible = () => {
-      if (!document.hidden) tryPlay();
-    };
+    const onVisible = () => { if (!document.hidden) tryPlay(); };
 
     if (v.readyState >= HTMLMediaElement.HAVE_METADATA) tryPlay();
 
@@ -320,16 +373,14 @@ export default function HomeClient() {
       if (v.querySelector("source")) return;
       const make = (src: string, type: string, media?: string) => {
         const s = document.createElement("source");
-        s.src = src;
-        s.type = type;
-        if (media) s.media = media;
+        s.src = src; s.type = type; if (media) s.media = media;
         return s;
       };
       v.append(
         make("/videos/homepage-mobile.webm", "video/webm", "(max-width: 767px)"),
-        make("/videos/homepage-mobile.mp4", "video/mp4", "(max-width: 767px)"),
-        make("/videos/homepage-HD.webm", "video/webm", "(min-width: 768px)"),
-        make("/videos/homepage-HD.mp4", "video/mp4", "(min-width: 768px)"),
+        make("/videos/homepage-mobile.mp4",  "video/mp4",  "(max-width: 767px)"),
+        make("/videos/homepage-HD.webm",     "video/webm", "(min-width: 768px)"),
+        make("/videos/homepage-HD.mp4",      "video/mp4",  "(min-width: 768px)")
       );
       v.load();
     };
@@ -342,7 +393,7 @@ export default function HomeClient() {
 
   return (
     <>
-      {/* OVERLAY */}
+      {/* OVERLAY — cinematic intro with LCP image */}
       <AnimatePresence>
         {showLoader && (
           <motion.div key="overlay" className="fixed inset-0 z-40" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -357,15 +408,25 @@ export default function HomeClient() {
                 initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
                 animate={innerScaleControls}
               >
-                {/* Mobile vertical filler */}
+                {/* LCP image (chosen once) */}
+                <Image
+                  src={lcpSrc}
+                  alt=""
+                  fill
+                  priority
+                  fetchPriority="high"
+                  sizes="100vw"
+                  className="absolute inset-0 object-cover pointer-events-none select-none"
+                />
+
+                {/* Mobile vertical loader bar */}
                 <div className="absolute inset-0 md:hidden z-20 flex items-center justify-start pl-4 py-6 pointer-events-none select-none">
-                  <div
-                    className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden"
-                    style={mobileLoaderStyle}
-                  >
+                  <div className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden" style={mobileLoaderStyle}>
                     <div className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full loader-vert" />
                   </div>
                 </div>
+
+                {/* Desktop loader bar + percent */}
                 <IntroLoaderInside />
               </motion.div>
             </motion.div>
@@ -373,7 +434,7 @@ export default function HomeClient() {
         )}
       </AnimatePresence>
 
-      {/* LOGO */}
+      {/* LOGO (same) */}
       <AnimatePresence>
         {showLoader && (
           <motion.div
@@ -396,47 +457,39 @@ export default function HomeClient() {
         }`}
       >
       <div
-        ref={heroBoxRef}
-        className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
-        style={{
-          width: "98vw",
-          height: isMobileMain ? `${HERO.vh}vh` : "98vh",
-          borderRadius: "1.5rem",
-          marginBottom: isMobileMain ? -HERO.overlapPx : 0,
-        }}
-      >
-          {/* MOBILE — true LCP, SSR-visible */}
+          ref={heroBoxRef}
+          className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
+          style={{
+            width: "98vw",
+            height: isMobileMain ? `${HERO.vh}vh` : "98vh",
+            borderRadius: "1.5rem",
+            marginBottom: isMobileMain ? -HERO.overlapPx : 0,
+          }}
+        >
+          {/* MOBILE hero — becomes priority only after intro ends */}
           <Image
             src="/images/hero-mobile.avif"
-            alt={isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
+            alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
             fill
-            priority
+            priority={!showLoader}
+            fetchPriority={!showLoader ? "high" : undefined}
             sizes="98vw"
             quality={70}
             className="object-cover md:hidden"
           />
 
-          {/* DESKTOP video — hidden on mobile at first paint */}
+          {/* DESKTOP video */}
           <video
             ref={videoRef}
             className="absolute inset-0 hidden md:block w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
-            muted
-            playsInline
-            loop
-            autoPlay
-            preload="metadata"
-            poster="/images/hero.avif"
+            muted playsInline loop autoPlay preload="metadata" poster="/images/hero.avif"
           />
 
           {/* OPTIONAL: mobile hand-off video layered on top AFTER intro */}
           {showVideo && (
             <video
               className="absolute inset-0 md:hidden w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
-              muted
-              playsInline
-              loop
-              autoPlay
-              preload="none"
+              muted playsInline loop autoPlay preload="none"
             >
               <source src="/videos/homepage-mobile.webm" type="video/webm" />
               <source src="/videos/homepage-mobile.mp4" type="video/mp4" />
@@ -481,28 +534,32 @@ export default function HomeClient() {
           variants={containerVariants}
           initial="hidden"
           animate={!showLoader ? "show" : "hidden"}
-          style={{ paddingTop: isMobileMain ? HERO.overlapPx + HERO_EXTRA_GAP_PX : 0 }}
+          style={{
+            paddingTop: isMobileMain ? HERO.overlapPx + HERO_EXTRA_GAP_PX : 0,
+          }}
         >
           <div className="space-y-12">
             {mobileSections.map((sec, i) => (
-              <motion.div
-                key={sec.href}
-                variants={itemVariants}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.2 }}
-                style={i === 0 ? { marginTop: isMobileMain ? -HERO.overlapPx : 0, position: "relative", zIndex: 20 } : undefined}
-              >
-                <InlineEntranceCard
-                  title={sec.title}
-                  href={sec.href}
-                  videoKey={sec.videoKey}
-                  description={sec.description}
-                  Logo={sec.Logo}
-                  className={i === 0 ? "relative z-30" : ""}        // <-- ensure the card itself is above
-                  onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                />
-              </motion.div>
+              <LazyShow key={sec.href}>
+                <motion.div
+                  key={sec.href}
+                  variants={itemVariants}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.2 }}
+                  style={i === 0 ? { marginTop: isMobileMain ? -HERO.overlapPx : 0, position: "relative", zIndex: 20 } : undefined}
+                >
+                  <InlineEntranceCard
+                    title={sec.title}
+                    href={sec.href}
+                    videoKey={sec.videoKey}
+                    description={sec.description}
+                    Logo={sec.Logo}
+                    className={i === 0 ? "relative z-30" : ""}
+                    onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                  />
+                </motion.div>
+              </LazyShow>
             ))}
           </div>
 
@@ -526,13 +583,7 @@ export default function HomeClient() {
         >
           <div className="flex gap-6 mt-[12vh]">
             {sections.map((sec) => (
-              <motion.div
-                key={sec.href}
-                variants={itemVariants}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.2 }}
-              >
+              <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
                 <InlineEntranceCard
                   title={sec.title}
                   href={sec.href}
