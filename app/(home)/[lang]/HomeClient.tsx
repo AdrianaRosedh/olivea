@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { corm } from "@/app/fonts";
 import ReservationButton from "@components/ui/ReservationButton";
-import type { VideoKey } from "@/contexts/SharedTransitionContext";
+import type { SectionKey } from "@/contexts/SharedTransitionContext";
 import CasaLogo from "@/assets/alebrije-2.svg";
 import FarmLogo from "@/assets/alebrije-1-Green.svg";
 import CafeLogo from "@/assets/alebrije-3.svg";
@@ -294,11 +294,11 @@ export default function HomeClient() {
     title: string;
     description: string;
     Logo: ComponentType<SVGProps<SVGSVGElement>>;
-    videoKey: VideoKey;
+    sectionKey: SectionKey;
   }> = [
-    { href: `${base}/casa`,        title: "Casa Olivea",           description: descs.casa, Logo: CasaLogo, videoKey: "casa" },
-    { href: `${base}/farmtotable`, title: "Olivea Farm To Table",  description: descs.farm, Logo: FarmLogo, videoKey: "farmtotable" },
-    { href: `${base}/cafe`,        title: "Olivea Café",           description: descs.cafe, Logo: CafeLogo, videoKey: "cafe" },
+    { href: `${base}/casa`,        title: "Casa Olivea",           description: descs.casa, Logo: CasaLogo, sectionKey: "casa" },
+    { href: `${base}/farmtotable`, title: "Olivea Farm To Table",  description: descs.farm, Logo: FarmLogo, sectionKey: "farmtotable" },
+    { href: `${base}/cafe`,        title: "Olivea Café",           description: descs.cafe, Logo: CafeLogo, sectionKey: "cafe" },
   ];
 
   const mobileSections = isMobileMain ? [sections[1], sections[0], sections[2]] : sections;
@@ -736,7 +736,7 @@ export default function HomeClient() {
                   <InlineEntranceCard
                     title={sec.title}
                     href={sec.href}
-                    videoKey={sec.videoKey}
+                    sectionKey={sec.sectionKey}
                     description={sec.description}
                     Logo={sec.Logo}
                     className={i === 0 ? "relative z-30" : ""}
@@ -771,7 +771,7 @@ export default function HomeClient() {
                 <InlineEntranceCard
                   title={sec.title}
                   href={sec.href}
-                  videoKey={sec.videoKey}
+                  sectionKey={sec.sectionKey}
                   description={sec.description}
                   Logo={sec.Logo}
                   onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
