@@ -263,8 +263,11 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
       <div className="relative w-full h-20 md:h-24 lg:h-28">
         {/* Left: Logo */}
         <Link
-          href={homeHref} 
+          href={homeHref}
           aria-label="Home"
+          onPointerDown={() => {
+            try { sessionStorage.setItem("olivea:returning", "1"); } catch {}
+          }}
           onClick={() => {
             // wipe any active shared transition before going home
             clearTransition();

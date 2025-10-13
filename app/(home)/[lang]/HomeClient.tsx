@@ -216,6 +216,31 @@ export default function HomeClient() {
     return window.matchMedia("(max-width: 767px)").matches;
   });
 
+    // ① internal return flag
+  const [internalReturn, setInternalReturn] = useState(false);
+
+  // ② on mount: read explicit flag set by Navbar, or fall back to prevPath
+  useEffect(() => {
+    const viaLogo = sessionStorage.getItem("olivea:returning") === "1";
+    if (viaLogo) {
+      setInternalReturn(true);
+      sessionStorage.removeItem("olivea:returning");
+    } else {
+      const prev = sessionStorage.getItem("prevPath");
+      const internal =
+        !!prev &&
+        (prev.startsWith("/es") ||
+         prev.startsWith("/en") ||
+         prev.startsWith("/casa") ||
+         prev.startsWith("/farmtotable") ||
+         prev.startsWith("/cafe"));
+      setInternalReturn(internal);
+    }
+
+    // always start with base visible again on home mount
+    document.body.classList.remove("lcp-demote");
+  }, []);
+
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const apply = () => {
@@ -285,97 +310,59 @@ export default function HomeClient() {
   -------------------------------------------------------------------*/
   // --- Replace your existing gating effect with this robust version ---
   useEffect(() => {
-    let lcpSeen = false;
-    let bgReady = false;
-    let minHold = false;
-    let done = false;
+    let lcpSeen = false, bgReady = false, minHold = false, done = false;
 
-    // Small minimum hold to avoid ultra-fast flashes
-    const minTimer = setTimeout(() => {
-      minHold = true;
-      maybeDemote();
-    }, 500);
+    // NEW: only accept LCP entries recorded after this mount
+    const routeT0 = performance.now();
 
-    // Safety cap: if bg-ready never arrives, don't block forever
-    const safetyCap = setTimeout(() => {
-      bgReady = true;
-      maybeDemote();
-    }, 2000);
+    const minTimer   = setTimeout(() => { minHold = true; maybeDemote(); }, 500);
+    const safetyCap  = setTimeout(() => { bgReady  = true; maybeDemote(); }, 2000);
 
-    // Background/intro readiness handshake
-    const onBgReady = () => {
-      bgReady = true;
-      maybeDemote();
-    };
+    const onBgReady = () => { bgReady = true; maybeDemote(); };
     document.addEventListener("olivea:bg-ready", onBgReady, { once: true });
 
-    // ---- LCP support detection (typed; iOS-safe) ----
     let po: PerformanceObserver | null = null;
-      
-    const supportsPO =
-      typeof window !== "undefined" && "PerformanceObserver" in window;
-      
-    // Narrow the global PerformanceObserver to a static type that may expose supportedEntryTypes
-    type POStatic = typeof PerformanceObserver & {
-      supportedEntryTypes?: ReadonlyArray<string>;
-    };
-    
-    let supportsLCP = false;
-    if (supportsPO) {
-      const PO = PerformanceObserver as POStatic;
-      supportsLCP =
-        Array.isArray(PO.supportedEntryTypes) &&
-        PO.supportedEntryTypes.includes("largest-contentful-paint");
-    }
+    type POStatic = typeof PerformanceObserver & { supportedEntryTypes?: ReadonlyArray<string> };
+    const supportsLCP =
+      "PerformanceObserver" in window &&
+      Array.isArray((PerformanceObserver as unknown as POStatic).supportedEntryTypes) &&
+      (PerformanceObserver as unknown as POStatic).supportedEntryTypes!.includes("largest-contentful-paint");
 
-    // Backup timer in case the observer never yields (old Safari)
     const lcpBackupTimer = setTimeout(() => {
-      if (!lcpSeen) {
-        lcpSeen = true;
-        maybeDemote();
-      }
+      if (!lcpSeen) { lcpSeen = true; maybeDemote(); }
     }, 1200);
 
     try {
       if (supportsLCP) {
         po = new PerformanceObserver((list) => {
-          if (list.getEntries().length) {
-            lcpSeen = true;
-            maybeDemote();
-          }
-        });      
+          const fresh = list.getEntries().some(e => e.startTime >= routeT0 - 50);
+          if (fresh) { lcpSeen = true; maybeDemote(); }
+        });
         po.observe({ type: "largest-contentful-paint", buffered: true });
       } else {
-        // No LCP support → proceed as if we've seen LCP
-        lcpSeen = true;
-        maybeDemote();
+        lcpSeen = true; maybeDemote();
       }
     } catch {
-      // If observe throws, also proceed
-      lcpSeen = true;
-      maybeDemote();
+      lcpSeen = true; maybeDemote();
     }
 
     function maybeDemote() {
       if (done) return;
+
+      // NEW: when returning via logo/inside routes, don't demote until intro begins
+      if (internalReturn && !introStarted) return;
+
       if (lcpSeen && bgReady && minHold) {
         done = true;
-      
-        // Add will-change just-in-time
+
         const el = document.querySelector<HTMLElement>(".fixed-lcp");
         if (el) {
           el.style.willChange = "opacity";
-          el.addEventListener(
-            "transitionend",
-            () => { el.style.willChange = ""; },
-            { once: true }
-          );
+          el.addEventListener("transitionend", () => { el.style.willChange = ""; }, { once: true });
         }
-      
-        // Trigger the fade (CSS handles the transition)
         setHideBase(true);
         document.body.classList.add("lcp-demote");
-      
+
         po?.disconnect();
         clearTimeout(minTimer);
         clearTimeout(safetyCap);
@@ -391,7 +378,8 @@ export default function HomeClient() {
       clearTimeout(lcpBackupTimer);
       document.removeEventListener("olivea:bg-ready", onBgReady);
     };
-  }, []);
+  }, [internalReturn, introStarted]);
+
 
   /* ---------- Intro choreography (prep, then show overlay) ---------- */
   useEffect(() => {

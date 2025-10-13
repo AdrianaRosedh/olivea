@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { AppProviders } from "./providers";
 import { jakarta } from "./fonts";
+import PathTracker from "@/components/PathTracker"; // ✅ import the client child
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.oliveafarmtotable.com"),
@@ -14,26 +15,18 @@ export const metadata: Metadata = {
     title: "OLIVEA | The Experience",
     description: "Garden, cuisine, hotel and café in Valle de Guadalupe.",
     siteName: "OLIVEA",
-    images: [
-      { url: "/images/og/cover.jpg", width: 1200, height: 630, alt: "OLIVEA" }
-    ],
+    images: [{ url: "/images/og/cover.jpg", width: 1200, height: 630, alt: "OLIVEA" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "OLIVEA | The Experience",
     description: "Garden-rooted, tech-enhanced hospitality in Valle de Guadalupe.",
-    images: ["/images/og/cover.jpg"]
+    images: ["/images/og/cover.jpg"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-snippet": -1,
-      "max-image-preview": "large",
-      "max-video-preview": -1, // optional but common
-    },
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large", "max-video-preview": -1 },
   },
   icons: {
     icon: [
@@ -51,6 +44,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={jakarta.className}>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
+        {/* Mount the client tracker once */}
+        <PathTracker />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
