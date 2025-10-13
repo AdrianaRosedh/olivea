@@ -385,7 +385,7 @@ function Overlay({
           y: logoY,
         }}
       >
-        <Logo width={220} height="auto" />
+        <Logo width={220} className="h-auto" />  
       </motion.div>
 
       {/* subtle texture */}

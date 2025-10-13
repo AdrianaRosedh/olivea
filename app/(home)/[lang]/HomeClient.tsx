@@ -26,16 +26,10 @@ import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 
 /* ===========================
-   Timing — image first, then intro
+   Timing — speed up first paint
    =========================== */
-const TIMING = { introHoldMs: 180, morphSec: 0.6, settleMs: 180, crossfadeSec: 0.26 } as const;
-
-const SPLASH = {
-  holdMs: 900,
-  afterCrossfadeMs: 180,
-  fadeOutSec: 0.30,
-  bobSec: 2.4,
-} as const;
+const TIMING = { introHoldMs: 60, morphSec: 0.6, settleMs: 120, crossfadeSec: 0.22 } as const;
+const SPLASH = { holdMs: 240, afterCrossfadeMs: 120, fadeOutSec: 0.24, bobSec: 2.0 } as const;
 
 /* ===========================
    requestIdleCallback shim
@@ -148,7 +142,10 @@ function IntroBarFixed() {
 }
 
 /* Animated line-draw logo (splash) */
-const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), { ssr: false, loading: () => null });
+const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), {
+  ssr: false,
+  loading: () => null,
+});
 
 const containerVariants: Variants = {
   hidden: {},
@@ -171,30 +168,23 @@ export default function HomeClient() {
   const logoTargetRef = useRef<HTMLDivElement>(null);
 
   // states
-  const [showLoader, setShowLoader] = useState(true);       // AlebrijeDraw splash
+  const [showLoader, setShowLoader] = useState(true);
   const [revealMain, setRevealMain] = useState(false);      // fades main in (under overlay)
-  const [introStarted, setIntroStarted] = useState(false);  // overlay visibility/mount
-  const [overlayGone, setOverlayGone] = useState(false);    // for mobile phrase timing
+  const [introStarted, setIntroStarted] = useState(true);   // mount overlay immediately
+  const [overlayGone, setOverlayGone] = useState(false);
 
   const [allowLoader, setAllowLoader] = useState(false);
 
   useEffect(() => {
-    // types that work in the browser (Next) without Node vs DOM confusion
     type IdleId = number;
-
     let ricId: IdleId | null = null;
     let toId: ReturnType<typeof setTimeout> | null = null;
 
     if ("requestIdleCallback" in window) {
-      ricId = window.requestIdleCallback(
-        () => setAllowLoader(true),
-        { timeout: 800 }
-      );
+      ricId = window.requestIdleCallback(() => setAllowLoader(true), { timeout: 800 });
     } else {
-      // ✅ use global setTimeout
       toId = setTimeout(() => setAllowLoader(true), 300);
     }
-
     return () => {
       if (ricId !== null && "cancelIdleCallback" in window) window.cancelIdleCallback(ricId);
       if (toId !== null) clearTimeout(toId);
@@ -202,24 +192,23 @@ export default function HomeClient() {
   }, []);
 
   // overlay tint + video gating
-  const [overlayBg, setOverlayBg] = useState<string>("transparent");
+  const overlayBg = "var(--olivea-olive)";
   const [showVideo, setShowVideo] = useState<boolean>(false);
 
-  // LCP base fade controller (for fixed images outside <main>)
+  // LCP base fade controller (for FixedLCP)
   const [hideBase, setHideBase] = useState(false);
 
   function waitNextFrame() {
     return new Promise<void>((r) => requestAnimationFrame(() => r()));
   }
+
   const [isMobileMain, setIsMobileMain] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false; // SSR default
+    if (typeof window === "undefined") return false;
     return window.matchMedia("(max-width: 767px)").matches;
   });
 
-    // ① internal return flag
   const [internalReturn, setInternalReturn] = useState(false);
 
-  // ② on mount: read explicit flag set by Navbar, or fall back to prevPath
   useEffect(() => {
     const viaLogo = sessionStorage.getItem("olivea:returning") === "1";
     if (viaLogo) {
@@ -230,14 +219,12 @@ export default function HomeClient() {
       const internal =
         !!prev &&
         (prev.startsWith("/es") ||
-         prev.startsWith("/en") ||
-         prev.startsWith("/casa") ||
-         prev.startsWith("/farmtotable") ||
-         prev.startsWith("/cafe"));
+          prev.startsWith("/en") ||
+          prev.startsWith("/casa") ||
+          prev.startsWith("/farmtotable") ||
+          prev.startsWith("/cafe"));
       setInternalReturn(internal);
     }
-
-    // always start with base visible again on home mount
     document.body.classList.remove("lcp-demote");
   }, []);
 
@@ -252,7 +239,7 @@ export default function HomeClient() {
     };
     apply();
     mq.addEventListener?.("change", apply);
-    mq.addListener?.(apply); // Safari fallback
+    mq.addListener?.(apply);
     return () => {
       mq.removeEventListener?.("change", apply);
       mq.removeListener?.(apply);
@@ -280,10 +267,18 @@ export default function HomeClient() {
   const isES = pathname?.startsWith("/es");
   const base = isES ? "/es" : "/en";
 
+  // Reveal main ASAP so hero can paint under overlay (becomes LCP)
   useEffect(() => {
-  if (!revealMain) return;
-  queueMicrotask(() => setShowVideo(true));
-}, [revealMain]);
+    setRevealMain(true);
+    requestAnimationFrame(() => {
+      document.dispatchEvent(new Event("olivea:bg-ready"));
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!revealMain) return;
+    queueMicrotask(() => setShowVideo(true));
+  }, [revealMain]);
 
   const descs = isES
     ? { casa: "Un hogar donde puedes quedarte.", farm: "Un jardín del que puedes comer.", cafe: "Despierta con sabor." }
@@ -304,19 +299,14 @@ export default function HomeClient() {
   const mobileSections = isMobileMain ? [sections[1], sections[0], sections[2]] : sections;
 
   /* ------------------------------------------------------------------
-     UPDATED: Gate removal of the fixed LCP layer
-     Conditions: (1) LCP observed, (2) min hold, (3) background ready.
-     Also set a safety cap so it never blocks indefinitely.
+     Gate removal of the FixedLCP layer
   -------------------------------------------------------------------*/
-  // --- Replace your existing gating effect with this robust version ---
   useEffect(() => {
     let lcpSeen = false, bgReady = false, minHold = false, done = false;
-
-    // NEW: only accept LCP entries recorded after this mount
     const routeT0 = performance.now();
 
-    const minTimer   = setTimeout(() => { minHold = true; maybeDemote(); }, 500);
-    const safetyCap  = setTimeout(() => { bgReady  = true; maybeDemote(); }, 2000);
+    const minTimer   = setTimeout(() => { minHold = true; maybeDemote(); }, 300);
+    const safetyCap  = setTimeout(() => { bgReady  = true; maybeDemote(); }, 1500);
 
     const onBgReady = () => { bgReady = true; maybeDemote(); };
     document.addEventListener("olivea:bg-ready", onBgReady, { once: true });
@@ -348,13 +338,9 @@ export default function HomeClient() {
 
     function maybeDemote() {
       if (done) return;
-
-      // NEW: when returning via logo/inside routes, don't demote until intro begins
       if (internalReturn && !introStarted) return;
-
       if (lcpSeen && bgReady && minHold) {
         done = true;
-
         const el = document.querySelector<HTMLElement>(".fixed-lcp");
         if (el) {
           el.style.willChange = "opacity";
@@ -380,8 +366,7 @@ export default function HomeClient() {
     };
   }, [internalReturn, introStarted]);
 
-
-  /* ---------- Intro choreography (prep, then show overlay) ---------- */
+  /* ---------- Intro choreography (now overlay starts mounted) ---------- */
   useEffect(() => {
     let isCancelled = false;
     document.body.classList.add("overflow-hidden");
@@ -389,7 +374,6 @@ export default function HomeClient() {
     const runIntro = async () => {
       try {
         await new Promise((res) => setTimeout(res, Math.max(TIMING.introHoldMs, SPLASH.holdMs)));
-
         if (isCancelled) return;
 
         const box = heroBoxRef.current;
@@ -399,23 +383,18 @@ export default function HomeClient() {
           return;
         }
 
-        // Wait for metadata or a short cap so we don't stall forever
+        // wait a short moment for metadata (desktop only meaningful)
         await Promise.race([
           new Promise<void>((res) => {
             const v = videoRef.current;
             if (v && v.readyState >= HTMLMediaElement.HAVE_METADATA) return res();
             v?.addEventListener("loadedmetadata", () => res(), { once: true });
           }),
-          new Promise<void>((res) => setTimeout(res, 900)),
+          new Promise<void>((res) => setTimeout(res, 500)),
         ]);
         if (isCancelled) return;
 
-        // main shows under overlay; overlay starts
-        setRevealMain(true);
-        setOverlayBg("var(--olivea-olive)");
-        setIntroStarted(true);
-
-        // NEW: signal that the green background/intro is now painting
+        // overlay already olive + mounted; continue the sequence…
         requestAnimationFrame(() => {
           document.dispatchEvent(new Event("olivea:bg-ready"));
         });
@@ -471,7 +450,6 @@ export default function HomeClient() {
       await waitNextFrame();
 
       const pad = logoTargetRef.current!.getBoundingClientRect();
-      // pause the bob so the travel reads clean
       logoBobControls.stop();
       await logoBobControls.start({ y: 0, transition: { duration: 0.2 } });
       await logoControls.start({
@@ -483,22 +461,19 @@ export default function HomeClient() {
         transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
       });
 
-      // fade the overlay itself
       await overlayControls.start({
         opacity: 0,
         transition: { duration: TIMING.crossfadeSec, ease: "easeOut" },
       });
 
-      // ✅ mark overlay finished so mobile title can appear
       setOverlayGone(true);
 
-      // keep Alebrije on screen briefly, then fade it out
       await new Promise((r) => setTimeout(r, SPLASH.afterCrossfadeMs));
       logoControls.start({ opacity: 0, transition: { duration: SPLASH.fadeOutSec, ease: "easeOut" } });
       await new Promise((r) => setTimeout(r, SPLASH.fadeOutSec * 1000));
 
-      setShowLoader(false);       // unmount splash
-      setIntroStarted(false);     // 🔑 UNMOUNT OVERLAY → allow cards to show & be clickable
+      setShowLoader(false);
+      setIntroStarted(false); // allow cards
     })();
   }, [hideBase, introStarted, overlayControls, innerScaleControls, logoControls, logoBobControls]);
 
@@ -524,7 +499,6 @@ export default function HomeClient() {
     window.addEventListener("touchstart", onTouch, { once: true, passive: true });
     document.addEventListener("visibilitychange", onVisible);
 
-    // NEW: when the video has its first frame, also assert bg-ready (belt & suspenders)
     const onLoadedData = () => {
       document.dispatchEvent(new Event("olivea:bg-ready"));
     };
@@ -580,19 +554,17 @@ export default function HomeClient() {
       {/* ========== INTRO LOGO (AlebrijeDraw) — splash during intro prep ========== */}
       <AnimatePresence>
         {allowLoader && showLoader && (
-          <>
-            <motion.div
-              key="logo"
-              className="fixed z-50"
-              initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
-              animate={logoControls}
-              style={{ width: 240, height: 240, transformOrigin: "center" }}
-            >
-              <motion.div animate={logoBobControls}>
-                <AlebrijeDraw size={240} strokeDuration={2.8} />
-              </motion.div>
+          <motion.div
+            key="logo"
+            className="fixed z-50"
+            initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
+            animate={logoControls}
+            style={{ width: 240, height: 240, transformOrigin: "center" }}
+          >
+            <motion.div animate={logoBobControls}>
+              <AlebrijeDraw size={240} strokeDuration={2.8} />
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -604,7 +576,7 @@ export default function HomeClient() {
             className="fixed inset-0 z-40"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={overlayGone ? { pointerEvents: "none" } : undefined} // safety during fade-out
+            style={overlayGone ? { pointerEvents: "none" } : undefined}
           >
             <motion.div
               className="absolute inset-0 willfade"
@@ -632,7 +604,7 @@ export default function HomeClient() {
 
       {/* ========== MAIN (under overlay) ========== */}
       <main
-        className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-500"
+        className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-300"
         style={{ opacity: revealMain ? 1 : 0 }}
       >
         <div
@@ -645,16 +617,16 @@ export default function HomeClient() {
             marginBottom: isMobileMain ? -HERO.overlapPx : 0,
           }}
         >
-          {/* MOBILE hero — only render on mobile to avoid desktop requests */}
+          {/* MOBILE hero — make this the LCP */}
           {isMobileMain && revealMain && !showVideo && (
             <Image
               src="/images/hero-mobile.avif"
               alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
               fill
-              priority={false}
-              fetchPriority="low"
+              priority               // ← LCP
+              fetchPriority="high"
               sizes="98vw"
-              quality={70}
+              quality={60}
               className="object-cover"
             />
           )}
@@ -763,7 +735,7 @@ export default function HomeClient() {
           className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
           variants={containerVariants}
           initial="hidden"
-          animate={introStarted ? "hidden" : "show"}  // now flips to SHOW once overlay unmounts
+          animate={introStarted ? "hidden" : "show"}
         >
           <div className="flex gap-6 mt-[12vh]">
             {sections.map((sec) => (
