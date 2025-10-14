@@ -143,18 +143,25 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 </div>
 
                 {/* restaurant */}
-                <div className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto ${
-                  reservationType === "restaurant"
-                    ? "opacity-100 pointer-events-auto"
-                    : "opacity-0 pointer-events-none"
-                }`}>
+                <div
+                  className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto ${
+                    reservationType === "restaurant"
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
+                  }`}
+                >
                   <div className="flex z-10 items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)]">
                     <OliveaLogo className="h-[45px] md:h-[65px]" />
-                    <span className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`} style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}>
+                    <span
+                      className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                      style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
+                    >
                       Olivea Farm To Table
                     </span>
                   </div>
-                  {reservationType === "restaurant" && <OpentableWidget/>}
+                
+                  {/* mount it ALWAYS so it doesn't reload when switching tabs */}
+                  <OpentableWidget />
                 </div>
 
                 {/* cafe */}
