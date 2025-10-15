@@ -82,8 +82,8 @@
     color: var(--foreground);
     font-family: var(--font-sans);
     line-height: var(--line-height-body);
-    overscroll-behavior: none;
-    /* Let Lenis/GSAP control smoothness */
+    overscroll-behavior-y: none;   
+    overscroll-behavior-x: auto; 
     scroll-behavior: auto;
     @apply antialiased;
   }
@@ -98,10 +98,13 @@
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    /* Let Lenis/GSAP control smoothness */
-    scroll-behavior: auto;
-    overscroll-behavior: none;
   }
+  @media (min-width: 768px) {
+  html, body, #__next {
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: auto;
+  }
+}
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-serif);
