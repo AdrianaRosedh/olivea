@@ -14,7 +14,7 @@ import { AnimatePresence, motion, useAnimation, type Variants } from "framer-mot
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { corm } from "@/app/fonts";
+import { cormHero } from "@/app/fonts";
 import ReservationButton from "@components/ui/ReservationButton";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
 import CasaLogo from "@/assets/alebrije-2.svg";
@@ -25,7 +25,7 @@ import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
 type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 
-const TIMING = { introHoldMs: 60, morphSec: 0.6, settleMs: 120, crossfadeSec: 0.22 } as const;
+const TIMING = { introHoldMs: 30, morphSec: 0.6, settleMs: 100, crossfadeSec: 0.18 } as const;
 const SPLASH = { holdMs: 240, afterCrossfadeMs: 120, fadeOutSec: 0.24, bobSec: 2.0 } as const;
 
 export {};
@@ -113,7 +113,7 @@ function IntroBarFixed() {
   }, []);
 
   return (
-    <div className="fixed bottom-20 left-12 right-12 hidden md:flex items-center z-50 text-[#e2be8f] text-xl font-semibold pointer-events-auto select-none">
+    <div className="fixed bottom-20 left-12 right-12 hidden md:flex items-center z-50 text-[#e2be8f] text-xl font-semibold pointer-events-auto select-none not-italic">
       <span>Donde el Huerto es la Esencia</span>
       <div
         ref={barBoxRef}
@@ -155,10 +155,9 @@ export default function HomeClient() {
 
   // states
   const [showLoader, setShowLoader] = useState(true);
-  const [revealMain, setRevealMain] = useState(false);      // fades main in (under overlay)
-  const [introStarted, setIntroStarted] = useState(true);   // mount overlay immediately
+  const [revealMain, setRevealMain] = useState(false);
+  const [introStarted, setIntroStarted] = useState(true);
   const [overlayGone, setOverlayGone] = useState(false);
-
   const [allowLoader, setAllowLoader] = useState(false);
 
   useEffect(() => {
@@ -369,7 +368,6 @@ export default function HomeClient() {
           return;
         }
 
-        // wait a short moment for metadata (desktop only meaningful)
         await Promise.race([
           new Promise<void>((res) => {
             const v = videoRef.current;
@@ -380,7 +378,6 @@ export default function HomeClient() {
         ]);
         if (isCancelled) return;
 
-        // overlay already olive + mounted; continue the sequence…
         requestAnimationFrame(() => {
           document.dispatchEvent(new Event("olivea:bg-ready"));
         });
@@ -400,14 +397,14 @@ export default function HomeClient() {
     };
   }, []);
 
-  /* ---------- Morph sequence: AFTER base is gone AND overlay has started ---------- */
+  /* ---------- Morph sequence: split read/write to reduce reflow ---------- */
   useEffect(() => {
     if (!hideBase || !introStarted) return;
 
     (async () => {
-      await waitNextFrame(); // ensure base fade applied
+      await waitNextFrame(); // allow base fade
 
-      // READ
+      // READ (frame 1)
       const rect = heroBoxRef.current!.getBoundingClientRect();
       const vw = window.innerWidth;
       const vh = window.innerHeight;
@@ -420,7 +417,7 @@ export default function HomeClient() {
       const x = rect.left + rect.width / 2 - vw / 2;
       const y = rect.top + rect.height / 2 - vh / 2;
 
-      // WRITE (original morph)
+      await waitNextFrame(); // WRITE (frame 2)
       await Promise.all([
         overlayControls.start({
           clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 24px)`,
@@ -459,13 +456,13 @@ export default function HomeClient() {
       await new Promise((r) => setTimeout(r, SPLASH.fadeOutSec * 1000));
 
       setShowLoader(false);
-      setIntroStarted(false); // allow cards
+      setIntroStarted(false);
     })();
   }, [hideBase, introStarted, overlayControls, innerScaleControls, logoControls, logoBobControls]);
 
   /* ---------- Reliable autoplay after mount (DESKTOP ONLY) ---------- */
   useEffect(() => {
-    if (isMobileMain) return; // desktop-only
+    if (isMobileMain) return;
 
     const v = videoRef.current;
     if (!showVideo || !v) return;
@@ -495,9 +492,9 @@ export default function HomeClient() {
     return () => {
       v.removeEventListener("loadedmetadata", onMeta);
       v.removeEventListener("canplay", onCanPlay);
-      v.removeEventListener("loadeddata", onLoadedData);
       window.removeEventListener("touchstart", onTouch);
       document.removeEventListener("visibilitychange", onVisible);
+      v.removeEventListener("loadeddata", onLoadedData);
     };
   }, [showVideo, isMobileMain]);
 
@@ -519,7 +516,7 @@ export default function HomeClient() {
         {allowLoader && showLoader && (
           <motion.div
             key="logo"
-            className="fixed z-50"
+            className="fixed z-50 not-italic"
             initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
             animate={logoControls}
             style={{ width: 240, height: 240, transformOrigin: "center" }}
@@ -536,19 +533,19 @@ export default function HomeClient() {
         {introStarted && (
           <motion.div
             key="overlay"
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 not-italic"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={overlayGone ? { pointerEvents: "none" } : undefined}
           >
             <motion.div
-              className="absolute inset-0"
-              style={{ background: overlayBg, clipPath: "inset(0px 0px 0px 0px round 0px)" }}
+              className="absolute inset-0 not-italic"
+              style={{ background: overlayBg, clipPath: "inset(0px 0px 0px 0px round 0px)", contain: "layout" }}
               animate={overlayControls}
             >
               <motion.div
-                className="absolute inset-0"
-                style={{ transformOrigin: "center" }}
+                className="absolute inset-0 not-italic"
+                style={{ transformOrigin: "center", contain: "layout" }}
                 initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
                 animate={innerScaleControls}
               >
@@ -567,12 +564,12 @@ export default function HomeClient() {
 
       {/* ========== MAIN (under overlay) ========== */}
       <main
-        className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-300"
+        className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-300 not-italic"
         style={{ opacity: revealMain ? 1 : 0 }}
       >
         <div
           ref={heroBoxRef}
-          className="relative overflow-hidden shadow-xl mt-1 md:mt-0 bg-[var(--olivea-olive)]"
+          className="relative overflow-hidden shadow-xl mt-1 md:mt-0 bg-[var(--olivea-olive)] not-italic"
           style={{
             width: "98vw",
             height: isMobileMain ? `${HERO.vh}vh` : "98vh",
@@ -588,11 +585,31 @@ export default function HomeClient() {
               fill
               priority
               fetchPriority="high"
+              decoding="async"
               loading="eager"
               sizes="98vw"
               quality={60}
               className="object-cover"
             />
+          )}
+          {/* MOBILE hand-off video — appears after the LCP image */}
+          {isMobileMain && showVideo && (
+            <video
+              className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none md:hidden"
+              muted
+              playsInline
+              loop
+              autoPlay
+              preload="none"
+              poster="/images/hero-mobile.avif"
+              aria-hidden
+              tabIndex={-1}
+              disablePictureInPicture
+              controls={false}
+            >
+              <source src="/videos/homepage-mobile.webm" type="video/webm" />
+              <source src="/videos/homepage-mobile.mp4"  type="video/mp4"  />
+            </video>
           )}
 
           {/* DESKTOP video — inline sources so poster is visible immediately */}
@@ -614,26 +631,6 @@ export default function HomeClient() {
             </video>
           )}
 
-          {/* OPTIONAL: mobile hand-off video */}
-          {isMobileMain && showVideo && (
-            <video
-              className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none md:hidden"
-              muted
-              playsInline
-              loop
-              autoPlay
-              preload="none"
-              poster="/images/hero-mobile.avif"
-              aria-hidden
-              tabIndex={-1}
-              disablePictureInPicture
-              controls={false}
-            >
-              <source src="/videos/homepage-mobile.webm" type="video/webm" />
-              <source src="/videos/homepage-mobile.mp4"  type="video/mp4"  />
-            </video>
-          )}
-
           {/* Mobile title — show AFTER overlay is gone */}
           <motion.div
             className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
@@ -642,7 +639,7 @@ export default function HomeClient() {
             animate={overlayGone ? "show" : "hidden"}
           >
             <span
-              className={`${corm.className} text-[var(--olivea-mist)] text-lg italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
+              className={`${cormHero.className} italic text-[var(--olivea-mist)] text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
             >
               {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
             </span>
@@ -657,7 +654,7 @@ export default function HomeClient() {
               <OliveaLogo className="w-full h-full" />
             </div>
             <span
-              className={`${corm.className} mt-3 mb-6 text-[var(--olivea-mist)] text-2xl lg:text-[26px] italic tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]`}
+              className={`${cormHero.className} italic mt-3 mb-6 text-[var(--olivea-mist)] text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]`}
             >
               {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
             </span>

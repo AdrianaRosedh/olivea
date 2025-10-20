@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { Button } from "@/components/ui/button";
 import { useReservation } from "@/contexts/ReservationContext";
-import { corm } from "@/lib/fonts"; // same font as navbar
+import { corm } from "@/app/fonts"; 
 import { cn } from "@/lib/utils";
 
 interface ReservationButtonProps {

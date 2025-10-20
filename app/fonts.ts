@@ -1,26 +1,32 @@
-// app/fonts.ts
-import { Plus_Jakarta_Sans, Cormorant_Garamond, Inter } from "next/font/google";
+import { Cormorant_Garamond, Plus_Jakarta_Sans, Inter } from "next/font/google";
 
-// 1) Preload the EXACT face used above the fold (italic 700)
-export const corm = Cormorant_Garamond({
+/** Only for the hero line — preloaded italic 700 */
+export const cormHero = Cormorant_Garamond({
   subsets: ["latin"],
-  style: ["italic"],        // <- important for your hero line
-  weight: ["700"],          // <- matches your heading weight
+  style: ["italic"],
+  weight: ["700"],
   display: "swap",
-  preload: true,            // preload only this face
-  fallback: ["Georgia", "Times New Roman", "serif"],
-  adjustFontFallback: true, // keeps metrics aligned to avoid CLS
+  preload: true,
+  variable: "--font-serif-hero",
 });
 
-// 2) UI fonts later → no preload (keeps DevTools clean)
+/** Normal serif for any other places you need Cormorant without italics */
+export const corm = Cormorant_Garamond({
+  subsets: ["latin"],
+  style: ["normal"],
+  weight: ["400", "700"],
+  display: "swap",
+  preload: false, // don't preload; not above-the-fold critical
+  variable: "--font-serif",
+});
+
 export const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["500", "700"],
-  style: ["normal"],        // add "italic" only if you actually use it
+  style: ["normal"],
   display: "swap",
   preload: false,
-  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
-  adjustFontFallback: true,
+  variable: "--font-sans",
 });
 
 export const inter = Inter({
@@ -29,6 +35,9 @@ export const inter = Inter({
   style: ["normal"],
   display: "swap",
   preload: false,
-  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
-  adjustFontFallback: true,
+  variable: "--font-inter",
 });
+
+/** Convenience for <html className=...> */
+export const fontsClass =
+  `${jakarta.variable} ${corm.variable} ${cormHero.variable} ${jakarta.className}`;

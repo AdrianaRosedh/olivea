@@ -12,7 +12,7 @@ import MobileDrawer from "@/components/navigation/MobileDrawer";
 import { MobileNav } from "@/components/navigation/MobileNav";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
-import { corm } from "@/lib/fonts";
+import { corm } from "@/app/fonts";
 
 /* ---------------------------------- */
 /* CenterLink: intercepts click when already on the same route */

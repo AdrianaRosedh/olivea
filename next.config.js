@@ -38,7 +38,7 @@ const nextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
 
   experimental: {
-    optimizeCss: true,
+    optimizeCss: true, // keep this; reduces render-blocking CSS
     optimizePackageImports: [
       "framer-motion",
       "lucide-react",
@@ -48,7 +48,7 @@ const nextConfig = {
     ],
   },
 
-  // ✅ modularizeImports belongs at the top level in Next 15
+  // Top-level modularizeImports (Next 15)
   modularizeImports: {
     "date-fns": { transform: "date-fns/{{member}}" },
     "lodash-es": { transform: "lodash-es/{{member}}" },
@@ -108,5 +108,5 @@ const nextConfig = {
   },
 };
 
-/** 6) wrap it all: MDX first, then bundle-analyzer */
+/** 4) wrap it all: MDX first, then bundle-analyzer */
 export default withBundleAnalyzer(withMDXConfig(nextConfig));
