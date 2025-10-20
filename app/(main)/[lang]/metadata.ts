@@ -20,7 +20,5 @@ export async function generateMetadata(
         "en-US": "/en",
       },
     },
-    // Optional: if you want absolute OG/url generation
-    // metadataBase: new URL("https://www.oliveafarmtotable.com"),
   };
 }

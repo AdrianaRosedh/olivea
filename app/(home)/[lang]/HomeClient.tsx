@@ -25,28 +25,14 @@ import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
 
 type WithBarVar = CSSProperties & { "--bar-duration"?: string };
 
-/* ===========================
-   Timing — speed up first paint
-   =========================== */
 const TIMING = { introHoldMs: 60, morphSec: 0.6, settleMs: 120, crossfadeSec: 0.22 } as const;
 const SPLASH = { holdMs: 240, afterCrossfadeMs: 120, fadeOutSec: 0.24, bobSec: 2.0 } as const;
 
-/* ===========================
-   requestIdleCallback shim
-   =========================== */
 export {};
 declare global {
   interface Window {
     requestIdleCallback: (cb: IdleRequestCallback, options?: IdleRequestOptions) => number;
     cancelIdleCallback: (handle: number) => void;
-  }
-}
-
-function runWhenIdle(cb: () => void, timeout = 800) {
-  if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-    window.requestIdleCallback(() => cb(), { timeout });
-  } else {
-    setTimeout(cb, 300);
   }
 }
 
@@ -281,8 +267,8 @@ export default function HomeClient() {
   }, [revealMain]);
 
   const descs = isES
-    ? { casa: "Un hogar donde puedes quedarte.", farm: "Un jardín del que puedes comer.", cafe: "Despierta con sabor." }
-    : { casa: "A home you can stay in.", farm: "A garden you can eat from.", cafe: "Wake up with flavor." };
+    ? { casa: "Una estancia cerca del huerto.", farm: "Donde el huerto se goza.", cafe: "Despierta con sabor." }
+    : { casa: "A stay with nature's garden.",   farm: "Where the garden is enjoyed.", cafe: "Wake up with flavor." };
 
   const sections: Array<{
     href: string;
@@ -477,8 +463,10 @@ export default function HomeClient() {
     })();
   }, [hideBase, introStarted, overlayControls, innerScaleControls, logoControls, logoBobControls]);
 
-  /* ---------- Reliable autoplay after mount ---------- */
+  /* ---------- Reliable autoplay after mount (DESKTOP ONLY) ---------- */
   useEffect(() => {
+    if (isMobileMain) return; // desktop-only
+
     const v = videoRef.current;
     if (!showVideo || !v) return;
 
@@ -511,32 +499,7 @@ export default function HomeClient() {
       window.removeEventListener("touchstart", onTouch);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [showVideo]);
-
-  /* ---------- Attach video sources after idle / when shown ---------- */
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-
-    const attach = () => {
-      if (v.querySelector("source")) return;
-      const make = (src: string, type: string, media?: string) => {
-        const s = document.createElement("source");
-        s.src = src; s.type = type; if (media) s.media = media;
-        return s;
-      };
-      v.append(
-        make("/videos/homepage-mobile.webm", "video/webm", "(max-width: 767px)"),
-        make("/videos/homepage-mobile.mp4",  "video/mp4",  "(max-width: 767px)"),
-        make("/videos/homepage-HD.webm",     "video/webm", "(min-width: 768px)"),
-        make("/videos/homepage-HD.mp4",      "video/mp4",  "(min-width: 768px)")
-      );
-      v.load();
-    };
-
-    if (showVideo) attach();
-    else runWhenIdle(attach, 800);
-  }, [showVideo]);
+  }, [showVideo, isMobileMain]);
 
   // Also emit bg-ready once the main has faded in (non-video/mobile image fallback)
   useEffect(() => {
@@ -579,12 +542,12 @@ export default function HomeClient() {
             style={overlayGone ? { pointerEvents: "none" } : undefined}
           >
             <motion.div
-              className="absolute inset-0 willfade"
+              className="absolute inset-0"
               style={{ background: overlayBg, clipPath: "inset(0px 0px 0px 0px round 0px)" }}
               animate={overlayControls}
             >
               <motion.div
-                className="absolute inset-0 willfade"
+                className="absolute inset-0"
                 style={{ transformOrigin: "center" }}
                 initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
                 animate={innerScaleControls}
@@ -609,7 +572,7 @@ export default function HomeClient() {
       >
         <div
           ref={heroBoxRef}
-          className="relative overflow-hidden shadow-xl mt-1 md:mt-0"
+          className="relative overflow-hidden shadow-xl mt-1 md:mt-0 bg-[var(--olivea-olive)]"
           style={{
             width: "98vw",
             height: isMobileMain ? `${HERO.vh}vh` : "98vh",
@@ -623,34 +586,51 @@ export default function HomeClient() {
               src="/images/hero-mobile.avif"
               alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
               fill
-              priority               // ← LCP
+              priority
               fetchPriority="high"
+              loading="eager"
               sizes="98vw"
               quality={60}
               className="object-cover"
             />
           )}
 
-          {/* DESKTOP video */}
-          <video
-            ref={videoRef}
-            className="absolute inset-0 hidden md:block w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
-            muted
-            playsInline
-            loop
-            autoPlay
-            preload="metadata"
-            poster="/images/hero.avif"
-          />
+          {/* DESKTOP video — inline sources so poster is visible immediately */}
+          {!isMobileMain && (
+            <video
+              ref={videoRef}
+              className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
+              muted
+              playsInline
+              loop
+              autoPlay
+              preload="metadata"
+              poster="/images/hero.avif"
+              aria-hidden
+              tabIndex={-1}
+            >
+              <source src="/videos/homepage-HD.webm" type="video/webm" />
+              <source src="/videos/homepage-HD.mp4"  type="video/mp4"  />
+            </video>
+          )}
 
           {/* OPTIONAL: mobile hand-off video */}
           {isMobileMain && showVideo && (
             <video
-              className="absolute inset-0 md:hidden w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
-              muted playsInline loop autoPlay preload="none"
+              className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none md:hidden"
+              muted
+              playsInline
+              loop
+              autoPlay
+              preload="none"
+              poster="/images/hero-mobile.avif"
+              aria-hidden
+              tabIndex={-1}
+              disablePictureInPicture
+              controls={false}
             >
               <source src="/videos/homepage-mobile.webm" type="video/webm" />
-              <source src="/videos/homepage-mobile.mp4" type="video/mp4" />
+              <source src="/videos/homepage-mobile.mp4"  type="video/mp4"  />
             </video>
           )}
 

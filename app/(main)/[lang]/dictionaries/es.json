@@ -32,12 +32,12 @@
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": "Huerto, cocina y mesa—menú de degustación marcado por la estación y el suelo.",
+    "description": "Huerto, cocina y menú de degustación marcado por la estación y el suelo.",
     "meta": {
       "title": "OLIVEA Farm to Table",
       "description": "Del huerto a la mesa: menú de 8 tiempos, maridaje sin alcohol y una sala que sigue el ritmo del Valle.",
-      "keywords": ["granja a la mesa", "menú degustación", "Valle de Guadalupe", "Ensenada", "maridaje sin alcohol", "restaurante"],
-      "ogImage": "/images/seo/restaurant-og.jpg"
+      "keywords": ["huerto a la mesa", "menú degustación", "Valle de Guadalupe", "Ensenada", "maridaje sin alcohol", "restaurante"],
+      "ogImage": "/images/seo/farm-og.jpg"
     }
   },
   "contact": {
@@ -61,7 +61,7 @@
     }
   },
   "journal": {
-    "title": "Diario de Olivea",
+    "title": "Diario de OLIVEA | La Experiencia",
     "subtitle": "Historias desde la tierra, la cocina y el corazón.",
     "loading": "Cargando entradas…",
     "empty": "Aún no hay entradas disponibles.",
@@ -82,16 +82,6 @@
       "description": "Entidad legal, privacidad, cookies y políticas de reserva de Olivea.",
       "keywords": ["legal", "privacidad", "políticas", "Olivea"],
       "ogImage": "/images/seo/legal-og.jpg"
-    }
-  },
-  "reservations": {
-    "title": "Reservas",
-    "description": "Elige dónde te gustaría reservar: restaurante, café u hotel.",
-    "meta": {
-      "title": "Reservas | Restaurante, Café y Casa Olivea",
-      "description": "Reserva el menú de degustación, un desayuno en Olivea Café o tu estancia en Casa Olivea, Valle de Guadalupe.",
-      "keywords": ["reservas", "restaurante", "café", "hotel", "Valle de Guadalupe", "Ensenada"],
-      "ogImage": "/images/seo/reservations-og.jpg"
     }
   },
   "mesadelvalle": {
@@ -123,8 +113,8 @@
   },
   "metadata": {
     "description": "Un santuario de granja a la mesa donde naturaleza, alimento y diseño se unen.",
-    "siteName": "Olivea",
-    "twitter": "@tuusuario",
+    "siteName": "OLIVEA",
+    "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/default-og.jpg"
   },
   "drawer": {
@@ -136,9 +126,9 @@
     "more": {
       "journal": "Diario",
       "sustainability": "Sostenibilidad",
-      "awards": "Premios y Reseñas",
+      "awards": "Premios",
       "contact": "Contáctanos",
-      "legal": "Avisos Legales",
+      "legal": "Legales",
       "seeMore": "Ver más",
       "hide": "Ocultar",
       "copyright": "© 2025 Casa Olivea AC. Todos los derechos reservados."
@@ -152,8 +142,8 @@
     "message": "La página que buscas no existe.",
     "cta": "Volver al inicio",
     "meta": {
-      "title": "Página no encontrada | Olivea",
-      "description": "La página que buscas no existe. Regresa al inicio de Olivea.",
+      "title": "Página no encontrada | OLIVEA",
+      "description": "La página que buscas no existe. Regresa al inicio de OLIVEA.",
       "ogImage": "/images/seo/default-og.jpg"
     }
   }

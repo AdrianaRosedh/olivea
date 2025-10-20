@@ -15,7 +15,7 @@
     "error": "Error loading menu:",
     "meta": {
       "title": "OLIVEA Café",
-      "description": "Single-origin coffee roasted in Ensenada, house bread and a calm courtyard. Breakfast from the garden—Olivea Café in Valle de Guadalupe.",
+      "description": "Single-origin coffee roasted in Ensenada, house bread and a calm courtyard. Breakfast from the garden Olivea Café in Valle de Guadalupe.",
       "keywords": ["Olivea Cafe", "coffee", "Valle de Guadalupe", "breakfast", "house bread", "Ensenada", "padel"],
       "ogImage": "/images/seo/cafe-og.jpg"
     }
@@ -37,7 +37,7 @@
       "title": "OLIVEA Farm to Table",
       "description": "From garden to table: an 8-course seasonal tasting menu, non-alcoholic pairings and a dining room set to the Valley’s rhythm.",
       "keywords": ["farm to table", "tasting menu", "Valle de Guadalupe", "Ensenada", "non-alcoholic pairing", "restaurant"],
-      "ogImage": "/images/seo/restaurant-og.jpg"
+      "ogImage": "/images/seo/farm-og.jpg"
     }
   },
   "contact": {
@@ -61,7 +61,7 @@
     }
   },
   "journal": {
-    "title": "Olivea Journal",
+    "title": "OLIVEA | The Experience Journal",
     "subtitle": "Stories from the soil, the kitchen, and the heart.",
     "loading": "Loading journal entries…",
     "empty": "No journal entries available yet.",
@@ -78,20 +78,10 @@
     "title": "Legal",
     "description": "Legal entity details and terms for all Olivea properties.",
     "meta": {
-      "title": "Legal & Policies | Olivea",
+      "title": "Legal & Policies | OLIVEA",
       "description": "Legal entity details, privacy, cookie and booking policies for Olivea.",
       "keywords": ["legal", "privacy", "policies", "Olivea"],
       "ogImage": "/images/seo/legal-og.jpg"
-    }
-  },
-  "reservations": {
-    "title": "Reservations",
-    "description": "Choose where you'd like to reserve: restaurant, café, or hotel.",
-    "meta": {
-      "title": "Reservations | Olivea Restaurant, Café & Casa",
-      "description": "Reserve the tasting menu, book a morning at Olivea Café or stay with us at Casa Olivea in Valle de Guadalupe.",
-      "keywords": ["reservations", "book", "tasting menu", "cafe booking", "hotel", "Valle de Guadalupe"],
-      "ogImage": "/images/seo/reservations-og.jpg"
     }
   },
   "mesadelvalle": {
@@ -110,12 +100,12 @@
     }
   },
   "home": {
-    "title": "Welcome to Olivea",
+    "title": "Welcome to OLIVEA",
     "subtitle": "A farm-to-table sanctuary where nature, nourishment, and design meet.",
     "cta_restaurant": "Visit the Restaurant",
     "cta_casa": "Stay at Casa Olivea",
     "meta": {
-      "title": "Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
+      "title": "OLIVEA | Farm to Table Hospitality in Valle de Guadalupe",
       "description": "A sanctuary where nature, nourishment and design meet—restaurant, café and rooms in Valle de Guadalupe, Ensenada, Baja California.",
       "keywords": ["Olivea", "Valle de Guadalupe", "Ensenada", "restaurant", "cafe", "hotel", "farm-to-table"],
       "ogImage": "/images/seo/home-og.jpg"
@@ -136,9 +126,9 @@
     "more": {
       "journal": "Journal",
       "sustainability": "Sustainability",
-      "awards": "Awards & Reviews",
+      "awards": "Awards",
       "contact": "Contact Us",
-      "legal": "Legal & Policies",
+      "legal": "Policies",
       "seeMore": "See More",
       "hide": "Hide",
       "copyright": "© 2025 Casa Olivea AC. All rights reserved."
@@ -152,8 +142,8 @@
     "message": "The page you're looking for doesn't exist.",
     "cta": "Return Home",
     "meta": {
-      "title": "Page not found | Olivea",
-      "description": "The page you’re looking for doesn’t exist. Return to Olivea home.",
+      "title": "Page not found | OLIVEA",
+      "description": "The page you’re looking for doesn’t exist. Return to OLIVEA home.",
       "ogImage": "/images/seo/default-og.jpg"
     }
   }

@@ -6,14 +6,8 @@ export async function generateStaticParams() {
   return [{ lang: "es" }, { lang: "en" }];
 }
 
-import FixedLCP from "./FixedLCP";
 import HomeClient from "./HomeClient";
 
 export default function Page() {
-  return (
-    <>
-      <FixedLCP />
-      <HomeClient />
-    </>
-  );
+  return <HomeClient />;
 }

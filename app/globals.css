@@ -40,8 +40,6 @@
   --border: #e5e3dc;
   --input: #e5e3dc;
   --ring: #ccc;
-  --sidebar: var(--olivea-sand);
-  --sidebar-foreground: var(--olivea-ink);
 }
 
 .dark {
@@ -135,6 +133,8 @@
   }
 
   video, .video-container, .shared-overlay { background-color: var(--olivea-olive); }
+  video { color-scheme: only light; }
+
 
   /* Anchor offset for native anchor jumps */
   section[id] {
@@ -202,8 +202,7 @@
   .section-center {
     @apply min-h-screen flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px];
   }
-  .willfade {
-  }
+
   .loader-bar {
     position: absolute;
     top: 0; left: 0;
@@ -221,9 +220,9 @@
 /* Desktop-only helpers (CLOSED correctly)                           */
 /* ────────────────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
-  .snap-center { scroll-snap-align: center; scroll-margin-top: 120px; } /* 120 = TOP_OFFSET_PX */
+  .snap-center { scroll-snap-align: center; scroll-margin-top: 120px; } 
   .md\:card-md { height: var(--card-md-h, 56vh); }
-} /* close 768px */
+} 
 
 @media (min-width: 1024px) {
   .lg\:card-lg { height: var(--card-lg-h, var(--card-md-h, 56vh)); }
@@ -265,7 +264,7 @@ html.lenis body {
   overflow-y: auto;
   overflow-x: hidden;
 }
-.lenis.lenis-smooth { scroll-behavior: auto !important; } /* avoid double-smoothing */
+.lenis.lenis-smooth { scroll-behavior: auto !important; } 
 
 /* ────────────────────────────────────────────────────────────────── */
 /* Scrollbar styling                                                 */
@@ -293,10 +292,16 @@ html::-webkit-scrollbar-thumb:hover { background-color: var(--olivea-olive); }
 /* ────────────────────────────────────────────────────────────────── */
 /* Forms & widgets                                                   */
 /* ────────────────────────────────────────────────────────────────── */
-input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom */
+input, textarea, select { font-size: 16px !important; } 
 
 .whistle-widget input,
 .whistle-widget textarea { font-size: 16px !important; }
+/* Whistle click-through control */
+#w-live-chat { pointer-events: none !important; }
+body.olivea-chat-open #w-live-chat {
+  pointer-events: auto !important;
+  z-index: 2147483645 !important;
+}
 
 .shared-overlay {
   will-change: transform, opacity;
@@ -308,8 +313,8 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
 /* ────────────────────────────────────────────────────────────────── */
 
 :root {
-  --dock-left: 240px;   /* left column + its gap */
-  --dock-right: 96px;   /* right rail + its gap */
+  --dock-left: 240px;   
+  --dock-right: 96px;   
 }
 
 :root { --header-h: 112px; }        
@@ -318,19 +323,15 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
 }
 
 @media (min-width: 768px) {
-  /* Ensure the section itself ignores container caps/padding */
   main[data-hero-breakout="true"] section#hero {
     max-width: none !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
 
-    /* Do the breakout directly on the section (strongest + simplest) */
     width: calc(100vw - var(--dock-left, 264px) - var(--dock-right, 120px)) !important;
     margin-left: calc(50% - 50vw + var(--dock-left, 264px)) !important;
     margin-right: calc(50% - 50vw + var(--dock-right, 120px)) !important;
   }
-
-  /* If your card is inside wrappers, also expand the first few containers. */
   main[data-hero-breakout="true"] section#hero > *,
   main[data-hero-breakout="true"] section#hero > * > *,
   main[data-hero-breakout="true"] section#hero > * > * > * {
@@ -338,14 +339,6 @@ input, textarea, select { font-size: 16px !important; } /* prevent mobile zoom *
   }
 }
 
-/* Whistle click-through control */
-#w-live-chat { pointer-events: none !important; }
-body.olivea-chat-open #w-live-chat {
-  pointer-events: auto !important;
-  z-index: 2147483645 !important;
-}
-
-/* globals.css */
 .card-mask {
   overflow: hidden;
   border-top-left-radius: 28px;
@@ -356,31 +349,27 @@ body.olivea-chat-open #w-live-chat {
 @media (max-width: 767px) {
   .card-mask { border-radius: 28px; }
 }
+
 /* ========================================================== */
 /* HERO CARD — perfectly smooth left ellipse + right semicircle */
 /* ========================================================== */
-/* One organic silhouette on the parent */
+
 .hero-pill{
   position: relative;
-  overflow: hidden;        /* clips children */
+  overflow: hidden;       
   isolation: isolate;
   background-clip: padding-box;
 }
 
-/* Mobile */
 @media (max-width: 767px){
   .hero-pill{ border-radius: 28px; }
 }
 
-/* Desktop: buttery left + semicircular right (no child radii) */
 @media (min-width: 768px){
   .hero-pill{
-    /* Make the left ellipse wider (X) and shallower (Y) */
-    /* TL / BL: X=96px, Y=88px (tweak below if needed) */
     border-top-left-radius:    104px 96px;
     border-bottom-left-radius: 104px 96px;
 
-    /* Right end stays circular by being huge */
     border-top-right-radius:    120vmax;
     border-bottom-right-radius: 120vmax;
 
@@ -388,18 +377,60 @@ body.olivea-chat-open #w-live-chat {
     isolation: isolate;
     background-clip: padding-box;
 
-    /* AA helpers to avoid a 1px nick */
-    outline: 1px solid transparent;   /* nudges AA in Safari/WebKit */
+    outline: 1px solid transparent;   
     will-change: transform;
     -webkit-backface-visibility: hidden;
-    transform: translateZ(0);          /* force a composited layer */
+    transform: translateZ(0);          
   }
-
-  /* If you’re using an inner ring (::after), keep it — it follows the curve */
-  /* .hero-pill::after { ... border-radius: inherit; } */
 }
 
-.fixed-lcp { opacity: 1; transition: opacity 320ms ease; }
-body.lcp-demote .fixed-lcp { opacity: 0; }
-.home-section-late { content-visibility: auto; contain-intrinsic-size: 1000px; }
+/* ========================================================== */
+/* LCP BASE LAYER — fades after body.lcp-demote is added      */
+/* ========================================================== */
+.fixed-lcp {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
 
+  /* Modern viewport units with safe fallback */
+  height: 100dvh;
+}
+@supports not (height: 100dvh) {
+  .fixed-lcp { height: 100vh; }
+}
+
+.fixed-lcp {
+  background: var(--olivea-olive);
+  opacity: 1;
+  transition: opacity 320ms ease;
+
+  /* Keep it cheap + inert */
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  contain: layout paint size; /* isolates from page */
+  backface-visibility: hidden; /* avoid GPU banding on some devices */
+  color-scheme: light; /* prevents odd dark-mode tinting on iOS */
+}
+
+/* Fade-out triggered by your HomeClient gates */
+body.lcp-demote .fixed-lcp {
+  opacity: 0.001; /* tiny floor prevents color banding on some Android GPUs */
+}
+
+/* Respect user settings */
+@media (prefers-reduced-motion: reduce) {
+  .fixed-lcp { transition: none; }
+}
+
+/* No-JS fail-safe: if JS is off, don't trap the page under an overlay */
+.no-js .fixed-lcp {
+  opacity: 0 !important;
+  transition: none !important;
+  pointer-events: none !important;
+}
+
+.home-section-late {
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}

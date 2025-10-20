@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "OLIVEA | La Experiencia",
     short_name: "OLIVEA",
-    description: "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+    description: "Una experencia del huerto a mesa",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -13,9 +13,6 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" }
-      // (optional) add maskable versions if you export them:
-      // { src: "/icons/icon-192-maskable.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
-      // { src: "/icons/icon-512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }

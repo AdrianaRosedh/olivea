@@ -34,6 +34,5 @@ export function watchLCP(report: (valueMs: number) => void = (v) => {
     };
     document.addEventListener("visibilitychange", onHide);
   } catch {
-    // Silently ignore if the browser doesn't support LCP PO
   }
 }

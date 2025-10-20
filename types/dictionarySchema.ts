@@ -53,7 +53,6 @@ export const dictionarySchema = z.object({
   }),
 
   legal:        pageWithMeta({ title: z.string(), description: z.string() }),
-  reservations: pageWithMeta({ title: z.string(), description: z.string() }),
 
   notFound: z.object({
     message: z.string(),

@@ -52,10 +52,7 @@ const nextConfig = {
   modularizeImports: {
     "date-fns": { transform: "date-fns/{{member}}" },
     "lodash-es": { transform: "lodash-es/{{member}}" },
-    // lucide-react icon paths differ per icon; this pattern works with ESM icon paths
     "lucide-react": { transform: "lucide-react/dist/esm/icons/{{member}}" },
-    // react-icons is a collection of subpackages; keeping it here is optional.
-    // If you use specific packs (e.g., fa/fi), consider importing directly from them in code.
   },
 
   webpack(config) {

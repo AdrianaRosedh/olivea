@@ -1,3 +1,4 @@
+// app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
 import { AppProviders } from "./providers";
@@ -44,6 +45,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={jakarta.className}>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
+        {/* No-JS fallback: if JS is disabled, hide FixedLCP so it won't block the page */}
+        <noscript>
+          <style>{`.fixed-lcp{opacity:0 !important;transition:none !important;pointer-events:none !important;}`}</style>
+        </noscript>
+
         {/* Mount the client tracker once */}
         <PathTracker />
         <AppProviders>{children}</AppProviders>
