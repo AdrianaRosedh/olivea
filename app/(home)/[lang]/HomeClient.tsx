@@ -10,7 +10,7 @@ import {
   type CSSProperties,
 } from "react";
 import { watchLCP } from "@/lib/perf/watchLCP";
-import { AnimatePresence, motion, useAnimation, type Variants } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence, useAnimation, type Variants } from "framer-motion";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
@@ -510,40 +510,41 @@ export default function HomeClient() {
   const mobileLoaderStyle: WithBarVar = { "--bar-duration": "4s" };
 
   return (
+    <LazyMotion features={domAnimation}>
     <>
       {/* ========== INTRO LOGO (AlebrijeDraw) — splash during intro prep ========== */}
       <AnimatePresence>
         {allowLoader && showLoader && (
-          <motion.div
+          <m.div
             key="logo"
             className="fixed z-50 not-italic"
             initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
             animate={logoControls}
             style={{ width: 240, height: 240, transformOrigin: "center" }}
           >
-            <motion.div animate={logoBobControls}>
+            <m.div animate={logoBobControls}>
               <AlebrijeDraw size={240} strokeDuration={2.8} />
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* ========== INTRO OVERLAY (above base, above main) ========== */}
       <AnimatePresence>
         {introStarted && (
-          <motion.div
+          <m.div
             key="overlay"
             className="fixed inset-0 z-40 not-italic"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={overlayGone ? { pointerEvents: "none" } : undefined}
           >
-            <motion.div
+            <m.div
               className="absolute inset-0 not-italic"
               style={{ background: overlayBg, clipPath: "inset(0px 0px 0px 0px round 0px)", contain: "layout" }}
               animate={overlayControls}
             >
-              <motion.div
+              <m.div
                 className="absolute inset-0 not-italic"
                 style={{ transformOrigin: "center", contain: "layout" }}
                 initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
@@ -556,9 +557,9 @@ export default function HomeClient() {
                   </div>
                 </div>
                 <IntroBarFixed />
-              </motion.div>
-            </motion.div>
-          </motion.div>
+              </m.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -632,7 +633,7 @@ export default function HomeClient() {
           )}
 
           {/* Mobile title — show AFTER overlay is gone */}
-          <motion.div
+          <m.div
             className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
             variants={itemVariants}
             initial="hidden"
@@ -643,7 +644,7 @@ export default function HomeClient() {
             >
               {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
             </span>
-          </motion.div>
+          </m.div>
 
           {/* Desktop center logo + phrase */}
           <div className="absolute inset-0 hidden md:flex flex-col items-center justify-start z-30">
@@ -664,7 +665,7 @@ export default function HomeClient() {
         </div>
 
         {/* Mobile cards + button */}
-        <motion.div
+        <m.div
           className="relative z-10 flex flex-col md:hidden flex-1 w-full px-4"
           variants={containerVariants}
           initial="hidden"
@@ -674,7 +675,7 @@ export default function HomeClient() {
           <div className="space-y-12">
             {mobileSections.map((sec, i) => (
               <LazyShow key={sec.href}>
-                <motion.div
+                <m.div
                   key={sec.href}
                   variants={itemVariants}
                   initial="hidden"
@@ -691,12 +692,12 @@ export default function HomeClient() {
                     className={i === 0 ? "relative z-30" : ""}
                     onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                   />
-                </motion.div>
+                </m.div>
               </LazyShow>
             ))}
           </div>
 
-          <motion.div
+          <m.div
             variants={itemVariants}
             initial="hidden"
             whileInView="show"
@@ -704,11 +705,11 @@ export default function HomeClient() {
             className="mt-auto w-full pb-6"
           >
             <ReservationButton />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
         {/* Desktop cards + button */}
-        <motion.div
+        <m.div
           className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
           variants={containerVariants}
           initial="hidden"
@@ -716,7 +717,7 @@ export default function HomeClient() {
         >
           <div className="flex gap-6 mt-[12vh]">
             {sections.map((sec) => (
-              <motion.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
+              <m.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
                 <InlineEntranceCard
                   title={sec.title}
                   href={sec.href}
@@ -725,10 +726,10 @@ export default function HomeClient() {
                   Logo={sec.Logo}
                   onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                 />
-              </motion.div>
+              </m.div>
             ))}
           </div>
-          <motion.div
+          <m.div
             variants={itemVariants}
             initial="hidden"
             whileInView="show"
@@ -737,9 +738,10 @@ export default function HomeClient() {
             className="mt-8 md:mt-16"
           >
             <ReservationButton />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </main>
     </>
+    </LazyMotion>
   );
 }
