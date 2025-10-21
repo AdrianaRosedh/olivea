@@ -1,4 +1,6 @@
 // app/(main)/[lang]/layout.tsx
+import "../main.css"; // (main)-only presentation styles, scoped via [data-scope="main"]
+
 import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
 import StructuredData from "@/components/seo/StructuredData";
@@ -13,7 +15,8 @@ export async function generateMetadata(
   { params: { lang } }: Params,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const baseTitle = lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
+  const baseTitle =
+    lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
   return {
     title: { default: baseTitle, template: "%s" },
     alternates: { languages: { "es-MX": "/es", "en-US": "/en" } },
@@ -34,13 +37,14 @@ export default async function LangLayout({
   };
 
   return (
-    <>
+    // Scope all (main)-only presentation styles
+    <div data-scope="main">
       <StructuredData />
       <ClientPrewarm />
-      {/* AppProviders is already in app/layout.tsx; avoid double-wrapping */}
+      {/* AppProviders is already in app/layout.tsx */}
       <LayoutShell lang={lang} dictionary={dict}>
         {children}
       </LayoutShell>
-    </>
+    </div>
   );
 }

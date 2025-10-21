@@ -1,436 +1,84 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-/* ────────────────────────────────────────────────────────────────── */
-/* Theme tokens                                                       */
-/* ────────────────────────────────────────────────────────────────── */
+/* ─── Theme tokens ───────────────────────────────────────────── */
 :root {
-  --olivea-cream: #e8e4d5;
-  --olivea-shell: #e0d9c5;
-  --olivea-clay: #979b8a;
-  --olivea-olive: #5a6852;
-  --olivea-ink: #1f1f1f;
-  --olivea-white: #ffffff;
-  --olivea-soil: #58544c;
-  --olivea-mist: #f6f5f0;
-  --olivea-sand: #dcd5c3;
-  --olivea-sage: #6b7361;
-
-  --font-serif: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-
-  --line-height-body: 1.6;
-  --letter-spacing-nav: 0.05em;
-  --radius: 0.625rem;
-
-  --background: var(--olivea-cream);
-  --foreground: var(--olivea-ink);
-  --card: var(--olivea-cream);
-  --card-foreground: var(--olivea-ink);
-  --popover: var(--olivea-cream);
-  --popover-foreground: var(--olivea-ink);
-  --primary: var(--olivea-ink);
-  --primary-foreground: white;
-  --secondary: #f0eee8;
-  --secondary-foreground: var(--olivea-ink);
-  --muted: #f0eee8;
-  --muted-foreground: #555555;
-  --accent: var(--olivea-sage);
-  --accent-foreground: white;
-  --border: #e5e3dc;
-  --input: #e5e3dc;
-  --ring: #ccc;
+  --olivea-cream:#e8e4d5; --olivea-shell:#e0d9c5; --olivea-clay:#979b8a;
+  --olivea-olive:#5a6852; --olivea-ink:#1f1f1f; --olivea-white:#fff;
+  --olivea-soil:#58544c; --olivea-mist:#f6f5f0; --olivea-sand:#dcd5c3; --olivea-sage:#6b7361;
+  --font-serif:"Cormorant Garamond", Georgia, serif;
+  --font-sans:"Inter", system-ui, sans-serif;
+  --line-height-body:1.6; --letter-spacing-nav:0.05em; --radius:0.625rem;
+  --background:var(--olivea-cream); --foreground:var(--olivea-ink);
+  --card:var(--olivea-cream); --card-foreground:var(--olivea-ink);
+  --popover:var(--olivea-cream); --popover-foreground:var(--olivea-ink);
+  --primary:var(--olivea-ink); --primary-foreground:#fff;
+  --secondary:#f0eee8; --secondary-foreground:var(--olivea-ink);
+  --muted:#f0eee8; --muted-foreground:#555;
+  --accent:var(--olivea-sage); --accent-foreground:#fff;
+  --border:#e5e3dc; --input:#e5e3dc; --ring:#ccc;
 }
+.dark { /* keep your dark tokens if used */ }
 
-.dark {
-  --background: #1b1b1b;
-  --foreground: #fdfdfd;
-  --card: #232323;
-  --card-foreground: white;
-  --popover: #232323;
-  --popover-foreground: white;
-  --primary: #fdfdfd;
-  --primary-foreground: #232323;
-  --secondary: #2a2a2a;
-  --secondary-foreground: white;
-  --muted: #2a2a2a;
-  --muted-foreground: #ccc;
-  --accent: #7d8c74;
-  --accent-foreground: #fdfdfd;
-  --border: #333;
-  --input: #444;
-  --ring: #666;
-  --sidebar: #1e1e1e;
-  --sidebar-foreground: #fdfdfd;
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/* Base                                                              */
-/* ────────────────────────────────────────────────────────────────── */
+/* ─── Base (keep scroll-safe + tiny reset only) ─────────────── */
 @layer base {
-  * {
-    border-color: var(--border);
-    outline-color: var(--ring);
-  }
-
+  * { border-color: var(--border); outline-color: var(--ring); }
   ::-webkit-scrollbar { display: none !important; }
+
+  /* Root scroll must stay global */
+  html, body {
+    min-height: 100%;
+    height: auto;
+    margin: 0; padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  /* Next.js root: don't force height:100% to avoid traps */
+  #__next { min-height: 100%; }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
     line-height: var(--line-height-body);
-    overscroll-behavior-y: none;   
-    overscroll-behavior-x: auto; 
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: auto;
     scroll-behavior: auto;
     @apply antialiased;
   }
 
-
-  /* root-level scroll */
-  html,
-  body,
-  #__next {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-  @media (min-width: 768px) {
-  html, body, #__next {
-    overscroll-behavior-y: none;
-    overscroll-behavior-x: auto;
-  }
-}
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    line-height: 1.2;
-    font-weight: 500;
-  }
-
-  h1 { font-size: 2.5rem; @apply md:text-5xl lg:text-6xl; }
-  h2 { font-size: 2rem;   @apply md:text-4xl; }
-  h3 { font-size: 1.75rem; @apply md:text-3xl; font-style: italic; }
-  h4 { font-size: 1.5rem;  @apply md:text-2xl; font-style: italic; }
-
-  p, li, blockquote {
-    font-size: 1rem;
-    @apply md:text-lg;
-    line-height: var(--line-height-body);
-  }
-
-  nav a, button, .nav-item {
-    font-family: var(--font-sans);
-    font-weight: 500;
-    letter-spacing: var(--letter-spacing-nav);
-  }
-
-  blockquote, .accent-text, .cta {
-    font-family: var(--font-serif);
-    font-weight: 600;
-  }
-
+  section[id] { scroll-margin-top: 8rem; scroll-margin-bottom: 3rem; }
   video, .video-container, .shared-overlay { background-color: var(--olivea-olive); }
   video { color-scheme: only light; }
-
-
-  /* Anchor offset for native anchor jumps */
-  section[id] {
-    scroll-margin-top: 8rem;
-    scroll-margin-bottom: 3rem;
-  }
-
-  nav, footer, .dock-left, .dock-right { color: var(--olivea-ink); }
 }
 
-  /* Fancy desktop navbar fill effect (kept from your file) */
-  .fill-nav a {
-    --hover-x: 50%;
-    position: relative;
-    overflow: hidden;
-    z-index: 0;
-    color: var(--olivea-olive);
-    border: 1px solid var(--olivea-olive);
-    transition: color 0.3s ease;
-    background: var(--olivea-mist);
-  }
-  .fill-nav a.active {
-    background: var(--olivea-clay) !important;
-    color: white !important;
-    border-color: var(--olivea-clay) !important;
-  }
-  .fill-nav a::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: var(--olivea-olive);
-    clip-path: circle(0% at var(--hover-x) 50%);
-    transition: clip-path 0.6s ease-out;
-    z-index: -1;
-  }
-  .fill-nav a:not(.active):hover::before { clip-path: circle(150% at var(--hover-x) 50%); }
-  .fill-nav a:not(.active):hover { color: white; }
-
-/* Background gradient */
-@property --scroll-per {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0;
-}
-:root { --scroll-per: 0; }
-
-@keyframes olivea-loader-bar {
-  from { width: 0%; }
-  to   { width: 100%; }
-}
-@keyframes olivea-loader-vert {
-  from { transform: scaleY(0); }
-  to   { transform: scaleY(1); }
-}
-/* ────────────────────────────────────────────────────────────────── */
-/* Utilities                                                         */
-/* ────────────────────────────────────────────────────────────────── */
+/* ─── Minimal loader keyframes (used at first paint) ────────── */
+@keyframes olivea-loader-bar { from { width: 0% } to { width: 100% } }
+@keyframes olivea-loader-vert { from { transform: scaleY(0) } to { transform: scaleY(1) } }
 @layer utilities {
-  .origin-\[var\(--hover-x\)_50\%\] { transform-origin: var(--hover-x) 50%; }
-
-  .no-scrollbar::-webkit-scrollbar { display: none !important; }
-  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-
-  /* A centered section helper if you need it */
-  .section-center {
-    @apply min-h-screen flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px];
-  }
-
-  .loader-bar {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
-    border-radius: inherit;
-    animation: olivea-loader-bar var(--bar-duration,3.5s) linear forwards;
+  .loader-bar  {
+    position:absolute; top:0; left:0; height:100%; border-radius:inherit;
+    animation:olivea-loader-bar var(--bar-duration,3.5s) linear forwards;
   }
   .loader-vert {
-    transform-origin: bottom center;     /* grow from the bottom */
-    animation: olivea-loader-vert var(--bar-duration, 4s) linear forwards;
+    transform-origin: bottom center;
+    animation:olivea-loader-vert var(--bar-duration,4s) linear forwards;
   }
+
+  /* Emergency helper if a wrapper locks scroll */
+  .allow-scroll { overflow-y: auto !important; }
 }
 
-/* ────────────────────────────────────────────────────────────────── */
-/* Desktop-only helpers (CLOSED correctly)                           */
-/* ────────────────────────────────────────────────────────────────── */
-@media (min-width: 768px) {
-  .snap-center { scroll-snap-align: center; scroll-margin-top: 120px; } 
-  .md\:card-md { height: var(--card-md-h, 56vh); }
-} 
-
-@media (min-width: 1024px) {
-  .lg\:card-lg { height: var(--card-lg-h, var(--card-md-h, 56vh)); }
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/* Snap policy & anchor offsets (consistent, never jump)             */
-/* ────────────────────────────────────────────────────────────────── */
-
-/* Disable snap everywhere so scrolling is always animated by JS */
-.snap-container { scroll-snap-type: none !important; }
-
-/* Anchors still respect header offset; snap-align harmless when snap is none */
-.main-section,
-.subsection {
-  scroll-snap-align: start !important;
-  scroll-margin-top: calc(var(--header-h, 64px) + 8px) !important;
-}
-
-/* Disable snap briefly during programmatic navigation */
-.snap-disable .snap-container { scroll-snap-type: none !important; }
-
-/* Subsections are the CONTENT block (no fixed 2px anchors) */
-.subsection { display: block; }
-
-/* Mobile nav bar perf helpers */
-.mobile-section-nav {
-  -webkit-overflow-scrolling: touch;
-  contain: content;
-  will-change: scroll-position;
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/* Lenis integration                                                 */
-/* ────────────────────────────────────────────────────────────────── */
-html.lenis,
-html.lenis body {
-  height: auto;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.lenis.lenis-smooth { scroll-behavior: auto !important; } 
-
-/* ────────────────────────────────────────────────────────────────── */
-/* Scrollbar styling                                                 */
-/* ────────────────────────────────────────────────────────────────── */
-:root { --scroll-per: 0; }
-
-html { scrollbar-width: none; scrollbar-color: var(--scrollbar-fill) var(--scrollbar-bg); }
-html::-webkit-scrollbar { width: 8px; height: 8px; }
-html::-webkit-scrollbar-track {
-  background: linear-gradient(
-    to bottom,
-    var(--scrollbar-fill) 0%,
-    var(--scrollbar-fill) calc(var(--scroll-per) * 100%),
-    var(--scrollbar-bg) calc(var(--scroll-per) * 100%),
-    var(--scrollbar-bg) 100%
-  );
-}
-html::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-fill);
-  border-radius: 4px;
-  border: 2px solid var(--scrollbar-bg);
-}
-html::-webkit-scrollbar-thumb:hover { background-color: var(--olivea-olive); }
-
-/* ────────────────────────────────────────────────────────────────── */
-/* Forms & widgets                                                   */
-/* ────────────────────────────────────────────────────────────────── */
-input, textarea, select { font-size: 16px !important; } 
-
-.whistle-widget input,
-.whistle-widget textarea { font-size: 16px !important; }
-/* Whistle click-through control */
-#w-live-chat { pointer-events: none !important; }
-body.olivea-chat-open #w-live-chat {
-  pointer-events: auto !important;
-  z-index: 2147483645 !important;
-}
-
-.shared-overlay {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/* Dock metrics (desktop)                                                */
-/* ────────────────────────────────────────────────────────────────── */
-
-:root {
-  --dock-left: 240px;   
-  --dock-right: 96px;   
-}
-
-:root { --header-h: 112px; }        
-@media (max-width: 767px) {
-  :root { --header-h: 64px; }         
-}
-
-@media (min-width: 768px) {
-  main[data-hero-breakout="true"] section#hero {
-    max-width: none !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-
-    width: calc(100vw - var(--dock-left, 264px) - var(--dock-right, 120px)) !important;
-    margin-left: calc(50% - 50vw + var(--dock-left, 264px)) !important;
-    margin-right: calc(50% - 50vw + var(--dock-right, 120px)) !important;
-  }
-  main[data-hero-breakout="true"] section#hero > *,
-  main[data-hero-breakout="true"] section#hero > * > *,
-  main[data-hero-breakout="true"] section#hero > * > * > * {
-    max-width: none !important;
-  }
-}
-
-.card-mask {
-  overflow: hidden;
-  border-top-left-radius: 28px;
-  border-bottom-left-radius: 28px;
-  border-top-right-radius: 9999px;
-  border-bottom-right-radius: 9999px;
-}
-@media (max-width: 767px) {
-  .card-mask { border-radius: 28px; }
-}
-
-/* ========================================================== */
-/* HERO CARD — perfectly smooth left ellipse + right semicircle */
-/* ========================================================== */
-
-.hero-pill{
-  position: relative;
-  overflow: hidden;       
-  isolation: isolate;
-  background-clip: padding-box;
-}
-
-@media (max-width: 767px){
-  .hero-pill{ border-radius: 28px; }
-}
-
-@media (min-width: 768px){
-  .hero-pill{
-    border-top-left-radius:    104px 96px;
-    border-bottom-left-radius: 104px 96px;
-
-    border-top-right-radius:    120vmax;
-    border-bottom-right-radius: 120vmax;
-
-    overflow: hidden;
-    isolation: isolate;
-    background-clip: padding-box;
-
-    outline: 1px solid transparent;   
-    will-change: transform;
-    -webkit-backface-visibility: hidden;
-    transform: translateZ(0);          
-  }
-}
-
-/* ========================================================== */
-/* LCP BASE LAYER — fades after body.lcp-demote is added      */
-/* ========================================================== */
+/* ─── LCP base layer (kept) ─────────────────────────────────── */
+.fixed-lcp { position:fixed; inset:0; width:100vw; height:100dvh; }
+@supports not (height: 100dvh) { .fixed-lcp { height:100vh } }
 .fixed-lcp {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-
-  /* Modern viewport units with safe fallback */
-  height: 100dvh;
+  background:var(--olivea-olive); opacity:1; transition:opacity 320ms ease;
+  z-index:0; pointer-events:none; user-select:none;
+  contain:layout paint size; backface-visibility:hidden; color-scheme:light;
 }
-@supports not (height: 100dvh) {
-  .fixed-lcp { height: 100vh; }
-}
+body.lcp-demote .fixed-lcp { opacity:0.001 }
+@media (prefers-reduced-motion: reduce) { .fixed-lcp { transition:none } }
+.no-js .fixed-lcp { opacity:0 !important; transition:none !important; pointer-events:none !important; }
 
-.fixed-lcp {
-  background: var(--olivea-olive);
-  opacity: 1;
-  transition: opacity 320ms ease;
-
-  /* Keep it cheap + inert */
-  z-index: 0;
-  pointer-events: none;
-  user-select: none;
-  contain: layout paint size; /* isolates from page */
-  backface-visibility: hidden; /* avoid GPU banding on some devices */
-  color-scheme: light; /* prevents odd dark-mode tinting on iOS */
-}
-
-/* Fade-out triggered by your HomeClient gates */
-body.lcp-demote .fixed-lcp {
-  opacity: 0.001; /* tiny floor prevents color banding on some Android GPUs */
-}
-
-/* Respect user settings */
-@media (prefers-reduced-motion: reduce) {
-  .fixed-lcp { transition: none; }
-}
-
-/* No-JS fail-safe: if JS is off, don't trap the page under an overlay */
-.no-js .fixed-lcp {
-  opacity: 0 !important;
-  transition: none !important;
-  pointer-events: none !important;
-}
-
-.home-section-late {
-  content-visibility: auto;
-  contain-intrinsic-size: 1000px;
-}
+/* ─── Delay below-the-fold layout/paint ─────────────────────── */
+.home-section-late { content-visibility:auto; contain-intrinsic-size:1000px; }

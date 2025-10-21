@@ -1,0 +1,118 @@
+/* app/(main)/main.css
+   Scoped presentation CSS for (main) routes only.
+   All selectors are prefixed with [data-scope="main"].
+*/
+
+/* ── Typography (presentation) ───────────────────────────────── */
+@layer base {
+  [data-scope="main"] h1,
+  [data-scope="main"] h2,
+  [data-scope="main"] h3,
+  [data-scope="main"] h4,
+  [data-scope="main"] h5,
+  [data-scope="main"] h6 {
+    font-family: var(--font-serif);
+    line-height: 1.2;
+    font-weight: 500;
+  }
+  [data-scope="main"] h1 { font-size: 2.5rem; }
+  [data-scope="main"] h2 { font-size: 2rem; }
+  [data-scope="main"] h3 { font-size: 1.75rem; font-style: italic; }
+  [data-scope="main"] h4 { font-size: 1.5rem;  font-style: italic; }
+
+  [data-scope="main"] p,
+  [data-scope="main"] li,
+  [data-scope="main"] blockquote {
+    font-size: 1rem;
+    line-height: var(--line-height-body);
+  }
+
+  [data-scope="main"] nav a,
+  [data-scope="main"] button,
+  [data-scope="main"] .nav-item {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: var(--letter-spacing-nav);
+  }
+
+  [data-scope="main"] blockquote,
+  [data-scope="main"] .accent-text,
+  [data-scope="main"] .cta {
+    font-family: var(--font-serif);
+    font-weight: 600;
+  }
+}
+
+/* ── Navbar “fill” effect (only if used on (main)) ──────────── */
+[data-scope="main"] .fill-nav a {
+  --hover-x: 50%;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+  color: var(--olivea-olive);
+  border: 1px solid var(--olivea-olive);
+  transition: color 0.3s ease;
+  background: var(--olivea-mist);
+}
+[data-scope="main"] .fill-nav a.active {
+  background: var(--olivea-clay) !important;
+  color: #fff !important;
+  border-color: var(--olivea-clay) !important;
+}
+[data-scope="main"] .fill-nav a::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--olivea-olive);
+  clip-path: circle(0% at var(--hover-x) 50%);
+  transition: clip-path 0.6s ease-out;
+  z-index: -1;
+}
+[data-scope="main"] .fill-nav a:not(.active):hover::before {
+  clip-path: circle(150% at var(--hover-x) 50%);
+}
+[data-scope="main"] .fill-nav a:not(.active):hover { color: #fff; }
+
+/* ── Hero/Card geometry (only if used on (main)) ────────────── */
+[data-scope="main"] .card-mask {
+  overflow: hidden;
+  border-top-left-radius: 28px;
+  border-bottom-left-radius: 28px;
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+}
+@media (max-width: 767px) {
+  [data-scope="main"] .card-mask { border-radius: 28px; }
+}
+
+[data-scope="main"] .hero-pill {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-clip: padding-box;
+}
+@media (max-width: 767px){
+  [data-scope="main"] .hero-pill { border-radius: 28px; }
+}
+@media (min-width: 768px){
+  [data-scope="main"] .hero-pill {
+    border-top-left-radius:    104px 96px;
+    border-bottom-left-radius: 104px 96px;
+    border-top-right-radius:    120vmax;
+    border-bottom-right-radius: 120vmax;
+    outline: 1px solid transparent;
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+}
+
+/* ── Optional (main) helpers ────────────────────────────────── */
+@layer utilities {
+  [data-scope="main"] .section-center {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding-left: 1.5rem; padding-right: 1.5rem;
+    scroll-margin-top: 120px;
+  }
+}
