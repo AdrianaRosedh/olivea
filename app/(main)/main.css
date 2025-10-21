@@ -106,6 +106,47 @@
   }
 }
 
+/* ── Dock metrics & hero breakout (desktop) ─────────────────── */
+/* Variables local to the (main) tree; inherited by children */
+[data-scope="main"] {
+  --dock-left: 240px;
+  --dock-right: 96px;
+  --header-h: 112px;
+}
+@media (max-width: 767px) {
+  [data-scope="main"] { --header-h: 64px; }
+}
+
+/* When a page sets data-hero-breakout="true" on <main>, restore the old width/margins */
+@media (min-width: 768px) {
+  [data-scope="main"] main[data-hero-breakout="true"] section#hero {
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    width: calc(100vw - var(--dock-left, 264px) - var(--dock-right, 120px)) !important;
+    margin-left: calc(50% - 50vw + var(--dock-left, 264px)) !important;
+    margin-right: calc(50% - 50vw + var(--dock-right, 120px)) !important;
+  }
+  [data-scope="main"] main[data-hero-breakout="true"] section#hero > *,
+  [data-scope="main"] main[data-hero-breakout="true"] section#hero > * > *,
+  [data-scope="main"] main[data-hero-breakout="true"] section#hero > * > * > * {
+    max-width: none !important;
+  }
+}
+
+/* ── Desktop helpers you used in globals (scoped now) ───────── */
+@media (min-width: 768px) {
+  [data-scope="main"] .snap-center {
+    scroll-snap-align: center;
+    scroll-margin-top: 120px;
+  }
+  [data-scope="main"] .md\:card-md { height: var(--card-md-h, 56vh); }
+}
+@media (min-width: 1024px) {
+  [data-scope="main"] .lg\:card-lg { height: var(--card-lg-h, var(--card-md-h, 56vh)); }
+}
+
 /* ── Optional (main) helpers ────────────────────────────────── */
 @layer utilities {
   [data-scope="main"] .section-center {
