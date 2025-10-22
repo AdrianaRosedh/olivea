@@ -1,24 +1,40 @@
 "use client";
 
-export default function OpenTableWidget() {
+import React from "react";
+
+/**
+ * OpenTable embed:
+ * - memoized to avoid re-renders when parent updates
+ * - loading="lazy" so it never blocks the main thread
+ * - referrerPolicy tightened
+ * - small container fixes (rounded, bg, typo fix)
+ */
+function OpenTableWidgetImpl() {
   return (
-    <div className="flex-1 flex justify-center items-start p-2 sm:p-6  bg-[var(--olivea-cream)]">
-      <div className=" bg-[var(--olivea-cream)]e w-full max-w-none rounded-md sm:rounded-xl">
+    <div className="flex-1 flex justify-center items-start p-2 sm:p-6 bg-[var(--olivea-cream)]">
+      <div className="w-full max-w-none rounded-md sm:rounded-xl overflow-hidden bg-[var(--olivea-cream)]">
         <iframe
-          src="https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&correlationId=f6ea6967-e5bb-43bf-b11e-42c534d4864a&restRef=1313743&otSource=Restaurant%20website"
+          title="Reservar en Olivea Farm To Table en OpenTable"
+          src="https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website"
           width="100%"
-          height="600"
-          frameBorder="0"
+          height={640}
+          loading="lazy"
+          // Keep scripts; sandboxing third-party widgets usually breaks them, so omit sandbox.
+          referrerPolicy="strict-origin-when-cross-origin"
           style={{
-            borderRadius: "8px",
             border: "none",
             background: "transparent",
+            display: "block",
             width: "100%",
             minWidth: 0,
           }}
-          title="Reservar en Olivea Farm To Table en OpenTable"
-        ></iframe>
+          // Let the vendor request fullscreen/payment if they use it; harmless otherwise
+          allow="fullscreen; payment"
+        />
       </div>
     </div>
   );
 }
+
+const OpentableWidget = React.memo(OpenTableWidgetImpl);
+export default OpentableWidget;

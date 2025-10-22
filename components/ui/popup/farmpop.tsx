@@ -1,7 +1,13 @@
 // components/ui/popup/farmpop.tsx
 "use client";
 
-import { useEffect, useMemo, useState, useCallback, type ReactNode } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  type ReactNode,
+} from "react";
 import {
   AnimatePresence,
   motion,
@@ -10,6 +16,27 @@ import {
   type Transition,
 } from "framer-motion";
 import { X } from "lucide-react";
+
+/** Idle scheduler (typed) */
+type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
+type RequestIdleCallback = (cb: (deadline: IdleDeadline) => void, opts?: { timeout?: number }) => number;
+type CancelIdleCallback = (handle: number) => void;
+
+function scheduleIdle(cb: () => void, timeout = 600): () => void {
+  if (typeof window === "undefined") return () => {};
+  const w = window as Window & {
+    requestIdleCallback?: RequestIdleCallback;
+    cancelIdleCallback?: CancelIdleCallback;
+  };
+  if (typeof w.requestIdleCallback === "function") {
+    const id = w.requestIdleCallback(() => cb(), { timeout });
+    return () => {
+      if (typeof w.cancelIdleCallback === "function") w.cancelIdleCallback(id);
+    };
+  }
+  const t = window.setTimeout(cb, 120);
+  return () => window.clearTimeout(t);
+}
 
 type MenuTab = { id: string; label: string; url: string; emoji?: string; icon?: ReactNode };
 
@@ -37,15 +64,18 @@ export default function Farmpop({
   openDelayMs = 80,
 }: FarmpopProps) {
   const [open, setOpen] = useState(false);
-  const [preloaded, setPreloaded] = useState(false); // mount all iframes once popup opens
+  const [preloaded, setPreloaded] = useState(false); // mount all iframes after first open (idle)
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window === "undefined" ? false : window.matchMedia("(max-width: 767px)").matches
   );
 
-  // Normalize to a single unified tab list
+  // Normalize to a single unified tab list (force ?embed for Canva)
   const tabList: MenuTab[] = useMemo(() => {
     if (tabs && tabs.length) {
-      return tabs.map(t => ({ ...t, url: t.url.includes("?embed") ? t.url : `${t.url}?embed` }));
+      return tabs.map((t) => ({
+        ...t,
+        url: t.url.includes("?embed") ? t.url : `${t.url}?embed`,
+      }));
     }
     if (canvaUrl) {
       const u = canvaUrl.includes("?embed") ? canvaUrl : `${canvaUrl}?embed`;
@@ -57,7 +87,9 @@ export default function Farmpop({
   // Active / previous for cross-fade
   const [activeId, setActiveId] = useState<string>(() => {
     if (tabList.length) {
-      return initialTabId && tabList.some(t => t.id === initialTabId) ? (initialTabId as string) : tabList[0].id;
+      return initialTabId && tabList.some((t) => t.id === initialTabId)
+        ? (initialTabId as string)
+        : tabList[0].id;
     }
     return "single";
   });
@@ -72,7 +104,7 @@ export default function Farmpop({
   // keep activeId valid if the tab list changes
   useEffect(() => {
     if (!tabList.length) return;
-    if (!tabList.some(t => t.id === activeId)) setActiveId(tabList[0].id);
+    if (!tabList.some((t) => t.id === activeId)) setActiveId(tabList[0].id);
   }, [tabList, activeId]);
 
   // Responsive flag
@@ -94,13 +126,17 @@ export default function Farmpop({
   // Lock body scroll while open (pair with html { scrollbar-gutter: stable; } in globals.css)
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
-  // Pre-mount all iframes once the popup is opened the first time
+  // Pre-mount all iframes once the popup is opened the first time — in idle time
   useEffect(() => {
-    if (open && !preloaded) setPreloaded(true);
-  }, [open, preloaded]);
+    if (!open || preloaded || tabList.length === 0) return;
+    const cancel = scheduleIdle(() => setPreloaded(true), 600);
+    return cancel;
+  }, [open, preloaded, tabList.length]);
 
   // Close on ESC
   useEffect(() => {
@@ -113,53 +149,52 @@ export default function Farmpop({
   // Auto-open when navigating with hash/session flags
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     const shouldOpen = sessionStorage.getItem("olivea:autoopen-menu") === "1";
     const atMenuHash = window.location.hash === "#menu";
-
     if (shouldOpen && atMenuHash) {
       sessionStorage.removeItem("olivea:autoopen-menu");
-
       const savedTab = sessionStorage.getItem("olivea:autoopen-tab");
-      if (savedTab && tabList?.some(t => t.id === savedTab)) {
+      if (savedTab && tabList?.some((t) => t.id === savedTab)) {
         setActiveId(savedTab);
       }
       sessionStorage.removeItem("olivea:autoopen-tab");
-
       const t = window.setTimeout(() => setOpen(true), openDelayMs + 150);
       return () => window.clearTimeout(t);
     }
   }, [tabList, openDelayMs]);
 
-  const openPopup  = useCallback(() => setOpen(true), []);
+  const openPopup = useCallback(() => setOpen(true), []);
   const closePopup = useCallback(() => setOpen(false), []);
 
   // Gentle switch: set prev → set active; prev clears on transition end
-  const switchTab = useCallback((nextId: string) => {
-    if (nextId === activeId) return;
-    setPrevId(activeId);
-    setActiveId(nextId);
-    if (FADE_MS === 0) setPrevId(null); // instantly drop on reduced motion
-  }, [activeId, FADE_MS]);
+  const switchTab = useCallback(
+    (nextId: string) => {
+      if (nextId === activeId) return;
+      setPrevId(activeId);
+      setActiveId(nextId);
+      if (FADE_MS === 0) setPrevId(null); // instantly drop on reduced motion
+    },
+    [activeId, FADE_MS]
+  );
 
   // Drop previous once the opacity transition actually ends
-  const handleFadeOutEnd: React.TransitionEventHandler<HTMLIFrameElement> = (e) => {
+  const handleFadeOutEnd: React.TransitionEventHandler<HTMLDivElement> = (e) => {
     if (e.propertyName !== "opacity") return;
     setPrevId(null);
   };
 
   // Motion variants
   const modalVariants: Variants = {
-    hidden:  isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
-    visible: isMobile ? { y: 0,        opacity: 1 } : { scale: 1,   opacity: 1 },
-    exit:    isMobile ? { y: "-100%",  opacity: 0 } : { scale: 0.9, opacity: 0 },
+    hidden: isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
+    visible: isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 },
+    exit: isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
   };
   const backdropVariants: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1 }, exit: { opacity: 0 } };
   const transition: Transition = isMobile ? { type: "spring", stiffness: 200, damping: 25 } : { duration: 0.35, ease: "easeOut" };
   const contentVariants: Variants = {
-    hidden:  isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 },
+    hidden: isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 },
     visible: isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 },
-    exit:    isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 },
+    exit: isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 },
   };
   const contentTransition: Transition = isMobile ? { duration: 0 } : { duration: 0.25, ease: "easeOut", delay: 0.06 };
 
@@ -238,6 +273,8 @@ export default function Farmpop({
     );
   };
 
+  const headingId = "farmpop-title";
+
   return (
     <>
       {/* Trigger */}
@@ -269,6 +306,7 @@ export default function Farmpop({
               exit="exit"
               transition={{ duration: 0.2 }}
               onClick={closePopup}
+              aria-hidden
             />
 
             {/* Panel container */}
@@ -279,6 +317,9 @@ export default function Farmpop({
               animate="visible"
               exit="exit"
               transition={transition}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={headingId}
             >
               {/* Panel */}
               <motion.div
@@ -306,6 +347,7 @@ export default function Farmpop({
                   {!isMobile && (
                     <div className="relative flex items-center px-6 py-4 border-b border-white/20 flex-shrink-0">
                       <h2
+                        id={headingId}
                         className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
                         style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 200 }}
                       >
@@ -337,7 +379,7 @@ export default function Farmpop({
                       </aside>
                     )}
 
-                    {/* Right: keep-alive iframes with cross-fade */}
+                    {/* Right: keep-alive panes with wrapper-based cross-fade (no direct iframe animation) */}
                     <div
                       className="relative flex-1 min-h-0 bg-[color:var(--olivea-cream)]"
                       style={{
@@ -350,46 +392,67 @@ export default function Farmpop({
                         tabList.map((t) => {
                           const isActive = t.id === activeId;
                           const isPrev   = t.id === prevId;
-
-                          const visibilityClass =
-                            isActive
-                              ? "opacity-100 visible pointer-events-auto z-20"
-                              : isPrev
-                                ? "opacity-0 visible pointer-events-none z-30"
-                                : "opacity-0 invisible pointer-events-none z-10";
-
+                        
+                          // IMPORTANT: keep *visible* always; we only toggle opacity + pointer-events + z-index
+                          const wrapperStyle: React.CSSProperties = {
+                            opacity: isActive ? 1 : 0,
+                            // keep visible so the browser doesn’t “tear down” the frame
+                            visibility: "visible",
+                            // smooth cross-fade, no Tailwind dynamic class needed
+                            transition: FADE_MS
+                              ? `opacity ${FADE_MS}ms cubic-bezier(.22,1,.36,1)`
+                              : undefined,
+                            willChange: "opacity",
+                            contain: "layout paint size",
+                            transform: "translateZ(0)",
+                            backfaceVisibility: "hidden",
+                            // interaction/z-order control
+                            pointerEvents: isActive ? "auto" : "none",
+                            zIndex: isActive ? 20 : isPrev ? 10 : 0,
+                          };
+                        
                           return (
-                            <iframe
+                            <div
                               key={t.id}
-                              src={t.url}
-                              title={`Menú: ${t.label}`}
-                              className={
-                                "absolute inset-0 w-full h-full block will-change-opacity " +
-                                `transition-opacity duration-[${FADE_MS}ms] ease-[cubic-bezier(.22,1,.36,1)] ` +
-                                visibilityClass
-                              }
-                              style={{ border: 0 }}
-                              loading={isActive ? "eager" : "lazy"}
-                              allow="fullscreen"
-                              allowFullScreen
-                              referrerPolicy="no-referrer-when-downgrade"
+                              className="absolute inset-0"
+                              style={wrapperStyle}
                               onTransitionEnd={isPrev ? handleFadeOutEnd : undefined}
-                            />
+                              aria-hidden={!isActive}
+                            >
+                              <iframe
+                                src={t.url}
+                                title={`Menú: ${t.label}`}
+                                className="absolute inset-0 w-full h-full block"
+                                style={{
+                                  border: 0,
+                                  transform: "translateZ(0)",
+                                  backfaceVisibility: "hidden",
+                                }}
+                                // CRUCIAL: once preloaded, make all eager so the browser keeps them alive
+                                loading="eager"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                allow="fullscreen"
+                                allowFullScreen
+                                tabIndex={isActive ? 0 : -1}
+                              />
+                            </div>
                           );
                         })}
 
                       {/* First open fallback before preloaded */}
                       {!preloaded && tabList.length > 0 && (
-                        <iframe
-                          src={tabList.find(t => t.id === activeId)?.url || tabList[0].url}
-                          title="Menú en vivo"
-                          className="absolute inset-0 w-full h-full block"
-                          style={{ border: 0 }}
-                          loading="eager"
-                          allow="fullscreen"
-                          allowFullScreen
-                          referrerPolicy="no-referrer-when-downgrade"
-                        />
+                        <div className="absolute inset-0" style={{ opacity: 1 }}>
+                          <iframe
+                            src={tabList.find((t) => t.id === activeId)?.url || tabList[0].url}
+                            title="Menú en vivo"
+                            className="absolute inset-0 w-full h-full block"
+                            style={{ border: 0, transform: "translateZ(0)", backfaceVisibility: "hidden" }}
+                            loading="eager"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allow="fullscreen"
+                            allowFullScreen
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
@@ -399,10 +462,10 @@ export default function Farmpop({
                     <div
                       className="relative flex items-center gap-2 px-2 py-2 border-t border-white/20 flex-shrink-0 cursor-grab active:cursor-grabbing bg-white/40"
                       style={{ touchAction: "none" }}
-                      onPointerDown={(e) => {
+                      onPointerDown={(e: React.PointerEvent<HTMLDivElement>) => {
                         const t = e.target as HTMLElement;
                         if (t.closest('[data-no-drag="true"]')) return;
-                        dragControls.start(e.nativeEvent as PointerEvent);
+                        dragControls.start(e.nativeEvent);
                       }}
                     >
                       <button
