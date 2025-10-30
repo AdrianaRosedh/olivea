@@ -1,39 +1,96 @@
 @import "tailwindcss";
 
-/* ─── Theme tokens ───────────────────────────────────────────── */
+/* ───────────────────────────────────────────────────────────── */
+/* OLIVEA GLOBAL THEME TOKENS                                   */
+/* ───────────────────────────────────────────────────────────── */
 :root {
-  --olivea-cream:#e8e4d5; --olivea-shell:#e0d9c5; --olivea-clay:#979b8a;
-  --olivea-olive:#5a6852; --olivea-ink:#1f1f1f; --olivea-white:#fff;
-  --olivea-soil:#58544c; --olivea-mist:#f6f5f0; --olivea-sand:#dcd5c3; --olivea-sage:#6b7361;
+  --olivea-cream:#e8e4d5;
+  --olivea-shell:#e0d9c5;
+  --olivea-clay:#979b8a;
+  --olivea-olive:#5a6852;
+  --olivea-ink:#1f1f1f;
+  --olivea-white:#fff;
+  --olivea-soil:#58544c;
+  --olivea-mist:#f6f5f0;
+  --olivea-sand:#dcd5c3;
+  --olivea-sage:#6b7361;
+
   --font-serif:"Cormorant Garamond", Georgia, serif;
   --font-sans:"Inter", system-ui, sans-serif;
-  --line-height-body:1.6; --letter-spacing-nav:0.05em; --radius:0.625rem;
-  --background:var(--olivea-cream); --foreground:var(--olivea-ink);
-  --card:var(--olivea-cream); --card-foreground:var(--olivea-ink);
-  --popover:var(--olivea-cream); --popover-foreground:var(--olivea-ink);
-  --primary:var(--olivea-ink); --primary-foreground:#fff;
-  --secondary:#f0eee8; --secondary-foreground:var(--olivea-ink);
-  --muted:#f0eee8; --muted-foreground:#555;
-  --accent:var(--olivea-sage); --accent-foreground:#fff;
-  --border:#e5e3dc; --input:#e5e3dc; --ring:#ccc;
+
+  --line-height-body:1.6;
+  --letter-spacing-nav:0.05em;
+  --radius:0.625rem;
+
+  --background:var(--olivea-cream);
+  --foreground:var(--olivea-ink);
+
+  --card:var(--olivea-cream);
+  --card-foreground:var(--olivea-ink);
+
+  --popover:var(--olivea-cream);
+  --popover-foreground:var(--olivea-ink);
+
+  --primary:var(--olivea-ink);
+  --primary-foreground:#fff;
+
+  --secondary:#f0eee8;
+  --secondary-foreground:var(--olivea-ink);
+
+  --muted:#f0eee8;
+  --muted-foreground:#555;
+
+  --accent:var(--olivea-sage);
+  --accent-foreground:#fff;
+
+  --border:#e5e3dc;
+  --input:#e5e3dc;
+  --ring:#ccc;
 }
-.dark { /* keep your dark tokens if used */ }
 
-/* ─── Base (keep scroll-safe + tiny reset only) ─────────────── */
+.dark {
+  /* optional dark tokens if you ever theme switch */
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* BASE RESET + CROSS-BROWSER SCROLLBAR HIDING                   */
+/* ───────────────────────────────────────────────────────────── */
 @layer base {
-  * { border-color: var(--border); outline-color: var(--ring); }
-  ::-webkit-scrollbar { display: none !important; }
+  * {
+    border-color: var(--border);
+    outline-color: var(--ring);
+  }
 
-  /* Root scroll must stay global */
+  /* === HIDE SCROLLBARS (all browsers) === */
+  html, body, #__next, *[data-scroll], .no-scrollbar {
+    scrollbar-width: none !important;       /* Firefox */
+    -ms-overflow-style: none !important;    /* IE/Edge legacy */
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  #__next::-webkit-scrollbar,
+  *[data-scroll]::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    display: none !important;               /* WebKit */
+  }
+
+  /* === Root scroll config === */
   html, body {
     min-height: 100%;
     height: auto;
-    margin: 0; padding: 0;
+    margin: 0;
+    padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
   }
-  /* Next.js root: don't force height:100% to avoid traps */
-  #__next { min-height: 100%; }
+
+  #__next {
+    min-height: 100%;
+  }
 
   body {
     background-color: var(--background);
@@ -42,43 +99,103 @@
     line-height: var(--line-height-body);
     overscroll-behavior-y: none;
     overscroll-behavior-x: auto;
-    scroll-behavior: auto;
+    scroll-behavior: smooth;
     @apply antialiased;
   }
 
-  section[id] { scroll-margin-top: 8rem; scroll-margin-bottom: 3rem; }
-  video, .video-container, .shared-overlay { background-color: var(--olivea-olive); }
-  video { color-scheme: only light; }
+  section[id] {
+    scroll-margin-top: 8rem;
+    scroll-margin-bottom: 3rem;
+  }
+
+  video,
+  .video-container,
+  .shared-overlay {
+    background-color: var(--olivea-olive);
+  }
+
+  video {
+    color-scheme: only light;
+  }
 }
 
-/* ─── Minimal loader keyframes (used at first paint) ────────── */
+/* ───────────────────────────────────────────────────────────── */
+/* LOADER KEYFRAMES                                              */
+/* ───────────────────────────────────────────────────────────── */
 @keyframes olivea-loader-bar { from { width: 0% } to { width: 100% } }
 @keyframes olivea-loader-vert { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+
 @layer utilities {
-  .loader-bar  {
-    position:absolute; top:0; left:0; height:100%; border-radius:inherit;
-    animation:olivea-loader-bar var(--bar-duration,3.5s) linear forwards;
+  .loader-bar {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    border-radius: inherit;
+    animation: olivea-loader-bar var(--bar-duration,3.5s) linear forwards;
   }
+
   .loader-vert {
     transform-origin: bottom center;
-    animation:olivea-loader-vert var(--bar-duration,4s) linear forwards;
+    animation: olivea-loader-vert var(--bar-duration,4s) linear forwards;
   }
 
-  /* Emergency helper if a wrapper locks scroll */
-  .allow-scroll { overflow-y: auto !important; }
+  /* Allow scroll override if a wrapper locks it */
+  .allow-scroll {
+    overflow-y: auto !important;
+  }
 }
 
-/* ─── LCP base layer (kept) ─────────────────────────────────── */
-.fixed-lcp { position:fixed; inset:0; width:100vw; height:100dvh; }
-@supports not (height: 100dvh) { .fixed-lcp { height:100vh } }
+/* ───────────────────────────────────────────────────────────── */
+/* FIXED LCP BASE LAYER                                          */
+/* ───────────────────────────────────────────────────────────── */
 .fixed-lcp {
-  background:var(--olivea-olive); opacity:1; transition:opacity 320ms ease;
-  z-index:0; pointer-events:none; user-select:none;
-  contain:layout paint size; backface-visibility:hidden; color-scheme:light;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  background: var(--olivea-olive);
+  opacity: 1;
+  transition: opacity 320ms ease;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  contain: layout paint size;
+  backface-visibility: hidden;
+  color-scheme: light;
 }
-body.lcp-demote .fixed-lcp { opacity:0.001 }
-@media (prefers-reduced-motion: reduce) { .fixed-lcp { transition:none } }
-.no-js .fixed-lcp { opacity:0 !important; transition:none !important; pointer-events:none !important; }
 
-/* ─── Delay below-the-fold layout/paint ─────────────────────── */
-.home-section-late { content-visibility:auto; contain-intrinsic-size:1000px; }
+@supports not (height: 100dvh) {
+  .fixed-lcp { height: 100vh; }
+}
+
+body.lcp-demote .fixed-lcp { opacity: 0.001; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fixed-lcp { transition: none; }
+}
+
+.no-js .fixed-lcp {
+  opacity: 0 !important;
+  transition: none !important;
+  pointer-events: none !important;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* DEFER BELOW-THE-FOLD LAYOUT                                   */
+/* ───────────────────────────────────────────────────────────── */
+.home-section-late {
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* OPTIONAL ACCESSIBILITY DETAIL                                 */
+/* ───────────────────────────────────────────────────────────── */
+/* If user starts tabbing, show a minimal scrollbar hint */
+:focus-within {
+  scrollbar-width: thin;
+}
+:focus-within::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
