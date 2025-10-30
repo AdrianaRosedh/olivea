@@ -204,23 +204,33 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
                 {/* RESTAURANT */}
                 <div
-                  className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto ${
+                  className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-hidden ${
                     reservationType === "restaurant"
                       ? "opacity-100 pointer-events-auto"
                       : "opacity-0 pointer-events-none"
                   }`}
                   aria-hidden={reservationType !== "restaurant"}
                 >
-                  <div className="flex z-10 items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)]">
+                  {/* Static header (pinned) */}
+                  <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)] sticky top-0 z-20">
                     <OliveaLogo className="h-[45px] md:h-[65px]" />
                     <span
                       className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
                       style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
+                      id="restaurant-pane-title"
                     >
                       Olivea Farm To Table
                     </span>
                   </div>
-                  {mounted.restaurant && <OpentableWidget />}
+                
+                  {/* Scrollable content area (iframe scrolls under the header) */}
+                  <div
+                    className="flex-1 overflow-auto no-scrollbar"
+                    style={{ WebkitOverflowScrolling: "touch" }}
+                    aria-labelledby="restaurant-pane-title"
+                  >
+                    {mounted.restaurant && <OpentableWidget />}
+                  </div>
                 </div>
 
                 {/* CAFE */}
