@@ -646,20 +646,7 @@ export default function HomeClient() {
             </span>
           </m.div>
 
-          {/* Desktop center logo + phrase */}
-          <div className="absolute inset-0 hidden md:flex flex-col items-center justify-start z-30">
-            <div
-              ref={logoTargetRef}
-              className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56"
-            >
-              <OliveaLogo className="w-full h-full" />
-            </div>
-            <span
-              className={`${cormHero.className} italic mt-3 mb-6 text-[var(--olivea-mist)] text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]`}
-            >
-              {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
-            </span>
-          </div>
+
 
           <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
         </div>
@@ -708,38 +695,44 @@ export default function HomeClient() {
           </m.div>
         </m.div>
 
-        {/* Desktop cards + button */}
-        <m.div
-          className="hidden md:flex absolute inset-0 z-40 flex-col items-center justify-center px-4 text-center"
-          variants={containerVariants}
-          initial="hidden"
-          animate={introStarted ? "hidden" : "show"}
-        >
-          <div className="flex gap-6 mt-[12vh]">
+        {/* Desktop logo + phrase + cards + button (single flow container) */}
+        <div className="absolute inset-0 hidden md:flex flex-col items-center z-40">
+          {/* Logo */}
+          <div
+            ref={logoTargetRef}
+            className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 pointer-events-none"
+          >
+            <OliveaLogo className="w-full h-full" />
+          </div>
+                  
+          {/* Phrase */}
+          <span
+            className={`${cormHero.className} italic mt-3 text-[var(--olivea-mist)] text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none`}
+          >
+            {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
+          </span>
+                  
+          {/* Cards row (clickable) */}
+          <div className="mt-6 lg:mt-8 flex gap-6 pointer-events-auto">
             {sections.map((sec) => (
-              <m.div key={sec.href} variants={itemVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
-                <InlineEntranceCard
-                  title={sec.title}
-                  href={sec.href}
-                  sectionKey={sec.sectionKey}
-                  description={sec.description}
-                  Logo={sec.Logo}
-                  onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                />
-              </m.div>
+              <InlineEntranceCard
+                key={sec.href}
+                title={sec.title}
+                href={sec.href}
+                sectionKey={sec.sectionKey}
+                description={sec.description}
+                Logo={sec.Logo}
+                onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+              />
             ))}
           </div>
-          <m.div
-            variants={itemVariants}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 + sections.length * 0.2 }}
-            className="mt-8 md:mt-16"
-          >
+          
+          {/* Button (clickable) */}
+          <div className="mt-8 md:mt-16 pointer-events-auto">
             <ReservationButton />
-          </m.div>
-        </m.div>
+          </div>
+        </div>
+          
       </main>
     </>
     </LazyMotion>
