@@ -79,6 +79,25 @@ function useInViewOnce<T extends Element>(ref: React.RefObject<T | null>) {
   return inView;
 }
 
+/* ========= fluid desktop scale helper =========
+   Shrinks desktop smoothly between WIDTH_MIN..WIDTH_MAX.
+   - At >= WIDTH_MAX → MAX_SCALE
+   - At <= WIDTH_MIN → MIN_SCALE
+   - In between → linear interpolation
+*/
+function computeDesktopScale(viewW: number) {
+  const WIDTH_MIN = 820;    // start shrinking below this (desktop/tablet-ish)
+  const WIDTH_MAX = 1440;   // full desktop width
+  const MIN_SCALE = 1.0;    // smallest desktop scale (just above mobile)
+  const MAX_SCALE = 1.3;    // your current desktop "big" scale
+
+  if (viewW >= WIDTH_MAX) return MAX_SCALE;
+  if (viewW <= WIDTH_MIN) return MIN_SCALE;
+
+  const t = (viewW - WIDTH_MIN) / (WIDTH_MAX - WIDTH_MIN);
+  return MIN_SCALE + t * (MAX_SCALE - MIN_SCALE);
+}
+
 /* ======================================================= */
 export interface InlineEntranceCardProps {
   title: string;
@@ -106,16 +125,33 @@ export default function InlineEntranceCard({
   const isES = href.startsWith("/es");
   const ctaText = isES ? "Haz Click" : "Click Me";
 
-  // slug for aria + asset naming
-  const slug = href.split("/").pop() || "";
 
-  // responsive
+
+  // responsive breakpoints
   const [isMobile, setIsMobile] = useState(false);
+  const [desktopScale, setDesktopScale] = useState(1.3);
+
+  // rAF-throttled resize handler to update isMobile + desktop scale
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
+    if (typeof window === "undefined") return;
+
+    let raf = 0;
+    const onResize = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const w = window.innerWidth;
+        setIsMobile(w < 768);
+        // Only matters on desktop; harmless to update always
+        setDesktopScale(computeDesktopScale(w));
+      });
+    };
+
     onResize();
     window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   // hover state
@@ -129,9 +165,17 @@ export default function InlineEntranceCard({
 
   // in-view (shared IO)
   const isInView = useInViewOnce(cardRef);
+  // slug for aria + asset naming (trailing-slash safe)
+  const lastSeg = href.replace(/\/+$/, "").split("/").pop() || "";
+  const slug = lastSeg || sectionKey; // fallback to sectionKey if last segment is empty
+
+  // If you prefer explicit control per card, allow an optional prop:
+  // export interface InlineEntranceCardProps { ... videoBase?: string; ... }
+  // and plumb it in; for now we infer:
+  const videoBase = slug; // or props.videoBase ?? slug
 
   // desktop hover video URLs (mobile skips entirely)
-  const base = !isMobile && slug ? `${slug}-HD` : "";
+  const base = !isMobile && videoBase ? `${videoBase}-HD` : "";
   const srcA = base ? `/videos/${base}.${PREFERS_WEBM ? "webm" : "mp4"}` : "";
   const srcB = base ? `/videos/${base}.${PREFERS_WEBM ? "mp4"  : "webm"}` : "";
 
@@ -141,6 +185,8 @@ export default function InlineEntranceCard({
     if (isMobile || !isInView || sourcesAttachedRef.current) return;
     const v = videoRef.current;
     if (!v || !srcA) return;
+    // Clean stale sources (in case of hot reloads)
+    while (v.firstChild) v.removeChild(v.firstChild);
     const s1 = document.createElement("source");
     s1.src = srcA;
     s1.type = srcA.endsWith(".webm") ? "video/webm" : "video/mp4";
@@ -151,6 +197,22 @@ export default function InlineEntranceCard({
     v.load();
     sourcesAttachedRef.current = true;
   }, [isMobile, isInView, srcA, srcB]);
+
+  const handleMouseEnter = useCallback(() => {
+    if (isMobile) return;
+    attachSources();
+    const v = videoRef.current;
+    if (v && isInView) {
+      if (v.readyState < 2) v.load();
+      v.currentTime = 0; // nudge
+      v.play().catch(() => {});
+    }
+    setIsHovered(true);
+  }, [isMobile, isInView, attachSources]);
+
+  // also support keyboard/focus & touchpad
+  const handlePointerEnter = handleMouseEnter;
+
 
   // optional: idle preload (desktop only, once visible)
   useEffect(() => {
@@ -213,21 +275,12 @@ export default function InlineEntranceCard({
     node.style.transition = "transform 0.5s ease, box-shadow 0.3s ease";
   };
 
-  // resize: invalidate cached rect
+  // resize: invalidate cached rect (already handled globally, but safe to keep)
   useEffect(() => {
     const onResize = () => (rectRef.current = null);
     window.addEventListener("resize", onResize, { passive: true });
     return () => window.removeEventListener("resize", onResize);
   }, []);
-
-  // handlers
-  const handleMouseEnter = useCallback(() => {
-    if (isMobile) return;
-    attachSources();
-    const v = videoRef.current;
-    if (v && isInView && v.readyState === 0) v.load();
-    setIsHovered(true);
-  }, [isMobile, isInView, attachSources]);
 
   const handleMouseLeave = useCallback(() => {
     if (isMobile) return;
@@ -242,26 +295,35 @@ export default function InlineEntranceCard({
     startTransition(sectionKey, href); // transition independent of hover video
   }, [href, sectionKey, onActivate, startTransition]);
 
-  // ── Dimensions (UNCHANGED VISUALS) ──────────────────────────────
-  const DESKTOP_SCALE = 1.3;
-  const scale = isMobile ? 1 : DESKTOP_SCALE;
-  const CARD_WIDTH = 256 * scale;
-  const CARD_HEIGHT = 210 * scale;
-  const TOP_DESKTOP = 128 * scale;
-  const MOBILE_COLLAPSED = 96;
-  const BOTTOM_DEFAULT = CARD_HEIGHT - TOP_DESKTOP;
-  const CIRCLE_SIZE = 80 * scale;
-  const UNDERLAY_HEIGHT = 25 * scale;
+  // ── Dimensions (FLUID DESKTOP, FIXED MOBILE) ─────────────────────
+  // Base design tokens (unscaled)
+  const BASE = {
+    CARD_W: 256,
+    CARD_H: 210,
+    TOP_H: 128,
+    CIRCLE: 80,
+    UNDERLAY_H: 25,
+    MOBILE_COLLAPSED: 96,
+  };
 
-  const containerHeight = isMobile ? MOBILE_COLLAPSED : CARD_HEIGHT;
-  const topHeight = isMobile ? 0 : TOP_DESKTOP;
-  const bottomHeight = isMobile ? MOBILE_COLLAPSED : BOTTOM_DEFAULT;
+  // Compute scale for desktop; mobile stays as your current visuals.
+  const scale = isMobile ? 1 : desktopScale;
+
+  const CARD_WIDTH   = BASE.CARD_W * scale;
+  const CARD_HEIGHT  = BASE.CARD_H * scale;
+  const TOP_DESKTOP  = BASE.TOP_H * scale;
+  const CIRCLE_SIZE  = BASE.CIRCLE * scale;
+  const UNDERLAY_H   = BASE.UNDERLAY_H * scale;
+
+  const containerHeight = isMobile ? BASE.MOBILE_COLLAPSED : CARD_HEIGHT;
+  const topHeight       = isMobile ? 0 : TOP_DESKTOP;
+  const bottomHeight    = isMobile ? BASE.MOBILE_COLLAPSED : (CARD_HEIGHT - TOP_DESKTOP);
 
   return (
     <div
       className={`relative ${className}`}
       style={{
-        width: isMobile ? "100%" : CARD_WIDTH,
+        width: isMobile ? "100%" : Math.round(CARD_WIDTH),
         overflow: "visible",
       }}
       onMouseEnter={handleMouseEnter}
@@ -282,13 +344,14 @@ export default function InlineEntranceCard({
         <motion.div
           whileTap={{ scale: 0.97 }}
           className={`relative overflow-visible cursor-pointer ${isMobile ? "drop-shadow-lg" : ""}`}
+          onPointerEnter={handlePointerEnter}
         >
           <div
             ref={cardRef}
             onMouseMove={scheduleTilt}
             style={{
               width: "100%",
-              height: containerHeight,
+              height: Math.round(containerHeight),
               cursor: "pointer",
               contain: "layout paint style", // perf: isolate layout/paint
               willChange: "transform",       // perf: smoother tilt
@@ -330,14 +393,14 @@ export default function InlineEntranceCard({
                 )}
               </div>
 
-              {/* Bottom Text (unchanged) */}
+              {/* Bottom Text (unchanged content, fluid spacing) */}
               <motion.div
                 initial={{ height: bottomHeight }}
-                animate={{ height: isHovered ? bottomHeight + UNDERLAY_HEIGHT + 15 : bottomHeight }}
+                animate={{ height: isHovered ? bottomHeight + UNDERLAY_H + 15 : bottomHeight }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
                 style={{
                   background: "#e8e4d5",
-                  padding: "10px 16px",
+                  padding: `${Math.max(8, 10 * scale)}px ${Math.max(12, 16 * scale)}px`,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -352,9 +415,9 @@ export default function InlineEntranceCard({
                     margin: 1,
                     zIndex: 2,
                     fontFamily: "var(--font-serif)",
-                    fontSize: isMobile ? 28 : 24,
+                    fontSize: isMobile ? 28 : Math.round(22 * scale), // fluid but keeps hierarchy
                     fontWeight: isMobile ? 600 : 300,
-                    marginTop: isHovered ? 25 : 33,
+                    marginTop: isHovered ? Math.round(20 * scale) : Math.round(28 * scale),
                     transition: "margin-top 0.4s ease",
                   }}
                   className="not-italic"
@@ -366,10 +429,10 @@ export default function InlineEntranceCard({
                   <p
                     id={`${slug}-desc`}
                     style={{
-                      marginTop: 6,
+                      marginTop: Math.round(6 * scale),
                       textAlign: "center",
-                      fontSize: 16,
-                      maxWidth: 224,
+                      fontSize: Math.max(14, Math.round(16 * Math.min(1, scale))),
+                      maxWidth: Math.round(224 * scale),
                       opacity: isHovered ? 1 : 0,
                       transition: "opacity 0.4s ease",
                     }}
@@ -381,14 +444,15 @@ export default function InlineEntranceCard({
             </div>
           </div>
 
-          {/* Underlay (unchanged) */}
+          {/* Underlay (fluid height) */}
           {!isMobile && (
             <motion.div
               initial={{ y: 0 }}
-              animate={isHovered ? { y: UNDERLAY_HEIGHT } : { y: 0 }}
+              animate={isHovered ? { y: UNDERLAY_H } : { y: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="absolute bottom-0 left-0 w-full h-16 bg-white/30 backdrop-blur-md flex items-center justify-center pt-7 pointer-events-none"
               style={{
+                height: Math.max(48, Math.round(64 * scale)),
                 borderBottomLeftRadius: 24,
                 borderBottomRightRadius: 24,
                 zIndex: -1,
@@ -400,20 +464,20 @@ export default function InlineEntranceCard({
             </motion.div>
           )}
 
-          {/* Logo (unchanged) */}
+          {/* Logo (fluid circle) */}
           {Logo && (
             <div
               style={{
                 position: "absolute",
                 zIndex: 400,
                 left: "50%",
-                width: isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE,
-                height: isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE,
+                width: Math.round((isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE)),
+                height: Math.round((isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE)),
                 borderRadius: "50%",
                 border: "4px solid #e8e4d5",
                 background: "#e8e4d5",
                 overflow: "hidden",
-                top: isHovered ? topHeight * 0.6 : topHeight,
+                top: (isHovered ? topHeight * 0.6 : topHeight),
                 transform: "translate(-50%, -50%)",
                 transition: "top 0.4s ease, width 0.4s ease, height 0.4s ease",
               }}
