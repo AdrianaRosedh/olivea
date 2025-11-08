@@ -1,6 +1,6 @@
 {
   "about": {
-    "title": "About Olivea",
+    "title": "About OLIVEA",
     "description": "Farm-to-table hospitality in Valle de Guadalupe—our story, philosophy, and the people behind the vision.",
     "meta": {
       "title": "About Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
@@ -61,7 +61,7 @@
     }
   },
   "journal": {
-    "title": "OLIVEA | The Experience Journal",
+    "title": "OLIVEA's Journal",
     "subtitle": "Stories from the soil, the kitchen, and the heart.",
     "loading": "Loading journal entries…",
     "empty": "No journal entries available yet.",

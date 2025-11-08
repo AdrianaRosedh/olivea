@@ -10,13 +10,12 @@ import React, {
 } from "react";
 import Lenis from "lenis";
 
-/** Matches Lenis' emitted "scroll" event payload */
 export type LenisScrollEvent = {
-  scroll: number;              // current scroll position (px)
-  limit: number;               // max scroll (px)
-  velocity: number;            // px per frame
-  direction: -1 | 0 | 1;       // -1 up, 0 idle, 1 down
-  progress: number;            // 0..1
+  scroll: number;
+  limit: number;
+  velocity: number;
+  direction: -1 | 0 | 1;
+  progress: number;
 };
 
 export interface ScrollHandler {
@@ -59,7 +58,6 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     });
     lenisRef.current = lenis;
 
-    // Keep CSS var in sync for gradient hue shift
     const setScrollPer = (value: number) => {
       const clamped = Math.max(0, Math.min(1, value));
       document.documentElement.style.setProperty("--scroll-per", String(clamped));
@@ -77,7 +75,6 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     };
     rafIdRef.current = requestAnimationFrame(loop);
 
-    // Expose a typed, stable API (no `any`)
     const exposed: ScrollHandler = {
       raf: (t) => lenis.raf(t),
       on: (event, handler) => lenis.on(event, handler),
@@ -89,9 +86,8 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
         lenis.destroy();
       },
     };
-    
-    // after starting the RAF
-    const onVisibility = () => {
+
+    const onVisibilityChange = () => {
       const id = rafIdRef.current;
       if (document.visibilityState === "hidden" && id !== null) {
         cancelAnimationFrame(id);
@@ -100,15 +96,10 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
         rafIdRef.current = requestAnimationFrame(loop);
       }
     };
-    document.addEventListener("visibilitychange", onVisibility);     
 
-    // in cleanup:
-    document.removeEventListener("visibilitychange", onVisibility);
-
-    // Make the real API available to consumers
+    document.addEventListener("visibilitychange", onVisibilityChange);
     setApi(exposed);
 
-    // Seed initial value (in case page loads scrolled)
     requestAnimationFrame(() => {
       const el = document.documentElement;
       const max = Math.max(0, el.scrollHeight - el.clientHeight);
@@ -117,6 +108,7 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       exposed.destroy();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       lenisRef.current = null;
     };
   }, []);
