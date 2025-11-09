@@ -1,28 +1,38 @@
-// app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
 import { AppProviders } from "./providers";
-import { fontsClass } from "./fonts"; // <- unified fonts (variables + className)
+import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
+import { SITE, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.oliveafarmtotable.com"),
+  metadataBase: new URL(SITE.baseUrl),
   title: "OLIVEA | The Experience",
   description: "A 360° garden-rooted hospitality experience in Valle de Guadalupe.",
-  alternates: { canonical: "/", languages: { "es-MX": "/es", "en-US": "/en" } },
+  alternates: {
+    canonical: "/",
+    languages: { "es-MX": "/es", "en-US": "/en" },
+  },
   openGraph: {
     type: "website",
-    url: "https://www.oliveafarmtotable.com",
+    url: SITE.baseUrl,
     title: "OLIVEA | The Experience",
     description: "Garden, cuisine, hotel and café in Valle de Guadalupe.",
     siteName: "OLIVEA",
-    images: [{ url: "/images/og/cover.jpg", width: 1200, height: 630, alt: "OLIVEA" }],
+    images: [
+      {
+        url: absoluteUrl("/images/og/cover.jpg"),
+        width: 1200,
+        height: 630,
+        alt: "OLIVEA",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "OLIVEA | The Experience",
     description: "Garden-rooted, tech-enhanced hospitality in Valle de Guadalupe.",
-    images: ["/images/og/cover.jpg"],
+    images: [absoluteUrl("/images/og/cover.jpg")],
   },
   robots: {
     index: true,

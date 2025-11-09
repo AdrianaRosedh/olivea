@@ -1,12 +1,10 @@
 import { MetadataRoute } from "next";
+import { SITE, absoluteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-    },
-    sitemap: "https://www.oliveafarmtotable.com/sitemap.xml",
-    host: "https://www.oliveafarmtotable.com",
+    rules: { userAgent: "*", allow: "/" },
+    sitemap: absoluteUrl("/sitemap.xml"),
+    host: SITE.baseUrl,
   };
 }

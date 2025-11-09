@@ -1,4 +1,3 @@
-// next.config.js (ESM)
 import bundleAnalyzer from "@next/bundle-analyzer";
 import withMDX from "@next/mdx";
 import remarkGfm from "remark-gfm";
@@ -9,7 +8,22 @@ import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import remarkUnwrapImages from "remark-unwrap-images";
 import rehypeImgSize from "rehype-img-size";
 
-/** 1) MDX loader */
+/* ────────────────────────────────────────────────────────────── */
+/* Canonical URL helpers                                          */
+/* ────────────────────────────────────────────────────────────── */
+function resolvePublicUrl() {
+  const { NEXT_PUBLIC_SITE_URL, SITE_URL, VERCEL_URL } = process.env;
+  if (NEXT_PUBLIC_SITE_URL) return NEXT_PUBLIC_SITE_URL;                // preferred (client + server)
+  if (SITE_URL) return SITE_URL;                                        // server-only fallback
+  if (VERCEL_URL) return `https://${VERCEL_URL}`;                       // vercel previews/prod
+  return "http://localhost:3000";                                       // local dev
+}
+const PUBLIC_URL = resolvePublicUrl();
+const { hostname: PUBLIC_HOSTNAME } = new URL(PUBLIC_URL);
+
+/* ────────────────────────────────────────────────────────────── */
+/* 1) MDX loader                                                  */
+/* ────────────────────────────────────────────────────────────── */
 const withMDXConfig = withMDX({
   extension: /\.mdx?$/,
   options: {
@@ -23,14 +37,18 @@ const withMDXConfig = withMDX({
   },
 });
 
-/** 2) bundle analyzer (disabled by default) */
+/* ────────────────────────────────────────────────────────────── */
+/* 2) bundle analyzer (disabled by default)                       */
+/* ────────────────────────────────────────────────────────────── */
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
   openAnalyzer: process.env.ANALYZE === "true",
   analyzerMode: "static",
 });
 
-/** 3) Next config */
+/* ────────────────────────────────────────────────────────────── */
+/* 3) Next config                                                 */
+/* ────────────────────────────────────────────────────────────── */
 const nextConfig = {
   reactStrictMode: true,
   compress: true,
@@ -38,17 +56,10 @@ const nextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
 
   experimental: {
-    optimizeCss: true, // keep this; reduces render-blocking CSS
-    optimizePackageImports: [
-      "framer-motion",
-      "lucide-react",
-      "date-fns",
-      "lodash-es",
-      "react-icons",
-    ],
+    optimizeCss: true,
+    optimizePackageImports: ["framer-motion", "lucide-react", "date-fns", "lodash-es", "react-icons"],
   },
 
-  // Top-level modularizeImports (Next 15)
   modularizeImports: {
     "date-fns": { transform: "date-fns/{{member}}" },
     "lodash-es": { transform: "lodash-es/{{member}}" },
@@ -69,7 +80,9 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2560],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
-      { protocol: "https", hostname: "oliveafarmtotable.com" },
+      // ⬇️ your own hostname, resolved from env (works on previews and prod)
+      { protocol: "https", hostname: PUBLIC_HOSTNAME },
+      // keep existing allows:
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "maps.googleapis.com" },
       { protocol: "https", hostname: "maps.gstatic.com" },
@@ -99,14 +112,13 @@ const nextConfig = {
   async redirects() {
     return [
       { source: "/", destination: "/es", permanent: false },
-      {
-        source: "/:lang/oliveafarmtotable",
-        destination: "https://www.oliveafarmtotable.com",
-        permanent: true,
-      },
+      // ⬇️ env-driven redirect (no hard-coded domain)
+      { source: "/:lang/oliveafarmtotable", destination: PUBLIC_URL, permanent: true },
     ];
   },
 };
 
-/** 4) wrap it all: MDX first, then bundle-analyzer */
+/* ────────────────────────────────────────────────────────────── */
+/* 4) wrap it all: MDX first, then bundle-analyzer                */
+/* ────────────────────────────────────────────────────────────── */
 export default withBundleAnalyzer(withMDXConfig(nextConfig));

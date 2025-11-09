@@ -1,38 +1,37 @@
+import { SITE, absoluteUrl } from "@/lib/site";
+
 export default function Head() {
   const org = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "OLIVEA",
-    url: "https://www.oliveafarmtotable.com",
-    logo: "https://www.oliveafarmtotable.com/images/logos/olivea-mark.png",
+    url: SITE.baseUrl,
+    logo: absoluteUrl("/images/logos/olivea-mark.png"),
     sameAs: [
       "https://www.instagram.com/oliveafarmtotable",
       "https://www.tiktok.com/@familiaolivea",
-      "https://www.youtube.com/@grupoolivea"
-    ]
+      "https://www.youtube.com/@grupoolivea",
+    ],
   };
 
   const webSite = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "OLIVEA",
-    url: "https://www.oliveafarmtotable.com",
+    url: SITE.baseUrl,
     inLanguage: "es-MX",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://www.oliveafarmtotable.com/es?search={query}",
-      "query-input": "required name=query"
-    }
+      target: absoluteUrl("/es?search={query}"),
+      "query-input": "required name=query",
+    },
   };
 
   return (
     <>
-      {/* perf preconnects optional */}
-      <link rel="preconnect" href="https://www.oliveafarmtotable.com" crossOrigin="" />
-      <script type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
-      <script type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSite) }} />
+      <link rel="preconnect" href={SITE.baseUrl} crossOrigin="" />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSite) }} />
     </>
   );
 }

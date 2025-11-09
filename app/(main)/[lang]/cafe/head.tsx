@@ -1,18 +1,13 @@
+import { absoluteUrl } from "@/lib/site";
+
 export default function Head() {
-  const cafe = {
+  const hotel = {
     "@context": "https://schema.org",
-    "@type": "CafeOrCoffeeShop",
-    name: "Olivea Café",
-    url: "https://www.oliveafarmtotable.com/cafe",
-    image: "https://www.oliveafarmtotable.com/images/og/cafe.jpg",
-    servesCuisine: "Coffee & Breakfast",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Valle de Guadalupe",
-      addressRegion: "BC",
-      addressCountry: "MX"
-    },
-    telephone: "+52 646 123 4567"
+    "@type": "Cafe",
+    name: "OLIVEA Café",
+    url: absoluteUrl("/cafe"),
+    image: absoluteUrl("/images/og/cafe.jpg"),
+    // ...
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(cafe) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(hotel) }} />;
 }

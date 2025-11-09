@@ -1,11 +1,11 @@
-import type { MetadataRoute } from "next"
+// app/sitemap.ts
+import type { MetadataRoute } from "next";
+import { absoluteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.oliveafarmtotable.com"
-
-  // Define all routes that should be in the sitemap
+  // Adjust routes as needed for your project
   const routes = [
-    "",
+    "", // homepage
     "/about",
     "/cafe",
     "/casa",
@@ -14,22 +14,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/journal",
     "/legal",
     "/farmtotable",
-  ]
+  ];
 
-  // Create sitemap entries for both languages
-  const sitemap: MetadataRoute.Sitemap = []
+  const out: MetadataRoute.Sitemap = [];
 
-  // Add entries for both languages
-  for (const lang of ["en", "es"]) {
+  for (const lang of ["es", "en"]) {
     for (const route of routes) {
-      sitemap.push({
-        url: `${baseUrl}/${lang}${route}`,
+      const path = route === "" ? `/${lang}` : `/${lang}${route}`;
+      out.push({
+        url: absoluteUrl(path),
         lastModified: new Date(),
         changeFrequency: route === "" ? "daily" : "weekly",
         priority: route === "" ? 1.0 : 0.8,
-      })
+      });
     }
   }
 
-  return sitemap
+  return out;
 }

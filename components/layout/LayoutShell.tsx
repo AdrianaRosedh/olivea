@@ -1,7 +1,6 @@
-// components/layout/LayoutShell.tsx
 "use client";
 
-import React, { memo, useEffect, useMemo} from "react";
+import React, { memo, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -29,6 +28,9 @@ import { SECTIONS_CASA_ES } from "@/app/(main)/[lang]/casa/sections.es";
 import { SECTIONS_CASA_EN } from "@/app/(main)/[lang]/casa/sections.en";
 import { SECTIONS_CAFE_ES } from "@/app/(main)/[lang]/cafe/sections.es";
 import { SECTIONS_CAFE_EN } from "@/app/(main)/[lang]/cafe/sections.en";
+
+// ✅ centralized layout tokens (no magic numbers)
+import { DOCK, DOCK_COMPUTED } from "@/lib/ui/tokens";
 
 interface LayoutShellProps {
   lang: Lang;
@@ -60,7 +62,6 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-
   // Lenis → CSS var (guard against null during HMR)
   useEffect(() => {
     if (!lenis) return;
@@ -78,11 +79,6 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const isRestaurantPage = pathname.includes("/farmtotable");
   const isCafePage = pathname.includes("/cafe");
 
-  /** Safe gutter for desktop so media never sits under docks */
-  const dockLeftPx = 240;
-  const dockRightPx = 96;
-  const dockGapPx = 24;
-
   // CLS-safe header sizing: --header-h comes from CSS media queries in globals.css
   const mainStyle = (isMobile
     ? {
@@ -91,9 +87,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         "--mobile-nav-h": `${84}px`,
       }
     : {
-        "--dock-gutter": `${dockLeftPx + dockRightPx + dockGapPx * 2}px`,
-        "--dock-left": `${dockLeftPx + dockGapPx}px`,
-        "--dock-right": `${dockRightPx + dockGapPx}px`,
+        // ✅ derived from centralized tokens
+        "--dock-gutter": `${DOCK_COMPUTED.guttersPx}px`,
+        "--dock-left": `${DOCK.leftPx + DOCK.gapPx}px`,
+        "--dock-right": `${DOCK.rightPx + DOCK.gapPx}px`,
       }) satisfies StyleVars;
 
   const allowHeroBreakout = isCasaPage || isRestaurantPage || isCafePage;
