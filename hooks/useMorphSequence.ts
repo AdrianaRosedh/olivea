@@ -5,7 +5,6 @@
 import { useEffect, type RefObject } from "react";
 import { TIMING, SPLASH, EASE } from "@/lib/introConstants";
 
-/** Widened so framer-motion’s legacy controls fit cleanly */
 type MotionControls = {
   start: (definition: any, transitionOverride?: any) => Promise<any>;
   stop: () => void;
@@ -31,8 +30,11 @@ export function useMorphSequence(
     const logoEl = logoTargetRef.current;
     if (!heroEl || !logoEl) return;
 
-    const waitNextFrame = () =>
-      new Promise<void>((res) => requestAnimationFrame(() => res()));
+    const waitNextFrame = () => new Promise<void>((res) => requestAnimationFrame(() => res()));
+    const isSafari =
+      typeof navigator !== "undefined" &&
+      /safari/i.test(navigator.userAgent) &&
+      !/chrome|android/i.test(navigator.userAgent);
 
     (async () => {
       await waitNextFrame();
@@ -51,7 +53,7 @@ export function useMorphSequence(
       const x = rect.left + rect.width / 2 - vw / 2;
       const y = rect.top + rect.height / 2 - vh / 2;
 
-      // WRITE
+      // WRITE morph
       await waitNextFrame();
       await Promise.all([
         overlayControls.start({
@@ -83,7 +85,10 @@ export function useMorphSequence(
         transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
       });
 
-      // Smooth green fade
+      // ⬇️ extra paint + tiny Safari guard before fading overlay
+      await waitNextFrame();
+      if (isSafari) await new Promise((res) => setTimeout(res, 24));
+
       await overlayControls.start({
         opacity: 0,
         transition: { duration: TIMING.crossfadeSec, ease: EASE.out },

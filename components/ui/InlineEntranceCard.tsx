@@ -12,24 +12,22 @@ import {
 import { motion } from "framer-motion";
 import { useSharedTransition, type SectionKey } from "@/contexts/SharedTransitionContext";
 
-/* ========= one-time codec probe (module scope) ========= */
+/* ========= codec probe ========= */
 let PREFERS_WEBM = false;
 if (typeof window !== "undefined") {
   const v = document.createElement("video");
   PREFERS_WEBM = !!v.canPlayType?.('video/webm; codecs="vp9,vorbis"');
 }
 
-/* ========= requestIdle helper (no `any`) ========= */
+/* ========= requestIdle ========= */
 type IdleReqCbDeadline = { didTimeout: boolean; timeRemaining: () => number };
 type IdleReqCb = (deadline: IdleReqCbDeadline) => void;
-
 function requestIdle(fn: () => void, timeout = 1200): () => void {
   if (typeof window === "undefined") return () => {};
   const ric = (window as Window & {
     requestIdleCallback?: (cb: IdleReqCb, opts?: { timeout?: number }) => number;
     cancelIdleCallback?: (id: number) => void;
   }).requestIdleCallback;
-
   if (typeof ric === "function") {
     const id = ric(() => fn(), { timeout });
     return () => (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(id);
@@ -39,11 +37,10 @@ function requestIdle(fn: () => void, timeout = 1200): () => void {
   }
 }
 
-/* ========= singleton IntersectionObserver + generic hook ========= */
+/* ========= in-view once ========= */
 type IOCallback = (inView: boolean) => void;
 let _io: IntersectionObserver | null = null;
 const _watch = new Map<Element, IOCallback>();
-
 function ensureObserver() {
   if (_io) return _io;
   _io = new IntersectionObserver(
@@ -51,15 +48,13 @@ function ensureObserver() {
       for (const e of entries) {
         const cb = _watch.get(e.target);
         if (cb) cb(e.isIntersecting);
-        if (e.isIntersecting) _io?.unobserve(e.target); // fire once
+        if (e.isIntersecting) _io?.unobserve(e.target);
       }
     },
     { threshold: 0.1, rootMargin: "200px 0px 200px 0px" }
   );
   return _io;
 }
-
-// null-safe, generic
 function useInViewOnce<T extends Element>(ref: React.RefObject<T | null>) {
   const [inView, setInView] = useState(false);
   useEffect(() => {
@@ -71,40 +66,36 @@ function useInViewOnce<T extends Element>(ref: React.RefObject<T | null>) {
     io.observe(el);
     return () => {
       _watch.delete(el);
-      try {
-        io.unobserve(el);
-      } catch {}
+      try { io.unobserve(el); } catch {}
     };
   }, [ref, inView]);
   return inView;
 }
 
-/* ========= fluid desktop scale helper =========
-   Shrinks desktop smoothly between WIDTH_MIN..WIDTH_MAX.
-   - At >= WIDTH_MAX → MAX_SCALE
-   - At <= WIDTH_MIN → MIN_SCALE
-   - In between → linear interpolation
-*/
+/* ========= helpers / constants ========= */
 function computeDesktopScale(viewW: number) {
-  const WIDTH_MIN = 820;    // start shrinking below this (desktop/tablet-ish)
-  const WIDTH_MAX = 1440;   // full desktop width
-  const MIN_SCALE = 1.0;    // smallest desktop scale (just above mobile)
-  const MAX_SCALE = 1.3;    // your current desktop "big" scale
-
+  const WIDTH_MIN = 820, WIDTH_MAX = 1440, MIN_SCALE = 1.0, MAX_SCALE = 1.3;
   if (viewW >= WIDTH_MAX) return MAX_SCALE;
   if (viewW <= WIDTH_MIN) return MIN_SCALE;
-
   const t = (viewW - WIDTH_MIN) / (WIDTH_MAX - WIDTH_MIN);
   return MIN_SCALE + t * (MAX_SCALE - MIN_SCALE);
 }
+const HOVER_DUR = 0.4;
+const HOVER_EASE_CSS = "cubic-bezier(0.22,1,0.36,1)";
+const HOVER_EASE_ARRAY = [0.22, 1, 0.36, 1] as const;
+const MAX_TILT_DEG = 5;
+const HOVER_ATTACH_DELAY_MS = 120;
+const isSafari =
+  typeof navigator !== "undefined" &&
+  /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-/* ======================================================= */
+/* ========= props ========= */
 export interface InlineEntranceCardProps {
   title: string;
   href: string;
-  sectionKey: SectionKey; // "casa" | "cafe" | "farmtotable"
+  sectionKey: SectionKey;
   description?: string;
-  videoSrc?: never;        // unused, API-compat only
+  videoSrc?: never;
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
   className?: string;
   onActivate?: () => void;
@@ -120,79 +111,54 @@ export default function InlineEntranceCard({
   onActivate = () => {},
 }: InlineEntranceCardProps) {
   const { startTransition } = useSharedTransition();
-
-  // i18n CTA
   const isES = href.startsWith("/es");
   const ctaText = isES ? "Haz Click" : "Click Me";
 
-
-
-  // responsive breakpoints
   const [isMobile, setIsMobile] = useState(false);
   const [desktopScale, setDesktopScale] = useState(1.3);
 
-  // rAF-throttled resize handler to update isMobile + desktop scale
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     let raf = 0;
     const onResize = () => {
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const w = window.innerWidth;
         setIsMobile(w < 768);
-        // Only matters on desktop; harmless to update always
         setDesktopScale(computeDesktopScale(w));
       });
     };
-
     onResize();
     window.addEventListener("resize", onResize, { passive: true });
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-    };
+    return () => { if (raf) cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
   }, []);
 
-  // hover state
   const [isHovered, setIsHovered] = useState(false);
-
-  // refs
   const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const rectRef  = useRef<DOMRect | null>(null);
-  const rafRef   = useRef<number | null>(null);
+  const rectRef = useRef<DOMRect | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const hoverTO = useRef<number | null>(null);
 
-  // in-view (shared IO)
   const isInView = useInViewOnce(cardRef);
-  // slug for aria + asset naming (trailing-slash safe)
   const lastSeg = href.replace(/\/+$/, "").split("/").pop() || "";
-  const slug = lastSeg || sectionKey; // fallback to sectionKey if last segment is empty
+  const slug = lastSeg || sectionKey;
 
-  // If you prefer explicit control per card, allow an optional prop:
-  // export interface InlineEntranceCardProps { ... videoBase?: string; ... }
-  // and plumb it in; for now we infer:
-  const videoBase = slug; // or props.videoBase ?? slug
-
-  // desktop hover video URLs (mobile skips entirely)
+  const videoBase = slug;
   const base = !isMobile && videoBase ? `${videoBase}-HD` : "";
   const srcA = base ? `/videos/${base}.${PREFERS_WEBM ? "webm" : "mp4"}` : "";
-  const srcB = base ? `/videos/${base}.${PREFERS_WEBM ? "mp4"  : "webm"}` : "";
+  const srcB = base ? `/videos/${base}.${PREFERS_WEBM ? "mp4" : "webm"}` : "";
 
-  // attach <source> lazily the first time we hover (desktop, in view)
   const sourcesAttachedRef = useRef(false);
   const attachSources = useCallback(() => {
     if (isMobile || !isInView || sourcesAttachedRef.current) return;
     const v = videoRef.current;
     if (!v || !srcA) return;
-    // Clean stale sources (in case of hot reloads)
     while (v.firstChild) v.removeChild(v.firstChild);
     const s1 = document.createElement("source");
-    s1.src = srcA;
-    s1.type = srcA.endsWith(".webm") ? "video/webm" : "video/mp4";
+    s1.src = srcA; s1.type = srcA.endsWith(".webm") ? "video/webm" : "video/mp4";
     const s2 = document.createElement("source");
-    s2.src = srcB;
-    s2.type = srcB.endsWith(".webm") ? "video/webm" : "video/mp4";
+    s2.src = srcB; s2.type = srcB.endsWith(".webm") ? "video/webm" : "video/mp4";
     v.append(s1, s2);
     v.load();
     sourcesAttachedRef.current = true;
@@ -200,28 +166,25 @@ export default function InlineEntranceCard({
 
   const handleMouseEnter = useCallback(() => {
     if (isMobile) return;
-    attachSources();
-    const v = videoRef.current;
-    if (v && isInView) {
-      if (v.readyState < 2) v.load();
-      v.currentTime = 0; // nudge
-      v.play().catch(() => {});
-    }
-    setIsHovered(true);
+    hoverTO.current = window.setTimeout(() => {
+      attachSources();
+      const v = videoRef.current;
+      if (v && isInView) {
+        if (v.readyState < 2) v.load();
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      }
+      setIsHovered(true);
+    }, HOVER_ATTACH_DELAY_MS);
   }, [isMobile, isInView, attachSources]);
 
-  // also support keyboard/focus & touchpad
   const handlePointerEnter = handleMouseEnter;
 
-
-  // optional: idle preload (desktop only, once visible)
   useEffect(() => {
     if (isMobile || !isInView || !srcA) return;
     const cancel = requestIdle(() => {
       const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "video";
-      link.href = srcA;
+      link.rel = "preload"; link.as = "video"; link.href = srcA;
       link.type = srcA.endsWith(".webm") ? "video/webm" : "video/mp4";
       link.setAttribute("importance", "low");
       document.head.appendChild(link);
@@ -229,39 +192,29 @@ export default function InlineEntranceCard({
     return cancel;
   }, [isMobile, isInView, srcA]);
 
-  // hover playback (desktop only)
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid || !isInView || isMobile) return;
-    if (isHovered) {
-      if (!sourcesAttachedRef.current) attachSources();
-      vid.play().catch(() => {});
-    } else {
-      vid.pause();
-    }
+    if (isHovered) { if (!sourcesAttachedRef.current) attachSources(); vid.play().catch(() => {}); }
+    else { vid.pause(); }
   }, [isHovered, isMobile, isInView, attachSources]);
 
-  // ── Imperative tilt (no React state on move) ─────────────────────
+  // transform-only tilt
   const applyTilt = (clientX: number, clientY: number) => {
-    const node = cardRef.current;
-    const rect = rectRef.current;
+    const node = cardRef.current, rect = rectRef.current;
     if (!node || !rect) return;
     const x = (clientX - rect.left) / rect.width - 0.5;
     const y = (clientY - rect.top) / rect.height - 0.5;
-
-    node.style.transform =
-      `perspective(1000px) translateY(-8px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`;
-    node.style.boxShadow =
-      `${(-x * 20).toFixed(2)}px ${(y * 20).toFixed(2)}px 30px rgba(0,0,0,0.15)`;
-    node.style.transition = "transform 0.1s ease-out, box-shadow 0.2s ease-out";
+    const rx = Math.max(-MAX_TILT_DEG, Math.min(MAX_TILT_DEG, -y * MAX_TILT_DEG));
+    const ry = Math.max(-MAX_TILT_DEG, Math.min(MAX_TILT_DEG,  x * MAX_TILT_DEG));
+    node.style.transform = `perspective(1000px) translateY(-8px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+    node.style.transition = "transform 0.1s ease-out";
   };
 
   const scheduleTilt = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isMobile) return;
     const { clientX, clientY, currentTarget } = e;
-    if (!rectRef.current) {
-      rectRef.current = currentTarget.getBoundingClientRect();
-    }
+    if (!rectRef.current) rectRef.current = currentTarget.getBoundingClientRect();
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => applyTilt(clientX, clientY));
   };
@@ -271,11 +224,9 @@ export default function InlineEntranceCard({
     rectRef.current = null;
     if (!node) return;
     node.style.transform = "perspective(1000px) translateY(0) rotateX(0) rotateY(0)";
-    node.style.boxShadow = "none";
-    node.style.transition = "transform 0.5s ease, box-shadow 0.3s ease";
+    node.style.transition = "transform 0.5s ease";
   };
 
-  // resize: invalidate cached rect (already handled globally, but safe to keep)
   useEffect(() => {
     const onResize = () => (rectRef.current = null);
     window.addEventListener("resize", onResize, { passive: true });
@@ -284,48 +235,36 @@ export default function InlineEntranceCard({
 
   const handleMouseLeave = useCallback(() => {
     if (isMobile) return;
+    if (hoverTO.current) { clearTimeout(hoverTO.current); hoverTO.current = null; }
     clearTilt();
+    const v = videoRef.current;
+    if (v) { v.pause(); v.currentTime = 0; }
     setIsHovered(false);
   }, [isMobile]);
 
   const handleActivate = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     onActivate?.();
-    startTransition(sectionKey, href); // transition independent of hover video
+    startTransition(sectionKey, href);
   }, [href, sectionKey, onActivate, startTransition]);
 
-  // ── Dimensions (FLUID DESKTOP, FIXED MOBILE) ─────────────────────
-  // Base design tokens (unscaled)
-  const BASE = {
-    CARD_W: 256,
-    CARD_H: 210,
-    TOP_H: 128,
-    CIRCLE: 80,
-    UNDERLAY_H: 25,
-    MOBILE_COLLAPSED: 96,
-  };
-
-  // Compute scale for desktop; mobile stays as your current visuals.
+  // dimensions
+  const BASE = { CARD_W: 256, CARD_H: 210, TOP_H: 128, CIRCLE: 80, UNDERLAY_H: 25, MOBILE_COLLAPSED: 96 };
   const scale = isMobile ? 1 : desktopScale;
-
-  const CARD_WIDTH   = BASE.CARD_W * scale;
-  const CARD_HEIGHT  = BASE.CARD_H * scale;
-  const TOP_DESKTOP  = BASE.TOP_H * scale;
-  const CIRCLE_SIZE  = BASE.CIRCLE * scale;
-  const UNDERLAY_H   = BASE.UNDERLAY_H * scale;
+  const CARD_WIDTH = BASE.CARD_W * scale;
+  const CARD_HEIGHT = BASE.CARD_H * scale;
+  const TOP_DESKTOP = BASE.TOP_H * scale;
+  const CIRCLE_SIZE = BASE.CIRCLE * scale;
+  const UNDERLAY_H = BASE.UNDERLAY_H * scale;
 
   const containerHeight = isMobile ? BASE.MOBILE_COLLAPSED : CARD_HEIGHT;
-  const topHeight       = isMobile ? 0 : TOP_DESKTOP;
-  const bottomHeight    = isMobile ? BASE.MOBILE_COLLAPSED : (CARD_HEIGHT - TOP_DESKTOP);
+  const topHeight = isMobile ? 0 : TOP_DESKTOP;
+  const bottomHeight = isMobile ? BASE.MOBILE_COLLAPSED : CARD_HEIGHT - TOP_DESKTOP;
 
   return (
     <div
       className={`relative ${className}`}
-      style={{
-        width: isMobile ? "100%" : Math.round(CARD_WIDTH),
-        overflow: "visible",
-      }}
+      style={{ width: isMobile ? "100%" : Math.round(CARD_WIDTH), overflow: "visible" }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -336,9 +275,7 @@ export default function InlineEntranceCard({
         aria-label={`Ir a ${title}`}
         aria-describedby={slug ? `${slug}-desc` : undefined}
         onClick={handleActivate}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleActivate(e);
-        }}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleActivate(e); }}
         className="block relative cursor-pointer"
       >
         <motion.div
@@ -349,24 +286,34 @@ export default function InlineEntranceCard({
           <div
             ref={cardRef}
             onMouseMove={scheduleTilt}
+            className="shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
             style={{
               width: "100%",
               height: Math.round(containerHeight),
               cursor: "pointer",
-              contain: "layout paint style", // perf: isolate layout/paint
-              willChange: "transform",       // perf: smoother tilt
-              transform: "translateZ(0)",    // perf: own layer
+              contain: "layout paint style",
+              willChange: "transform",
+              transform: "translateZ(0)",
             }}
           >
-            <div style={{ border: "4px solid #e8e4d5", borderRadius: 24, overflow: "hidden", height: "100%" }}>
-              {/* Top Video (DESKTOP ONLY) */}
+            <div
+              style={{
+                // 🔁 FIX: transparent container (no cream fill over video)
+                border: "4px solid #e8e4d5",
+                borderRadius: 24,
+                overflow: "hidden",
+                height: "100%",
+                background: "transparent",
+              }}
+            >
+              {/* Top (transparent over video) */}
               <div
                 style={{
                   position: "relative",
                   overflow: "hidden",
-                  zIndex: 2000,
+                  zIndex: 2,
                   height: isHovered ? topHeight * 0.7 : topHeight,
-                  transition: "height 0.4s ease",
+                  transition: `height ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                 }}
               >
                 {!isMobile && (
@@ -386,20 +333,21 @@ export default function InlineEntranceCard({
                       objectFit: "cover",
                       opacity: isHovered ? 1 : 0,
                       display: "block",
-                      zIndex: 2001,
+                      zIndex: 3,
                       willChange: "transform, opacity",
+                      transition: `opacity ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                     }}
                   />
                 )}
               </div>
 
-              {/* Bottom Text (unchanged content, fluid spacing) */}
+              {/* Bottom (cream panel) */}
               <motion.div
                 initial={{ height: bottomHeight }}
                 animate={{ height: isHovered ? bottomHeight + UNDERLAY_H + 15 : bottomHeight }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
+                transition={{ duration: HOVER_DUR, ease: HOVER_EASE_ARRAY }}
                 style={{
-                  background: "#e8e4d5",
+                  background: "#e8e4d5", // cream ONLY here
                   padding: `${Math.max(8, 10 * scale)}px ${Math.max(12, 16 * scale)}px`,
                   display: "flex",
                   flexDirection: "column",
@@ -415,10 +363,10 @@ export default function InlineEntranceCard({
                     margin: 1,
                     zIndex: 2,
                     fontFamily: "var(--font-serif)",
-                    fontSize: isMobile ? 28 : Math.round(22 * scale), // fluid but keeps hierarchy
+                    fontSize: isMobile ? 28 : Math.round(22 * scale),
                     fontWeight: isMobile ? 600 : 300,
                     marginTop: isHovered ? Math.round(20 * scale) : Math.round(28 * scale),
-                    transition: "margin-top 0.4s ease",
+                    transition: `margin-top ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                   }}
                   className="not-italic"
                 >
@@ -434,7 +382,7 @@ export default function InlineEntranceCard({
                       fontSize: Math.max(14, Math.round(16 * Math.min(1, scale))),
                       maxWidth: Math.round(224 * scale),
                       opacity: isHovered ? 1 : 0,
-                      transition: "opacity 0.4s ease",
+                      transition: `opacity ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                     }}
                   >
                     {description}
@@ -444,13 +392,15 @@ export default function InlineEntranceCard({
             </div>
           </div>
 
-          {/* Underlay (fluid height) */}
+          {/* Underlay (Safari-friendly) */}
           {!isMobile && (
             <motion.div
               initial={{ y: 0 }}
               animate={isHovered ? { y: UNDERLAY_H } : { y: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="absolute bottom-0 left-0 w-full h-16 bg-white/30 backdrop-blur-md flex items-center justify-center pt-7 pointer-events-none"
+              transition={{ duration: 0.3, ease: HOVER_EASE_ARRAY }}
+              className={`absolute bottom-0 left-0 w-full h-16 flex items-center justify-center pt-7 pointer-events-none ${
+                isSafari ? "bg-white/40" : "bg-white/30 backdrop-blur-sm"
+              }`}
               style={{
                 height: Math.max(48, Math.round(64 * scale)),
                 borderBottomLeftRadius: 24,
@@ -469,17 +419,17 @@ export default function InlineEntranceCard({
             <div
               style={{
                 position: "absolute",
-                zIndex: 400,
+                zIndex: 4,
                 left: "50%",
-                width: Math.round((isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE)),
-                height: Math.round((isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE)),
+                width: Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
+                height: Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
                 borderRadius: "50%",
                 border: "4px solid #e8e4d5",
                 background: "#e8e4d5",
                 overflow: "hidden",
-                top: (isHovered ? topHeight * 0.6 : topHeight),
+                top: isHovered ? topHeight * 0.6 : topHeight,
                 transform: "translate(-50%, -50%)",
-                transition: "top 0.4s ease, width 0.4s ease, height 0.4s ease",
+                transition: `top ${HOVER_DUR}s ${HOVER_EASE_CSS}, width ${HOVER_DUR}s ${HOVER_EASE_CSS}, height ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
               }}
             >
               <Logo width="100%" height="100%" />
