@@ -4,8 +4,11 @@
 import { ReactNode, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { LazyMotion, domAnimation } from "framer-motion";
-import { SharedTransitionProvider, useSharedTransition } from "@/contexts/SharedTransitionContext";
-import { ReservationProvider } from "@/contexts/ReservationContext";
+import {
+  SharedTransitionProvider,
+  useSharedTransition,
+} from "@/contexts/SharedTransitionContext";
+import { ReservationProvider, useReservation } from "@/contexts/ReservationContext";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
 import ClientProviders from "@/components/providers/ClientProviders";
 
@@ -15,7 +18,7 @@ interface AppProvidersProps {
 
 /* ========== Lazy bits ========== */
 
-// Reservation modal: already good to lazy-load
+// Reservation modal: only loaded when actually needed
 const ReservationModal = dynamic(
   () => import("@/components/forms/reservation/ReservationModal"),
   { ssr: false, loading: () => null }
@@ -29,7 +32,11 @@ const SharedVideoTransitionLazy = dynamic(
 
 /* ========== Conditional shells ========== */
 
+/** Load & render reservation modal only when it's open (saves a chunk on idle pages). */
 const ConditionalReservationModal = () => {
+  const { isOpen } = useReservation();
+  if (!isOpen) return null;
+  // If you localize by route, swap "es" for detected lang
   return <ReservationModal lang="es" />;
 };
 
@@ -53,22 +60,21 @@ function TransitionOverlayGate() {
   useEffect(() => {
     const onIntent = () => setWarm(true);
 
-    const onPointerOver = (e: Event) => {
+    const onPointerOver = (e: PointerEvent) => {
       const t = e.target as HTMLElement | null;
-      const hit = t?.closest?.("[data-transition-intent]");
-      if (hit) setWarm(true);
+      if (t?.closest?.("[data-transition-intent]")) setWarm(true);
     };
 
+    // Custom events may be dispatched from anywhere in the app
     window.addEventListener("olivea:transition-intent", onIntent as EventListener);
-    window.addEventListener("pointerover", onPointerOver, { passive: true } as AddEventListenerOptions);
+    window.addEventListener("pointerover", onPointerOver, { passive: true });
 
     return () => {
       window.removeEventListener("olivea:transition-intent", onIntent as EventListener);
-      window.removeEventListener("pointerover", onPointerOver as EventListener);
+      window.removeEventListener("pointerover", onPointerOver);
     };
   }, []);
 
-  // Render overlay only when needed
   if (!warm && !isActive) return null;
   return <SharedVideoTransitionLazy />;
 }
