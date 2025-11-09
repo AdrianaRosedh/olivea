@@ -198,18 +198,30 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <MagneticButton
-          aria-label={labels[lang].open}
-          className="relative w-14 h-14 bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] rounded-[40%_60%_60%_40%] shadow-lg"
-          onClick={handleClick}
-        >
-          <MessageCircle className="w-7 h-7" />
-          <span
-            className={`absolute top-[-4px] right-[-4px] block h-2.5 w-2.5 rounded-full ${
-              chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
-            }`}
-          />
-        </MagneticButton>
+      <MagneticButton
+        // ✅ same lively motion as your Reserve buttons
+        preset="classic"            // dist=12, stiffness=200, damping=16, hoverScale=1.07
+        magnetDistancePx={12}       // you can tweak to 10/14 if you want
+        stiffness={200}
+        damping={16}
+        hoverScale={1.07}
+          
+        // accessibility + visuals
+        aria-label={labels[lang].open}
+        className="relative w-14 h-14 bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] rounded-[40%_60%_60%_40%] shadow-lg"
+          
+        onClick={handleClick}
+      >
+        {/* The whole payload (icon + status dot) now reacts with the same subtle tilt/scale */}
+        <MessageCircle className="w-7 h-7" />
+          
+        <span
+          className={`absolute top-[-4px] right-[-4px] block h-2.5 w-2.5 rounded-full ${
+            chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
+          }`}
+        />
+      </MagneticButton>
+        
 
         <AnimatePresence mode="wait">
           {hovered && (

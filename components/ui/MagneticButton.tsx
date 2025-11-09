@@ -1,128 +1,162 @@
-// components/ui/MagneticButton.tsx
 "use client";
 
-import type React from "react";
-import { useRef } from "react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import React, { useEffect, useRef } from "react";
+import { m, useMotionValue, useTransform, animate } from "framer-motion";
 
-interface MagneticButtonProps {
-  href?: string;
-  className?: string;
-  /** Extra classes for the inner text span (use this to control font family/weight/size/letter-spacing) */
+type Preset = "classic" | "subtle";
+
+type MagneticButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  disableMagnet?: boolean;
+  preset?: Preset;
+  magnetDistancePx?: number;
+  stiffness?: number;
+  damping?: number;
+  hoverScale?: number;
+  /** how much the label follows the magnet (0..1), default 0.35 */
+  followRatio?: number;
   textClassName?: string;
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  /** Accessibility label if the content isn’t descriptive */
   ariaLabel?: string;
-}
+};
 
 export default function MagneticButton({
-  href,
-  className,
-  textClassName,
-  children,
-  onClick,
-  disabled = false,
+  className = "",
+  textClassName = "",
   ariaLabel,
+  disableMagnet,
+  preset = "subtle",
+  magnetDistancePx,
+  stiffness,
+  damping,
+  hoverScale,
+  followRatio = 0.35,
+  onClick,
+  children,
+  ...rest
 }: MagneticButtonProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springX = useSpring(mouseX, { stiffness: 80, damping: 10 });
-  const springY = useSpring(mouseY, { stiffness: 80, damping: 10 });
-
-  const x = useTransform(springX, (v) => `${v}px`);
-  const y = useTransform(springY, (v) => `${v}px`);
-
-  const textX = useTransform(springX, (v) => `${v * 1.2}px`);
-  const textY = useTransform(springY, (v) => `${v * 1.2}px`);
-
-  const shineX = useTransform(springX, (v) => `${v * 0.4}px`);
-  const shineY = useTransform(springY, (v) => `${v * 0.4}px`);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (disabled) return;
-    const bounds = ref.current?.getBoundingClientRect();
-    if (!bounds) return;
-
-    const offsetX = e.clientX - bounds.left - bounds.width / 2;
-    const offsetY = e.clientY - bounds.top - bounds.height / 2;
-
-    mouseX.set(offsetX * 0.6);
-    mouseY.set(offsetY * 0.6);
+  /** ── presets ── */
+  const PRESETS: Record<Preset, { dist: number; stiff: number; damp: number; hover: number }> = {
+    classic: { dist: 12, stiff: 200, damp: 16, hover: 1.07 },
+    subtle:  { dist:  8, stiff: 260, damp: 22, hover: 1.03 },
   };
+  const p = PRESETS[preset];
+  const dist   = magnetDistancePx ?? p.dist;
+  const stiff  = stiffness ?? p.stiff;
+  const damp   = damping ?? p.damp;
+  const hScale = hoverScale ?? p.hover;
 
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
+  /** ── env ── */
+  const isReduced =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const isFirefox =
+    typeof navigator !== "undefined" && /firefox/i.test(navigator.userAgent);
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (disabled) {
-      e.preventDefault();
-      return;
-    }
-    if (onClick) {
-      e.preventDefault();
-      try {
-        onClick();
-      } catch (error) {
-        console.error("Error in MagneticButton onClick handler:", error);
-      }
-    }
-  };
+  const maxShift = isFirefox ? Math.min(dist, preset === "classic" ? 9 : 6) : dist;
+  const enabled = !disableMagnet && !isReduced && maxShift > 0;
 
-  const ButtonContent = (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-      aria-label={ariaLabel}
-      className={cn(
-        "relative inline-flex items-center justify-center",
-        "px-6 py-3 md:px-8 md:py-3.5 lg:px-9 lg:py-4",
-        "rounded-full transition-transform duration-300 overflow-hidden",
-        "bg-black text-white shadow-xl hover:scale-110 active:scale-95",
-        disabled && "opacity-50 cursor-not-allowed hover:scale-100 active:scale-100",
-        className
-      )}
-      style={{ x, y }}
-    >
-      {/* Shine Layer */}
-      <motion.span
-        style={{ x: shineX, y: shineY }}
-        className="absolute w-[160%] h-[160%] bg-gradient-to-br from-white/10 to-transparent rounded-full blur-2xl z-0 pointer-events-none"
-      />
+  /** ── hooks (always called) ── */
+  const tx = useMotionValue(0);
+  const ty = useMotionValue(0);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
-      {/* Text Layer with exaggerated motion */}
-      <motion.span
-        style={{ x: textX, y: textY }}
-        className={cn(
-          // default typography (kept minimal so your overrides take precedence)
-          "relative z-10 tracking-wide",
-          // responsive default sizes (override freely via textClassName)
-          "text-base md:text-lg lg:text-xl",
-          // weight default (override with font-* in textClassName)
-          "font-semibold",
-          textClassName
-        )}
+  useEffect(() => {
+    if (!enabled) return;
+    const el = btnRef.current;
+    if (!el) return;
+
+    let rect = el.getBoundingClientRect();
+    let over = false;
+    let raf = 0;
+
+    const onEnter = () => {
+      over = true;
+      rect = el.getBoundingClientRect();
+    };
+
+    const onMove = (e: PointerEvent) => {
+      if (!over) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const nx = Math.max(-1, Math.min(1, (e.clientX - cx) / (rect.width / 2)));
+        const ny = Math.max(-1, Math.min(1, (e.clientY - cy) / (rect.height / 2)));
+        animate(tx, nx * maxShift, { type: "spring", stiffness: stiff, damping: damp });
+        animate(ty, ny * maxShift, { type: "spring", stiffness: stiff, damping: damp });
+      });
+    };
+
+    const onLeave = () => {
+      over = false;
+      cancelAnimationFrame(raf);
+      animate(tx, 0, { type: "spring", stiffness: stiff, damping: damp });
+      animate(ty, 0, { type: "spring", stiffness: stiff, damping: damp });
+    };
+
+    el.addEventListener("pointerenter", onEnter);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerleave", onLeave);
+
+    return () => {
+      el.removeEventListener("pointerenter", onEnter);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+      cancelAnimationFrame(raf);
+    };
+  }, [enabled, tx, ty, maxShift, stiff, damp]);
+
+  /** ── derived motion for label (now follows) ── */
+  // inner translation (parallax): a fraction of outer tx/ty
+  const innerX = useTransform(tx, (v) => v * followRatio);
+  const innerY = useTransform(ty, (v) => v * followRatio);
+  // subtle tilt/scale still tied to motion
+  const textRotateY = useTransform(tx, [-maxShift, maxShift], [-4, 4]);  // rotateY with horizontal move
+  const textRotateX = useTransform(ty, [-maxShift, maxShift], [4, -4]);  // rotateX with vertical move
+  const textScale   = useTransform(tx, [-maxShift, maxShift], [1, hScale]);
+
+  /** ── render ── */
+  if (!enabled) {
+    return (
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={onClick}
+        aria-label={ariaLabel}
+        className={className}
+        {...rest}
       >
-        {children}
-      </motion.span>
-    </motion.div>
-  );
+        <span className={textClassName}>{children}</span>
+      </button>
+    );
+  }
 
-  return href && !disabled ? (
-    <Link href={href} aria-label={ariaLabel}>
-      {ButtonContent}
-    </Link>
-  ) : (
-    ButtonContent
+  return (
+    <m.span style={{ display: "inline-block", x: tx, y: ty, willChange: "transform" }}>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={onClick}
+        aria-label={ariaLabel}
+        className={className}
+        {...rest}
+      >
+        <m.span
+          className={textClassName}
+          style={{
+            x: innerX,
+            y: innerY,
+            rotateX: textRotateX,
+            rotateY: textRotateY,
+            scale: textScale,
+            display: "inline-block",
+            willChange: "transform",
+          }}
+          whileTap={{ scale: Math.max(0.94, hScale - 0.09) }}
+          transition={{ type: "spring", stiffness: stiff, damping: Math.max(14, damp - 4) }}
+        >
+          {children}
+        </m.span>
+      </button>
+    </m.span>
   );
 }
