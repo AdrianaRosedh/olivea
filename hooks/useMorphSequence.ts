@@ -1,10 +1,11 @@
 // hooks/useMorphSequence.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, type RefObject } from "react";
-import { TIMING, SPLASH } from "@/lib/introConstants";
 
-// Widened surface so LegacyAnimationControls fits cleanly
+import { useEffect, type RefObject } from "react";
+import { TIMING, SPLASH, EASE } from "@/lib/introConstants";
+
+/** Widened so framer-motion’s legacy controls fit cleanly */
 type MotionControls = {
   start: (definition: any, transitionOverride?: any) => Promise<any>;
   stop: () => void;
@@ -24,7 +25,11 @@ export function useMorphSequence(
   setIntroStarted: (started: boolean) => void
 ) {
   useEffect(() => {
-    if (!hideBase || !introStarted || !heroBoxRef.current || !logoTargetRef.current) return;
+    if (!hideBase || !introStarted) return;
+
+    const heroEl = heroBoxRef.current;
+    const logoEl = logoTargetRef.current;
+    if (!heroEl || !logoEl) return;
 
     const waitNextFrame = () =>
       new Promise<void>((res) => requestAnimationFrame(() => res()));
@@ -32,7 +37,8 @@ export function useMorphSequence(
     (async () => {
       await waitNextFrame();
 
-      const rect = heroBoxRef.current!.getBoundingClientRect();
+      // READ
+      const rect = heroEl.getBoundingClientRect();
       const vw = window.innerWidth;
       const vh = window.innerHeight;
 
@@ -45,25 +51,26 @@ export function useMorphSequence(
       const x = rect.left + rect.width / 2 - vw / 2;
       const y = rect.top + rect.height / 2 - vh / 2;
 
+      // WRITE
       await waitNextFrame();
       await Promise.all([
         overlayControls.start({
           clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 24px)`,
-          transition: { duration: TIMING.morphSec, ease: [0.42, 0, 0.58, 1] },
+          transition: { duration: TIMING.morphSec, ease: EASE.inOut },
         }),
         innerScaleControls.start({
           x,
           y,
           scaleX,
           scaleY,
-          transition: { duration: TIMING.morphSec, ease: [0.42, 0, 0.58, 1] },
+          transition: { duration: TIMING.morphSec, ease: EASE.inOut },
         }),
       ]);
 
       await new Promise((res) => setTimeout(res, TIMING.settleMs));
       await waitNextFrame();
 
-      const pad = logoTargetRef.current!.getBoundingClientRect();
+      const pad = logoEl.getBoundingClientRect();
       logoBobControls.stop();
       await logoBobControls.start({ y: 0, transition: { duration: 0.2 } });
 
@@ -76,9 +83,10 @@ export function useMorphSequence(
         transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
       });
 
+      // Smooth green fade
       await overlayControls.start({
         opacity: 0,
-        transition: { duration: TIMING.crossfadeSec, ease: [0.19, 1, 0.22, 1] },
+        transition: { duration: TIMING.crossfadeSec, ease: EASE.out },
       });
 
       setOverlayGone(true);
@@ -86,7 +94,7 @@ export function useMorphSequence(
       await new Promise((res) => setTimeout(res, SPLASH.afterCrossfadeMs));
       logoControls.start({
         opacity: 0,
-        transition: { duration: SPLASH.fadeOutSec, ease: [0.19, 1, 0.22, 1] },
+        transition: { duration: SPLASH.fadeOutSec, ease: EASE.out },
       });
       await new Promise((res) => setTimeout(res, SPLASH.fadeOutSec * 1000));
 
