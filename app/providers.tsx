@@ -35,8 +35,32 @@ const SharedVideoTransitionLazy = dynamic(
 /** Load & render reservation modal only when it's open (saves a chunk on idle pages). */
 const ConditionalReservationModal = () => {
   const { isOpen } = useReservation();
-  if (!isOpen) return null;
-  // If you localize by route, swap "es" for detected lang
+  const [warm, setWarm] = useState(false);
+  const [shouldMount, setShouldMount] = useState(false); // ⬅️ latch
+
+  useEffect(() => {
+    const prewarm = () => setWarm(true);
+
+    const onPointerOver = (e: PointerEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t?.closest?.("[data-reserve-intent]")) setWarm(true);
+    };
+
+    window.addEventListener("pointerover", onPointerOver, { passive: true });
+    window.addEventListener("olivea:reserve-intent", prewarm as EventListener);
+
+    return () => {
+      window.removeEventListener("pointerover", onPointerOver);
+      window.removeEventListener("olivea:reserve-intent", prewarm as EventListener);
+    };
+  }, []);
+
+  // ⬇️ once true, stays true for the session (so exit can play)
+  useEffect(() => {
+    if (isOpen || warm) setShouldMount(true);
+  }, [isOpen, warm]);
+
+  if (!shouldMount) return null;
   return <ReservationModal lang="es" />;
 };
 
