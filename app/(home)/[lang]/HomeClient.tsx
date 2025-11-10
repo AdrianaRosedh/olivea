@@ -1,7 +1,7 @@
 // app/(home)/[lang]/HomeClient.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LazyMotion, domAnimation, m, AnimatePresence, type Variants } from "framer-motion";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -16,19 +16,19 @@ import CafeLogo from "@/assets/alebrije-3.svg";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useIntroAnimation } from "@/hooks/useIntroAnimation";
 import { useMorphSequence } from "@/hooks/useMorphSequence";
-import { HERO, TIMING, EASE } from "@/lib/introConstants";
+import { HERO, TIMING } from "@/lib/introConstants";
 import IntroBarFixed from "@/components/intro/IntroBarFixed";
 import LazyShow from "@/components/ui/LazyShow";
 import { watchLCP } from "@/lib/perf/watchLCP";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
 
-// Lazy-load the animated logo drawing component (no SSR)
+// Animated logo (client only)
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), {
   ssr: false,
   loading: () => null,
 });
 
-// Motion variants (unchanged)
+// Motion variants
 const containerVariants: Variants = {
   hidden: {},
   show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } },
@@ -43,9 +43,10 @@ const itemVariants: Variants = {
 };
 
 export default function HomeClient() {
-  // Perf watcher
   useEffect(() => {
     watchLCP();
+    // ensure FixedLCP is reset on entry
+    if (typeof document !== "undefined") document.body.classList.remove("lcp-demote");
   }, []);
 
   const isMobile = useIsMobile();
@@ -53,14 +54,7 @@ export default function HomeClient() {
   const isES = pathname?.startsWith("/es");
   const basePath = isES ? "/es" : "/en";
 
-  // Reset potential "stuck" demotion of the FixedLCP overlay on route enter
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.body.classList.remove("lcp-demote");
-    }
-  }, []);
-
-  // Intro animation composition (original)
+  // Intro animation composition
   const {
     videoRef,
     heroBoxRef,
@@ -74,14 +68,14 @@ export default function HomeClient() {
     revealMain,
     introStarted,
     overlayGone,
-    showVideo,
+    showVideo,              // can still drive video; we’ll OR it with our local gate
     hideBase,
     setOverlayGone,
     setShowLoader,
     setIntroStarted,
   } = useIntroAnimation(isMobile);
 
-  // Morph sequence trigger (original)
+  // Morph sequence (unchanged)
   useMorphSequence(
     hideBase,
     introStarted,
@@ -96,7 +90,20 @@ export default function HomeClient() {
     setIntroStarted
   );
 
-  // Localized copy + section config (original)
+  // --- Mobile video show logic ---
+  // 1) wait for hero image decode (so image wins LCP)
+  // 2) after a short idle delay, show video
+  const [heroDecoded, setHeroDecoded] = useState(false);
+  const [mobileVideoVisible, setMobileVideoVisible] = useState(false);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!isMobile || !heroDecoded) return;
+    const t = setTimeout(() => setMobileVideoVisible(true), 600); // gentle idle-like delay
+    return () => clearTimeout(t);
+  }, [isMobile, heroDecoded]);
+
+  // Localized copy + section config
   type SectionDef = {
     href: string;
     title: string;
@@ -126,7 +133,7 @@ export default function HomeClient() {
   const mobileSections = isMobile ? [sections[1], sections[0], sections[2]] : sections;
   const overlayBg = "var(--olivea-olive)";
 
-  // helper for mobile gap calc (original)
+  // helper for mobile gap calc (avoids SSR window access)
   const vhPx =
     typeof window !== "undefined"
       ? (window.visualViewport?.height ?? window.innerHeight) / 100
@@ -139,7 +146,7 @@ export default function HomeClient() {
   return (
     <LazyMotion features={domAnimation}>
       <>
-        {/* Splash logo (original) */}
+        {/* Splash logo */}
         <AnimatePresence>
           {allowLoader && showLoader && (
             <m.div
@@ -156,14 +163,14 @@ export default function HomeClient() {
           )}
         </AnimatePresence>
 
-        {/* Intro overlay (original) */}
+        {/* Intro overlay */}
         <AnimatePresence>
           {introStarted && (
             <m.div
               key="overlay"
               className="fixed inset-0 z-40 not-italic"
               initial={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: TIMING.crossfadeSec, ease: EASE.out } }}
+              exit={{ opacity: 0, transition: { duration: TIMING.crossfadeSec, ease: [0.19, 1, 0.22, 1] } }}
               style={overlayGone ? { pointerEvents: "none" } : undefined}
             >
               <m.div
@@ -194,7 +201,7 @@ export default function HomeClient() {
           )}
         </AnimatePresence>
 
-        {/* Main (unchanged layout) */}
+        {/* Main */}
         <main
           className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-300 not-italic"
           style={{ opacity: revealMain ? 1 : 0 }}
@@ -209,8 +216,8 @@ export default function HomeClient() {
               marginBottom: isMobile ? -HERO.overlapPx : 0,
             }}
           >
-            {/* Mobile LCP image — add blur + demote FixedLCP on decode */}
-            {isMobile && revealMain && !showVideo && (
+            {/* MOBILE: paint hero image immediately; demote overlay when decoded */}
+            {isMobile && !showVideo && (
               <Image
                 src="/images/hero-mobile.avif"
                 alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
@@ -225,52 +232,77 @@ export default function HomeClient() {
                 blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
                 className="object-cover"
                 onLoadingComplete={() => {
-                  // Demote the fixed overlay the moment the hero is decoded
+                  setHeroDecoded(true);
+                  setOverlayGone?.(true);
                   if (typeof document !== "undefined") document.body.classList.add("lcp-demote");
                 }}
               />
             )}
 
-            {/* Mobile video (original gating) */}
-            {isMobile && showVideo && (
+            {/* MOBILE VIDEO: show after hero decode + small delay (or if hook wants it) */}
+            {isMobile && (showVideo || mobileVideoVisible) && (
               <video
+                ref={mobileVideoRef}
                 className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none md:hidden"
                 muted
                 playsInline
-                loop
                 autoPlay
-                preload="none"
+                loop
+                preload="metadata"          // more reliable for iOS autoplay than "none"
                 poster="/images/hero-mobile.avif"
                 aria-hidden
                 tabIndex={-1}
                 disablePictureInPicture
                 controls={false}
+                onLoadedData={() => {
+                  // nudge playback on iOS if needed
+                  try { mobileVideoRef.current?.play(); } catch {}
+                }}
               >
                 <source src="/videos/homepage-mobile.webm" type="video/webm" />
                 <source src="/videos/homepage-mobile.mp4" type="video/mp4" />
               </video>
             )}
 
-            {/* Desktop video (original) */}
+            {/* DESKTOP: paint image under the video for instant LCP */}
             {!isMobile && (
-              <video
-                ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
-                muted
-                playsInline
-                loop
-                autoPlay
-                preload="metadata"
-                poster="/images/hero.avif"
-                aria-hidden
-                tabIndex={-1}
-              >
-                <source src="/videos/homepage-HD.webm" type="video/webm" />
-                <source src="/videos/homepage-HD.mp4" type="video/mp4" />
-              </video>
+              <>
+                <Image
+                  src="/images/hero.avif"
+                  alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
+                  fill
+                  priority
+                  fetchPriority="high"
+                  decoding="async"
+                  loading="eager"
+                  sizes="98vw"
+                  quality={70}
+                  placeholder="blur"
+                  blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
+                  className="object-cover"
+                  onLoadingComplete={() => {
+                    if (typeof document !== "undefined") document.body.classList.add("lcp-demote");
+                  }}
+                />
+                <video
+                  ref={videoRef}
+                  className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
+                  muted
+                  playsInline
+                  loop
+                  autoPlay
+                  preload="metadata"
+                  poster="/images/hero.avif"
+                  aria-hidden
+                  tabIndex={-1}
+                >
+                  <source src="/videos/homepage-HD.webm" type="video/webm" />
+                  <source src="/videos/homepage-HD.mp4" type="video/mp4" />
+                </video>
+              </>
             )}
 
-            {/* Mobile title after overlay (original) */}
+            {/* Mobile title after overlay */}
             <m.div
               className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
               variants={itemVariants}
@@ -284,11 +316,11 @@ export default function HomeClient() {
               </span>
             </m.div>
 
-            {/* gradient (original) */}
+            {/* gradient */}
             <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
           </div>
 
-          {/* Mobile cards + button (original) */}
+          {/* Mobile cards + button */}
           <m.div
             className="relative z-10 flex flex-col md:hidden flex-1 w-full px-4"
             variants={containerVariants}
@@ -296,7 +328,8 @@ export default function HomeClient() {
             animate={introStarted ? "hidden" : "show"}
             style={{ paddingTop: isMobile ? HERO.overlapPx + extraGap : 0 }}
           >
-            <div className="space-y-12">
+            {/* Give extra bottom padding so the fixed bar never covers content */}
+            <div className="space-y-12 pb-[120px]">
               {mobileSections.map((sec, index) => (
                 <LazyShow key={sec.href}>
                   <m.div
@@ -323,19 +356,23 @@ export default function HomeClient() {
                 </LazyShow>
               ))}
             </div>
-
-            <m.div
-              className="mt-auto w-full pb-6"
-              variants={itemVariants}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.2 }}
-            >
-              <ReservationButton />
-            </m.div>
           </m.div>
 
-          {/* Desktop flow (original, unchanged) */}
+          {/* FIXED bottom bar (mobile only) — always glued to the bottom */}
+          <div
+            className="
+              fixed bottom-0 left-0 right-0 md:hidden z-40
+              px-4
+              pt-3
+              pb-[max(env(safe-area-inset-bottom),16px)]
+              bg-gradient-to-t from-[var(--olivea-cream)]/95 to-transparent
+              backdrop-blur-sm
+            "
+          >
+            <ReservationButton />
+          </div>
+
+          {/* Desktop flow (unchanged) */}
           <div className="absolute inset-0 hidden md:flex flex-col items-center z-40">
             <div
               ref={logoTargetRef}
