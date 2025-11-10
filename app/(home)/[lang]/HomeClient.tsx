@@ -17,10 +17,10 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { useIntroAnimation } from "@/hooks/useIntroAnimation";
 import { useMorphSequence } from "@/hooks/useMorphSequence";
 import { HERO, TIMING, EASE } from "@/lib/introConstants";
-import IntroBarFixed from "@/components/intro/IntroBarFixed";   // ✅ add
-import LazyShow from "@/components/ui/LazyShow";                // ✅ add
-import { watchLCP } from "@/lib/perf/watchLCP";                 // ✅ restore perf watch
-import type { SectionKey } from "@/contexts/SharedTransitionContext"; // ✅ for sectionKey typing
+import IntroBarFixed from "@/components/intro/IntroBarFixed";
+import LazyShow from "@/components/ui/LazyShow";
+import { watchLCP } from "@/lib/perf/watchLCP";
+import type { SectionKey } from "@/contexts/SharedTransitionContext";
 
 // Lazy-load the animated logo drawing component (no SSR)
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), {
@@ -28,7 +28,7 @@ const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"
   loading: () => null,
 });
 
-// Use numeric cubic-bezier arrays for `ease` to satisfy framer-motion’s types
+// Motion variants
 const containerVariants: Variants = {
   hidden: {},
   show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } },
@@ -38,12 +38,11 @@ const itemVariants: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.19, 1, 0.22, 1] }, // ~easeOutCubic
+    transition: { duration: 0.6, ease: [0.19, 1, 0.22, 1] },
   },
 };
 
 export default function HomeClient() {
-  // keep LCP watcher
   useEffect(() => {
     watchLCP();
   }, []);
@@ -89,8 +88,7 @@ export default function HomeClient() {
     setIntroStarted
   );
 
-
-  // Localized copy + section config (typed so sectionKey matches your union)
+  // Localized copy + section config
   type SectionDef = {
     href: string;
     title: string;
@@ -292,7 +290,7 @@ export default function HomeClient() {
             <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
           </div>
 
-          {/* Mobile cards + button */}
+          {/* Mobile cards + sticky button */}
           <m.div
             className="relative z-10 flex flex-col md:hidden flex-1 w-full px-4"
             variants={containerVariants}
@@ -300,7 +298,8 @@ export default function HomeClient() {
             animate={introStarted ? "hidden" : "show"}
             style={{ paddingTop: isMobile ? HERO.overlapPx + extraGap : 0 }}
           >
-            <div className="space-y-12">
+            {/* Cards */}
+            <div className="space-y-12 pb-28"> 
               {mobileSections.map((sec, index) => (
                 <LazyShow key={sec.href}>
                   <m.div
@@ -327,17 +326,22 @@ export default function HomeClient() {
                 </LazyShow>
               ))}
             </div>
-
-            <m.div
-              className="mt-auto w-full pb-6"
-              variants={itemVariants}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.2 }}
+            
+            {/* Sticky bottom bar (mobile only) */}
+            <div
+              className="
+                sticky bottom-0 left-0 right-0 z-40
+                -mx-4 px-4
+                pt-3
+                pb-[max(env(safe-area-inset-bottom),16px)]
+                bg-gradient-to-t from-[var(--olivea-cream)]/95 to-transparent
+                backdrop-blur-sm
+              "
             >
               <ReservationButton />
-            </m.div>
+            </div>
           </m.div>
+
 
           {/* Desktop flow */}
           <div className="absolute inset-0 hidden md:flex flex-col items-center z-40">
