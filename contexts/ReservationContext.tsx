@@ -1,4 +1,3 @@
-// contexts/ReservationContext.tsx
 "use client";
 
 import React, { createContext, useContext, useMemo, useState } from "react";
@@ -6,53 +5,52 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 /** Canonical tabs used across the app */
 export type ReservationType = "restaurant" | "hotel" | "cafe";
 
-/** Legacy aliases still used in a few places */
-type LegacyReservationType = "farmtotable" | "casa" | "cafe";
+/** Legacy aliases still seen in older calls */
+type LegacyType = "farmtotable" | "casa" | "cafe";
 
-/** Map legacy names → canonical names */
-function toCanonical(type: ReservationType | LegacyReservationType): ReservationType {
+/** Map legacy → canonical */
+function toCanonical(type: ReservationType | LegacyType): ReservationType {
   if (type === "farmtotable") return "restaurant";
   if (type === "casa") return "hotel";
-  return type; // "restaurant" | "hotel" | "cafe"
+  return type;
 }
 
 type ReservationContextValue = {
-  /** Modal state */
+  /** modal state */
   isOpen: boolean;
-
-  /** Open/close (canonical) */
-  open: (type?: ReservationType | LegacyReservationType) => void;
+  open: (type?: ReservationType | LegacyType) => void;
   close: () => void;
 
-  /** Back-compat method names expected by existing components */
-  openReservationModal: (type?: ReservationType | LegacyReservationType) => void;
+  /** Back-compat method names (so existing code compiles) */
+  openReservationModal: (type?: ReservationType | LegacyType) => void;
   closeReservationModal: () => void;
 
-  /** Current tab */
+  /** current tab */
   reservationType: ReservationType;
-  setReservationType: (type: ReservationType | LegacyReservationType) => void;
+  setReservationType: (type: ReservationType | LegacyType) => void;
 };
 
-/** Null default to force provider usage (no `as any`) */
+/** Null by default – enforces provider usage (no `as any`) */
 const ReservationContext = createContext<ReservationContextValue | null>(null);
 
 export function ReservationProvider({ children }: { children: React.ReactNode }) {
-  // Default selection: align with prior behavior (restaurant == farmtotable)
-  const [reservationType, _setReservationType] = useState<ReservationType>("restaurant");
+  // Start on "restaurant" to match previous behavior
+  const [reservationType, _setType] = useState<ReservationType>("restaurant");
   const [isOpen, setIsOpen] = useState(false);
 
-  const setReservationType = (type: ReservationType | LegacyReservationType) => {
-    _setReservationType(toCanonical(type));
+  const setReservationType = (t: ReservationType | LegacyType) => {
+    _setType(toCanonical(t));
   };
 
-  const open = (type?: ReservationType | LegacyReservationType) => {
-    if (type) _setReservationType(toCanonical(type));
+  const open = (t?: ReservationType | LegacyType) => {
+    if (t) _setType(toCanonical(t));
     setIsOpen(true);
   };
+
   const close = () => setIsOpen(false);
 
-  // Back-compat method names
-  const openReservationModal = (type?: ReservationType | LegacyReservationType) => open(type);
+  // Back-compat names
+  const openReservationModal = (t?: ReservationType | LegacyType) => open(t);
   const closeReservationModal = () => close();
 
   const value = useMemo<ReservationContextValue>(
@@ -71,7 +69,7 @@ export function ReservationProvider({ children }: { children: React.ReactNode })
   return <ReservationContext.Provider value={value}>{children}</ReservationContext.Provider>;
 }
 
-/** Guarded consumer hook */
+/** Guarded consumer – throws if used outside provider (like SharedTransition) */
 export function useReservation(): ReservationContextValue {
   const ctx = useContext(ReservationContext);
   if (!ctx) {

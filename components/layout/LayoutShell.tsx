@@ -17,6 +17,7 @@ import NextGenBackground from "@/components/animations/NextGenBackground";
 import DesktopChatButton from "@/components/ui/DesktopChatButton";
 import LoadWhistleClient from "@/components/chat/LoadWhistleClient";
 import WhistleToggleMount from "@/components/chat/WhistleToggleMount";
+import { getActiveSection } from "@/lib/sections";
 
 // types
 import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
@@ -29,7 +30,7 @@ import { SECTIONS_CASA_EN } from "@/app/(main)/[lang]/casa/sections.en";
 import { SECTIONS_CAFE_ES } from "@/app/(main)/[lang]/cafe/sections.es";
 import { SECTIONS_CAFE_EN } from "@/app/(main)/[lang]/cafe/sections.en";
 
-// ✅ centralized layout tokens (no magic numbers)
+// centralized layout tokens
 import { DOCK, DOCK_COMPUTED } from "@/lib/ui/tokens";
 
 interface LayoutShellProps {
@@ -62,6 +63,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
+  // single source of truth for section
+  const { section } = getActiveSection(pathname);
+  const isHome = pathname === `/${lang}`;
+  const allowHeroBreakout = !!section; // any identity page
+
   // Lenis → CSS var (guard against null during HMR)
   useEffect(() => {
     if (!lenis) return;
@@ -74,11 +80,6 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
     };
   }, [lenis]);
 
-  const isHome = pathname === `/${lang}`;
-  const isCasaPage = pathname.includes("/casa");
-  const isRestaurantPage = pathname.includes("/farmtotable");
-  const isCafePage = pathname.includes("/cafe");
-
   // CLS-safe header sizing: --header-h comes from CSS media queries in globals.css
   const mainStyle = (isMobile
     ? {
@@ -87,13 +88,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         "--mobile-nav-h": `${84}px`,
       }
     : {
-        // ✅ derived from centralized tokens
+        // centralized tokens
         "--dock-gutter": `${DOCK_COMPUTED.guttersPx}px`,
         "--dock-left": `${DOCK.leftPx + DOCK.gapPx}px`,
         "--dock-right": `${DOCK.rightPx + DOCK.gapPx}px`,
       }) satisfies StyleVars;
-
-  const allowHeroBreakout = isCasaPage || isRestaurantPage || isCafePage;
 
   // Desktop Dock-Right items (memo)
   const dockRightItems = useMemo<DockItem[]>(
@@ -108,39 +107,34 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   );
 
   // Identity + section overrides (memo)
-  const identity: "casa" | "farmtotable" | "cafe" | null = useMemo(() => {
-    if (isCasaPage) return "casa";
-    if (isRestaurantPage) return "farmtotable";
-    if (isCafePage) return "cafe";
-    return null;
-  }, [isCasaPage, isRestaurantPage, isCafePage]);
+  const identity: "casa" | "farmtotable" | "cafe" | null = section?.id ?? null;
 
   const sectionsOverride: Override | undefined = useMemo(() => {
-    if (isRestaurantPage) return mapSections(lang === "es" ? FARM_ES : FARM_EN);
-    if (isCasaPage) return mapSections(lang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN);
-    if (isCafePage) return mapSections(lang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN);
+    if (section?.id === "farmtotable") return mapSections(lang === "es" ? FARM_ES : FARM_EN);
+    if (section?.id === "casa")        return mapSections(lang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN);
+    if (section?.id === "cafe")        return mapSections(lang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN);
     return undefined;
-  }, [isRestaurantPage, isCasaPage, isCafePage, lang]);
+  }, [section?.id, lang]);
 
   // Mobile bottom nav items (memo)
   const mobileNavItems = useMemo(() => {
-    if (isCasaPage) {
+    if (section?.id === "casa") {
       const src = lang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN;
       return src.map((s) => ({ id: s.id, label: s.title }));
     }
-    if (isRestaurantPage) {
+    if (section?.id === "farmtotable") {
       const src = lang === "es" ? FARM_ES : FARM_EN;
       return src.map((s) => ({ id: s.id, label: s.title }));
     }
-    if (isCafePage) {
+    if (section?.id === "cafe") {
       const src = lang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN;
       return src.map((s) => ({ id: s.id, label: s.title }));
     }
     return [];
-  }, [isCasaPage, isRestaurantPage, isCafePage, lang]);
+  }, [section?.id, lang]);
 
   // Only load chat on identity pages (avoid loading on /about, /journal, etc.)
-  const wantsChat = !isHome && (isCasaPage || isRestaurantPage || isCafePage);
+  const wantsChat = !isHome && !!section;
 
   return (
     <>
