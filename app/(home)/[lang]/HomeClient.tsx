@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { cormHero } from "@/app/fonts";
 import ReservationButton from "@components/ui/ReservationButton";
-import InlineEntranceCard from "@/components/ui/InlineEntranceCard";
+import InlineEntranceCard from "@components/ui/InlineEntranceCard";
 import OliveaLogo from "@/assets/alebrije-1.svg";
 import CasaLogo from "@/assets/alebrije-2.svg";
 import FarmLogo from "@/assets/alebrije-1-Green.svg";
@@ -28,7 +28,7 @@ const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"
   loading: () => null,
 });
 
-// Motion variants
+// Motion variants (unchanged)
 const containerVariants: Variants = {
   hidden: {},
   show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } },
@@ -43,6 +43,7 @@ const itemVariants: Variants = {
 };
 
 export default function HomeClient() {
+  // Perf watcher
   useEffect(() => {
     watchLCP();
   }, []);
@@ -52,7 +53,14 @@ export default function HomeClient() {
   const isES = pathname?.startsWith("/es");
   const basePath = isES ? "/es" : "/en";
 
-  // Intro animation composition
+  // Reset potential "stuck" demotion of the FixedLCP overlay on route enter
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.body.classList.remove("lcp-demote");
+    }
+  }, []);
+
+  // Intro animation composition (original)
   const {
     videoRef,
     heroBoxRef,
@@ -73,7 +81,7 @@ export default function HomeClient() {
     setIntroStarted,
   } = useIntroAnimation(isMobile);
 
-  // Morph sequence trigger
+  // Morph sequence trigger (original)
   useMorphSequence(
     hideBase,
     introStarted,
@@ -88,7 +96,7 @@ export default function HomeClient() {
     setIntroStarted
   );
 
-  // Localized copy + section config
+  // Localized copy + section config (original)
   type SectionDef = {
     href: string;
     title: string;
@@ -110,33 +118,15 @@ export default function HomeClient() {
       };
 
   const sections: SectionDef[] = [
-    {
-      href: `${basePath}/casa`,
-      title: "Casa Olivea",
-      description: descriptions.casa,
-      Logo: CasaLogo,
-      sectionKey: "casa",
-    },
-    {
-      href: `${basePath}/farmtotable`,
-      title: "Olivea Farm To Table",
-      description: descriptions.farm,
-      Logo: FarmLogo,
-      sectionKey: "farmtotable",
-    },
-    {
-      href: `${basePath}/cafe`,
-      title: "Olivea Café",
-      description: descriptions.cafe,
-      Logo: CafeLogo,
-      sectionKey: "cafe",
-    },
+    { href: `${basePath}/casa`,        title: "Casa Olivea",          description: descriptions.casa,  Logo: CasaLogo,  sectionKey: "casa" },
+    { href: `${basePath}/farmtotable`, title: "Olivea Farm To Table",  description: descriptions.farm,  Logo: FarmLogo,  sectionKey: "farmtotable" },
+    { href: `${basePath}/cafe`,        title: "Olivea Café",           description: descriptions.cafe,  Logo: CafeLogo,  sectionKey: "cafe" },
   ];
 
   const mobileSections = isMobile ? [sections[1], sections[0], sections[2]] : sections;
   const overlayBg = "var(--olivea-olive)";
 
-  // helper for mobile gap calc (avoids SSR window access)
+  // helper for mobile gap calc (original)
   const vhPx =
     typeof window !== "undefined"
       ? (window.visualViewport?.height ?? window.innerHeight) / 100
@@ -149,7 +139,7 @@ export default function HomeClient() {
   return (
     <LazyMotion features={domAnimation}>
       <>
-        {/* Splash logo */}
+        {/* Splash logo (original) */}
         <AnimatePresence>
           {allowLoader && showLoader && (
             <m.div
@@ -166,7 +156,7 @@ export default function HomeClient() {
           )}
         </AnimatePresence>
 
-        {/* Intro overlay */}
+        {/* Intro overlay (original) */}
         <AnimatePresence>
           {introStarted && (
             <m.div
@@ -204,7 +194,7 @@ export default function HomeClient() {
           )}
         </AnimatePresence>
 
-        {/* Main */}
+        {/* Main (unchanged layout) */}
         <main
           className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-300 not-italic"
           style={{ opacity: revealMain ? 1 : 0 }}
@@ -219,7 +209,7 @@ export default function HomeClient() {
               marginBottom: isMobile ? -HERO.overlapPx : 0,
             }}
           >
-            {/* Mobile LCP image */}
+            {/* Mobile LCP image — add blur + demote FixedLCP on decode */}
             {isMobile && revealMain && !showVideo && (
               <Image
                 src="/images/hero-mobile.avif"
@@ -231,10 +221,17 @@ export default function HomeClient() {
                 loading="eager"
                 sizes="98vw"
                 quality={60}
+                placeholder="blur"
+                blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
                 className="object-cover"
+                onLoadingComplete={() => {
+                  // Demote the fixed overlay the moment the hero is decoded
+                  if (typeof document !== "undefined") document.body.classList.add("lcp-demote");
+                }}
               />
             )}
-            {/* Mobile video */}
+
+            {/* Mobile video (original gating) */}
             {isMobile && showVideo && (
               <video
                 className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none md:hidden"
@@ -253,7 +250,8 @@ export default function HomeClient() {
                 <source src="/videos/homepage-mobile.mp4" type="video/mp4" />
               </video>
             )}
-            {/* Desktop video */}
+
+            {/* Desktop video (original) */}
             {!isMobile && (
               <video
                 ref={videoRef}
@@ -272,7 +270,7 @@ export default function HomeClient() {
               </video>
             )}
 
-            {/* Mobile title after overlay */}
+            {/* Mobile title after overlay (original) */}
             <m.div
               className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
               variants={itemVariants}
@@ -286,11 +284,11 @@ export default function HomeClient() {
               </span>
             </m.div>
 
-            {/* gradient */}
+            {/* gradient (original) */}
             <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
           </div>
 
-          {/* Mobile cards + sticky button */}
+          {/* Mobile cards + button (original) */}
           <m.div
             className="relative z-10 flex flex-col md:hidden flex-1 w-full px-4"
             variants={containerVariants}
@@ -298,8 +296,7 @@ export default function HomeClient() {
             animate={introStarted ? "hidden" : "show"}
             style={{ paddingTop: isMobile ? HERO.overlapPx + extraGap : 0 }}
           >
-            {/* Cards */}
-            <div className="space-y-12 pb-28"> 
+            <div className="space-y-12">
               {mobileSections.map((sec, index) => (
                 <LazyShow key={sec.href}>
                   <m.div
@@ -326,24 +323,19 @@ export default function HomeClient() {
                 </LazyShow>
               ))}
             </div>
-            
-            {/* Sticky bottom bar (mobile only) */}
-            <div
-              className="
-                sticky bottom-0 left-0 right-0 z-40
-                -mx-4 px-4
-                pt-3
-                pb-[max(env(safe-area-inset-bottom),16px)]
-                bg-gradient-to-t from-[var(--olivea-cream)]/95 to-transparent
-                backdrop-blur-sm
-              "
+
+            <m.div
+              className="mt-auto w-full pb-6"
+              variants={itemVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
             >
               <ReservationButton />
-            </div>
+            </m.div>
           </m.div>
 
-
-          {/* Desktop flow */}
+          {/* Desktop flow (original, unchanged) */}
           <div className="absolute inset-0 hidden md:flex flex-col items-center z-40">
             <div
               ref={logoTargetRef}
