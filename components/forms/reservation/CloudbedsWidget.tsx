@@ -13,7 +13,7 @@ function CloudbedsWidgetImpl() {
     <div className="w-full h-full">
       <iframe
         title="Cloudbeds Reservation"
-        src="https://hotels.cloudbeds.com/reservation/pkwNrX?currency=mxn"
+        src="https://hotels.cloudbeds.com/es/reservation/pkwNrX?currency=mxn"
         className="w-full h-full border-none"
         loading="lazy"
         referrerPolicy="strict-origin-when-cross-origin"
