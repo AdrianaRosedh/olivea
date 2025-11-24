@@ -1,66 +1,62 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+
+const SCRIPT_SRC =
+  "https://static1.cloudbeds.com/booking-engine/latest/static/js/immersive-experience/cb-immersive-experience.js";
 
 type Props = {
-  /** When true, auto-open the Immersive popup (Hotel tab active + modal open) */
   autoLaunch?: boolean;
 };
 
-interface CbBookNowButtonProps extends React.HTMLAttributes<HTMLElement> {
-  "property-code": string;
-  mode?: "standard" | "popup";
-  height?: string;
-  width?: string;
-  "class-name"?: string;
-}
-
-/**
- * React wrapper around the <cb-book-now-button> web component.
- * Uses React.createElement so TS/JSX stay happy.
- */
-const CbBookNowButton = React.forwardRef<HTMLElement, CbBookNowButtonProps>(
-  (props, ref) =>
-    React.createElement("cb-book-now-button", {
-      ...props,
-      ref,
-    })
-);
-
-CbBookNowButton.displayName = "CbBookNowButton";
-
 export default function CloudbedsWidget({ autoLaunch }: Props) {
-  const buttonRef = useRef<HTMLElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<Element | null>(null); // <-- FIXED HERE
 
-  // When autoLaunch flips true (Hotel tab), click the hidden button to open the popup
+  // 1. Load Cloudbeds Immersive script (React does not manage it)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const existing = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.src = SCRIPT_SRC;
+    script.async = true;
+    document.head.appendChild(script);
+  }, []);
+
+  // 2. Inject the Cloudbeds button as **raw HTML**, not JSX
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    containerRef.current.innerHTML = `
+      <cb-book-now-button
+        property-code="pkwnrX"
+        mode="popup"
+        height="90vh"
+        width="90vw"
+        style="opacity:0;pointer-events:none;position:absolute;width:1px;height:1px;"
+      ></cb-book-now-button>
+    `;
+
+    // attach reference to the actual element
+    buttonRef.current =
+      containerRef.current.querySelector("cb-book-now-button");
+  }, []);
+
+  // 3. Trigger the popup when Hotel tab is active
   useEffect(() => {
     if (!autoLaunch) return;
 
-    const id = window.setTimeout(() => {
-      buttonRef.current?.click();
-    }, 300); // tiny delay to ensure the script is ready
+    const id = setTimeout(() => {
+      buttonRef.current?.dispatchEvent(new Event("click", { bubbles: true }));
+    }, 600); // small delay so the script initializes
 
-    return () => window.clearTimeout(id);
+    return () => clearTimeout(id);
   }, [autoLaunch]);
 
-  // Only render when Hotel tab + modal are active
   if (!autoLaunch) return null;
 
-  return (
-    <CbBookNowButton
-      ref={buttonRef}
-      property-code="pkwnrX"         // <- your property code from the BE URL
-      mode="popup"                   // popup Immersive Experience
-      height="90vh"
-      width="90vw"
-      class-name="cb-book-now-button"
-      style={{
-        position: "absolute",
-        width: 1,
-        height: 1,
-        opacity: 0,
-        pointerEvents: "none",
-      }}
-    />
-  );
+  return <div ref={containerRef} />;
 }
