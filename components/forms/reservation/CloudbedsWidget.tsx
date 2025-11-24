@@ -1,57 +1,66 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
-const CLOUDBEDS_URL = "https://hotels.cloudbeds.com/reservation/pkwnrX";
-const WIDGET_SRC =
-  "https://hotels.cloudbeds.com/widget/load/pkwnrX/immersive";
+import React, { useEffect, useRef } from "react";
 
 type Props = {
-  /** When true, auto-open the Immersive booking overlay */
+  /** When true, auto-open the Immersive popup (Hotel tab active + modal open) */
   autoLaunch?: boolean;
 };
 
+interface CbBookNowButtonProps extends React.HTMLAttributes<HTMLElement> {
+  "property-code": string;
+  mode?: "standard" | "popup";
+  height?: string;
+  width?: string;
+  "class-name"?: string;
+}
+
+/**
+ * React wrapper around the <cb-book-now-button> web component.
+ * Uses React.createElement so TS/JSX stay happy.
+ */
+const CbBookNowButton = React.forwardRef<HTMLElement, CbBookNowButtonProps>(
+  (props, ref) =>
+    React.createElement("cb-book-now-button", {
+      ...props,
+      ref,
+    })
+);
+
+CbBookNowButton.displayName = "CbBookNowButton";
+
 export default function CloudbedsWidget({ autoLaunch }: Props) {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const buttonRef = useRef<HTMLElement | null>(null);
 
-  // 1) Load the Immersive widget script once (Cloudbeds attaches to data-be-url button)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${WIDGET_SRC}"]`
-    );
-    if (existing) return;
-
-    const script = document.createElement("script");
-    script.src = WIDGET_SRC;
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
-
-  // 2) Auto-click the hidden button when autoLaunch is true
+  // When autoLaunch flips true (Hotel tab), click the hidden button to open the popup
   useEffect(() => {
     if (!autoLaunch) return;
 
-    const timeoutId = window.setTimeout(() => {
-      // By now, the Cloudbeds script should have wired up the button
-      if (buttonRef.current) {
-        buttonRef.current.click();
-      }
-    }, 500); // small delay so the widget JS can attach
+    const id = window.setTimeout(() => {
+      buttonRef.current?.click();
+    }, 300); // tiny delay to ensure the script is ready
 
-    return () => window.clearTimeout(timeoutId);
+    return () => window.clearTimeout(id);
   }, [autoLaunch]);
 
+  // Only render when Hotel tab + modal are active
+  if (!autoLaunch) return null;
+
   return (
-    <button
+    <CbBookNowButton
       ref={buttonRef}
-      type="button"
-      data-be-url={CLOUDBEDS_URL}
-      // No onClick here — Cloudbeds' script owns the click handling.
-      className="sr-only"
-    >
-      Book Now
-    </button>
+      property-code="pkwnrX"         // <- your property code from the BE URL
+      mode="popup"                   // popup Immersive Experience
+      height="90vh"
+      width="90vw"
+      class-name="cb-book-now-button"
+      style={{
+        position: "absolute",
+        width: 1,
+        height: 1,
+        opacity: 0,
+        pointerEvents: "none",
+      }}
+    />
   );
 }
