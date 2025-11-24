@@ -32,13 +32,17 @@ function scheduleIdle(cb: () => void, timeout = 600): () => void {
   };
   if (typeof w.requestIdleCallback === "function") {
     const id = w.requestIdleCallback(() => cb(), { timeout });
-    return () => { if (typeof w.cancelIdleCallback === "function") w.cancelIdleCallback(id); };
+    return () => {
+      if (typeof w.cancelIdleCallback === "function") w.cancelIdleCallback(id);
+    };
   }
   const t = window.setTimeout(cb, 120);
   return () => window.clearTimeout(t);
 }
 
-interface ReservationModalProps { lang: "es" | "en" }
+interface ReservationModalProps {
+  lang: "es" | "en";
+}
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
   const { isOpen, closeReservationModal, reservationType, setReservationType } = useReservation();
@@ -57,67 +61,93 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   // ── Body scroll lock
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
+
+  // ── Full-screen hotel overlay (mobile only)
+  const [showHotelOverlay, setShowHotelOverlay] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setShowHotelOverlay(false);
+      return;
+    }
+
+    // If modal opens and we're already on HOTEL on mobile, show overlay
+    if (isMobile && reservationType === "hotel") {
+      setShowHotelOverlay(true);
+    }
+  }, [isOpen, isMobile, reservationType]);
 
   // ── Pre-mount panes on first open
   const [mounted, setMounted] = useState<{ restaurant: boolean; hotel: boolean; cafe: boolean }>({
-    restaurant: false, hotel: false, cafe: false,
+    restaurant: false,
+    hotel: false,
+    cafe: false,
   });
   useEffect(() => {
     if (!isOpen) return;
-    setMounted(m => (m[reservationType] ? m : { ...m, [reservationType]: true }));
+    setMounted((m) => (m[reservationType] ? m : { ...m, [reservationType]: true }));
     const cancel = scheduleIdle(() => setMounted({ restaurant: true, hotel: true, cafe: true }), 600);
     return cancel;
   }, [isOpen, reservationType]);
 
-  // ── Stable tab handler (keeps your API)
+  // ── Tab handler
   const handleTabClick = useCallback(
-    (id: ReservationType) => setReservationType(id),
-    [setReservationType]
+    (id: ReservationType) => {
+      setReservationType(id);
+
+      // On mobile, switching to HOTEL opens full-screen overlay
+      if (isMobile && id === "hotel") {
+        setShowHotelOverlay(true);
+      }
+    },
+    [isMobile, setReservationType]
   );
 
   // ── Easing & transitions
   const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const enterT: Transition = isMobile
-    ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }   // slide up
-    : { duration: 0.42, ease: EASE, delay: 0.06 };                 // fade/scale (backdrop first)
+    ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }
+    : { duration: 0.42, ease: EASE, delay: 0.06 };
   const exitT: Transition = isMobile
-    ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }   // slide down
-    : { duration: 0.42, ease: EASE };                              // mirror timing/curve
+    ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }
+    : { duration: 0.42, ease: EASE };
 
-  // ── Variants (mirrorable in/out)
   const panelVariants: Variants = isMobile
     ? {
-        hidden:  { y: "100%", opacity: 0 },
-        visible: { y: 0,       opacity: 1, transition: enterT },
-        exit:    { y: "100%",  opacity: 0, transition: exitT  },
+        hidden: { y: "100%", opacity: 0 },
+        visible: { y: 0, opacity: 1, transition: enterT },
+        exit: { y: "100%", opacity: 0, transition: exitT },
       }
     : {
-        hidden:  { scale: 0.9, opacity: 0 },
+        hidden: { scale: 0.9, opacity: 0 },
         visible: { scale: 1.0, opacity: 1, transition: enterT },
-        exit:    { scale: 0.9, opacity: 0, transition: exitT  },
+        exit: { scale: 0.9, opacity: 0, transition: exitT },
       };
 
   const backdropEnter: Transition = { duration: 0.28, ease: EASE };
-  const backdropExit:  Transition = { duration: 0.28, ease: EASE };
+  const backdropExit: Transition = { duration: 0.28, ease: EASE };
 
-  // ── Controlled presence: render while opening OR while animating out
+  // ── Controlled presence
   const [present, setPresent] = useState(false);
-  useEffect(() => { if (isOpen) setPresent(true); }, [isOpen]);
+  useEffect(() => {
+    if (isOpen) setPresent(true);
+  }, [isOpen]);
 
-  // Don’t render anything at all when fully closed and no exit in progress
   if (!isOpen && !present) return null;
 
   return (
     <>
-      {/* Backdrop: cross-fades; remains mounted through exit */}
+      {/* Backdrop */}
       <motion.div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
         initial="hidden"
         animate={isOpen ? "visible" : "hidden"}
         variants={{
-          hidden:  { opacity: 0 },
+          hidden: { opacity: 0 },
           visible: { opacity: 1 },
         }}
         transition={isOpen ? backdropEnter : backdropExit}
@@ -126,7 +156,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         style={{ willChange: "opacity" }}
       />
 
-      {/* Panel: slide/fade on open; mirror on close; unmount after exit completes */}
+      {/* Panel */}
       <motion.div
         className={`fixed inset-0 z-[1300] flex ${
           isMobile ? "items-end justify-center" : "items-center justify-center p-4"
@@ -136,7 +166,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         initial="hidden"
         animate={isOpen ? "visible" : "exit"}
         onAnimationComplete={() => {
-          if (!isOpen) setPresent(false); // unmount only AFTER exit finishes
+          if (!isOpen) setPresent(false);
         }}
         role="dialog"
         aria-modal="true"
@@ -144,9 +174,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       >
         <div
           className={`bg-[var(--olivea-cream)] flex flex-col overflow-hidden ${
-            isMobile
-              ? "w-full h-full rounded-none"
-              : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
+            isMobile ? "w-full h-full rounded-none" : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
           }`}
         >
           {/* Header */}
@@ -181,10 +209,14 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 aria-current={reservationType === id ? "page" : undefined}
               >
                 {id === "restaurant"
-                  ? (lang === "es" ? "Restaurante" : "Restaurant")
+                  ? lang === "es"
+                    ? "Restaurante"
+                    : "Restaurant"
                   : id === "hotel"
                   ? "Hotel"
-                  : (lang === "es" ? "Café" : "Cafe")}
+                  : lang === "es"
+                  ? "Café"
+                  : "Cafe"}
                 {reservationType === id && (
                   <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[var(--olivea-olive)]" />
                 )}
@@ -192,21 +224,66 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             ))}
           </div>
 
-          {/* Panes (mounted once, then hidden/shown) */}
+          {/* Panes */}
           <div className="relative flex-1 overflow-auto bg-[var(--olivea-cream)]">
             {/* HOTEL */}
             <div
-              className={`absolute inset-0 flex flex-col transition-opacity duration-300 ${
-                reservationType === "hotel"
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 pointer-events-none"
+              className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-hidden ${
+                reservationType === "hotel" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
               aria-hidden={reservationType !== "hotel"}
             >
               {mounted.hotel && (
-                <div className="flex-1 flex flex-col px-0 py-0">
-                  <CloudbedsWidget autoLaunch={isOpen} />
-                </div>
+                <>
+                  {/* Hotel header — MOBILE ONLY */}
+                  {isMobile && (
+                    <div className="px-4 py-3 md:px-6 md:py-4 border-b bg-[var(--olivea-cream)]">
+                      <span
+                        className={`${jakarta.className} font-semibold text-[var(--olivea-ink)] tracking-[0.15em] uppercase`}
+                        style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
+                        id="hotel-pane-title"
+                      >
+                        Casa Olivea — Reservaciones
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Hotel content */}
+                  <div
+                    className="flex-1 overflow-auto no-scrollbar"
+                    style={{ WebkitOverflowScrolling: "touch" }}
+                    aria-labelledby="hotel-pane-title"
+                  >
+                    {isMobile ? (
+                      // MOBILE: preview CTA that re-opens full-screen sheet
+                      <div className="px-4 pt-6 pb-10 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setShowHotelOverlay(true)}
+                          className="w-full max-w-md rounded-2xl border border-[var(--olivea-olive)]/30 bg-[var(--olivea-cream)]/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
+                        >
+                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--olivea-ink)]/70 mb-2">
+                            Motor de reservaciones
+                          </p>
+                          <p className="text-sm font-medium text-[var(--olivea-ink)] mb-1">
+                            Gestiona tu reserva de Casa Olivea
+                          </p>
+                          <p className="text-xs text-[var(--olivea-ink)]/70 mb-3">
+                            Toca para abrir el motor seguro de Cloudbeds en pantalla completa.
+                          </p>
+                          <span className="text-xs font-semibold underline underline-offset-4">
+                            Abrir en pantalla completa
+                          </span>
+                        </button>
+                      </div>
+                    ) : (
+                      // DESKTOP: embed Immersive inside the modal
+                      <div className="h-full px-0 py-0">
+                        <CloudbedsWidget autoLaunch={reservationType === "hotel" && isOpen} />
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
 
@@ -219,19 +296,20 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               }`}
               aria-hidden={reservationType !== "restaurant"}
             >
-              {/* Static header (pinned) */}
-              <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)] sticky top-0 z-20">
-                <OliveaLogo className="h-[45px] md:h-[65px]" />
-                <span
-                  className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
-                  style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
-                  id="restaurant-pane-title"
-                >
-                  Olivea Farm To Table
-                </span>
-              </div>
+              {/* Static header (DESKTOP ONLY) */}
+              {!isMobile && (
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)] sticky top-0 z-20">
+                  <OliveaLogo className="h-[45px] md:h-[65px]" />
+                  <span
+                    className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                    style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
+                    id="restaurant-pane-title"
+                  >
+                    Olivea Farm To Table
+                  </span>
+                </div>
+              )}
 
-              {/* Scrollable content area (iframe scrolls under the header) */}
               <div
                 className="flex-1 overflow-auto no-scrollbar"
                 style={{ WebkitOverflowScrolling: "touch" }}
@@ -248,12 +326,19 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               }`}
               aria-hidden={reservationType !== "cafe"}
             >
-              <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)]">
-                <OliveaCafe className="h-[45px] md:h-[65px]" />
-                <span className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`} style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}>
-                  Olivea Café
-                </span>
-              </div>
+              {/* Static header (DESKTOP ONLY) */}
+              {!isMobile && (
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)]">
+                  <OliveaCafe className="h-[45px] md:h-[65px]" />
+                  <span
+                    className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                    style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
+                  >
+                    Olivea Café
+                  </span>
+                </div>
+              )}
+
               <div className="flex-1 flex items-center justify-center italic text-neutral-500 p-6">
                 {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
               </div>
@@ -261,6 +346,38 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
         </div>
       </motion.div>
+
+      {/* MOBILE FULL-SCREEN HOTEL SHEET */}
+      {isMobile && showHotelOverlay && (
+        <div className="fixed inset-0 z-[1400] bg-[var(--olivea-cream)]">
+          <div className="flex items-center px-4 py-3 border-b bg-[var(--olivea-cream)]">
+            <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-[var(--olivea-ink)]/80">
+              Casa Olivea — Reservaciones
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowHotelOverlay(false)}
+              aria-label="Cerrar"
+              className="ml-3 w-9 h-9 flex items-center justify-center rounded-full bg-[var(--olivea-olive)] text-[var(--olivea-cream)] shadow-sm active:scale-95 transition-all"
+            >
+              <X size={20} strokeWidth={1.6} />
+            </button>
+          </div>
+          <div className="w-full h-[calc(100%-44px)]">
+            <iframe
+              src="/cloudbeds-immersive.html"
+              title="Reservas Casa Olivea"
+              className="w-full h-full"
+              loading="eager"
+              style={{
+                border: "none",
+                outline: "none",
+                background: "transparent",
+              }}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }
