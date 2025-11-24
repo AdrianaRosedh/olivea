@@ -195,14 +195,29 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           {/* Panes (mounted once, then hidden/shown) */}
           <div className="relative flex-1 overflow-auto bg-[var(--olivea-cream)]">
             {/* HOTEL */}
-            <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
-                reservationType === "hotel" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-              }`}
-              aria-hidden={reservationType !== "hotel"}
-            >
-              {mounted.hotel && <CloudbedsWidget />}
-            </div>
+              <div
+                className={`absolute inset-0 transition-opacity duration-300 ${
+                  reservationType === "hotel"
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+                aria-hidden={reservationType !== "hotel"}
+              >
+                {mounted.hotel && (
+                  <div className="flex h-full flex-col items-center justify-center gap-4 px-4">
+                    <p className="text-sm md:text-base text-[var(--olivea-ink)]/85 max-w-[32rem] text-center">
+                      Completa tu reserva a través de nuestro motor seguro de Cloudbeds.
+                    </p>
+                
+                    {/* This hidden button + script will open the immersive widget.
+                        autoLaunch ties it to the “Hotel” tab being active. */}
+                    <CloudbedsWidget
+                      autoLaunch={reservationType === "hotel" && isOpen}
+                    />
+                  </div>
+                )}
+              </div>
+
 
             {/* RESTAURANT */}
             <div
