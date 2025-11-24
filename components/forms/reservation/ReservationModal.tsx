@@ -298,7 +298,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               {/* Static header (DESKTOP ONLY) */}
               {!isMobile && (
-                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)] sticky top-0 z-20">
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b bg-[var(--olivea-cream)] sticky top-0 z-20">
                   <OliveaLogo className="h-[45px] md:h-[65px]" />
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
@@ -328,7 +328,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               {/* Static header (DESKTOP ONLY) */}
               {!isMobile && (
-                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b shadow-md bg-[var(--olivea-cream)]">
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 border-b bg-[var(--olivea-cream)]">
                   <OliveaCafe className="h-[45px] md:h-[65px]" />
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
