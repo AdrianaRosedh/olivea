@@ -68,8 +68,8 @@ function buildCsp({
     // style-src
     `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    // img-src
-    `img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com${cloudbedsImgExtra}`,
+    // img-src  ⭐ added https://hotels.cloudbeds.com here
+    `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com${cloudbedsImgExtra}`,
 
     "media-src 'self' blob:",
     "font-src 'self' data:",
@@ -80,7 +80,6 @@ function buildCsp({
 
   return directives.join("; ");
 }
-
 
 function applySecurityHeaders(
   res: NextResponse,
@@ -152,6 +151,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all paths (we handle our own static exemptions above)
   matcher: "/:path*",
 };
