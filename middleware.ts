@@ -48,9 +48,9 @@ function buildCsp({
     ? " https://clientstream.launchdarkly.com https://events.launchdarkly.com https://tile.openstreetmap.org"
     : "";
 
-  // For the immersive page, allow OpenStreetMap + ANY Cloudbeds image host
+  // For the immersive page, allow OpenStreetMap + ANY Cloudbeds image host + Google image CDN
   const cloudbedsImgExtra = allowCloudbedsPage
-    ? " https://tile.openstreetmap.org https://*.cloudbeds.com"
+    ? " https://tile.openstreetmap.org https://*.cloudbeds.com https://lh3.googleusercontent.com"
     : "";
 
   const directives = [
@@ -69,7 +69,7 @@ function buildCsp({
     // style-src
     `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    // img-src  ⭐ now allows hotels.cloudbeds.com + *.cloudbeds.com for immersive page
+    // img-src  ⭐ single line, no newlines
     `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com${cloudbedsImgExtra}`,
 
     "media-src 'self' blob:",
