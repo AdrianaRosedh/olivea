@@ -204,11 +204,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 aria-hidden={reservationType !== "hotel"}
               >
                 {mounted.hotel && (
-                  <div className="flex h-full flex-col items-center justify-center gap-4 px-4">
-                    <p className="text-sm md:text-base text-[var(--olivea-ink)]/85 max-w-[32rem] text-center">
-                      Completa tu reserva a través de nuestro motor seguro de Cloudbeds.
-                    </p>
-                
+                  <div className="flex h-full flex-col items-center justify-center gap-4 px-4">                
                     {/* This hidden button + script will open the immersive widget.
                         autoLaunch ties it to the “Hotel” tab being active. */}
                     <CloudbedsWidget autoLaunch={isOpen} />
