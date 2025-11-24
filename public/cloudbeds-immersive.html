@@ -13,7 +13,6 @@
 
     <style>
       :root {
-        /* Olivea palette – mirrored from your app */
         --olivea-cream: #e8e4d5;
         --olivea-ink: #1f1f1f;
         --olivea-olive: #5a6852;
@@ -29,11 +28,11 @@
         color: var(--olivea-ink);
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter",
           sans-serif;
-        overscroll-behavior: contain;
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: auto;
       }
 
-      /* Outer shell that matches the Olivea modal */
       .olivea-shell {
         position: relative;
         width: 100%;
@@ -42,26 +41,24 @@
         overflow: hidden;
       }
 
-      /* Root container for the immersive app */
       .root {
         position: relative;
-        height: 100%;
         width: 100%;
+        min-height: 100%;
+        background: var(--olivea-cream);
         display: flex;
         align-items: stretch;
         justify-content: stretch;
-        background: var(--olivea-cream);
       }
 
       cb-immersive-experience {
-        width: 100%;
-        height: 100%;
         display: block;
+        width: 100%;
+        min-height: 100%;
         background: transparent;
         animation: olivea-fade-in 600ms ease-out 60ms both;
       }
 
-      /* Subtle bottom gradient so the widget feels embedded in the modal */
       .olivea-fade-bottom {
         pointer-events: none;
         position: absolute;
@@ -76,15 +73,12 @@
         );
       }
 
-      /* General typography smoothing inside the shell */
       .olivea-shell,
       .olivea-shell * {
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
       }
 
-      /* Try to keep things visually soft and card-less without breaking behavior */
-      /* These are intentionally subtle; they won’t always hit Cloudbeds internals if they use shadow DOM */
       .olivea-shell button,
       .olivea-shell input,
       .olivea-shell select,
@@ -92,7 +86,6 @@
         font-family: inherit;
       }
 
-      /* Animation */
       @keyframes olivea-fade-in {
         from {
           opacity: 0;
@@ -109,7 +102,6 @@
   <body>
     <div class="olivea-shell">
       <div class="root">
-        <!-- Full immersive booking engine for your property -->
         <cb-immersive-experience
           property-code="pkwnrX"
           mode="standard"
@@ -117,8 +109,6 @@
           currency="mxn"
         ></cb-immersive-experience>
       </div>
-
-      <!-- Soft bottom fade to blend into the Olivea modal -->
       <div class="olivea-fade-bottom"></div>
     </div>
   </body>
