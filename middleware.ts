@@ -33,16 +33,20 @@ function isStaticPath(path: string): boolean {
 }
 
 /** Build a CSP tuned to route needs */
-function buildCsp({ allowEmbeddingSelf, allowCloudbedsPage }: { allowEmbeddingSelf: boolean; allowCloudbedsPage: boolean }) {
+function buildCsp({
+  allowEmbeddingSelf,
+  allowCloudbedsPage,
+}: {
+  allowEmbeddingSelf: boolean;
+  allowCloudbedsPage: boolean;
+}) {
   // NOTE:
   // - In dev we allow 'unsafe-eval' for React Fast Refresh, etc.
   // - We prefer frame control via frame-ancestors (modern) and avoid X-Frame-Options.
   // - Add domains you actually see in DevTools console if something is blocked by CSP.
 
   const scriptUnsafeEval = isDev ? " 'unsafe-eval'" : "";
-  const frameAncestors = allowEmbeddingSelf
-    ? "'self'"
-    : " 'none'"; // block other sites from embedding (clickjacking protection)
+  const frameAncestors = allowEmbeddingSelf ? "'self'" : " 'none'"; // block other sites from embedding (clickjacking protection)
 
   // For the one Cloudbeds host page, we still don't want others to embed OUR site.
   // What we need is to EMBED their iframes inside our page => that's controlled by frame-src below.
@@ -57,13 +61,13 @@ function buildCsp({ allowEmbeddingSelf, allowCloudbedsPage }: { allowEmbeddingSe
     `form-action 'self'`,
 
     // Where we can open network connections (XHR/fetch/websockets)
-    `connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com`,
+    `connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com`,
 
     // Scripts we execute (keep minimal; avoid wildcards)
-    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval} https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
+    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval} https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
     // Inline styles for critical CSS + vendor styles
-    `style-src 'self' 'unsafe-inline' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
+    `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
     // Images (add your CDNs as needed)
     `img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com`,
@@ -85,25 +89,31 @@ function buildCsp({ allowEmbeddingSelf, allowCloudbedsPage }: { allowEmbeddingSe
     // `upgrade-insecure-requests`,
   ];
 
-  // OpenTable often serves static JS/CSS from cdn.otstatic.com; allow it if used
-  // Add domains **only if** you see CSP errors in DevTools
-  // directives.push(`script-src ... cdn.otstatic.com`, `style-src ... cdn.otstatic.com`)
-
   return directives.join("; ");
 }
 
-/** Apply a consistent set of security headers to a response */
-function applySecurityHeaders(res: NextResponse, opts: { allowEmbeddingSelf: boolean; allowCloudbedsPage: boolean }) {
+function applySecurityHeaders(
+  res: NextResponse,
+  opts: { allowEmbeddingSelf: boolean; allowCloudbedsPage: boolean }
+) {
   res.headers.set("Content-Security-Policy", buildCsp(opts));
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
   // Permissions-Policy (modern syntax)
-  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), accelerometer=(), magnetometer=(), gyroscope=()");
+  res.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=(), accelerometer=(), magnetometer=(), gyroscope=()"
+  );
+
   // HSTS only in production over HTTPS
   if (!isDev) {
-    res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+    res.headers.set(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload"
+    );
   }
-  // Prefer CSP frame-ancestors; do NOT set X-Frame-Options (legacy/overlapping)
+
   return res;
 }
 
@@ -117,18 +127,25 @@ export function middleware(request: NextRequest) {
     const res = NextResponse.next();
     // We allow embedding of THEIR iframes into OUR page (via frame-src in CSP),
     // but we still prevent other sites from embedding OUR page (frame-ancestors 'self').
-    return applySecurityHeaders(res, { allowEmbeddingSelf: false, allowCloudbedsPage: true });
+    return applySecurityHeaders(res, {
+      allowEmbeddingSelf: false,
+      allowCloudbedsPage: true,
+    });
   }
 
   // ---- 2) Bypass locale redirects for static/assets/api ----
   if (isStaticPath(pathNoTrailing || "/")) {
     const res = NextResponse.next();
-    return applySecurityHeaders(res, { allowEmbeddingSelf: false, allowCloudbedsPage: false });
+    return applySecurityHeaders(res, {
+      allowEmbeddingSelf: false,
+      allowCloudbedsPage: false,
+    });
   }
 
   // ---- 3) Locale prefix check & redirect if missing ----
   const hasPrefix = locales.some(
-    (loc) => pathNoTrailing === `/${loc}` || pathNoTrailing.startsWith(`/${loc}/`)
+    (loc) =>
+      pathNoTrailing === `/${loc}` || pathNoTrailing.startsWith(`/${loc}/`)
   );
 
   let response: NextResponse;
@@ -140,7 +157,10 @@ export function middleware(request: NextRequest) {
   }
 
   // ---- 4) Apply security headers to ALL responses (redirects included) ----
-  return applySecurityHeaders(response, { allowEmbeddingSelf: false, allowCloudbedsPage: false });
+  return applySecurityHeaders(response, {
+    allowEmbeddingSelf: false,
+    allowCloudbedsPage: false,
+  });
 }
 
 export const config = {
