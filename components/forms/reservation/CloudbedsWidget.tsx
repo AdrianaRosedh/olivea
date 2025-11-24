@@ -6,17 +6,55 @@ type Props = {
   autoLaunch?: boolean; // true when modal is open
 };
 
+function isMobileViewport() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(max-width: 767px)").matches;
+}
+
 export default function CloudbedsWidget({ autoLaunch }: Props) {
   const [shouldRenderFrame, setShouldRenderFrame] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // Mount iframe ONCE when modal opens first time
+  // Detect mobile on client
   useEffect(() => {
-    if (autoLaunch && !shouldRenderFrame) {
+    if (typeof window === "undefined") return;
+    const check = () => setIsMobile(isMobileViewport());
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Desktop: mount iframe once when modal opens
+  useEffect(() => {
+    if (!isMobile && autoLaunch && !shouldRenderFrame) {
       setShouldRenderFrame(true);
     }
-  }, [autoLaunch, shouldRenderFrame]);
+  }, [autoLaunch, isMobile, shouldRenderFrame]);
 
+  // Mobile: when Hotel tab is active, send user to full-page booking
+  useEffect(() => {
+    if (!isMobile) return;
+    if (!autoLaunch) return;
+
+    // Small delay so the UI feels responsive, then navigate in same tab
+    const id = window.setTimeout(() => {
+      window.location.href = "/cloudbeds-immersive.html";
+    }, 200);
+
+    return () => window.clearTimeout(id);
+  }, [isMobile, autoLaunch]);
+
+  // MOBILE: we don't render anything; we redirect instead
+  if (isMobile) {
+    return (
+      <div className="mt-4 flex justify-center text-xs text-[var(--olivea-ink)]/60">
+        Abriendo motor de reservaciones…
+      </div>
+    );
+  }
+
+  // DESKTOP: iframe inside modal
   if (!shouldRenderFrame) {
     return (
       <div className="mt-4 flex justify-center text-xs text-[var(--olivea-ink)]/60">
