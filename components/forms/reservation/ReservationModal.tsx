@@ -211,9 +211,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 
                     {/* This hidden button + script will open the immersive widget.
                         autoLaunch ties it to the “Hotel” tab being active. */}
-                    <CloudbedsWidget
-                      autoLaunch={reservationType === "hotel" && isOpen}
-                    />
+                    <CloudbedsWidget autoLaunch={isOpen} />
                   </div>
                 )}
               </div>

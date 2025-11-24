@@ -40,57 +40,47 @@ function buildCsp({
   allowEmbeddingSelf: boolean;
   allowCloudbedsPage: boolean;
 }) {
-  // NOTE:
-  // - In dev we allow 'unsafe-eval' for React Fast Refresh, etc.
-  // - We prefer frame control via frame-ancestors (modern) and avoid X-Frame-Options.
-  // - Add domains you actually see in DevTools console if something is blocked by CSP.
-
   const scriptUnsafeEval = isDev ? " 'unsafe-eval'" : "";
-  const frameAncestors = allowEmbeddingSelf ? "'self'" : " 'none'"; // block other sites from embedding (clickjacking protection)
+  const frameAncestors = allowEmbeddingSelf ? "'self'" : " 'none'";
 
-  // For the one Cloudbeds host page, we still don't want others to embed OUR site.
-  // What we need is to EMBED their iframes inside our page => that's controlled by frame-src below.
+  // Extra domains only for the Cloudbeds immersive HTML page
+  const cloudbedsConnectExtra = allowCloudbedsPage
+    ? " https://clientstream.launchdarkly.com https://events.launchdarkly.com https://tile.openstreetmap.org"
+    : "";
+
+  const cloudbedsImgExtra = allowCloudbedsPage
+    ? " https://tile.openstreetmap.org"
+    : "";
 
   const directives = [
     "default-src 'self'",
-    `base-uri 'self'`,
-    `object-src 'none'`,
-    // Clickjacking protection (modern replacement for X-Frame-Options)
+    "base-uri 'self'",
+    "object-src 'none'",
     `frame-ancestors${allowCloudbedsPage ? " 'self'" : frameAncestors}`,
-    // Only send forms to ourselves
-    `form-action 'self'`,
+    "form-action 'self'",
 
-    // Where we can open network connections (XHR/fetch/websockets)
-    `connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com`,
+    // connect-src
+    `connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}`,
 
-    // Scripts we execute (keep minimal; avoid wildcards)
+    // script-src
     `script-src 'self' 'unsafe-inline'${scriptUnsafeEval} https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    // Inline styles for critical CSS + vendor styles
+    // style-src
     `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    // Images (add your CDNs as needed)
-    `img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com`,
+    // img-src
+    `img-src 'self' data: blob: https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com${cloudbedsImgExtra}`,
 
-    // Media (your videos/posters, blobs)
-    `media-src 'self' blob:`,
-
-    // Fonts (self-hosted; add external only if you truly use them)
-    `font-src 'self' data:`,
-
-    // Iframes we embed (their pages appear inside ours)
-    `frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com`,
-
-    // Manifest & workers
-    `manifest-src 'self'`,
-    `worker-src 'self' blob:`,
-
-    // (Optional) upgrade insecure requests if you serve any http links
-    // `upgrade-insecure-requests`,
+    "media-src 'self' blob:",
+    "font-src 'self' data:",
+    "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com",
+    "manifest-src 'self'",
+    "worker-src 'self' blob:",
   ];
 
   return directives.join("; ");
 }
+
 
 function applySecurityHeaders(
   res: NextResponse,
@@ -125,8 +115,6 @@ export function middleware(request: NextRequest) {
   // ---- 1) Special page for Cloudbeds immersive (served as a static HTML asset) ----
   if (pathNoTrailing === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
-    // We allow embedding of THEIR iframes into OUR page (via frame-src in CSP),
-    // but we still prevent other sites from embedding OUR page (frame-ancestors 'self').
     return applySecurityHeaders(res, {
       allowEmbeddingSelf: false,
       allowCloudbedsPage: true,
