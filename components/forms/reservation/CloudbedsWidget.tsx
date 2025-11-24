@@ -1,71 +1,57 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-const IMMERSIVE_SCRIPT_SRC =
-  "https://static1.cloudbeds.com/booking-engine/latest/static/js/immersive-experience/cb-immersive-experience.js";
+const CLOUDBEDS_URL = "https://hotels.cloudbeds.com/reservation/pkwnrX";
+const WIDGET_SRC =
+  "https://hotels.cloudbeds.com/widget/load/pkwnrX/immersive";
 
 type Props = {
-  /** When true, render the Immersive Booking Engine inside the modal */
+  /** When true, auto-open the Immersive booking overlay */
   autoLaunch?: boolean;
 };
 
-/**
- * Props for the Cloudbeds <cb-immersive-experience> custom element.
- * Typed so TS + ESLint stay happy.
- */
-interface CbImmersiveExperienceProps extends React.HTMLAttributes<HTMLElement> {
-  "property-code": string;
-  mode?: "standard" | "popup";
-  lang?: string; // e.g. "es" | "en"
-  currency?: string; // e.g. "mxn"
-  "ignore-search-params"?: "yes" | "no";
-}
-
-/**
- * React wrapper for the <cb-immersive-experience> web component.
- * Uses React.createElement so we don't touch the JSX intrinsic element typing.
- */
-const CbImmersiveExperience = React.forwardRef<
-  HTMLElement,
-  CbImmersiveExperienceProps
->((props, ref) =>
-  React.createElement("cb-immersive-experience", {
-    ...props,
-    ref,
-  })
-);
-
-CbImmersiveExperience.displayName = "CbImmersiveExperience";
-
 export default function CloudbedsWidget({ autoLaunch }: Props) {
-  // Load Immersive Experience script once (registers the web components)
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  // 1) Load the Immersive widget script once (Cloudbeds attaches to data-be-url button)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${IMMERSIVE_SCRIPT_SRC}"]`
+      `script[src="${WIDGET_SRC}"]`
     );
     if (existing) return;
 
     const script = document.createElement("script");
-    script.src = IMMERSIVE_SCRIPT_SRC;
+    script.src = WIDGET_SRC;
     script.async = true;
-    document.head.appendChild(script);
+    document.body.appendChild(script);
   }, []);
 
-  // If the Hotel tab / modal is not active, don't render the component at all
-  if (!autoLaunch) return null;
+  // 2) Auto-click the hidden button when autoLaunch is true
+  useEffect(() => {
+    if (!autoLaunch) return;
+
+    const timeoutId = window.setTimeout(() => {
+      // By now, the Cloudbeds script should have wired up the button
+      if (buttonRef.current) {
+        buttonRef.current.click();
+      }
+    }, 500); // small delay so the widget JS can attach
+
+    return () => window.clearTimeout(timeoutId);
+  }, [autoLaunch]);
 
   return (
-    <div className="w-full h-full max-w-5xl mx-auto">
-      <CbImmersiveExperience
-        property-code="pkwnrX"
-        mode="standard" // or "popup", but inside the modal "standard" feels more natural
-        lang="es"
-        currency="mxn"
-        style={{ width: "100%", height: "100%", minHeight: "60vh" }}
-      />
-    </div>
+    <button
+      ref={buttonRef}
+      type="button"
+      data-be-url={CLOUDBEDS_URL}
+      // No onClick here — Cloudbeds' script owns the click handling.
+      className="sr-only"
+    >
+      Book Now
+    </button>
   );
 }
