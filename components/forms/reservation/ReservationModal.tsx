@@ -279,7 +279,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     ) : (
                       // DESKTOP: embed Immersive inside the modal
                       <div className="h-full px-0 py-0">
-                        <CloudbedsWidget autoLaunch={reservationType === "hotel" && isOpen} />
+                        <CloudbedsWidget />
                       </div>
                     )}
                   </div>
