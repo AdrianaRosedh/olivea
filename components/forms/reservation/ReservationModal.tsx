@@ -205,8 +205,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               >
                 {mounted.hotel && (
                   <div className="flex h-full flex-col items-center justify-center gap-4 px-4">                
-                    {/* This hidden button + script will open the immersive widget.
-                        autoLaunch ties it to the “Hotel” tab being active. */}
                     <CloudbedsWidget autoLaunch={isOpen} />
                   </div>
                 )}

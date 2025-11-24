@@ -29,9 +29,30 @@ export default function Head() {
 
   return (
     <>
+      {/* Existing preconnect to your own origin */}
       <link rel="preconnect" href={SITE.baseUrl} crossOrigin="" />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSite) }} />
+
+      {/* New: preconnects to Cloudbeds for faster Immersive loading */}
+      <link
+        rel="preconnect"
+        href="https://static1.cloudbeds.com"
+        crossOrigin=""
+      />
+      <link
+        rel="preconnect"
+        href="https://hotels.cloudbeds.com"
+        crossOrigin=""
+      />
+
+      {/* Structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSite) }}
+      />
     </>
   );
 }
