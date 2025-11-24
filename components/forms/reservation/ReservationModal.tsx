@@ -195,21 +195,22 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           {/* Panes (mounted once, then hidden/shown) */}
           <div className="relative flex-1 overflow-auto bg-[var(--olivea-cream)]">
             {/* HOTEL */}
-              <div
-                className={`absolute inset-0 transition-opacity duration-300 ${
-                  reservationType === "hotel"
-                    ? "opacity-100 pointer-events-auto"
-                    : "opacity-0 pointer-events-none"
-                }`}
-                aria-hidden={reservationType !== "hotel"}
-              >
-                {mounted.hotel && (
-                  <div className="flex h-full flex-col px-0 py-0 overflow-hidden">              
-                    <CloudbedsWidget autoLaunch={isOpen} />
-                  </div>
-                )}
-              </div>
-
+            <div
+              className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto ${
+                reservationType === "hotel"
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none"
+              }`}
+              aria-hidden={reservationType !== "hotel"}
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
+              {mounted.hotel && (
+                <div className="flex-1 flex flex-col px-0 py-0">
+                  <CloudbedsWidget autoLaunch={isOpen} />
+                </div>
+              )}
+            </div>
+            
 
             {/* RESTAURANT */}
             <div

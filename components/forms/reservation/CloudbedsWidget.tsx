@@ -27,14 +27,14 @@ export default function CloudbedsWidget({ autoLaunch }: Props) {
 
   return (
     <div
-      className={`w-full h-full transition-opacity duration-500 ${
+      className={`w-full transition-opacity duration-500 ${
         loaded ? "opacity-100" : "opacity-0"
       }`}
     >
       <iframe
         src="/cloudbeds-immersive.html"
         title="Reservas Casa Olivea"
-        className="w-full h-[90vh] md:h-[75vh]"
+        className="w-full min-h-[900px] md:min-h-[700px]"
         loading="eager"
         onLoad={() => setLoaded(true)}
         style={{
