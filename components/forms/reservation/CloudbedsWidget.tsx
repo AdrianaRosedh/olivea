@@ -3,15 +3,14 @@
 import { useEffect, useState } from "react";
 
 type Props = {
-  // true = modal is open
-  autoLaunch?: boolean;
+  autoLaunch?: boolean; // true when modal is open
 };
 
 export default function CloudbedsWidget({ autoLaunch }: Props) {
   const [shouldRenderFrame, setShouldRenderFrame] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // As soon as the modal is opened once, keep the iframe mounted forever
+  // Mount iframe ONCE when modal opens first time
   useEffect(() => {
     if (autoLaunch && !shouldRenderFrame) {
       setShouldRenderFrame(true);
@@ -19,28 +18,31 @@ export default function CloudbedsWidget({ autoLaunch }: Props) {
   }, [autoLaunch, shouldRenderFrame]);
 
   if (!shouldRenderFrame) {
-    // First time: show a tiny placeholder under your “Completa tu reserva…” text
     return (
-      <div className="mt-6 flex justify-center text-xs text-[var(--olivea-ink)]/60">
-        Cargando motor de reservaciones de Cloudbeds…
+      <div className="mt-4 flex justify-center text-xs text-[var(--olivea-ink)]/60">
+        Cargando motor de reservaciones…
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center">
-      {!loaded && (
-        <div className="mt-6 mb-2 text-xs text-[var(--olivea-ink)]/60 animate-pulse">
-          Cargando motor de reservaciones…
-        </div>
-      )}
-
+    <div
+      className={`w-full h-full transition-opacity duration-500 ${
+        loaded ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <iframe
         src="/cloudbeds-immersive.html"
         title="Reservas Casa Olivea"
-        className="w-full h-[70vh] md:h-[75vh] rounded-lg border border-[var(--olivea-olive)]/15 shadow-sm bg-white"
-        loading="eager"            // eager so it starts as soon as it exists
+        className="w-full h-[90vh] md:h-[75vh]"
+        loading="eager"
         onLoad={() => setLoaded(true)}
+        style={{
+          border: "none",
+          outline: "none",
+          background: "transparent",
+          touchAction: "pan-y",
+        }}
       />
     </div>
   );

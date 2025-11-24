@@ -204,7 +204,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 aria-hidden={reservationType !== "hotel"}
               >
                 {mounted.hotel && (
-                  <div className="flex h-full flex-col items-center justify-center gap-4 px-4">                
+                  <div className="flex h-full flex-col px-0 py-0 overflow-hidden">              
                     <CloudbedsWidget autoLaunch={isOpen} />
                   </div>
                 )}
