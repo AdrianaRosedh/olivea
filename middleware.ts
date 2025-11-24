@@ -28,7 +28,7 @@ function isStaticPath(path: string): boolean {
     path === "/robots.txt" ||
     path === "/sitemap.xml" ||
     path === "/manifest.webmanifest" ||
-    /\.[a-z0-9]+$/i.test(path) // any file.ext
+    /\.[a-z0-9]+$/i.test(path)
   );
 }
 
@@ -48,8 +48,9 @@ function buildCsp({
     ? " https://clientstream.launchdarkly.com https://events.launchdarkly.com https://tile.openstreetmap.org"
     : "";
 
+  // For the immersive page, allow OpenStreetMap + ANY Cloudbeds image host
   const cloudbedsImgExtra = allowCloudbedsPage
-    ? " https://tile.openstreetmap.org"
+    ? " https://tile.openstreetmap.org https://*.cloudbeds.com"
     : "";
 
   const directives = [
@@ -68,12 +69,15 @@ function buildCsp({
     // style-src
     `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    // img-src  ⭐ added https://hotels.cloudbeds.com here
+    // img-src  ⭐ now allows hotels.cloudbeds.com + *.cloudbeds.com for immersive page
     `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com${cloudbedsImgExtra}`,
 
     "media-src 'self' blob:",
     "font-src 'self' data:",
+
+    // iframes we embed
     "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com",
+
     "manifest-src 'self'",
     "worker-src 'self' blob:",
   ];
@@ -88,14 +92,11 @@ function applySecurityHeaders(
   res.headers.set("Content-Security-Policy", buildCsp(opts));
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-
-  // Permissions-Policy (modern syntax)
   res.headers.set(
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=(), payment=(), accelerometer=(), magnetometer=(), gyroscope=()"
   );
 
-  // HSTS only in production over HTTPS
   if (!isDev) {
     res.headers.set(
       "Strict-Transport-Security",
@@ -109,9 +110,9 @@ function applySecurityHeaders(
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
   const originalPath = url.pathname;
-  const pathNoTrailing = originalPath.replace(/\/+$/, ""); // "/about/" -> "/about", "/" -> ""
+  const pathNoTrailing = originalPath.replace(/\/+$/, "");
 
-  // ---- 1) Special page for Cloudbeds immersive (served as a static HTML asset) ----
+  // 1) Special case: immersive iframe page
   if (pathNoTrailing === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
@@ -120,7 +121,7 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // ---- 2) Bypass locale redirects for static/assets/api ----
+  // 2) Bypass locale redirects for static/assets/api
   if (isStaticPath(pathNoTrailing || "/")) {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
@@ -129,7 +130,7 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // ---- 3) Locale prefix check & redirect if missing ----
+  // 3) Locale prefix check & redirect if missing
   const hasPrefix = locales.some(
     (loc) =>
       pathNoTrailing === `/${loc}` || pathNoTrailing.startsWith(`/${loc}/`)
@@ -143,7 +144,7 @@ export function middleware(request: NextRequest) {
     response = NextResponse.next();
   }
 
-  // ---- 4) Apply security headers to ALL responses (redirects included) ----
+  // 4) Apply security headers to ALL responses
   return applySecurityHeaders(response, {
     allowEmbeddingSelf: false,
     allowCloudbedsPage: false,
