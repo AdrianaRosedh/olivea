@@ -28,7 +28,7 @@
         color: var(--olivea-ink);
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter",
           sans-serif;
-        overflow-y: auto;
+        overflow-y: auto; /* allow scroll */
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: auto;
       }
@@ -36,9 +36,9 @@
       .olivea-shell {
         position: relative;
         width: 100%;
-        height: 100%;
+        min-height: 100%;
         background: var(--olivea-cream);
-        overflow: hidden;
+        overflow: visible;
       }
 
       .root {
@@ -54,14 +54,14 @@
       cb-immersive-experience {
         display: block;
         width: 100%;
-        min-height: 100%;
+        min-height: 100vh; /* let content overflow and scroll */
         background: transparent;
         animation: olivea-fade-in 600ms ease-out 60ms both;
       }
 
       .olivea-fade-bottom {
         pointer-events: none;
-        position: absolute;
+        position: fixed;
         left: 0;
         right: 0;
         bottom: 0;

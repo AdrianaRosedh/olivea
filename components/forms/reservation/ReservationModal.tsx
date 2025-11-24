@@ -208,7 +208,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   <CloudbedsWidget autoLaunch={isOpen} />
                 </div>
               )}
-            </div>          
+            </div>
 
             {/* RESTAURANT */}
             <div
