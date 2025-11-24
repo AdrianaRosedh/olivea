@@ -4,6 +4,7 @@ import { AppProviders } from "./providers";
 import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
 import { SITE, absoluteUrl } from "@/lib/site";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.baseUrl),
@@ -60,13 +61,22 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={fontsClass}>
+      <head>
+        {/* Cloudbeds Immersive Booking Engine 2.0 */}
+        <Script
+          src="https://static1.cloudbeds.com/booking-engine/latest/static/js/immersive-experience/cb-immersive-experience.js"
+          strategy="afterInteractive"
+        />
+      </head>
+
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
-        {/* No-JS fallback: if JS is disabled, hide FixedLCP so it won't block the page */}
+        {/* No-JS fallback to avoid blocking LCP */}
         <noscript>
           <style>{`.fixed-lcp{opacity:0 !important;transition:none !important;pointer-events:none !important;}`}</style>
         </noscript>
 
         <PathTracker />
+
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
