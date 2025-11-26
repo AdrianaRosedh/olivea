@@ -2,13 +2,6 @@
 
 import React from "react";
 
-/**
- * OpenTable embed:
- * - memoized to avoid re-renders when parent updates
- * - loading="lazy" so it never blocks the main thread
- * - referrerPolicy tightened
- * - small container fixes (rounded, bg, typo fix)
- */
 function OpenTableWidgetImpl() {
   return (
     <div className="flex-1 flex justify-center items-start p-2 sm:p-6 bg-[var(--olivea-cream)]">
@@ -18,7 +11,7 @@ function OpenTableWidgetImpl() {
           src="https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website"
           width="100%"
           height={640}
-          loading="lazy"
+          loading="eager"
           // Keep scripts; sandboxing third-party widgets usually breaks them, so omit sandbox.
           referrerPolicy="strict-origin-when-cross-origin"
           style={{
@@ -28,7 +21,6 @@ function OpenTableWidgetImpl() {
             width: "100%",
             minWidth: 0,
           }}
-          // Let the vendor request fullscreen/payment if they use it; harmless otherwise
           allow="fullscreen; payment"
         />
       </div>

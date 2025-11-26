@@ -43,6 +43,17 @@ export default function Head() {
         href="https://hotels.cloudbeds.com"
         crossOrigin=""
       />
+      <link
+        rel="preconnect"
+        href="https://www.opentable.com"
+        crossOrigin=""
+      />
+      <link
+        rel="preconnect"
+        href="https://www.opentable.com.mx"
+        crossOrigin=""
+      />
+
 
       {/* Structured data */}
       <script
