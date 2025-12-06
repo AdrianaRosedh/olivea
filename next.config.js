@@ -13,10 +13,10 @@ import rehypeImgSize from "rehype-img-size";
 /* ────────────────────────────────────────────────────────────── */
 function resolvePublicUrl() {
   const { NEXT_PUBLIC_SITE_URL, SITE_URL, VERCEL_URL } = process.env;
-  if (NEXT_PUBLIC_SITE_URL) return NEXT_PUBLIC_SITE_URL; // preferred (client + server)
-  if (SITE_URL) return SITE_URL;                         // server-only fallback
-  if (VERCEL_URL) return `https://${VERCEL_URL}`;        // vercel previews/prod
-  return "http://localhost:3000";                        // local dev
+  if (NEXT_PUBLIC_SITE_URL) return NEXT_PUBLIC_SITE_URL;
+  if (SITE_URL) return SITE_URL;
+  if (VERCEL_URL) return `https://${VERCEL_URL}`;
+  return "http://localhost:3000";
 }
 const PUBLIC_URL = resolvePublicUrl();
 const { hostname: PUBLIC_HOSTNAME } = new URL(PUBLIC_URL);
@@ -104,7 +104,6 @@ const nextConfig = {
 
   poweredByHeader: false,
 
-  // TypeScript: still enforce no build errors (you keep this strict)
   typescript: { ignoreBuildErrors: false },
 
   async headers() {
