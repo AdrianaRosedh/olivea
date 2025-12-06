@@ -4,7 +4,6 @@ import { AppProviders } from "./providers";
 import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
 import { SITE, absoluteUrl } from "@/lib/site";
-import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.baseUrl),
@@ -62,11 +61,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={fontsClass}>
       <head>
-        {/* Cloudbeds Immersive Experience 2.0 script */}
-        <Script
-          src="https://static1.cloudbeds.com/booking-engine/latest/static/js/immersive-experience/cb-immersive-experience.js"
-          strategy="afterInteractive"
-        />
       </head>
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
         <noscript>
