@@ -1,19 +1,4 @@
-This version reflects:
-
-* Next.js 16 App Router
-* React 19
-* Webpack build setup
-* MDX content system
-* Bilingual routing (es/en)
-* Supabase integration
-* Cloudbeds/OpenTable CSP rules
-* Your custom animation + UX system (Shared Video Transitions, Framer Motion, GSAP)
-* Your security and deployment setup
-* Development workflow, file structure, env vars, etc.
-
----
-
-# 🌿 Olivea — Frontend Application
+# OLIVEA — Frontend Application
 
 A high-performance, bilingual (ES/EN) hospitality web platform powering **Olivea Farm To Table**, **Casa Olivea**, and **Olivea Café**.
 
@@ -21,62 +6,65 @@ Built with **Next.js 16 + React 19**, server components, MDX content, Supabase, 
 
 This repository contains the complete frontend of the Olivea digital experience — fast, secure, multilingual, animation-driven, and deeply optimized for mobile.
 
+> **Node version:** This project targets **Node 20** (see `"engines"` in `package.json`).  
+> Use Node 20.x locally for consistent behavior with production.
+
 ---
 
 ## 🚀 Tech Stack
 
 **Frameworks & Languages**
 
-* Next.js 16 (App Router)
-* React 19 (Server Actions & RSC)
-* TypeScript
-* MDX for page content
+- Next.js 16 (App Router)
+- React 19 (Server Actions & RSC)
+- TypeScript
+- MDX for page content
 
 **UI & Styling**
 
-* Tailwind CSS v4
-* Framer Motion 12
-* GSAP (scroll effects)
-* Custom shared-video transition engine (RSC + client)
+- Tailwind CSS v4
+- Framer Motion 12
+- GSAP (scroll effects)
+- Custom shared-video transition engine (RSC + client)
 
 **Content & Data**
 
-* Supabase (Journal posts & backend data)
-* MDX content system for bilingual pages
-* Local static assets (videos, imagery)
+- Supabase (Journal posts & backend data)
+- MDX content system for bilingual pages
+- Local static assets (videos, imagery)
 
 **Build & Deployment**
 
-* Webpack (forced, stable build)
-* Deployed on Vercel
-* Strict CSP & performance headers
+- Webpack (forced, stable build)
+- Deployed on Vercel
+- Strict CSP & performance headers
 
 ---
 
 ## 🌐 Features
 
-### **1. Bilingual Routing (ES/EN)**
+### 1. Bilingual Routing (ES/EN)
 
-* Language detected via cookie → Accept-Language → fallback to `es`
-* Middleware (`proxy.ts`) enforces `/en/...` or `/es/...`
-* Automatic redirects
-* Proper `alternate` SEO metadata per language
+- Language detected via cookie → Accept-Language → fallback to `es`
+- Middleware (`proxy.ts`) enforces `/en/...` or `/es/...`
+- Automatic redirects
+- Proper `alternate` SEO metadata per language
 
-### **2. Animation-Rich Experience**
+### 2. Animation-Rich Experience
 
-* Shared Video Transition between pages
-* Dynamic client-side animations (Framer Motion)
-* Scroll-linked effects (GSAP)
-* Smooth blend between LCP image and background video on Homepage
+- Shared Video Transition between pages
+- Dynamic client-side animations (Framer Motion)
+- Scroll-linked effects (GSAP)
+- Smooth blend between LCP image and background video on Homepage
 
-### **3. MDX-Driven Content System**
+### 3. MDX-Driven Content System
 
 Each page (Casa, Café, Farm To Table) loads content from:
 
-```
+```txt
 app/(main)/[lang]/<section>/ContentEs.tsx → *.es.mdx
 app/(main)/[lang]/<section>/ContentEn.tsx → *.en.mdx
-```
+````
 
 This enables:
 
@@ -84,7 +72,7 @@ This enables:
 * Translated content
 * Sections rendered as isolated MDX components
 
-### **4. Supabase Integration**
+### 4. Supabase Integration
 
 Used for:
 
@@ -92,7 +80,7 @@ Used for:
 * Server-side fetching using RSC
 * Full SSR hydration with streaming & Suspense
 
-### **5. CSP & Security**
+### 5. CSP & Security
 
 The `proxy.ts` middleware applies:
 
@@ -107,7 +95,7 @@ Special CSP rules are applied to:
 * OpenTable widgets
 * Image/CDN providers
 
-### **6. Performance Engineering**
+### 6. Performance Engineering
 
 * `next build --webpack` (stable & MDX-compatible)
 * `optimizeCss`, `modularizeImports`, `tree-shaking`
@@ -120,7 +108,7 @@ Special CSP rules are applied to:
 
 ## 📁 Project Structure
 
-```
+```txt
 olivea/
 │
 ├── app/
@@ -170,12 +158,12 @@ olivea/
 
 This project requires the following variables (configured in Vercel):
 
-```
-NEXT_PUBLIC_SITE_URL= https://olivea.com (example)
+```bash
+NEXT_PUBLIC_SITE_URL= https://oliveafarmtotable.com         
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
-SUPABASE_SERVICE_KEY=...       # Used only server-side
+SUPABASE_SERVICE_KEY=...                          # Used only server-side
 ```
 
 If these are missing, the app will throw at startup.
@@ -184,19 +172,19 @@ If these are missing, the app will throw at startup.
 
 ## 🧩 Running Locally
 
-### **1. Install dependencies**
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### **2. Run Dev Server**
+### 2. Run Dev Server
 
 ```bash
 npm run dev
 ```
 
-### **3. Set build to Webpack (critical)**
+### 3. Set build to Webpack (critical)
 
 Production builds MUST use Webpack:
 
@@ -206,11 +194,11 @@ npm run build
 
 You should see:
 
-```
+```txt
 Next.js 16.0.7 (webpack)
 ```
 
-### **4. Start Production**
+### 4. Start Production
 
 ```bash
 npm run start
@@ -220,16 +208,17 @@ npm run start
 
 ## 🛡️ Deployment (Vercel)
 
-The deployment uses:
+This app is deployed on Vercel using the default Next.js adapter with a custom `vercel.json`.
 
-* `vercel.json` → specifies custom headers & **forces npm run build**
-* Build cache is cleared automatically when config changes
+Deployment details:
+
+* `vercel.json` → specifies custom headers & **forces `npm run build`**
 * Webpack used for MDX compatibility
 * Long-term caching for static assets
 
 Ensure that in Vercel settings:
 
-```
+```txt
 Build Command: npm run build
 ```
 
@@ -237,7 +226,7 @@ Build Command: npm run build
 
 ## 🔐 Security & CSP
 
-Middleware applies:
+Middleware (`proxy.ts`) applies:
 
 * `Content-Security-Policy`
 * `X-Content-Type-Options`: nosniff
@@ -257,13 +246,13 @@ Custom CSP exceptions for:
 
 ## 💡 Development Notes
 
-### **MDX Layout**
+### MDX Layout
 
 * Used for all content pages
 * Keep `.es.mdx` and `.en.mdx` paired
 * MDX components allow interactive content
 
-### **Shared Video Transition**
+### Shared Video Transition
 
 A custom system using:
 
@@ -273,7 +262,7 @@ A custom system using:
 * Video overlays
 * Scroll & state synchronization
 
-### **Animations**
+### Animations
 
 * Keep GSAP usage minimal to prevent overloading the bundle
 * Prefer Framer Motion for layout & transitions
@@ -293,7 +282,7 @@ Coming soon. Suggested future additions:
 
 ## 📄 License
 
-Internal project — not open for public reuse.
+Internal project — not licensed for public use or redistribution.
 
 ---
 
