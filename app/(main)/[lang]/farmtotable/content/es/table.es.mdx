@@ -1,40 +1,100 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
-import CardParallax from '@/components/mdx/CardParallax'
-import CardGrid from '@/components/mdx/CardGrid'
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Sub from "@/components/scroll/Sub";
+import ParallaxImage from "@/components/scroll/ParallaxImage";
+import FieldNote from "@/components/mdx/FieldNote";
 
 <StickyBlock
   id="mesa"
   variant="top"
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
   className="py-12 md:py-20"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Table</h2></Reveal>}
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">
+        La mesa
+      </h2>
+    </Reveal>
+  }
 >
-  <Sub id="hospitalidad" preset="up">
-    Hospedamos amigos. Servicio presente y discreto, atento al ritmo de sala y al silencio cuando conviene.
-  </Sub>
+  {/* BLOQUE 1 — texto alineado con el título */}
+  <div className="max-w-[720px] w-full text-left">
+    <Sub id="hospitalidad" preset="up">
+      <p>
+        Hospedamos amigos. El servicio es presente, discreto y atento al ritmo
+        de cada mesa.
+      </p>
+      <p className="mt-3">
+        Leemos cultura, alergias y preferencias. Ajustamos tiempos y temperatura
+        para servir cada plato en su punto.
+      </p>
+    </Sub>
+  </div>
 
-  <Sub id="atencion" preset="left">
-    Leemos la mesa: cultura, alergias y preferencias. Ajustamos tiempos y temperatura para servir cada plato en su punto.
-  </Sub>
+  {/* IMAGEN PARALLAX (tarjeta central) */}
+  <div
+    className="
+      relative w-full max-w-[950px] mx-auto my-10
+      overflow-hidden rounded-[28px]
+      ring-1 ring-black/10
+      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
+    "
+  >
+    <ParallaxImage
+      src="/images/farm/dining.jpg"
+      alt="Ritmo y hospitalidad"
+      heightVh={56}
+      speed={0.2}
+      className="rounded-[28px]"
+      fit="cover"
+      objectPosition="50% 50%"
+    />
+  </div>
 
-  <CardParallax
-    src="/images/farm/dining.jpg"
-    alt="Ritmo y hospitalidad"
-    widthVariant="bleed"
-    align="center"
-    speed={0.30}
-    heightVh={100}
-    hVh={{ mobile: 56, md: 60 }}
-  />
+  {/* BLOQUE 2 — párrafo + caja centrada */}
+  <div className="max-w-[720px] w-full text-left">
+    <Sub
+      id="narrativa"
+      preset="fade"
+      className="!min-h-0"
+    >
+      Cada curso suma contexto: origen, manos que lo cuidan y razón del
+      maridaje. Narrativa honesta, sin artificio.
+    </Sub>
+  </div>
 
-  <Sub id="narrativa" preset="fade">
-    Cada curso suma contexto: origen, manos que lo cuidan y razón del maridaje. Narrativa honesta, sin artificio.
-  </Sub>
+  {/* SOLO LA CAJA CENTRADA, EN EL MISMO ANCHO QUE LA IMAGEN */}
+  <div className="w-full max-w-[950px] mx-auto mt-4 flex justify-center">
+    <FieldNote className="max-w-[720px] w-full">
+      Contamos con <strong>terraza con vista al huerto</strong> e interiores
+      acogedores. Asignamos mesas según tus preferencias y la disponibilidad
+      del servicio. Somos <strong>pet friendly</strong> en áreas designadas de
+      terraza y también podemos ayudarte a coordinar
+      <strong> celebraciones o eventos especiales</strong> con previa
+      comunicación.
+    </FieldNote>
+  </div>
 
-  <CardGrid imgs={[
-    { src:'/images/farm/plates-1.jpg', alt:'Temperatura correcta' },
-    { src:'/images/farm/plates-2.jpg', alt:'Cadencia de platos' },
-  ]}/>
+  {/* GALERÍA DE PLATOS */}
+  <div className="w-full max-w-[950px] mx-auto pt-8 grid gap-4 md:grid-cols-2 md:gap-6">
+    <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)]">
+      <ParallaxImage
+        src="/images/farm/plates-1.jpg"
+        alt="Temperatura correcta"
+        heightVh={45}
+        speed={0.12}
+        className="h-full"
+      />
+    </div>
+
+    <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)]">
+      <ParallaxImage
+        src="/images/farm/plates-2.jpg"
+        alt="Cadencia de los platos"
+        heightVh={45}
+        speed={0.12}
+        className="h-full"
+      />
+    </div>
+  </div>
 </StickyBlock>

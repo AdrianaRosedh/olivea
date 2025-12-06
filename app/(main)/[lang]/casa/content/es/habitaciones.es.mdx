@@ -5,26 +5,28 @@ import ParallaxImage from '@/components/scroll/ParallaxImage'
 
 <StickyBlock
   id="habitaciones"
-  className="main-section snap-center"
-  title={null}
+  variant="top"
+  className="main-section snap-start py-12 md:py-20"
+  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Habitaciones</h2></Reveal>}
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
 >
-  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Habitaciones</h2></Reveal>
+  <Sub id="esencia" preset="blur-up">
+    Somos la extensión cálida de tu hogar en el valle. Catorce habitaciones llevan nombres de plantas aromáticas y te reciben con lo que más importa: descanso y paz.
+  </Sub>
+  <Sub id="detalle" preset="up">
+    Cada detalle está pensado para tu confort: camas amplias, sábanas suaves y texturas naturales. Agua filtrada en cristal cada día y cero ruido visual – aquí el sueño llega fácil.
+  </Sub>
 
-  <div className="space-y-6 md:space-y-8">
-    <Sub id="esencia" preset="blur-up">
-      Somos la extensión cálida de tu casa. Catorce habitaciones con nombres de plantas aromáticas te reciben con lo que importa: descanso y paz.
-    </Sub>
-    <Sub id="detalle" preset="up">
-      Camas, textiles y cada detalle se eligieron para el confort. Agua filtrada en cristal a diario, sin ruido visual: el sueño llega fácil.
-    </Sub>
-
-    <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
-      <ParallaxImage src="/images/casa/room.jpg" alt="Habitación — luz, orden y calma" heightVh={46} speed={0.24} />
-    </div>
-
-    <Sub id="luz" preset="left">
-      Habitaciones y baños generosos; la luz natural es protagonista. Es llegar y sentir que el espacio te acomoda.
-    </Sub>
+  <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
+    <ParallaxImage 
+      src="/images/casa/room.jpg" 
+      alt="Habitación iluminada y ordenada" 
+      heightVh={46} 
+      speed={0.24} 
+    />
   </div>
+
+  <Sub id="luz" preset="left">
+    Habitaciones y baños generosos, donde la luz natural es protagonista en cada rincón. Al llegar, sientes que el espacio te acoge con calidez.
+  </Sub>
 </StickyBlock>

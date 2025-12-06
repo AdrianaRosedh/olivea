@@ -1,41 +1,68 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
-import CardParallax from '@/components/mdx/CardParallax'
-import SeasonTimeline from '@/components/mdx/SeasonTimeline'
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Sub from "@/components/scroll/Sub";
+import ParallaxImage from "@/components/scroll/ParallaxImage";
+import SeasonTimeline from "@/components/mdx/SeasonTimeline";
 
 <StickyBlock
   id="despensa"
   variant="top"
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
   className="py-12 md:py-20"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Larder</h2></Reveal>}
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">
+        La despensa
+      </h2>
+    </Reveal>
+  }
 >
   <Sub id="proximidad" preset="up">
-    Cosecha propia y productores cercanos: textura viva y aromáticos en su punto.
+    Cosecha propia y productores cercanos: textura viva y aromáticos en su
+    punto.
   </Sub>
 
   <Sub id="temporada" preset="left">
-    El menú respira con la estación. Cambios pequeños y frecuentes; el calendario del huerto ordena el relato.
+    El menú respira con la estación. Cambios pequeños y frecuentes; el
+    calendario del huerto ordena el relato.
   </Sub>
 
-  <CardParallax
-    src="/images/farm/garden.jpg"
-    alt="Huerto y cercanía"
-    widthVariant="content"
-    align="left"
-    speed={0.26}
-    heightVh={100}
-    hVh={{ mobile: 46, md: 50 }}
+  {/* CardParallax → ParallaxImage envuelta en una tarjeta */}
+  <div
+    className="
+      relative w-full max-w-[950px] mx-auto my-10
+      overflow-hidden rounded-[28px]
+      ring-1 ring-black/10
+      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
+    "
+  >
+    <ParallaxImage
+      src="/images/farm/garden.jpg"
+      alt="Huerto y cercanía"
+      heightVh={56}
+      speed={0.26}
+      className="rounded-[28px]"
+      fit="cover"
+      objectPosition="50% 50%"
+    />
+  </div>
+
+  <SeasonTimeline
+    items={[
+      { title: "Inicio de primavera", text: "Habas, arvejas, hierbas tiernas" },
+      {
+        title: "Media primavera",
+        text: "Alcachofa, hinojo, flor de calabaza",
+      },
+      {
+        title: "Fin de primavera",
+        text: "Tomate, albahaca, frutales de hueso",
+      },
+    ]}
   />
 
-  <SeasonTimeline items={[
-    { title: "Inicio de primavera", text: "Habas, arvejas, hierbas tiernas" },
-    { title: "Media primavera",     text: "Alcachofa, hinojo, flor de calabaza" },
-    { title: "Fin de primavera",     text: "Tomate, albahaca, frutales de hueso" },
-  ]}/>
-
   <Sub id="trazabilidad" preset="fade">
-    Documentamos lotes y procesos: de la semilla a la sala. Compost y aprovechamiento integral cierran el ciclo.
+    Documentamos lotes y procesos: de la semilla a la sala. Compost y
+    aprovechamiento integral cierran el ciclo.
   </Sub>
 </StickyBlock>

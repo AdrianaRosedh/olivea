@@ -1,7 +1,7 @@
-import CardParallax from '@/components/mdx/CardParallax'
-import Reveal from '@/components/scroll/Reveal'
-import HeroFarmLogo from '@/assets/herofarm.svg'
-import MenuScrollButton from '@/components/links/MenuScrollButton'
+import CardParallax from "@/components/mdx/CardParallax";
+import Reveal from "@/components/scroll/Reveal";
+import HeroFarmLogo from "@/assets/herofarm.svg";
+import MenuScrollButton from "@/components/links/MenuScrollButton";
 
 <section
   id="hero"
@@ -21,14 +21,17 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
       <div className="relative h-full w-full hero-pill shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)] bg-transparent">
         <CardParallax
           src="/images/farm/hero.jpg"
-          speed={0.30}
+          alt="Olivea Farm To Table"
+          speed={0.3}
           hVh={{ mobile: 100, md: 100 }}
-          surfaceClassName="h-full w-full"     
-          className="-inset-[1px]"                           
+          surfaceClassName="h-full w-full"
+          className="-inset-[1px]"
           fit="cover"
           objectPosition="50% 40%"
           priority
+          sizes="100vw"
         />
+
         {/* overlays inherit same radius */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
@@ -96,11 +99,14 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
                     type="button"
                     aria-label="Reserve a table"
                     onClick={() => {
-                      const isDesktop =
-                        typeof window !== 'undefined' &&
-                        window.matchMedia('(min-width: 768px)').matches
-                      if (isDesktop) window.dispatchEvent(new Event('olivea:reserve'))
-                      else document.getElementById('reserve-toggle')?.click?.()
+                      if (typeof window === "undefined") return;
+                      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+                      if (isDesktop) {
+                        window.dispatchEvent(new Event("olivea:reserve"));
+                      } else {
+                        const el = document.getElementById("reserve-toggle");
+                        if (el && typeof el.click === "function") el.click();
+                      }
                     }}
                     className="
                       inline-flex items-center justify-center
@@ -134,7 +140,6 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
                   >
                     Menu
                   </MenuScrollButton>
-
                 </div>
               </Reveal>
             </div>

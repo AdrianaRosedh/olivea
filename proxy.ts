@@ -1,4 +1,4 @@
-// middleware.ts
+// proxy.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -69,7 +69,7 @@ function buildCsp({
     // style-src
     `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    // img-src  ⭐ single line, no newlines
+    // img-src (single line, no newlines)
     `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org${cloudbedsImgExtra}`,
 
     "media-src 'self' blob:",
@@ -107,7 +107,8 @@ function applySecurityHeaders(
   return res;
 }
 
-export function middleware(request: NextRequest) {
+// ⬇️ renamed from `middleware` to `proxy`
+export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const originalPath = url.pathname;
   const pathNoTrailing = originalPath.replace(/\/+$/, "");

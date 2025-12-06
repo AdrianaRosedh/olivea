@@ -12,38 +12,27 @@ export default function CardParallax({
   speed = 0.26,
   hVh = { mobile: 46, md: 56, lg: undefined },
   aspect,
-  surfaceClassName,                  // apply your clipping class (e.g., hero-pill or rounded-inherit) to this
+  surfaceClassName,
   fit = "cover",
   objectPosition,
-  className,                          // extra classes for the moving layer
-  sizes,
+  className,
+  sizes = "100vw",          // 👈 default: full viewport width (good for hero)
   loading,
   quality,
-  placeholder,
+  placeholder = "empty",
   blurDataURL,
   priority = false,
 }: {
   src: string;
   alt: string;
 
-  /** parallax speed, 0 disables */
   speed?: number;
-
-  /** surface sizing: either use aspect OR vh heights */
   hVh?: { mobile?: number; md?: number; lg?: number };
   aspect?: string;
-
-  /** classes for the SURFACE wrapper (this is usually where you pass your shape class) */
   surfaceClassName?: string;
-
-  /** image fitting */
   fit?: "cover" | "contain";
   objectPosition?: string;
-
-  /** classes for the MOVING layer */
   className?: string;
-
-  /** image perf */
   sizes?: ImageProps["sizes"];
   loading?: ImageProps["loading"];
   quality?: number;
@@ -52,12 +41,19 @@ export default function CardParallax({
   priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const [ready, setReady] = useState(false);  // 👈 wait for image decode
   const wrapRef = useRef<HTMLDivElement>(null);
 
   // Parallax effect
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
+
+    // Don’t animate until the image is ready
+    if (!ready) {
+      el.style.transform = "translateY(0px)";
+      return;
+    }
 
     const prefersReduced =
       typeof window !== "undefined" &&
@@ -72,11 +68,11 @@ export default function CardParallax({
     const update = () => {
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight || 1;
-      // progress ~ -1 at top, 0 mid, +1 bottom
       const progress = (rect.top + rect.height / 2 - vh / 2) / (vh / 2);
-      const offset = Math.max(-60, Math.min(60, -progress * (speed * 200))); // clamp ±60px
+      const offset = Math.max(-60, Math.min(60, -progress * (speed * 200)));
       el.style.transform = `translateY(${offset}px)`;
     };
+
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
@@ -85,60 +81,67 @@ export default function CardParallax({
       });
     };
 
-    // initial
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [speed]);
+  }, [speed, ready]);
 
   if (failed) return null;
 
   // Surface sizing (height via vh or aspect-ratio)
   const surfaceStyle: StyleVars = {};
   let surfaceBaseClass = "relative w-full";
+
   if (aspect) {
     surfaceStyle.aspectRatio = aspect;
   } else {
     if (hVh?.mobile) surfaceStyle.height = `${hVh.mobile}vh`;
     if (hVh?.md) surfaceStyle["--card-md-h"] = `${hVh.md}vh`;
     if (hVh?.lg) surfaceStyle["--card-lg-h"] = `${hVh.lg}vh`;
-    // Use your existing utilities for responsive heights if present
     surfaceBaseClass = "relative w-full md:card-md lg:card-lg";
   }
 
-  const effectiveSizes =
-    sizes ??
-    // sensible defaults by intent; override with `sizes` prop when needed
-    "(max-width: 768px) 100vw, min(1200px, 100vw)";
+  const effectivePlaceholder: "blur" | "empty" =
+    blurDataURL ? "blur" : placeholder;
 
-  const effectivePlaceholder: "blur" | "empty" = blurDataURL ? "blur" : (placeholder ?? "empty");
-  const effectiveLoading: ImageProps["loading"] = priority ? "eager" : loading;
+  const effectiveLoading: ImageProps["loading"] =
+    priority ? "eager" : loading;
 
   return (
-    // SURFACE — this should receive your clipping class (e.g., hero-pill or rounded-inherit)
-    <div className={surfaceClassName ? `relative w-full ${surfaceClassName}` : surfaceBaseClass} style={surfaceStyle}>
-      {/* MOVING LAYER — overfill by 0.5px to avoid sub-pixel nicks during motion */}
+    <div
+      className={
+        surfaceClassName
+          ? `relative w-full ${surfaceClassName}`
+          : surfaceBaseClass
+      }
+      style={surfaceStyle}
+    >
+      {/* MOVING LAYER */}
       <div
         ref={wrapRef}
-        className={["absolute -inset-[1px] will-change-transform", className].filter(Boolean).join(" ")}
+        className={["absolute -inset-[1px] will-change-transform", className]
+          .filter(Boolean)
+          .join(" ")}
         style={{ borderRadius: "inherit" }}
       >
         <Image
           src={src}
           alt={alt}
           fill
-          sizes={effectiveSizes}
+          sizes={sizes}
           priority={priority}
           loading={effectiveLoading}
           fetchPriority={priority ? "high" : undefined}
           quality={quality}
           placeholder={effectivePlaceholder}
           blurDataURL={blurDataURL}
+          onLoadingComplete={() => setReady(true)}   // 👈 unlock parallax only after load
           onError={() => setFailed(true)}
           style={{
             objectFit: fit,

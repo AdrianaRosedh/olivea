@@ -1,6 +1,7 @@
 import CardParallax from '@/components/mdx/CardParallax'
 import Reveal from '@/components/scroll/Reveal'
 import CasaLogo from '@/assets/herocasa.svg'
+import MenuScrollButton from '@/components/links/MenuScrollButton'
 
 <section
   id="hero"
@@ -18,151 +19,135 @@ import CasaLogo from '@/assets/herocasa.svg'
       h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+24px)]
       md:h-[calc(100svh-var(--header-h,112px)-56px)]
       xl:max-h-[960px]
+      hero-pill shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
     "
   >
-    <div className="absolute inset-0">
-      <div className="relative h-full w-full hero-pill shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)] bg-transparent">
-        <CardParallax
-          src="/images/casa/hero.jpg"
-          speed={0.30}
-          hVh={{ mobile: 100, md: 100 }}
-          surfaceClassName="h-full w-full"
-          className="-inset-[1px]"
-          fit="cover"
-          objectPosition="50% 40%"
-          priority
-          sizes="(max-width: 768px) 100vw, min(1600px, calc(100vw - var(--dock-left,220px) - var(--dock-right,96px) - 48px))"
-          placeholder="empty"
-        />
+    <CardParallax
+      src="/images/casa/hero.jpg"
+      speed={0.30}
+      hVh={{ mobile: 100, md: 100 }}
+      surfaceClassName="h-full w-full"
+      className="-inset-[1px]"
+      fit="cover"
+      objectPosition="50% 40%"
+      priority
+      placeholder="empty"
+      sizes="(max-width: 768px) 100vw, min(1600px, calc(100vw - var(--dock-left,220px) - var(--dock-right,96px) - 48px))"
+    />
 
-        {/* overlays (clipped by parent) */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
-          <h1 className="sr-only">Casa Olivea</h1>
+    {/* Overlay and central content */}
+    <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
+      <h1 className="sr-only">Casa OLIVEA</h1>
 
-          <div className="relative h-full flex items-center justify-center">
-            <div
+      <div className="relative h-full flex items-center justify-center">
+        <div
+          className="
+            pointer-events-auto text-center px-4
+            relative md:[left:calc((var(--dock-right,120px)-var(--dock-left,264px))/2)]
+            flex flex-col items-center
+            gap-[var(--hero-gap,14px)] md:[--hero-gap:22px] lg:[--hero-gap:26px]
+            -mt-2
+            md:[top:calc(-1*clamp(12px,3vh,48px))]
+            lg:[top:calc(-1*clamp(16px,4vh,64px))]
+            max-w-[min(92vw,420px)] md:max-w-none mx-auto
+          "
+        >
+          <Reveal preset="fade" delay={0.05}>
+            <CasaLogo
               className="
-                pointer-events-auto text-center px-4
-                relative md:[left:calc((var(--dock-right,120px)-var(--dock-left,264px))/2)]
-                flex flex-col items-center
-                gap-[var(--hero-gap,14px)] md:[--hero-gap:22px] lg:[--hero-gap:26px]
-                -mt-2
-                md:[top:calc(-1*clamp(12px,3vh,48px))]
-                lg:[top:calc(-1*clamp(16px,4vh,64px))]
-                max-w-[min(92vw,420px)] md:max-w-none mx-auto
+                mx-auto w-[170px]
+                md:w-[240px] lg:w-[280px]
+                drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] text-white fill-white
               "
-            >
-              <Reveal preset="fade" delay={0.05}>
-                <CasaLogo
+            />
+          </Reveal>
+
+          <Reveal preset="up" delay={0.12}>
+            <div className="w-full text-center">
+              {/* Slogan móvil */}
+              <span
+                className="
+                  md:hidden
+                  inline-block whitespace-nowrap leading-tight
+                  font-serif italic uppercase text-white/95
+                  tracking-[0.035em]
+                  text-[clamp(11px,2.6vw,12.5px)]
+                  drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
+                "
+              >
+                Donde el huerto es la esencia
+              </span>
+              <span className="mt-1 h-[1px] w-20 bg-white/35 md:hidden block mx-auto" />
+
+              {/* Slogan desktop */}
+              <span className="hidden md:inline-flex items-center md:gap-4 md:[--rule:2.5rem] lg:[--rule:3.5rem]">
+                <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
+                <span
                   className="
-                    mx-auto w-[170px]
-                    md:w-[240px] lg:w-[280px]
-                    drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] text-white fill-white
+                    inline-block leading-tight md:whitespace-nowrap
+                    font-serif italic uppercase text-white/95
+                    tracking-[0.14em] md:text-base lg:text-lg
+                    drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
                   "
-                />
-              </Reveal>
-
-              <Reveal preset="up" delay={0.12}>
-                <div className="w-full text-center">
-                  {/* Móvil */}
-                  <span
-                    className="
-                      md:hidden
-                      inline-block whitespace-nowrap leading-tight
-                      font-serif italic uppercase text-white/95
-                      tracking-[0.035em]
-                      text-[clamp(11px,2.6vw,12.5px)]
-                      drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
-                    "
-                  >
-                    Donde El Huerto Es La Esencia
-                  </span>
-
-                  {/* Desktop */}
-                  <span className="hidden md:inline-flex items-center md:gap-4 md:[--rule:2.5rem] lg:[--rule:3.5rem]">
-                    <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
-                    <span
-                      className="
-                        inline-block leading-tight md:whitespace-nowrap
-                        font-serif italic uppercase text-white/95
-                        tracking-[0.14em] md:text-base lg:text-lg
-                        drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
-                      "
-                    >
-                      Donde El Huerto Es La Esencia
-                    </span>
-                    <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
-                  </span>
-                </div>
-              </Reveal>
-
-              <Reveal preset="fade" delay={0.18}>
-                <div className="flex items-center justify-center gap-2.5 md:gap-4 pb-[max(0px,env(safe-area-inset-bottom))]">
-                  <button
-                    type="button"
-                    aria-label="Reservar"
-                    onClick={() => {
-                      const isDesktop =
-                        typeof window !== 'undefined' &&
-                        window.matchMedia('(min-width: 768px)').matches;
-                      if (isDesktop) {
-                        window.dispatchEvent(new Event('olivea:reserve'));
-                      } else {
-                        const t = document.getElementById('reserve-toggle');
-                        if (t && typeof t.click === 'function') t.click();
-                      }
-                    }}
-                    className="
-                      inline-flex items-center justify-center
-                      rounded-full px-3.5 py-1.5 text-[15px]
-                      md:px-5 md:py-2.5 md:text-base
-                      lg:px-6 lg:py-3   lg:text-[17px]
-                      font-medium tracking-wide
-                      text-white/90 border border-white/35 bg-white/[0.01] backdrop-blur-[2px]
-                      shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
-                      transition hover:bg-white/8 hover:text-white
-                      focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
-                      active:scale-[0.98]
-                    "
-                  >
-                    RESERVAR
-                  </button>
-
-                  <a
-                    href="#servicios"
-                    aria-label="Ver servicios"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const el =
-                        document.getElementById('servicios') ||
-                        document.querySelector('.main-section#servicios');
-                      if (!el) return;
-                      const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
-                      const header = Number.parseInt(v || '64', 10) || 64;
-                      const top = window.scrollY + el.getBoundingClientRect().top - header - 8;
-                      window.scrollTo({ top, behavior: 'smooth' });
-                      if (window.location.hash.slice(1) !== 'servicios') history.replaceState(null, '', '#servicios');
-                    }}
-                    className="
-                      inline-flex items-center justify-center
-                      rounded-full px-3.5 py-1.5 text-[15px]
-                      md:px-5 md:py-2.5 md:text-base
-                      lg:px-6 lg:py-3   lg:text-[17px]
-                      font-medium tracking-wide
-                      text-white/80 border border-white/30 bg-white/[0.01] backdrop-blur-[2px]
-                      shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
-                      transition hover:bg-white/6 hover:text-white
-                      focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
-                      active:scale-[0.98]
-                    "
-                  >
-                    Servicios
-                  </a>
-                </div>
-              </Reveal>
+                >
+                  Donde el huerto es la esencia
+                </span>
+                <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
+              </span>
             </div>
-          </div>
+          </Reveal>
+
+          <Reveal preset="fade" delay={0.18}>
+            <div className="flex items-center justify-center gap-2.5 md:gap-4 pb-[max(0px,env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                aria-label="Reservar"
+                onClick={() => {
+                  const isDesktop =
+                    typeof window !== 'undefined' &&
+                    window.matchMedia('(min-width: 768px)').matches;
+                  if (isDesktop) {
+                    window.dispatchEvent(new Event('olivea:reserve'));
+                  } else {
+                    const t = document.getElementById('reserve-toggle');
+                    if (t && typeof t.click === 'function') t.click();
+                  }
+                }}
+                className="
+                  inline-flex items-center justify-center
+                  rounded-full px-3.5 py-1.5 text-[15px]
+                  md:px-5 md:py-2.5 md:text-base
+                  lg:px-6 lg:py-3   lg:text-[17px]
+                  font-medium tracking-wide
+                  text-white/90 border border-white/35 bg-white/[0.01] backdrop-blur-[2px]
+                  shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
+                  transition hover:bg-white/8 hover:text-white
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
+                  active:scale-[0.98]
+                "
+              >
+                RESERVAR
+              </button>
+
+              <MenuScrollButton
+                className="
+                  inline-flex items-center justify-center
+                  rounded-full px-3.5 py-1.5 text-[15px]
+                  md:px-5 md:py-2.5 md:text-base
+                  lg:px-6 lg:py-3   lg:text-[17px]
+                  font-medium tracking-wide
+                  text-white/80 border border-white/30 bg-white/[0.01] backdrop-blur-[2px]
+                  shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
+                  transition hover:bg-white/6 hover:text-white
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
+                  active:scale-[0.98]
+                "
+              >
+                Servicios
+              </MenuScrollButton>
+            </div>
+          </Reveal>
         </div>
       </div>
     </div>

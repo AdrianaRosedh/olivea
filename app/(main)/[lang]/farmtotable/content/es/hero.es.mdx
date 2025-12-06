@@ -1,7 +1,7 @@
-import CardParallax from '@/components/mdx/CardParallax'
-import Reveal from '@/components/scroll/Reveal'
-import HeroFarmLogo from '@/assets/herofarm.svg'
-import MenuScrollButton from '@/components/links/MenuScrollButton'
+import CardParallax from "@/components/mdx/CardParallax";
+import Reveal from "@/components/scroll/Reveal";
+import HeroFarmLogo from "@/assets/herofarm.svg";
+import MenuScrollButton from "@/components/links/MenuScrollButton";
 
 <section
   id="hero"
@@ -25,13 +25,15 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
   >
     <CardParallax
       src="/images/farm/hero.jpg"
-      speed={0.30}
+      alt="Olivea Farm To Table"
+      speed={0.3}
       hVh={{ mobile: 100, md: 100 }}
       surfaceClassName="h-full w-full"
       className="-inset-[1px]"
       fit="cover"
       objectPosition="50% 40%"
       priority
+      sizes="100vw"
     />
 
     <div className="pointer-events-none absolute inset-0">
@@ -100,14 +102,17 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
                 type="button"
                 aria-label="Reservar"
                 onClick={() => {
-                  const isDesktop =
-                    typeof window !== 'undefined' &&
-                    window.matchMedia('(min-width: 768px)').matches;
+                  if (typeof window === "undefined") return;
+
+                  const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+
                   if (isDesktop) {
-                    window.dispatchEvent(new Event('olivea:reserve'));
+                    window.dispatchEvent(new Event("olivea:reserve"));
                   } else {
-                    const el = document.getElementById('reserve-toggle');
-                    if (el && 'click' in el && typeof el.click === 'function') el.click();
+                    const el = document.getElementById("reserve-toggle");
+                    if (el && typeof el.click === "function") {
+                      el.click();
+                    }
                   }
                 }}
                 className="
@@ -142,7 +147,6 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
               >
                 Menú
               </MenuScrollButton>
-
             </div>
           </Reveal>
         </div>

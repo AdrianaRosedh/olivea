@@ -17,7 +17,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "jsxImportSource": "react",
     "incremental": true,
     "plugins": [
@@ -29,9 +29,15 @@
     "noUnusedParameters": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["./*"],  // This maps the '@' alias to the root directory
-      "@components/*": ["./components/*"], // This maps '@components' to the components folder
-      "@types/*": ["types/*"]
+      "@/*": [
+        "./*"
+      ], // This maps the '@' alias to the root directory
+      "@components/*": [
+        "./components/*"
+      ], // This maps '@components' to the components folder
+      "@types/*": [
+        "types/*"
+      ]
     }
   },
   "include": [
@@ -39,7 +45,8 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

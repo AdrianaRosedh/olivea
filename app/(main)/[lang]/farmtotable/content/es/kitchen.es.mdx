@@ -1,39 +1,81 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
-import CardParallax from '@/components/mdx/CardParallax'
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Sub from "@/components/scroll/Sub";
+import ParallaxImage from "@/components/scroll/ParallaxImage";
+import FieldNote from "@/components/mdx/FieldNote";
 
 <StickyBlock
   id="cocina"
   variant="top"
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
   className="py-12 md:py-20"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Kitchen</h2></Reveal>}
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">
+        La cocina
+      </h2>
+    </Reveal>
+  }
 >
-  <Sub id="equilibrio_cocina" preset="up">
-    El producto lidera. Platos que equilibran el huerto con proteínas de la zona en capas limpias y reconocibles.
-  </Sub>
 
-  <Sub id="estetica" preset="left">
-    Estética sobria y precisa; vajilla que narra el paisaje. Elegancia sin exceso: forma al servicio del sabor.
-  </Sub>
+  {/* BLOQUE 1 — texto inicial */}
+  <div className="max-w-[720px] w-full text-left">
+    <Sub id="producto" preset="up">
+      <p>
+        El producto manda. La cocina nace del huerto y de los productores 
+        cercanos: capas claras, técnicas precisas y cocciones que respetan 
+        el punto natural de cada ingrediente.
+      </p>
+      <p className="mt-3">
+        No trabajamos con menú a la carta: la creatividad del equipo y la 
+        disponibilidad del huerto determinan el menú de temporada.
+      </p>
+    </Sub>
+  </div>
 
-  <Sub id="tecnica" preset="right">
-    Fondos claros, fermentos controlados, curaciones y cocciones exactas. Amargor y umami se afinan con acidez nítida y temperatura intencional.
-  </Sub>
+  {/* IMAGEN PARALLAX */}
+  <div
+    className="
+      relative w-full max-w-[950px] mx-auto my-10
+      overflow-hidden rounded-[28px]
+      ring-1 ring-black/10
+      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
+    "
+  >
+    <ParallaxImage
+      src="/images/farm/kitchen.jpg"
+      alt="Pase de cocina en Olivea"
+      heightVh={56}
+      speed={0.22}
+      className="rounded-[28px]"
+      fit="cover"
+      objectPosition="50% 50%"
+    />
+  </div>
 
-  <CardParallax
-    src="/images/farm/kitchen.jpg"
-    alt="Técnica y precisión"
-    widthVariant="narrow"
-    align="right"
-    speed={0.24}
-    heightVh={100}
-    hVh={{ mobile: 52, md: 62 }}
-    style={{ objectPosition: "center 40%" }}
-  />
+  {/* BLOQUE 2 — segunda parte del texto */}
+  <div className="max-w-[720px] w-full text-left">
+    <Sub id="tecnica" preset="fade" className="!min-h-0">
+      La técnica nunca es protagonista: existe para potenciar el sabor, 
+      no para distraer. Fondos, reducciones y fermentos se usan con 
+      intención, siempre al servicio del equilibrio.
+    </Sub>
 
-  <Sub id="vision" preset="fade">
-    Investigación continua y respeto al productor. Objetivo: claridad de sabor y emoción contenida.
-  </Sub>
+    <Sub id="equipo" preset="left" className="!min-h-0 mt-6">
+      El equipo cocina leyendo el clima, el huerto y el servicio: 
+      entendiendo qué está en punto, qué se reserva y qué evoluciona 
+      en la despensa.
+    </Sub>
+
+    {/* FAQ-aware información */}
+    <div className="w-full max-w-[950px] mx-auto mt-6 flex justify-center">
+      <FieldNote className="max-w-[720px] w-full">
+        Podemos adaptar el menú a <strong>alergias o restricciones</strong> 
+        con previa notificación. Nuestro enfoque es técnico, preciso y 
+        orientado al producto; cada ajuste se realiza buscando mantener 
+        la esencia del recorrido.
+      </FieldNote>
+    </div>
+  </div>
+
 </StickyBlock>

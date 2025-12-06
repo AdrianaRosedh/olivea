@@ -1,5 +1,5 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
-import withMDX from "@next/mdx";
+import createMDX from "@next/mdx";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -13,10 +13,10 @@ import rehypeImgSize from "rehype-img-size";
 /* ────────────────────────────────────────────────────────────── */
 function resolvePublicUrl() {
   const { NEXT_PUBLIC_SITE_URL, SITE_URL, VERCEL_URL } = process.env;
-  if (NEXT_PUBLIC_SITE_URL) return NEXT_PUBLIC_SITE_URL;                // preferred (client + server)
-  if (SITE_URL) return SITE_URL;                                        // server-only fallback
-  if (VERCEL_URL) return `https://${VERCEL_URL}`;                       // vercel previews/prod
-  return "http://localhost:3000";                                       // local dev
+  if (NEXT_PUBLIC_SITE_URL) return NEXT_PUBLIC_SITE_URL; // preferred (client + server)
+  if (SITE_URL) return SITE_URL;                         // server-only fallback
+  if (VERCEL_URL) return `https://${VERCEL_URL}`;        // vercel previews/prod
+  return "http://localhost:3000";                        // local dev
 }
 const PUBLIC_URL = resolvePublicUrl();
 const { hostname: PUBLIC_HOSTNAME } = new URL(PUBLIC_URL);
@@ -24,11 +24,16 @@ const { hostname: PUBLIC_HOSTNAME } = new URL(PUBLIC_URL);
 /* ────────────────────────────────────────────────────────────── */
 /* 1) MDX loader                                                  */
 /* ────────────────────────────────────────────────────────────── */
-const withMDXConfig = withMDX({
+const withMDX = createMDX({
   extension: /\.mdx?$/,
   options: {
     providerImportSource: "@mdx-js/react",
-    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm, remarkUnwrapImages],
+    remarkPlugins: [
+      remarkFrontmatter,
+      remarkMdxFrontmatter,
+      remarkGfm,
+      remarkUnwrapImages,
+    ],
     rehypePlugins: [
       rehypeSlug,
       [rehypeAutolinkHeadings, { behavior: "wrap" }],
@@ -57,7 +62,13 @@ const nextConfig = {
 
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ["framer-motion", "lucide-react", "date-fns", "lodash-es", "react-icons"],
+    optimizePackageImports: [
+      "framer-motion",
+      "lucide-react",
+      "date-fns",
+      "lodash-es",
+      "react-icons",
+    ],
   },
 
   modularizeImports: {
@@ -80,9 +91,7 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2560],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
-      // ⬇️ your own hostname, resolved from env (works on previews and prod)
       { protocol: "https", hostname: PUBLIC_HOSTNAME },
-      // keep existing allows:
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "maps.googleapis.com" },
       { protocol: "https", hostname: "maps.gstatic.com" },
@@ -94,26 +103,42 @@ const nextConfig = {
   },
 
   poweredByHeader: false,
-  eslint: { ignoreDuringBuilds: false },
+
+  // TypeScript: still enforce no build errors (you keep this strict)
   typescript: { ignoreBuildErrors: false },
 
   async headers() {
-    const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    const immutable = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=31536000, immutable",
+      },
+    ];
     return [
       { source: "/images/:path*", headers: immutable },
       { source: "/videos/:path*", headers: immutable },
-      { source: "/fonts/:path*",  headers: immutable },
-      { source: "/icons/:path*",  headers: immutable },
+      { source: "/fonts/:path*", headers: immutable },
+      { source: "/icons/:path*", headers: immutable },
       { source: "/_next/static/:path*", headers: immutable },
-      { source: "/:path*", headers: [{ key: "Timing-Allow-Origin", value: "*" }] },
+      {
+        source: "/:path*",
+        headers: [{ key: "Timing-Allow-Origin", value: "*" }],
+      },
     ];
   },
 
   async redirects() {
     return [
-      { source: "/", destination: "/es", permanent: false },
-      // ⬇️ env-driven redirect (no hard-coded domain)
-      { source: "/:lang/oliveafarmtotable", destination: PUBLIC_URL, permanent: true },
+      {
+        source: "/",
+        destination: "/es",
+        permanent: false,
+      },
+      {
+        source: "/:lang/oliveafarmtotable",
+        destination: PUBLIC_URL,
+        permanent: true,
+      },
     ];
   },
 };
@@ -121,4 +146,4 @@ const nextConfig = {
 /* ────────────────────────────────────────────────────────────── */
 /* 4) wrap it all: MDX first, then bundle-analyzer                */
 /* ────────────────────────────────────────────────────────────── */
-export default withBundleAnalyzer(withMDXConfig(nextConfig));
+export default withBundleAnalyzer(withMDX(nextConfig));
