@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useRef, useState, type ReactNode } from "react"
-import Cookies from "js-cookie"
-import { AnimatePresence, motion } from "framer-motion"
-import { GlobeIcon } from "lucide-react"
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import Cookies from "js-cookie";
+import { AnimatePresence, motion } from "framer-motion";
+import { GlobeIcon } from "lucide-react";
 import {
   FaYoutube,
   FaInstagram,
@@ -13,101 +13,120 @@ import {
   FaLinkedin,
   FaSpotify,
   FaPinterest,
-} from "react-icons/fa"
-import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries"
+} from "react-icons/fa";
+import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
 interface FooterProps {
-  dict: AppDictionary
+  dict: AppDictionary;
 }
 
 type SocialItem = {
-  id: string
-  href: string
-  label: string
-  icon: ReactNode
-}
+  id: string;
+  href: string;
+  label: string;
+  icon: ReactNode;
+};
 
 export default function Footer({ dict }: FooterProps) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const lang = (pathname.split("/")[1] as "en" | "es") || "es"
+  const pathname = usePathname() ?? "/es";
+  const router = useRouter();
 
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  // 🔑 Derive lang from URL segment, default to "es"
+  const firstSeg = pathname.split("/")[1];
+  const lang: "en" | "es" = firstSeg === "en" ? "en" : "es";
+
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // NEW: tiny, non-visual enhancement — lift lang button if a bubble overlaps
-  const [lift, setLift] = useState(0)
+  const [lift, setLift] = useState(0);
 
   useEffect(() => {
     const handleClickOutside = (event: PointerEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false)
+        setOpen(false);
       }
-    }
-    document.addEventListener("pointerdown", handleClickOutside, { passive: true })
-    return () => document.removeEventListener("pointerdown", handleClickOutside)
-  }, [])
+    };
+    document.addEventListener("pointerdown", handleClickOutside, { passive: true });
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
+  }, []);
 
   // Detect Whistle / Cloudbeds bubbles and nudge the lang button up a bit if needed
   useEffect(() => {
     function calcLift() {
       const bubble =
         document.querySelector<HTMLElement>('[data-whistle-launcher]') ||
-        document.querySelector<HTMLElement>('#whistle-widget') ||
-        document.querySelector<HTMLElement>('.whistle-launcher') ||
+        document.querySelector<HTMLElement>("#whistle-widget") ||
+        document.querySelector<HTMLElement>(".whistle-launcher") ||
         document.querySelector<HTMLElement>('[data-widget="whistle"]') ||
         document.querySelector<HTMLElement>('[id*="cloudbeds"]') ||
-        document.querySelector<HTMLElement>('[class*="cloudbeds"]')
+        document.querySelector<HTMLElement>('[class*="cloudbeds"]');
 
-      if (!bubble) { setLift(0); return }
+      if (!bubble) {
+        setLift(0);
+        return;
+      }
 
-      const r = bubble.getBoundingClientRect()
-      const barH = 52  // your footer bar height approx
-      const pad  = 16
+      const r = bubble.getBoundingClientRect();
+      const barH = 52; // your footer bar height approx
+      const pad = 16;
 
-      const overlapsVert = r.bottom > (window.innerHeight - (pad + barH))
-      setLift(overlapsVert ? Math.ceil(r.height) + 8 : 0)
+      const overlapsVert = r.bottom > window.innerHeight - (pad + barH);
+      setLift(overlapsVert ? Math.ceil(r.height) + 8 : 0);
     }
 
-    const ro = new ResizeObserver(calcLift)
-    const mo = new MutationObserver(calcLift)
+    const ro = new ResizeObserver(calcLift);
+    const mo = new MutationObserver(calcLift);
 
-    ;[
-      '[data-whistle-launcher]',
-      '#whistle-widget',
-      '.whistle-launcher',
+    [
+      "[data-whistle-launcher]",
+      "#whistle-widget",
+      ".whistle-launcher",
       '[data-widget="whistle"]',
       '[id*="cloudbeds"]',
       '[class*="cloudbeds"]',
-    ].forEach(sel => {
-      const n = document.querySelector<HTMLElement>(sel)
-      if (n) ro.observe(n)
-    })
+    ].forEach((sel) => {
+      const n = document.querySelector<HTMLElement>(sel);
+      if (n) ro.observe(n);
+    });
 
-    calcLift()
-    window.addEventListener("resize", calcLift, { passive: true })
-    window.addEventListener("scroll",  calcLift, { passive: true })
-    mo.observe(document.body, { childList: true, subtree: true })
+    calcLift();
+    window.addEventListener("resize", calcLift, { passive: true });
+    window.addEventListener("scroll", calcLift, { passive: true });
+    mo.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      ro.disconnect()
-      mo.disconnect()
-      window.removeEventListener("resize", calcLift)
-      window.removeEventListener("scroll",  calcLift)
-    }
-  }, [])
+      ro.disconnect();
+      mo.disconnect();
+      window.removeEventListener("resize", calcLift);
+      window.removeEventListener("scroll", calcLift);
+    };
+  }, []);
 
   const switchLocale = (newLang: "en" | "es") => {
-    Cookies.set("NEXT_LOCALE", newLang, { path: "/" })
-    const segments = pathname.split("/")
-    segments[1] = newLang
-    const newPath = segments.join("/") || `/${newLang}`
-    router.push(newPath)
-    setOpen(false)
-  }
+    if (newLang === lang) {
+      setOpen(false);
+      return;
+    }
+
+    Cookies.set("NEXT_LOCALE", newLang, { path: "/" });
+
+    const segments = pathname.split("/");
+    // if we already have /en or /es, replace it; otherwise prepend
+    if (segments[1] === "en" || segments[1] === "es") {
+      segments[1] = newLang;
+      const newPath = segments.join("/") || `/${newLang}`;
+      router.push(newPath);
+    } else {
+      const suffix = pathname.startsWith("/") ? pathname : `/${pathname}`;
+      router.push(`/${newLang}${suffix === "/" ? "" : suffix}`);
+    }
+
+    setOpen(false);
+  };
 
   const rightsText =
-    lang === "en" ? "All rights reserved." : "Todos los derechos reservados."
+    lang === "en" ? "All rights reserved." : "Todos los derechos reservados.";
 
   const socialItems: SocialItem[] = [
     { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <FaYoutube /> },
@@ -116,7 +135,7 @@ export default function Footer({ dict }: FooterProps) {
     { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <FaLinkedin /> },
     { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <FaSpotify /> },
     { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <FaPinterest /> },
-  ]
+  ];
 
   return (
     <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[200] bg-transparent backdrop-blur-md text-[12px] text-[var(--olivea-ink)] font-light tracking-wide pointer-events-auto isolate">
@@ -156,7 +175,10 @@ export default function Footer({ dict }: FooterProps) {
             <button
               type="button"
               onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); setOpen(v => !v); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpen((v) => !v);
+              }}
               aria-haspopup="menu"
               aria-expanded={open}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
@@ -195,7 +217,7 @@ export default function Footer({ dict }: FooterProps) {
         </div>
       </div>
     </footer>
-  )
+  );
 }
 
 /** --- Footer Social Dock (hover-based clean icons) --- */
@@ -206,13 +228,13 @@ function FooterSocialDock({ items }: { items: SocialItem[] }) {
         <FooterSocialIcon key={it.id} item={it} />
       ))}
     </div>
-  )
+  );
 }
 
 function FooterSocialIcon({ item }: { item: SocialItem }) {
-  const CELL_W = 36
-  const CELL_H = 36
-  const ICON_BASE_PX = 22 // adjust to taste
+  const CELL_W = 36;
+  const CELL_H = 36;
+  const ICON_BASE_PX = 22; // adjust to taste
 
   return (
     <motion.a
@@ -238,5 +260,5 @@ function FooterSocialIcon({ item }: { item: SocialItem }) {
         {item.icon}
       </motion.span>
     </motion.a>
-  )
+  );
 }

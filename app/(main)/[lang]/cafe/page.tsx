@@ -1,11 +1,12 @@
 // app/(main)/[lang]/cafe/page.tsx
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { loadLocale } from "@/lib/i18n";
+import {
+  loadLocale as loadDict,
+  type Lang,
+} from "@/app/(main)/[lang]/dictionaries";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
-
-type Lang = "en" | "es";
 
 // minimal shape for what we read from the dict
 type CafeMetaShape = {
@@ -18,9 +19,11 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  { params }: { params: { lang: Lang } }
+  { params }: { params: { lang: string } }
 ): Promise<Metadata> {
-  const { lang: L, dict } = await loadLocale(params) as { lang: Lang; dict: CafeMetaShape };
+  const { lang: L, dict } = (await loadDict({
+    lang: params.lang,
+  })) as { lang: Lang; dict: CafeMetaShape };
 
   const title =
     dict.cafe?.meta?.title ?? "Olivea Café — Breakfast & Coffee";
@@ -35,7 +38,6 @@ export async function generateMetadata(
   const ogLocale = L === "es" ? "es_MX" : "en_US";
 
   return {
-    // your [lang]/layout template appends “ · OLIVEA”
     title,
     description,
     metadataBase: new URL("https://oliveafarmtotable.com"),
@@ -63,13 +65,19 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 };
 
-export default async function Page({ params }: { params: { lang: Lang } }) {
-  const { lang: L } = await loadLocale(params);
+export default async function Page({ params }: { params: { lang: string } }) {
+  const L: Lang = params.lang === "es" ? "es" : "en";
   const Content = L === "en" ? ContentEn : ContentEs;
 
   return (
     <div>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            Loading…
+          </div>
+        }
+      >
         <Content />
       </Suspense>
     </div>

@@ -1,3 +1,4 @@
+// components/layout/Navbar.tsx
 "use client";
 
 import { useState, useCallback, useRef, MouseEvent, useEffect } from "react";
@@ -13,19 +14,15 @@ import { MobileNav } from "@/components/navigation/MobileNav";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import { corm } from "@/app/fonts";
-
-// ✅ centralized section helpers
 import { buildCenterNavItems, reserveDefault } from "@/lib/sections";
 
-/* ---------------------------------- */
-/* CenterLink */
-/* ---------------------------------- */
 interface CenterLinkProps {
   href: string;
   label: string;
   isActive: boolean;
   onSameRouteClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
+
 function CenterLink({ href, label, isActive, onSameRouteClick }: CenterLinkProps) {
   const ref = useRef<HTMLAnchorElement>(null);
 
@@ -54,23 +51,25 @@ function CenterLink({ href, label, isActive, onSameRouteClick }: CenterLinkProps
   );
 }
 
-/* ---------------------------------- */
-/* Navbar */
-/* ---------------------------------- */
 interface NavbarProps {
-  lang: "en" | "es";
+  lang: "en" | "es"; // still passed by LayoutShell, but we'll override it from the URL
   dictionary: AppDictionary;
 }
 
-export default function Navbar({ lang, dictionary }: NavbarProps) {
-  const pathname = usePathname();
+export default function Navbar({ lang: _langProp, dictionary }: NavbarProps) {
+  const pathname = usePathname() ?? "/es";
   const isMobile = useIsMobile();
   const { openReservationModal } = useReservation();
   const { clearTransition } = useSharedTransition();
+
+  // 🔑 derive lang from URL path
+  const firstSeg = pathname.split("/")[1];
+  const lang: "en" | "es" = firstSeg === "en" ? "en" : "es";
+
   const homeHref = lang === "en" ? "/en" : "/es";
 
   // Build center items from the single source of truth
-  const center = buildCenterNavItems(pathname); // [{id, href, isActive, label}, …]
+  const center = buildCenterNavItems(pathname);
 
   // mobile drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -90,7 +89,6 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
     openReservationModal(map[id]);
   }, [openReservationModal, pathname]);
 
-  // desktop "olivea:reserve" global event
   useEffect(() => {
     const onReserve = () => {
       if (window.matchMedia("(min-width: 768px)").matches) handleReserve();
@@ -99,13 +97,10 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
     return () => window.removeEventListener("olivea:reserve", onReserve);
   }, [handleReserve]);
 
-  /* ---------------------------------- */
-  /* Smooth scroll back to #hero on same-route click */
-  /* ---------------------------------- */
   const handleSameRouteCenterClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-
-    type LenisScrollOpts = { offset?: number; duration?: number; lock?: boolean; force?: boolean; easing?: (t: number) => number; };
+    // (unchanged smooth-scroll logic ...)
+    type LenisScrollOpts = { offset?: number; duration?: number; lock?: boolean; force?: boolean; easing?: (t: number) => number };
     type LenisLike = { scrollTo: (t: HTMLElement | number | string, o?: LenisScrollOpts) => void };
     const w = window as unknown as Window & { lenis?: LenisLike; Lenis?: LenisLike };
     const lenis: LenisLike | null = w.lenis ?? w.Lenis ?? null;
@@ -133,7 +128,8 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
     const arrivedNow = () => currentTop() <= THRESH;
 
     const tick = () => {
-      if (arrivedNow()) stable += 1; else stable = 0;
+      if (arrivedNow()) stable += 1;
+      else stable = 0;
       const expired = performance.now() - start > TIMEOUT;
       if (stable >= STABLE_FRAMES || expired) {
         history.replaceState(null, "", window.location.pathname + window.location.search);
@@ -184,14 +180,14 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
       window.removeEventListener("pagehide", cleanup);
       window.removeEventListener("visibilitychange", visHandler);
     };
-    const visHandler = () => { if (document.visibilityState === "hidden") cleanup(); };
+    const visHandler = () => {
+      if (document.visibilityState === "hidden") cleanup();
+    };
     window.addEventListener("pagehide", cleanup);
     window.addEventListener("visibilitychange", visHandler);
   }, []);
 
-  /* ---------------------------------- */
   /* Mobile UI */
-  /* ---------------------------------- */
   if (isMobile) {
     return (
       <>
@@ -202,9 +198,7 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
     );
   }
 
-  /* ---------------------------------- */
   /* Desktop UI */
-  /* ---------------------------------- */
   return (
     <nav className="fixed top-0 left-0 right-0 z-[50] bg-transparent">
       <div className="relative w-full h-20 md:h-24 lg:h-28">
@@ -212,8 +206,14 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
         <Link
           href={homeHref}
           aria-label="Home"
-          onPointerDown={() => { try { sessionStorage.setItem("olivea:returning", "1"); } catch {} }}
-          onClick={() => { clearTransition(); }}
+          onPointerDown={() => {
+            try {
+              sessionStorage.setItem("olivea:returning", "1");
+            } catch {}
+          }}
+          onClick={() => {
+            clearTransition();
+          }}
           className="absolute left-4 md:left-8 lg:left-12 top-[1rem] md:top-[1.5rem] lg:top-[1.5rem] inline-flex items-center"
         >
           <OliveaFTTLogo className="h-14 md:h-22 lg:h-40 w-auto transition-all duration-300" style={{ maxHeight: "16rem" }} />
@@ -236,7 +236,7 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
         <div className="absolute right-4 md:right-8 lg:right-12 top-1/2 -translate-y-1/2">
           <MagneticButton
             onClick={handleReserve}
-            data-reserve-intent  // helps prewarm the modal bundle
+            data-reserve-intent
             aria-label={lang === "en" ? "Reserve" : "Reservar"}
             className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
           >

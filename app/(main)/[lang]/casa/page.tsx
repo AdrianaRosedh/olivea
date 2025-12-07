@@ -1,12 +1,14 @@
+// app/(main)/[lang]/casa/page.tsx
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { loadLocale } from "@/lib/i18n";
+import {
+  loadLocale as loadDict,
+  type Lang,
+} from "@/app/(main)/[lang]/dictionaries";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
 
-type Lang = "en" | "es";
-
-// just the bits we read for metadata
+// minimal shape for what we read from the dict
 type CasaMetaShape = {
   casa?: { meta?: { title?: string; description?: string; ogImage?: string } };
   metadata?: { ogDefault?: string };
@@ -17,14 +19,21 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  { params }: { params: { lang: Lang } }
+  { params }: { params: { lang: string } }
 ): Promise<Metadata> {
-  const { lang: L, dict } = await loadLocale(params) as { lang: Lang; dict: CasaMetaShape };
+  const { lang: L, dict } = (await loadDict({
+    lang: params.lang,
+  })) as { lang: Lang; dict: CasaMetaShape };
 
   const title = dict.casa?.meta?.title ?? "Casa OLIVEA — Hotel";
   const description =
-    dict.casa?.meta?.description ?? "Rooms, design, and calm at Casa OLIVEA.";
-  const ogImage = dict.casa?.meta?.ogImage ?? dict.metadata?.ogDefault ?? "/images/seo/casa-og.jpg";
+    dict.casa?.meta?.description ??
+    "Rooms, design, and calm at Casa OLIVEA.";
+  const ogImage =
+    dict.casa?.meta?.ogImage ??
+    dict.metadata?.ogDefault ??
+    "/images/seo/casa-og.jpg";
+
   const ogLocale = L === "es" ? "es_MX" : "en_US";
 
   return {
@@ -55,13 +64,19 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 };
 
-export default async function Page({ params }: { params: { lang: Lang } }) {
-  const { lang: L } = await loadLocale(params) as { lang: Lang; dict: unknown };
+export default async function Page({ params }: { params: { lang: string } }) {
+  const L: Lang = params.lang === "es" ? "es" : "en";
   const Content = L === "en" ? ContentEn : ContentEs;
 
   return (
     <div>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            Loading…
+          </div>
+        }
+      >
         <Content />
       </Suspense>
     </div>

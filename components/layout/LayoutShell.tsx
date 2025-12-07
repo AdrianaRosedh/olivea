@@ -63,10 +63,18 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
+  // 🔑 Derive language from the URL path, not just from props
+  const pathLang: Lang =
+    pathname === "/es" ||
+    pathname.startsWith("/es/") ? "es" : "en";
+
   // single source of truth for section
   const { section } = getActiveSection(pathname);
-  const isHome = pathname === `/${lang}`;
+
+  // Use the URL-derived lang for "home" detection
+  const isHome = pathname === `/${pathLang}`;
   const allowHeroBreakout = !!section; // any identity page
+
 
   // Lenis → CSS var (guard against null during HMR)
   useEffect(() => {
@@ -97,41 +105,44 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   // Desktop Dock-Right items (memo)
   const dockRightItems = useMemo<DockItem[]>(
     () => [
-      { id: "about", href: `/${lang}/about`, label: dictionary.about.title, icon: <Users /> },
-      { id: "journal", href: `/${lang}/journal`, label: dictionary.journal.title, icon: <BookOpen /> },
-      { id: "sustainability", href: `/${lang}/sustainability`, label: dictionary.sustainability.title, icon: <Leaf /> },
-      { id: "contact", href: `/${lang}/contact`, label: dictionary.contact.title, icon: <Map /> },
-      { id: "mesadelvalle", href: `/${lang}/mesadelvalle`, label: dictionary.mesadelvalle.title, icon: <Wine /> },
+      { id: "about",        href: `/${pathLang}/about`,        label: dictionary.about.title,          icon: <Users /> },
+      { id: "journal",      href: `/${pathLang}/journal`,      label: dictionary.journal.title,        icon: <BookOpen /> },
+      { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <Leaf /> },
+      { id: "contact",      href: `/${pathLang}/contact`,      label: dictionary.contact.title,        icon: <Map /> },
+      { id: "mesadelvalle", href: `/${pathLang}/mesadelvalle`, label: dictionary.mesadelvalle.title,   icon: <Wine /> },
     ],
-    [lang, dictionary]
+    [pathLang, dictionary]
   );
+
 
   // Identity + section overrides (memo)
   const identity: "casa" | "farmtotable" | "cafe" | null = section?.id ?? null;
 
   const sectionsOverride: Override | undefined = useMemo(() => {
-    if (section?.id === "farmtotable") return mapSections(lang === "es" ? FARM_ES : FARM_EN);
-    if (section?.id === "casa")        return mapSections(lang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN);
-    if (section?.id === "cafe")        return mapSections(lang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN);
+    if (section?.id === "farmtotable") return mapSections(pathLang === "es" ? FARM_ES : FARM_EN);
+    if (section?.id === "casa")        return mapSections(pathLang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN);
+    if (section?.id === "cafe")        return mapSections(pathLang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN);
     return undefined;
-  }, [section?.id, lang]);
+  }, [section?.id, pathLang]);
+
 
   // Mobile bottom nav items (memo)
   const mobileNavItems = useMemo(() => {
     if (section?.id === "casa") {
-      const src = lang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN;
+      const src = pathLang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN;
       return src.map((s) => ({ id: s.id, label: s.title }));
     }
     if (section?.id === "farmtotable") {
-      const src = lang === "es" ? FARM_ES : FARM_EN;
+      const src = pathLang === "es" ? FARM_ES : FARM_EN;
       return src.map((s) => ({ id: s.id, label: s.title }));
     }
     if (section?.id === "cafe") {
-      const src = lang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN;
+      const src = pathLang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN;
       return src.map((s) => ({ id: s.id, label: s.title }));
     }
     return [];
-  }, [section?.id, lang]);
+  }, [section?.id, pathLang]);
+
 
   // Only load chat on identity pages (avoid loading on /about, /journal, etc.)
   const wantsChat = !isHome && !!section;
@@ -183,7 +194,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {/* Desktop chat trigger */}
       {!isHome && !isMobile && (
         <ClientOnly>
-          <DesktopChatButton lang={lang} />
+          <DesktopChatButton lang={pathLang} />
         </ClientOnly>
       )}
     </>

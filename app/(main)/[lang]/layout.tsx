@@ -5,8 +5,11 @@ import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
 import StructuredData from "@/components/seo/StructuredData";
 import LayoutShell from "@/components/layout/LayoutShell";
-import { loadLocale } from "@/lib/i18n";
-import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import {
+  loadLocale,
+  type Lang,
+  type AppDictionary,
+} from "@/app/(main)/[lang]/dictionaries";
 import ClientPrewarm from "./prewarm-client";
 
 type Params = { params: { lang: "es" | "en" } };
@@ -17,6 +20,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const baseTitle =
     lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
+
   return {
     title: { default: baseTitle, template: "%s" },
     alternates: { languages: { "es-MX": "/es", "en-US": "/en" } },
@@ -31,6 +35,7 @@ export default async function LangLayout({
   children: ReactNode;
   params: { lang: string };
 }) {
+  // Use the dictionaries loader – it normalizes "es"/"en" for us
   const { lang, dict } = (await loadLocale({ lang: rawLang })) as {
     lang: Lang;
     dict: AppDictionary;
