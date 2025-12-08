@@ -1,5 +1,5 @@
 // app/(main)/[lang]/layout.tsx
-import "../main.css"; // (main)-only presentation styles, scoped via [data-scope="main"]
+import "../main.css";
 
 import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
@@ -12,12 +12,18 @@ import {
 } from "@/app/(main)/[lang]/dictionaries";
 import ClientPrewarm from "./prewarm-client";
 
-type Params = { params: { lang: "es" | "en" } };
+// Optional but nice: prebuild both langs for this segment
+export function generateStaticParams() {
+  return [{ lang: "es" }, { lang: "en" }];
+}
+
+type LayoutParams = { params: Promise<{ lang: string }> };
 
 export async function generateMetadata(
-  { params: { lang } }: Params,
+  { params }: LayoutParams,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const { lang } = await params;
   const baseTitle =
     lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
 
@@ -30,23 +36,22 @@ export async function generateMetadata(
 
 export default async function LangLayout({
   children,
-  params: { lang: rawLang },
+  params,
 }: {
   children: ReactNode;
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }) {
-  // Use the dictionaries loader – it normalizes "es"/"en" for us
+  const { lang: rawLang } = await params;
+
   const { lang, dict } = (await loadLocale({ lang: rawLang })) as {
     lang: Lang;
     dict: AppDictionary;
   };
 
   return (
-    // Scope all (main)-only presentation styles
     <div data-scope="main">
       <StructuredData />
       <ClientPrewarm />
-      {/* AppProviders is already in app/layout.tsx */}
       <LayoutShell lang={lang} dictionary={dict}>
         {children}
       </LayoutShell>

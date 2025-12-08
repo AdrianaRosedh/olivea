@@ -18,11 +18,15 @@ export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
 }
 
-export async function generateMetadata(
-  { params }: { params: { lang: string } }
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang: raw } = await params;
+
   const { lang: L, dict } = (await loadDict({
-    lang: params.lang,
+    lang: raw,
   })) as { lang: Lang; dict: CasaMetaShape };
 
   const title = dict.casa?.meta?.title ?? "Casa OLIVEA — Hotel";
@@ -64,8 +68,13 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 };
 
-export default async function Page({ params }: { params: { lang: string } }) {
-  const L: Lang = params.lang === "es" ? "es" : "en";
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang: raw } = await params;
+  const L: Lang = raw === "es" ? "es" : "en";
   const Content = L === "en" ? ContentEn : ContentEs;
 
   return (

@@ -2,38 +2,46 @@ import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
 import ParallaxImage from "@/components/scroll/ParallaxImage";
+import StatChips from "@/components/mdx/StatChips";
 import FieldNote from "@/components/mdx/FieldNote";
 
 <StickyBlock
-  id="cocina"
+  id="experiencia"
   variant="top"
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20"
+  className="py-12 md:py-20 snap-start"
   title={
     <Reveal preset="up">
       <h2 className="text-2xl md:text-4xl font-semibold">
-        La cocina
+        La experiencia
       </h2>
     </Reveal>
   }
 >
 
-  {/* BLOQUE 1 — texto inicial */}
+  {/* BLOCK 1 – Text intro (MATCHES kitchen width) */}
   <div className="max-w-[720px] w-full text-left">
-    <Sub id="producto" preset="up">
+    <Sub id="origen" preset="blur-up">
       <p>
-        El producto manda. La cocina nace del huerto y de los productores 
-        cercanos: capas claras, técnicas precisas y cocciones que respetan 
-        el punto natural de cada ingrediente.
-      </p>
-      <p className="mt-3">
-        No trabajamos con menú a la carta: la creatividad del equipo y la 
-        disponibilidad del huerto determinan el menú de temporada.
+        Olivea Farm To Table es una experiencia de{" "}
+        <strong>menú degustación</strong>, nacida en el huerto. La cocina
+        interpreta clima y suelo; la mesa transforma ese paisaje en memoria.
       </p>
     </Sub>
+
+    {/* Stat chips aligned to text width */}
+    <div className="mt-6">
+      <StatChips
+        items={[
+          { label: "Formato", value: "Menú degustación • 7 tiempos" },
+          { label: "Temporada", value: "Cambia cada 5–6 semanas" },
+          { label: "Origen", value: "Huerto propio • Valle de Guadalupe" },
+        ]}
+      />
+    </div>
   </div>
 
-  {/* IMAGEN PARALLAX */}
+  {/* PARALLAX IMAGE — MATCHES kitchen */}
   <div
     className="
       relative w-full max-w-[950px] mx-auto my-10
@@ -43,39 +51,43 @@ import FieldNote from "@/components/mdx/FieldNote";
     "
   >
     <ParallaxImage
-      src="/images/farm/kitchen.jpg"
-      alt="Pase de cocina en Olivea"
+      src="/images/farm/garden.jpg"
+      alt="Huerto de Olivea Farm To Table"
       heightVh={56}
       speed={0.22}
-      className="rounded-[28px]"
       fit="cover"
-      objectPosition="50% 50%"
+      objectPosition="50% 40%"
+      className="rounded-[28px]"
     />
   </div>
 
-  {/* BLOQUE 2 — segunda parte del texto */}
+  {/* BLOCK 2 – follow-up text */}
   <div className="max-w-[720px] w-full text-left">
-    <Sub id="tecnica" preset="fade" className="!min-h-0">
-      La técnica nunca es protagonista: existe para potenciar el sabor, 
-      no para distraer. Fondos, reducciones y fermentos se usan con 
-      intención, siempre al servicio del equilibrio.
+
+    <Sub id="equilibrio" preset="up" className="!min-h-0">
+      El Valle nos da tierra, mar y granja. Buscamos equilibrio entre acidez y
+      grasa, amargor y dulzor, temperatura y textura. No trabajamos con carta
+      tradicional: el menú se ajusta según lo que el huerto y los productores
+      cercanos ofrecen en mejor punto cada temporada.
     </Sub>
 
-    <Sub id="equipo" preset="left" className="!min-h-0 mt-6">
-      El equipo cocina leyendo el clima, el huerto y el servicio: 
-      entendiendo qué está en punto, qué se reserva y qué evoluciona 
-      en la despensa.
-    </Sub>
-
-    {/* FAQ-aware información */}
+    {/* Field note centered like kitchen */}
     <div className="w-full max-w-[950px] mx-auto mt-6 flex justify-center">
       <FieldNote className="max-w-[720px] w-full">
-        Podemos adaptar el menú a <strong>alergias o restricciones</strong> 
-        con previa notificación. Nuestro enfoque es técnico, preciso y 
-        orientado al producto; cada ajuste se realiza buscando mantener 
-        la esencia del recorrido.
+        El ciclo de compost alimenta los bancales que alimentan el menú.
+        Con <strong>previa notificación</strong> podemos adaptar el recorrido
+        a alergias o restricciones importantes, siempre que respeten la esencia
+        del huerto.
       </FieldNote>
     </div>
+
+    <Sub id="valores" preset="fade" className="!min-h-0 mt-6">
+      Trazabilidad, cuidado del agua y circularidad guían cada decisión.
+      Sostenibilidad, técnica y responsabilidad están presentes en todo el
+      recorrido, pensado como una experiencia pausada para adultos que puedan
+      dedicarle de dos a tres horas.
+    </Sub>
+
   </div>
 
 </StickyBlock>

@@ -8,7 +8,6 @@ import {
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
 
-// just the bits we read for metadata
 type FarmMetaShape = {
   farmtotable?: {
     meta?: { title?: string; description?: string; ogImage?: string };
@@ -20,12 +19,15 @@ export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
 }
 
-export async function generateMetadata(
-  { params }: { params: { lang: string } }
-): Promise<Metadata> {
-  // Let the dict loader normalize "es" / "en"
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang: raw } = await params;
+
   const { lang: L, dict } = (await loadDict({
-    lang: params.lang,
+    lang: raw,
   })) as { lang: Lang; dict: FarmMetaShape };
 
   const title =
@@ -68,9 +70,13 @@ export const viewport: Viewport = {
   themeColor: "#65735b",
 };
 
-export default async function Page({ params }: { params: { lang: string } }) {
-  // 🔑 Content language comes directly from the URL segment
-  const L: Lang = params.lang === "es" ? "es" : "en";
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang: raw } = await params;
+  const L: Lang = raw === "es" ? "es" : "en";
   const Content = L === "en" ? ContentEn : ContentEs;
 
   return (
