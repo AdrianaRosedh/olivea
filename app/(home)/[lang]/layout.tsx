@@ -1,7 +1,7 @@
 // app/(home)/[lang]/layout.tsx
 import type { Metadata, ResolvingMetadata, Viewport } from "next";
 import FixedLCP from "./FixedLCP";
-import { SITE } from "@/lib/site"; // ⬅️ import the centralized site config
+import { SITE } from "@/lib/site";
 
 export const viewport: Viewport = {
   themeColor: "#5a6852", // matches var(--olivea-olive)
@@ -11,28 +11,44 @@ export async function generateMetadata(
   { params: { lang } }: { params: { lang: "es" | "en" } },
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const baseTitle =
-    lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
+  const isEs = lang === "es";
+
+  const title = isEs
+    ? "OLIVEA | Donde el huerto es la esencia"
+    : "OLIVEA | Where the garden is the essence";
+
+  const description = isEs
+    ? "Olivea: restaurante de degustación, hotel y café nacidos del huerto en Valle de Guadalupe. Donde el huerto es la esencia."
+    : "Olivea: a tasting-menu restaurant, boutique hotel and café rooted in a living garden in Valle de Guadalupe. Where the garden is the essence.";
+
+  const url = isEs ? `${SITE.baseUrl}/es` : `${SITE.baseUrl}/en`;
 
   return {
-    title: {
-      default: baseTitle,
-      template: `%s · OLIVEA`,
-    },
-    // Centralized base URL (no hard-coded domains)
+    title,
+    description,
     metadataBase: new URL(SITE.baseUrl),
+
     alternates: {
+      canonical: isEs ? "/es" : "/en",
       languages: {
         "es-MX": "/es",
         "en-US": "/en",
       },
     },
+
     openGraph: {
-      title: baseTitle,
-      locale: lang === "es" ? "es_MX" : "en_US",
+      title,
+      description,
       type: "website",
-      url: SITE.baseUrl,
+      url,
       siteName: "OLIVEA",
+      locale: isEs ? "es_MX" : "en_US",
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
     },
   };
 }

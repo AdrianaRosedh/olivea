@@ -5,6 +5,7 @@ import {
   loadLocale as loadDict,
   type Lang,
 } from "@/app/(main)/[lang]/dictionaries";
+import { SITE } from "@/lib/site";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
 
@@ -30,35 +31,54 @@ export async function generateMetadata({
     lang: raw,
   })) as { lang: Lang; dict: FarmMetaShape };
 
-  const title =
-    dict.farmtotable?.meta?.title ?? "Olivea Farm-to-Table — Restaurant";
+  const isEs = L === "es";
+
+  const fallbackTitle = isEs
+    ? "Olivea Farm To Table — restaurante de degustación con estrella Michelin en Valle de Guadalupe"
+    : "Olivea Farm To Table — Michelin-starred tasting-menu restaurant in Valle de Guadalupe";
+
+  const fallbackDescription = isEs
+    ? "Restaurante de degustación con estrella Michelin, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia."
+    : "Michelin-starred tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. Seasonal menu where the garden is the essence.";
+
+  const title = dict.farmtotable?.meta?.title ?? fallbackTitle;
   const description =
-    dict.farmtotable?.meta?.description ??
-    "Seasonal tasting menu from garden to table in Valle de Guadalupe.";
+    dict.farmtotable?.meta?.description ?? fallbackDescription;
+
   const ogImage =
     dict.farmtotable?.meta?.ogImage ??
     dict.metadata?.ogDefault ??
     "/images/seo/restaurant-og.jpg";
 
-  const ogLocale = L === "es" ? "es_MX" : "en_US";
+  const ogLocale = isEs ? "es_MX" : "en_US";
+  const canonicalPath = `/${L}/farmtotable`;
+  const url = `${SITE.baseUrl}${canonicalPath}`;
 
   return {
     title,
     description,
-    metadataBase: new URL("https://oliveafarmtotable.com"),
+    metadataBase: new URL(SITE.baseUrl),
     alternates: {
-      canonical: `https://oliveafarmtotable.com/${L}/farmtotable`,
+      canonical: canonicalPath,
       languages: {
-        en: "https://oliveafarmtotable.com/en/farmtotable",
-        es: "https://oliveafarmtotable.com/es/farmtotable",
+        en: "/en/farmtotable",
+        es: "/es/farmtotable",
       },
     },
     openGraph: {
       title,
       description,
+      url,
       locale: ogLocale,
       type: "website",
+      siteName: "OLIVEA",
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
     },
   };
 }

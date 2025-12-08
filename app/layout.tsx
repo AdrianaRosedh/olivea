@@ -7,17 +7,22 @@ import { SITE, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.baseUrl),
-  title: "OLIVEA | The Experience",
-  description: "A 360° garden-rooted hospitality experience in Valle de Guadalupe.",
+
+  title: "OLIVEA | Donde el huerto es la esencia",
+  description:
+    "OLIVEA: restaurante de degustación, hotel y café nacidos del huerto en Valle de Guadalupe. Donde el huerto es la esencia.",
+
   alternates: {
     canonical: "/",
     languages: { "es-MX": "/es", "en-US": "/en" },
   },
+
   openGraph: {
     type: "website",
     url: SITE.baseUrl,
-    title: "OLIVEA | The Experience",
-    description: "Garden, cuisine, hotel and café in Valle de Guadalupe.",
+    title: "OLIVEA | Donde el huerto es la esencia",
+    description:
+      "OLIVEA Farm To Table Restaurante de degustación, hotel Casa OLIVEA y OLIVEA Café arraigados en un huerto vivo en Valle de Guadalupe.",
     siteName: "OLIVEA",
     images: [
       {
@@ -28,12 +33,15 @@ export const metadata: Metadata = {
       },
     ],
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "OLIVEA | The Experience",
-    description: "Garden-rooted, tech-enhanced hospitality in Valle de Guadalupe.",
+    title: "OLIVEA | Donde el huerto es la esencia",
+    description:
+      "Gastronomía, hotel y café nacidos del huerto en Valle de Guadalupe. Where the garden is the essence.",
     images: [absoluteUrl("/images/og/cover.jpg")],
   },
+
   robots: {
     index: true,
     follow: true,
@@ -45,6 +53,7 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -60,8 +69,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={fontsClass}>
-      <head>
-      </head>
+      <head />
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
         <noscript>
           <style>{`.fixed-lcp{opacity:0 !important;transition:none !important;pointer-events:none !important;}`}</style>

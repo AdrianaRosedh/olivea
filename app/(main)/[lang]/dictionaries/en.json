@@ -5,7 +5,15 @@
     "meta": {
       "title": "About Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
       "description": "Learn how Olivea brings the Valley’s light, soil and producers to the table—our team, values and design approach in Ensenada, Baja California.",
-      "keywords": ["Olivea", "about", "Valle de Guadalupe", "Ensenada", "farm-to-table", "team", "design"],
+      "keywords": [
+        "Olivea",
+        "about",
+        "Valle de Guadalupe",
+        "Ensenada",
+        "farm-to-table",
+        "team",
+        "design"
+      ],
       "ogImage": "/images/seo/about-og.jpg"
     }
   },
@@ -15,8 +23,16 @@
     "error": "Error loading menu:",
     "meta": {
       "title": "OLIVEA Café",
-      "description": "Single-origin coffee roasted in Ensenada, house bread and a calm courtyard. Breakfast from the garden Olivea Café in Valle de Guadalupe.",
-      "keywords": ["Olivea Cafe", "coffee", "Valle de Guadalupe", "breakfast", "house bread", "Ensenada", "padel"],
+      "description": "Specialty coffee, house bread and a calm courtyard. Breakfast from the garden at Olivea Café in Valle de Guadalupe, Baja California.",
+      "keywords": [
+        "Olivea Cafe",
+        "coffee",
+        "Valle de Guadalupe",
+        "breakfast",
+        "house bread",
+        "Ensenada",
+        "padel"
+      ],
       "ogImage": "/images/seo/cafe-og.jpg"
     }
   },
@@ -24,20 +40,27 @@
     "title": "Casa Olivea",
     "description": "Stay with us. Rooms, amenities, and reservations coming soon.",
     "meta": {
-      "title": "Casa OLIVEA",
-      "description": "Light, quiet and honest comfort. Rooms with natural materials, effective blackout and thoughtful amenities—Casa Olivea, Ensenada, Baja California.",
-      "keywords": ["Casa Olivea", "hotel", "rooms", "Valle de Guadalupe", "Ensenada", "quiet", "design hotel"],
+      "title": "Casa OLIVEA — boutique hotel in Valle de Guadalupe",
+      "description": "Light, quiet and honest comfort. Boutique rooms with natural materials, effective blackout and thoughtful amenities—Casa Olivea, a boutique hotel in Valle de Guadalupe, Baja California.",
+      "keywords": [
+        "Casa Olivea",
+        "hotel",
+        "boutique hotel",
+        "Valle de Guadalupe",
+        "Ensenada",
+        "quiet",
+        "design hotel"
+      ],
       "ogImage": "/images/seo/casa-og.jpg"
     }
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": "Garden, kitchen and table—an eight-course menu shaped by season and soil.",
+    "description": "Michelin-starred tasting menu shaped by a living garden in Valle de Guadalupe.",
     "meta": {
-      "title": "OLIVEA Farm to Table",
-      "description": "From garden to table: an 8-course seasonal tasting menu, non-alcoholic pairings and a dining room set to the Valley’s rhythm.",
-      "keywords": ["farm to table", "tasting menu", "Valle de Guadalupe", "Ensenada", "non-alcoholic pairing", "restaurant"],
-      "ogImage": "/images/seo/farm-og.jpg"
+      "title": "Olivea Farm To Table — Michelin-starred tasting-menu restaurant in Valle de Guadalupe",
+      "description": "Michelin-starred tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. Seasonal menu where the garden is the essence.",
+      "ogImage": "/images/seo/restaurant-og.jpg"
     }
   },
   "contact": {
@@ -46,7 +69,13 @@
     "meta": {
       "title": "Contact Olivea | Reservations & Press",
       "description": "Contact Olivea for reservations, events and press inquiries in Valle de Guadalupe, Ensenada.",
-      "keywords": ["Olivea contact", "reservations", "press", "Valle de Guadalupe", "Ensenada"],
+      "keywords": [
+        "Olivea contact",
+        "reservations",
+        "press",
+        "Valle de Guadalupe",
+        "Ensenada"
+      ],
       "ogImage": "/images/seo/contact-og.jpg"
     }
   },
@@ -56,7 +85,14 @@
     "meta": {
       "title": "Sustainability at Olivea | Water, Waste & Local Partnerships",
       "description": "Refillables, water care, responsible sourcing and compost—how Olivea reduces waste and supports local producers in Valle de Guadalupe.",
-      "keywords": ["sustainability", "refillables", "compost", "local producers", "Valle de Guadalupe", "Olivea"],
+      "keywords": [
+        "sustainability",
+        "refillables",
+        "compost",
+        "local producers",
+        "Valle de Guadalupe",
+        "Olivea"
+      ],
       "ogImage": "/images/seo/sustainability-og.jpg"
     }
   },
@@ -70,7 +106,13 @@
     "meta": {
       "title": "Olivea Journal | Stories from the Valley",
       "description": "Dispatches from the garden and kitchen—technique, producers and seasonal notes from Valle de Guadalupe.",
-      "keywords": ["Olivea Journal", "stories", "Valle de Guadalupe", "seasonal", "producers"],
+      "keywords": [
+        "Olivea Journal",
+        "stories",
+        "Valle de Guadalupe",
+        "seasonal",
+        "producers"
+      ],
       "ogImage": "/images/seo/journal-og.jpg"
     }
   },
@@ -80,7 +122,12 @@
     "meta": {
       "title": "Legal & Policies | OLIVEA",
       "description": "Legal entity details, privacy, cookie and booking policies for Olivea.",
-      "keywords": ["legal", "privacy", "policies", "Olivea"],
+      "keywords": [
+        "legal",
+        "privacy",
+        "policies",
+        "Olivea"
+      ],
       "ogImage": "/images/seo/legal-og.jpg"
     }
   },
@@ -95,24 +142,40 @@
     "meta": {
       "title": "Mesa del Valle | A Collective from Valle de Guadalupe",
       "description": "Chefs, winemakers, hoteliers and artisans shaping the region’s identity—press, collaborations and shared events.",
-      "keywords": ["Mesa del Valle", "collective", "press", "Valle de Guadalupe", "wine", "gastronomy"],
+      "keywords": [
+        "Mesa del Valle",
+        "collective",
+        "press",
+        "Valle de Guadalupe",
+        "wine",
+        "gastronomy"
+      ],
       "ogImage": "/images/seo/mesa-og.jpg"
     }
   },
   "home": {
-    "title": "Welcome to OLIVEA",
-    "subtitle": "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+    "title": "OLIVEA",
+    "subtitle": "Where the garden is the essence.",
     "cta_restaurant": "Visit the Restaurant",
     "cta_casa": "Stay at Casa Olivea",
     "meta": {
-      "title": "OLIVEA | Farm to Table Hospitality in Valle de Guadalupe",
-      "description": "A sanctuary where nature, nourishment and design meet—restaurant, café and rooms in Valle de Guadalupe, Ensenada, Baja California.",
-      "keywords": ["Olivea", "Valle de Guadalupe", "Ensenada", "restaurant", "cafe", "hotel", "farm-to-table"],
+      "title": "OLIVEA | Where the garden is the essence",
+      "description": "Olivea: a Michelin-starred tasting-menu restaurant, boutique hotel and café rooted in a living garden in Valle de Guadalupe, Baja California. Where the garden is the essence.",
+      "keywords": [
+        "Olivea",
+        "Valle de Guadalupe",
+        "Ensenada",
+        "restaurant",
+        "cafe",
+        "hotel",
+        "farm-to-table",
+        "Michelin-starred"
+      ],
       "ogImage": "/images/seo/home-og.jpg"
     }
   },
   "metadata": {
-    "description": "A farm-to-table sanctuary where nature, nourishment, and design meet.",
+    "description": "A Michelin-starred, garden-rooted restaurant, hotel and café in Valle de Guadalupe, Baja California.",
     "siteName": "Olivea",
     "twitter": "@yourhandle",
     "ogDefault": "/images/seo/default-og.jpg"
