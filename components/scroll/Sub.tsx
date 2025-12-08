@@ -19,7 +19,7 @@ export default function Sub({
   children,
   preset = "up",
   delay = 0,
-  minH = 180,                   // ↓ lower default to reduce big voids
+  minH = 120,           // ⬅️ lower default (was 180)
   className = "",
 }: Props) {
   return (
@@ -28,7 +28,7 @@ export default function Sub({
       <div
         id={id}
         className="subsection leading-relaxed text-black/75 md:text-lg"
-        style={{ minHeight: minH }}
+        style={minH ? { minHeight: minH } : undefined}  // ⬅️ if 0, no min-height
       >
         {children}
       </div>
