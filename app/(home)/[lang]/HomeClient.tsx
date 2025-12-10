@@ -190,7 +190,7 @@ export default function HomeClient() {
                       className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden"
                       style={{ "--bar-duration": "4s" } as React.CSSProperties}
                     >
-                      <div className="absolute bottom-0 left-0 w-full h-full bg-[#e2be8f] rounded-full loader-vert" />
+                      <div className="absolute bottom-0 left-0 w-full h-full bg-[#e7eae1] rounded-full loader-vert" />
                     </div>
                   </div>
                   {/* Desktop percent bar */}
