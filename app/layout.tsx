@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 
   alternates: {
     canonical: "/",
-    languages: { "es-MX": "/es", "en-US": "/en" },
+    languages: {
+      "es-MX": "/es",
+      "en-US": "/en",
+    },
   },
 
   openGraph: {
@@ -22,7 +25,7 @@ export const metadata: Metadata = {
     url: SITE.baseUrl,
     title: "OLIVEA | Donde el huerto es la esencia",
     description:
-      "OLIVEA Farm To Table Restaurante de degustación, hotel Casa OLIVEA y OLIVEA Café arraigados en un huerto vivo en Valle de Guadalupe.",
+      "OLIVEA Farm To Table, hotel Casa OLIVEA y OLIVEA Café arraigados en un huerto vivo en Valle de Guadalupe.",
     siteName: "OLIVEA",
     images: [
       {
@@ -54,16 +57,26 @@ export const metadata: Metadata = {
     },
   },
 
+  // This creates <meta name="apple-mobile-web-app-title" content="OLIVEA" />
+  appleWebApp: {
+    title: "OLIVEA",
+  },
+
+  // Favicon + Apple touch icon wiring
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" }
     ],
     apple: [
-      { url: "/apple-touch-icon-180x180.png", sizes: "180x180" },
-      { url: "/apple-touch-icon.png" },
-    ],
+      { url: "/apple-icon.png", sizes: "180x180" }
+    ]
   },
+  // Hook up the PWA / web app manifest
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -72,7 +85,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head />
       <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
         <noscript>
-          <style>{`.fixed-lcp{opacity:0 !important;transition:none !important;pointer-events:none !important;}`}</style>
+          <style>
+            {`.fixed-lcp{opacity:0 !important;transition:none !important;pointer-events:none !important;}`}
+          </style>
         </noscript>
 
         <PathTracker />
