@@ -22,7 +22,7 @@
         --olivea-cream: #e7eae1;
         --olivea-ink: #5e7658;
         --olivea-olive: #5e7658;
-        --olivea-panel: #f1f1f1;
+        --olivea-panel: #f1f1f1; /* card backgrounds */
       }
 
       html,
@@ -31,7 +31,7 @@
         padding: 0;
         height: 100%;
         width: 100%;
-        background: var(--olivea-cream);
+        background: var(--olivea-cream); /* main page background */
         color: var(--olivea-ink);
         font-family: "Lora", serif;
         letter-spacing: 0.15px;
@@ -87,14 +87,14 @@
 
       /* Override Cloudbeds CSS tokens at their root containers */
       .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) {
-        background-color: var(--olivea-panel);
+        /* keep their own layout background,
+           we only touch text & tokens here */
         color: var(--olivea-ink);
 
-        /* Typography tokens */
         --cb-text--font-family: "Lora", serif;
         --cb-text--color: #5e7658;
 
-        /* Neutral + primary colors used across the UI */
+        /* Common neutral/primary tokens used for text & accents */
         --booking-engine-colors-neutral-900: #5e7658;
         --booking-engine-colors-neutral-800: #5e7658;
         --booking-engine-colors-neutral-700: #5e7658;
@@ -130,24 +130,31 @@
         color: inherit !important;
       }
 
-      /* Force panel backgrounds like .d-5jxvn6 to Olivea panel color */
+      /* ── Card-only background override (the piece you pointed at) ── */
+
+      /* Core card components (search panel, property info, room cards, etc.) */
       .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, reach-portal)
-        [class^="d-"],
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, reach-portal)
-        [class*=" d-"] {
-        background-color: var(--olivea-panel) !important;
-        color: #5e7658 !important;
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        .cb-card {
+        background-color: var(--olivea-panel) !important; /* #f1f1f1 */
       }
 
-      /* In case hashed containers wrap children */
+      /* Property info specifically (your highlighted block) */
       .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, reach-portal)
-        div[class^="d-"] * {
-        background-color: transparent; /* keep inner elements clean */
-        color: #5e7658 !important;
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        .cb-card.cb-property-info {
+        background-color: var(--olivea-panel) !important;
       }
+
+      /* Optional: soften card look a bit (can tweak or remove) */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        .cb-card {
+        border-radius: 24px !important;
+      }
+
+      /* IMPORTANT: no generic [class^="d-"] background overrides anymore.
+         We only style cards, so the overall layout background stays as Cloudbeds + Olivea cream. */
 
       @keyframes olivea-fade-in {
         from {
