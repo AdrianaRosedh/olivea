@@ -42,7 +42,8 @@ export default function CloudbedsWidget({
   const tagName = "cb-immersive-experience";
 
   return (
-    <div className="relative w-full min-h-full bg-[var(--olivea-cream)]">
+    <div className="relative w-full min-h-full bg-[var(--olivea-cream)]" data-lenis-prevent>
+      
       {/* Olivea loader overlay while Cloudbeds boots */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="px-4 py-2 rounded-full border border-[var(--olivea-olive)]/40 bg-[var(--olivea-cream)]/90 text-[10px] uppercase tracking-[0.18em] text-[var(--olivea-ink)]/70">
