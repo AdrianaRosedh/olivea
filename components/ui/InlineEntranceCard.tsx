@@ -299,7 +299,7 @@ export default function InlineEntranceCard({
             <div
               style={{
                 // 🔁 FIX: transparent container (no cream fill over video)
-                border: "4px solid #e8e4d5",
+                border: "4px solid #e7eae1",
                 borderRadius: 24,
                 overflow: "hidden",
                 height: "100%",
@@ -347,7 +347,7 @@ export default function InlineEntranceCard({
                 animate={{ height: isHovered ? bottomHeight + UNDERLAY_H + 15 : bottomHeight }}
                 transition={{ duration: HOVER_DUR, ease: HOVER_EASE_ARRAY }}
                 style={{
-                  background: "#e8e4d5", // cream ONLY here
+                  background: "#e7eae1", // cream ONLY here
                   padding: `${Math.max(8, 10 * scale)}px ${Math.max(12, 16 * scale)}px`,
                   display: "flex",
                   flexDirection: "column",
@@ -424,8 +424,8 @@ export default function InlineEntranceCard({
                 width: Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
                 height: Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
                 borderRadius: "50%",
-                border: "4px solid #e8e4d5",
-                background: "#e8e4d5",
+                border: "4px solid #e7eae1",
+                background: "#e7eae1",
                 overflow: "hidden",
                 top: isHovered ? topHeight * 0.6 : topHeight,
                 transform: "translate(-50%, -50%)",
