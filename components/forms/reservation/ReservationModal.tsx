@@ -309,7 +309,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
                   {/* Hotel content (desktop in-pane / mobile CTA) */}
                   <div
-                    className="flex-1 overflow-auto no-scrollbar"
+                    className="flex-1 min-h-0 overflow-auto no-scrollbar"
                     style={{ WebkitOverflowScrolling: "touch" }}
                     aria-labelledby="hotel-pane-title"
                   >
