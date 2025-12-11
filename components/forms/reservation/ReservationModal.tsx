@@ -352,16 +352,18 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     ) : (
                       // DESKTOP: embed Immersive inside the modal
                       <div
-                        className="grow overflow-y-auto max-h-full"
-                        style={{ touchAction: "auto" }}
-                        onWheelCapture={stopWheelPropagation}
+                        className="flex-1 overflow-auto no-scrollbar"
+                        style={{
+                          WebkitOverflowScrolling: "touch",
+                          overscrollBehavior: "contain",
+                        }}
+                        aria-labelledby="hotel-pane-title"
                       >
-                        <div
-                          className="min-h-[120vh] py-10"
-                          data-lenis-prevent
-                        >
-                          <CloudbedsWidget lang={lang} />
-                        </div>
+                        {!isMobile && (
+                          <div className="min-h-full py-6">
+                            <CloudbedsWidget lang={lang} />
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
