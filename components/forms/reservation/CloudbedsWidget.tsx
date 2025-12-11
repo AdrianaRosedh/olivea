@@ -42,17 +42,14 @@ export default function CloudbedsWidget({
   const tagName = "cb-immersive-experience";
 
   return (
-    <div
-      className="relative w-full h-full bg-[var(--olivea-cream)] overflow-auto no-scrollbar"
-      style={{ WebkitOverflowScrolling: "touch" }}
-    >
-      {/* Olivea loader overlay */}
+    <div className="relative w-full min-h-full bg-[var(--olivea-cream)]">
+      {/* Olivea loader overlay while Cloudbeds boots */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="px-4 py-2 rounded-full border border-[var(--olivea-olive)]/40 bg-[var(--olivea-cream)]/90 text-[10px] uppercase tracking-[0.18em] text-[var(--olivea-ink)]/70">
           Cargando motor seguro…
         </div>
       </div>
-  
+
       {React.createElement(
         tagName,
         {

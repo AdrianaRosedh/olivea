@@ -120,7 +120,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     // As soon as modal is open, always mount HOTEL immediately
     setMounted((m) => ({
       restaurant: m.restaurant || reservationType === "restaurant",
-      hotel: true, // 🔥 always mount hotel when modal is open
+      hotel: true, // always mount hotel when modal is open
       cafe: m.cafe || reservationType === "cafe",
     }));
 
@@ -282,21 +282,19 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
 
           {/* Panes */}
-          <div className="relative flex-1 overflow-auto bg-[var(--olivea-cream)]">
+          <div className="flex-1 flex flex-col bg-[var(--olivea-cream)]">
             {/* HOTEL */}
             <div
-              className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-hidden ${
-                reservationType === "hotel"
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 pointer-events-none"
+              className={`flex-1 flex flex-col ${
+                reservationType === "hotel" ? "flex" : "hidden"
               }`}
               aria-hidden={reservationType !== "hotel"}
             >
               {mounted.hotel && (
                 <>
-                  {/* Hotel header — MOBILE ONLY */}
+                  {/* Hotel header — MOBILE ONLY (inside pane) */}
                   {isMobile && (
-                    <div className="px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)]">
+                    <div className="px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] flex-shrink-0">
                       <span
                         className={`${jakarta.className} font-semibold text-[var(--olivea-ink)] tracking-[0.15em] uppercase`}
                         style={{
@@ -309,7 +307,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     </div>
                   )}
 
-                  {/* Hotel content */}
+                  {/* Hotel content (desktop in-pane / mobile CTA) */}
                   <div
                     className="flex-1 overflow-auto no-scrollbar"
                     style={{ WebkitOverflowScrolling: "touch" }}
@@ -351,16 +349,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
             {/* RESTAURANT */}
             <div
-              className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-hidden ${
-                reservationType === "restaurant"
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 pointer-events-none"
+              className={`flex-1 flex flex-col ${
+                reservationType === "restaurant" ? "flex" : "hidden"
               }`}
               aria-hidden={reservationType !== "restaurant"}
             >
-              {/* Static header (DESKTOP ONLY) */}
               {!isMobile && (
-                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] sticky top-0 z-20">
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] flex-shrink-0">
                   <OliveaLogo className="h-[45px] md:h-[65px]" />
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
@@ -385,16 +380,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
             {/* CAFE */}
             <div
-              className={`absolute inset-0 flex flex-col transition-opacity duration-300 overflow-auto ${
-                reservationType === "cafe"
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 pointer-events-none"
+              className={`flex-1 flex flex-col ${
+                reservationType === "cafe" ? "flex" : "hidden"
               }`}
               aria-hidden={reservationType !== "cafe"}
             >
-              {/* Static header (DESKTOP ONLY) */}
               {!isMobile && (
-                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)]">
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] flex-shrink-0">
                   <OliveaCafe className="h-[45px] md:h-[65px]" />
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
@@ -439,7 +431,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               <X size={20} strokeWidth={1.6} />
             </button>
           </div>
-        
+
           <div
             className="w-full h-[calc(100%-44px)] overflow-auto no-scrollbar"
             style={{ WebkitOverflowScrolling: "touch" }}
