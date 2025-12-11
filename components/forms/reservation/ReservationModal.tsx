@@ -301,7 +301,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               {mounted.hotel && (
                 <>
-                  {/* Hotel header — MOBILE ONLY (inside pane) */}
+                  {/* Mobile header stays the same */}
                   {isMobile && (
                     <div className="px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] flex-shrink-0">
                       <span
@@ -316,18 +316,13 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     </div>
                   )}
 
-                  {/* Hotel content (desktop in-pane / mobile CTA) */}
+                  {/* 🔑 Single content area controlled by the modal */}
                   <div
-                    className="flex-1 min-h-0 overflow-auto no-scrollbar"
-                    style={{
-                      WebkitOverflowScrolling: "touch",
-                      overscrollBehavior: "contain",
-                    }}
+                    className="flex-1 min-h-0 overflow-hidden"
                     aria-labelledby="hotel-pane-title"
-                    onWheelCapture={stopWheelPropagation}
                   >
                     {isMobile ? (
-                      // MOBILE: preview CTA that opens full-screen sheet
+                      // MOBILE: same CTA as you had
                       <div className="px-4 pt-6 pb-10 flex justify-center">
                         <button
                           type="button"
@@ -341,8 +336,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                             Gestiona tu reserva de Casa Olivea
                           </p>
                           <p className="text-xs text-[var(--olivea-ink)]/70 mb-3">
-                            Toca para abrir el motor seguro de Cloudbeds en
-                            pantalla completa.
+                            Toca para abrir el motor seguro de Cloudbeds en pantalla
+                            completa.
                           </p>
                           <span className="text-xs font-semibold underline underline-offset-4">
                             Abrir en pantalla completa
@@ -350,20 +345,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                         </button>
                       </div>
                     ) : (
-                      // DESKTOP: embed Immersive inside the modal
-                      <div
-                        className="flex-1 overflow-auto no-scrollbar"
-                        style={{
-                          WebkitOverflowScrolling: "touch",
-                          overscrollBehavior: "contain",
-                        }}
-                        aria-labelledby="hotel-pane-title"
-                      >
-                        {!isMobile && (
-                          <div className="min-h-full py-6">
-                            <CloudbedsWidget lang={lang} />
-                          </div>
-                        )}
+                      // DESKTOP: iframe fills this area and scrolls inside
+                      <div className="h-full">
+                        <CloudbedsWidget lang={lang} />
                       </div>
                     )}
                   </div>
