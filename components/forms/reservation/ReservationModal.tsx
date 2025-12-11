@@ -439,7 +439,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               <X size={20} strokeWidth={1.6} />
             </button>
           </div>
-          <div className="w-full h-[calc(100%-44px)]">
+        
+          <div
+            className="w-full h-[calc(100%-44px)] overflow-auto no-scrollbar"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {/* Immersive Experience 2.0 rendered directly (no iframe) */}
             <CloudbedsWidget lang={lang} />
           </div>
