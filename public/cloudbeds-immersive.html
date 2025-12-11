@@ -170,19 +170,17 @@
         background-color: var(--olivea-panel) !important;
       }
 
-      /* ── Search Button (Buscar) → Green with cream text ───── */
+      /* ── Buscar button (search) → Green with cream text ───── */
 
-      /* Base button background + text */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button {
-        background-color: #5e7658 !important; /* Olivea green */
+        background-color: #5e7658 !important;
         border-color: #5e7658 !important;
-        color: #e7eae1 !important; /* Olivea cream text */
+        color: #e7eae1 !important;
         font-family: "Lora", serif !important;
       }
 
-      /* Inner hashed content wrapper inside the search button */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button [class^="d-"],
@@ -193,16 +191,14 @@
         color: #e7eae1 !important;
       }
 
-      /* Hover state */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button:hover {
-        background-color: #4f6650 !important; /* slightly darker green */
+        background-color: #4f6650 !important;
         border-color: #4f6650 !important;
         color: #e7eae1 !important;
       }
 
-      /* Active / pressed state */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button:active {
@@ -211,10 +207,65 @@
         color: #e7eae1 !important;
       }
 
-      /* Focus outline for accessibility, Olivea style */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button:focus-visible {
+        outline: 2px solid #e7eae1 !important;
+        outline-offset: 2px;
+      }
+
+      /* ── Other green action buttons (cb-select-button etc.) ─ */
+
+      /* Pills like the bottom-right room CTA and similar */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button {
+        background-color: #5e7658 !important;
+        border-color: #5e7658 !important;
+        color: #e7eae1 !important;
+        font-family: "Lora", serif !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button [class^="d-"],
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button [class*=" d-"] {
+        background-color: transparent !important;
+        color: #e7eae1 !important;
+      }
+
+      /* Icons inside those pills (e.g. magnifying glass, plus, etc.) */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button svg,
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button [class*="cb-icon"] {
+        color: #e7eae1 !important;
+        fill: #e7eae1 !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button:hover {
+        background-color: #4f6650 !important;
+        border-color: #4f6650 !important;
+        color: #e7eae1 !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button:active {
+        background-color: #445946 !important;
+        border-color: #445946 !important;
+        color: #e7eae1 !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-select-button:focus-visible {
         outline: 2px solid #e7eae1 !important;
         outline-offset: 2px;
       }
