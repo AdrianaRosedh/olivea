@@ -1,4 +1,10 @@
-import { Cormorant_Garamond, Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Lora, Cormorant_Garamond, Plus_Jakarta_Sans, Inter } from "next/font/google";
+
+export const lora = Lora({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-lora",
+});
 
 /** Only for the hero line — preloaded italic 700 */
 export const cormHero = Cormorant_Garamond({

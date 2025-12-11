@@ -41,7 +41,7 @@ export default function AdaptiveNavbar({
   const logoColor = isDrawerOpen
     ? "text-white"
     : isDark
-    ? "text-[#f8f8f8]"
+    ? "text-[#e7eae1]"
     : "text-[var(--olivea-olive)]";
 
   return (

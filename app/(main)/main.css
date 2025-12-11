@@ -15,16 +15,30 @@
     line-height: 1.2;
     font-weight: 500;
   }
+
   [data-scope="main"] h1 { font-size: 2.5rem; }
   [data-scope="main"] h2 { font-size: 2rem; }
   [data-scope="main"] h3 { font-size: 1.75rem; font-style: italic; }
   [data-scope="main"] h4 { font-size: 1.5rem;  font-style: italic; }
 
+  /* Base body copy (Lora) */
   [data-scope="main"] p,
   [data-scope="main"] li,
   [data-scope="main"] blockquote {
-    font-size: 1rem;
-    line-height: var(--line-height-body);
+    font-size: 1rem;                 /* mobile & tablet base */
+    line-height: 1.6;
+    font-family: var(--font-lora), serif;
+    font-weight: 400;
+    letter-spacing: 0.15px;          /* subtle, modern */
+  }
+
+  /* Lead / intro paragraph for highlighted lines */
+  [data-scope="main"] .lead {
+    font-size: 1.125rem;             /* ~18px on mobile */
+    line-height: 1.65;
+    font-family: var(--font-lora), serif;
+    font-weight: 400;
+    letter-spacing: 0.25px;
   }
 
   [data-scope="main"] nav a,
@@ -54,23 +68,30 @@
   transition: color 0.3s ease;
   background: var(--olivea-cream);
 }
+
 [data-scope="main"] .fill-nav a.active {
   background: var(--olivea-clay) !important;
   color: #f1f1f1 !important;
   border-color: var(--olivea-clay) !important;
 }
+
 [data-scope="main"] .fill-nav a::before {
   content: "";
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: var(--olivea-olive);
   clip-path: circle(0% at var(--hover-x) 50%);
   transition: clip-path 0.6s ease-out;
   z-index: -1;
 }
+
 [data-scope="main"] .fill-nav a:not(.active):hover::before {
   clip-path: circle(150% at var(--hover-x) 50%);
 }
-[data-scope="main"] .fill-nav a:not(.active):hover { color: #f1f1f1; }
+
+[data-scope="main"] .fill-nav a:not(.active):hover {
+  color: #f1f1f1;
+}
 
 /* ── Hero/Card geometry (only if used on (main)) ────────────── */
 [data-scope="main"] .card-mask {
@@ -80,8 +101,11 @@
   border-top-right-radius: 9999px;
   border-bottom-right-radius: 9999px;
 }
+
 @media (max-width: 767px) {
-  [data-scope="main"] .card-mask { border-radius: 28px; }
+  [data-scope="main"] .card-mask {
+    border-radius: 28px;
+  }
 }
 
 [data-scope="main"] .hero-pill {
@@ -90,10 +114,14 @@
   isolation: isolate;
   background-clip: padding-box;
 }
-@media (max-width: 767px){
-  [data-scope="main"] .hero-pill { border-radius: 28px; }
+
+@media (max-width: 767px) {
+  [data-scope="main"] .hero-pill {
+    border-radius: 28px;
+  }
 }
-@media (min-width: 768px){
+
+@media (min-width: 768px) {
   [data-scope="main"] .hero-pill {
     border-top-left-radius:    104px 96px;
     border-bottom-left-radius: 104px 96px;
@@ -113,8 +141,11 @@
   --dock-right: 96px;
   --header-h: 112px;
 }
+
 @media (max-width: 767px) {
-  [data-scope="main"] { --header-h: 64px; }
+  [data-scope="main"] {
+    --header-h: 64px;
+  }
 }
 
 /* When a page sets data-hero-breakout="true" on <main>, restore the old width/margins */
@@ -128,6 +159,7 @@
     margin-left: calc(50% - 50vw + var(--dock-left, 264px)) !important;
     margin-right: calc(50% - 50vw + var(--dock-right, 120px)) !important;
   }
+
   [data-scope="main"] main[data-hero-breakout="true"] section#hero > *,
   [data-scope="main"] main[data-hero-breakout="true"] section#hero > * > *,
   [data-scope="main"] main[data-hero-breakout="true"] section#hero > * > * > * {
@@ -141,19 +173,36 @@
     scroll-snap-align: center;
     scroll-margin-top: 120px;
   }
-  [data-scope="main"] .md\:card-md { height: var(--card-md-h, 56vh); }
+
+  [data-scope="main"] .md\:card-md {
+    height: var(--card-md-h, 56vh);
+  }
 }
+
+/* Desktop typography upscale for modern feel */
 @media (min-width: 1024px) {
-  [data-scope="main"] .lg\:card-lg { height: var(--card-lg-h, var(--card-md-h, 56vh)); }
+  [data-scope="main"] p,
+  [data-scope="main"] li,
+  [data-scope="main"] blockquote {
+    font-size: 1.25rem;    /* ~20px — modern, luxurious */
+  }
+
+  [data-scope="main"] .lead {
+    font-size: 1.375rem;   /* ~22px — clear hierarchy above body */
+    line-height: 1.7;
+  }
 }
 
 /* ── Optional (main) helpers ────────────────────────────────── */
 @layer utilities {
   [data-scope="main"] .section-center {
     min-height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding-left: 1.5rem; padding-right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     scroll-margin-top: 120px;
   }
 }

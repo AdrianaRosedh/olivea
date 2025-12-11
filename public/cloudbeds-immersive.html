@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <title>Reservas Casa Olivea</title>
 
+    <!-- Load Lora from Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Cloudbeds Immersive Experience 2.0 -->
     <script
       src="https://static1.cloudbeds.com/booking-engine/latest/static/js/immersive-experience/cb-immersive-experience.js"
@@ -26,11 +32,18 @@
         width: 100%;
         background: var(--olivea-cream);
         color: var(--olivea-ink);
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter",
-          sans-serif;
-        overflow-y: auto; /* allow scroll inside iframe */
+
+        /* Modern Olivea Typography */
+        font-family: "Lora", serif;
+        letter-spacing: 0.15px;
+        font-weight: 400;
+
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: auto;
+
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
       }
 
       .olivea-shell {
@@ -54,7 +67,7 @@
       cb-immersive-experience {
         display: block;
         width: 100%;
-        min-height: 100vh; /* let content overflow and scroll */
+        min-height: 100vh;
         background: transparent;
         animation: olivea-fade-in 600ms ease-out 60ms both;
       }
@@ -68,13 +81,16 @@
         height: 40px;
         background: linear-gradient(
           to top,
-          rgba(232, 228, 213, 1),
-          rgba(232, 228, 213, 0)
+          rgba(231, 234, 225, 1),
+          rgba(231, 234, 225, 0)
         );
       }
 
+      /* Ensure form elements inherit Lora & ink color */
       .olivea-shell,
       .olivea-shell * {
+        font-family: "Lora", serif !important;
+        color: var(--olivea-ink) !important;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
       }
@@ -83,7 +99,8 @@
       .olivea-shell input,
       .olivea-shell select,
       .olivea-shell textarea {
-        font-family: inherit;
+        font-family: inherit !important;
+        color: inherit !important;
       }
 
       @keyframes olivea-fade-in {

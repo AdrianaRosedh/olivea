@@ -194,7 +194,7 @@ export default function Footer({ dict }: FooterProps) {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="absolute bottom-full mb-2 right-0 bg-[#c6b7a8] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[500] w-32 pointer-events-auto"
+                  className="absolute bottom-full mb-2 right-0 bg-[#e7eae1] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[500] w-32 pointer-events-auto"
                 >
                   <button
                     type="button"

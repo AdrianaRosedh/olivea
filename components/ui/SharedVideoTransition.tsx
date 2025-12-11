@@ -314,10 +314,10 @@ function Overlay({
     () =>
       isPhone
         ? `radial-gradient(120% 120% at 50% 30%, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.00) 55%),
-           radial-gradient(circle at 50% 50%, var(--olivea-olive,#5a6852) 0%, #4f5d46 60%, #3a4533 100%)`
+           radial-gradient(circle at 50% 50%, var(--olivea-olive,#5e7658) 0%, #4f5d46 60%, #3a4533 100%)`
         : `radial-gradient(120% 140% at 50% 0%, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.00) 45%),
            radial-gradient(circle at 50% 45%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.00) 35%),
-           radial-gradient(circle at 50% 50%, var(--olivea-olive,#5a6852) 0%, #4f5d46 56%, #3a4533 100%)`,
+           radial-gradient(circle at 50% 50%, var(--olivea-olive,#5e7658) 0%, #4f5d46 56%, #3a4533 100%)`,
     [isPhone]
   );
 
