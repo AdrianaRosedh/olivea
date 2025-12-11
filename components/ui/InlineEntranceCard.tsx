@@ -294,6 +294,7 @@ export default function InlineEntranceCard({
               contain: "layout paint style",
               willChange: "transform",
               transform: "translateZ(0)",
+              borderRadius: 24, 
             }}
           >
             <div
@@ -304,6 +305,7 @@ export default function InlineEntranceCard({
                 overflow: "hidden",
                 height: "100%",
                 background: "transparent",
+                boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
               }}
             >
               {/* Top (transparent over video) */}
