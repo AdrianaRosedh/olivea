@@ -364,7 +364,7 @@ export default function InlineEntranceCard({
                     zIndex: 2,
                     fontFamily: "var(--font-serif)",
                     fontSize: isMobile ? 28 : Math.round(22 * scale),
-                    fontWeight: isMobile ? 600 : 300,
+                    fontWeight: 600,
                     marginTop: isHovered ? Math.round(20 * scale) : Math.round(28 * scale),
                     transition: `margin-top ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                   }}

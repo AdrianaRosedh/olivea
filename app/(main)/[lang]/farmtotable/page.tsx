@@ -87,7 +87,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#65735b",
+  themeColor: "#5e7658",
 };
 
 export default async function Page({

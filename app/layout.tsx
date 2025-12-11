@@ -83,7 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={fontsClass}>
       <head />
-      <body className="bg-[var(--olivea-cream)] text-[var(--olivea-ink)]">
+      <body className="bg-background text-foreground">
         <noscript>
           <style>
             {`.fixed-lcp{opacity:0 !important;transition:none !important;pointer-events:none !important;}`}

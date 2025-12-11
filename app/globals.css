@@ -4,16 +4,17 @@
 /* OLIVEA GLOBAL THEME TOKENS                                   */
 /* ───────────────────────────────────────────────────────────── */
 :root {
-  --olivea-cream:#e8e4d5;
+  /* Brand hex palette (for direct non-Tailwind usage) */
+  --olivea-cream:#e7eae1;
   --olivea-shell:#e0d9c5;
   --olivea-clay:#a3b09d;
   --olivea-olive:#5e7658;
-  --olivea-ink:#1f1f1f;
-  --olivea-white:#fff;
-  --olivea-soil:#58544c;
-  --olivea-mist:#f6f5f0;
+  --olivea-ink:#5e7658;
+  --olivea-white:#f1f1f1;
+  --olivea-soil:#5e7658;
+  --olivea-mist:#e7eae1;
   --olivea-sand:#dcd5c3;
-  --olivea-sage:#6b7361;
+  --olivea-sage:#5e7658;
 
   --font-serif:"Cormorant Garamond", Georgia, serif;
   --font-sans:"Inter", system-ui, sans-serif;
@@ -22,30 +23,33 @@
   --letter-spacing-nav:0.05em;
   --radius:0.625rem;
 
-  --background:var(--olivea-cream);
-  --foreground:var(--olivea-ink);
+  /* Tailwind HSL tokens: numeric HSL triplets (no hex)       */
+  /* #e7eae1 ≈ hsl(80, 18%, 90%)  | #5e7658 ≈ hsl(108, 15%, 40%) */
 
-  --card:var(--olivea-cream);
-  --card-foreground:var(--olivea-ink);
+  --background: 80 18% 90%;
+  --foreground: 108 15% 40%;
 
-  --popover:var(--olivea-cream);
-  --popover-foreground:var(--olivea-ink);
+  --card: 80 18% 90%;
+  --card-foreground: 108 15% 40%;
 
-  --primary:var(--olivea-ink);
-  --primary-foreground:#fff;
+  --popover: 80 18% 90%;
+  --popover-foreground: 108 15% 40%;
 
-  --secondary:#f0eee8;
-  --secondary-foreground:var(--olivea-ink);
+  --primary: 108 15% 40%;
+  --primary-foreground: 0 0% 100%; /* white */
 
-  --muted:#f0eee8;
-  --muted-foreground:#555;
+  --secondary: 48 22% 94%;
+  --secondary-foreground: 108 15% 40%;
 
-  --accent:var(--olivea-sage);
-  --accent-foreground:#fff;
+  --muted: 48 22% 94%;
+  --muted-foreground: 108 5% 35%;
 
-  --border:#e5e3dc;
-  --input:#e5e3dc;
-  --ring:#ccc;
+  --accent: 108 15% 40%;
+  --accent-foreground: 0 0% 100%;
+
+  --border: 50 16% 86%; /* ~#e5e3dc */
+  --input: 50 16% 86%;
+  --ring: 0 0% 80%;     /* ~#ccc */
 }
 
 .dark {
@@ -53,7 +57,7 @@
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* BASE RESET + CROSS-BROWSER SCROLLBAR HIDING                   */
+/* BASE RESET + CROSS-BROWSER SCROLLBAR HIDING                  */
 /* ───────────────────────────────────────────────────────────── */
 @layer base {
   * {
@@ -78,7 +82,7 @@
     display: none !important;               /* WebKit */
   }
 
-  /* === Root scroll config === */
+  /* Root scroll config */
   html, body {
     min-height: 100%;
     height: auto;
@@ -93,8 +97,8 @@
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-sans);
     line-height: var(--line-height-body);
     overscroll-behavior-y: none;
@@ -120,7 +124,7 @@
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* LOADER KEYFRAMES                                              */
+/* LOADER KEYFRAMES                                             */
 /* ───────────────────────────────────────────────────────────── */
 @keyframes olivea-loader-bar { from { width: 0% } to { width: 100% } }
 @keyframes olivea-loader-vert { from { transform: scaleY(0) } to { transform: scaleY(1) } }
@@ -143,10 +147,26 @@
   .allow-scroll {
     overflow-y: auto !important;
   }
+
+  /* ───────────────────────────────────────────── */
+  /* TEXT COLOR SAFETY NET                        */
+  /* Any leftover Tailwind text-* colors        */
+  /* (black, gray, neutral, slate, zinc, muted) */
+  /* will inherit the Olivea foreground         */
+  /* ───────────────────────────────────────────── */
+
+  [class*="text-black"],
+  [class*="text-gray-"],
+  [class*="text-neutral-"],
+  [class*="text-slate-"],
+  [class*="text-zinc-"],
+  [class*="text-muted-foreground"] {
+    color: hsl(var(--foreground)) !important;
+  }
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* FIXED LCP BASE LAYER                                          */
+/* FIXED LCP BASE LAYER                                         */
 /* ───────────────────────────────────────────────────────────── */
 .fixed-lcp {
   position: fixed;
@@ -181,7 +201,7 @@ body.lcp-demote .fixed-lcp { opacity: 0.001; }
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* DEFER BELOW-THE-FOLD LAYOUT                                   */
+/* DEFER BELOW-THE-FOLD LAYOUT                                  */
 /* ───────────────────────────────────────────────────────────── */
 .home-section-late {
   content-visibility: auto;
@@ -189,7 +209,7 @@ body.lcp-demote .fixed-lcp { opacity: 0.001; }
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* OPTIONAL ACCESSIBILITY DETAIL                                 */
+/* OPTIONAL ACCESSIBILITY DETAIL                                */
 /* ───────────────────────────────────────────────────────────── */
 /* If user starts tabbing, show a minimal scrollbar hint */
 :focus-within {

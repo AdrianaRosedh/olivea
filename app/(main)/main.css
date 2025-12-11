@@ -52,11 +52,11 @@
   color: var(--olivea-olive);
   border: 1px solid var(--olivea-olive);
   transition: color 0.3s ease;
-  background: var(--olivea-mist);
+  background: var(--olivea-cream);
 }
 [data-scope="main"] .fill-nav a.active {
   background: var(--olivea-clay) !important;
-  color: #fff !important;
+  color: #f1f1f1 !important;
   border-color: var(--olivea-clay) !important;
 }
 [data-scope="main"] .fill-nav a::before {
@@ -70,7 +70,7 @@
 [data-scope="main"] .fill-nav a:not(.active):hover::before {
   clip-path: circle(150% at var(--hover-x) 50%);
 }
-[data-scope="main"] .fill-nav a:not(.active):hover { color: #fff; }
+[data-scope="main"] .fill-nav a:not(.active):hover { color: #f1f1f1; }
 
 /* ── Hero/Card geometry (only if used on (main)) ────────────── */
 [data-scope="main"] .card-mask {

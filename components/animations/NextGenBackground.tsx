@@ -18,10 +18,12 @@ export default function NextGenBackground() {
         .gradient-layer {
           background: linear-gradient(
             to bottom,
-            hsl(calc(30 + var(--scroll-per) * 10), 35%, 92%) 0%,
-            hsl(calc(30 + var(--scroll-per) * 10), 28%, 82%) 50%,
-            hsl(calc(30 + var(--scroll-per) * 10), 22%, 72%) 100%
+            hsl(80, 14%, 92%) 0%,
+            hsl(80, 14%, 90%) 50%,
+            hsl(80, 14%, 88%) 100%
           );
+        }
+
           /* transition won't do much for gradients—ok to leave or remove */
           transition: background 0.3s ease-out;
           will-change: background;
