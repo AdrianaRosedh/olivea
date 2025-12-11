@@ -13,7 +13,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const isEs = lang === "es";
 
-  const title = "OLIVEA | Donde el huerto es la esencia"
+  const title = "OLIVEA La Experiencia"
  
   const description = isEs
     ? "Olivea: restaurante de degustación, hotel y café nacidos del huerto en Valle de Guadalupe. Donde el huerto es la esencia."
