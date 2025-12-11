@@ -105,7 +105,7 @@ export default function InlineEntranceCard({
   title,
   href,
   sectionKey,
-  description = "Ut lorem purus nam feugiat malesuada quis libero cursus.",
+  description = "Click Me",
   Logo,
   className = "",
   onActivate = () => {},
@@ -410,7 +410,10 @@ export default function InlineEntranceCard({
                 zIndex: -1,
               }}
             >
-              <span style={{ fontFamily: "var(--font-serif)" }} className="font-semibold text-[var(--olivea-ink)]">
+              <span
+                style={{ fontFamily: "var(--font-serif)", color: "#000000" }}
+                className="font-semibold"
+              >
                 {ctaText}
               </span>
             </motion.div>
