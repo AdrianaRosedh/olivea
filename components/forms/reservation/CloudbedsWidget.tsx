@@ -1,31 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import React, { useEffect } from "react";
 
-export default function CloudbedsWidget() {
-  const [loaded, setLoaded] = useState(false);
+const IMMERSIVE_SRC =
+  "https://static1.cloudbeds.com/booking-engine/latest/static/js/immersive-experience/cb-immersive-experience.js";
 
-  // Always render iframe as soon as widget mounts (preload)
-  // No autoLaunch required anymore
+interface CloudbedsImmersiveProps
+  extends React.HTMLAttributes<HTMLElement> {
+  "property-code": string;
+  mode?: "standard" | "popup";
+  lang?: string;
+  currency?: string;
+  "ignore-search-params"?: "yes" | "no";
+}
+
+/**
+ * Load the Immersive script once (first time the widget is mounted).
+ */
+function ensureImmersiveScript() {
+  if (typeof window === "undefined") return;
+
+  // Avoid adding the script multiple times
+  if (document.querySelector(`script[src="${IMMERSIVE_SRC}"]`)) return;
+
+  const s = document.createElement("script");
+  s.src = IMMERSIVE_SRC;
+  s.defer = true;
+  s.async = true;
+  document.head.appendChild(s);
+}
+
+export default function CloudbedsWidget({
+  lang = "es",
+}: {
+  lang?: "es" | "en";
+}) {
+  useEffect(() => {
+    ensureImmersiveScript();
+  }, []);
+
+  const tagName = "cb-immersive-experience";
+
   return (
-    <div
-      className={`w-full h-full transition-opacity duration-500 ${
-        loaded ? "opacity-100" : "opacity-0"
-      }`}
-    >
-      <iframe
-        src="/cloudbeds-immersive.html"
-        title="Reservas Casa Olivea"
-        className="w-full h-full"
-        loading="eager"           // force eager load
-        onLoad={() => setLoaded(true)}
-        style={{
-          border: "none",
-          outline: "none",
-          background: "transparent",
-          touchAction: "pan-y",
-        }}
-      />
+    <div className="relative w-full h-full bg-[var(--olivea-cream)]">
+      {/* Olivea loader overlay while Cloudbeds boots */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="px-4 py-2 rounded-full border border-[var(--olivea-olive)]/40 bg-[var(--olivea-cream)]/90 text-[10px] uppercase tracking-[0.18em] text-[var(--olivea-ink)]/70">
+          Cargando motor seguro…
+        </div>
+      </div>
+
+      {React.createElement(
+        tagName,
+        {
+          "property-code": "pkwnrX",
+          mode: "standard",
+          lang,
+          currency: "mxn",
+          "ignore-search-params": "yes",
+        } as CloudbedsImmersiveProps
+      )}
     </div>
   );
 }
