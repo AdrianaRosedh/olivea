@@ -43,12 +43,13 @@ function buildCsp({
   const scriptUnsafeEval = isDev ? " 'unsafe-eval'" : "";
   const frameAncestors = allowEmbeddingSelf ? "'self'" : " 'none'";
 
-  // Extra domains only for the Cloudbeds immersive HTML page
+  // Extra domains only for the Cloudbeds immersive HTML page OR
+  // for any page that hosts the Cloudbeds widget
   const cloudbedsConnectExtra = allowCloudbedsPage
     ? " https://clientstream.launchdarkly.com https://events.launchdarkly.com https://tile.openstreetmap.org"
     : "";
 
-  // For the immersive page, allow OpenStreetMap + ANY Cloudbeds image host + Google image CDN
+  // For the immersive/widget pages, allow OpenStreetMap + ANY Cloudbeds image host + Google image CDN
   const cloudbedsImgExtra = allowCloudbedsPage
     ? " https://tile.openstreetmap.org https://*.cloudbeds.com https://lh3.googleusercontent.com"
     : "";
@@ -57,6 +58,7 @@ function buildCsp({
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
+    // If allowCloudbedsPage, always allow self to embed
     `frame-ancestors${allowCloudbedsPage ? " 'self'" : frameAncestors}`,
     "form-action 'self'",
 
@@ -113,7 +115,7 @@ export function proxy(request: NextRequest) {
   const originalPath = url.pathname;
   const pathNoTrailing = originalPath.replace(/\/+$/, "");
 
-  // 1) Special case: immersive iframe page
+  // 1) Special case: immersive iframe page (kept for backward compatibility)
   if (pathNoTrailing === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
@@ -145,10 +147,12 @@ export function proxy(request: NextRequest) {
     response = NextResponse.next();
   }
 
-  // 4) Apply security headers to ALL responses
+  // 4) Apply security headers to ALL app responses
+  //    ✅ Now treat normal app pages as "Cloudbeds pages" too,
+  //    so Immersive widget images & extra domains are allowed.
   return applySecurityHeaders(response, {
     allowEmbeddingSelf: false,
-    allowCloudbedsPage: false,
+    allowCloudbedsPage: true,
   });
 }
 
