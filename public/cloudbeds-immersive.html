@@ -31,7 +31,7 @@
         padding: 0;
         height: 100%;
         width: 100%;
-        background: var(--olivea-cream); /* main page background */
+        background: var(--olivea-cream);
         color: var(--olivea-ink);
         font-family: "Lora", serif;
         letter-spacing: 0.15px;
@@ -64,7 +64,7 @@
       cb-immersive-experience {
         display: block;
         width: 100%;
-        min-height: 100vh; /* let content overflow and scroll */
+        min-height: 100vh;
         background: transparent;
         animation: olivea-fade-in 600ms ease-out 60ms both;
       }
@@ -83,25 +83,10 @@
         );
       }
 
-      /* ── Core Olivea overrides for Cloudbeds UI ───────────── */
-
-      /* Override Cloudbeds CSS tokens at their root containers */
-      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) {
-        color: var(--olivea-ink);
-
-        --cb-text--font-family: "Lora", serif;
-        --cb-text--color: #5e7658;
-
-        /* Common neutral/primary tokens used for text & accents */
-        --booking-engine-colors-neutral-900: #5e7658;
-        --booking-engine-colors-neutral-800: #5e7658;
-        --booking-engine-colors-neutral-700: #5e7658;
-        --booking-engine-colors-primary-500: #5e7658;
-        --booking-engine-colors-primary-600: #5e7658;
-      }
-
-      /* Global typography + color safety net inside Cloudbeds
-         EXCLUDING buttons/role=button so they can have their own text color */
+      /* -------------------------------------------------------
+         Global Cloudbeds Typography (BUT NOT BUTTONS)
+         Removed the old color: #5e7658 !important — FIXES BUTTON TEXT
+      ------------------------------------------------------- */
       .olivea-shell
         :is(
           #cb-bookingengine,
@@ -111,13 +96,12 @@
         )
         :not(button):not([role="button"]) {
         font-family: "Lora", serif !important;
-        color: #5e7658 !important;
         letter-spacing: 0.15px;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
       }
 
-      /* Form controls inherit same font */
+      /* Keep text readable */
       .olivea-shell
         :is(
           #cb-bookingengine,
@@ -125,53 +109,29 @@
           cb-immersive-experience,
           reach-portal
         )
-        button,
-      .olivea-shell
-        :is(
-          #cb-bookingengine,
-          .cb-bookingengine-root,
-          cb-immersive-experience,
-          reach-portal
-        )
-        input,
-      .olivea-shell
-        :is(
-          #cb-bookingengine,
-          .cb-bookingengine-root,
-          cb-immersive-experience,
-          reach-portal
-        )
-        select,
-      .olivea-shell
-        :is(
-          #cb-bookingengine,
-          .cb-bookingengine-root,
-          cb-immersive-experience,
-          reach-portal
-        )
-        textarea {
+        * {
         font-family: "Lora", serif !important;
       }
 
-      /* ── Card-only background overrides ───────────────────── */
-
-      /* Core card components (search panel, property info, room cards, etc.) */
+      /* -------------------------------------------------------
+         Card background styling
+      ------------------------------------------------------- */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         .cb-card {
-        background-color: var(--olivea-panel) !important; /* #f1f1f1 */
-        border-radius: 24px !important; /* softer Olivea-style corners */
+        background-color: var(--olivea-panel) !important;
+        border-radius: 24px !important;
       }
 
-      /* Property info specifically (for extra safety) */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         .cb-card.cb-property-info {
         background-color: var(--olivea-panel) !important;
       }
 
-      /* ── Buscar button (search) → Green with cream text ───── */
-
+      /* -------------------------------------------------------
+         SEARCH BUTTON (Buscar) — Green w/Cream Text
+      ------------------------------------------------------- */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button {
@@ -187,87 +147,80 @@
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button [class*=" d-"] {
-        background-color: transparent !important;
         color: #e7eae1 !important;
+        background: transparent !important;
       }
 
+      /* -------------------------------------------------------
+         ALL OTHER GREEN ACTION BUTTONS (Select, Add, Pills)
+      ------------------------------------------------------- */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-search-button:hover {
-        background-color: #4f6650 !important;
-        border-color: #4f6650 !important;
-        color: #e7eae1 !important;
-      }
-
+        button.cb-select-button,
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-search-button:active {
-        background-color: #445946 !important;
-        border-color: #445946 !important;
-        color: #e7eae1 !important;
-      }
-
+        button.cb-add-button,
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-search-button:focus-visible {
-        outline: 2px solid #e7eae1 !important;
-        outline-offset: 2px;
-      }
-
-      /* ── Other green action buttons (cb-select-button etc.) ─ */
-
-      /* Pills like the bottom-right room CTA and similar */
+        button.cb-book-button,
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-select-button {
+        button.cb-room-button {
         background-color: #5e7658 !important;
         border-color: #5e7658 !important;
         color: #e7eae1 !important;
         font-family: "Lora", serif !important;
       }
 
+      /* Their hashed inner wrappers */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-select-button [class^="d-"],
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-select-button [class*=" d-"] {
-        background-color: transparent !important;
-        color: #e7eae1 !important;
-      }
-
-      /* Icons inside those pills (e.g. magnifying glass, plus, etc.) */
+        button.cb-select-button [class*=" d-"],
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-select-button svg,
+        button.cb-add-button [class^="d-"],
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-select-button [class*="cb-icon"] {
+        button.cb-add-button [class*=" d-"],
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-book-button [class^="d-"],
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-book-button [class*=" d-"] {
         color: #e7eae1 !important;
         fill: #e7eae1 !important;
       }
 
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-select-button:hover {
+      /* Icons inside these pills */
+      .olivea-shell button.cb-select-button svg,
+      .olivea-shell button.cb-add-button svg,
+      .olivea-shell button.cb-book-button svg,
+      .olivea-shell button.cb-room-button svg {
+        color: #e7eae1 !important;
+        fill: #e7eae1 !important;
+      }
+
+      /* Hover & Active */
+      .olivea-shell button.cb-select-button:hover,
+      .olivea-shell button.cb-add-button:hover,
+      .olivea-shell button.cb-book-button:hover,
+      .olivea-shell button.cb-room-button:hover {
         background-color: #4f6650 !important;
         border-color: #4f6650 !important;
         color: #e7eae1 !important;
       }
 
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-select-button:active {
+      .olivea-shell button.cb-select-button:active,
+      .olivea-shell button.cb-add-button:active,
+      .olivea-shell button.cb-book-button:active,
+      .olivea-shell button.cb-room-button:active {
         background-color: #445946 !important;
         border-color: #445946 !important;
         color: #e7eae1 !important;
-      }
-
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-select-button:focus-visible {
-        outline: 2px solid #e7eae1 !important;
-        outline-offset: 2px;
       }
 
       @keyframes olivea-fade-in {
