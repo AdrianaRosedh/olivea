@@ -338,7 +338,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                       </div>
                     ) : (
                       // DESKTOP: embed Immersive inside the modal
-                      <CloudbedsWidget lang={lang} />
+                      <div className="grow overflow-y-auto max-h-full" style={{ touchAction: "auto" }}>
+                        <div className="min-h-[120vh] py-10" data-lenis-prevent>
+                          <CloudbedsWidget lang={lang} />
+                        </div>
+                      </div>
                     )}
                   </div>
                 </>
