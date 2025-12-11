@@ -87,8 +87,7 @@
 
       /* Override Cloudbeds CSS tokens at their root containers */
       .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) {
-        /* keep their own layout background,
-           we only touch text & tokens here */
+        /* keep layout background; we only touch text & tokens here */
         color: var(--olivea-ink);
 
         --cb-text--font-family: "Lora", serif;
@@ -104,7 +103,12 @@
 
       /* Global typography + color safety net inside Cloudbeds */
       .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, cb-immersive-experience, reach-portal)
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
         * {
         font-family: "Lora", serif !important;
         color: #5e7658 !important;
@@ -115,46 +119,105 @@
 
       /* Form controls inherit same font & color */
       .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, cb-immersive-experience, reach-portal)
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
         button,
       .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, cb-immersive-experience, reach-portal)
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
         input,
       .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, cb-immersive-experience, reach-portal)
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
         select,
       .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root, cb-immersive-experience, reach-portal)
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
         textarea {
         font-family: inherit !important;
         color: inherit !important;
       }
 
-      /* ── Card-only background override (the piece you pointed at) ── */
+      /* ── Card-only background overrides ───────────────────── */
 
       /* Core card components (search panel, property info, room cards, etc.) */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         .cb-card {
         background-color: var(--olivea-panel) !important; /* #f1f1f1 */
+        border-radius: 24px !important; /* softer Olivea-style corners */
       }
 
-      /* Property info specifically (your highlighted block) */
+      /* Property info specifically (for extra safety) */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         .cb-card.cb-property-info {
         background-color: var(--olivea-panel) !important;
       }
 
-      /* Optional: soften card look a bit (can tweak or remove) */
+      /* ── Search Button (Buscar) → Olivea Cream ────────────── */
+
+      /* Base button background + text */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        .cb-card {
-        border-radius: 24px !important;
+        button.cb-search-button {
+        background-color: #e7eae1 !important; /* Olivea cream */
+        border-color: #e7eae1 !important;
+        color: #5e7658 !important; /* Olivea ink */
       }
 
-      /* IMPORTANT: no generic [class^="d-"] background overrides anymore.
-         We only style cards, so the overall layout background stays as Cloudbeds + Olivea cream. */
+      /* Inner hashed content wrapper inside the search button */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button [class^="d-"],
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button [class*=" d-"] {
+        background-color: #e7eae1 !important;
+        color: #5e7658 !important;
+      }
+
+      /* Hover state */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button:hover {
+        background-color: #dcded6 !important; /* slightly darker cream */
+        border-color: #dcded6 !important;
+        color: #5e7658 !important;
+      }
+
+      /* Active / pressed state */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button:active {
+        background-color: #d2d4cd !important;
+        border-color: #d2d4cd !important;
+        color: #5e7658 !important;
+      }
+
+      /* Focus outline for accessibility, Olivea style */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button:focus-visible {
+        outline: 2px solid #5e7658 !important;
+        outline-offset: 2px;
+      }
 
       @keyframes olivea-fade-in {
         from {
