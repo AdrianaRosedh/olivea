@@ -3,7 +3,7 @@
     "title": "Sobre OLIVEA",
     "description": "Nuestra historia, filosofía y las personas detrás de la visión.",
     "meta": {
-      "title": "Sobre Olivea | Hospitalidad de granja a la mesa en Valle de Guadalupe",
+      "title": "Sobre OLIVEA",
       "description": "Cómo Olivea lleva la luz, la tierra y a los productores del Valle a la mesa: equipo, valores y diseño en Ensenada, Baja California.",
       "keywords": [
         "Olivea",
@@ -40,7 +40,7 @@
     "title": "Casa Olivea",
     "description": "Hotel boutique integrado al huerto: habitaciones, servicios y reservas.",
     "meta": {
-      "title": "Casa OLIVEA — hotel boutique en Valle de Guadalupe",
+      "title": "Casa OLIVEA",
       "description": "Hotel boutique integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Luz, silencio y confort honesto en cada habitación.",
       "keywords": [
         "Casa Olivea",
@@ -58,7 +58,7 @@
     "title": "Olivea Farm To Table",
     "description": "Restaurante de degustación con estrella Michelin, nacido del huerto en Valle de Guadalupe.",
     "meta": {
-      "title": "Olivea Farm To Table — restaurante de degustación con estrella Michelin en Valle de Guadalupe",
+      "title": "OLIVEA Farm To Table",
       "description": "Restaurante de degustación con estrella Michelin, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia.",
       "ogImage": "/images/seo/restaurant-og.jpg"
     }
@@ -67,7 +67,7 @@
     "title": "Contacto",
     "description": "Prensa, consultas y cómo contactarnos.",
     "meta": {
-      "title": "Contacto Olivea | Reservas y prensa",
+      "title": "Contacto OLIVEA",
       "description": "Escríbenos para reservas, eventos y prensa en Valle de Guadalupe, Ensenada.",
       "keywords": [
         "Olivea contacto",
@@ -83,7 +83,7 @@
     "title": "Sostenibilidad",
     "description": "Nuestro compromiso con prácticas sostenibles y gestión ambiental.",
     "meta": {
-      "title": "Sostenibilidad en Olivea | Agua, residuos y productores locales",
+      "title": "Sostenibilidad en OLIVEA",
       "description": "Rellenables, cuidado del agua, compras responsables y compost: así reducimos residuos y apoyamos a productores del Valle.",
       "keywords": [
         "sostenibilidad",
@@ -104,7 +104,7 @@
     "error": "Error al cargar el diario:",
     "by": "por",
     "meta": {
-      "title": "Diario de Olivea | Historias desde el Valle",
+      "title": "Diario de OLIVEA",
       "description": "Notas del huerto y la cocina: técnica, productores y temporada en Valle de Guadalupe.",
       "keywords": [
         "Diario Olivea",
@@ -120,7 +120,7 @@
     "title": "Información Legal",
     "description": "Detalles legales y términos para todas las propiedades Olivea.",
     "meta": {
-      "title": "Avisos legales y políticas | Olivea",
+      "title": "Avisos legales y políticas | OLIVEA",
       "description": "Entidad legal, privacidad, cookies y políticas de reserva de Olivea.",
       "keywords": [
         "legal",
@@ -159,7 +159,7 @@
     "cta_restaurant": "Visitar el Restaurante",
     "cta_casa": "Hospedarse en Casa Olivea",
     "meta": {
-      "title": "OLIVEA | Donde el huerto es la esencia",
+      "title": "OLIVEA | La Experiencia",
       "description": "Olivea: restaurante de degustación con estrella Michelin, hotel boutique Casa Olivea y Olivea Café nacidos del huerto en Valle de Guadalupe, Baja California. Donde el huerto es la esencia.",
       "keywords": [
         "Olivea",
@@ -175,8 +175,8 @@
     }
   },
   "metadata": {
-    "description": "Restaurante con estrella Michelin, hotel boutique y café arraigados en un huerto vivo en Valle de Guadalupe, Baja California.",
-    "siteName": "OLIVEA",
+    "description": "Restaurante con estrella Michelin, hotel boutique y café arraigados donde el huerto es la esencia en Valle de Guadalupe, Baja California.",
+    "siteName": "OLIVEA La Experiencia",
     "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/default-og.jpg"
   },

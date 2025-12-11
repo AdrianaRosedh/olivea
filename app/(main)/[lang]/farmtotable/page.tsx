@@ -33,9 +33,7 @@ export async function generateMetadata({
 
   const isEs = L === "es";
 
-  const fallbackTitle = isEs
-    ? "Olivea Farm To Table — restaurante de degustación con estrella Michelin en Valle de Guadalupe"
-    : "Olivea Farm To Table — Michelin-starred tasting-menu restaurant in Valle de Guadalupe";
+  const fallbackTitle = "Olivea Farm To Table";
 
   const fallbackDescription = isEs
     ? "Restaurante de degustación con estrella Michelin, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia."

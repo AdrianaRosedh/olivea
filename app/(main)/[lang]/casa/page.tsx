@@ -32,9 +32,7 @@ export async function generateMetadata({
 
   const isEs = L === "es";
 
-  const fallbackTitle = isEs
-    ? "Casa Olivea — hotel boutique en Valle de Guadalupe"
-    : "Casa Olivea — boutique hotel in Valle de Guadalupe";
+  const fallbackTitle = "Casa OLIVEA";
 
   const fallbackDescription = isEs
     ? "Hotel boutique integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Donde el huerto es la esencia."

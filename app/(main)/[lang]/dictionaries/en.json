@@ -40,7 +40,7 @@
     "title": "Casa Olivea",
     "description": "Stay with us. Rooms, amenities, and reservations coming soon.",
     "meta": {
-      "title": "Casa OLIVEA — boutique hotel in Valle de Guadalupe",
+      "title": "Casa OLIVEA",
       "description": "Light, quiet and honest comfort. Boutique rooms with natural materials, effective blackout and thoughtful amenities—Casa Olivea, a boutique hotel in Valle de Guadalupe, Baja California.",
       "keywords": [
         "Casa Olivea",
@@ -58,7 +58,7 @@
     "title": "Olivea Farm To Table",
     "description": "Michelin-starred tasting menu shaped by a living garden in Valle de Guadalupe.",
     "meta": {
-      "title": "Olivea Farm To Table — Michelin-starred tasting-menu restaurant in Valle de Guadalupe",
+      "title": "OLIVEA Farm To Table",
       "description": "Michelin-starred tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. Seasonal menu where the garden is the essence.",
       "ogImage": "/images/seo/restaurant-og.jpg"
     }
@@ -159,7 +159,7 @@
     "cta_restaurant": "Visit the Restaurant",
     "cta_casa": "Stay at Casa Olivea",
     "meta": {
-      "title": "OLIVEA | Where the garden is the essence",
+      "title": "OLIVEA | The Experience",
       "description": "Olivea: a Michelin-starred tasting-menu restaurant, boutique hotel and café rooted in a living garden in Valle de Guadalupe, Baja California. Where the garden is the essence.",
       "keywords": [
         "Olivea",
@@ -176,7 +176,7 @@
   },
   "metadata": {
     "description": "A Michelin-starred, garden-rooted restaurant, hotel and café in Valle de Guadalupe, Baja California.",
-    "siteName": "Olivea",
+    "siteName": "Olivea The Experience",
     "twitter": "@yourhandle",
     "ogDefault": "/images/seo/default-og.jpg"
   },

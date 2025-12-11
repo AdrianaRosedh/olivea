@@ -32,9 +32,7 @@ export async function generateMetadata({
 
   const isEs = L === "es";
 
-  const fallbackTitle = isEs
-    ? "Olivea Café — desayunos y café en Valle de Guadalupe"
-    : "Olivea Café — breakfast and coffee in Valle de Guadalupe";
+  const fallbackTitle = "OLIVEA Café";
 
   const fallbackDescription = isEs
     ? "Café de especialidad, pan de casa y desayunos junto al huerto de Olivea en Valle de Guadalupe, Baja California. Donde el huerto es la esencia."
