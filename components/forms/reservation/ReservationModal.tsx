@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  type WheelEventHandler,
+} from "react";
 import { X } from "lucide-react";
 import { motion, type Variants, type Transition } from "framer-motion";
 import {
@@ -43,8 +48,7 @@ function scheduleIdle(cb: () => void, timeout = 600): () => void {
   if (typeof w.requestIdleCallback === "function") {
     const id = w.requestIdleCallback(() => cb(), { timeout });
     return () => {
-      if (typeof w.cancelIdleCallback === "function")
-        w.cancelIdleCallback(id);
+      if (typeof w.cancelIdleCallback === "function") w.cancelIdleCallback(id);
     };
   }
   const t = window.setTimeout(cb, 120);
@@ -180,6 +184,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     if (isOpen) setPresent(true);
   }, [isOpen]);
 
+  // ── Stop scroll bubbling up to Lenis / window
+  const stopWheelPropagation: WheelEventHandler<HTMLDivElement> = (e) => {
+    e.stopPropagation();
+  };
+
   if (!isOpen && !present) return null;
 
   return (
@@ -310,8 +319,12 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   {/* Hotel content (desktop in-pane / mobile CTA) */}
                   <div
                     className="flex-1 min-h-0 overflow-auto no-scrollbar"
-                    style={{ WebkitOverflowScrolling: "touch" }}
+                    style={{
+                      WebkitOverflowScrolling: "touch",
+                      overscrollBehavior: "contain",
+                    }}
                     aria-labelledby="hotel-pane-title"
+                    onWheelCapture={stopWheelPropagation}
                   >
                     {isMobile ? (
                       // MOBILE: preview CTA that opens full-screen sheet
@@ -338,8 +351,15 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                       </div>
                     ) : (
                       // DESKTOP: embed Immersive inside the modal
-                      <div className="grow overflow-y-auto max-h-full" style={{ touchAction: "auto" }}>
-                        <div className="min-h-[120vh] py-10" data-lenis-prevent>
+                      <div
+                        className="grow overflow-y-auto max-h-full"
+                        style={{ touchAction: "auto" }}
+                        onWheelCapture={stopWheelPropagation}
+                      >
+                        <div
+                          className="min-h-[120vh] py-10"
+                          data-lenis-prevent
+                        >
                           <CloudbedsWidget lang={lang} />
                         </div>
                       </div>
@@ -402,9 +422,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               )}
 
               <div className="flex-1 flex items-center justify-center italic text-neutral-500 p-6">
-                {lang === "es"
-                  ? "Próximamente disponible."
-                  : "Coming Soon."}
+                {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
               </div>
             </div>
           </div>
@@ -436,7 +454,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
           <div
             className="w-full h-[calc(100%-44px)] overflow-auto no-scrollbar"
-            style={{ WebkitOverflowScrolling: "touch" }}
+            style={{
+              WebkitOverflowScrolling: "touch",
+              overscrollBehavior: "contain",
+            }}
+            onWheelCapture={stopWheelPropagation}
           >
             {/* Immersive Experience 2.0 rendered directly (no iframe) */}
             <CloudbedsWidget lang={lang} />
