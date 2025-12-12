@@ -4,9 +4,13 @@
     <meta charset="UTF-8" />
     <title>Reservas Casa Olivea</title>
 
-    <!-- Lora for embedded UI -->
+    <!-- Fonts for embedded UI -->
     <link
       href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600&display=swap"
       rel="stylesheet"
     />
 
@@ -98,6 +102,21 @@
       }
 
       /* ─────────────────────────────────────────────
+         UI HEADER / PROPERTY NAME → Jakarta Sans
+         (Casa Olivea label)
+      ───────────────────────────────────────────── */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        p.cb-title-text,
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        p.cb-property-name {
+        font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.02em !important;
+      }
+
+      /* ─────────────────────────────────────────────
          Cards
       ───────────────────────────────────────────── */
       .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) .cb-card {
@@ -111,7 +130,7 @@
          - Room/action pills ONLY inside .cb-card
       ───────────────────────────────────────────── */
 
-      /* Buscar button (only this one globally) */
+      /* Buscar button */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button {
@@ -145,7 +164,7 @@
         outline-offset: 2px;
       }
 
-      /* Room/action pills ONLY inside cards (prevents top bar controls from turning green) */
+      /* Room/action pills ONLY inside cards */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         .cb-card
@@ -182,14 +201,8 @@
       }
 
       @keyframes olivea-fade-in {
-        from {
-          opacity: 0;
-          transform: translateY(6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
       }
     </style>
   </head>
