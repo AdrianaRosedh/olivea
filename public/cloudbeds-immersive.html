@@ -83,7 +83,10 @@
         );
       }
 
-      /* ── Global text styling inside Cloudbeds (but not buttons) ── */
+      /* -------------------------------------------------------
+         Global Cloudbeds Typography (BUT NOT BUTTONS)
+         Removed the old color: #5e7658 !important — FIXES BUTTON TEXT
+      ------------------------------------------------------- */
       .olivea-shell
         :is(
           #cb-bookingengine,
@@ -91,31 +94,14 @@
           cb-immersive-experience,
           reach-portal
         )
-        :where(
-          p,
-          span,
-          a,
-          li,
-          label,
-          h1,
-          h2,
-          h3,
-          h4,
-          h5,
-          h6,
-          strong,
-          em,
-          small,
-          .cb-text
-        ) {
+        :not(button):not([role="button"]) {
         font-family: "Lora", serif !important;
-        color: #5e7658 !important;
         letter-spacing: 0.15px;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
       }
 
-      /* Ensure form fields & generic content still use Lora */
+      /* Keep text readable */
       .olivea-shell
         :is(
           #cb-bookingengine,
@@ -127,7 +113,9 @@
         font-family: "Lora", serif !important;
       }
 
-      /* ── Card backgrounds ─────────────────────────────────────── */
+      /* -------------------------------------------------------
+         Card background styling
+      ------------------------------------------------------- */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         .cb-card {
@@ -141,7 +129,9 @@
         background-color: var(--olivea-panel) !important;
       }
 
-      /* ── Buscar button (search) — green with cream text ───────── */
+      /* -------------------------------------------------------
+         SEARCH BUTTON (Buscar) — Green w/Cream Text
+      ------------------------------------------------------- */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-search-button {
@@ -161,30 +151,9 @@
         background: transparent !important;
       }
 
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-search-button:hover {
-        background-color: #4f6650 !important;
-        border-color: #4f6650 !important;
-        color: #e7eae1 !important;
-      }
-
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-search-button:active {
-        background-color: #445946 !important;
-        border-color: #445946 !important;
-        color: #e7eae1 !important;
-      }
-
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button.cb-search-button:focus-visible {
-        outline: 2px solid #e7eae1 !important;
-        outline-offset: 2px;
-      }
-
-      /* ── Other green action buttons (select/add/book room pills) ─ */
+      /* -------------------------------------------------------
+         ALL OTHER GREEN ACTION BUTTONS (Select, Add, Pills)
+      ------------------------------------------------------- */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-select-button,
@@ -203,6 +172,7 @@
         font-family: "Lora", serif !important;
       }
 
+      /* Their hashed inner wrappers */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         button.cb-select-button [class^="d-"],
@@ -225,6 +195,7 @@
         fill: #e7eae1 !important;
       }
 
+      /* Icons inside these pills */
       .olivea-shell button.cb-select-button svg,
       .olivea-shell button.cb-add-button svg,
       .olivea-shell button.cb-book-button svg,
@@ -233,6 +204,7 @@
         fill: #e7eae1 !important;
       }
 
+      /* Hover & Active */
       .olivea-shell button.cb-select-button:hover,
       .olivea-shell button.cb-add-button:hover,
       .olivea-shell button.cb-book-button:hover,
