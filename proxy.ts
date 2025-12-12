@@ -133,7 +133,7 @@ export function proxy(request: NextRequest) {
   if (pathNoTrailing === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
-      allowEmbeddingSelf: false,
+      allowEmbeddingSelf: true,
       allowCloudbedsPage: true,
       allowLocatorPage: false,
     });
