@@ -220,7 +220,7 @@ export default function HomeClient() {
             {isMobile && !showVideo && (
               <Image
                 src="/images/hero-mobile.avif"
-                alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
+                alt={isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
                 fill
                 priority
                 fetchPriority="high"
@@ -269,7 +269,7 @@ export default function HomeClient() {
               <>
                 <Image
                   src="/images/hero.avif"
-                  alt={isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
+                  alt={isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
                   fill
                   priority
                   fetchPriority="high"
@@ -312,7 +312,7 @@ export default function HomeClient() {
               <span
                 className={`${cormHero.className} italic text-[var(--olivea-mist)] text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
               >
-                {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
+                {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
               </span>
             </m.div>
 
@@ -384,7 +384,7 @@ export default function HomeClient() {
             <span
               className={`${cormHero.className} italic mt-3 text-[var(--olivea-mist)] text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none`}
             >
-              {isES ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience"}
+              {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
             </span>
 
             <div className="mt-6 lg:mt-8 flex gap-6 pointer-events-auto">

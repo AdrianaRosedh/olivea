@@ -23,10 +23,14 @@ const copy = {
 
 export async function GET(req: NextRequest) {
   const key = process.env.NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY;
+  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID; // ✅ add this env
 
   if (!key) {
     return new NextResponse("Missing NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY", { status: 500 });
   }
+
+  // You *can* choose to hard-fail if missing Map ID:
+  // if (!mapId) return new NextResponse("Missing NEXT_PUBLIC_GOOGLE_MAP_ID", { status: 500 });
 
   const lang = normalizeLang(req.nextUrl.searchParams.get("lang"));
   const t = copy[lang];
@@ -58,8 +62,6 @@ export async function GET(req: NextRequest) {
 
         --gmpx-fixed-panel-width-row-layout: 28.5em;
         --gmpx-fixed-panel-height-column-layout: 60%;
-        --gmpx-hours-color-open: #5e7658;
-        --gmpx-hours-color-closed: #b04a3a;
 
         --gmpx-search-bar-margin-top: 1.25rem;
       }
@@ -115,7 +117,7 @@ export async function GET(req: NextRequest) {
           streetViewControl: false,
           zoomControl: true,
           maxZoom: 17,
-          mapId: ""
+          mapId: "${mapId ?? ""}"  // ✅ was "" before
         },
         mapsApiKey: "${key}",
         capabilities: {
@@ -156,9 +158,7 @@ export async function GET(req: NextRequest) {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "no-store",
-      // helps if you ever want to debug locale from the network tab
       "Content-Language": lang === "en" ? "en" : "es-MX",
-      // prevents cross-language caching issues if you later enable caching/CDN
       Vary: "Accept-Language",
     },
   });
