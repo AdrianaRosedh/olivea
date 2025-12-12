@@ -25,9 +25,6 @@
         --olivea-panel: #f1f1f1;
       }
 
-      /* ─────────────────────────────────────────────
-         Base page
-      ───────────────────────────────────────────── */
       html,
       body {
         margin: 0;
@@ -64,125 +61,104 @@
       }
 
       /* ─────────────────────────────────────────────
-         GLOBAL TEXT COLOR + SIZE (SAFE FOR BUTTONS)
+         TEXT COLOR + TYPOGRAPHY (NO BUTTONS)
+         This keeps original Cloudbeds control styling.
       ───────────────────────────────────────────── */
       .olivea-shell
-        :is(
-          #cb-bookingengine,
-          .cb-bookingengine-root,
-          cb-immersive-experience,
-          reach-portal
-        )
-        :where(
-          p,
-          span,
-          li,
-          label,
-          a,
-          div.cb-text,
-          strong,
-          em
-        ) {
+        :is(#cb-bookingengine, .cb-bookingengine-root, cb-immersive-experience, reach-portal)
+        :where(p, span, li, label, a, div.cb-text, strong, em, small, h1, h2, h3, h4, h5, h6) {
         color: var(--olivea-ink) !important;
         font-family: "Lora", serif !important;
-        font-size: 1.08rem !important;   /* ~17.5px */
+        letter-spacing: 0.15px;
+      }
+
+      /* Larger, modern reading size (safe) */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root, cb-immersive-experience, reach-portal)
+        :where(p, li, label, div.cb-text, span) {
+        font-size: 1.06rem !important; /* ~17px */
         line-height: 1.6 !important;
       }
 
-      /* Headings */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
         :where(h1, h2, h3, h4, h5) {
-        color: var(--olivea-ink) !important;
-        font-family: "Lora", serif !important;
         font-weight: 500 !important;
-        font-size: clamp(1.35rem, 1.6vw, 1.6rem) !important;
+        font-size: clamp(1.25rem, 1.4vw, 1.5rem) !important;
         line-height: 1.3 !important;
       }
 
-      /* Prices */
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        :where(.cb-price, .cb-rate, .cb-amount) {
-        font-size: 1.2rem !important;
-        font-weight: 500 !important;
-        color: var(--olivea-ink) !important;
-      }
-
-      /* Meta / small text */
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        :where(small, .cb-meta, .cb-caption) {
-        font-size: 0.95rem !important;
-        line-height: 1.45 !important;
-        color: var(--olivea-ink) !important;
-      }
-
       /* ─────────────────────────────────────────────
-         Cards
+         Cards (keep)
       ───────────────────────────────────────────── */
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        .cb-card {
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) .cb-card {
         background: var(--olivea-panel) !important;
         border-radius: 24px !important;
       }
 
       /* ─────────────────────────────────────────────
-         GREEN ACTION BUTTONS (ALL)
+         CTA BUTTONS ONLY (restore original inputs)
+         - Buscar (search)
+         - Small green action pills (select/add room)
       ───────────────────────────────────────────── */
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button {
+
+      /* Buscar button */
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-search-button {
         background-color: var(--olivea-olive) !important;
         border-color: var(--olivea-olive) !important;
         color: var(--olivea-cream) !important;
         font-family: "Lora", serif !important;
-        font-size: 1rem !important;
       }
-
-      /* Inner wrappers + icons */
       .olivea-shell
         :is(#cb-bookingengine, .cb-bookingengine-root)
-        button * {
+        button.cb-search-button * {
         color: var(--olivea-cream) !important;
         fill: var(--olivea-cream) !important;
       }
-
-      /* Hover */
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button:hover {
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-search-button:hover {
         background-color: #4f6650 !important;
         border-color: #4f6650 !important;
       }
-
-      /* Active */
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button:active {
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-search-button:active {
         background-color: #445946 !important;
         border-color: #445946 !important;
       }
-
-      /* Focus */
-      .olivea-shell
-        :is(#cb-bookingengine, .cb-bookingengine-root)
-        button:focus-visible {
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-search-button:focus-visible {
         outline: 2px solid var(--olivea-cream) !important;
         outline-offset: 2px;
       }
 
-      /* ───────────────────────────────────────────── */
+      /* Room/action pills (the small green buttons you circled earlier) */
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-select-button,
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-add-button,
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-book-button,
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) button.cb-room-button {
+        background-color: var(--olivea-olive) !important;
+        border-color: var(--olivea-olive) !important;
+        color: var(--olivea-cream) !important;
+        font-family: "Lora", serif !important;
+      }
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        :is(
+          button.cb-select-button,
+          button.cb-add-button,
+          button.cb-book-button,
+          button.cb-room-button
+        )
+        * {
+        color: var(--olivea-cream) !important;
+        fill: var(--olivea-cream) !important;
+      }
+
+      /* IMPORTANT:
+         We intentionally do NOT style generic buttons globally.
+         That restores the original search bar design (inputs stay light).
+      */
+
       @keyframes olivea-fade-in {
-        from {
-          opacity: 0;
-          transform: translateY(6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
       }
     </style>
   </head>
