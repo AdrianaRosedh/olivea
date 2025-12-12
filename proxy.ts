@@ -54,16 +54,19 @@ function buildCsp({
     ? " https://tile.openstreetmap.org https://*.cloudbeds.com https://lh3.googleusercontent.com"
     : "";
 
+  // ✅ Add www.gstatic.com for locator
   const locatorScriptExtra = allowLocatorPage
-    ? " https://ajax.googleapis.com https://maps.googleapis.com https://maps.gstatic.com"
+    ? " https://ajax.googleapis.com https://maps.googleapis.com https://maps.gstatic.com https://www.gstatic.com"
     : "";
 
+  // ✅ Add www.gstatic.com for locator
   const locatorConnectExtra = allowLocatorPage
-    ? " https://maps.googleapis.com https://places.googleapis.com https://maps.gstatic.com"
+    ? " https://maps.googleapis.com https://places.googleapis.com https://maps.gstatic.com https://www.gstatic.com"
     : "";
 
+  // ✅ Add maps.googleapis.com + www.gstatic.com for locator images
   const locatorImgExtra = allowLocatorPage
-    ? " https://maps.gstatic.com https://lh3.googleusercontent.com"
+    ? " https://maps.gstatic.com https://www.gstatic.com https://maps.googleapis.com https://lh3.googleusercontent.com"
     : "";
 
   const locatorFrameExtra = allowLocatorPage
@@ -77,16 +80,18 @@ function buildCsp({
     `frame-ancestors${frameAncestors}`,
     "form-action 'self'",
 
-    `connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
-
+    `connect-src 'self' data: https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
     `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
 
-    `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
+    // ✅ Allow Google Fonts stylesheet
+    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
     `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org${cloudbedsImgExtra}${locatorImgExtra}`,
 
     "media-src 'self' blob:",
-    "font-src 'self' data:",
+
+    // ✅ Allow Google Fonts font files
+    "font-src 'self' data: https://fonts.gstatic.com",
 
     `frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com${locatorFrameExtra}`,
 
