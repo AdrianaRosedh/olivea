@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import { AppProviders } from "./providers";
 import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
-import { SITE, absoluteUrl } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE.baseUrl),
+  metadataBase: new URL(absoluteUrl("/")),
 
   title: "OLIVEA | Donde el huerto es la esencia",
   description:
@@ -15,14 +15,15 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
     languages: {
-      "es-MX": "/es",
-      "en-US": "/en",
+      "es-MX": "/",
+      en: "/en",
+      // "x-default": "/",
     },
   },
 
   openGraph: {
     type: "website",
-    url: SITE.baseUrl,
+    url: absoluteUrl("/"),
     title: "OLIVEA | Donde el huerto es la esencia",
     description:
       "OLIVEA Farm To Table, hotel Casa OLIVEA y OLIVEA Café arraigados en un huerto vivo en Valle de Guadalupe.",
@@ -57,25 +58,19 @@ export const metadata: Metadata = {
     },
   },
 
-  // This creates <meta name="apple-mobile-web-app-title" content="OLIVEA" />
-  appleWebApp: {
-    title: "OLIVEA",
-  },
+  appleWebApp: { title: "OLIVEA" },
 
-  // Favicon + Apple touch icon wiring
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico", type: "image/x-icon" },
       { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
       { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
-      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" }
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
     ],
-    apple: [
-      { url: "/apple-icon.png", sizes: "180x180" }
-    ]
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
   },
-  // Hook up the PWA / web app manifest
+
   manifest: "/manifest.json",
 };
 

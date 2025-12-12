@@ -36,49 +36,59 @@ function isStaticPath(path: string): boolean {
 function buildCsp({
   allowEmbeddingSelf,
   allowCloudbedsPage,
+  allowLocatorPage,
 }: {
   allowEmbeddingSelf: boolean;
   allowCloudbedsPage: boolean;
+  allowLocatorPage: boolean;
 }) {
   const scriptUnsafeEval = isDev ? " 'unsafe-eval'" : "";
-  const frameAncestors = allowEmbeddingSelf ? "'self'" : " 'none'";
+  const wasmUnsafeEval = allowLocatorPage ? " 'wasm-unsafe-eval'" : "";
+  const frameAncestors = allowEmbeddingSelf ? " 'self'" : " 'none'";
 
-  // Extra domains only for the Cloudbeds immersive HTML page OR
-  // for any page that hosts the Cloudbeds widget
   const cloudbedsConnectExtra = allowCloudbedsPage
     ? " https://clientstream.launchdarkly.com https://events.launchdarkly.com https://tile.openstreetmap.org"
     : "";
 
-  // For the immersive/widget pages, allow OpenStreetMap + ANY Cloudbeds image host + Google image CDN
   const cloudbedsImgExtra = allowCloudbedsPage
     ? " https://tile.openstreetmap.org https://*.cloudbeds.com https://lh3.googleusercontent.com"
+    : "";
+
+  const locatorScriptExtra = allowLocatorPage
+    ? " https://ajax.googleapis.com https://maps.googleapis.com https://maps.gstatic.com"
+    : "";
+
+  const locatorConnectExtra = allowLocatorPage
+    ? " https://maps.googleapis.com https://places.googleapis.com https://maps.gstatic.com"
+    : "";
+
+  const locatorImgExtra = allowLocatorPage
+    ? " https://maps.gstatic.com https://lh3.googleusercontent.com"
+    : "";
+
+  const locatorFrameExtra = allowLocatorPage
+    ? " https://www.google.com https://maps.google.com https://maps.gstatic.com"
     : "";
 
   const directives = [
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
-    // If allowCloudbedsPage, always allow self to embed
-    `frame-ancestors${allowCloudbedsPage ? " 'self'" : frameAncestors}`,
+    `frame-ancestors${frameAncestors}`,
     "form-action 'self'",
 
-    // connect-src
-    `connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}`,
+    `connect-src 'self' https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
 
-    // script-src
-    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval} https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
+    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
 
-    // style-src
     `style-src 'self' 'unsafe-inline' https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    // img-src (single line, no newlines)
-    `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org${cloudbedsImgExtra}`,
+    `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org${cloudbedsImgExtra}${locatorImgExtra}`,
 
     "media-src 'self' blob:",
     "font-src 'self' data:",
 
-    // iframes we embed
-    "frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com",
+    `frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com${locatorFrameExtra}`,
 
     "manifest-src 'self'",
     "worker-src 'self' blob:",
@@ -89,7 +99,11 @@ function buildCsp({
 
 function applySecurityHeaders(
   res: NextResponse,
-  opts: { allowEmbeddingSelf: boolean; allowCloudbedsPage: boolean }
+  opts: {
+    allowEmbeddingSelf: boolean;
+    allowCloudbedsPage: boolean;
+    allowLocatorPage: boolean;
+  }
 ) {
   res.headers.set("Content-Security-Policy", buildCsp(opts));
   res.headers.set("X-Content-Type-Options", "nosniff");
@@ -113,46 +127,56 @@ function applySecurityHeaders(
 export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const originalPath = url.pathname;
-  const pathNoTrailing = originalPath.replace(/\/+$/, "");
+  const pathNoTrailing = originalPath.replace(/\/+$/, "") || "/";
 
-  // 1) Special case: immersive iframe page (kept for backward compatibility)
+  // 1) Cloudbeds immersive iframe page
   if (pathNoTrailing === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
       allowEmbeddingSelf: false,
       allowCloudbedsPage: true,
+      allowLocatorPage: false,
+    });
+  }
+
+  // 1b) Locator route: must be embeddable by self + allow WASM/Google scripts
+  if (pathNoTrailing === "/olivea-locator") {
+    const res = NextResponse.next();
+    return applySecurityHeaders(res, {
+      allowEmbeddingSelf: true,
+      allowCloudbedsPage: false,
+      allowLocatorPage: true,
     });
   }
 
   // 2) Bypass locale redirects for static/assets/api
-  if (isStaticPath(pathNoTrailing || "/")) {
+  if (isStaticPath(pathNoTrailing)) {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
       allowEmbeddingSelf: false,
       allowCloudbedsPage: false,
+      allowLocatorPage: false,
     });
   }
 
   // 3) Locale prefix check & redirect if missing
   const hasPrefix = locales.some(
-    (loc) =>
-      pathNoTrailing === `/${loc}` || pathNoTrailing.startsWith(`/${loc}/`)
+    (loc) => pathNoTrailing === `/${loc}` || pathNoTrailing.startsWith(`/${loc}/`)
   );
 
   let response: NextResponse;
   if (!hasPrefix) {
-    const target = `/${getLocale(request)}${pathNoTrailing || "/"}`;
-    response = NextResponse.redirect(new URL(target, request.url));
+    const target = `/${getLocale(request)}${pathNoTrailing === "/" ? "" : pathNoTrailing}`;
+    response = NextResponse.redirect(new URL(target || `/${defaultLocale}`, request.url));
   } else {
     response = NextResponse.next();
   }
 
   // 4) Apply security headers to ALL app responses
-  //    ✅ Now treat normal app pages as "Cloudbeds pages" too,
-  //    so Immersive widget images & extra domains are allowed.
   return applySecurityHeaders(response, {
     allowEmbeddingSelf: false,
     allowCloudbedsPage: true,
+    allowLocatorPage: false,
   });
 }
 

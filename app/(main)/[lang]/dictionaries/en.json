@@ -65,18 +65,34 @@
   },
   "contact": {
     "title": "Contact",
-    "description": "Press, inquiries, and how to reach us.",
-    "meta": {
-      "title": "Contact Olivea | Reservations & Press",
-      "description": "Contact Olivea for reservations, events and press inquiries in Valle de Guadalupe, Ensenada.",
-      "keywords": [
-        "Olivea contact",
-        "reservations",
-        "press",
-        "Valle de Guadalupe",
-        "Ensenada"
-      ],
-      "ogImage": "/images/seo/contact-og.jpg"
+    "description": "Contact information for Olivea in Valle de Guadalupe.",
+    "metaTitle": "Contact — Olivea",
+    "metaDescription": "Address, phone numbers, and contact details for Olivea Farm To Table, Casa Olivea, and Olivea Café in Valle de Guadalupe.",
+    "kicker": "Contact",
+    "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café",
+    "actions": {
+      "maps": "Maps",
+      "email": "Email",
+      "call": "Call"
+    },
+    "labels": {
+      "address": "Address",
+      "email": "Email"
+    },
+    "sections": {
+      "farmToTableTitle": "Olivea Farm To Table",
+      "casaCafeTitle": "Casa Olivea & Olivea Café"
+    },
+    "hours": {
+      "farmToTable": "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7",
+      "casaCafe": "Wed–Mon 7:30–2:30 · Tue 7:30–9:30"
+    },
+    "footerNote": "For special events or group coordination, email us and we’ll help you plan it.",
+    "map": {
+      "iframeTitle": "Olivea Locator Map",
+      "badgeLabel": "Location",
+      "badgeValue": "Valle de Guadalupe",
+      "googleMapsCta": "Google Maps"
     }
   },
   "sustainability": {
