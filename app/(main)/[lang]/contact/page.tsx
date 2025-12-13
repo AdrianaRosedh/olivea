@@ -4,11 +4,12 @@ import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
 import { getDictionary, normalizeLang, type Lang } from "@/app/(main)/[lang]/dictionaries";
 
 type PageProps = {
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const lang: Lang = normalizeLang(params.lang);
+  const { lang: raw } = await params;
+  const lang: Lang = normalizeLang(raw);
   const dict = getDictionary(lang);
   const t = dict.contact;
 
@@ -31,26 +32,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ContactPage({ params }: PageProps) {
-  const lang: Lang = normalizeLang(params.lang);
+  const { lang: raw } = await params;
+  const lang: Lang = normalizeLang(raw);
   const dict = getDictionary(lang);
   const t = dict.contact;
 
-  // Stable data (not translated)
   const address = "México 3 Km 92.5, 22766 Villa de Juárez, B.C.";
   const mapsUrl = "https://maps.app.goo.gl/oySkL6k7G7t5VFus5";
   const email = "hola@casaolivea.com";
 
   return (
     <main className="-mt-16 md:mt-0 pt-12 sm:pt-16 md:pt-10 pb-10">
-      {/* FULL BLEED BREAKOUT */}
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
         <div className="px-4 sm:px-8 lg:px-12 2xl:px-16 2xl:pr-28">
           <div className="mx-auto w-full max-w-[2200px]">
-            {/* ONE GRID THAT INCLUDES THE HEADER */}
             <div className="grid gap-6 lg:grid-cols-[0.62fr_0.38fr] xl:grid-cols-[0.60fr_0.40fr] items-start">
-              {/* LEFT COLUMN: header + content */}
               <div className="flex flex-col gap-4">
-                {/* Header (NOT a card) */}
                 <header className="max-w-[980px] mt-4 sm:mt-6 lg:mt-10">
                   <p className="text-olive-900/60 text-[12px] tracking-[0.32em] uppercase">
                     {t.kicker}
@@ -58,12 +55,11 @@ export default async function ContactPage({ params }: PageProps) {
                   <h1 className="mt-1 text-olive-900 text-3xl md:text-4xl font-semibold leading-[1.05]">
                     OLIVEA
                   </h1>
-                  <p className="mt-2 text-olive-900/70 text-base md:text-lg leading-snug">
+                  <p className="mt-2 text-olive-✅900/70 text-base md:text-lg leading-snug">
                     {t.subtitle}
                   </p>
                 </header>
 
-                {/* Quick actions row */}
                 <div className="grid grid-cols-3 gap-3">
                   <a
                     href={mapsUrl}
@@ -92,9 +88,7 @@ export default async function ContactPage({ params }: PageProps) {
                   </a>
                 </div>
 
-                {/* Info grid */}
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {/* Address */}
                   <div className="rounded-3xl bg-white/55 backdrop-blur ring-1 ring-black/5 shadow-[0_10px_28px_rgba(0,0,0,0.05)] p-5">
                     <div className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 mt-0.5 text-olive-700" />
@@ -112,7 +106,6 @@ export default async function ContactPage({ params }: PageProps) {
                     </div>
                   </div>
 
-                  {/* Email */}
                   <div className="rounded-3xl bg-white/55 backdrop-blur ring-1 ring-black/5 shadow-[0_10px_28px_rgba(0,0,0,0.05)] p-5">
                     <div className="flex items-start gap-3">
                       <Mail className="w-5 h-5 mt-0.5 text-olive-700" />
@@ -128,7 +121,6 @@ export default async function ContactPage({ params }: PageProps) {
                     </div>
                   </div>
 
-                  {/* Farm to Table */}
                   <div className="rounded-3xl bg-white/55 backdrop-blur ring-1 ring-black/5 shadow-[0_10px_28px_rgba(0,0,0,0.05)] p-5">
                     <p className="text-olive-900 font-semibold text-base">
                       {t.sections.farmToTableTitle}
@@ -147,7 +139,6 @@ export default async function ContactPage({ params }: PageProps) {
                     </div>
                   </div>
 
-                  {/* Casa & Café */}
                   <div className="rounded-3xl bg-white/55 backdrop-blur ring-1 ring-black/5 shadow-[0_10px_28px_rgba(0,0,0,0.05)] p-5">
                     <p className="text-olive-900 font-semibold text-base">
                       {t.sections.casaCafeTitle}
@@ -172,7 +163,6 @@ export default async function ContactPage({ params }: PageProps) {
                 </p>
               </div>
 
-              {/* RIGHT COLUMN: map aligned with header */}
               <aside className="relative">
                 <div className="relative overflow-hidden rounded-3xl bg-[var(--olivea-mist)]/80 ring-1 ring-black/5 shadow-[0_12px_36px_rgba(0,0,0,0.06)]">
                   <div className="relative h-[340px] sm:h-[420px] lg:h-[min(700px,calc(100vh-210px))] min-h-[560px]">

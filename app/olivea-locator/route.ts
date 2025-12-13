@@ -23,7 +23,7 @@ const copy = {
 
 export async function GET(req: NextRequest) {
   const key = process.env.NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY;
-  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID; // ✅ add this env
+  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID; 
 
   if (!key) {
     return new NextResponse("Missing NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY", { status: 500 });
