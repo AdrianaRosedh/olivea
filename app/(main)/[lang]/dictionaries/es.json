@@ -64,37 +64,37 @@
     }
   },  
   "contact": {
-    "title": "Contact",
-    "description": "Contact information for Olivea in Valle de Guadalupe.",
-    "metaTitle": "Contacto — Olivea",
-    "metaDescription": "Dirección, teléfonos y contacto de Olivea Farm To Table, Casa Olivea y Olivea Café en Valle de Guadalupe.",
-    "kicker": "Contacto",
-    "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café",
-    "actions": {
-      "maps": "Maps",
-      "email": "Email",
-      "call": "Llamar"
-    },
-    "labels": {
-      "address": "Dirección",
-      "email": "Email"
-    },
-    "sections": {
-      "farmToTableTitle": "Olivea Farm To Table",
-      "casaCafeTitle": "Casa Olivea & Olivea Café"
-    },
-    "hours": {
-      "farmToTable": "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
-      "casaCafe": "Mié–Lun 7:30–2:30 · Mar 7:30–9:30"
-    },
-    "footerNote": "Para eventos especiales o coordinación de grupos, escríbenos por email y te ayudamos a organizarlo.",
-    "map": {
-      "iframeTitle": "Mapa de Olivea",
-      "badgeLabel": "Ubicación",
-      "badgeValue": "Valle de Guadalupe",
-      "googleMapsCta": "Google Maps"
-    }
+  "title": "Contacto",
+  "description": "Información de contacto de Olivea en Valle de Guadalupe.",
+  "metaTitle": "Contacto — Olivea",
+  "metaDescription": "Dirección, teléfonos y contacto de Olivea Farm To Table, Casa Olivea y Olivea Café en Valle de Guadalupe.",
+  "kicker": "Contacto",
+  "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café",
+  "actions": {
+    "maps": "Mapa",
+    "email": "Email",
+    "call": "Llamar"
   },
+  "labels": {
+    "address": "Dirección",
+    "email": "Email"
+  },
+  "sections": {
+    "farmToTableTitle": "Olivea Farm To Table",
+    "casaCafeTitle": "Casa Olivea & Olivea Café"
+  },
+  "hours": {
+    "farmToTable": "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
+    "casaCafe": "Mié–Lun 7:30–2:30 · Mar 7:30–9:30"
+  },
+  "footerNote": "Para eventos especiales o coordinación de grupos, escríbenos por email y te ayudamos a organizarlo.",
+  "map": {
+    "iframeTitle": "Mapa de Olivea",
+    "badgeLabel": "Ubicación",
+    "badgeValue": "Valle de Guadalupe",
+    "googleMapsCta": "Google Maps"
+  }
+},
   "sustainability": {
     "title": "Sostenibilidad",
     "description": "Nuestro compromiso con prácticas sostenibles y gestión ambiental.",
