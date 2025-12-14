@@ -367,9 +367,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   <OliveaLogo className="h-[45px] md:h-[65px]" />
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
-                    style={{
-                      fontSize: "clamp(0.9rem,2vw,1.15rem)",
-                    }}
+                    style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
                     id="restaurant-pane-title"
                   >
                     Olivea Farm To Table

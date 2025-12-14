@@ -14,7 +14,7 @@ export default function CloudbedsWidget({
 
   return (
     <div
-      className="relative w-full h-full bg-[var(--olivea-cream)]"
+      className="relative w-full h-full bg-(--olivea-cream)"
       data-lenis-prevent
     >
       <iframe
