@@ -195,7 +195,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     <>
       {/* Backdrop */}
       <motion.div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1200]"
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1200"
         initial="hidden"
         animate={isOpen ? "visible" : "hidden"}
         variants={{
@@ -210,7 +210,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
       {/* Panel */}
       <motion.div
-        className={`fixed inset-0 z-[1300] flex ${
+        className={`fixed inset-0 z-1300 flex ${
           isMobile
             ? "items-end justify-center"
             : "items-center justify-center p-4"
@@ -227,14 +227,14 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         aria-label={lang === "es" ? "Reservaciones" : "Reservations"}
       >
         <div
-          className={`bg-[var(--olivea-cream)] flex flex-col overflow-hidden ${
+          className={`bg-(--olivea-cream) flex flex-col overflow-hidden ${
             isMobile
               ? "w-full h-full rounded-none"
               : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
           }`}
         >
           {/* Header */}
-          <div className="relative flex items-center px-6 py-4 flex-shrink-0">
+          <div className="relative flex items-center px-6 py-4 shrink-0">
             <h2
               className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
               style={{
@@ -248,14 +248,14 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             <button
               onClick={closeReservationModal}
               aria-label={lang === "es" ? "Cerrar" : "Close"}
-              className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
+              className="ml-auto p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
             >
               <X size={20} />
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex flex-shrink-0 bg-[var(--olivea-cream)] px-4 md:px-0">
+          <div className="flex shrink-0 bg-(--olivea-cream) px-4 md:px-0">
             {(["restaurant", "hotel", "cafe"] as ReservationType[]).map(
               (id) => (
                 <button
@@ -263,8 +263,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   onClick={() => handleTabClick(id)}
                   className={`relative flex-1 py-3 text-center uppercase tracking-[0.15em] transition-colors ${
                     reservationType === id
-                      ? "text-[var(--olivea-olive)] font-semibold"
-                      : "text-[var(--olivea-ink)] hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)]"
+                      ? "text-(--olivea-olive) font-semibold"
+                      : "text-(--olivea-ink) hover:bg-(--olivea-olive) hover:text-(--olivea-cream)"
                   }`}
                   style={{
                     fontFamily: "var(--font-serif)",
@@ -283,7 +283,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     ? "Café"
                     : "Cafe"}
                   {reservationType === id && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[var(--olivea-olive)]" />
+                    <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-(--olivea-olive)" />
                   )}
                 </button>
               )
@@ -291,7 +291,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
 
           {/* Panes */}
-          <div className="flex-1 flex flex-col bg-[var(--olivea-cream)]">
+          <div className="flex-1 flex flex-col bg-(--olivea-cream)">
             {/* HOTEL */}
             <div
               className={`flex-1 flex flex-col ${
@@ -303,9 +303,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 <>
                   {/* Mobile header stays the same */}
                   {isMobile && (
-                    <div className="px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] flex-shrink-0">
+                    <div className="px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
                       <span
-                        className={`${jakarta.className} font-semibold text-[var(--olivea-ink)] tracking-[0.15em] uppercase`}
+                        className={`${jakarta.className} font-semibold text-(--olivea-ink) tracking-[0.15em] uppercase`}
                         style={{
                           fontSize: "clamp(0.8rem,1.8vw,1rem)",
                         }}
@@ -327,15 +327,15 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                         <button
                           type="button"
                           onClick={() => setShowHotelOverlay(true)}
-                          className="w-full max-w-md rounded-2xl border border-[var(--olivea-olive)]/30 bg-[var(--olivea-cream)]/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
+                          className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
                         >
-                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--olivea-ink)]/70 mb-2">
+                          <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/70 mb-2">
                             Motor de reservaciones
                           </p>
-                          <p className="text-sm font-medium text-[var(--olivea-ink)] mb-1">
+                          <p className="text-sm font-medium text-(--olivea-ink) mb-1">
                             Gestiona tu reserva de Casa Olivea
                           </p>
-                          <p className="text-xs text-[var(--olivea-ink)]/70 mb-3">
+                          <p className="text-xs text-(--olivea-ink)/70 mb-3">
                             Toca para abrir el motor seguro de Cloudbeds en pantalla
                             completa.
                           </p>
@@ -363,10 +363,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               aria-hidden={reservationType !== "restaurant"}
             >
               {!isMobile && (
-                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] flex-shrink-0">
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
                   <OliveaLogo className="h-[45px] md:h-[65px]" />
                   <span
-                    className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                    className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
                     style={{
                       fontSize: "clamp(0.9rem,2vw,1.15rem)",
                     }}
@@ -394,10 +394,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               aria-hidden={reservationType !== "cafe"}
             >
               {!isMobile && (
-                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-[var(--olivea-cream)] flex-shrink-0">
+                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
                   <OliveaCafe className="h-[45px] md:h-[65px]" />
                   <span
-                    className={`${jakarta.className} font-bold ml-5 md:ml-7 text-[var(--olivea-ink)]`}
+                    className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
                     style={{
                       fontSize: "clamp(0.9rem,2vw,1.15rem)",
                     }}
@@ -418,21 +418,21 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       {/* MOBILE FULL-SCREEN HOTEL SHEET */}
       {isMobile && mounted.hotel && (
         <div
-          className={`fixed inset-0 z-[1400] bg-[var(--olivea-cream)] flex flex-col transition-opacity duration-300 ${
+          className={`fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col transition-opacity duration-300 ${
             showHotelOverlay
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="flex items-center px-4 py-3 bg-[var(--olivea-cream)]">
-            <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-[var(--olivea-ink)]/80">
+          <div className="flex items-center px-4 py-3 bg-(--olivea-cream)">
+            <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/80">
               Casa Olivea — Reservaciones
             </span>
             <button
               type="button"
               onClick={() => setShowHotelOverlay(false)}
               aria-label="Cerrar"
-              className="ml-3 w-9 h-9 flex items-center justify-center rounded-full bg-[var(--olivea-olive)] text-[var(--olivea-cream)] shadow-sm active:scale-95 transition-all"
+              className="ml-3 w-9 h-9 flex items-center justify-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) shadow-sm active:scale-95 transition-all"
             >
               <X size={20} strokeWidth={1.6} />
             </button>
