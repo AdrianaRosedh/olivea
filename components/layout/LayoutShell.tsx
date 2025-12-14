@@ -18,6 +18,7 @@ import DesktopChatButton from "@/components/ui/DesktopChatButton";
 import LoadWhistleClient from "@/components/chat/LoadWhistleClient";
 import WhistleToggleMount from "@/components/chat/WhistleToggleMount";
 import { getActiveSection } from "@/lib/sections";
+import SubtleContentFade from "@/components/transitions/SubtleContentFade";
 
 // types
 import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
@@ -161,7 +162,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         }
         style={mainStyle}
       >
-        {allowHeroBreakout ? <NavigationProvider>{children}</NavigationProvider> : children}
+        <SubtleContentFade duration={0.65}>
+          {allowHeroBreakout ? <NavigationProvider>{children}</NavigationProvider> : children}
+        </SubtleContentFade>
+
       </main>
 
       {!isHome && <Footer dict={dictionary} />}
@@ -177,7 +181,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {/* MOBILE BOTTOM NAV */}
       {!isHome && isMobile && mobileNavItems.length > 0 && (
         <ClientOnly>
-          <div className="fixed bottom-[68px] inset-x-0 z-[95] pointer-events-none">
+          <div className="fixed bottom-[68px] inset-x-0 z-95 pointer-events-none">
             <MobileSectionNav items={mobileNavItems} />
           </div>
         </ClientOnly>
