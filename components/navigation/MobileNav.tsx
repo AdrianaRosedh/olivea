@@ -41,7 +41,7 @@ export function MobileNav() {
         id="reserve-toggle"
         onClick={() => openReservationModal(reserveTab)}
         className="flex flex-col items-center justify-center rounded-[60%_40%_70%_30%]
-                   bg-[var(--olivea-olive)] text-white shadow-md px-2 py-1.5
+                   bg-(--olivea-olive) text-white shadow-md px-2 py-1.5
                    transition-transform active:scale-95"
         aria-label="Reserve"
       >
@@ -65,8 +65,8 @@ export function MobileNav() {
         }}
         
         className="relative flex flex-col items-center justify-center
-                   rounded-[40%_60%_30%_70%] bg-[var(--olivea-shell)]
-                   text-[var(--olivea-olive)] shadow-md px-2 py-1.5
+                   rounded-[40%_60%_30%_70%] bg-(--olivea-shell)
+                   text(--olivea-olive) shadow-md px-2 py-1.5
                    transition-transform active:scale-95"
         aria-label="Chat"
       >
