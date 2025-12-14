@@ -8,6 +8,7 @@ import React, {
   useCallback,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   AnimatePresence,
   motion,
@@ -19,7 +20,10 @@ import { X } from "lucide-react";
 
 /** Idle scheduler (typed) */
 type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
-type RequestIdleCallback = (cb: (deadline: IdleDeadline) => void, opts?: { timeout?: number }) => number;
+type RequestIdleCallback = (
+  cb: (deadline: IdleDeadline) => void,
+  opts?: { timeout?: number }
+) => number;
 type CancelIdleCallback = (handle: number) => void;
 
 function scheduleIdle(cb: () => void, timeout = 600): () => void {
@@ -38,17 +42,23 @@ function scheduleIdle(cb: () => void, timeout = 600): () => void {
   return () => window.clearTimeout(t);
 }
 
-type MenuTab = { id: string; label: string; url: string; emoji?: string; icon?: ReactNode };
+type MenuTab = {
+  id: string;
+  label: string;
+  url: string;
+  emoji?: string;
+  icon?: ReactNode;
+};
 
 type FarmpopProps = {
-  canvaUrl?: string;              // single Canva URL (ignored if tabs provided)
-  tabs?: MenuTab[];               // list of tabbed menus
+  canvaUrl?: string; // single Canva URL (ignored if tabs provided)
+  tabs?: MenuTab[]; // list of tabbed menus
   initialTabId?: string;
   label?: string;
-  title?: string;                 // desktop title
+  title?: string; // desktop title
   trigger?: ReactNode;
   triggerClassName?: string;
-  autoOpenEvent?: string;         // e.g., "olivea:menu:open"
+  autoOpenEvent?: string; // e.g., "olivea:menu:open"
   openDelayMs?: number;
 };
 
@@ -64,10 +74,16 @@ export default function Farmpop({
   openDelayMs = 80,
 }: FarmpopProps) {
   const [open, setOpen] = useState(false);
-  const [preloaded, setPreloaded] = useState(false); // mount all iframes after first open (idle)
+  const [preloaded, setPreloaded] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean>(() =>
-    typeof window === "undefined" ? false : window.matchMedia("(max-width: 767px)").matches
+    typeof window === "undefined"
+      ? false
+      : window.matchMedia("(max-width: 767px)").matches
   );
+
+  // ✅ for portal safety (document only exists client-side)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // Normalize to a single unified tab list (force ?embed for Canva)
   const tabList: MenuTab[] = useMemo(() => {
@@ -88,7 +104,7 @@ export default function Farmpop({
   const [activeId, setActiveId] = useState<string>(() => {
     if (tabList.length) {
       return initialTabId && tabList.some((t) => t.id === initialTabId)
-        ? (initialTabId as string)
+        ? initialTabId
         : tabList[0].id;
     }
     return "single";
@@ -98,10 +114,12 @@ export default function Farmpop({
   // Fade duration (respects prefers-reduced-motion)
   const FADE_MS = useMemo(() => {
     if (typeof window === "undefined") return 0;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 220;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? 0
+      : 220;
   }, []);
 
-  // keep activeId valid if the tab list changes
+  // keep activeId valid if tab list changes
   useEffect(() => {
     if (!tabList.length) return;
     if (!tabList.some((t) => t.id === activeId)) setActiveId(tabList[0].id);
@@ -123,7 +141,7 @@ export default function Farmpop({
     return () => window.removeEventListener(autoOpenEvent, handler);
   }, [autoOpenEvent, openDelayMs]);
 
-  // Lock body scroll while open (pair with html { scrollbar-gutter: stable; } in globals.css)
+  // Lock body scroll while open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -131,7 +149,7 @@ export default function Farmpop({
     };
   }, [open]);
 
-  // Pre-mount all iframes once the popup is opened the first time — in idle time
+  // Pre-mount all iframes once opened first time — idle time
   useEffect(() => {
     if (!open || preloaded || tabList.length === 0) return;
     const cancel = scheduleIdle(() => setPreloaded(true), 600);
@@ -154,7 +172,7 @@ export default function Farmpop({
     if (shouldOpen && atMenuHash) {
       sessionStorage.removeItem("olivea:autoopen-menu");
       const savedTab = sessionStorage.getItem("olivea:autoopen-tab");
-      if (savedTab && tabList?.some((t) => t.id === savedTab)) {
+      if (savedTab && tabList.some((t) => t.id === savedTab)) {
         setActiveId(savedTab);
       }
       sessionStorage.removeItem("olivea:autoopen-tab");
@@ -166,18 +184,18 @@ export default function Farmpop({
   const openPopup = useCallback(() => setOpen(true), []);
   const closePopup = useCallback(() => setOpen(false), []);
 
-  // Gentle switch: set prev → set active; prev clears on transition end
+  // Gentle switch: prev → active; prev clears on transition end
   const switchTab = useCallback(
     (nextId: string) => {
       if (nextId === activeId) return;
       setPrevId(activeId);
       setActiveId(nextId);
-      if (FADE_MS === 0) setPrevId(null); // instantly drop on reduced motion
+      if (FADE_MS === 0) setPrevId(null);
     },
     [activeId, FADE_MS]
   );
 
-  // Drop previous once the opacity transition actually ends
+  // Drop previous once opacity transition ends
   const handleFadeOutEnd: React.TransitionEventHandler<HTMLDivElement> = (e) => {
     if (e.propertyName !== "opacity") return;
     setPrevId(null);
@@ -189,19 +207,30 @@ export default function Farmpop({
     visible: isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 },
     exit: isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
   };
-  const backdropVariants: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1 }, exit: { opacity: 0 } };
-  const transition: Transition = isMobile ? { type: "spring", stiffness: 200, damping: 25 } : { duration: 0.35, ease: "easeOut" };
+  const backdropVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
+  };
+
+  const transition: Transition = isMobile
+    ? { type: "spring", stiffness: 200, damping: 25 }
+    : { duration: 0.35, ease: "easeOut" };
+
   const contentVariants: Variants = {
     hidden: isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 },
     visible: isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 },
     exit: isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 },
   };
-  const contentTransition: Transition = isMobile ? { duration: 0 } : { duration: 0.25, ease: "easeOut", delay: 0.06 };
+  const contentTransition: Transition = isMobile
+    ? { duration: 0 }
+    : { duration: 0.25, ease: "easeOut", delay: 0.06 };
 
-  // Mobile drag (desktop gets no drag props at all)
+  // Mobile drag
   const dragControls = useDragControls();
   const CLOSE_PX = 140;
   const CLOSE_VELOCITY = -600;
+
   const mobileDragProps = isMobile
     ? {
         drag: "y" as const,
@@ -210,8 +239,14 @@ export default function Farmpop({
         dragConstraints: { top: -CLOSE_PX, bottom: 0 },
         dragElastic: 0,
         dragMomentum: false,
-        onDragEnd: (_: unknown, info: { offset: { y: number }; velocity: { y: number } }) => {
-          if (info.offset.y < -(CLOSE_PX * 0.6) || info.velocity.y < CLOSE_VELOCITY) {
+        onDragEnd: (
+          _: unknown,
+          info: { offset: { y: number }; velocity: { y: number } }
+        ) => {
+          if (
+            info.offset.y < -(CLOSE_PX * 0.6) ||
+            info.velocity.y < CLOSE_VELOCITY
+          ) {
             setOpen(false);
           }
         },
@@ -221,11 +256,15 @@ export default function Farmpop({
   const tabGlyph = (t: MenuTab): ReactNode => {
     if (t.icon) return t.icon;
     if (t.emoji) return <span className="text-[16px] leading-none">{t.emoji}</span>;
-    const map: Record<string, string> = { menu: "🍽️", licores: "🥃", vinos: "🍷", bebidas: "🍹" };
+    const map: Record<string, string> = {
+      menu: "🍽️",
+      licores: "🥃",
+      vinos: "🍷",
+      bebidas: "🍹",
+    };
     return <span className="text-[16px] leading-none">{map[t.id] ?? "📄"}</span>;
   };
 
-  // Desktop rail tile
   const RailTile = ({ t }: { t: MenuTab }) => {
     const active = activeId === t.id;
     return (
@@ -234,25 +273,32 @@ export default function Farmpop({
         aria-selected={active}
         onClick={() => switchTab(t.id)}
         className={[
-          "group w-full rounded-xl transition-all text-left ring-1 ring-white/20",
+          "group w-full rounded-xl transition-all text-left",
+          "ring-1 ring-black/10",
           active
-            ? "bg-[var(--olivea-olive)] text-white shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
-            : "bg-white/50 text-[var(--olivea-ink)]/90 hover:bg-white/70",
+            ? "bg-(--olivea-olive) text-white shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
+            : "bg-white/55 text-(--olivea-ink)/90 hover:bg-white/70",
         ].join(" ")}
         style={{ height: 72 }}
       >
         <div className="h-full px-4 flex items-center gap-3">
-          <span className={["h-10 w-[3px] rounded-full", active ? "bg-white" : "bg-transparent group-hover:bg-black/20"].join(" ")} />
+          <span
+            className={[
+              "h-10 w-[3px] rounded-full",
+              active ? "bg-white" : "bg-transparent group-hover:bg-black/20",
+            ].join(" ")}
+          />
           <div className="flex items-center gap-2">
             <span aria-hidden>{tabGlyph(t)}</span>
-            <span className="text-[12.5px] uppercase tracking-[0.18em]">{t.label}</span>
+            <span className="text-[12.5px] uppercase tracking-[0.18em]">
+              {t.label}
+            </span>
           </div>
         </div>
       </button>
     );
   };
 
-  // Mobile chip
   const Chip = ({ t }: { t: MenuTab }) => {
     const active = activeId === t.id;
     return (
@@ -264,8 +310,8 @@ export default function Farmpop({
         className={[
           "shrink-0 inline-flex items-center text-[12px] uppercase tracking-[0.18em] pb-1",
           active
-            ? "text-[var(--olivea-olive)] border-b-2 border-[var(--olivea-olive)]"
-            : "text-[var(--olivea-ink)]/80 hover:text-[var(--olivea-olive)]",
+            ? "text-(--olivea-olive) border-b-2 border-(--olivea-olive)"
+            : "text-(--olivea-ink)/80 hover:text-(--olivea-olive)",
         ].join(" ")}
       >
         {t.label}
@@ -274,6 +320,228 @@ export default function Farmpop({
   };
 
   const headingId = "farmpop-title";
+
+  // ✅ Build modal once, then portal it to body
+  const modal = (
+    <AnimatePresence mode="wait" initial={false}>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            className={`fixed inset-0 z-19990 ${
+              isMobile ? "bg-black/40 backdrop-blur-sm" : "bg-black/40"
+            }`}
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.2 }}
+            onClick={closePopup}
+            aria-hidden
+          />
+
+          {/* Panel container */}
+          <motion.div
+            className={`fixed inset-0 z-20000 flex ${
+              isMobile
+                ? "items-start justify-center"
+                : "items-center justify-center p-4"
+            }`}
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={transition}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={headingId}
+          >
+            {/* Panel */}
+            <motion.div
+              className={[
+                isMobile
+                  ? "w-full h-[90dvh] rounded-b-2xl overflow-hidden border-b border-black/10"
+                  : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl overflow-hidden border border-black/10",
+                "bg-(--olivea-cream)",
+                "shadow-[0_20px_60px_-10px_rgba(0,0,0,0.35)] flex flex-col",
+              ].join(" ")}
+              onClick={(e) => e.stopPropagation()}
+              {...mobileDragProps}
+            >
+              <motion.div
+                className="flex h-full w-full flex-col"
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={contentTransition}
+              >
+                {/* Desktop header */}
+                {!isMobile && (
+                  <div className="relative flex items-center px-6 py-4 shrink-0 border-b border-black/10 bg-(--olivea-cream)">
+                    <h2
+                      id={headingId}
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
+                      style={{
+                        fontFamily: "var(--font-serif)",
+                        fontSize: 28,
+                        fontWeight: 200,
+                      }}
+                    >
+                      {title}
+                    </h2>
+                    <button
+                      onClick={closePopup}
+                      aria-label="Cerrar"
+                      className="ml-auto p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                )}
+
+                {/* CONTENT */}
+                <div className="flex-1 min-h-0 flex">
+                  {/* Desktop left rail */}
+                  {!isMobile && tabList.length >= 2 && (
+                    <aside
+                      className="hidden md:flex flex-col shrink-0 w-[260px] bg-(--olivea-cream) border-r border-black/10 px-4 py-4 gap-3"
+                      role="tablist"
+                      aria-orientation="vertical"
+                    >
+                      {tabList.map((t) => (
+                        <RailTile key={t.id} t={t} />
+                      ))}
+                      <div className="flex-1" />
+                    </aside>
+                  )}
+
+                  {/* Right: keep-alive panes with wrapper cross-fade */}
+                  <div
+                    className="relative flex-1 min-h-0 bg-(--olivea-cream)"
+                    style={{
+                      contain: "layout paint size",
+                      transform: "translateZ(0)",
+                      backfaceVisibility: "hidden",
+                    }}
+                  >
+                    {preloaded &&
+                      tabList.map((t) => {
+                        const isActive = t.id === activeId;
+                        const isPrev = t.id === prevId;
+
+                        const wrapperStyle: React.CSSProperties = {
+                          opacity: isActive ? 1 : 0,
+                          visibility: "visible",
+                          transition: FADE_MS
+                            ? `opacity ${FADE_MS}ms cubic-bezier(.22,1,.36,1)`
+                            : undefined,
+                          willChange: "opacity",
+                          contain: "layout paint size",
+                          transform: "translateZ(0)",
+                          backfaceVisibility: "hidden",
+                          pointerEvents: isActive ? "auto" : "none",
+                          zIndex: isActive ? 20 : isPrev ? 10 : 0,
+                        };
+
+                        return (
+                          <div
+                            key={t.id}
+                            className="absolute inset-0"
+                            style={wrapperStyle}
+                            onTransitionEnd={isPrev ? handleFadeOutEnd : undefined}
+                            aria-hidden={!isActive}
+                          >
+                            <iframe
+                              src={t.url}
+                              title={`Menú: ${t.label}`}
+                              className="absolute inset-0 w-full h-full block"
+                              style={{
+                                border: 0,
+                                transform: "translateZ(0)",
+                                backfaceVisibility: "hidden",
+                              }}
+                              loading="eager"
+                              referrerPolicy="strict-origin-when-cross-origin"
+                              allow="fullscreen"
+                              allowFullScreen
+                              tabIndex={isActive ? 0 : -1}
+                            />
+                          </div>
+                        );
+                      })}
+
+                    {/* First open fallback before preloaded */}
+                    {!preloaded && tabList.length > 0 && (
+                      <div className="absolute inset-0" style={{ opacity: 1 }}>
+                        <iframe
+                          src={
+                            tabList.find((t) => t.id === activeId)?.url ||
+                            tabList[0].url
+                          }
+                          title="Menú en vivo"
+                          className="absolute inset-0 w-full h-full block"
+                          style={{
+                            border: 0,
+                            transform: "translateZ(0)",
+                            backfaceVisibility: "hidden",
+                          }}
+                          loading="eager"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allow="fullscreen"
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* MOBILE bottom bar */}
+                {isMobile && tabList.length >= 2 && (
+                  <div
+                    className="relative flex items-center gap-2 px-2 py-2 shrink-0 cursor-grab active:cursor-grabbing border-t border-black/10 bg-white/45"
+                    style={{ touchAction: "none" }}
+                    onPointerDown={(e: React.PointerEvent<HTMLDivElement>) => {
+                      const el = e.target as HTMLElement;
+                      if (el.closest('[data-no-drag="true"]')) return;
+                      dragControls.start(e.nativeEvent);
+                    }}
+                  >
+                    <button
+                      data-no-drag="true"
+                      onClick={closePopup}
+                      aria-label="Cerrar"
+                      className="p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+
+                    <div
+                      data-no-drag="true"
+                      className="flex-1 overflow-x-auto no-scrollbar"
+                    >
+                      <div
+                        className="flex items-center gap-6 px-2"
+                        role="tablist"
+                        aria-orientation="horizontal"
+                      >
+                        {tabList.map((t) => (
+                          <Chip key={t.id} t={t} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <span className="absolute left-1/2 -translate-x-1/2 -top-2 h-1.5 w-12 rounded-full bg-black/15" />
+                    <span className="w-9" />
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <>
@@ -294,207 +562,8 @@ export default function Farmpop({
         </button>
       )}
 
-      <AnimatePresence mode="wait" initial={false}>
-        {open && (
-          <>
-            {/* Backdrop — no blur on desktop */}
-            <motion.div
-              className={`fixed inset-0 z-[1200] ${isMobile ? "bg-black/40 backdrop-blur-sm" : "bg-black/40"}`}
-              variants={backdropVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: 0.2 }}
-              onClick={closePopup}
-              aria-hidden
-            />
-
-            {/* Panel container */}
-            <motion.div
-              className={`fixed inset-0 z-[1300] flex ${isMobile ? "items-start justify-center" : "items-center justify-center p-4"}`}
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={transition}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby={headingId}
-            >
-              {/* Panel */}
-              <motion.div
-                className={
-                  (isMobile
-                    ? "w-full h-[90dvh] rounded-b-2xl overflow-hidden border-b border-white/10 "
-                    : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl overflow-hidden border border-white/10 "
-                  ) +
-                  // desktop: no backdrop-blur (smoother with iframes), mobile keeps it
-                  (isMobile ? "bg-[color:var(--olivea-cream)]/90 backdrop-blur-md " : "bg-[color:var(--olivea-cream)]/96 ") +
-                  "shadow-[0_20px_60px_-10px_rgba(0,0,0,0.35)] flex flex-col"
-                }
-                onClick={(e) => e.stopPropagation()}
-                {...mobileDragProps} // drag only on mobile
-              >
-                <motion.div
-                  className="flex h-full w-full flex-col"
-                  variants={contentVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  transition={contentTransition}
-                >
-                  {/* Desktop header */}
-                  {!isMobile && (
-                    <div className="relative flex items-center px-6 py-4 border-b border-white/20 flex-shrink-0">
-                      <h2
-                        id={headingId}
-                        className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
-                        style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 200 }}
-                      >
-                        {title}
-                      </h2>
-                      <button
-                        onClick={closePopup}
-                        aria-label="Cerrar"
-                        className="ml-auto p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-                  )}
-
-                  {/* CONTENT */}
-                  <div className="flex-1 min-h-0 flex">
-                    {/* Desktop left rail */}
-                    {!isMobile && tabList.length >= 2 && (
-                      <aside
-                        className="hidden md:flex flex-col shrink-0 w-[260px] bg-[color:var(--olivea-cream)]/96 border-r border-white/20 px-4 py-4 gap-3"
-                        role="tablist"
-                        aria-orientation="vertical"
-                      >
-                        {tabList.map((t) => (
-                          <RailTile key={t.id} t={t} />
-                        ))}
-                        <div className="flex-1" />
-                      </aside>
-                    )}
-
-                    {/* Right: keep-alive panes with wrapper-based cross-fade (no direct iframe animation) */}
-                    <div
-                      className="relative flex-1 min-h-0 bg-[color:var(--olivea-cream)]"
-                      style={{
-                        contain: "layout paint size",
-                        transform: "translateZ(0)",
-                        backfaceVisibility: "hidden",
-                      }}
-                    >
-                      {preloaded &&
-                        tabList.map((t) => {
-                          const isActive = t.id === activeId;
-                          const isPrev   = t.id === prevId;
-                        
-                          // IMPORTANT: keep *visible* always; we only toggle opacity + pointer-events + z-index
-                          const wrapperStyle: React.CSSProperties = {
-                            opacity: isActive ? 1 : 0,
-                            // keep visible so the browser doesn’t “tear down” the frame
-                            visibility: "visible",
-                            // smooth cross-fade, no Tailwind dynamic class needed
-                            transition: FADE_MS
-                              ? `opacity ${FADE_MS}ms cubic-bezier(.22,1,.36,1)`
-                              : undefined,
-                            willChange: "opacity",
-                            contain: "layout paint size",
-                            transform: "translateZ(0)",
-                            backfaceVisibility: "hidden",
-                            // interaction/z-order control
-                            pointerEvents: isActive ? "auto" : "none",
-                            zIndex: isActive ? 20 : isPrev ? 10 : 0,
-                          };
-                        
-                          return (
-                            <div
-                              key={t.id}
-                              className="absolute inset-0"
-                              style={wrapperStyle}
-                              onTransitionEnd={isPrev ? handleFadeOutEnd : undefined}
-                              aria-hidden={!isActive}
-                            >
-                              <iframe
-                                src={t.url}
-                                title={`Menú: ${t.label}`}
-                                className="absolute inset-0 w-full h-full block"
-                                style={{
-                                  border: 0,
-                                  transform: "translateZ(0)",
-                                  backfaceVisibility: "hidden",
-                                }}
-                                // CRUCIAL: once preloaded, make all eager so the browser keeps them alive
-                                loading="eager"
-                                referrerPolicy="strict-origin-when-cross-origin"
-                                allow="fullscreen"
-                                allowFullScreen
-                                tabIndex={isActive ? 0 : -1}
-                              />
-                            </div>
-                          );
-                        })}
-
-                      {/* First open fallback before preloaded */}
-                      {!preloaded && tabList.length > 0 && (
-                        <div className="absolute inset-0" style={{ opacity: 1 }}>
-                          <iframe
-                            src={tabList.find((t) => t.id === activeId)?.url || tabList[0].url}
-                            title="Menú en vivo"
-                            className="absolute inset-0 w-full h-full block"
-                            style={{ border: 0, transform: "translateZ(0)", backfaceVisibility: "hidden" }}
-                            loading="eager"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allow="fullscreen"
-                            allowFullScreen
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* MOBILE bottom bar */}
-                  {isMobile && tabList.length >= 2 && (
-                    <div
-                      className="relative flex items-center gap-2 px-2 py-2 border-t border-white/20 flex-shrink-0 cursor-grab active:cursor-grabbing bg-white/40"
-                      style={{ touchAction: "none" }}
-                      onPointerDown={(e: React.PointerEvent<HTMLDivElement>) => {
-                        const t = e.target as HTMLElement;
-                        if (t.closest('[data-no-drag="true"]')) return;
-                        dragControls.start(e.nativeEvent);
-                      }}
-                    >
-                      <button
-                        data-no-drag="true"
-                        onClick={closePopup}
-                        aria-label="Cerrar"
-                        className="p-2 rounded-full hover:bg-[var(--olivea-olive)] hover:text-[var(--olivea-cream)] transition-colors"
-                      >
-                        <X size={18} />
-                      </button>
-
-                      <div data-no-drag="true" className="flex-1 overflow-x-auto no-scrollbar">
-                        <div className="flex items-center gap-6 px-2" role="tablist" aria-orientation="horizontal">
-                          {tabList.map((t) => (
-                            <Chip key={t.id} t={t} />
-                          ))}
-                        </div>
-                      </div>
-
-                      <span className="absolute left-1/2 -translate-x-1/2 -top-2 h-1.5 w-12 rounded-full bg-black/15" />
-                      <span className="w-9" />
-                    </div>
-                  )}
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* ✅ Portal ensures it overlays navbar regardless of stacking contexts */}
+      {mounted && createPortal(modal, document.body)}
     </>
   );
 }
