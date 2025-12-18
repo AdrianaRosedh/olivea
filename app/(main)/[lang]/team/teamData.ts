@@ -82,8 +82,8 @@ export const TEAM: LeaderProfile[] = [
   },
 
   {
-    id: "tbh",
-    name: "TBH",
+    id: "daniel",
+    name: "Daniel",
     role: { es: "Chef Ejecutivo · Co-Owner", en: "Executive Chef · Co-Owner" },
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Cocina", en: "Culinary" },

@@ -225,7 +225,6 @@ function AutoSlideGalleryHorizontalVariableWidth({
   const x = useMotionValue(0);
   const [hovered, setHovered] = useState(false);
   const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
-
   const [ratios, setRatios] = useState<Record<string, number>>({});
 
   const [pausedUntil, setPausedUntil] = useState(0);
@@ -341,10 +340,7 @@ export default function TeamClient({
   const leadersRaw: Leader[] = useMemo(() => TEAM, []);
 
   const leadersSorted = useMemo(
-    () =>
-      [...leadersRaw].sort(
-        (a, b) => (a.priority ?? 999) - (b.priority ?? 999)
-      ),
+    () => [...leadersRaw].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999)),
     [leadersRaw]
   );
 
@@ -360,12 +356,21 @@ export default function TeamClient({
   // IMPORTANT: look up active leader from full list (not filtered list)
   const active = leadersSorted.find((l) => l.id === openId) ?? null;
 
-  const modalImages =
-    active?.gallery?.length
-      ? active.gallery
-      : active?.avatar
-        ? [active.avatar]
-        : ["/images/team/persona.jpg"];
+  // ✅ FIX: Always give the galleries at least 3 items so autoplay works again.
+  const modalImages = useMemo(() => {
+    const base =
+      active?.gallery?.length
+        ? active.gallery
+        : active?.avatar
+          ? [active.avatar]
+          : ["/images/team/persona.jpg"];
+
+    const first = base[0] ?? "/images/team/persona.jpg";
+
+    if (base.length >= 3) return base;
+    if (base.length === 2) return [base[0], base[1], `${base[0]}?dup=1`];
+    return [first, `${first}?dup=1`, `${first}?dup=2`];
+  }, [active]);
 
   const isOpen = !!active;
 
@@ -384,32 +389,26 @@ export default function TeamClient({
     if (isOpen) setPresent(true);
   }, [isOpen]);
 
-
-
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const close = () => setOpenId(null);
 
   const goToProfile = () => {
     if (!active) return;
     close();
-    // short link: /es/maro (your Linktree page)
     router.push(`/${lang}/${active.id}`);
   };
 
   const bioFallback =
-    lang === "es"
-      ? "Historia en desarrollo — pronto."
-      : "Story in progress — coming soon.";
+    lang === "es" ? "Historia en desarrollo — pronto." : "Story in progress — coming soon.";
 
   const label = (c: Category) => {
-    if (c === "all") return lang === "es" ? "Olivea" : "Olivea";
+    if (c === "all") return "Olivea";
     if (c === "hotel") return "Hotel";
     if (c === "restaurant") return lang === "es" ? "Restaurante" : "Restaurant";
     return lang === "es" ? "Café" : "Cafe";
   };
 
-  const FULL_BLEED =
-    "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
+  const FULL_BLEED = "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
   const PAGE_PAD = "px-6 sm:px-10 md:px-12 lg:px-12";
   const RAIL = "max-w-[1400px]";
 
@@ -457,11 +456,7 @@ export default function TeamClient({
                           <motion.p
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              duration: 0.6,
-                              ease: EASE,
-                              delay: 0.05,
-                            }}
+                            transition={{ duration: 0.6, ease: EASE, delay: 0.05 }}
                             className="text-(--olivea-ink)/60 text-[12px] tracking-[0.32em] uppercase"
                           >
                             {lang === "es" ? "Equipo" : "Team"}
@@ -470,11 +465,7 @@ export default function TeamClient({
                           <motion.h1
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              duration: 0.6,
-                              ease: EASE,
-                              delay: 0.08,
-                            }}
+                            transition={{ duration: 0.6, ease: EASE, delay: 0.08 }}
                             className="mt-1 text-(--olivea-ink) text-3xl md:text-4xl font-semibold leading-[1.05]"
                             style={{ fontFamily: "var(--font-serif)" }}
                           >
@@ -484,11 +475,7 @@ export default function TeamClient({
                           <motion.p
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              duration: 0.6,
-                              ease: EASE,
-                              delay: 0.11,
-                            }}
+                            transition={{ duration: 0.6, ease: EASE, delay: 0.11 }}
                             className="mt-2 text-(--olivea-ink)/70 text-base md:text-lg leading-snug"
                           >
                             {team.description}
@@ -507,26 +494,24 @@ export default function TeamClient({
                   transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
                 >
                   <div className="mt-4 flex flex-wrap gap-2 bg-transparent p-0 ring-0">
-                    {(["all", "hotel", "restaurant", "cafe"] as Category[]).map(
-                      (c) => {
-                        const on = category === c;
-                        return (
-                          <button
-                            key={c}
-                            type="button"
-                            onClick={() => setCategory(c)}
-                            className={[
-                              "inline-flex items-center rounded-full px-4 py-2 text-sm transition",
-                              on
-                                ? "bg-(--olivea-olive) text-(--olivea-cream)"
-                                : "bg-transparent text-(--olivea-ink)/70 ring-1 ring-(--olivea-ink)/20 hover:ring-(--olivea-ink)/35 hover:text-(--olivea-ink)",
-                            ].join(" ")}
-                          >
-                            {label(c)}
-                          </button>
-                        );
-                      }
-                    )}
+                    {(["all", "hotel", "restaurant", "cafe"] as Category[]).map((c) => {
+                      const on = category === c;
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setCategory(c)}
+                          className={[
+                            "inline-flex items-center rounded-full px-4 py-2 text-sm transition",
+                            on
+                              ? "bg-(--olivea-olive) text-(--olivea-cream)"
+                              : "bg-transparent text-(--olivea-ink)/70 ring-1 ring-(--olivea-ink)/20 hover:ring-(--olivea-ink)/35 hover:text-(--olivea-ink)",
+                          ].join(" ")}
+                        >
+                          {label(c)}
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               </div>
@@ -554,26 +539,24 @@ export default function TeamClient({
 
               <div className="mt-3 w-full overflow-x-auto no-scrollbar">
                 <div className="flex w-full gap-2">
-                  {(["all", "hotel", "restaurant", "cafe"] as Category[]).map(
-                    (c) => {
-                      const on = category === c;
-                      return (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setCategory(c)}
-                          className={[
-                            "shrink-0 rounded-full px-4 py-2 text-sm ring-1 transition",
-                            on
-                              ? "bg-(--olivea-olive) text-(--olivea-cream) ring-black/10"
-                              : "bg-(--olivea-cream)/80 text-(--olivea-ink)/70 ring-black/10",
-                          ].join(" ")}
-                        >
-                          {label(c)}
-                        </button>
-                      );
-                    }
-                  )}
+                  {(["all", "hotel", "restaurant", "cafe"] as Category[]).map((c) => {
+                    const on = category === c;
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setCategory(c)}
+                        className={[
+                          "shrink-0 rounded-full px-4 py-2 text-sm ring-1 transition",
+                          on
+                            ? "bg-(--olivea-olive) text-(--olivea-cream) ring-black/10"
+                            : "bg-(--olivea-cream)/80 text-(--olivea-ink)/70 ring-black/10",
+                        ].join(" ")}
+                      >
+                        {label(c)}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -698,7 +681,8 @@ export default function TeamClient({
                 >
                   <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
                     <div className="grid h-full grid-cols-1 lg:grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
-                      <div className="hidden lg:block row-span-2 pl-6 pr-3 border-r border-(--olivea-olive)/15">
+                      {/* ✅ FIX: remove the border that looked like a random line */}
+                      <div className="hidden lg:block row-span-2 pl-6 pr-3">
                         <AutoSlideGalleryVerticalVariableHeight
                           images={modalImages.slice(0, 12)}
                           width={260}
@@ -764,7 +748,7 @@ export default function TeamClient({
                           {t(active.bio) || bioFallback}
                         </p>
 
-                        {/* NEW: Linktree CTA */}
+                        {/* Linktree CTA */}
                         <div className="mt-7">
                           <button
                             type="button"
