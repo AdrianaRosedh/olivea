@@ -138,11 +138,11 @@ export default function Footer({ dict }: FooterProps) {
   ];
 
   return (
-    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-[200] bg-transparent backdrop-blur-md text-[12px] text-[var(--olivea-ink)] font-light tracking-wide pointer-events-auto isolate">
+    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-200 bg-transparent backdrop-blur-md text-[12px] text-(--olivea-ink) font-light tracking-wide pointer-events-auto isolate">
       <div className="w-full flex justify-between items-center px-2 sm:px-3 py-2">
         {/* Left */}
         <div className="flex-1 whitespace-nowrap">
-          <span className="cursor-default transition-colors hover:text-[var(--olivea-clay)]">
+          <span className="cursor-default transition-colors hover:text-(--olivea-clay)">
             © {new Date().getFullYear()} Casa Olivea AC. {rightsText}
           </span>
         </div>
@@ -154,13 +154,13 @@ export default function Footer({ dict }: FooterProps) {
         <div className="flex-1 flex items-center justify-end gap-4 relative" ref={dropdownRef}>
           <Link
             href={`/${lang}/carreras`}
-            className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100"
+            className="transition-colors opacity-80 hover:text-(--olivea-clay) hover:opacity-100"
           >
             {dict.footer.careers}
           </Link>
           <Link
             href={`/${lang}/legal`}
-            className="transition-colors opacity-80 hover:text-[var(--olivea-clay)] hover:opacity-100"
+            className="transition-colors opacity-80 hover:text-(--olivea-clay) hover:opacity-100"
           >
             {dict.footer.legal}
           </Link>
@@ -181,7 +181,7 @@ export default function Footer({ dict }: FooterProps) {
               }}
               aria-haspopup="menu"
               aria-expanded={open}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-[var(--olivea-clay)] hover:text-white"
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-(--olivea-clay) hover:text-white"
             >
               <GlobeIcon className="w-4 h-4 text-current transition-colors" />
               {lang.toUpperCase()}
@@ -194,19 +194,19 @@ export default function Footer({ dict }: FooterProps) {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="absolute bottom-full mb-2 right-0 bg-[#e7eae1] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-[500] w-32 pointer-events-auto"
+                  className="absolute bottom-full mb-2 right-0 bg-[#e7eae1] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-500 w-32 pointer-events-auto"
                 >
                   <button
                     type="button"
                     onClick={() => switchLocale("en")}
-                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
+                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-(--olivea-clay) hover:text-white"
                   >
                     🇺🇸 English
                   </button>
                   <button
                     type="button"
                     onClick={() => switchLocale("es")}
-                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--olivea-clay)] hover:text-white"
+                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-(--olivea-clay) hover:text-white"
                   >
                     🇲🇽 Español
                   </button>
@@ -245,7 +245,7 @@ function FooterSocialIcon({ item }: { item: SocialItem }) {
       initial="rest"
       whileHover="hover"
       animate="rest"
-      className="flex items-center justify-center text-[var(--olivea-olive)] opacity-85 hover:opacity-100 transition-[opacity,transform]"
+      className="flex items-center justify-center text-(--olivea-olive) opacity-85 hover:opacity-100 transition-[opacity,transform]"
       style={{ width: CELL_W, height: CELL_H }}
     >
       <motion.span

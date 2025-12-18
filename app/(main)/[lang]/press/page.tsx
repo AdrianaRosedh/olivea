@@ -1,4 +1,4 @@
-// app/[lang]/mesadelvalle/page.tsx
+// app/[lang]/press/page.tsx
 import type { Metadata, Viewport } from "next"
 import { getDictionary, type Lang } from "../dictionaries"
 
@@ -21,8 +21,8 @@ export async function generateMetadata({
   const dict = await getDictionary(lang)
 
   return {
-    title:       `${dict.mesadelvalle.title} | Olivea`,
-    description: dict.mesadelvalle.description.join(" "),
+    title:       `${dict.press.title} | Olivea`,
+    description: dict.press.description.join(" "),
   }
 }
 
@@ -49,9 +49,9 @@ export default async function LegalPage({
 
   return (
     <main className="p-10">
-      <h1 className="text-3xl font-semibold">{dict.mesadelvalle.title}</h1>
+      <h1 className="text-3xl font-semibold">{dict.press.title}</h1>
       <p className="mt-2 text-muted-foreground">
-        {dict.mesadelvalle.description}
+        {dict.press.description}
       </p>
     </main>
   )

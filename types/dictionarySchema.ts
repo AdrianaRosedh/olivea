@@ -17,7 +17,7 @@ const pageWithMeta = (shape: Record<string, z.ZodTypeAny>) =>
 export const dictionarySchema = z.object({
   /* ---------------- STATIC / CORE PAGES ---------------- */
 
-  about: pageWithMeta({
+  team: pageWithMeta({
     title: z.string(),
     description: z.string(),
   }),
@@ -38,7 +38,7 @@ export const dictionarySchema = z.object({
     description: z.string(),
   }),
 
-  mesadelvalle: pageWithMeta({
+  press: pageWithMeta({
     title: z.string(),
     tagline: z.string(),
     description: z.array(z.string()),

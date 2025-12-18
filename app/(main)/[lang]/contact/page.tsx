@@ -164,7 +164,7 @@ export default async function ContactPage({ params }: PageProps) {
               </div>
 
               <aside className="relative">
-                <div className="relative overflow-hidden rounded-3xl bg-[var(--olivea-mist)]/80 ring-1 ring-black/5 shadow-[0_12px_36px_rgba(0,0,0,0.06)]">
+                <div className="relative overflow-hidden rounded-3xl bg-(--olivea-mist)/80 ring-1 ring-black/5 shadow-[0_12px_36px_rgba(0,0,0,0.06)]">
                   <div className="relative h-[340px] sm:h-[420px] lg:h-[min(700px,calc(100vh-210px))] min-h-[560px]">
                     <iframe
                       className="absolute inset-0 h-full w-full"

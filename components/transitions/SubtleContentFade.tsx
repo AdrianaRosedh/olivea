@@ -45,9 +45,13 @@ function isSamePage(nextHref: string) {
 export default function MainFadeRouter({
   children,
   duration = 0.6,
+  fadeInDuration,
+  fadeOutDuration,
 }: {
   children: React.ReactNode;
   duration?: number;
+  fadeInDuration?: number;  // ✅ optional override
+  fadeOutDuration?: number; // ✅ optional override
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -57,25 +61,29 @@ export default function MainFadeRouter({
   const pendingHrefRef = useRef<string | null>(null);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
+  const outDur = fadeOutDuration ?? duration;
+  const inDur = fadeInDuration ?? duration * 1.35;
+
   // Ensure we start visible
   useEffect(() => {
     controls.set({ opacity: 1 });
   }, [controls]);
 
-  // When the route actually changes, fade back in
+  // When the route actually changes, fade back in (slower/smoother)
   useEffect(() => {
     if (!pendingHrefRef.current) return;
 
     controls.start({
       opacity: 1,
       transition: {
-        duration: reduce ? 0 : duration,
-        ease: [0.4, 0.0, 0.2, 1],
+        duration: reduce ? 0 : inDur,
+        // slightly smoother than the fade-out ease
+        ease: [0.22, 1, 0.36, 1],
       },
     });
 
     pendingHrefRef.current = null;
-  }, [pathname, controls, duration, reduce]);
+  }, [pathname, controls, inDur, reduce]);
 
   // Global link interception
   useEffect(() => {
@@ -98,12 +106,9 @@ export default function MainFadeRouter({
       // ✅ SAME PAGE → no fade
       if (isSamePage(href)) {
         const next = new URL(href, window.location.href);
-
-        // allow hash navigation without fade
         if (next.hash && next.hash !== window.location.hash) {
           window.location.hash = next.hash;
         }
-
         return;
       }
 
@@ -114,11 +119,11 @@ export default function MainFadeRouter({
       setIsFadingOut(true);
       pendingHrefRef.current = href;
 
-      // Fade out
+      // Fade out (keep snappy)
       await controls.start({
         opacity: 0,
         transition: {
-          duration,
+          duration: outDur,
           ease: [0.4, 0.0, 0.2, 1],
         },
       });
@@ -130,7 +135,7 @@ export default function MainFadeRouter({
 
     document.addEventListener("click", onClick, true); // capture phase
     return () => document.removeEventListener("click", onClick, true);
-  }, [router, controls, duration, reduce, isFadingOut]);
+  }, [router, controls, outDur, reduce, isFadingOut]);
 
   return (
     <motion.div style={{ willChange: "opacity" }} animate={controls}>

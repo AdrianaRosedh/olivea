@@ -1,9 +1,9 @@
 {
-  "about": {
-    "title": "About OLIVEA",
+  "team": {
+    "title": "Team",
     "description": "Farm-to-table hospitality in Valle de Guadalupe—our story, philosophy, and the people behind the vision.",
     "meta": {
-      "title": "About Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
+      "title": "Team Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
       "description": "Learn how Olivea brings the Valley’s light, soil and producers to the table—our team, values and design approach in Ensenada, Baja California.",
       "keywords": [
         "Olivea",
@@ -147,8 +147,8 @@
       "ogImage": "/images/seo/legal-og.jpg"
     }
   },
-  "mesadelvalle": {
-    "title": "Mesa del Valle",
+  "press": {
+    "title": "Press",
     "tagline": "A collective platform uniting the leading voices in gastronomy, wine, and hospitality across Valle de Guadalupe and Ensenada.",
     "description": [
       "Born from a shared desire to elevate the region’s identity, Mesa del Valle brings together chefs, winemakers, hoteliers, and artisans to tell a unified story of excellence, sustainability, and cultural pride.",
@@ -156,14 +156,14 @@
       "The table is set. The future is shared."
     ],
     "meta": {
-      "title": "Mesa del Valle | A Collective from Valle de Guadalupe",
+      "title": "Press | OLIVEA",
       "description": "Chefs, winemakers, hoteliers and artisans shaping the region’s identity—press, collaborations and shared events.",
       "keywords": [
-        "Mesa del Valle",
+        "Press",
         "collective",
-        "press",
+        "achievements",
         "Valle de Guadalupe",
-        "wine",
+        "awards",
         "gastronomy"
       ],
       "ogImage": "/images/seo/mesa-og.jpg"

@@ -8,7 +8,7 @@ import DockLeft from "@/components/navigation/DockLeft";
 import DockRight from "@/components/navigation/DockRight";
 import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 import ClientOnly from "@/components/providers/ClientOnly";
-import { BookOpen, Leaf, Map, Users, Wine } from "lucide-react";
+import { BookOpen, Leaf, Map, Users, Award } from "lucide-react";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useLenis } from "@/components/providers/ScrollProvider";
 import { NavigationProvider } from "@/contexts/NavigationContext";
@@ -106,11 +106,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   // Desktop Dock-Right items (memo)
   const dockRightItems = useMemo<DockItem[]>(
     () => [
-      { id: "about",        href: `/${pathLang}/about`,        label: dictionary.about.title,          icon: <Users /> },
+      { id: "team",        href: `/${pathLang}/team`,        label: dictionary.team.title,          icon: <Users /> },
       { id: "journal",      href: `/${pathLang}/journal`,      label: dictionary.journal.title,        icon: <BookOpen /> },
       { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <Leaf /> },
       { id: "contact",      href: `/${pathLang}/contact`,      label: dictionary.contact.title,        icon: <Map /> },
-      { id: "mesadelvalle", href: `/${pathLang}/mesadelvalle`, label: dictionary.mesadelvalle.title,   icon: <Wine /> },
+      { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title,   icon: <Award /> },
     ],
     [pathLang, dictionary]
   );
@@ -145,7 +145,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   }, [section?.id, pathLang]);
 
 
-  // Only load chat on identity pages (avoid loading on /about, /journal, etc.)
+  // Only load chat on identity pages (avoid loading on /team, /journal, etc.)
   const wantsChat = !isHome && !!section;
 
   return (

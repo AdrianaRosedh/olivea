@@ -15,6 +15,7 @@ import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import { corm } from "@/app/fonts";
 import { buildCenterNavItems, reserveDefault } from "@/lib/sections";
+import { motion } from "framer-motion";
 
 interface CenterLinkProps {
   href: string;
@@ -36,23 +37,106 @@ function CenterLink({ href, label, isActive, onSameRouteClick }: CenterLinkProps
     if (isActive && onSameRouteClick) onSameRouteClick(e);
   };
 
+  // Olivea-native text colors (no black/white)
+  // - ink: main olive text when inactive
+  // - light: the light tint used on green (hover + active)
+  const ink = "rgba(94,118,88,0.78)"; // Olivea green as ink
+  const light = "rgba(231,234,225,0.96)"; // Olivea cream/light tint on green
+
   return (
     <Link
       href={href}
       ref={ref}
       onMouseMove={onMouseMove}
       onClick={onClick}
-      className={`relative px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap rounded-md
-                  flex items-center justify-center font-medium text-base uppercase font-sans tracking-wide
-                  ${isActive ? "active" : ""}`}
+      aria-current={isActive ? "page" : undefined}
+      className={[
+        "group relative",
+        "px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap",
+        "rounded-full",
+        "flex items-center justify-center",
+        "font-medium text-base uppercase font-sans tracking-wide",
+        "transition-colors",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10",
+      ].join(" ")}
     >
-      {label}
+      {/* Hover background wash (green) — only for inactive items */}
+      {!isActive ? (
+        <motion.span
+          aria-hidden
+          className="absolute inset-0 rounded-full"
+          initial={false}
+          animate={{ opacity: 0 }}
+          whileHover={{
+            opacity: 1,
+            transition: { duration: 0.42, ease: [0.16, 1, 0.3, 1] }, // slow, liquid in
+          }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} // faster out
+          style={{
+            background: "var(--olivea-olive)",
+
+          }}
+        />
+      ) : null}
+
+      {/* Active background (green) — stays on when on page */}
+      {isActive ? (
+        <motion.span
+          layoutId="olivea-center-active"
+          aria-hidden
+          className="absolute inset-0 rounded-full"
+          transition={{ type: "spring", stiffness: 520, damping: 46, mass: 0.7 }}
+          style={{
+            background: "var(--olivea-olive)",
+            boxShadow: "0 12px 26px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.18)",
+          }}
+        />
+      ) : null}
+
+      {/* Subtle hover sheen (works with both states) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{
+          background: "radial-gradient(240px circle at var(--hover-x, 50%) 50%, rgba(255,255,255,0.12), transparent 62%)",
+          mixBlendMode: "soft-light",
+        }}
+      />
+
+      {/* LABEL: two-layer text so hover/active can flip color without hardcoding black/white */}
+      <span className="relative z-10">
+        {/* Inactive ink */}
+        <span
+          className={[
+            "absolute inset-0 flex items-center justify-center",
+            "transition-opacity duration-200",
+            // hide ink when active or hovered (because bg turns green)
+            isActive ? "opacity-0" : "opacity-100 group-hover:opacity-0",
+          ].join(" ")}
+          style={{ color: ink }}
+        >
+          {label}
+        </span>
+
+        {/* Light tint for hover + active */}
+        <span
+          className={[
+            "flex items-center justify-center",
+            "transition-opacity duration-200",
+            // show on active, or when hovered
+            isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+          ].join(" ")}
+          style={{ color: light }}
+        >
+          {label}
+        </span>
+      </span>
     </Link>
   );
 }
 
 interface NavbarProps {
-  lang: "en" | "es"; // still passed by LayoutShell, but we'll override it from the URL
+  lang: "en" | "es";
   dictionary: AppDictionary;
 }
 
@@ -200,9 +284,9 @@ export default function Navbar({ lang: _langProp, dictionary }: NavbarProps) {
 
   /* Desktop UI */
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[50] bg-transparent">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
       <div className="relative w-full h-20 md:h-24 lg:h-28">
-        {/* Left: Logo */}
+        {/* Left: Logo (UNCHANGED) */}
         <Link
           href={homeHref}
           aria-label="Home"
@@ -214,37 +298,49 @@ export default function Navbar({ lang: _langProp, dictionary }: NavbarProps) {
           onClick={() => {
             clearTransition();
           }}
-          className="absolute left-4 md:left-8 lg:left-12 top-[1rem] md:top-[1.5rem] lg:top-[1.5rem] inline-flex items-center"
+          className="absolute left-4 md:left-8 lg:left-12 md:top-6 lg:top-6 inline-flex items-center"
         >
           <OliveaFTTLogo className="h-14 md:h-22 lg:h-40 w-auto transition-all duration-300" style={{ maxHeight: "16rem" }} />
         </Link>
 
-        {/* Center: 3 buttons */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-4 fill-nav">
-          {center.map((it) => (
-            <CenterLink
-              key={it.href}
-              href={it.href}
-              label={it.label}
-              isActive={it.isActive}
-              onSameRouteClick={handleSameRouteCenterClick}
-            />
-          ))}
+        {/* Center: 3 buttons (new design + original color behavior) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 fill-nav">
+          <div
+            className="relative inline-flex items-center gap-2 rounded-full p-2"
+            style={{
+              background: "rgba(231,234,225,0.92)",
+              border: "1px solid rgba(94,118,88,0.28)",
+              boxShadow:
+                "0 18px 40px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 0 0 1px rgba(0,0,0,0.03)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+            }}
+          >
+            {center.map((it) => (
+              <CenterLink
+                key={it.href}
+                href={it.href}
+                label={it.label}
+                isActive={it.isActive}
+                onSameRouteClick={handleSameRouteCenterClick}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Right: Reserve */}
+        {/* Right: Reserve (UNCHANGED) */}
         <div className="absolute right-4 md:right-8 lg:right-12 top-1/2 -translate-y-1/2">
           <MagneticButton
             onClick={handleReserve}
             data-reserve-intent
             aria-label={lang === "en" ? "Reserve" : "Reservar"}
-            className="bg-[var(--olivea-olive)] text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-[var(--olivea-clay)] transition-colors"
+            className="bg-(--olivea-olive) text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-(--olivea-clay) transition-colors"
           >
             <span
               className={[
                 corm.className,
                 "uppercase font-semibold leading-none",
-                "!tracking-[0.18em] [letter-spacing:0.18em]",
+                "tracking-[0.18em]!",
                 "text-[clamp(1.05rem,1.35vw,1.45rem)]",
               ].join(" ")}
               style={{ letterSpacing: "0.18em" }}

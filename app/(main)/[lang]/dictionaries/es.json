@@ -1,9 +1,9 @@
 {
-  "about": {
-    "title": "Sobre OLIVEA",
+  "team": {
+    "title": "Equipo",
     "description": "Nuestra historia, filosofía y las personas detrás de la visión.",
     "meta": {
-      "title": "Sobre OLIVEA",
+      "title": "Equipo OLIVEA",
       "description": "Cómo Olivea lleva la luz, la tierra y a los productores del Valle a la mesa: equipo, valores y diseño en Ensenada, Baja California.",
       "keywords": [
         "Olivea",
@@ -147,8 +147,8 @@
       "ogImage": "/images/seo/legal-og.jpg"
     }
   },
-  "mesadelvalle": {
-    "title": "Mesa del Valle",
+  "press": {
+    "title": "Prensa",
     "tagline": "Una plataforma colectiva que une a las voces de gastronomía, vino y hospitalidad del Valle de Guadalupe y Ensenada.",
     "description": [
       "Nacida del deseo compartido de elevar la identidad de la región, Mesa del Valle reúne a chefs, enólogos, hoteleros y artesanos para contar una historia unificada de excelencia, sostenibilidad y orgullo cultural.",
@@ -156,14 +156,14 @@
       "La mesa está puesta. El futuro se comparte."
     ],
     "meta": {
-      "title": "Mesa del Valle | Colectivo del Valle de Guadalupe",
+      "title": "Prensa | OLIVEA",
       "description": "Chefs, enólogos, hoteleros y artesanos que proyectan la identidad del Valle—prensa, colaboraciones y eventos compartidos.",
       "keywords": [
-        "Mesa del Valle",
+        "Prensa",
         "colectivo",
-        "prensa",
+        "logros",
         "Valle de Guadalupe",
-        "vino",
+        "premios",
         "gastronomía"
       ],
       "ogImage": "/images/seo/mesa-og.jpg"

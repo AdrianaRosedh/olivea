@@ -26,7 +26,7 @@ export default function DockRight({ items }: DockRightProps) {
     <motion.div
       onMouseMove={(e) => mouseY.set(e.clientY)}
       onMouseLeave={() => mouseY.set(Number.POSITIVE_INFINITY)}
-      className="fixed top-1/2 right-6 -translate-y-1/2 z-[60] flex flex-col gap-6 items-end"
+      className="fixed top-1/2 right-6 -translate-y-1/2 z-60 flex flex-col gap-6 items-end"
     >
       {items.map((item) => (
         <IconContainer
@@ -79,8 +79,8 @@ function IconContainer({
         className={cn(
           "flex items-center justify-center transition-colors",
           active
-            ? "bg-[var(--olivea-olive)] text-white"
-            : "bg-[var(--olivea-clay)] text-white hover:bg-[var(--olivea-olive)] hover:text-white"
+            ? "bg-(--olivea-olive) text-white"
+            : "bg-(--olivea-clay) text-white hover:bg-(--olivea-olive) hover:text-white"
         )}
       >
         <motion.div style={{ width: animatedIcon, height: animatedIcon }} className="flex items-center justify-center">
@@ -94,7 +94,7 @@ function IconContainer({
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 10, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="absolute right-full mr-3 px-4 py-2 text-sm rounded-lg backdrop-blur-sm shadow-md border border-[var(--olivea-olive)]/10 bg-[var(--olivea-white)] text-[var(--olivea-olive)] font-semibold whitespace-nowrap"
+              className="absolute right-full mr-3 px-4 py-2 text-sm rounded-lg backdrop-blur-sm shadow-md border border-(--olivea-olive)/10 bg-(--olivea-white) text-(--olivea-olive) font-semibold whitespace-nowrap"
             >
               {item.label}
             </motion.div>
