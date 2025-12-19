@@ -395,7 +395,7 @@ export default function TeamClient({
   const goToProfile = () => {
     if (!active) return;
     close();
-    router.push(`/${lang}/${active.id}`);
+    router.push(`/${lang}/team/${active.id}`);
   };
 
   const bioFallback =

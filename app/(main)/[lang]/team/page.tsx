@@ -5,23 +5,15 @@ import TeamClient, { type TeamDict } from "./TeamClient";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: string }>;
+  params: { lang: string };
 }): Promise<Metadata> {
-  const p = await params;
-  const { dict } = await loadLocale(p);
+  const { dict } = await loadLocale(params);
 
-  // narrow safely without `any`
   const maybeteam = (dict as { team?: unknown }).team;
 
   return {
-    title:
-      isTeamDict(maybeteam)
-        ? maybeteam.title
-        : "team — Olivea",
-    description:
-      isTeamDict(maybeteam)
-        ? maybeteam.description
-        : "",
+    title: isTeamDict(maybeteam) ? maybeteam.title : "Team — OLIVEA",
+    description: isTeamDict(maybeteam) ? maybeteam.description : "",
   };
 }
 
@@ -31,23 +23,20 @@ function isTeamDict(x: unknown): x is TeamDict {
   return typeof o.title === "string" && typeof o.description === "string";
 }
 
-export default async function teamPage({
+export default async function TeamPage({
   params,
 }: {
-  params: Promise<{ lang: string }>;
+  params: { lang: string };
 }) {
-  const p = await params;
-  const { dict } = await loadLocale(p);
+  const { dict } = await loadLocale(params);
 
-  const lang = p.lang === "en" ? "en" : "es";
-
-  // narrow once, pass cleanly to client
+  const lang: "en" | "es" = params.lang === "en" ? "en" : "es";
   const maybeteam = (dict as { team?: unknown }).team;
 
   const team: TeamDict = isTeamDict(maybeteam)
     ? maybeteam
     : {
-        title: lang === "es" ? "Acerca de OLIVEA" : "team OLIVEA",
+        title: lang === "es" ? "Equipo — OLIVEA" : "Team — OLIVEA",
         description: "",
       };
 
