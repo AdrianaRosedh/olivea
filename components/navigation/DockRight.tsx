@@ -138,8 +138,8 @@ function IconContainer({
           "flex items-center justify-center transition-colors outline-none border",
           "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/35 focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-white)",
           active
-            ? "bg-(--olivea-white) text-(--olivea-olive) border-(--olivea-olive)/20 shadow-sm"
-            : "bg-(--olivea-clay) text-white border-transparent hover:bg-(--olivea-olive) hover:text-white"
+            ? "bg-(--olivea-olive) text-(--olivea-cream) border-(--olivea-olive)/20 shadow-sm"
+            : "bg-(--olivea-clay) text-(--olivea-white) border-transparent hover:bg-(--olivea-olive) hover:text-(--olivea-white)"
         )}
       >
         <motion.div

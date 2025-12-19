@@ -125,7 +125,7 @@ export default function CardParallax({
       {/* MOVING LAYER */}
       <div
         ref={wrapRef}
-        className={["absolute -inset-[1px] will-change-transform", className]
+        className={["absolute -inset-1px will-change-transform", className]
           .filter(Boolean)
           .join(" ")}
         style={{ borderRadius: "inherit" }}

@@ -1,26 +1,38 @@
-// components/ui/DesktopChatButton.tsx
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MagneticButton from "@/components/ui/MagneticButton";
+import { cn } from "@/lib/utils";
 
 interface DesktopChatButtonProps {
   lang: "en" | "es";
-  /** Optional: CSS selector of the element to avoid (e.g., your language button). Defaults try common ones. */
   avoidSelector?: string;
+}
+
+function seededBlobRadius(seed: string) {
+  // deterministic organic radius (so it feels designed, not random each reload)
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  const rand = () => {
+    h = (h * 1664525 + 1013904223) >>> 0;
+    return 40 + (h % 21); // 40–60
+  };
+  const p = () => `${rand()}%`;
+  return `${p()} ${p()} ${p()} ${p()} / ${p()} ${p()} ${p()} ${p()}`;
 }
 
 export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatButtonProps) {
   const [chatAvailable, setChatAvailable] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const [extraBottom, setExtraBottom] = useState(0); // dynamic lift to avoid overlap
+  const [extraBottom, setExtraBottom] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  /** ------------------------------------------------------------------------
-   * Whistle host helpers (stable)
-   * --------------------------------------------------------------------- */
+  // stable, organic radius
+  const blobRadius = useMemo(() => seededBlobRadius("olivea-chat"), []);
+
+  /** Whistle helpers */
   const getWhistleHost = useCallback(
     () => document.getElementById("w-live-chat") as HTMLElement | null,
     []
@@ -37,25 +49,19 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     [getWhistleHost]
   );
 
-  // Make the widget click-through by default.
   useEffect(() => {
     setWhistleInteractive(false);
     return () => setWhistleInteractive(false);
   }, [setWhistleInteractive]);
 
-  // Heuristic: treat iframe as open only when it's a visible large panel.
-  const isWhistleOpen = useCallback(
-    (host: HTMLElement | null) => {
-      if (!host) return false;
-      const cs = getComputedStyle(host);
-      if (cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity || "1") < 0.05) return false;
-      const r = host.getBoundingClientRect();
-      return r.width >= 300 && r.height >= 300;
-    },
-    []
-  );
+  const isWhistleOpen = useCallback((host: HTMLElement | null) => {
+    if (!host) return false;
+    const cs = getComputedStyle(host);
+    if (cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity || "1") < 0.05) return false;
+    const r = host.getBoundingClientRect();
+    return r.width >= 300 && r.height >= 300;
+  }, []);
 
-  // Keep interactivity in sync with panel state (open vs. minimized/closed).
   useEffect(() => {
     const host = getWhistleHost();
     if (!host) return;
@@ -71,8 +77,8 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     if (h) ro.observe(h);
 
     const interval = setInterval(sync, 2000);
-
     sync();
+
     return () => {
       mo.disconnect();
       ro.disconnect();
@@ -80,9 +86,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     };
   }, [getWhistleHost, isWhistleOpen, setWhistleInteractive]);
 
-  /** ------------------------------------------------------------------------
-   * Availability (kept)
-   * --------------------------------------------------------------------- */
+  /** Availability */
   useEffect(() => {
     const updateAvailability = () => {
       const now = new Date().toLocaleString("en-US", { timeZone: "America/Tijuana", hour12: false });
@@ -95,18 +99,16 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     return () => clearInterval(interval);
   }, []);
 
-  /** ------------------------------------------------------------------------
-   * Dynamic offset to avoid overlapping with language button / whistle
-   * --------------------------------------------------------------------- */
+  /** Dynamic offset to avoid overlap */
   useEffect(() => {
     const candidates = [
       avoidSelector,
-      '[data-lang-switcher]',
-      '#lang-switcher',
-      '.lang-switcher',
-      '[data-whistle-launcher]',
-      '#whistle-widget',
-      '.whistle-launcher',
+      "[data-lang-switcher]",
+      "#lang-switcher",
+      ".lang-switcher",
+      "[data-whistle-launcher]",
+      "#whistle-widget",
+      ".whistle-launcher",
       '[data-widget="whistle"]',
     ].filter(Boolean) as string[];
 
@@ -116,7 +118,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
 
       const selfRect = host.getBoundingClientRect();
       const target =
-        candidates.map((sel) => document.querySelector<HTMLElement>(sel!))
+        candidates.map((sel) => document.querySelector<HTMLElement>(sel))
           .find((el) => el && el.offsetParent !== null) ?? null;
 
       if (!target) { setExtraBottom(0); return; }
@@ -126,7 +128,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
       const verticallyOverlaps   = tRect.top  < selfRect.bottom && tRect.bottom > selfRect.top;
 
       if (horizontallyOverlaps && verticallyOverlaps) {
-        const neededLift = Math.ceil(selfRect.bottom - tRect.top) + 12; // 12px breathing room
+        const neededLift = Math.ceil(selfRect.bottom - tRect.top) + 12;
         setExtraBottom((v) => Math.max(v, neededLift));
       } else {
         setExtraBottom(0);
@@ -142,7 +144,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     mo.observe(document.body, { childList: true, subtree: true });
 
     candidates.forEach((sel) => {
-      const n = document.querySelector<HTMLElement>(sel!);
+      const n = document.querySelector<HTMLElement>(sel);
       if (n) ro.observe(n);
     });
 
@@ -154,18 +156,14 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     };
   }, [avoidSelector]);
 
-  /** ------------------------------------------------------------------------
-   * Labels
-   * --------------------------------------------------------------------- */
+  /** Labels */
   const labels = {
     en: { available: "Live Chat — Available", unavailable: "Chat — Out of Office Hours", open: "Open Chat" },
     es: { available: "Chat en Vivo — Disponible", unavailable: "Chat — Fuera de Horario", open: "Abrir Chat" },
   };
   const currentLabel = chatAvailable ? labels[lang].available : labels[lang].unavailable;
 
-  /** ------------------------------------------------------------------------
-   * Click: open Whistle, then poll briefly to re-sync during animation
-   * --------------------------------------------------------------------- */
+  /** Click */
   const handleClick = () => {
     const globalToggle = document.getElementById("chatbot-toggle");
     setWhistleInteractive(true);
@@ -180,9 +178,9 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     requestAnimationFrame(tick);
   };
 
-  // Base position (matches your old bottom-20 right-6 on md+):
-  const BASE_BOTTOM = 80; // px (Tailwind bottom-20)
-  const BASE_RIGHT  = 24; // px (right-6)
+  // Position: higher + more right than your previous (and still safe-area aware)
+  const BASE_BOTTOM = 92; // a bit higher than 80
+  const BASE_RIGHT  = 32; // a bit more right than 24
 
   return (
     <div
@@ -198,39 +196,60 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-      <MagneticButton
-        // ✅ same lively motion as your Reserve buttons
-        preset="classic"            // dist=12, stiffness=200, damping=16, hoverScale=1.07
-        magnetDistancePx={12}       // you can tweak to 10/14 if you want
-        stiffness={200}
-        damping={16}
-        hoverScale={1.07}
-          
-        // accessibility + visuals
-        aria-label={labels[lang].open}
-        className="relative w-14 h-14 bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] rounded-[40%_60%_60%_40%] shadow-lg"
-          
-        onClick={handleClick}
-      >
-        {/* The whole payload (icon + status dot) now reacts with the same subtle tilt/scale */}
-        <MessageCircle className="w-7 h-7" />
-          
-        <span
-          className={`absolute top-[-4px] right-[-4px] block h-2.5 w-2.5 rounded-full ${
-            chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
-          }`}
-        />
-      </MagneticButton>
-        
+        <MagneticButton
+          preset="classic"
+          magnetDistancePx={12}
+          stiffness={200}
+          damping={16}
+          hoverScale={1.06}
+          aria-label={labels[lang].open}
+          onClick={handleClick}
+          className={cn(
+            "relative w-14 h-14 text-(--olivea-cream)",
+            // ✅ Olivea base + hover
+            "bg-(--olivea-olive) hover:bg-(--olivea-clay)",
+            // ✅ organic shape (deterministic)
+            "shadow-[0_18px_44px_-28px_rgba(0,0,0,0.6)]",
+            "transition-colors"
+          )}
+          style={{ borderRadius: blobRadius }}
+        >
+          <MessageCircle className="w-7 h-7" />
+
+          {/* Availability bulb: functional + visible */}
+          <span
+            aria-hidden="true"
+            className={cn(
+              "absolute block rounded-full shadow-sm",
+              // higher + more right (slightly outside the button like a pin)
+              "-top-1 -right-1",
+              "h-2.5 w-2.5",
+              "ring-1.5 ring-(--olivea-cream)",
+              chatAvailable
+                ? "bg-green-500 animate-pulse"
+                : "bg-red-500"
+            )}
+          />
+        </MagneticButton>
 
         <AnimatePresence mode="wait">
           {hovered && (
             <motion.div
-              initial={{ opacity: 0, x: 10, scale: 0.95 }}
+              initial={{ opacity: 0, x: 10, scale: 0.98 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 10, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-4 py-2 text-sm rounded-lg backdrop-blur-sm shadow-md border border-[var(--olivea-olive)]/10 bg-[var(--olivea-white)] text-[var(--olivea-olive)] font-semibold whitespace-nowrap"
+              exit={{ opacity: 0, x: 10, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="
+                pointer-events-none
+                absolute right-full mr-3 top-1/2 -translate-y-1/2
+                px-4 py-2 text-sm rounded-xl
+                backdrop-blur-sm
+                shadow-[0_18px_42px_-28px_rgba(0,0,0,0.55)]
+                border border-(--olivea-olive)/12
+                bg-(--olivea-white)/80
+                text-(--olivea-olive)
+                font-semibold whitespace-nowrap
+              "
             >
               {currentLabel}
             </motion.div>
