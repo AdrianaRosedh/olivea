@@ -1,0 +1,458 @@
+"use client";
+
+import Image from "next/image";
+import { useMemo } from "react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { ArrowLeft, Instagram, Youtube, Music2, Twitter, Facebook, Linkedin, Globe } from "lucide-react";
+
+import OliveaLogo from "@/assets/alebrije-1.svg";
+
+import type {
+  Lang,
+  LeaderProfile,
+  TeamLink,
+  I18nText,
+} from "@/app/(main)/[lang]/team/teamData";
+
+/* ---------------- helpers ---------------- */
+
+const t = (x: I18nText | undefined, lang: Lang) => (x ? x[lang] : "");
+const isExternal = (href: string) => /^https?:\/\//i.test(href);
+
+// Olivea tokens (safe defaults; keep using your CSS vars if you prefer)
+const TOK = {
+  cream: "#f1f1f1",
+  creamSoft: "rgba(241,241,241,0.72)",
+  glassBorder: "rgba(255,255,255,0.35)",
+};
+
+const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/* ---------------- motion variants (inspo-based) ---------------- */
+
+type MotionPack = {
+  container: Variants;
+  item: Variants;
+  avatar: Variants;
+  buttonsWrap: Variants;
+};
+
+function makeVariants(reduce: boolean): MotionPack {
+  const container: Variants = {
+    hidden: { opacity: 0, y: reduce ? 0 : 28, filter: reduce ? "none" : "blur(14px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        duration: reduce ? 0.1 : 0.75,
+        ease: easeOut,
+        when: "beforeChildren",
+        staggerChildren: reduce ? 0 : 0.07,
+        delayChildren: reduce ? 0 : 0.10,
+      },
+    },
+  };
+
+  const item: Variants = {
+    hidden: { opacity: 0, y: reduce ? 0 : 14, filter: reduce ? "none" : "blur(10px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduce ? 0.1 : 0.55, ease: easeOut },
+    },
+  };
+
+  const avatar: Variants = {
+    hidden: { opacity: 0, y: reduce ? 0 : 18, scale: reduce ? 1 : 0.93, filter: reduce ? "none" : "blur(12px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: { duration: reduce ? 0.1 : 0.75, ease: easeOut, delay: reduce ? 0 : 0.05 },
+    },
+  };
+
+  const buttonsWrap: Variants = {
+    hidden: {},
+    show: { transition: { staggerChildren: reduce ? 0 : 0.08 } },
+  };
+
+  return { container, item, avatar, buttonsWrap };
+}
+
+/* ---------------- avatar (organic + glass ring like inspo) ---------------- */
+
+const AVATAR_BLOB = "60% 40% 50% 50% / 50% 50% 40% 60%";
+
+function Avatar({ src, alt, reduce }: { src: string; alt: string; reduce: boolean }) {
+  return (
+    <div className="relative">
+      {/* glass ring */}
+      <motion.div
+        className="absolute -inset-2"
+        initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: reduce ? 0.1 : 0.55, ease: easeOut }}
+        style={{
+          borderRadius: AVATAR_BLOB,
+          background: "rgba(255,255,255,0.22)",
+          backdropFilter: "blur(14px) saturate(140%)",
+          WebkitBackdropFilter: "blur(14px) saturate(140%)",
+          border: "1px solid rgba(255,255,255,0.35)",
+          boxShadow: "0 18px 48px rgba(0,0,0,0.16)",
+        }}
+      />
+      {/* avatar image */}
+      <motion.div
+        className="relative h-28 w-28 overflow-hidden sm:h-32 sm:w-32"
+        initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: reduce ? 0.1 : 0.75, ease: easeOut, delay: reduce ? 0 : 0.05 }}
+        style={{ borderRadius: AVATAR_BLOB }}
+      >
+        <Image src={src} alt={alt} fill priority sizes="128px" className="object-cover" />
+      </motion.div>
+    </div>
+  );
+}
+
+/* ---------------- socials (icon row like inspo) ---------------- */
+
+type SocialKind = "instagram" | "tiktok" | "youtube" | "x" | "facebook" | "linkedin" | "website";
+
+function detectSocial(href: string): SocialKind | null {
+  const h = href.toLowerCase();
+  if (h.includes("instagram.com")) return "instagram";
+  if (h.includes("tiktok.com")) return "tiktok";
+  if (h.includes("youtube.com") || h.includes("youtu.be")) return "youtube";
+  if (h.includes("x.com") || h.includes("twitter.com")) return "x";
+  if (h.includes("facebook.com")) return "facebook";
+  if (h.includes("linkedin.com")) return "linkedin";
+  if (h.startsWith("http")) return "website";
+  return null;
+}
+
+function SocialIcon({ kind }: { kind: SocialKind }) {
+  const props = { size: 20, strokeWidth: 1.6 };
+  switch (kind) {
+    case "instagram":
+      return <Instagram {...props} />;
+    case "tiktok":
+      return <Music2 {...props} />;
+    case "youtube":
+      return <Youtube {...props} />;
+    case "x":
+      return <Twitter {...props} />;
+    case "facebook":
+      return <Facebook {...props} />;
+    case "linkedin":
+      return <Linkedin {...props} />;
+    default:
+      return <Globe {...props} />;
+  }
+}
+
+function SocialRow({
+  items,
+  reduce,
+}: {
+  items: Array<{ kind: SocialKind; href: string; label: string }>;
+  reduce: boolean;
+}) {
+  if (!items.length) return null;
+
+  return (
+    <div className="flex items-center justify-center gap-1">
+      {items.map((it) => (
+        <motion.a
+          key={`${it.kind}-${it.href}`}
+          href={it.href}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={it.label}
+          title={it.label}
+          className="group flex h-10 w-10 items-center justify-center rounded-full transition-all"
+          style={{
+            color: "rgba(241,241,241,0.85)",
+          }}
+          whileHover={reduce ? undefined : { scale: 1.06 }}
+          whileTap={reduce ? undefined : { scale: 0.95 }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(0,0,0,0.05)";
+            e.currentTarget.style.color = "rgba(0,0,0,0.92)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "rgba(241,241,241,1)";
+          }}
+        >
+          <SocialIcon kind={it.kind} />
+        </motion.a>
+      ))}
+    </div>
+  );
+}
+
+/* ---------------- button (glassy like inspo) ---------------- */
+
+function LinkButton({
+  link,
+  lang,
+  reduce,
+  variants,
+}: {
+  link: TeamLink;
+  lang: Lang;
+  reduce: boolean;
+  variants: Variants;
+}) {
+  const label = t(link.label, lang);
+  const href = link.href;
+  const external = isExternal(href);
+
+  return (
+    <motion.a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      variants={variants}
+      whileHover={reduce ? undefined : { y: -2, scale: 1.01 }}
+      whileTap={reduce ? undefined : { scale: 0.98 }}
+      className="group relative flex w-full items-center justify-center overflow-hidden rounded-xl border px-5 py-4 text-center"
+      style={{
+        borderColor: "rgba(255,255,255,0.32)",
+        background: "rgba(255,255,255,0.22)",
+        backdropFilter: "blur(14px) saturate(140%)",
+        WebkitBackdropFilter: "blur(14px) saturate(140%)",
+        boxShadow: "0 10px 26px rgba(0,0,0,0.10)",
+      }}
+    >
+      {/* subtle sheen */}
+      <span
+        className="pointer-events-none absolute -left-24 top-0 h-full w-40 opacity-0 transition group-hover:opacity-100"
+        style={{
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
+          transform: "skewX(-18deg)",
+        }}
+      />
+      <span
+        className="text-[15px] font-medium tracking-tight"
+        style={{
+          color: "#f1f1f1",
+          textShadow: "0 1px 6px rgba(0,0,0,0.35)",
+          fontFamily: "var(--font-lora)",
+        }}
+      >
+        {label}
+      </span>
+    </motion.a>
+  );
+}
+
+/* ---------------- main ---------------- */
+
+export default function LinktreeClient({
+  lang,
+  member,
+}: {
+  lang: Lang;
+  member: LeaderProfile;
+}) {
+  const reduce = useReducedMotion();
+  const V = makeVariants(!!reduce);
+
+  const role = member.role ? t(member.role, lang) : "";
+  const org = member.org ? t(member.org, lang) : "";
+  const avatar = member.avatar ?? "/images/team/persona.jpg";
+
+  // ✅ No hook warnings: compute rawLinks inside useMemo
+  const { socials, buttons } = useMemo(() => {
+    const rawLinks = member.links ?? [];
+    const primaryIdx = Math.max(0, rawLinks.findIndex((l) => !!l.highlight));
+    const primaryLink = rawLinks[primaryIdx];
+
+    const orderedAll = primaryLink
+      ? [primaryLink, ...rawLinks.filter((_, i) => i !== primaryIdx)]
+      : rawLinks;
+
+    const socialsAcc: Array<{ kind: SocialKind; href: string; label: string }> = [];
+    const btnAcc: TeamLink[] = [];
+
+    for (const l of orderedAll) {
+      const kind = detectSocial(l.href);
+      const label = t(l.label, lang) || l.href;
+      if (kind && kind !== "website") socialsAcc.push({ kind, href: l.href, label });
+      else btnAcc.push(l);
+    }
+
+    // keep primary at top if it became a button
+    const primaryInButtons =
+      primaryLink && btnAcc.some((b) => b.href === primaryLink.href) ? primaryLink : undefined;
+
+    const finalButtons = primaryInButtons
+      ? [primaryInButtons, ...btnAcc.filter((b) => b.href !== primaryInButtons.href)]
+      : btnAcc;
+
+    return { socials: socialsAcc, buttons: finalButtons };
+  }, [member.links, lang]);
+
+  return (
+    <div className="min-h-[100dvh]">
+      {/* Background */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="/images/farm/garden6.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        {/* keep texture visible */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0.06) 42%, rgba(0,0,0,0.18))",
+          }}
+        />
+      </div>
+
+      {/* Content wrapper */}
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] max-w-md flex-col">
+        {/* Back button */}
+        <motion.div
+          className="absolute left-5 top-8 z-20"
+          initial={{ opacity: 0, x: reduce ? 0 : -10, filter: reduce ? "none" : "blur(8px)" }}
+          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          transition={{ duration: reduce ? 0.1 : 0.45, ease: easeOut }}
+        >
+          <a
+            href={`/${lang}/team`}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-lg transition-all"
+            style={{
+              borderColor: "rgba(255,255,255,0.25)",
+              background: "rgba(255,255,255,0.10)",
+              color: "rgba(255,255,255,0.88)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
+            }}
+            aria-label="Back"
+          >
+            <ArrowLeft size={18} strokeWidth={1.6} />
+          </a>
+        </motion.div>
+
+        {/* Top photo area (controls where panel starts) */}
+        <div style={{ height: "clamp(120px, 18dvh, 220px)" }} />
+
+        {/* Glass panel */}
+        <motion.div
+          className="relative flex flex-1 flex-col items-center px-5 pb-8 pt-16"
+          style={{
+            // ✅ More translucent at top, slightly denser at bottom
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.26))",
+            backdropFilter: "blur(24px) saturate(1.25)",
+            WebkitBackdropFilter: "blur(24px) saturate(1.25)",
+            borderRadius: "60px 60px 0 0",
+            borderTop: `1px solid ${TOK.glassBorder}`,
+            boxShadow: "0 -18px 60px rgba(0,0,0,0.18)",
+          }}
+          variants={V.container}
+          initial="hidden"
+          animate="show"
+        >
+          {/* Specular highlight band */}
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-24"
+            style={{
+              borderRadius: "60px 60px 0 0",
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.06) 70%, rgba(255,255,255,0.0))",
+              opacity: 0.9,
+            }}
+          />
+
+          {/* Avatar overlap */}
+        <motion.div
+          className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[65%]"
+          initial={reduce ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 18, scale: 0.92, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+          transition={{
+            duration: reduce ? 0.1 : 0.75,
+            ease: easeOut,
+            delay: reduce ? 0 : 0.12, // 👈 makes it feel intentional
+          }}
+        >
+          <Avatar src={avatar} alt={member.name} reduce={!!reduce} />
+        </motion.div>
+
+          {/* Name */}
+          <motion.h1
+            variants={V.item}
+            className="mt-4 text-center text-3xl font-semibold tracking-tight sm:text-4xl"
+            style={{
+              fontFamily: "var(--font-lora)",
+              color: TOK.cream,
+            }}
+          >
+            {member.name}
+          </motion.h1>
+
+          {/* Role & Org */}
+          {(role || org) && (
+            <motion.p
+              variants={V.item}
+              className="mt-4 text-center text-xs font-medium uppercase tracking-widest"
+              style={{ color: TOK.cream, fontFamily: "var(--font-sans)" }}
+            >
+              {role}
+              {role && org && " · "}
+              {org}
+            </motion.p>
+          )}
+
+          {/* Socials */}
+          {socials.length > 0 && (
+            <motion.div variants={V.item} className="mt-2">
+              <SocialRow items={socials} reduce={!!reduce} />
+            </motion.div>
+          )}
+
+          {/* Buttons */}
+          <motion.div
+            variants={V.buttonsWrap}
+            className="mt-8 flex w-full max-w-sm flex-col gap-3"
+          >
+            {buttons.map((link) => (
+              <LinkButton
+                key={link.href}
+                link={link}
+                lang={lang}
+                reduce={!!reduce}
+                variants={V.item}
+              />
+            ))}
+          </motion.div>
+
+          {/* Footer */}
+          <motion.footer variants={V.item} className="mt-auto pt-12 text-center">
+            <p
+              className="text-[10px] uppercase tracking-widest"
+              style={{ color: "rgba(241,241,241,0.55)", fontFamily: "var(--font-sans)" }}
+            >
+              {lang === "es" ? "Hecho por" : "Made by"}
+            </p>
+            <div className="mx-auto mt-2 h-7 w-28 opacity-80">
+              <OliveaLogo className="h-full w-full" aria-label="Olivea" />
+            </div>
+          </motion.footer>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
