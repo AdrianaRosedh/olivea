@@ -65,7 +65,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "ange",
     name: "Ange Joy",
-    role: { es: "Fundadora · Co-Owner", en: "Founder · Co-Owner" },
+    role: { es: "Fundadora · Copropietaria", en: "Founder · Co-Owner" },
     org: { es: "Olivea The Experience", en: "Olivea The Experience" },
     tag: { es: "Fundación", en: "Founding" },
     bio: {
@@ -84,7 +84,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "daniel",
     name: "Daniel",
-    role: { es: "Chef Ejecutivo · Co-Owner", en: "Executive Chef · Co-Owner" },
+    role: { es: "Chef Ejecutivo · Copropietaria", en: "Executive Chef · Co-Owner" },
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Cocina", en: "Culinary" },
     bio: {
@@ -104,10 +104,10 @@ export const TEAM: LeaderProfile[] = [
     id: "adrianarose",
     name: "Adriana Rose",
     role: {
-      es: "CEO · Dueña · Tecnología y Visión",
-      en: "CEO · Owner ·Technology & Vision",
+      es: "CEO · Copropietaria · Tecnología y Visión",
+      en: "CEO · Co-Owner · Technology & Vision",
     },
-    org: { es: "Olivea The Experience", en: "Olivea The Experience" },
+    org: { es: "OLIVEA The Experience", en: "OLIVEA The Experience" },
     bio: {
       es: "Lidera la visión estratégica, tecnológica y de experiencia de Olivea. Fundadora de Roseiies, una plataforma de inteligencia aplicada para hospitalidad y experiencias.",
       en: "Leads the strategic, technological, and experiential vision of Olivea. Founder of Roseiies, an intelligence-driven platform for hospitality and experiential brands.",
@@ -161,7 +161,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "cristina",
     name: "Cristina",
-    role: { es: "Head of HR", en: "Head of HR" },
+    role: { es: "Encargada de. RRHH", en: "Head of HR" },
     org: { es: "Olivea", en: "Olivea" },
     tag: { es: "People", en: "People" },
     bio: {
@@ -179,7 +179,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "leo",
     name: "Leo",
-    role: { es: "Head of Hotel", en: "Head of Hotel" },
+    role: { es: "Supervisor del Hotel", en: "Hotel Supervisor" },
     org: { es: "Casa Olivea", en: "Casa Olivea" },
     tag: { es: "Hotel", en: "Hotel" },
     bio: {
@@ -233,7 +233,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "luis",
     name: "Luis",
-    role: { es: "Head de Investigación", en: "Head of Research" },
+    role: { es: "Encargado de Investigación", en: "Head of Research" },
     org: { es: "Olivea", en: "Olivea" },
     tag: { es: "I+D", en: "R&D" },
     bio: {
@@ -287,7 +287,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "jesus",
     name: "Jesús",
-    role: { es: "Head Patisserie", en: "Head Patisserie" },
+    role: { es: "Supervisor de Patisserie", en: "Head of Patisserie" },
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Pastelería", en: "Patisserie" },
     bio: {
