@@ -404,17 +404,32 @@ export default function LinktreeClient({
           </motion.h1>
 
           {/* Role & Org */}
-          {(role || org) && (
-            <motion.p
-              variants={V.item}
-              className="mt-4 text-center text-xs font-medium uppercase tracking-widest"
-              style={{ color: TOK.cream, fontFamily: "var(--font-sans)" }}
-            >
-              {role}
-              {role && org && " · "}
-              {org}
-            </motion.p>
-          )}
+            {(role || org) && (
+              <motion.div
+                variants={V.item}
+                className="mt-4 text-center"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {role && (
+                  <div
+                    className="text-xs font-medium uppercase tracking-widest"
+                    style={{ color: TOK.cream }}
+                  >
+                    {role}
+                  </div>
+                )}
+            
+                {org && (
+                  <div
+                    className="mt-1 text-[11px] uppercase tracking-[0.22em]"
+                    style={{ color: "rgba(241,241,241,0.75)" }}
+                  >
+                    {org}
+                  </div>
+                )}
+              </motion.div>
+            )}
+            
 
           {/* Socials */}
           {socials.length > 0 && (

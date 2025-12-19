@@ -101,21 +101,60 @@ export const TEAM: LeaderProfile[] = [
   },
 
   {
-    id: "adrianarose",
+    id: "adriana-rose",
     name: "Adriana Rose",
-    role: { es: "CEO · Co-Owner", en: "CEO · Co-Owner" },
+    role: {
+      es: "CEO · Dueña · Tecnología y Visión",
+      en: "CEO · Owner ·Technology & Vision",
+    },
     org: { es: "Olivea The Experience", en: "Olivea The Experience" },
-    tag: { es: "Dirección", en: "Leadership" },
     bio: {
-      es: "Dirige estrategia, tecnología y marca. Construye el ecosistema digital y eleva el estándar de experiencia.",
-      en: "Leads strategy, technology, and brand. Builds the digital ecosystem and raises the experience standard.",
+      es: "Lidera la visión estratégica, tecnológica y de experiencia de Olivea. Fundadora de Roseiies, una plataforma de inteligencia aplicada para hospitalidad y experiencias.",
+      en: "Leads the strategic, technological, and experiential vision of Olivea. Founder of Roseiies, an intelligence-driven platform for hospitality and experiential brands.",
     },
     avatar: "/images/team/persona.jpg",
     tile: "hero",
     priority: 3,
     links: [
-      { label: { es: "Casa Olivea", en: "Casa Olivea" }, href: "/casa", highlight: true },
-      { label: { es: "Contacto", en: "Contact" }, href: "/contact", icon: "email" },
+      // ⭐ PRIMARY LINK — startup
+      {
+        href: "https://roseiies.com",
+        label: {
+          es: "Roseiies — Hospitality Intelligence",
+          en: "Roseiies — Hospitality Intelligence",
+        },
+        highlight: true,
+      },
+      {
+    href: "https://oliveafarmtotable.com",
+      label: {
+        es: "Olivea La Experiencia",
+        en: "Olivea The Experience",
+      },
+      highlight: true,
+    },
+      // Social
+      {
+        href: "https://www.linkedin.com/in/adrianarosediaz/",
+        label: {
+          es: "LinkedIn",
+          en: "LinkedIn",
+        },
+      },
+      {
+        href: "https://www.instagram.com/arosedh",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
+      {
+        href: "https://www.tiktok.com/@_adriana.rose",
+        label: {
+          es: "TikTok",
+          en: "TikTok",
+        },
+      },
     ],
   },
 
