@@ -377,7 +377,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
               <div
                 className="flex-1 overflow-auto no-scrollbar"
-                style={{ WebkitOverflowScrolling: "touch" }}
                 aria-labelledby="restaurant-pane-title"
               >
                 {mounted.restaurant && <OpentableWidget />}
