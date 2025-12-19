@@ -406,8 +406,12 @@ export default function LinktreeClient({
     for (const l of orderedAll) {
       const kind = detectSocial(l.href);
       const label = t(l.label, lang) || l.href;
-      if (kind && kind !== "website") socialsAcc.push({ kind, href: l.href, label });
-      else btnAcc.push(l);
+      if (kind && kind !== "website" && !("forceButton" in l)) {
+        socialsAcc.push({ kind, href: l.href, label })
+      } else {
+        btnAcc.push(l)
+      }
+
     }
 
     const primaryInButtons =

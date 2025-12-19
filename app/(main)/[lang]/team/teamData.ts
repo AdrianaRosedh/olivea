@@ -30,6 +30,7 @@ export type TeamLink = {
     | "link"
     | "calendar";
   highlight?: boolean;
+  forceButton?: boolean; 
 };
 
 /* ---------- Team member profile ---------- */
@@ -66,7 +67,7 @@ export const TEAM: LeaderProfile[] = [
     id: "ange",
     name: "Ange Joy",
     role: { es: "Fundadora · Copropietaria", en: "Founder · Co-Owner" },
-    org: { es: "Olivea The Experience", en: "Olivea The Experience" },
+    org: { es: "OLIVEA The Experience", en: "OLIVEA The Experience" },
     tag: { es: "Fundación", en: "Founding" },
     bio: {
       es: "Co-crea la visión integral de Olivea: diseño, sensibilidad y coherencia estética en toda la experiencia.",
@@ -81,22 +82,56 @@ export const TEAM: LeaderProfile[] = [
     ],
   },
 
-  {
+   {
     id: "daniel",
     name: "Daniel",
-    role: { es: "Chef Ejecutivo · Copropietaria", en: "Executive Chef · Co-Owner" },
-    org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
+    role: {
+      es: "Chef Ejecutivo · Copropietario",
+      en: "Executive Chef · Co-Owner",
+    },
+    org: {
+      es: "Olivea Farm To Table",
+      en: "Olivea Farm To Table",
+    },
     tag: { es: "Cocina", en: "Culinary" },
     bio: {
-      es: "Lidera la cocina con enfoque huerto-primero: técnica, estacionalidad y precisión.",
+      es: "Lidera la cocina con un enfoque huerto-primero: técnica, estacionalidad y precisión.",
       en: "Leads the kitchen with a garden-first philosophy: technique, seasonality, and precision.",
     },
     avatar: "/images/team/persona.jpg",
     tile: "hero",
     priority: 2,
     links: [
-      { label: { es: "Menú actual", en: "Current Menu" }, href: "/restaurant", highlight: true },
-      { label: { es: "Reservar mesa", en: "Reserve a Table" }, href: "/reservar", icon: "tock" },
+      // 🔹 Primary
+      {
+        label: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
+        href: "https://oliveafarmtotable.com",
+        highlight: true,
+      },
+
+      // 🔹 Secondary
+      {
+        label: { es: "Sitio Personal", en: "Personal Website" },
+        href: "https://danielnates.com",
+      },
+
+      // 🔹 Brand (button, NOT icon)
+      {
+        label: { es: "Fritanguita", en: "Fritanguita" },
+        href: "https://www.instagram.com/fritanguita_",
+        forceButton: true,
+      },
+      {
+        label: { es: "Recio CDMX", en: "Recio CDMX" },
+        href: "https://www.instagram.com/recioelrecio",
+        forceButton: true,
+      },
+
+      // 🔹 Personal social
+      {
+        label: { es: "Instagram", en: "Instagram" },
+        href: "https://www.instagram.com/danielnatesv",
+      },
     ],
   },
 
@@ -120,7 +155,7 @@ export const TEAM: LeaderProfile[] = [
       {
         href: "https://roseiies.com",
         label: {
-          es: "Roseiies — Hospitality Intelligence",
+          es: "Roseiies — Hospitaidad Inteligente",
           en: "Roseiies — Hospitality Intelligence",
         },
         highlight: true,
@@ -178,7 +213,7 @@ export const TEAM: LeaderProfile[] = [
 
   {
     id: "leo",
-    name: "Leo",
+    name: "Leonardo",
     role: { es: "Supervisor del Hotel", en: "Hotel Supervisor" },
     org: { es: "Casa Olivea", en: "Casa Olivea" },
     tag: { es: "Hotel", en: "Hotel" },
