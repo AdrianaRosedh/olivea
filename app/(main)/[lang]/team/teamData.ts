@@ -101,7 +101,7 @@ export const TEAM: LeaderProfile[] = [
   },
 
   {
-    id: "adriana-rose",
+    id: "adrianarose",
     name: "Adriana Rose",
     role: {
       es: "CEO · Dueña · Tecnología y Visión",
