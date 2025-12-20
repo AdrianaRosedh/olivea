@@ -114,7 +114,6 @@ function makeVariants(reduce: boolean): MotionPack {
 // Modern “soft squircle”
 const AVATAR_RADIUS = 34;
 
-
 function Avatar({
   src,
   alt,
@@ -124,8 +123,6 @@ function Avatar({
   alt: string;
   reduce: boolean;
 }) {
-
-
   return (
     <div className="relative">
       {/* outer glow */}
@@ -194,8 +191,7 @@ function Avatar({
             fontWeight: 600,
           }}
           aria-hidden="true"
-        >
-        </div>
+        />
 
         {/* inner spec highlight */}
         <div
@@ -275,29 +271,29 @@ function SocialRow({
   if (!items.length) return null;
 
   return (
-   <div className="flex items-center justify-center gap-1">
-    {items.map((it) => (
-      <motion.a
-        key={`${it.kind}-${it.href}`}
-        href={it.href}
-        target="_blank"
-        rel="noreferrer"
-        aria-label={it.label}
-        title={it.label}
-        className={[
-          "group flex h-10 w-10 items-center justify-center rounded-full",
-          "transition-all outline-none",
-          "focus-visible:ring-2 focus-visible:ring-white/40",
-          "hover:bg-white/15 hover:backdrop-blur-md",
-        ].join(" ")}
-        style={{ color: "#f1f1f1" }}   // ✅ exact Olivea cream
-        whileHover={reduce ? undefined : { scale: 1.06 }}
-        whileTap={reduce ? undefined : { scale: 0.95 }}
-      >
-        <SocialIcon kind={it.kind} />
-      </motion.a>
-    ))}
-  </div>
+    <div className="flex items-center justify-center gap-1">
+      {items.map((it) => (
+        <motion.a
+          key={`${it.kind}-${it.href}`}
+          href={it.href}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={it.label}
+          title={it.label}
+          className={[
+            "group flex h-10 w-10 items-center justify-center rounded-full",
+            "transition-all outline-none",
+            "focus-visible:ring-2 focus-visible:ring-white/40",
+            "hover:bg-white/15 hover:backdrop-blur-md",
+          ].join(" ")}
+          style={{ color: "#f1f1f1" }} // ✅ exact Olivea cream
+          whileHover={reduce ? undefined : { scale: 1.06 }}
+          whileTap={reduce ? undefined : { scale: 0.95 }}
+        >
+          <SocialIcon kind={it.kind} />
+        </motion.a>
+      ))}
+    </div>
   );
 }
 
@@ -328,15 +324,16 @@ function LinkButton({
       whileTap={reduce ? undefined : { scale: 0.985 }}
       className={[
         "group relative flex w-full items-center justify-center overflow-hidden",
-        "rounded-2xl border px-6 py-4",          // ✅ thicker
-        "min-h-[58px]",                          // ✅ classic link-in-bio height
+        "rounded-2xl border px-6 py-4", // ✅ thicker
+        "min-h-[58px]", // ✅ classic link-in-bio height
         "text-center outline-none",
         "transition-[transform,background-color,border-color] duration-300",
         "focus-visible:ring-2 focus-visible:ring-white/40",
       ].join(" ")}
       style={{
         borderColor: "rgba(255,255,255,0.28)",
-        background: "linear-gradient(180deg, rgba(94,118,88,0.22), rgba(94,118,88,0.14))",
+        background:
+          "linear-gradient(180deg, rgba(94,118,88,0.22), rgba(94,118,88,0.14))",
         backdropFilter: "blur(14px) saturate(145%)",
         WebkitBackdropFilter: "blur(14px) saturate(145%)",
         boxShadow: "0 14px 34px rgba(0,0,0,0.12)", // ✅ more “button” weight
@@ -351,7 +348,7 @@ function LinkButton({
         }}
       />
 
-      {/* subtle sheen (keep it, but not overpowering) */}
+      {/* subtle sheen */}
       <span
         className="pointer-events-none absolute -left-24 top-0 h-full w-48 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
@@ -362,7 +359,7 @@ function LinkButton({
       />
 
       <span
-        className="relative text-[16px] font-semibold tracking-tight" // ✅ clearer
+        className="relative text-[16px] font-semibold tracking-tight"
         style={{
           color: "#f1f1f1",
           fontFamily: "var(--font-lora)",
@@ -402,16 +399,21 @@ export default function LinktreeClient({
     const socialsAcc: Array<{ kind: SocialKind; href: string; label: string }> =
       [];
     const btnAcc: TeamLink[] = [];
+    
+    function hasForceButton(x: unknown): x is { forceButton: boolean } {
+      return !!x && typeof x === "object" && "forceButton" in x;
+    }
 
     for (const l of orderedAll) {
       const kind = detectSocial(l.href);
       const label = t(l.label, lang) || l.href;
-      if (kind && kind !== "website" && !("forceButton" in l)) {
-        socialsAcc.push({ kind, href: l.href, label })
-      } else {
-        btnAcc.push(l)
-      }
 
+      // social icons (unless forced into button list)
+      if (kind && kind !== "website" && !hasForceButton(l)) {
+        socialsAcc.push({ kind, href: l.href, label });
+      } else {
+        btnAcc.push(l);
+      }
     }
 
     const primaryInButtons =
@@ -420,7 +422,10 @@ export default function LinktreeClient({
         : undefined;
 
     const finalButtons = primaryInButtons
-      ? [primaryInButtons, ...btnAcc.filter((b) => b.href !== primaryInButtons.href)]
+      ? [
+          primaryInButtons,
+          ...btnAcc.filter((b) => b.href !== primaryInButtons.href),
+        ]
       : btnAcc;
 
     return { socials: socialsAcc, buttons: finalButtons };
@@ -448,11 +453,11 @@ export default function LinktreeClient({
         />
       </div>
 
-      {/* Content wrapper */}
-      <div className="relative z-10 mx-auto flex min-h-[100dvh] max-w-md flex-col">
-        {/* Back button */}
+      {/* Content wrapper (scrolls naturally, true link-in-bio behavior) */}
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-md flex-col">
+        {/* Back button (sticky so it stays accessible) */}
         <motion.div
-          className="absolute left-5 top-8 z-20"
+          className="sticky top-6 z-20 self-start pl-5"
           initial={{
             opacity: 0,
             x: reduce ? 0 : -10,
@@ -477,12 +482,9 @@ export default function LinktreeClient({
           </a>
         </motion.div>
 
-        {/* Top photo area */}
-        <div style={{ height: "clamp(120px, 18dvh, 220px)" }} />
-
-        {/* Glass panel */}
+        {/* Glass panel (min height, avatar in-flow so it never clips) */}
         <motion.div
-          className="relative flex flex-1 flex-col items-center px-5 pb-8 pt-20"
+          className="relative mt-24 flex min-h-[100dvh] flex-col items-center px-5 pb-10 pt-10"
           style={{
             background:
               "linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.28))",
@@ -507,20 +509,15 @@ export default function LinktreeClient({
             }}
           />
 
-          {/* Avatar overlap */}
-          <motion.div
-            className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[58%]"
-            variants={V.avatar}
-            initial="hidden"
-            animate="show"
-          >
+          {/* Avatar overlap (IN FLOW via negative margin) */}
+          <motion.div variants={V.avatar} className="-mt-30 sm:-mt-34">
             <Avatar src={avatar} alt={member.name} reduce={!!reduce} />
           </motion.div>
 
           {/* Name */}
           <motion.h1
             variants={V.item}
-            className="mt-2 text-center text-3xl font-semibold tracking-tight sm:text-4xl"
+            className="mt-6 text-center text-3xl font-semibold tracking-tight sm:text-4xl"
             style={{ fontFamily: "var(--font-lora)", color: TOK.cream }}
           >
             {member.name}
@@ -563,7 +560,7 @@ export default function LinktreeClient({
           {/* Buttons */}
           <motion.div
             variants={V.buttonsWrap}
-            className="mt-3 flex w-full max-w-sm flex-col gap-3"
+            className="mt-4 flex w-full max-w-sm flex-col gap-3"
           >
             {buttons.map((link) => (
               <LinkButton
@@ -576,8 +573,8 @@ export default function LinktreeClient({
             ))}
           </motion.div>
 
-          {/* Footer */}
-          <motion.footer variants={V.item} className="mt-auto pt-12 text-center">
+          {/* Footer (always reachable; not dependent on mt-auto) */}
+          <motion.footer variants={V.item} className="mt-10 pb-6 text-center">
             <p
               className="text-[10px] uppercase tracking-widest"
               style={{
