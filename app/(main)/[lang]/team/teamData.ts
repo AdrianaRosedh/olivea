@@ -302,8 +302,8 @@ export const TEAM: LeaderProfile[] = [
   },
 
   {
-    id: "jaudiel",
-    name: "Jaudiel",
+    id: "jahudiel",
+    name: "Jahudiel",
     role: { es: "Capitán", en: "Captain" },
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Servicio", en: "Service" },
