@@ -74,7 +74,8 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
   // Use the URL-derived lang for "home" detection
   const isHome = pathname === `/${pathLang}`;
-  const allowHeroBreakout = !!section; // any identity page
+  const isJournal = pathname?.includes("/journal");
+  const allowHeroBreakout = !!section || isJournal; 
 
 
   // Lenis → CSS var (guard against null during HMR)
@@ -158,7 +159,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       <main
         data-hero-breakout={allowHeroBreakout ? "true" : "false"}
         className={
-          isHome ? "p-0 m-0 overflow-hidden" : "mx-auto w-full max-w-[1100px] pt-16 md:pt-28 md:px-8 pb-20"
+          isHome
+            ? "p-0 m-0 overflow-hidden"
+            : isJournal
+              ? "w-full pt-16 md:pt-28 pb-20 md:px-0" // ✅ breakout: no mx-auto, no max-w cap
+              : "mx-auto w-full max-w-275 pt-16 md:pt-28 md:px-8 pb-20"
         }
         style={mainStyle}
       >
@@ -181,7 +186,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {/* MOBILE BOTTOM NAV */}
       {!isHome && isMobile && mobileNavItems.length > 0 && (
         <ClientOnly>
-          <div className="fixed bottom-[68px] inset-x-0 z-95 pointer-events-none">
+          <div className="fixed bottom-17 inset-x-0 z-95 pointer-events-none">
             <MobileSectionNav items={mobileNavItems} />
           </div>
         </ClientOnly>

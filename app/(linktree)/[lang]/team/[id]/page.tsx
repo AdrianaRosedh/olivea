@@ -62,7 +62,7 @@ export async function generateMetadata({
   const role = i18nPick(member?.role, lang);
   const org = i18nPick(member?.org, lang);
 
-  const title = `${name} — Olivea`;
+  const title = `${name} | OLIVEA`;
   const description =
     (lang === "es"
       ? [role, org].filter(Boolean).join(" · ") || `Perfil de ${name} en Olivea.`
@@ -76,7 +76,7 @@ export async function generateMetadata({
 
   const ogImage =
     pickStringProp(member, "ogImage") ||
-    "/images/seo/persona.jpg";
+    "/images/seo/seo-og.jpg";
 
 
   return {

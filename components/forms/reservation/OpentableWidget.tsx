@@ -4,7 +4,8 @@ import React from "react";
 
 function OpenTableWidgetImpl() {
   return (
-    <div className="h-full w-full bg-(--olivea-cream)">
+    // min-h-0 is key when parent is a flex item with overflow
+    <div className="w-full h-full min-h-0 bg-(--olivea-cream) overflow-hidden">
       <iframe
         title="Reservar en Olivea Farm To Table en OpenTable"
         src="https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website"
@@ -15,8 +16,9 @@ function OpenTableWidgetImpl() {
         style={{
           border: "none",
           background: "transparent",
+          // helps iOS treat this as a scrollable region when embedded
+          WebkitOverflowScrolling: "touch",
         }}
-        // allow isn't needed for OT; but keeping it doesn't hurt
         allow="fullscreen; payment"
       />
     </div>

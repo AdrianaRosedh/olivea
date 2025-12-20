@@ -128,11 +128,11 @@ const nextConfig = {
 
   async redirects() {
     return [
-      {
-        source: "/",
-        destination: "/es",
-        permanent: false,
-      },
+      { source: "/", destination: "/es", permanent: false },
+
+      { source: "/journal", destination: "/es/journal", permanent: false },
+      { source: "/journal/:slug*", destination: "/es/journal/:slug*", permanent: false },
+
       {
         source: "/:lang/oliveafarmtotable",
         destination: PUBLIC_URL,

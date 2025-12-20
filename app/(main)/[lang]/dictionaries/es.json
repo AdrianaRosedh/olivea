@@ -113,21 +113,21 @@
     }
   },
   "journal": {
-    "title": "Diario de OLIVEA",
+    "title": "Cuardeno",
     "subtitle": "Historias desde la tierra, la cocina y el corazón.",
     "loading": "Cargando entradas…",
     "empty": "Aún no hay entradas disponibles.",
     "error": "Error al cargar el diario:",
     "by": "por",
     "meta": {
-      "title": "Diario de OLIVEA",
+      "title": "Cuardeno",
       "description": "Notas del huerto y la cocina: técnica, productores y temporada en Valle de Guadalupe.",
       "keywords": [
-        "Diario Olivea",
+        "Cuardeno",
         "historias",
         "Valle de Guadalupe",
         "temporada",
-        "productores"
+        "investigación"
       ],
       "ogImage": "/images/seo/journal-og.jpg"
     }

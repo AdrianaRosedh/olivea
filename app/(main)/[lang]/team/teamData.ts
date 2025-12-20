@@ -67,7 +67,7 @@ export const TEAM: LeaderProfile[] = [
     id: "ange",
     name: "Ange Joy",
     role: { es: "Fundadora · Copropietaria", en: "Founder · Co-Owner" },
-    org: { es: "OLIVEA The Experience", en: "OLIVEA The Experience" },
+    org: { es: "OLIVEA La Experiencia", en: "OLIVEA The Experience" },
     tag: { es: "Fundación", en: "Founding" },
     bio: {
       es: "Co-crea la visión integral de Olivea: diseño, sensibilidad y coherencia estética en toda la experiencia.",
@@ -142,7 +142,7 @@ export const TEAM: LeaderProfile[] = [
       es: "CEO · Copropietaria · Tecnología y Visión",
       en: "CEO · Co-Owner · Technology & Vision",
     },
-    org: { es: "OLIVEA The Experience", en: "OLIVEA The Experience" },
+    org: { es: "OLIVEA La Experencia", en: "OLIVEA The Experience" },
     bio: {
       es: "Lidera la visión estratégica, tecnológica y de experiencia de Olivea. Fundadora de Roseiies, una plataforma de inteligencia aplicada para hospitalidad y experiencias.",
       en: "Leads the strategic, technological, and experiential vision of Olivea. Founder of Roseiies, an intelligence-driven platform for hospitality and experiential brands.",

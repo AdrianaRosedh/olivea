@@ -2,7 +2,7 @@
 
 A high-performance, bilingual (ES/EN) hospitality web platform powering **Olivea Farm To Table**, **Casa Olivea**, and **Olivea Café**.
 
-Built with **Next.js 16 + React 19**, server components, MDX content, Supabase, advanced Framer Motion animations, shared video transitions, and an optimized Webpack production pipeline.
+Built with **Next.js 16 + React 19**, server components, MDX content, advanced Framer Motion animations, shared video transitions, and an optimized Webpack production pipeline.
 
 This repository contains the complete frontend of the Olivea digital experience — fast, secure, multilingual, animation-driven, and deeply optimized for mobile.
 
@@ -29,7 +29,6 @@ This repository contains the complete frontend of the Olivea digital experience 
 
 **Content & Data**
 
-- Supabase (Journal posts & backend data)
 - MDX content system for bilingual pages
 - Local static assets (videos, imagery)
 
@@ -71,14 +70,6 @@ This enables:
 * Rich text
 * Translated content
 * Sections rendered as isolated MDX components
-
-### 4. Supabase Integration
-
-Used for:
-
-* Journal entries
-* Server-side fetching using RSC
-* Full SSR hydration with streaming & Suspense
 
 ### 5. CSP & Security
 
@@ -160,11 +151,6 @@ This project requires the following variables (configured in Vercel):
 
 ```bash
 NEXT_PUBLIC_SITE_URL= https://oliveafarmtotable.com         
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-
-SUPABASE_SERVICE_KEY=...                          # Used only server-side
-```
 
 If these are missing, the app will throw at startup.
 
@@ -238,7 +224,6 @@ Custom CSP exceptions for:
 
 * Cloudbeds
 * OpenTable
-* Supabase
 * Google services
 * Unsplash
 

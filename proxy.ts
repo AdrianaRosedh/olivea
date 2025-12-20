@@ -80,7 +80,7 @@ function buildCsp({
     `frame-ancestors${frameAncestors}`,
     "form-action 'self'",
 
-    `connect-src 'self' data: https://*.supabase.co https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
+    `connect-src 'self' data: https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
     `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
 
     // ✅ Allow Google Fonts stylesheet

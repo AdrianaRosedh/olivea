@@ -1,7 +1,7 @@
 import type { DefaultSeoProps } from 'next-seo';
 
 const seoConfig: DefaultSeoProps = {
-  defaultTitle: 'Olivea Farm to Table | Hotel, Café, Restaurant',
+  defaultTitle: 'Olivea La Experiencia | Hotel, Café, Restaurant',
   description: 'Experience Olivea’s Garden-inspired Hotel, Café, and Farm-to-Table Restaurant.',
   canonical: 'https://oliveafarmtotable.com',
   openGraph: {

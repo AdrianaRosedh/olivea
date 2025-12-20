@@ -281,7 +281,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
     >
       <div className="relative">
         {/* Rail that breathes (feng shui): fades top/bottom */}
-        <div className="absolute left-[18px] top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/10 to-transparent" />
+        <div className="absolute left-4.5top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/10 to-transparent" />
 
         <div className="flex flex-col gap-6">
           {items.map((item) => {
@@ -330,7 +330,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                         animate={{ opacity: 1, scaleY: 1 }}
                         exit={{ opacity: 0, scaleY: 0.7 }}
                         transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
-                        className="absolute left-[18px] top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-olive)/35 origin-center"
+                        className="absolute left-4.5 top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-olive)/35 origin-center"
                       />
                     )}
                   </AnimatePresence>
@@ -350,7 +350,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                     initial={false}
                     animate={reduce ? { x: 0 } : { x: driftX }}
                     transition={{ type: "spring", stiffness: 220, damping: 22 }}
-                    className="relative h-8 overflow-hidden min-w-[220px]"
+                    className="relative h-8 overflow-hidden min-w-55"
                   >
                     {/* outgoing label (base) */}
                     <motion.div

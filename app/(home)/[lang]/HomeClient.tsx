@@ -203,12 +203,12 @@ export default function HomeClient() {
 
         {/* Main */}
         <main
-          className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-[var(--olivea-cream)] transition-opacity duration-300 not-italic"
+          className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-(--olivea-cream) transition-opacity duration-300 not-italic"
           style={{ opacity: revealMain ? 1 : 0 }}
         >
           <div
             ref={heroBoxRef}
-            className="relative overflow-hidden shadow-xl mt-1 md:mt-0 bg-[var(--olivea-olive)] not-italic"
+            className="relative overflow-hidden shadow-xl mt-1 md:mt-0 bg-(--olivea-olive) not-italic"
             style={{
               width: "98vw",
               height: isMobile ? `${HERO.vh}vh` : "98vh",
@@ -243,7 +243,7 @@ export default function HomeClient() {
             {isMobile && (showVideo || mobileVideoVisible) && (
               <video
                 ref={mobileVideoRef}
-                className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none md:hidden"
+                className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-(--video-brightness) pointer-events-none md:hidden"
                 muted
                 playsInline
                 autoPlay
@@ -286,7 +286,7 @@ export default function HomeClient() {
                 />
                 <video
                   ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-[var(--video-brightness)] pointer-events-none"
+                  className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-(--video-brightness) pointer-events-none"
                   muted
                   playsInline
                   loop
@@ -310,14 +310,14 @@ export default function HomeClient() {
               animate={overlayGone ? "show" : "hidden"}
             >
               <span
-                className={`${cormHero.className} italic text-[var(--olivea-mist)] text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
+                className={`${cormHero.className} italic text-(--olivea-mist) text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
               >
                 {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
               </span>
             </m.div>
 
             {/* gradient */}
-            <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-transparent via-black/10 to-black/40 rounded-[1.5rem]" />
+            <div className="absolute inset-0 z-1 pointer-events-none bg-linear-to-b from-transparent via-black/10 to-black/40 rounded-3xl" />
           </div>
 
           {/* Mobile cards + button */}
@@ -365,7 +365,7 @@ export default function HomeClient() {
               px-4
               pt-3
               pb-[max(env(safe-area-inset-bottom),16px)]
-              bg-gradient-to-t from-[var(--olivea-cream)]/95 to-transparent
+              bg-linear-to-t from-(--olivea-cream)/95 to-transparent
               backdrop-blur-sm
             "
           >
@@ -382,7 +382,7 @@ export default function HomeClient() {
             </div>
 
             <span
-              className={`${cormHero.className} italic mt-3 text-[var(--olivea-mist)] text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none`}
+              className={`${cormHero.className} italic mt-3 text-(--olivea-mist) text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none`}
             >
               {isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
             </span>

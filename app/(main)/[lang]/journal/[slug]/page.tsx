@@ -1,74 +1,73 @@
 // app/(main)/[lang]/journal/[slug]/page.tsx
-import { notFound } from "next/navigation"
-import type { Metadata } from "next"
-import Image from "next/image"
-import { createServerSupabaseClient } from "@/lib/supabase"
-import { getDictionary, type Lang } from "../../dictionaries"
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Image from "next/image";
+
+import { getDictionary, type Lang } from "../../dictionaries";
+import { listJournalSlugs, loadJournalBySlug, findTranslationSlug } from "@/lib/journal/load";
+import { buildArticleJsonLd, buildJournalMetadata } from "@/lib/journal/seo";
+
+type Params = { lang: string; slug: string };
+
+export async function generateStaticParams() {
+  const es = await listJournalSlugs("es");
+  const en = await listJournalSlugs("en");
+  return [
+    ...es.map((slug) => ({ lang: "es", slug })),
+    ...en.map((slug) => ({ lang: "en", slug })),
+  ];
+}
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: string; slug: string }>
+  params: Promise<Params>;
 }): Promise<Metadata> {
-  const { slug } = await params
-  const supabase = createServerSupabaseClient()
+  const { lang: rawLang, slug } = await params;
+  const lang: Lang = rawLang === "es" ? "es" : "en";
 
-  const { data } = await supabase
-    .from("journal_posts")
-    .select("title, description, cover_image")
-    .eq("slug", slug)
-    .single()
+  try {
+    const post = await loadJournalBySlug(lang, slug);
+    const otherLang = lang === "es" ? "en" : "es";
+    const otherSlug = await findTranslationSlug(post.fm.translationId, otherLang);
 
-  if (!data) {
-    return { title: "Journal Post" }
-  }
-
-  return {
-    title: data.title,
-    description: data.description ?? undefined,
-    openGraph: data.cover_image
-      ? { images: [{ url: data.cover_image }] }
-      : undefined,
+    return buildJournalMetadata({
+      fm: post.fm,
+      otherLangSlug: otherSlug,
+    });
+  } catch {
+    return { title: "Journal Post" };
   }
 }
 
 export default async function JournalPostPage({
   params,
 }: {
-  params: Promise<{ lang: string; slug: string }>
+  params: Promise<Params>;
 }) {
-  const { lang: rawLang, slug } = await params
-  const lang: Lang = rawLang === "es" ? "es" : "en"
-  const dict = await getDictionary(lang)
-  const supabase = createServerSupabaseClient()
+  const { lang: rawLang, slug } = await params;
+  const lang: Lang = rawLang === "es" ? "es" : "en";
+  const dict = await getDictionary(lang);
 
-  const { data, error } = await supabase
-    .from("journal_posts")
-    .select("title, cover_image, published_at, author_name, body")
-    .eq("slug", slug)
-    .eq("visible", true)
-    .single()
-
-  if (error || !data) {
-    return notFound()
+  let post: Awaited<ReturnType<typeof loadJournalBySlug>>;
+  try {
+    post = await loadJournalBySlug(lang, slug);
+  } catch {
+    return notFound();
   }
 
-  // fire-and-forget view tracking
-  ;(async () => {
-    try {
-      await supabase.rpc("increment_post_views", { post_slug: slug })
-    } catch {
-      /* ignore */
-    }
-  })()
+  const otherLang = lang === "es" ? "en" : "es";
+  const otherSlug = await findTranslationSlug(post.fm.translationId, otherLang);
+
+  const jsonLd = buildArticleJsonLd({ fm: post.fm, readingMinutes: post.readingMinutes });
 
   return (
     <main className="p-10 max-w-2xl mx-auto">
-      {data.cover_image && (
+      {post.fm.cover?.src && (
         <div className="relative w-full h-64 rounded-xl mb-6 overflow-hidden">
           <Image
-            src={data.cover_image}
-            alt={data.title}
+            src={post.fm.cover.src}
+            alt={post.fm.cover.alt || post.fm.title}
             fill
             style={{ objectFit: "cover" }}
             priority
@@ -76,18 +75,40 @@ export default async function JournalPostPage({
         </div>
       )}
 
-      <h1 className="text-3xl font-semibold mb-2">
-        {data.title}
-      </h1>
+      <h1 className="text-3xl font-semibold mb-2">{post.fm.title}</h1>
 
       <p className="text-sm text-muted-foreground mb-6">
-        {new Date(data.published_at).toLocaleDateString()} —{" "}
-        {dict.journal.by} {data.author_name || "Olivea"}
+        {new Date(post.fm.publishedAt).toLocaleDateString()} — {post.readingMinutes} min
+        {otherSlug ? (
+          <>
+            {" "}
+            ·{" "}
+            <a href={`/${otherLang}/journal/${otherSlug}`}>
+              {lang === "es" ? "Read in English" : "Leer en Español"}
+            </a>
+          </>
+        ) : null}
       </p>
 
-      <article className="prose prose-neutral dark:prose-invert">
-        {data.body}
-      </article>
+      <article className="prose prose-neutral dark:prose-invert">{post.content}</article>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* (optional) tiny footer hook for internal linking */}
+      <div className="mt-10 text-sm opacity-70">
+        {dict.journal?.backToJournal ? (
+          <a className="underline underline-offset-4" href={`/${lang}/journal`}>
+            {dict.journal.backToJournal}
+          </a>
+        ) : (
+          <a className="underline underline-offset-4" href={`/${lang}/journal`}>
+            Back to Journal
+          </a>
+        )}
+      </div>
     </main>
-  )
+  );
 }
