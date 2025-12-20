@@ -28,7 +28,7 @@ import type {
 const t = (x: I18nText | undefined, lang: Lang) => (x ? x[lang] : "");
 const isExternal = (href: string) => /^https?:\/\//i.test(href);
 
-// Olivea tokens (safe defaults; keep using your CSS vars if you prefer)
+// Olivea tokens
 const TOK = {
   cream: "#f1f1f1",
   creamSoft: "rgba(241,241,241,0.72)",
@@ -36,6 +36,13 @@ const TOK = {
 };
 
 const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/** `forceButton: true` => render as a full button even if it's a social URL */
+function hasForceButton(x: unknown): x is { forceButton: true } {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  return o.forceButton === true;
+}
 
 /* ---------------- motion variants ---------------- */
 
@@ -109,9 +116,8 @@ function makeVariants(reduce: boolean): MotionPack {
   return { container, item, avatar, buttonsWrap };
 }
 
-/* ---------------- avatar (modern lens + fallback) ---------------- */
+/* ---------------- avatar ---------------- */
 
-// Modern “soft squircle”
 const AVATAR_RADIUS = 34;
 
 function Avatar({
@@ -125,7 +131,6 @@ function Avatar({
 }) {
   return (
     <div className="relative">
-      {/* outer glow */}
       <div
         className="absolute -inset-5"
         style={{
@@ -137,7 +142,6 @@ function Avatar({
         }}
       />
 
-      {/* lens ring */}
       <motion.div
         className="absolute -inset-2"
         initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.965 }}
@@ -154,7 +158,6 @@ function Avatar({
         }}
       />
 
-      {/* image */}
       <motion.div
         className="relative h-32 w-32 overflow-hidden sm:h-36 sm:w-36"
         initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.985 }}
@@ -178,7 +181,6 @@ function Avatar({
           className="object-cover"
         />
 
-        {/* initials fallback layer (useful if image is slow/blankish) */}
         <div
           className="pointer-events-none absolute inset-0 flex items-center justify-center"
           style={{
@@ -193,7 +195,6 @@ function Avatar({
           aria-hidden="true"
         />
 
-        {/* inner spec highlight */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -204,7 +205,6 @@ function Avatar({
           }}
         />
 
-        {/* subtle edge refraction */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -286,7 +286,7 @@ function SocialRow({
             "focus-visible:ring-2 focus-visible:ring-white/40",
             "hover:bg-white/15 hover:backdrop-blur-md",
           ].join(" ")}
-          style={{ color: "#f1f1f1" }} // ✅ exact Olivea cream
+          style={{ color: "#f1f1f1" }}
           whileHover={reduce ? undefined : { scale: 1.06 }}
           whileTap={reduce ? undefined : { scale: 0.95 }}
         >
@@ -324,8 +324,8 @@ function LinkButton({
       whileTap={reduce ? undefined : { scale: 0.985 }}
       className={[
         "group relative flex w-full items-center justify-center overflow-hidden",
-        "rounded-2xl border px-6 py-4", // ✅ thicker
-        "min-h-[58px]", // ✅ classic link-in-bio height
+        "rounded-2xl border px-6 py-4",
+        "min-h-[58px]",
         "text-center outline-none",
         "transition-[transform,background-color,border-color] duration-300",
         "focus-visible:ring-2 focus-visible:ring-white/40",
@@ -336,10 +336,9 @@ function LinkButton({
           "linear-gradient(180deg, rgba(94,118,88,0.22), rgba(94,118,88,0.14))",
         backdropFilter: "blur(14px) saturate(145%)",
         WebkitBackdropFilter: "blur(14px) saturate(145%)",
-        boxShadow: "0 14px 34px rgba(0,0,0,0.12)", // ✅ more “button” weight
+        boxShadow: "0 14px 34px rgba(0,0,0,0.12)",
       }}
     >
-      {/* soft hover fill */}
       <span
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
@@ -347,8 +346,6 @@ function LinkButton({
             "linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.10))",
         }}
       />
-
-      {/* subtle sheen */}
       <span
         className="pointer-events-none absolute -left-24 top-0 h-full w-48 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
@@ -357,7 +354,6 @@ function LinkButton({
           transform: "skewX(-18deg)",
         }}
       />
-
       <span
         className="relative text-[16px] font-semibold tracking-tight"
         style={{
@@ -399,16 +395,11 @@ export default function LinktreeClient({
     const socialsAcc: Array<{ kind: SocialKind; href: string; label: string }> =
       [];
     const btnAcc: TeamLink[] = [];
-    
-    function hasForceButton(x: unknown): x is { forceButton: boolean } {
-      return !!x && typeof x === "object" && "forceButton" in x;
-    }
 
     for (const l of orderedAll) {
       const kind = detectSocial(l.href);
       const label = t(l.label, lang) || l.href;
 
-      // social icons (unless forced into button list)
       if (kind && kind !== "website" && !hasForceButton(l)) {
         socialsAcc.push({ kind, href: l.href, label });
       } else {
@@ -432,7 +423,7 @@ export default function LinktreeClient({
   }, [member.links, lang]);
 
   return (
-    <div className="min-h-[100dvh]">
+    <div className="min-h-dvh">
       {/* Background */}
       <div className="fixed inset-0 z-0">
         <Image
@@ -443,7 +434,6 @@ export default function LinktreeClient({
           sizes="100vw"
           className="object-cover"
         />
-        {/* nicer vignette */}
         <div
           className="absolute inset-0"
           style={{
@@ -453,9 +443,7 @@ export default function LinktreeClient({
         />
       </div>
 
-      {/* Content wrapper (scrolls naturally, true link-in-bio behavior) */}
-      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-md flex-col">
-        {/* Back button (sticky so it stays accessible) */}
+      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">
         <motion.div
           className="sticky top-6 z-20 self-start pl-5"
           initial={{
@@ -482,9 +470,8 @@ export default function LinktreeClient({
           </a>
         </motion.div>
 
-        {/* Glass panel (min height, avatar in-flow so it never clips) */}
         <motion.div
-          className="relative mt-24 flex min-h-[100dvh] flex-col items-center px-5 pb-10 pt-10"
+          className="relative mt-24 flex min-h-dvh flex-col items-center px-5 pb-10 pt-10"
           style={{
             background:
               "linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.28))",
@@ -498,7 +485,6 @@ export default function LinktreeClient({
           initial="hidden"
           animate="show"
         >
-          {/* Specular highlight band */}
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-24"
             style={{
@@ -509,12 +495,11 @@ export default function LinktreeClient({
             }}
           />
 
-          {/* Avatar overlap (IN FLOW via negative margin) */}
-          <motion.div variants={V.avatar} className="-mt-30 sm:-mt-34">
+          {/* Avatar overlap (higher + less on glass) */}
+          <motion.div variants={V.avatar} className="-mt-30 sm:-mt-33">
             <Avatar src={avatar} alt={member.name} reduce={!!reduce} />
           </motion.div>
 
-          {/* Name */}
           <motion.h1
             variants={V.item}
             className="mt-6 text-center text-3xl font-semibold tracking-tight sm:text-4xl"
@@ -523,7 +508,6 @@ export default function LinktreeClient({
             {member.name}
           </motion.h1>
 
-          {/* Role & Org */}
           {(role || org) && (
             <motion.div
               variants={V.item}
@@ -550,17 +534,15 @@ export default function LinktreeClient({
             </motion.div>
           )}
 
-          {/* Socials */}
           {socials.length > 0 && (
-            <motion.div variants={V.item} className="mt-3">
+            <motion.div variants={V.item} className="mt-1">
               <SocialRow items={socials} reduce={!!reduce} />
             </motion.div>
           )}
 
-          {/* Buttons */}
           <motion.div
             variants={V.buttonsWrap}
-            className="mt-4 flex w-full max-w-sm flex-col gap-3"
+            className="mt-1 flex w-full max-w-sm flex-col gap-3"
           >
             {buttons.map((link) => (
               <LinkButton
@@ -573,7 +555,6 @@ export default function LinktreeClient({
             ))}
           </motion.div>
 
-          {/* Footer (always reachable; not dependent on mt-auto) */}
           <motion.footer variants={V.item} className="mt-10 pb-6 text-center">
             <p
               className="text-[10px] uppercase tracking-widest"
