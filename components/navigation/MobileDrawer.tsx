@@ -1,57 +1,96 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
-import { FaYoutube, FaInstagram, FaTiktok, FaLinkedin, FaSpotify, FaPinterest } from "react-icons/fa";
+import {
+  FaYoutube,
+  FaInstagram,
+  FaTiktok,
+  FaLinkedin,
+  FaSpotify,
+  FaPinterest,
+} from "react-icons/fa";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   lang: "en" | "es";
   dict: AppDictionary;
+  origin?: { x: number; y: number };
 }
 
-const navVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.05, duration: 0.2 },
-  }),
+const container: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.02 } },
+  exit: { transition: { duration: 0.1 } },
 };
 
-export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
-  const router = useRouter();
-  const [showMore, setShowMore] = useState(false);
+const item: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 260, damping: 24, mass: 0.7 },
+  },
+};
 
-  const mainLinks = [
-    { href: `/${lang}/farmtotable`, label: dict.drawer.main.farmtotable },
-    { href: `/${lang}/casa`, label: dict.drawer.main.casa },
-    { href: `/${lang}/cafe`, label: dict.drawer.main.cafe },
-  ];
-  
-  const moreLinks = [
-    { href: `/${lang}/journal`, label: dict.drawer.more.journal },
-    { href: `/${lang}/sustainability`, label: dict.drawer.more.sustainability },
-    { href: `/${lang}/awards-reviews`, label: dict.drawer.more.awards },
-    { href: `/${lang}/contact`, label: dict.drawer.more.contact },
-    { href: `/${lang}/legal`, label: dict.drawer.more.legal },
-  ];
-
-  const handleClick = (href: string) => {
-    window.navigator.vibrate?.(10);
-    onClose();
-    router.push(href);
-  };
-
+function useBodyScrollLock(locked: boolean) {
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
+    if (!locked) return;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
     return () => {
-      document.body.style.overflow = "";
+      const y = Math.abs(parseInt(body.style.top || "0", 10)) || scrollY;
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      body.style.width = "";
+      window.scrollTo(0, y);
+    };
+  }, [locked]);
+}
+
+export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [itemsReady, setItemsReady] = useState(false);
+  const [blurReady, setBlurReady] = useState(false);
+
+  useBodyScrollLock(isOpen);
+
+  // Faster staging:
+  // - start items shortly after open (feels snappy)
+  // - enable blur shortly after items begin (helps avoid flicker)
+  useEffect(() => {
+    if (!isOpen) {
+      setItemsReady(false);
+      setBlurReady(false);
+      return;
+    }
+
+    setItemsReady(false);
+    setBlurReady(false);
+
+    const tItems = window.setTimeout(() => setItemsReady(true), 120);
+    const tBlur = window.setTimeout(() => setBlurReady(true), 210); // ~90ms after items begin
+
+    return () => {
+      window.clearTimeout(tItems);
+      window.clearTimeout(tBlur);
     };
   }, [isOpen]);
 
@@ -63,144 +102,196 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict }: Props) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
-  const rightsText = lang === "en" ? "All rights reserved." : "Todos los derechos reservados."
+  const mainLinks = useMemo(
+    () => [
+      { href: `/${lang}/farmtotable`, label: dict.drawer.main.farmtotable },
+      { href: `/${lang}/casa`, label: dict.drawer.main.casa },
+      { href: `/${lang}/cafe`, label: dict.drawer.main.cafe },
+    ],
+    [lang, dict]
+  );
+
+  const moreLinks = useMemo(() => {
+    const L = dict.drawer?.more;
+    return [
+      { href: `/${lang}/journal`, label: L?.journal ?? (lang === "es" ? "Diario" : "Journal") },
+      { href: `/${lang}/team`, label: lang === "es" ? "Equipo" : "Team" },
+      { href: `/${lang}/sustainability`, label: L?.sustainability ?? (lang === "es" ? "Sostenibilidad" : "Sustainability") },
+      { href: `/${lang}/contact`, label: L?.contact ?? (lang === "es" ? "Contáctanos" : "Contact") },
+      { href: `/${lang}/press`, label: lang === "es" ? "Prensa" : "Press" },
+      { href: `/${lang}/carreras`, label: lang === "es" ? "Carreras" : "Careers" },
+    ];
+  }, [lang, dict]);
+
+  const handleClick = (href: string) => {
+    window.navigator.vibrate?.(10);
+    onClose();
+    window.setTimeout(() => router.push(href), 90);
+  };
+
+  const rightsText =
+    lang === "en" ? "All rights reserved." : "Todos los derechos reservados.";
+
+  const ox = origin?.x ?? (typeof window !== "undefined" ? window.innerWidth * 0.92 : 360);
+  const oy = origin?.y ?? 40;
+
+  const isActive = (href: string) => {
+    if (!pathname) return false;
+    return pathname === href || pathname.startsWith(href + "/");
+  };
+
+  const blurClass = blurReady ? "backdrop-blur-md" : "";
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div
+          <motion.button
+            type="button"
+            aria-label={lang === "es" ? "Cerrar menú" : "Close menu"}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
+            animate={{ opacity: 0.45 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black z-[998]"
+            className="fixed inset-0 bg-black z-998"
           />
 
-          <FocusTrap active={isOpen} focusTrapOptions={{ allowOutsideClick: true, escapeDeactivates: true }}>
-            <div className="fixed inset-0 z-[999] pointer-events-none">
+          <FocusTrap
+            active={isOpen}
+            focusTrapOptions={{ allowOutsideClick: true, escapeDeactivates: true }}
+          >
+            <div className="fixed inset-0 z-999 pointer-events-none">
               <motion.div
-                initial={{ clipPath: "circle(0% at 92% 40px)" }}
-                animate={{ clipPath: "circle(150% at 92% 40px)" }}
-                exit={{ clipPath: "circle(0% at 92% 40px)" }}
-                transition={{ type: "spring", stiffness: 80, damping: 18 }}
-                className="absolute top-0 right-0 w-full h-full bg-[var(--olivea-olive)] flex flex-col items-center justify-between px-6 py-10 pointer-events-auto overflow-hidden"
+                initial={{ clipPath: `circle(0px at ${ox}px ${oy}px)` }}
+                animate={{ clipPath: `circle(140vmax at ${ox}px ${oy}px)` }}
+                exit={{ clipPath: `circle(0px at ${ox}px ${oy}px)` }}
+                transition={{ type: "spring", stiffness: 90, damping: 20 }}
+                className="absolute inset-0 pointer-events-auto overflow-hidden"
                 aria-modal="true"
                 role="dialog"
               >
-                <div className="flex flex-col items-center w-full gap-4 mt-12">
-                  {mainLinks.map(({ href, label }, i) => (
-                    <motion.button
-                      key={href}
-                      custom={i}
-                      variants={navVariants}
-                      initial="hidden"
-                      animate="visible"
-                      onClick={() => handleClick(href)}
-                      className="w-full px-6 py-3 rounded-md text-lg font-semibold uppercase border border-[var(--olivea-cream)] text-[var(--olivea-cream)] hover:bg-[var(--olivea-cream)]/20 transition-colors"
-                    >
-                      {label}
-                    </motion.button>
-                  ))}
+                <div className="absolute inset-0 bg-(--olivea-olive)" />
+                <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/25 opacity-80" />
+                <div className="absolute inset-0 ring-1 ring-white/10" />
 
-                  <button
-                    onClick={() => setShowMore(!showMore)}
-                    className="w-full mt-2 px-6 py-2 rounded-full bg-[var(--olivea-cream)]/20 text-[var(--olivea-cream)] text-sm uppercase transition-colors hover:bg-[var(--olivea-cream)]/30"
-                  >
-                    {showMore ? (lang === "es" ? "Ocultar" : "Hide") : (lang === "es" ? "Ver Más" : "See More")}
-                  </button>
+                <motion.div
+                  variants={container}
+                  initial="hidden"
+                  animate={itemsReady ? "visible" : "hidden"}
+                  exit="exit"
+                  className="relative h-full w-full flex flex-col px-6 pb-10 pt-20"
+                >
+                  <div className="flex flex-col gap-3">
+                    {mainLinks.map(({ href, label }) => {
+                      const active = isActive(href);
+                      return (
+                        <motion.button
+                          key={href}
+                          variants={item}
+                          onClick={() => handleClick(href)}
+                          className={[
+                            "transform-gpu will-change-transform",
+                            "w-full rounded-2xl px-6 py-4 text-left",
+                            blurClass,
+                            "ring-1",
+                            "transition-colors duration-200",
+                            "flex items-center justify-between",
+                            "active:scale-[0.99] transition-transform duration-150",
+                            "uppercase tracking-[0.14em] text-(--olivea-cream)",
+                            active
+                              ? "bg-white/16 ring-white/25"
+                              : "bg-white/10 ring-white/15 hover:bg-white/12",
+                          ].join(" ")}
+                        >
+                          <span className="text-base font-semibold">{label}</span>
+                          <span className={active ? "text-(--olivea-cream)" : "text-(--olivea-cream)/70"}>
+                            ↗
+                          </span>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
 
+                  <motion.div variants={item} className="mt-5">
+                    <div className="h-px w-full bg-white/10" />
+                  </motion.div>
 
-                  <AnimatePresence>
-                    {showMore && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="grid grid-cols-2 gap-2 mt-2"
-                      >
-                        {moreLinks.map(({ href, label }) => (
+                  <motion.div variants={item} className="mt-4">
+                    <div className="grid grid-cols-2 gap-2">
+                      {moreLinks.map(({ href, label }) => {
+                        const active = isActive(href);
+                        return (
                           <button
                             key={href}
                             onClick={() => handleClick(href)}
-                            className="px-4 py-2 text-sm rounded-md text-[var(--olivea-cream)] bg-[var(--olivea-cream)]/10 hover:bg-[var(--olivea-cream)]/20 transition-colors"
+                            className={[
+                              "transform-gpu will-change-transform",
+                              "rounded-2xl px-4 py-3 text-sm text-left",
+                              blurClass,
+                              "ring-1",
+                              "transition-colors duration-200",
+                              "active:scale-[0.99] transition-transform duration-150",
+                              "text-(--olivea-cream)",
+                              active
+                                ? "bg-white/12 ring-white/20"
+                                : "bg-white/6 ring-white/10 hover:bg-white/10",
+                            ].join(" ")}
                           >
                             {label}
                           </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
 
-                <div className="flex flex-col items-center gap-4">
-                <LocaleSwitcher
-                  currentLang={lang}
-                  className="border-[var(--olivea-cream)] text-[var(--olivea-cream)] hover:bg-[var(--olivea-cream)] hover:text-[var(--olivea-olive)]"
-                />
-                  <div className="flex gap-4">
-                    <a
-                      href="https://www.youtube.com/@GrupoOlivea"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="YouTube"
-                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
+                  <div className="flex-1 min-h-6" />
+
+                  <div className="flex flex-col items-center gap-4 pb-2">
+                    <motion.div variants={item} className="transform-gpu will-change-transform">
+                      <LocaleSwitcher
+                        currentLang={lang}
+                        className="border-(--olivea-cream) text-(--olivea-cream) hover:bg-(--olivea-cream) hover:text-(--olivea-olive)"
+                      />
+                    </motion.div>
+
+                    <motion.div variants={item} className="flex gap-5 transform-gpu will-change-transform">
+                      <a href="https://www.youtube.com/@GrupoOlivea" target="_blank" rel="noopener noreferrer" aria-label="YouTube"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                        <FaYoutube size={20} />
+                      </a>
+                      <a href="https://instagram.com/oliveafarmtotable/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                        <FaInstagram size={20} />
+                      </a>
+                      <a href="https://www.tiktok.com/@grupoolivea" target="_blank" rel="noopener noreferrer" aria-label="TikTok"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                        <FaTiktok size={20} />
+                      </a>
+                      <a href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                        <FaLinkedin size={20} />
+                      </a>
+                      <a href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8" target="_blank" rel="noopener noreferrer" aria-label="Spotify"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                        <FaSpotify size={20} />
+                      </a>
+                      <a href="https://mx.pinterest.com/familiaolivea/" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                        <FaPinterest size={20} />
+                      </a>
+                    </motion.div>
+
+                    <motion.button
+                      variants={item}
+                      onClick={() => handleClick(`/${lang}/about`)}
+                      className="text-xs text-(--olivea-shell) opacity-80 hover:opacity-100 hover:underline text-center transform-gpu will-change-transform"
                     >
-                      <FaYoutube size={20} />
-                    </a>
-                    <a
-                      href="https://instagram.com/oliveafarmtotable/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Instagram"
-                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
-                    >
-                      <FaInstagram size={20} />
-                    </a>
-                    <a
-                      href="https://www.tiktok.com/@grupoolivea"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="TikTok"
-                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
-                    >
-                      <FaTiktok size={20} />
-                    </a>
-                    <a
-                      href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="LinkedIn"
-                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
-                    >
-                      <FaLinkedin size={20} />
-                    </a>
-                    <a
-                      href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Spotify"
-                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
-                    >
-                      <FaSpotify size={20} />
-                    </a>
-                    <a
-                      href="https://mx.pinterest.com/familiaolivea/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Pinterest"
-                      className="text-[var(--olivea-shell)] opacity-70 hover:opacity-100 transition-opacity"
-                    >
-                      <FaPinterest size={20} />
-                    </a>
+                      Copyright © {new Date().getFullYear()} Casa Olivea AC.
+                      <br />
+                      {rightsText}
+                    </motion.button>
                   </div>
-                  <button
-                    onClick={() => handleClick(`/${lang}/about`)}
-                    className="text-xs text-[var(--olivea-shell)] hover:underline"
-                  >
-                    Copyright © {new Date().getFullYear()} Casa Olivea AC. <br /> {rightsText}
-                  </button>
-                </div>
+                </motion.div>
               </motion.div>
             </div>
           </FocusTrap>

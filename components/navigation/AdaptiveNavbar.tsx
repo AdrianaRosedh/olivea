@@ -1,7 +1,6 @@
-// components/navigation/AdaptiveNavbar.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection";
@@ -11,11 +10,16 @@ import OliveaFTTLogo from "@/assets/OliveaFTTIcon.svg";
 import MenuToggle from "./MenuToggle";
 import { cn } from "@/lib/utils";
 
+type DrawerOrigin = { x: number; y: number };
+
 type AdaptiveNavbarProps = {
   lang: "en" | "es";
   isDrawerOpen: boolean;
   onToggleDrawer: () => void;
   className?: string;
+
+  /** NEW: report MenuToggle center for MobileDrawer clip-path */
+  onDrawerOriginChange?: (origin: DrawerOrigin) => void;
 };
 
 export default function AdaptiveNavbar({
@@ -23,6 +27,7 @@ export default function AdaptiveNavbar({
   isDrawerOpen,
   onToggleDrawer,
   className,
+  onDrawerOriginChange,
 }: AdaptiveNavbarProps) {
   const isMobile = useIsMobile();
   const pathname = usePathname();
@@ -39,6 +44,8 @@ export default function AdaptiveNavbar({
     });
 
   const { clearTransition } = useSharedTransition();
+
+  const menuBtnRef = useRef<HTMLButtonElement | null>(null);
 
   const refreshSoon = () => {
     if (typeof window === "undefined") return () => {};
@@ -69,6 +76,46 @@ export default function AdaptiveNavbar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang, pathname, isMobile]);
 
+  // NEW: measure MenuToggle center for drawer origin
+  useLayoutEffect(() => {
+    if (!isMobile) return;
+
+    const measure = () => {
+      const el = menuBtnRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      onDrawerOriginChange?.({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    };
+
+    measure();
+
+    // robust updates
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(document.documentElement);
+    } else {
+      window.addEventListener("resize", measure);
+    }
+
+    return () => {
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", measure);
+    };
+  }, [isMobile, onDrawerOriginChange]);
+
+  // re-measure right as drawer opens (helps on first open)
+  useEffect(() => {
+    if (!isMobile || !isDrawerOpen) return;
+    const t = window.setTimeout(() => {
+      const el = menuBtnRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      onDrawerOriginChange?.({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [isDrawerOpen, isMobile, onDrawerOriginChange]);
+
   if (!isMobile) return null;
 
   const logoColor = isDrawerOpen
@@ -95,6 +142,7 @@ export default function AdaptiveNavbar({
           toggle={onToggleDrawer}
           isOpen={isDrawerOpen}
           className={logoColor}
+          buttonRef={menuBtnRef}
         />
       </div>
     </div>

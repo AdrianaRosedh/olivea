@@ -47,7 +47,7 @@ export default function SectionObserver({ sections }: SectionObserverProps) {
     <>
       <div
         ref={containerRef}
-        className="scroll-container min-h-screen overflow-y-auto pb-[120px] md:pb-0"
+        className="scroll-container min-h-screen overflow-y-auto pb-30 md:pb-0"
         style={{
           height: "100vh",
           scrollBehavior: "smooth",
@@ -63,7 +63,7 @@ export default function SectionObserver({ sections }: SectionObserverProps) {
             key={id}
             id={id}
             data-section-id={id}
-            className="min-h-screen w-full flex flex-col items-center justify-center px-6 snap-center scroll-mt-[120px]"
+            className="min-h-screen w-full flex flex-col items-center justify-center px-6 snap-center scroll-mt-30"
             aria-labelledby={`${id}-heading`}
           >
             <div id={`${id}-heading`} className="max-w-2xl text-center">

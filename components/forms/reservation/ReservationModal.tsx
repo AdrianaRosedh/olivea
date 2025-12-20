@@ -284,7 +284,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   ? "Café"
                   : "Cafe"}
                 {reservationType === id && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-(--olivea-olive)" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.75 bg-(--olivea-olive)" />
                 )}
               </button>
             ))}
@@ -357,7 +357,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               {!isMobile && (
                 <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
-                  <OliveaLogo className="h-[45px] md:h-[65px]" />
+                  <OliveaLogo className="h-11.25 md:h-16.25" />
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
                     style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
@@ -393,7 +393,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               {!isMobile && (
                 <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
-                  <OliveaCafe className="h-[45px] md:h-[65px]" />
+                  <OliveaCafe className="h-11.25 md:h-16.25" />
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
                     style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}

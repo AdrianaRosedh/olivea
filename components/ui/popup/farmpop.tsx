@@ -284,7 +284,7 @@ export default function Farmpop({
         <div className="h-full px-4 flex items-center gap-3">
           <span
             className={[
-              "h-10 w-[3px] rounded-full",
+              "h-10 w-0.75 rounded-full",
               active ? "bg-white" : "bg-transparent group-hover:bg-black/20",
             ].join(" ")}
           />
@@ -405,7 +405,7 @@ export default function Farmpop({
                   {/* Desktop left rail */}
                   {!isMobile && tabList.length >= 2 && (
                     <aside
-                      className="hidden md:flex flex-col shrink-0 w-[260px] bg-(--olivea-cream) border-r border-black/10 px-4 py-4 gap-3"
+                      className="hidden md:flex flex-col shrink-0 w-65 bg-(--olivea-cream) border-r border-black/10 px-4 py-4 gap-3"
                       role="tablist"
                       aria-orientation="vertical"
                     >

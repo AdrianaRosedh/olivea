@@ -23,10 +23,10 @@ export function FillButton({ href, label, isActive }: FillButtonProps) {
       href={href}
       onMouseEnter={handleMouseEnter}
       className={[
-        "relative px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap rounded-md border flex items-center justify-center font-medium text-base uppercase tracking-wide fill-nav",
+        "relative px-6 py-2.5 h-13 min-w-47.5 whitespace-nowrap rounded-md border flex items-center justify-center font-medium text-base uppercase tracking-wide fill-nav",
         isActive
-          ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)]"
-          : "text-[var(--olivea-olive)] border-[var(--olivea-olive)]",
+          ? "bg-(--olivea-olive) text-white border-(--olivea-olive)"
+          : "text-(--olivea-olive) border-(--olivea-olive)",
       ].join(" ")}
     >
       <span className="z-front">{label}</span>

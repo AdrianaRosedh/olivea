@@ -52,7 +52,7 @@ function CenterLink({ href, label, isActive, onSameRouteClick }: CenterLinkProps
       aria-current={isActive ? "page" : undefined}
       className={[
         "group relative",
-        "px-6 py-2.5 h-[52px] min-w-[190px] whitespace-nowrap",
+        "px-6 py-2.5 h-13 min-w-47.5 whitespace-nowrap",
         "rounded-full",
         "flex items-center justify-center",
         "font-medium text-base uppercase font-sans tracking-wide",
@@ -334,7 +334,7 @@ export default function Navbar({ lang: _langProp, dictionary }: NavbarProps) {
             onClick={handleReserve}
             data-reserve-intent
             aria-label={lang === "en" ? "Reserve" : "Reservar"}
-            className="bg-(--olivea-olive) text-white px-6 py-2.5 h-[60px] rounded-md hover:bg-(--olivea-clay) transition-colors"
+            className="bg-(--olivea-olive) text-white px-6 py-2.5 h-15 rounded-md hover:bg-(--olivea-clay) transition-colors"
           >
             <span
               className={[

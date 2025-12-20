@@ -22,7 +22,7 @@ export default function ImageCard({
   return (
     <div
       className={[
-        "relative mt-8 w-full max-w-[1100px] mx-auto",
+        "relative mt-8 w-full max-w-275 mx-auto",
         "overflow-hidden rounded-[28px]",
         "ring-1 ring-black/10",
         "shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]",

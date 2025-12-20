@@ -78,7 +78,7 @@ export function Button({
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-0 bg-[var(--primary)]",
+          "pointer-events-none absolute inset-0 bg-(--primary)",
           "scale-0 group-hover:scale-100",
           "transition-transform duration-500 ease-in-out",
           "origin-[var(--ripple-x)_50%]"

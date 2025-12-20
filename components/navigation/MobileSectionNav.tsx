@@ -360,7 +360,7 @@ export default function MobileSectionNav({ items }: Props) {
   return (
     <nav
       ref={containerRef}
-      className="mobile-section-nav fixed bottom-1 inset-x-0 z-[96] pointer-events-auto flex gap-3 py-3 px-2 overflow-x-auto no-scrollbar bg-transparent backdrop-blur supports-[backdrop-filter]:bg-transparent"
+      className="mobile-section-nav fixed bottom-1 inset-x-0 z-96 pointer-events-auto flex gap-3 py-3 px-2 overflow-x-auto no-scrollbar bg-transparent backdrop-blur supports-backdrop-filter]:bg-transparent"
       aria-label="Mobile section navigation"
       role="tablist"
     >
@@ -379,10 +379,10 @@ export default function MobileSectionNav({ items }: Props) {
             aria-controls={main.id}
             tabIndex={isActive ? 0 : -1}
             className={cn(
-              "px-4 py-2 rounded-md text-sm font-medium uppercase border whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--olivea-olive)]",
+              "px-4 py-2 rounded-md text-sm font-medium uppercase border whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-(--olivea-olive)",
               isActive
-                ? "bg-[var(--olivea-olive)] text-white border-[var(--olivea-olive)]"
-                : "bg-[var(--olivea-cream)] text-[var(--olivea-olive)] border-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/10"
+                ? "bg-(--olivea-olive) text-white border-(--olivea-olive)"
+                : "bg-(--olivea-cream) text-(--olivea-olive) border-(--olivea-olive) hover:bg-(--olivea-olive)/10"
             )}
             initial={false}
           >

@@ -38,8 +38,8 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
           onClick={handleClick}
           size="lg"
           className={cn(
-            "w-full h-[60px] rounded-xl bg-[var(--olivea-olive)] text-white",
-            "hover:bg-[var(--olivea-clay)] transition-colors shadow-md",
+            "w-full h-15 rounded-xl bg-(--olivea-olive) text-white",
+            "hover:bg-(--olivea-clay) transition-colors shadow-md",
             labelClasses
           )}
         >
@@ -51,7 +51,7 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
       <div className={cn("hidden md:block", className)}>
         <MagneticButton
           onClick={handleClick}
-          className="px-6 py-3 text-white bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] rounded-md transition-colors"
+          className="px-6 py-3 text-white bg-(--olivea-olive) hover:bg-(--olivea-clay) rounded-md transition-colors"
           textClassName={labelClasses}
           ariaLabel={isES ? "Reservar" : "Reserve"}
         >
