@@ -7,8 +7,13 @@ import {
   useCallback,
   type WheelEventHandler,
 } from "react";
-import { X } from "lucide-react";
-import { motion, type Variants, type Transition } from "framer-motion";
+import { X, ExternalLink } from "lucide-react";
+import {
+  motion,
+  type Variants,
+  type Transition,
+  AnimatePresence,
+} from "framer-motion";
 import {
   useReservation,
   type ReservationType,
@@ -56,28 +61,6 @@ function scheduleIdle(cb: () => void, timeout = 600): () => void {
   return () => window.clearTimeout(t);
 }
 
-/**
- * Best-effort Lenis stop/start while modal is open.
- * Works if your Lenis instance is attached to `window.lenis`.
- * If not, this is a safe no-op.
- */
-function stopLenisIfPresent() {
-  const w = window as unknown as { lenis?: { stop?: () => void } };
-  try {
-    w.lenis?.stop?.();
-  } catch {
-    // no-op
-  }
-}
-function startLenisIfPresent() {
-  const w = window as unknown as { lenis?: { start?: () => void } };
-  try {
-    w.lenis?.start?.();
-  } catch {
-    // no-op
-  }
-}
-
 interface ReservationModalProps {
   lang: "es" | "en";
 }
@@ -96,7 +79,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       typeof window !== "undefined" &&
       window.matchMedia("(max-width:767px)").matches
   );
-
   useEffect(() => {
     const mql = window.matchMedia("(max-width:767px)");
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
@@ -104,36 +86,32 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // ── Body scroll lock + Lenis OFF while modal is open
+  // ── Body scroll lock
   useEffect(() => {
-    if (!isOpen) return;
-
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    // stop smooth-scroll (best-effort)
-    stopLenisIfPresent();
-
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = prevOverflow;
-      startLenisIfPresent();
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
-  // ── Full-screen hotel overlay (mobile only)
+  // ── Full-screen overlays (mobile only)
   const [showHotelOverlay, setShowHotelOverlay] = useState(false);
+  const [showRestaurantOverlay, setShowRestaurantOverlay] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setShowHotelOverlay(false);
-      return;
-    }
+  // Force-remount counter for OpenTable iframe to avoid iOS “frozen iframe”
+  const [otInstance, setOtInstance] = useState(0);
 
-    // If modal opens and we're already on HOTEL on mobile, show overlay
-    if (isMobile && reservationType === "hotel") {
-      setShowHotelOverlay(true);
-    }
-  }, [isOpen, isMobile, reservationType]);
+  const opentableUrl =
+    "https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website";
+
+  const openRestaurantOverlay = useCallback(() => {
+    setOtInstance((n) => n + 1); // force fresh iframe each open
+    setShowRestaurantOverlay(true);
+  }, []);
+
+  const closeRestaurantOverlay = useCallback(() => {
+    setShowRestaurantOverlay(false);
+  }, []);
 
   // ── Pre-mount panes; hotel should mount as soon as modal opens
   const [mounted, setMounted] = useState<{
@@ -150,13 +128,15 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     if (!isOpen) {
       // Reset when modal fully closes
       setMounted({ restaurant: false, hotel: false, cafe: false });
+      setShowHotelOverlay(false);
+      setShowRestaurantOverlay(false);
       return;
     }
 
     // As soon as modal is open, always mount HOTEL immediately
     setMounted((m) => ({
       restaurant: m.restaurant || reservationType === "restaurant",
-      hotel: true,
+      hotel: true, // always mount hotel when modal is open
       cafe: m.cafe || reservationType === "cafe",
     }));
 
@@ -173,17 +153,33 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return cancel;
   }, [isOpen, reservationType]);
 
+  // If modal opens and we're already on HOTEL/RESTAURANT on mobile, open overlays
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (isMobile && reservationType === "hotel") {
+      setShowHotelOverlay(true);
+    }
+
+    if (isMobile && reservationType === "restaurant") {
+      // matches “tap restaurant tab => open immediately”
+      openRestaurantOverlay();
+    }
+  }, [isOpen, isMobile, reservationType, openRestaurantOverlay]);
+
   // ── Tab handler
   const handleTabClick = useCallback(
     (id: ReservationType) => {
       setReservationType(id);
 
-      // On mobile, switching to HOTEL opens full-screen overlay
-      if (isMobile && id === "hotel") {
-        setShowHotelOverlay(true);
-      }
+      if (!isMobile) return;
+
+      if (id === "hotel") setShowHotelOverlay(true);
+
+      // IMPORTANT: even if already on restaurant, opening should always work
+      if (id === "restaurant") openRestaurantOverlay();
     },
-    [isMobile, setReservationType]
+    [isMobile, setReservationType, openRestaurantOverlay]
   );
 
   // ── Easing & transitions
@@ -230,10 +226,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1200"
         initial="hidden"
         animate={isOpen ? "visible" : "hidden"}
-        variants={{
-          hidden: { opacity: 0 },
-          visible: { opacity: 1 },
-        }}
+        variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
         transition={isOpen ? backdropEnter : backdropExit}
         aria-hidden
         onClick={closeReservationModal}
@@ -245,10 +238,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         className={`fixed inset-0 z-1300 flex ${
           isMobile ? "items-end justify-center" : "items-center justify-center p-4"
         }`}
-        style={{
-          willChange: "transform, opacity",
-          contain: "layout paint style",
-        }}
+        style={{ willChange: "transform, opacity", contain: "layout paint style" }}
         variants={panelVariants}
         initial="hidden"
         animate={isOpen ? "visible" : "exit"}
@@ -333,7 +323,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               {mounted.hotel && (
                 <>
                   {isMobile && (
-                    <div className="px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
+                    <div className="px-4 py-3 bg-(--olivea-cream) shrink-0">
                       <span
                         className={`${jakarta.className} font-semibold text-(--olivea-ink) tracking-[0.15em] uppercase`}
                         style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
@@ -344,10 +334,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                     </div>
                   )}
 
-                  <div
-                    className="flex-1 min-h-0 overflow-hidden"
-                    aria-labelledby="hotel-pane-title"
-                  >
+                  <div className="flex-1 min-h-0 overflow-hidden">
                     {isMobile ? (
                       <div className="px-4 pt-6 pb-10 flex justify-center">
                         <button
@@ -362,8 +349,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                             Gestiona tu reserva de Casa Olivea
                           </p>
                           <p className="text-xs text-(--olivea-ink)/70 mb-3">
-                            Toca para abrir el motor seguro de Cloudbeds en
-                            pantalla completa.
+                            Toca para abrir el motor seguro de Cloudbeds en pantalla completa.
                           </p>
                           <span className="text-xs font-semibold underline underline-offset-4">
                             Abrir en pantalla completa
@@ -380,34 +366,69 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               )}
             </div>
 
-            {/* RESTAURANT (OpenTable) */}
+            {/* RESTAURANT */}
             <div
               className={`flex-1 min-h-0 flex flex-col ${
                 reservationType === "restaurant" ? "flex" : "hidden"
               }`}
               aria-hidden={reservationType !== "restaurant"}
             >
-              {!isMobile && (
-                <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
-                  <OliveaLogo className="h-11.25 md:h-16.25" />
-                  <span
-                    className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
-                    style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
-                    id="restaurant-pane-title"
+              {!isMobile ? (
+                <>
+                  <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
+                    <OliveaLogo className="h-11.25 md:h-16.25" />
+                    <span
+                      className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
+                      style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
+                      id="restaurant-pane-title"
+                    >
+                      Olivea Farm To Table
+                    </span>
+                  </div>
+
+                  <div
+                    className="flex-1 min-h-0 overflow-hidden"
+                    aria-labelledby="restaurant-pane-title"
+                    onWheelCapture={stopWheelPropagation}
                   >
-                    Olivea Farm To Table
-                  </span>
+                    {mounted.restaurant && <OpentableWidget />}
+                  </div>
+                </>
+              ) : (
+                // ✅ Mobile: show a clickable card (same UX pattern as Hotel) so you can reopen anytime
+                <div className="flex-1 min-h-0 flex flex-col">
+                  <div className="px-4 py-3 bg-(--olivea-cream) shrink-0">
+                    <span
+                      className={`${jakarta.className} font-semibold text-(--olivea-ink) tracking-[0.15em] uppercase`}
+                      style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
+                      id="restaurant-pane-title"
+                    >
+                      Olivea Farm To Table — OpenTable
+                    </span>
+                  </div>
+
+                  <div className="flex-1 min-h-0 px-4 pt-6 pb-10 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={openRestaurantOverlay}
+                      className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
+                    >
+                      <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/70 mb-2">
+                        Reservación restaurante
+                      </p>
+                      <p className="text-sm font-medium text-(--olivea-ink) mb-1">
+                        Busca mesa en Olivea Farm To Table
+                      </p>
+                      <p className="text-xs text-(--olivea-ink)/70 mb-3">
+                        Toca para abrir OpenTable en pantalla completa.
+                      </p>
+                      <span className="text-xs font-semibold underline underline-offset-4">
+                        Abrir en pantalla completa
+                      </span>
+                    </button>
+                  </div>
                 </div>
               )}
-
-              {/* IMPORTANT: do NOT make parent scrollable; iframe must receive touch */}
-              <div
-                className="flex-1 min-h-0 overflow-hidden"
-                aria-labelledby="restaurant-pane-title"
-                onWheelCapture={stopWheelPropagation}
-              >
-                {mounted.restaurant && <OpentableWidget />}
-              </div>
             </div>
 
             {/* CAFE */}
@@ -473,6 +494,61 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
         </div>
       )}
+
+      {/* MOBILE FULL-SCREEN OPENTABLE SHEET
+          NOTE: mount iframe ONLY when open, and remount each open via key={otInstance}
+      */}
+      <AnimatePresence>
+        {isMobile && showRestaurantOverlay && (
+          <motion.div
+            className="fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.2, ease: EASE },
+            }}
+            exit={{
+              opacity: 0,
+              y: 16,
+              transition: { duration: 0.18, ease: EASE },
+            }}
+          >
+            <div className="flex items-center px-4 py-3 bg-(--olivea-cream) shrink-0">
+              <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/80">
+                Olivea Farm To Table — OpenTable
+              </span>
+
+              <a
+                href={opentableUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mr-2 w-9 h-9 flex items-center justify-center rounded-full border border-(--olivea-olive)/30"
+                aria-label={lang === "es" ? "Abrir en Safari" : "Open in Safari"}
+                title={lang === "es" ? "Abrir en Safari" : "Open in Safari"}
+              >
+                <ExternalLink size={18} />
+              </a>
+
+              <button
+                type="button"
+                onClick={closeRestaurantOverlay}
+                aria-label={lang === "es" ? "Cerrar" : "Close"}
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) shadow-sm active:scale-95 transition-all"
+              >
+                <X size={20} strokeWidth={1.6} />
+              </button>
+            </div>
+
+            {/* Do NOT make parent scrollable; let iframe own it */}
+            <div className="w-full flex-1 min-h-0 overflow-hidden">
+              <div key={otInstance} className="w-full h-full">
+                <OpentableWidget />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
