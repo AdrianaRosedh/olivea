@@ -372,16 +372,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               <div
                 className="flex-1 min-h-0 overflow-y-auto no-scrollbar"
                 aria-labelledby="restaurant-pane-title"
-                style={{
-                  WebkitOverflowScrolling: "touch",
-                  overscrollBehavior: "contain",
-                  touchAction: "pan-y",
-                }}
-                onWheelCapture={stopWheelPropagation}
-                onTouchMoveCapture={stopTouchPropagation}
+                onWheelCapture={stopWheelPropagation} // ok for desktop/trackpads
               >
                 {mounted.restaurant && <OpentableWidget />}
-              </div>
+              </div>             
             </div>
 
             {/* CAFE */}
