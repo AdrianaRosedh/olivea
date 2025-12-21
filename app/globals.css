@@ -219,3 +219,44 @@ body.lcp-demote .fixed-lcp { opacity: 0.001; }
   width: 6px !important;
   height: 6px !important;
 }
+
+/* ───────────────────────────────────────────────────────────── */
+/* JOURNAL TYPOGRAPHY SCALING                                    */
+/* Controlled by --journal-font-scale                            */
+/* ───────────────────────────────────────────────────────────── */
+
+:root {
+  --journal-font-scale: 1;
+}
+
+/* Scale the typography container itself */
+.prose {
+  font-size: calc(1rem * var(--journal-font-scale));
+}
+
+/* Keep headings proportional (optional but recommended) */
+.prose h1 { font-size: calc(2.25em * var(--journal-font-scale)); }
+.prose h2 { font-size: calc(1.75em * var(--journal-font-scale)); }
+.prose h3 { font-size: calc(1.4em * var(--journal-font-scale)); }
+.prose h4 { font-size: calc(1.15em * var(--journal-font-scale)); }
+
+/* Ensure paragraphs & lists follow */
+.prose p,
+.prose li,
+.prose blockquote {
+  font-size: inherit;
+  line-height: calc(var(--line-height-body) * 1em);
+}
+/* If any MDX paragraphs have hardcoded text-[..] sizes, let prose scaling win */
+.prose p[class*="text-["],
+.prose li[class*="text-["] {
+  font-size: inherit !important;
+}
+.prose h1[class*="text-"],
+.prose h2[class*="text-"],
+.prose h3[class*="text-"],
+.prose h4[class*="text-"] {
+  font-size: inherit !important;
+}
+
+

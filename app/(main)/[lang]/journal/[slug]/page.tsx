@@ -2,6 +2,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 
 import { getDictionary, type Lang } from "../../dictionaries";
 import {
@@ -15,6 +16,7 @@ import ReadingProgress from "@/components/journal/ReadingProgress";
 import ArticleAudioPlayer from "@/components/journal/ArticleAudioPlayer";
 import ArticleDock from "@/components/journal/ArticleDock";
 import type { TocItem } from "@/components/journal/ArticleTOC";
+import { CoverLead, BodyLead } from "@/components/journal/JournalSlugEnter";
 
 type Params = { lang: string; slug: string };
 
@@ -49,7 +51,7 @@ export async function generateMetadata({
   }
 }
 
-function formatDate(iso: string, lang: Lang) {
+function formatDateEditorial(iso: string, lang: Lang) {
   try {
     return new Date(iso).toLocaleDateString(lang === "es" ? "es-MX" : "en-US", {
       year: "numeric",
@@ -119,6 +121,23 @@ function safeDescription(x: unknown): string | undefined {
   return typeof d === "string" ? d : undefined;
 }
 
+function safeAuthor(x: unknown): { id?: string; name?: string } {
+  if (!x || typeof x !== "object") return {};
+  const a = (x as Record<string, unknown>).author;
+  if (!a) return {};
+
+  if (typeof a === "string") return { name: a };
+
+  if (typeof a === "object") {
+    const o = a as Record<string, unknown>;
+    const id = typeof o.id === "string" ? o.id : undefined;
+    const name = typeof o.name === "string" ? o.name : undefined;
+    return { id, name };
+  }
+
+  return {};
+}
+
 /* ---------- page ---------- */
 
 export default async function JournalPostPage({
@@ -149,15 +168,19 @@ export default async function JournalPostPage({
   const audio = safeAudio(post.fm);
   const description = safeDescription(post.fm);
 
-  const publishedLabel = formatDate(post.fm.publishedAt, lang);
-  const minutesLeft = Math.max(1, post.readingMinutes);
+  const publishedLabel = formatDateEditorial(post.fm.publishedAt, lang);
+
+  const a = safeAuthor(post.fm);
+  const authorId = a.id;
+  const authorName =
+    a.name ?? (lang === "es" ? "Equipo Olivea" : "Olivea Editorial");
+
+  const publishedPrefix = lang === "es" ? "Publicado el" : "Published on";
 
   return (
     <>
-      {/* top progress bar */}
       <ReadingProgress />
 
-      {/* DockLeft (desktop) + second navbar (mobile) */}
       <ArticleDock
         lang={lang}
         canonicalPath={`/${lang}/journal/${slug}`}
@@ -165,93 +188,119 @@ export default async function JournalPostPage({
       />
 
       <main className="mx-auto w-full px-6 pb-16 pt-10 md:px-10">
-        {/* center article + leave room for DockLeft on desktop */}
         <div className="mx-auto w-full max-w-215 lg:pl-24">
+          {/* Cover leads */}
           {post.fm.cover?.src ? (
-            <div className="relative mb-8 h-[38vh] min-h-60 w-full overflow-hidden rounded-3xl">
-              <Image
-                src={post.fm.cover.src}
-                alt={post.fm.cover.alt || post.fm.title}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 860px"
-                style={{ objectFit: "cover" }}
-              />
-              <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
-            </div>
+            <CoverLead>
+              <div className="relative mb-8 h-[38vh] min-h-60 w-full overflow-hidden rounded-3xl">
+                <Image
+                  src={post.fm.cover.src}
+                  alt={post.fm.cover.alt || post.fm.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 860px"
+                  style={{ objectFit: "cover" }}
+                />
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
+              </div>
+            </CoverLead>
           ) : null}
 
-          <header className="mb-8">
-            <h1 className="text-balance text-4xl font-semibold tracking-tight md:text-5xl">
-              {post.fm.title}
-            </h1>
+          {/* Title + meta follows */}
+          <BodyLead>
+            <header className="mb-8">
+              <h1 className="text-balance text-4xl font-semibold tracking-tight md:text-5xl">
+                {post.fm.title}
+              </h1>
 
-            {description ? (
-              <p className="mt-3 max-w-2xl text-pretty text-lg opacity-80">
-                {description}
-              </p>
-            ) : null}
-
-            <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm opacity-75">
-              <time dateTime={post.fm.publishedAt}>{publishedLabel}</time>
-              <span aria-hidden>—</span>
-              <span>{post.readingMinutes} min</span>
-              <span aria-hidden>·</span>
-              <span>
-                {lang === "es" ? "Aprox." : "Approx."} {minutesLeft}{" "}
-                {lang === "es" ? "min restantes" : "min left"}
-              </span>
-
-              {otherSlug ? (
-                <>
-                  <span aria-hidden>·</span>
-                  <a
-                    className="underline underline-offset-4 hover:opacity-90"
-                    href={`/${otherLang}/journal/${otherSlug}`}
-                  >
-                    {lang === "es" ? "Read in English" : "Leer en Español"}
-                  </a>
-                </>
+              {description ? (
+                <p className="mt-3 max-w-2xl text-pretty text-lg opacity-80">
+                  {description}
+                </p>
               ) : null}
-            </div>
 
-            {audio ? (
-              <div className="mt-6">
-                <ArticleAudioPlayer
-                  title={post.fm.title}
-                  src={audio.src}
-                  chapters={audio.chapters}
-                />
+              {/* Editorial byline (official) */}
+              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-80">
+                <span>
+                  {lang === "es" ? "Por " : "By "}
+                  {authorId ? (
+                    <Link
+                      href={`/${lang}/journal/author/${authorId}`}
+                      className="font-medium underline underline-offset-4 hover:opacity-90"
+                    >
+                      {authorName}
+                    </Link>
+                  ) : (
+                    <span className="font-medium underline underline-offset-4">
+                      {authorName}
+                    </span>
+                  )}
+                </span>
+
+                <span className="opacity-50">•</span>
+
+                <span>
+                  {publishedPrefix}{" "}
+                  <time dateTime={post.fm.publishedAt} className="font-medium">
+                    {publishedLabel}
+                  </time>
+                </span>
+
+                <span className="opacity-50">•</span>
+
+                <span className="font-medium">{post.readingMinutes} min</span>
+
+                {otherSlug ? (
+                  <>
+                    <span className="opacity-50">•</span>
+                    <a
+                      className="underline underline-offset-4 hover:opacity-90"
+                      href={`/${otherLang}/journal/${otherSlug}`}
+                    >
+                      {lang === "es" ? "Read in English" : "Leer en Español"}
+                    </a>
+                  </>
+                ) : null}
               </div>
-            ) : null}
-          </header>
 
-          <article
-            className={[
-              "prose prose-neutral dark:prose-invert",
-              "prose-headings:scroll-mt-28",
-              "prose-img:rounded-2xl",
-              "prose-a:underline prose-a:underline-offset-4",
-              "max-w-none",
-            ].join(" ")}
-            style={{ fontSize: "calc(1rem * var(--journal-font-scale, 1))" }}
-          >
-            {post.content}
-          </article>
+              {audio ? (
+                <div className="mt-6">
+                  <ArticleAudioPlayer
+                    title={post.fm.title}
+                    src={audio.src}
+                    chapters={audio.chapters}
+                  />
+                </div>
+              ) : null}
+            </header>
 
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-
-          <div className="mt-12 text-sm opacity-70">
-            <a
-              className="underline underline-offset-4 hover:opacity-90"
-              href={`/${lang}/journal`}
+            <article
+              className={[
+                "prose prose-neutral dark:prose-invert",
+                "prose-headings:scroll-mt-28",
+                "prose-img:rounded-2xl",
+                "prose-a:underline prose-a:underline-offset-4",
+                "max-w-none",
+              ].join(" ")}
+              style={{ fontSize: "calc(1rem * var(--journal-font-scale, 1))" }}
             >
-              {dict.journal?.backToJournal ?? "Back to Journal"}
-            </a>
-          </div>
+              {post.content}
+            </article>
+
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+
+            <div className="mt-12 text-sm opacity-70">
+              <a
+                className="underline underline-offset-4 hover:opacity-90"
+                href={`/${lang}/journal`}
+              >
+                {dict.journal?.backToJournal ?? "Back to Journal"}
+              </a>
+            </div>
+          </BodyLead>
         </div>
       </main>
     </>

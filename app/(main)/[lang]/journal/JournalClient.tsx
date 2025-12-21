@@ -126,16 +126,6 @@ export default function JournalClient({
     return { featured: feat, rest: remainder };
   }, [filtered, lang, pillar, tag, q]);
 
-  const rhythmClass = (slug: string) => {
-    const r = hash32(slug) % 6;
-    if (r === 0) return "xl:translate-y-0";
-    if (r === 1) return "xl:translate-y-[6px]";
-    if (r === 2) return "xl:translate-y-[10px]";
-    if (r === 3) return "xl:translate-y-[14px]";
-    if (r === 4) return "xl:translate-y-[8px]";
-    return "xl:translate-y-[12px]";
-  };
-
   const canHover = useCallback(() => {
     if (typeof window === "undefined") return false;
     return window.matchMedia?.("(hover: hover) and (pointer: fine)")?.matches ?? false;
@@ -197,11 +187,8 @@ export default function JournalClient({
 
       <section
         className={cn(
-          // ✅ match Press/Bar alignment on mobile
           "px-3 sm:px-8 md:px-10 2xl:px-12",
-          // ✅ only reserve left space when dock is visible (lg+)
           "lg:ml-86",
-          // keep right dock spacing
           "md:mr-(--dock-right)"
         )}
       >
@@ -298,7 +285,10 @@ export default function JournalClient({
         ) : null}
 
         <section id="posts" className="mt-8 sm:mt-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[repeat(3,minmax(360px,1fr))] gap-6 sm:gap-10">
+          <div
+            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[repeat(3,minmax(360px,1fr))] gap-6 sm:gap-10"
+            style={{ gridAutoRows: "1fr" }}
+          >
             {rest.map((p, i) => {
               const prettyDate = fmtDate(p.publishedAt);
               const delay = perCardDelay(p.slug, i);
@@ -306,7 +296,7 @@ export default function JournalClient({
               return (
                 <motion.div
                   key={`${p.lang}:${p.slug}`}
-                  className={cn("will-change-transform", rhythmClass(p.slug))}
+                  className="will-change-transform h-full"
                   variants={cardV}
                   initial={reduce ? false : "hidden"}
                   whileInView="show"
@@ -316,7 +306,7 @@ export default function JournalClient({
                   <MotionLink
                     href={`/${lang}/journal/${p.slug}`}
                     className={cn(
-                      "group block overflow-hidden rounded-[22px]",
+                      "group flex h-full flex-col overflow-hidden rounded-[22px]",
                       "border border-(--olivea-olive)/12 bg-white/58",
                       "shadow-[0_14px_34px_rgba(40,60,35,0.10)]",
                       "transition will-change-transform",
@@ -343,7 +333,7 @@ export default function JournalClient({
                       )}
                     </div>
 
-                    <div className="p-5 sm:p-7">
+                    <div className="flex flex-1 flex-col p-5 sm:p-7">
                       <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-80">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="truncate">{p.pillar}</span>
@@ -359,32 +349,39 @@ export default function JournalClient({
                       </h3>
 
                       <p className="mt-2 text-[14px] sm:text-[15px] leading-[1.6] sm:leading-[1.65] text-(--olivea-clay) opacity-95 line-clamp-3">
-                        {p.excerpt}
+                        {p.excerpt || " "}
                       </p>
 
-                      {!!p.tags?.length ? (
-                        <div className="mt-5 hidden sm:flex flex-wrap gap-2">
-                          {p.tags.slice(0, 3).map((t) => (
-                            <span
-                              key={t}
-                              className={cn(
-                                "text-[12px] px-3 py-1.5 rounded-full",
-                                "bg-(--olivea-cream)/70 border border-(--olivea-olive)/18",
-                                "text-(--olivea-olive) opacity-90"
-                              )}
-                            >
-                              {t}
-                            </span>
-                          ))}
+                      {/* Footer zone pinned to bottom for uniform card height */}
+                      <div className="mt-auto pt-5">
+                        <div className="hidden sm:block min-h-14">
+                          {p.tags?.length ? (
+                            <div className="flex flex-wrap gap-2">
+                              {p.tags.slice(0, 3).map((t) => (
+                                <span
+                                  key={t}
+                                  className={cn(
+                                    "text-[12px] px-3 py-1.5 rounded-full",
+                                    "bg-(--olivea-cream)/70 border border-(--olivea-olive)/18",
+                                    "text-(--olivea-olive) opacity-90"
+                                  )}
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <div aria-hidden className="h-9" />
+                          )}
                         </div>
-                      ) : null}
 
-                      <div className="mt-5 h-0.5 w-full bg-(--olivea-olive)/10 overflow-hidden rounded-full">
-                        <div
-                          data-progress
-                          className="h-full w-full origin-left bg-(--olivea-olive)/30"
-                          style={{ transform: "scaleX(0)" }}
-                        />
+                        <div className="mt-5 h-0.5 w-full bg-(--olivea-olive)/10 overflow-hidden rounded-full">
+                          <div
+                            data-progress
+                            className="h-full w-full origin-left bg-(--olivea-olive)/30"
+                            style={{ transform: "scaleX(0)" }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </MotionLink>

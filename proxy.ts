@@ -29,6 +29,7 @@ function isPreviewScraper(request: NextRequest): boolean {
 /** Paths that should bypass locale redirect / header munging */
 function isStaticPath(path: string): boolean {
   return (
+    path.startsWith("/j") ||
     path.startsWith("/_next") ||
     path.startsWith("/api") ||
     path === "/favicon.ico" ||

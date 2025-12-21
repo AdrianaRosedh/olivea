@@ -1,4 +1,3 @@
-// app/j/[code]/route.ts
 import { NextResponse } from "next/server";
 import { listJournalSlugs } from "@/lib/journal/load";
 import { makeShortCode } from "@/lib/journal/shortcode";
@@ -9,11 +8,11 @@ async function buildMap(): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   const langs = ["es", "en"] as const;
 
-  for (const lang of langs) {
-    const slugs = await listJournalSlugs(lang);
+  for (const l of langs) {
+    const slugs = await listJournalSlugs(l);
     for (const slug of slugs) {
-      const code = makeShortCode(`${lang}:${slug}`);
-      map.set(code, `/${lang}/journal/${slug}`);
+      const code = makeShortCode(`${l}:${slug}`);
+      map.set(code, `/${l}/journal/${slug}`);
     }
   }
 
@@ -22,18 +21,15 @@ async function buildMap(): Promise<Map<string, string>> {
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ lang: string; code: string }> }
 ) {
   const { code } = await params;
 
-  if (!cached) {
-    cached = await buildMap();
-  }
+  if (!cached) cached = await buildMap();
 
   const target = cached.get(code);
 
   if (!target) {
-    // ✅ correct origin automatically (localhost, staging, production)
     return NextResponse.redirect(new URL("/journal", req.url), 302);
   }
 

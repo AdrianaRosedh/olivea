@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   AnimatePresence,
-  useReducedMotion,
   useScroll,
   useMotionValueEvent,
 } from "framer-motion";
@@ -42,7 +41,6 @@ export default function ArticleDock({
   canonicalPath: string;
   toc: TocItem[];
 }) {
-  const reduce = useReducedMotion();
   const hasToc = toc.length > 0;
 
   const labels = useMemo(
@@ -107,14 +105,42 @@ export default function ArticleDock({
     window.setTimeout(() => setToast(null), 1600);
   }, []);
 
-  const bumpFont = useCallback((delta: number) => {
-    const root = document.documentElement;
-    const raw = getComputedStyle(root).getPropertyValue("--journal-font-scale").trim();
-    const current = raw ? Number(raw) : 1;
-    const safe = Number.isFinite(current) ? current : 1;
-    const next = Math.min(1.2, Math.max(0.9, safe + delta));
-    root.style.setProperty("--journal-font-scale", String(next));
+  /**
+   * Font scale that *always* works:
+   * set var on <html>, <body>, and <main> if present.
+   */
+  const setScaleVar = useCallback((value: number) => {
+    const v = String(value);
+    document.documentElement.style.setProperty("--journal-font-scale", v);
+    document.body.style.setProperty("--journal-font-scale", v);
+
+    const main = document.querySelector("main");
+    if (main instanceof HTMLElement) {
+      main.style.setProperty("--journal-font-scale", v);
+    }
   }, []);
+
+  // Ensure default exists
+  useEffect(() => {
+    const raw = getComputedStyle(document.documentElement)
+      .getPropertyValue("--journal-font-scale")
+      .trim();
+    if (!raw) setScaleVar(1);
+  }, [setScaleVar]);
+
+  const bumpFont = useCallback(
+    (delta: number) => {
+      const root = document.documentElement;
+      const raw = getComputedStyle(root).getPropertyValue("--journal-font-scale").trim();
+      const current = raw ? Number(raw) : 1;
+      const safe = Number.isFinite(current) ? current : 1;
+
+      const next = Math.min(1.25, Math.max(0.9, safe + delta));
+      setScaleVar(next);
+      showToast(`${next.toFixed(2)}×`);
+    },
+    [setScaleVar, showToast]
+  );
 
   const copy = useCallback(async () => {
     try {
@@ -143,7 +169,6 @@ export default function ArticleDock({
     try {
       const nav = navigator as ShareCapableNavigator;
       if (nav.share) {
-        // Share the full canonical url (best compatibility), but copy uses shortUrl
         await nav.share({ url, text: shareText });
         return true;
       }
@@ -157,6 +182,7 @@ export default function ArticleDock({
      share (mobile sheet + desktop panel)
      ========================= */
   const [shareOpen, setShareOpen] = useState(false);
+  const [sharePanelOpen, setSharePanelOpen] = useState(false);
 
   const openShare = useCallback(async () => {
     const ok = await tryNativeShare();
@@ -176,6 +202,7 @@ export default function ArticleDock({
      toc sheet (mobile) + toc panel (desktop)
      ========================= */
   const [tocSheetOpen, setTocSheetOpen] = useState(false);
+  const [tocPanelOpen, setTocPanelOpen] = useState(false);
 
   useEffect(() => {
     if (!tocSheetOpen) return;
@@ -234,25 +261,25 @@ export default function ArticleDock({
   });
 
   const TOP_OFFSET_CLASS = "top-14";
-  const BAR_HEIGHT_SPACER = "h-16";
+  const BAR_HEIGHT_SPACER = "h-14";
 
   const iconBtn = cn(
-    "h-11 w-11 rounded-full",
-    "bg-white/35 ring-1 ring-(--olivea-olive)/14",
-    "text-(--olivea-olive) opacity-90",
-    "hover:bg-white/45 hover:opacity-100 transition",
+    "h-10 w-10 rounded-full",
+    "bg-white/22 ring-1 ring-(--olivea-olive)/12",
+    "text-(--olivea-olive) opacity-85",
+    "hover:bg-white/30 hover:opacity-100 transition",
     "inline-flex items-center justify-center"
   );
 
   const ShareGrid = ({ onDone }: { onDone?: () => void }) => {
     const btn = cn(
       "rounded-2xl px-4 py-3 text-left",
-      "bg-white/35 ring-1 ring-(--olivea-olive)/14 hover:bg-white/45 transition",
+      "bg-white/30 ring-1 ring-(--olivea-olive)/14 hover:bg-white/38 transition",
       "text-(--olivea-olive)"
     );
 
     const iconWrap = cn(
-      "h-9 w-9 rounded-full bg-white/45 ring-1 ring-(--olivea-olive)/14",
+      "h-9 w-9 rounded-full bg-white/35 ring-1 ring-(--olivea-olive)/12",
       "inline-flex items-center justify-center"
     );
 
@@ -318,13 +345,13 @@ export default function ArticleDock({
         animate={barHidden ? "hidden" : "show"}
         variants={{
           show: { y: 0, opacity: 1 },
-          hidden: { y: -48, opacity: 0 },
+          hidden: { y: -44, opacity: 0 },
         }}
-        transition={{ duration: barHidden ? 0.38 : 0.18, ease: EASE }}
+        transition={{ duration: barHidden ? 0.34 : 0.18, ease: EASE }}
       >
         <div className="px-3 pt-2" style={{ pointerEvents: "auto" }}>
-          <div className="rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 backdrop-blur-lg shadow-xl">
-            <div className="px-2.5 py-2 flex items-center justify-between">
+          <div className="rounded-2xl bg-white/24 ring-1 ring-(--olivea-olive)/10 backdrop-blur-md">
+            <div className="px-2 py-2 flex items-center justify-between">
               <button
                 type="button"
                 onClick={openShare}
@@ -376,7 +403,7 @@ export default function ArticleDock({
                   <List className="h-5 w-5" />
                 </button>
               ) : (
-                <div className="h-11 w-11" aria-hidden />
+                <div className="h-10 w-10" aria-hidden />
               )}
             </div>
           </div>
@@ -400,13 +427,13 @@ export default function ArticleDock({
                 className={cn(
                   "fixed z-50 left-0 right-0 bottom-0",
                   "rounded-t-3xl bg-white/75 ring-1 ring-(--olivea-olive)/14",
-                  "backdrop-blur-lg shadow-2xl"
+                  "backdrop-blur-md"
                 )}
                 style={{ pointerEvents: "auto" }}
                 initial={{ y: 420, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 420, opacity: 0 }}
-                transition={{ duration: 0.28, ease: EASE }}
+                transition={{ duration: 0.26, ease: EASE }}
                 role="dialog"
                 aria-modal="true"
               >
@@ -462,13 +489,13 @@ export default function ArticleDock({
                 className={cn(
                   "fixed z-50 left-0 right-0 bottom-0",
                   "rounded-t-3xl bg-white/75 ring-1 ring-(--olivea-olive)/14",
-                  "backdrop-blur-lg shadow-2xl"
+                  "backdrop-blur-md"
                 )}
                 style={{ pointerEvents: "auto" }}
                 initial={{ y: 420, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 420, opacity: 0 }}
-                transition={{ duration: 0.28, ease: EASE }}
+                transition={{ duration: 0.26, ease: EASE }}
                 role="dialog"
                 aria-modal="true"
               >
@@ -510,7 +537,7 @@ export default function ArticleDock({
         <AnimatePresence>
           {toast ? (
             <motion.div
-              className="fixed left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] bg-white/65 ring-1 ring-(--olivea-olive)/14 backdrop-blur-lg text-(--olivea-olive) shadow-xl"
+              className="fixed left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] bg-white/60 ring-1 ring-(--olivea-olive)/12 backdrop-blur-md text-(--olivea-olive)"
               style={{
                 pointerEvents: "none",
                 top: "calc(env(safe-area-inset-top) + 112px)",
@@ -529,115 +556,111 @@ export default function ArticleDock({
   );
 
   /* =========================
-     Desktop: vertical icon dock + panels
+     Desktop: pill dock (like top nav) + panels
      ========================= */
-  const [sharePanelOpen, setSharePanelOpen] = useState(false);
-  const [tocPanelOpen, setTocPanelOpen] = useState(false);
-
-  const dockBtn = cn(
-    "h-11 w-11 rounded-full",
-    "bg-white/30 ring-1 ring-(--olivea-olive)/18",
-    "text-(--olivea-olive) opacity-90",
-    "hover:bg-white/42 hover:opacity-100 transition",
-    "inline-flex items-center justify-center",
-    "shadow-lg"
-  );
-
-  const Tooltip = ({
-    label,
-    children,
-  }: {
-    label: string;
-    children: React.ReactNode;
-  }) => (
-    <div className="group relative">
-      {children}
-      <div
-        className={cn(
-          "pointer-events-none absolute left-14 top-1/2 -translate-y-1/2",
-          "opacity-0 group-hover:opacity-100 transition",
-          "rounded-full px-3 py-1 text-[12px]",
-          "bg-white/70 ring-1 ring-(--olivea-olive)/14 backdrop-blur-lg",
-          "text-(--olivea-olive) whitespace-nowrap"
-        )}
-      >
-        {label}
-      </div>
-    </div>
-  );
-
   const desktopDock = (
     <div className="hidden lg:block">
-      <div className="fixed left-6 z-40" style={{ top: 240 }} aria-label="Article dock">
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: EASE }}
-          className="flex flex-col gap-2"
+      <div
+        className="fixed left-6 z-40"
+        style={{ top: 240 }}
+        aria-label="Article dock"
+      >
+        {/* Shared pill background (like top nav) */}
+        <div
+          className={cn(
+            "flex flex-col gap-2 p-2",
+            "rounded-full",
+            "bg-white/24",
+            "ring-1 ring-(--olivea-olive)/14",
+            "backdrop-blur-md"
+          )}
         >
-          <Tooltip label={labels.share}>
+          <button
+            type="button"
+            onClick={() => {
+              setSharePanelOpen((v) => !v);
+              setTocPanelOpen(false);
+            }}
+            className={cn(
+              "h-12 w-12 rounded-full",
+              "flex items-center justify-center",
+              "text-(--olivea-olive)",
+              "hover:bg-white/30 transition"
+            )}
+            aria-label={labels.share}
+            title={labels.share}
+          >
+            <Share2 className="h-5 w-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={copy}
+            className={cn(
+              "h-12 w-12 rounded-full",
+              "flex items-center justify-center",
+              "text-(--olivea-olive)",
+              "hover:bg-white/30 transition"
+            )}
+            aria-label={labels.copy}
+            title={labels.copy}
+          >
+            <Link2 className="h-5 w-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => bumpFont(0.05)}
+            className={cn(
+              "h-12 w-12 rounded-full",
+              "flex items-center justify-center",
+              "text-(--olivea-olive)",
+              "hover:bg-white/30 transition"
+            )}
+            aria-label={labels.bigger}
+            title={labels.bigger}
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => bumpFont(-0.05)}
+            className={cn(
+              "h-12 w-12 rounded-full",
+              "flex items-center justify-center",
+              "text-(--olivea-olive)",
+              "hover:bg-white/30 transition"
+            )}
+            aria-label={labels.smaller}
+            title={labels.smaller}
+          >
+            <Minus className="h-5 w-5" />
+          </button>
+
+          {hasToc ? (
             <button
               type="button"
               onClick={() => {
-                setSharePanelOpen((v) => !v);
-                setTocPanelOpen(false);
+                setTocPanelOpen((v) => !v);
+                setSharePanelOpen(false);
               }}
-              className={dockBtn}
-              aria-label={labels.share}
-              aria-expanded={sharePanelOpen}
+              className={cn(
+                "h-12 w-12 rounded-full",
+                "flex items-center justify-center",
+                "text-(--olivea-olive)",
+                "hover:bg-white/30 transition"
+              )}
+              aria-label={labels.toc}
+              title={labels.toc}
             >
-              <Share2 className="h-5 w-5" />
+              <List className="h-5 w-5" />
             </button>
-          </Tooltip>
-
-          <Tooltip label={labels.copy}>
-            <button type="button" onClick={copy} className={dockBtn} aria-label={labels.copy}>
-              <Link2 className="h-5 w-5" />
-            </button>
-          </Tooltip>
-
-          <Tooltip label={labels.bigger}>
-            <button
-              type="button"
-              onClick={() => bumpFont(0.05)}
-              className={dockBtn}
-              aria-label={labels.bigger}
-            >
-              <Plus className="h-5 w-5" />
-            </button>
-          </Tooltip>
-
-          <Tooltip label={labels.smaller}>
-            <button
-              type="button"
-              onClick={() => bumpFont(-0.05)}
-              className={dockBtn}
-              aria-label={labels.smaller}
-            >
-              <Minus className="h-5 w-5" />
-            </button>
-          </Tooltip>
-
-          {hasToc ? (
-            <Tooltip label={labels.toc}>
-              <button
-                type="button"
-                onClick={() => {
-                  setTocPanelOpen((v) => !v);
-                  setSharePanelOpen(false);
-                }}
-                className={dockBtn}
-                aria-label={labels.toc}
-                aria-expanded={tocPanelOpen}
-              >
-                <List className="h-5 w-5" />
-              </button>
-            </Tooltip>
           ) : null}
-        </motion.div>
+        </div>
       </div>
 
-      {/* click-away */}
+      {/* click-away for desktop panels */}
       <AnimatePresence>
         {sharePanelOpen || tocPanelOpen ? (
           <motion.button
@@ -656,14 +679,16 @@ export default function ArticleDock({
         ) : null}
       </AnimatePresence>
 
-      {/* Share panel */}
+      {/* Desktop Share panel */}
       <AnimatePresence>
         {sharePanelOpen ? (
           <motion.div
             className={cn(
               "fixed z-40 w-80",
-              "rounded-3xl bg-white/70 ring-1 ring-(--olivea-olive)/14",
-              "backdrop-blur-lg shadow-2xl p-4"
+              "rounded-3xl",
+              "bg-white/24 ring-1 ring-(--olivea-olive)/12",
+              "backdrop-blur-md",
+              "p-4"
             )}
             style={{ left: 96, top: 220 }}
             initial={{ opacity: 0, y: 8 }}
@@ -675,11 +700,20 @@ export default function ArticleDock({
               <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
                 {labels.shareTo}
               </div>
+
               <button
                 type="button"
                 onClick={() => setSharePanelOpen(false)}
-                className="h-9 w-9 rounded-full bg-white/45 ring-1 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/60 transition"
+                className={cn(
+                  "h-10 w-10 rounded-full",
+                  "inline-flex items-center justify-center",
+                  "bg-white/22 ring-1 ring-(--olivea-olive)/12",
+                  "text-(--olivea-olive) opacity-90",
+                  "hover:bg-(--olivea-olive) hover:text-(--olivea-cream) hover:opacity-100",
+                  "transition"
+                )}
                 aria-label={labels.close}
+                title={labels.close}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -692,14 +726,16 @@ export default function ArticleDock({
         ) : null}
       </AnimatePresence>
 
-      {/* TOC panel */}
+      {/* Desktop TOC panel */}
       <AnimatePresence>
         {hasToc && tocPanelOpen ? (
           <motion.div
             className={cn(
               "fixed z-40 w-80",
-              "rounded-3xl bg-white/70 ring-1 ring-(--olivea-olive)/14",
-              "backdrop-blur-lg shadow-2xl p-4"
+              "rounded-3xl",
+              "bg-white/24 ring-1 ring-(--olivea-olive)/12",
+              "backdrop-blur-md",
+              "p-4"
             )}
             style={{ left: 96, top: 220 }}
             initial={{ opacity: 0, y: 8 }}
@@ -711,11 +747,20 @@ export default function ArticleDock({
               <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
                 {labels.toc}
               </div>
+
               <button
                 type="button"
                 onClick={() => setTocPanelOpen(false)}
-                className="h-9 w-9 rounded-full bg-white/45 ring-1 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/60 transition"
+                className={cn(
+                  "h-10 w-10 rounded-full",
+                  "inline-flex items-center justify-center",
+                  "bg-white/22 ring-1 ring-(--olivea-olive)/12",
+                  "text-(--olivea-olive) opacity-90",
+                  "hover:bg-(--olivea-olive) hover:text-(--olivea-cream) hover:opacity-100",
+                  "transition"
+                )}
                 aria-label={labels.close}
+                title={labels.close}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -728,11 +773,11 @@ export default function ArticleDock({
         ) : null}
       </AnimatePresence>
 
-      {/* toast */}
+      {/* desktop toast */}
       <AnimatePresence>
         {toast ? (
           <motion.div
-            className="fixed left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] bg-white/65 ring-1 ring-(--olivea-olive)/14 backdrop-blur-lg text-(--olivea-olive) shadow-xl"
+            className="fixed left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] bg-white/60 ring-1 ring-(--olivea-olive)/12 backdrop-blur-md text-(--olivea-olive)"
             style={{ pointerEvents: "none", top: 120 }}
             initial={{ y: -8, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

@@ -1,16 +1,38 @@
+// lib/journal/schema.ts
 import { z } from "zod";
 
 export const JournalLang = z.enum(["es", "en"]);
 export type JournalLang = z.infer<typeof JournalLang>;
 
+/**
+ * Pillars:
+ * - Canonical Olivea pillars (original)
+ * - Extra ES/EN-friendly values (so writing dummy posts doesn't break builds)
+ *
+ * If later you want ONE canonical set for filtering/UI, we can normalize these
+ * in lib/journal/load.ts before validation.
+ */
 export const JournalPillar = z.enum([
+  // canonical
   "territorio",
   "comite",
   "equipo",
   "colibries",
   "cocina",
   "vision",
+
+  // additional Spanish-friendly
+  "huerto",
+  "sostenibilidad",
+  "hospitalidad",
+
+  // additional English-friendly
+  "garden",
+  "sustainability",
+  "hospitality",
+  "cuisine",
 ]);
+
 export type JournalPillar = z.infer<typeof JournalPillar>;
 
 export const JournalFrontmatterSchema = z.object({
@@ -43,6 +65,18 @@ export const JournalFrontmatterSchema = z.object({
       canonical: z.string().min(1).optional(),
       noindex: z.boolean().optional(),
     })
+    .optional(),
+
+  // Optional fields your UI now supports (safe, non-breaking)
+  description: z.string().min(1).optional(),
+  author: z
+    .union([
+      z.string().min(1),
+      z.object({
+        id: z.string().min(1).optional(),
+        name: z.string().min(1),
+      }),
+    ])
     .optional(),
 });
 
