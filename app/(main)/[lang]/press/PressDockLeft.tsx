@@ -15,6 +15,18 @@ import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 gsap.registerPlugin(ScrollToPlugin);
 
+import {
+  Search,
+  SlidersHorizontal,
+  Layers,
+  X,
+  ArrowUp,
+  Newspaper,
+  Award,
+  FolderArchive,
+  Mail,
+} from "lucide-react";
+
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const dockV: Variants = {
@@ -66,6 +78,10 @@ export default function PressDockLeft({
 }) {
   const reduce = useReducedMotion();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // ✅ mobile sheet state
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetTab, setSheetTab] = useState<"filters" | "jump">("filters");
 
   const unlockTimer = useRef<number | null>(null);
   const safetyTimer = useRef<number | null>(null);
@@ -156,8 +172,6 @@ export default function PressDockLeft({
       if (!el) return;
 
       clearTimers();
-
-      // Kill any in-flight scroll tween to avoid “rubber band”
       gsap.killTweensOf(window);
 
       gsap.to(window, {
@@ -169,9 +183,6 @@ export default function PressDockLeft({
           offsetY: TOP_OFFSET_PX,
           autoKill: true,
         },
-        onComplete: () => {
-          // no second adjustment = no bounce
-        },
       });
 
       if (window.location.hash.slice(1) !== id) {
@@ -182,11 +193,12 @@ export default function PressDockLeft({
     },
     [clearTimers, reduce]
   );
-  
+
   const onNav = useCallback(
     (e: React.MouseEvent, id: string) => {
       e.preventDefault();
       scrollToSection(id);
+      setSheetOpen(false);
     },
     [scrollToSection]
   );
@@ -204,7 +216,6 @@ export default function PressDockLeft({
       scrollToSection(hash);
     };
     kick();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -214,7 +225,408 @@ export default function PressDockLeft({
     };
   }, [clearTimers]);
 
-  return (
+  // ✅ lock body scroll when mobile sheet open
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sheetOpen]);
+
+  /* =========================
+     MOBILE UI (md:hidden)
+     ========================= */
+
+  const mobileBar = (
+    <div className="md:hidden sticky top-14 z-40">
+      <div className="px-3 pt-2">
+        <div className="rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 backdrop-blur-[10px] shadow-[0_10px_24px_rgba(40,60,35,0.10)]">
+          <div className="px-2.5 py-2 flex items-center gap-2">
+            {/* Search */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 rounded-full bg-white/35 ring-1 ring-(--olivea-olive)/14 px-3 py-2">
+                <Search className="h-4 w-4 opacity-70 shrink-0 text-(--olivea-olive)" />
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder={tt(lang, "Buscar…", "Search…")}
+                  className={cn(
+                    "w-full bg-transparent outline-none",
+                    "text-[13px] text-(--olivea-olive)",
+                    "placeholder:text-(--olivea-clay)/65"
+                  )}
+                />
+                {/* clear search */}
+                {q ? (
+                  <button
+                    type="button"
+                    onClick={() => setQ("")}
+                    className={cn(
+                      "inline-flex items-center justify-center",
+                      "h-7 w-7 rounded-full",
+                      "bg-white/35 ring-1 ring-(--olivea-olive)/12",
+                      "text-(--olivea-olive) opacity-80 hover:opacity-100 transition"
+                    )}
+                    aria-label={tt(lang, "Borrar", "Clear")}
+                    title={tt(lang, "Borrar", "Clear")}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+              </div>
+            </div>
+              
+            {/* Reset (only when active) */}
+            {(q || identity !== "all" || kind !== "all" || year !== "all") ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQ("");
+                  setIdentity("all");
+                  setKind("all");
+                  setYear("all");
+                }}
+                className={cn(
+                  "inline-flex items-center justify-center",
+                  "h-10 w-10 rounded-full",
+                  "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                  "text-(--olivea-olive) hover:bg-white/45 transition"
+                )}
+                aria-label={tt(lang, "Limpiar filtros", "Reset filters")}
+                title={tt(lang, "Limpiar", "Reset")}
+              >
+                <X className="h-4 w-4 opacity-80" />
+              </button>
+            ) : null}
+  
+            {/* Filters */}
+            <button
+              type="button"
+              onClick={() => {
+                setSheetTab("filters");
+                setSheetOpen(true);
+              }}
+              className={cn(
+                "inline-flex items-center justify-center",
+                "h-10 w-10 rounded-full",
+                "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                "text-(--olivea-olive) hover:bg-white/45 transition"
+              )}
+              aria-label={tt(lang, "Filtros", "Filters")}
+              title={tt(lang, "Filtros", "Filters")}
+            >
+              <SlidersHorizontal className="h-4 w-4 opacity-80" />
+            </button>
+            
+            {/* Jump */}
+            <button
+              type="button"
+              onClick={() => {
+                setSheetTab("jump");
+                setSheetOpen(true);
+              }}
+              className={cn(
+                "inline-flex items-center justify-center",
+                "h-10 w-10 rounded-full",
+                "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                "text-(--olivea-olive) hover:bg-white/45 transition"
+              )}
+              aria-label={tt(lang, "Secciones", "Sections")}
+              title={tt(lang, "Secciones", "Sections")}
+            >
+              <Layers className="h-4 w-4 opacity-80" />
+            </button>
+          </div>
+        </div>
+      </div>
+            
+      {/* Mobile bottom sheet */}
+      <AnimatePresence>
+        {sheetOpen ? (
+          <>
+            {/* overlay */}
+            <motion.button
+              type="button"
+              className="fixed inset-0 z-40 bg-black/25"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSheetOpen(false)}
+              aria-label={tt(lang, "Cerrar", "Close")}
+            />
+  
+            {/* sheet */}
+            <motion.div
+              className={cn(
+                "fixed z-50 left-0 right-0 bottom-0",
+                "rounded-t-3xl bg-white/75 ring-1 ring-(--olivea-olive)/14",
+                "backdrop-blur-[10px] shadow-[0_-16px_40px_rgba(0,0,0,0.18)]"
+              )}
+              initial={{ y: 420, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 420, opacity: 0 }}
+              transition={{ duration: 0.28, ease: EASE }}
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="px-4 pt-3 pb-4">
+                {/* grabber */}
+                <div className="mx-auto h-1 w-10 rounded-full bg-(--olivea-olive)/15" />
+            
+                {/* header */}
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+                    {sheetTab === "filters"
+                      ? tt(lang, "Filtros", "Filters")
+                      : tt(lang, "Secciones", "Sections")}
+                  </span>
+                    
+                  <button
+                    type="button"
+                    onClick={() => setSheetOpen(false)}
+                    className={cn(
+                      "inline-flex items-center justify-center",
+                      "h-9 w-9 rounded-full",
+                      "bg-white/40 ring-1 ring-(--olivea-olive)/14",
+                      "text-(--olivea-olive) hover:bg-white/55 transition"
+                    )}
+                    aria-label={tt(lang, "Cerrar", "Close")}
+                  >
+                    <X className="h-4 w-4 opacity-80" />
+                  </button>
+                </div>
+                  
+                {/* tab switch */}
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSheetTab("filters")}
+                    className={cn(
+                      "flex-1 rounded-full px-4 py-2 text-[12px] ring-1 transition",
+                      sheetTab === "filters"
+                        ? "bg-(--olivea-olive)/12 ring-(--olivea-olive)/26 text-(--olivea-olive)"
+                        : "bg-white/35 ring-(--olivea-olive)/14 text-(--olivea-clay) hover:bg-white/45"
+                    )}
+                  >
+                    {tt(lang, "Filtros", "Filters")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSheetTab("jump")}
+                    className={cn(
+                      "flex-1 rounded-full px-4 py-2 text-[12px] ring-1 transition",
+                      sheetTab === "jump"
+                        ? "bg-(--olivea-olive)/12 ring-(--olivea-olive)/26 text-(--olivea-olive)"
+                        : "bg-white/35 ring-(--olivea-olive)/14 text-(--olivea-clay) hover:bg-white/45"
+                    )}
+                  >
+                    {tt(lang, "Secciones", "Sections")}
+                  </button>
+                </div>
+                  
+                {/* content */}
+                {sheetTab === "jump" ? (
+                  <div className="mt-4 grid grid-cols-2 gap-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+                    <button
+                      type="button"
+                      onClick={(e) => onNav(e as unknown as React.MouseEvent, "awards")}
+                      className={cn(
+                        "rounded-2xl px-4 py-3 text-left",
+                        "bg-white/35 ring-1 ring-(--olivea-olive)/14 hover:bg-white/45 transition"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 text-(--olivea-olive)">
+                        <Award className="h-4 w-4 opacity-80" />
+                        <span className="text-[13px] font-medium">
+                          {tt(lang, "Reconocimientos", "Awards")}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-[12px] text-(--olivea-clay) opacity-75">
+                        {tt(lang, "Ver premios", "View awards")}
+                      </div>
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={(e) => onNav(e as unknown as React.MouseEvent, "mentions")}
+                      className={cn(
+                        "rounded-2xl px-4 py-3 text-left",
+                        "bg-white/35 ring-1 ring-(--olivea-olive)/14 hover:bg-white/45 transition"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 text-(--olivea-olive)">
+                        <Newspaper className="h-4 w-4 opacity-80" />
+                        <span className="text-[13px] font-medium">
+                          {tt(lang, "Prensa", "Press")}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-[12px] text-(--olivea-clay) opacity-75">
+                        {tt(lang, "Menciones", "Mentions")}
+                      </div>
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={(e) => onNav(e as unknown as React.MouseEvent, "presskit")}
+                      className={cn(
+                        "rounded-2xl px-4 py-3 text-left",
+                        "bg-white/35 ring-1 ring-(--olivea-olive)/14 hover:bg-white/45 transition"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 text-(--olivea-olive)">
+                        <FolderArchive className="h-4 w-4 opacity-80" />
+                        <span className="text-[13px] font-medium">Press Kit</span>
+                      </div>
+                      <div className="mt-1 text-[12px] text-(--olivea-clay) opacity-75">
+                        {tt(lang, "Recursos", "Assets")}
+                      </div>
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={(e) => onNav(e as unknown as React.MouseEvent, "contact")}
+                      className={cn(
+                        "rounded-2xl px-4 py-3 text-left",
+                        "bg-white/35 ring-1 ring-(--olivea-olive)/14 hover:bg-white/45 transition"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 text-(--olivea-olive)">
+                        <Mail className="h-4 w-4 opacity-80" />
+                        <span className="text-[13px] font-medium">
+                          {tt(lang, "Contacto", "Contact")}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-[12px] text-(--olivea-clay) opacity-75">
+                        {tt(lang, "Medios & PR", "Media & PR")}
+                      </div>
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={(e) => onNav(e as unknown as React.MouseEvent, "top")}
+                      className={cn(
+                        "col-span-2 rounded-2xl px-4 py-3 text-left",
+                        "bg-white/35 ring-1 ring-(--olivea-olive)/14 hover:bg-white/45 transition"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 text-(--olivea-olive)">
+                        <ArrowUp className="h-4 w-4 opacity-80" />
+                        <span className="text-[13px] font-medium">
+                          {tt(lang, "Arriba", "Top")}
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-4 pb-[max(12px,env(safe-area-inset-bottom))]">
+                    {/* Identity */}
+                    <div className="text-[11px] text-(--olivea-olive) opacity-80">
+                      {tt(lang, "Identidad", "Identity")}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(["all", "olivea", "hotel", "restaurant", "cafe"] as Identity[]).map(
+                        (x) => (
+                          <button
+                            key={x}
+                            type="button"
+                            onClick={() => setIdentity(x)}
+                            className={identity === x ? chipActive : chipBase}
+                          >
+                            {identLabel(x)}
+                          </button>
+                        )
+                      )}
+                    </div>
+                    
+                    {/* Type */}
+                    <div className="mt-4 text-[11px] text-(--olivea-olive) opacity-80">
+                      {tt(lang, "Tipo", "Type")}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(["all", "award", "mention"] as ItemKind[]).map((k) => (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => setKind(k)}
+                          className={kind === k ? chipActive : chipBase}
+                        >
+                          {kindLabel(k)}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Year */}
+                    <div className="mt-4 text-[11px] text-(--olivea-olive) opacity-80">
+                      {tt(lang, "Año", "Year")}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setYear("all")}
+                        className={year === "all" ? chipActive : chipBase}
+                      >
+                        {tt(lang, "Todos", "All")}
+                      </button>
+                      {years.slice(0, 8).map((y) => (
+                        <button
+                          key={y}
+                          type="button"
+                          onClick={() => setYear(y)}
+                          className={year === y ? chipActive : chipBase}
+                        >
+                          {y}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* apply/close */}
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQ("");
+                          setIdentity("all");
+                          setKind("all");
+                          setYear("all");
+                        }}
+                        className={cn(
+                          "rounded-2xl px-4 py-3 text-[13px]",
+                          "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                          "text-(--olivea-olive) hover:bg-white/45 transition"
+                        )}
+                      >
+                        {tt(lang, "Limpiar", "Reset")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSheetOpen(false)}
+                        className={cn(
+                          "rounded-2xl px-4 py-3 text-[13px]",
+                          "bg-(--olivea-olive) text-(--olivea-cream)",
+                          "ring-1 ring-black/10 hover:brightness-[1.03] transition"
+                        )}
+                      >
+                        {tt(lang, "Listo", "Done")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+  
+
+  /* =========================
+     DESKTOP UI (unchanged)
+     ========================= */
+
+  const desktopDock = (
     <nav
       className="hidden md:block fixed left-6 z-40 pointer-events-auto"
       style={{ top: 255 }}
@@ -371,5 +783,12 @@ export default function PressDockLeft({
         </div>
       </motion.div>
     </nav>
+  );
+
+  return (
+    <>
+      {mobileBar}
+      {desktopDock}
+    </>
   );
 }

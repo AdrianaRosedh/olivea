@@ -423,7 +423,7 @@ export default function PressClient({
 
   return (
     // ✅ extra bottom padding on mobile so DockRight buttons don't overlap content
-    <main id="top" className="w-full pt-10 pb-36 sm:pb-24">
+    <main id="top" className="w-full pt-0 pb-36 sm:pb-24">
       <PressDockLeft
         lang={lang}
         items={items}
