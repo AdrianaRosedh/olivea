@@ -370,7 +370,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
               {/* ✅ KEY FIX: min-h-0 + iOS momentum scrolling + touchAction */}
               <div
-                className="flex-1 min-h-0 overflow-y-auto no-scrollbar"
+                className="flex-1 min-h-0 overflow-hidden"
                 aria-labelledby="restaurant-pane-title"
                 onWheelCapture={stopWheelPropagation} // ok for desktop/trackpads
               >
