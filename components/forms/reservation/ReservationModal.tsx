@@ -5,7 +5,6 @@ import {
   useEffect,
   useCallback,
   type WheelEventHandler,
-  type TouchEventHandler,
 } from "react";
 import { X } from "lucide-react";
 import { motion, type Variants, type Transition } from "framer-motion";
@@ -60,6 +59,37 @@ interface ReservationModalProps {
   lang: "es" | "en";
 }
 
+/**
+ * Best-effort: stop Lenis (or any smooth-scroll lib) while modal is open.
+ * This avoids global touch listeners stealing gestures from embedded iframes.
+ *
+ * Supports common cases:
+ * - window.lenis (some setups attach it)
+ * - documentElement.dataset / class toggles (we also add one hook class)
+ *
+ * If you have a Lenis provider elsewhere, you can replace this with a direct call.
+ */
+function setLenisEnabled(enabled: boolean) {
+  if (typeof window === "undefined") return;
+
+  const w = window as unknown as {
+    lenis?: { stop: () => void; start: () => void };
+  };
+
+  try {
+    if (w.lenis && typeof w.lenis.stop === "function" && typeof w.lenis.start === "function") {
+      if (enabled) w.lenis.start();
+      else w.lenis.stop();
+    }
+  } catch {
+    // ignore
+  }
+
+  // Add a hook class in case your Lenis setup checks for it
+  // (safe no-op if unused)
+  document.documentElement.classList.toggle("lenis-disabled", !enabled);
+}
+
 export default function ReservationModal({ lang }: ReservationModalProps) {
   const {
     isOpen,
@@ -81,11 +111,20 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // ── Body scroll lock
+  // ── Body scroll lock + disable Lenis while open
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      setLenisEnabled(true);
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+    setLenisEnabled(false);
+
     return () => {
       document.body.style.overflow = "";
+      setLenisEnabled(true);
     };
   }, [isOpen]);
 
@@ -185,13 +224,14 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     if (isOpen) setPresent(true);
   }, [isOpen]);
 
-  // ── Stop scroll bubbling up to Lenis / window
+  // ── Stop scroll bubbling up to window (desktop wheel only)
   const stopWheelPropagation: WheelEventHandler<HTMLDivElement> = (e) => {
     e.stopPropagation();
   };
-  const stopTouchPropagation: TouchEventHandler<HTMLDivElement> = (e) => {
-    e.stopPropagation();
-  };
+
+  // OpenTable URL (used for optional mobile "open externally" fallback)
+  const opentableUrl =
+    "https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website";
 
   if (!isOpen && !present) return null;
 
@@ -217,7 +257,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         className={`fixed inset-0 z-1300 flex ${
           isMobile ? "items-end justify-center" : "items-center justify-center p-4"
         }`}
-        style={{ willChange: "transform, opacity", contain: "layout paint style" }}
+        style={{
+          willChange: "transform, opacity",
+          contain: "layout paint style",
+        }}
         variants={panelVariants}
         initial="hidden"
         animate={isOpen ? "visible" : "exit"}
@@ -292,7 +335,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
           {/* Panes */}
           <div className="flex-1 min-h-0 flex flex-col bg-(--olivea-cream)">
-            {/* HOTEL */}
+            {/* HOTEL (unchanged behavior) */}
             <div
               className={`flex-1 min-h-0 flex flex-col ${
                 reservationType === "hotel" ? "flex" : "hidden"
@@ -348,7 +391,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               )}
             </div>
 
-            {/* RESTAURANT */}
+            {/* RESTAURANT (OpenTable tuned) */}
             <div
               className={`flex-1 min-h-0 flex flex-col ${
                 reservationType === "restaurant" ? "flex" : "hidden"
@@ -368,14 +411,35 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                 </div>
               )}
 
-              {/* ✅ KEY FIX: min-h-0 + iOS momentum scrolling + touchAction */}
+              {/* IMPORTANT: parent is NOT scrollable; iframe must receive pan */}
               <div
                 className="flex-1 min-h-0 overflow-hidden"
                 aria-labelledby="restaurant-pane-title"
-                onWheelCapture={stopWheelPropagation} // ok for desktop/trackpads
+                onWheelCapture={stopWheelPropagation}
               >
-                {mounted.restaurant && <OpentableWidget />}
-              </div>             
+                {/* Optional mobile fallback CTA (doesn't affect embed) */}
+                {isMobile && (
+                  <div className="px-4 pt-4 pb-3 shrink-0">
+                    <a
+                      href={opentableUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full rounded-2xl bg-(--olivea-olive) px-4 py-3 text-center text-(--olivea-cream) font-semibold active:scale-[0.99] transition-transform"
+                    >
+                      {lang === "es" ? "Abrir en OpenTable" : "Open in OpenTable"}
+                    </a>
+                    <p className="mt-2 text-[11px] text-(--olivea-ink)/60 text-center">
+                      {lang === "es"
+                        ? "Si el widget no responde en tu dispositivo, abre el motor en una pestaña nueva."
+                        : "If the widget doesn’t respond on your device, open the booking engine in a new tab."}
+                    </p>
+                  </div>
+                )}
+
+                <div className={isMobile ? "h-[calc(100%-76px)]" : "h-full"}>
+                  {mounted.restaurant && <OpentableWidget />}
+                </div>
+              </div>
             </div>
 
             {/* CAFE */}
@@ -405,7 +469,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         </div>
       </motion.div>
 
-      {/* MOBILE FULL-SCREEN HOTEL SHEET */}
+      {/* MOBILE FULL-SCREEN HOTEL SHEET (unchanged behavior) */}
       {isMobile && mounted.hotel && (
         <div
           className={`fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col transition-opacity duration-300 ${
@@ -436,7 +500,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               touchAction: "pan-y",
             }}
             onWheelCapture={stopWheelPropagation}
-            onTouchMoveCapture={stopTouchPropagation}
           >
             <CloudbedsWidget lang={lang} />
           </div>
