@@ -20,7 +20,7 @@ export async function generateMetadata({
       ? "Perfiles del equipo de Olivea y enlaces principales."
       : "Olivea team profiles and key links.";
 
-  const og = "/images/seo/team-og.jpg";
+  const og = absoluteUrl("/images/seo/team-og.jpg");
 
   return {
     metadataBase: new URL(absoluteUrl("/")),
