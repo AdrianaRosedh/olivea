@@ -126,13 +126,28 @@ const nextConfig = {
     ];
   },
 
+  /**
+   * ✅ KEY FIX FOR WHATSAPP PREVIEWS:
+   * Use rewrites so "/" returns 200 HTML (no redirect),
+   * allowing bots to read OG tags.
+   */
+  async rewrites() {
+    return [
+      // Serve Spanish content at "/" without redirect
+      { source: "/", destination: "/es" },
+
+      // Legacy journal paths without redirects (bot-friendly)
+      { source: "/journal", destination: "/es/journal" },
+      { source: "/journal/:slug*", destination: "/es/journal/:slug*" },
+    ];
+  },
+
+  /**
+   * Keep only true redirects here (canonical / legacy cleanups).
+   * Removed "/" and "/journal" redirects because they break unfurls.
+   */
   async redirects() {
     return [
-      { source: "/", destination: "/es", permanent: false },
-
-      { source: "/journal", destination: "/es/journal", permanent: false },
-      { source: "/journal/:slug*", destination: "/es/journal/:slug*", permanent: false },
-
       {
         source: "/:lang/oliveafarmtotable",
         destination: PUBLIC_URL,
