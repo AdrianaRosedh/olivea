@@ -42,7 +42,7 @@ const team: TeamDict = isTeamDict(maybeteam)
 
       return {
         ...maybeteam,
-        leadersTitle: leadersTitle ?? (lang === "es" ? "Lideres de Olivea" : "Those Who Lead Olivea"),
+        leadersTitle: leadersTitle ?? (lang === "es" ? "Lideres de Olivea" : "Leaders of Olivea"),
         leadersHint,
         body,
       };
@@ -50,7 +50,7 @@ const team: TeamDict = isTeamDict(maybeteam)
   : {
       title: lang === "es" ? "Equipo | OLIVEA" : "Team | OLIVEA",
       description: "",
-      leadersTitle: lang === "es" ? "Lideres de Olivea" : "Those Who Lead Olivea",
+      leadersTitle: lang === "es" ? "Lideres de Olivea" : "Leaders of Olivea",
     };
   return (
     <main className="w-full px-6 sm:px-10 py-10">

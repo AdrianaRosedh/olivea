@@ -28,4 +28,10 @@ export type PressItem = {
 
   // ✅ optional: for press mentions (thumbnails)
   cover?: PressCover;
+
+  /**
+   * ✅ optional: pin a *single* award to always appear as "Featured"
+   * (ignored for mentions automatically)
+   */
+  starred?: boolean;
 };

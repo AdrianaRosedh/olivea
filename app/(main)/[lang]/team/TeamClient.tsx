@@ -472,7 +472,7 @@ export default function TeamClient({
                             className="mt-1 text-(--olivea-ink) text-3xl md:text-4xl font-semibold leading-[1.05]"
                             style={{ fontFamily: "var(--font-serif)" }}
                           >
-                            {team.leadersTitle ?? (lang === "es" ? "Lideres de Olivea" : "Those Who Lead Olivea")}
+                            {team.leadersTitle ?? (lang === "es" ? "Lideres de Olivea" : "Leaders of Olivea")}
                           </motion.h1>
                         </motion.header>
                       </div>

@@ -18,6 +18,9 @@ type Frontmatter = {
   tags?: string[];
   links: { label: string; href: string }[];
 
+  // ✅ NEW: optional pinned flag (for awards)
+  starred?: boolean;
+
   // ✅ optional thumbnail for mentions
   cover?: unknown; // expect { src: string; alt?: string }
 };
@@ -103,7 +106,10 @@ export function loadPressItems(lang: Lang): PressItem[] {
     assert(Array.isArray(fm.links) && fm.links.length > 0, `Missing links[] in ${file}`);
 
     const links = fm.links.map((l, idx) => {
-      assert(typeof l?.label === "string" && l.label.length > 0, `Invalid links[${idx}].label in ${file}`);
+      assert(
+        typeof l?.label === "string" && l.label.length > 0,
+        `Invalid links[${idx}].label in ${file}`
+      );
       assert(isValidHref(l?.href), `Invalid links[${idx}].href in ${file} (must be http/https)`);
       return { label: l.label, href: l.href };
     });
@@ -113,6 +119,9 @@ export function loadPressItems(lang: Lang): PressItem[] {
       : undefined;
 
     const cover = normalizeCover(fm.cover);
+
+    // ✅ NEW: normalize starred to a strict boolean
+    const starred = fm.kind === "award" && fm.starred === true;
 
     items.push({
       kind: fm.kind,
@@ -126,6 +135,9 @@ export function loadPressItems(lang: Lang): PressItem[] {
       links,
       blurb,
       cover,
+
+      // ✅ pass-through pinned state
+      starred,
     });
   }
 
