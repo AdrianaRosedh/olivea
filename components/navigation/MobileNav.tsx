@@ -129,13 +129,15 @@ export function MobileNav({ isDrawerOpen }: Props) {
         id="mobile-chat-button"
         type="button"
         onClick={() => {
+          sessionStorage.setItem("olivea_chat_intent", "1");
+          document.body.classList.add("olivea-chat-open");
           const toggleBtn = document.getElementById("chatbot-toggle");
           toggleBtn?.click();
-                
+
           // Keep ONLY a body flag (used by our overlay + optional CSS)
           document.body.classList.add("olivea-chat-open");
         }}
-        
+
         className={[
           "relative flex flex-col items-center justify-center",
           "rounded-[40%_60%_30%_70%]",

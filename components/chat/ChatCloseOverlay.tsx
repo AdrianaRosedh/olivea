@@ -4,24 +4,17 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
-function isChatOpenFromDom(): boolean {
-  const host = document.getElementById("w-live-chat");
-  if (!host) return false;
-
-  // Common “open” signals across widgets:
-  // - display not none
-  // - visibility not hidden
-  // - has non-zero client rect
-  const style = window.getComputedStyle(host);
-  if (style.display === "none" || style.visibility === "hidden") return false;
-
-  const rect = host.getBoundingClientRect();
-  return rect.width > 0 && rect.height > 0;
+function hasIntent(): boolean {
+  try {
+    return sessionStorage.getItem("olivea_chat_intent") === "1";
+  } catch {
+    return false;
+  }
 }
 
 export default function ChatCloseOverlay() {
-  const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -29,44 +22,43 @@ export default function ChatCloseOverlay() {
     if (!mounted) return;
 
     const update = () => {
-      const isOpen = isChatOpenFromDom();
-      setOpen(isOpen);
-
-      // keep body flag in sync (optional but nice)
-      document.body.classList.toggle("olivea-chat-open", isOpen);
+      const ok = hasIntent() && document.body.classList.contains("olivea-chat-open");
+      setShow(ok);
     };
 
     update();
 
-    const host = document.getElementById("w-live-chat");
+    // Watch body class changes + DOM changes (chat widget mutates a lot)
     const obs = new MutationObserver(update);
+    obs.observe(document.documentElement, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+      attributeFilter: ["class", "style"],
+    });
 
-    if (host) {
-      obs.observe(host, {
-        attributes: true,
-        attributeFilter: ["style", "class", "hidden", "aria-hidden"],
-      });
-    }
-
-    // Also listen to viewport changes (mobile rotations / Safari address bar)
+    window.addEventListener("pageshow", update);
     window.addEventListener("resize", update, { passive: true });
 
     return () => {
       obs.disconnect();
+      window.removeEventListener("pageshow", update);
       window.removeEventListener("resize", update);
     };
   }, [mounted]);
 
   const close = () => {
-    const toggleBtn = document.getElementById("chatbot-toggle");
-    toggleBtn?.click();
+    // Always close via your toggle
+    document.getElementById("chatbot-toggle")?.click();
 
-    // Don’t rely on the observer alone for immediate UX
     document.body.classList.remove("olivea-chat-open");
-    setOpen(false);
+    try {
+      sessionStorage.removeItem("olivea_chat_intent");
+    } catch {}
+    setShow(false);
   };
 
-  if (!mounted || !open) return null;
+  if (!mounted || !show) return null;
 
   return createPortal(
     <button
