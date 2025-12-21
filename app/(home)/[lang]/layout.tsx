@@ -20,7 +20,7 @@ export async function generateMetadata(
     : "Olivea: a tasting-menu restaurant, boutique hotel and café rooted in a living garden in Valle de Guadalupe. Where the garden is the essence.";
 
   // ✅ You said Spanish is default at "/"
-  const canonicalPath = isEs ? "/" : "/en";
+  const canonicalPath = isEs ? "/es" : "/en";
   const url = `${SITE.baseUrl}${canonicalPath}`;
 
   // ✅ OG image (absolute URL)
@@ -34,7 +34,7 @@ export async function generateMetadata(
     alternates: {
       canonical: canonicalPath,
       languages: {
-        "es-MX": "/",
+        "es-MX": "/es",
         "en-US": "/en",
       },
     },
