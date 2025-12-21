@@ -1,4 +1,3 @@
-// proxy.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -17,6 +16,14 @@ function getLocale(request: NextRequest): string {
     if (preferred && locales.includes(preferred as any)) return preferred;
   }
   return defaultLocale;
+}
+
+/** Detect link preview scrapers (WhatsApp/Meta + common unfurl bots) */
+function isPreviewScraper(request: NextRequest): boolean {
+  const ua = request.headers.get("user-agent") || "";
+  return /facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|SkypeUriPreview|Pinterest|BitlyBot|Google-InspectionTool/i.test(
+    ua
+  );
 }
 
 /** Paths that should bypass locale redirect / header munging */
@@ -164,15 +171,25 @@ export function proxy(request: NextRequest) {
     });
   }
 
-  // 3) Locale prefix check & redirect if missing
+  // 3) Locale prefix check
   const hasPrefix = locales.some(
     (loc) => pathNoTrailing === `/${loc}` || pathNoTrailing.startsWith(`/${loc}/`)
   );
 
   let response: NextResponse;
+
   if (!hasPrefix) {
-    const target = `/${getLocale(request)}${pathNoTrailing === "/" ? "" : pathNoTrailing}`;
-    response = NextResponse.redirect(new URL(target || `/${defaultLocale}`, request.url));
+    const locale = getLocale(request);
+    const target = `/${locale}${pathNoTrailing === "/" ? "" : pathNoTrailing}`;
+
+    // ✅ KEY FIX:
+    // Scrapers must get 200 HTML (rewrite) so they can read OG tags.
+    // Humans keep redirect so canonical locale URLs stay consistent.
+    if (isPreviewScraper(request)) {
+      response = NextResponse.rewrite(new URL(target, request.url));
+    } else {
+      response = NextResponse.redirect(new URL(target, request.url));
+    }
   } else {
     response = NextResponse.next();
   }
