@@ -10,7 +10,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
   AnimatePresence,
   motion,
@@ -23,6 +22,8 @@ import {
 import { X } from "lucide-react";
 
 import { TEAM, type LeaderProfile } from "./teamData";
+import { useRouter, usePathname } from "next/navigation";
+
 
 type Lang = "es" | "en";
 
@@ -333,9 +334,19 @@ export default function TeamClient({
   lang: Lang;
   team: TeamDict;
 }) {
-  const router = useRouter();
 
-  const t = (x?: { es: string; en: string }) => (x ? x[lang] : "");
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // ✅ Source-of-truth language from URL: /es/... or /en/...
+  const resolvedLang: Lang =
+    pathname?.split("/")[1]?.toLowerCase().startsWith("es") ? "es" : "en";
+
+  // If you want: prefer prop lang when it’s correct, otherwise fall back:
+  const uiLang: Lang = (lang === "es" || lang === "en") ? lang : resolvedLang;
+
+  const t = (x?: { es: string; en: string }) => (x ? x[uiLang] : "");
+
 
   const leadersRaw: Leader[] = useMemo(() => TEAM, []);
 
@@ -450,17 +461,9 @@ export default function TeamClient({
                         </div>
 
                         <motion.header
-                          className="max-w-[980px] mt-0 sm:mt-6 lg:mt-10"
+                          className="max-w-245 mt-0 sm:mt-6 lg:mt-10"
                           style={{ y: heroY, opacity: heroOpacity }}
                         >
-                          <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, ease: EASE, delay: 0.05 }}
-                            className="text-(--olivea-ink)/60 text-[12px] tracking-[0.32em] uppercase"
-                          >
-                            {lang === "es" ? "Equipo" : "Team"}
-                          </motion.p>
 
                           <motion.h1
                             initial={{ opacity: 0, y: 10 }}
@@ -469,17 +472,8 @@ export default function TeamClient({
                             className="mt-1 text-(--olivea-ink) text-3xl md:text-4xl font-semibold leading-[1.05]"
                             style={{ fontFamily: "var(--font-serif)" }}
                           >
-                            OLIVEA
+                            {team.leadersTitle ?? (lang === "es" ? "Lideres de Olivea" : "Those Who Lead Olivea")}
                           </motion.h1>
-
-                          <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, ease: EASE, delay: 0.11 }}
-                            className="mt-2 text-(--olivea-ink)/70 text-base md:text-lg leading-snug"
-                          >
-                            {team.description}
-                          </motion.p>
                         </motion.header>
                       </div>
                     </div>
@@ -612,7 +606,7 @@ export default function TeamClient({
                     key={l.id}
                     type="button"
                     onClick={() => setOpenId(l.id)}
-                    className="group relative overflow-hidden rounded-3xl ring-1 ring-black/10 w-full h-[340px]"
+                    className="group relative overflow-hidden rounded-3xl ring-1 ring-black/10 w-full h-85"
                   >
                     <div className="absolute inset-0 bg-white/35" />
                     <div className="absolute inset-0">
