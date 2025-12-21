@@ -21,7 +21,7 @@ export async function generateMetadata({
   const dict = await getDictionary(lang)
 
   return {
-    title:       `${dict.legal.title} | Olivea`,
+    title:       `${dict.legal.title} | OLIVEA`,
     description: dict.legal.description,
   }
 }

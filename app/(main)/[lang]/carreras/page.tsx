@@ -15,7 +15,7 @@ export async function generateMetadata({
   const { dict } = await loadLocale(p);
 
   return {
-    title:       dict.contact.title,
+    title:       `${dict.contact.title} | OLIVEA`,
     description: dict.contact.description,
   };
 }

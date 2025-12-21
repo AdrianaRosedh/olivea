@@ -17,8 +17,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dict = getDictionary(lang);
   const t = dict.contact;
 
+  const withBrand = (s: string) => {
+    const x = (s || "").trim();
+    if (!x) return "OLIVEA";
+    // avoid double-branding if translator already included it
+    if (/\bolivea\b/i.test(x)) return x;
+    return `${x} | OLIVEA`;
+  };
+
+  const pageTitle = withBrand(t.metaTitle);
+
   return {
-    title: t.metaTitle,
+    title: pageTitle,
     description: t.metaDescription,
     alternates: {
       canonical: `/${lang}/contact`,
@@ -28,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     },
     openGraph: {
-      title: t.metaTitle,
+      title: pageTitle,
       description: t.metaDescription,
       type: "website",
     },
@@ -76,7 +86,6 @@ export default async function ContactPage({ params }: PageProps) {
                     OLIVEA
                   </h1>
 
-                  {/* ✅ remove hard max-w cap; use soft character cap */}
                   <p className="mt-3 text-(--olivea-ink)/70 text-[15px] md:text-[17px] leading-relaxed max-w-[62ch]">
                     {t.subtitle}
                   </p>
@@ -203,7 +212,6 @@ export default async function ContactPage({ params }: PageProps) {
 
               {/* RIGHT */}
               <aside className="lg:sticky lg:top-28">
-                {/* cap the map so it doesn’t dominate on 2xl */}
                 <div className="lg:max-w-160 lg:ml-auto">
                   <div className={`${card} overflow-hidden`}>
                     <div className="relative h-130 lg:h-[min(720px,calc(100vh-220px))]">

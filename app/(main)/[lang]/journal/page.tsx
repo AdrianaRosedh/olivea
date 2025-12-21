@@ -17,7 +17,7 @@ export async function generateMetadata({
   const dict = await getDictionary(lang);
 
   return {
-    title: dict.journal.title,
+    title: `${dict.journal.title} | OLIVEA`,
     description: dict.journal.subtitle,
   };
 }
