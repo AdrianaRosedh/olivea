@@ -131,16 +131,11 @@ export function MobileNav({ isDrawerOpen }: Props) {
         onClick={() => {
           const toggleBtn = document.getElementById("chatbot-toggle");
           toggleBtn?.click();
-
-          window.requestAnimationFrame(() => {
-            const chatHost = document.getElementById("w-live-chat");
-            if (chatHost) {
-              document.body.classList.add("olivea-chat-open");
-              chatHost.style.zIndex = "2147483645";
-              chatHost.style.pointerEvents = "auto";
-            }
-          });
+                
+          // Keep ONLY a body flag (used by our overlay + optional CSS)
+          document.body.classList.add("olivea-chat-open");
         }}
+        
         className={[
           "relative flex flex-col items-center justify-center",
           "rounded-[40%_60%_30%_70%]",

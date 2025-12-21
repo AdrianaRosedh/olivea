@@ -17,6 +17,7 @@ import NextGenBackground from "@/components/animations/NextGenBackground";
 import DesktopChatButton from "@/components/ui/DesktopChatButton";
 import LoadWhistleClient from "@/components/chat/LoadWhistleClient";
 import WhistleToggleMount from "@/components/chat/WhistleToggleMount";
+import ChatCloseOverlay from "@/components/chat/ChatCloseOverlay";
 import { getActiveSection } from "@/lib/sections";
 import SubtleContentFade from "@/components/transitions/SubtleContentFade";
 
@@ -197,6 +198,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         <ClientOnly>
           <WhistleToggleMount />
           <LoadWhistleClient enabled />
+          <ChatCloseOverlay />
         </ClientOnly>
       )}
 
