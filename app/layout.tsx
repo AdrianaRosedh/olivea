@@ -4,6 +4,7 @@ import { AppProviders } from "./providers";
 import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
 import { absoluteUrl } from "@/lib/site";
+import { Analytics } from "@vercel/analytics/react"; // ← ADD THIS
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl("/")),
@@ -17,7 +18,6 @@ export const metadata: Metadata = {
     languages: {
       "es-MX": "/",
       en: "/en",
-      // "x-default": "/",
     },
   },
 
@@ -74,7 +74,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es" className={fontsClass}>
       <head />
@@ -87,6 +91,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <PathTracker />
         <AppProviders>{children}</AppProviders>
+
+        {/* ✅ Vercel Web Analytics */}
+        <Analytics />
       </body>
     </html>
   );
