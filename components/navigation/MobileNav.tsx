@@ -1,14 +1,19 @@
 // components/navigation/MobileNav.tsx
 "use client";
 
-import { Calendar, MessageSquare } from "lucide-react";
+import {
+  Calendar,
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useReservation } from "@/contexts/ReservationContext";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { ReservationType } from "@/contexts/ReservationContext";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 
 type Props = {
-  /** Optional: pass from Navbar state so we can hide these buttons when drawer is open */
   isDrawerOpen?: boolean;
 };
 
@@ -25,12 +30,46 @@ function getTijuanaMinutesNow(): number {
   return hh * 60 + mm;
 }
 
+type DockPos = { side: "left" | "right"; y: number };
+
 export function MobileNav({ isDrawerOpen }: Props) {
   const { openReservationModal } = useReservation();
   const pathname = usePathname();
 
   const [chatAvailable, setChatAvailable] = useState(false);
   const [visible, setVisible] = useState(false);
+
+  // collapsed by default; expands on tap
+  const [expanded, setExpanded] = useState(false);
+
+  // long-press to drag
+  const [dragEnabled, setDragEnabled] = useState(false);
+  const pressTimerRef = useRef<number | null>(null);
+  const pressedRef = useRef(false);
+  const movedRef = useRef(false);
+  const startPtRef = useRef<{ x: number; y: number } | null>(null);
+
+  // one-time tooltip hint
+  const [showHint, setShowHint] = useState(false);
+  const hintTimerRef = useRef<number | null>(null);
+
+  // anchored side + remembered Y offset
+  const [pos, setPos] = useState<DockPos>(() => ({ side: "right", y: 0 }));
+
+  // Motion values for smooth dragging
+  const mvX = useMotionValue(0);
+  const mvY = useMotionValue(0);
+
+  // Constraint measurement refs
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+
+  const [constraints, setConstraints] = useState<{
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+  } | null>(null);
 
   const lang = useMemo<"es" | "en">(() => {
     if (!pathname) return "es";
@@ -39,8 +78,18 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
   const labels = useMemo(() => {
     return lang === "es"
-      ? { reserve: "Reservar", chat: "Chat" }
-      : { reserve: "Reserve", chat: "Chat" };
+      ? {
+          reserve: "Reservar",
+          chat: "Chat",
+          actions: "Acciones",
+          hint: "Mantén presionado para mover",
+        }
+      : {
+          reserve: "Reserve",
+          chat: "Chat",
+          actions: "Actions",
+          hint: "Hold to move",
+        };
   }, [lang]);
 
   // pick the initial tab based on URL
@@ -56,7 +105,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
       pathname.includes("/diario") ||
       pathname.includes("/posts"));
 
-  // Chat availability
+  /* ---------------- chat availability ---------------- */
   useEffect(() => {
     const updateChat = () => {
       const minutes = getTijuanaMinutesNow();
@@ -68,14 +117,44 @@ export function MobileNav({ isDrawerOpen }: Props) {
     return () => window.clearInterval(id);
   }, []);
 
-  // Reset visibility on route change so buttons don’t show immediately on new pages
+  /* ---------------- restore position ---------------- */
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v4");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as DockPos;
+      if (!parsed) return;
+      if (parsed.side !== "left" && parsed.side !== "right") return;
+      if (typeof parsed.y !== "number") return;
+
+      setPos(parsed);
+      mvY.set(parsed.y);
+      mvX.set(0);
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* ---------------- reset on route change ---------------- */
   useEffect(() => {
     setVisible(false);
+    setExpanded(false);
+    setDragEnabled(false);
+    setShowHint(false);
+
+    if (hintTimerRef.current) {
+      window.clearTimeout(hintTimerRef.current);
+      hintTimerRef.current = null;
+    }
+
+    mvX.set(0);
+    mvY.set(pos.y);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Visibility based on scroll (prevents covering hero/cards at top)
+  /* ---------------- visibility based on scroll ---------------- */
   useEffect(() => {
-    // Tune thresholds (keep the “doesn’t appear right away” feeling)
     const threshold = isContentHeavy ? 140 : 110;
 
     const onScroll = () => {
@@ -88,79 +167,344 @@ export function MobileNav({ isDrawerOpen }: Props) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isContentHeavy]);
 
-  // If drawer is open, hide these so the drawer feels “sole focus”
+  /* ---------------- show hint once per session ---------------- */
+  useEffect(() => {
+    if (!visible) return;
+
+    // only once per session
+    const key = "olivea_mobile_dock_hint_seen_v1";
+    const seen = sessionStorage.getItem(key);
+    if (seen) return;
+
+    // delay a hair so it feels intentional (not instant UI spam)
+    const t = window.setTimeout(() => {
+      // if user opened drawer or something, still safe—just show softly
+      setShowHint(true);
+      sessionStorage.setItem(key, "1");
+
+      // auto-hide
+      hintTimerRef.current = window.setTimeout(() => {
+        setShowHint(false);
+        hintTimerRef.current = null;
+      }, 2800);
+    }, 500);
+
+    return () => window.clearTimeout(t);
+  }, [visible]);
+
+  /* ---------------- measure drag constraints ---------------- */
+  const measureConstraints = () => {
+    const wrap = wrapRef.current;
+    const dock = dockRef.current;
+    if (!wrap || !dock) return null;
+
+    const w = wrap.getBoundingClientRect();
+    const d = dock.getBoundingClientRect();
+
+    const padX = 8;
+    const padTop = 12;
+    const padBottom = 12;
+
+    const left = -w.left + padX;
+    const right = window.innerWidth - (w.left + d.width) - padX;
+
+    const top = -w.top + padTop;
+    const bottom = window.innerHeight - (w.top + d.height) - padBottom;
+
+    return { left, right, top, bottom };
+  };
+
+  useEffect(() => {
+    if (!visible) return;
+
+    const recalc = () => {
+      requestAnimationFrame(() => setConstraints(measureConstraints()));
+    };
+
+    recalc();
+    window.addEventListener("resize", recalc);
+    window.addEventListener("orientationchange", recalc);
+    return () => {
+      window.removeEventListener("resize", recalc);
+      window.removeEventListener("orientationchange", recalc);
+    };
+  }, [visible, expanded, pos.side]);
+
+  // When side changes, keep y and reset x
+  useEffect(() => {
+    mvX.set(0);
+    mvY.set(pos.y);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pos.side]);
+
+  /* ---------------- long-press logic ---------------- */
+  const clearPressTimer = () => {
+    if (pressTimerRef.current) {
+      window.clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+  };
+
+  const endPress = () => {
+    clearPressTimer();
+    pressedRef.current = false;
+    startPtRef.current = null;
+
+    // If we didn't actually drag, turn off drag mode immediately
+    if (!movedRef.current) setDragEnabled(false);
+
+    movedRef.current = false;
+  };
+
+  // If drawer is open, hide dock
   if (isDrawerOpen) return null;
 
+  const sideRight = pos.side === "right";
+
   return (
-    <div
-      className={[
-        "fixed md:hidden z-200 flex flex-col gap-2",
-        "right-3",
-        "bottom-[calc(env(safe-area-inset-bottom,0px)+4.25rem)]",
-        "transition-all duration-200 ease-out",
-        visible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-2 pointer-events-none",
-        isContentHeavy ? "opacity-90" : "",
-      ].join(" ")}
-    >
-      {/* Reserve */}
-      <button
-        id="reserve-toggle"
-        type="button"
-        onClick={() => openReservationModal(reserveTab)}
-        className={[
-          "flex flex-col items-center justify-center",
-          "rounded-[60%_40%_70%_30%]",
-          "bg-(--olivea-olive) text-white",
-          "ring-1 ring-white/15",
-          "shadow-md",
-          "px-2 py-1.5",
-          "transition-transform active:scale-95",
-        ].join(" ")}
-        aria-label={labels.reserve}
-      >
-        <Calendar className="w-5 h-5" />
-        <span className="text-[10px] font-medium mt-0.5">{labels.reserve}</span>
-      </button>
-
-      {/* Chat */}
-      <button
-        id="mobile-chat-button"
-        type="button"
-        onClick={() => {
-          sessionStorage.setItem("olivea_chat_intent", "1");
-          document.body.classList.add("olivea-chat-open");
-          const toggleBtn = document.getElementById("chatbot-toggle");
-          toggleBtn?.click();
-
-          // Keep ONLY a body flag (used by our overlay + optional CSS)
-          document.body.classList.add("olivea-chat-open");
-        }}
-
-        className={[
-          "relative flex flex-col items-center justify-center",
-          "rounded-[40%_60%_30%_70%]",
-          "bg-(--olivea-shell) text-(--olivea-olive)",
-          "ring-1 ring-black/10",
-          "shadow-md",
-          "px-2 py-1.5",
-          "transition-transform active:scale-95",
-        ].join(" ")}
-        aria-label={labels.chat}
-      >
-        <MessageSquare className="w-5 h-5" />
-        <span className="text-[10px] font-medium mt-0.5">{labels.chat}</span>
-
-        {/* Availability dot */}
-        <span
-          aria-hidden="true"
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          ref={wrapRef}
           className={[
-            "absolute top-0.5 right-0.5 block h-2 w-2 rounded-full border border-white",
-            chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500",
+            "fixed md:hidden z-200",
+            "bottom-[calc(env(safe-area-inset-bottom,0px)+4.25rem)]",
+            sideRight ? "right-3" : "left-3",
+            isContentHeavy ? "opacity-90" : "",
           ].join(" ")}
-        />
-      </button>
-    </div>
+          initial={{ opacity: 0, x: sideRight ? 40 : -40, y: 8 }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          exit={{ opacity: 0, x: sideRight ? 40 : -40, y: 8 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {/* Hint tooltip (one-time) */}
+          <AnimatePresence>
+            {showHint && !dragEnabled && (
+              <motion.div
+                initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                className={[
+                  "mb-2",
+                  sideRight ? "ml-auto" : "",
+                  "w-max max-w-55",
+                  "rounded-xl",
+                  "bg-(--olivea-olive)/80 text-white",
+                  "px-3 py-2",
+                  "text-[11px] leading-snug",
+                  "shadow-lg",
+                  "backdrop-blur",
+                ].join(" ")}
+                role="status"
+                aria-live="polite"
+              >
+                {labels.hint}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.div
+            ref={dockRef}
+            // ✅ only draggable after long-press
+            drag={dragEnabled}
+            dragMomentum={false}
+            dragElastic={0.06}
+            dragConstraints={constraints ?? undefined}
+            style={{ x: mvX, y: mvY }}
+            onDragStart={() => {
+              movedRef.current = true;
+              setExpanded(false);
+              setShowHint(false); // once they drag, hint is unnecessary
+              if (hintTimerRef.current) {
+                window.clearTimeout(hintTimerRef.current);
+                hintTimerRef.current = null;
+              }
+            }}
+            onDragEnd={(_, info) => {
+              const vw = window.innerWidth;
+
+              const nextSide: DockPos["side"] =
+                info.point.x < vw / 2 ? "left" : "right";
+
+              const nextY = mvY.get();
+              const next: DockPos = { side: nextSide, y: nextY };
+
+              setPos(next);
+              sessionStorage.setItem(
+                "olivea_mobile_dock_pos_v4",
+                JSON.stringify(next)
+              );
+
+              mvX.set(0);
+              setDragEnabled(false);
+            }}
+            className={[
+              dragEnabled ? "touch-none" : "touch-auto",
+              "select-none",
+              "rounded-2xl overflow-hidden",
+              "bg-white/55 backdrop-blur-xl",
+              "ring-1 ring-black/10",
+              "shadow-[0_10px_30px_rgba(0,0,0,0.12)]",
+              dragEnabled ? "scale-[1.02]" : "",
+              "transition-transform",
+            ].join(" ")}
+            aria-label="Quick actions"
+            // Long-press detection
+            onPointerDown={(e) => {
+              if (e.pointerType === "mouse" && e.button !== 0) return;
+
+              pressedRef.current = true;
+              movedRef.current = false;
+              startPtRef.current = { x: e.clientX, y: e.clientY };
+
+              clearPressTimer();
+              pressTimerRef.current = window.setTimeout(() => {
+                if (!pressedRef.current) return;
+                setDragEnabled(true);
+                navigator?.vibrate?.(10);
+              }, 180);
+            }}
+            onPointerMove={(e) => {
+              const s = startPtRef.current;
+              if (!s || !pressedRef.current) return;
+
+              const dx = e.clientX - s.x;
+              const dy = e.clientY - s.y;
+
+              // cancel long-press if they start moving too early
+              if (!dragEnabled && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+                clearPressTimer();
+              }
+            }}
+            onPointerUp={() => endPress()}
+            onPointerCancel={() => endPress()}
+            onPointerLeave={() => endPress()}
+          >
+            {/* Handle (tap = expand) */}
+            <button
+              type="button"
+              onClick={() => {
+                if (dragEnabled) return;
+                setExpanded((v) => !v);
+              }}
+              className={[
+                "w-full flex items-center justify-between gap-3",
+                "px-3 py-2",
+                "text-(--olivea-olive)",
+              ].join(" ")}
+              aria-expanded={expanded}
+            >
+              <span className="flex items-center gap-2">
+                {/* subtle grip hint */}
+                <span
+                  aria-hidden="true"
+                  className="text-[12px] leading-none opacity-40 tracking-[2px]"
+                >
+                  ⋮⋮
+                </span>
+                <span className="text-xs font-medium tracking-wide">
+                  {labels.actions}
+                </span>
+              </span>
+
+              <span className="opacity-80">
+                {expanded ? (
+                  sideRight ? (
+                    <ChevronRight className="w-4 h-4" />
+                  ) : (
+                    <ChevronLeft className="w-4 h-4" />
+                  )
+                ) : sideRight ? (
+                  <ChevronLeft className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </span>
+            </button>
+
+            {/* Expanded actions */}
+            <AnimatePresence initial={false}>
+              {expanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                  className="border-t border-black/10"
+                >
+                  <div className="p-2 flex flex-col gap-2">
+                    {/* Reserve */}
+                    <button
+                      id="reserve-toggle"
+                      type="button"
+                      onClick={() => {
+                        setExpanded(false);
+                        openReservationModal(reserveTab);
+                      }}
+                      className={[
+                        "w-full flex items-center gap-2",
+                        "rounded-xl",
+                        "bg-(--olivea-olive) text-white",
+                        "ring-1 ring-white/15",
+                        "shadow-sm",
+                        "px-3 py-2",
+                        "active:scale-[0.99] transition-transform",
+                      ].join(" ")}
+                      aria-label={labels.reserve}
+                    >
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-sm font-medium">
+                        {labels.reserve}
+                      </span>
+                    </button>
+
+                    {/* Chat */}
+                    <button
+                      id="mobile-chat-button"
+                      type="button"
+                      onClick={() => {
+                        setExpanded(false);
+                        sessionStorage.setItem("olivea_chat_intent", "1");
+                        document.body.classList.add("olivea-chat-open");
+                        const toggleBtn =
+                          document.getElementById("chatbot-toggle");
+                        toggleBtn?.click();
+                        document.body.classList.add("olivea-chat-open");
+                      }}
+                      className={[
+                        "relative w-full flex items-center gap-2",
+                        "rounded-xl",
+                        "bg-(--olivea-shell) text-(--olivea-olive)",
+                        "ring-1 ring-black/10",
+                        "shadow-sm",
+                        "px-3 py-2",
+                        "active:scale-[0.99] transition-transform",
+                      ].join(" ")}
+                      aria-label={labels.chat}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="text-sm font-medium">{labels.chat}</span>
+
+                      {/* Availability dot */}
+                      <span
+                        aria-hidden="true"
+                        className={[
+                          "absolute right-2 top-1/2 -translate-y-1/2",
+                          "block h-2.5 w-2.5 rounded-full border border-white",
+                          chatAvailable
+                            ? "bg-green-500 animate-pulse"
+                            : "bg-red-500",
+                        ].join(" ")}
+                      />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
