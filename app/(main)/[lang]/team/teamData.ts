@@ -66,7 +66,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "ange",
     name: "Ange Joy",
-    role: { es: "Fundadora · Copropietaria", en: "Founder · Co-Owner" },
+    role: { es: "Fundadora", en: "Founder" },
     org: { es: "OLIVEA La Experiencia", en: "OLIVEA The Experience" },
     tag: { es: "Fundación", en: "Founding" },
     bio: {
@@ -83,11 +83,11 @@ export const TEAM: LeaderProfile[] = [
   },
 
    {
-    id: "daniel",
-    name: "Daniel",
+    id: "danielnates",
+    name: "Daniel Nates",
     role: {
-      es: "Chef Ejecutivo · Copropietario",
-      en: "Executive Chef · Co-Owner",
+      es: "Chef Ejecutivo",
+      en: "Executive Chef",
     },
     org: {
       es: "Olivea Farm To Table",
@@ -139,8 +139,8 @@ export const TEAM: LeaderProfile[] = [
     id: "adrianarose",
     name: "Adriana Rose",
     role: {
-      es: "CEO · Copropietaria · Tecnología y Visión",
-      en: "CEO · Co-Owner · Technology & Vision",
+      es: "CEO · Tecnología y Visión",
+      en: "CEO · Technology & Vision",
     },
     org: { es: "OLIVEA La Experencia", en: "OLIVEA The Experience" },
     bio: {

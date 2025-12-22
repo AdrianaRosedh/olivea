@@ -15,15 +15,15 @@ import {
   motion,
   useAnimationFrame,
   useMotionValue,
-  useScroll,
-  useTransform,
-  useSpring,
+  type Variants,
 } from "framer-motion";
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { TEAM, type LeaderProfile } from "./teamData";
 import { useRouter, usePathname } from "next/navigation";
 
+import TeamDockLeft, { type TeamCategory } from "./TeamDockLeft";
 
 type Lang = "es" | "en";
 
@@ -35,20 +35,31 @@ export type TeamDict = {
   leadersHint?: string;
 };
 
-type TileSize = "hero" | "md";
 type Leader = LeaderProfile;
+type Category = TeamCategory;
 
-type Category = "all" | "hotel" | "restaurant" | "cafe";
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-function tileClass(tile: TileSize): string {
-  switch (tile) {
-    case "hero":
-      return "col-span-12 md:col-span-6 lg:col-span-4 xl:col-span-4";
-    case "md":
-    default:
-      return "col-span-12 md:col-span-6 lg:col-span-4 xl:col-span-3";
-  }
-}
+/* ---------------- scroll-in animations ---------------- */
+/**
+ * Per-card “enter” animation that triggers ONLY when the card scrolls into view.
+ * Uses `custom` to stagger by index *within the currently visible group*.
+ */
+const cardInV: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 26,            // slightly more travel
+  },
+  show: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.9,                 // ⬅ slower, more cinematic
+      ease: EASE,
+      delay: Math.min(0.9, i * 0.1),  // ⬅ slower stagger
+    },
+  }),
+};
 
 function leaderCategoryFromOrg(
   org?: { es: string; en: string }
@@ -178,7 +189,7 @@ function AutoSlideGalleryVerticalVariableHeight({
                     scale: isFocused ? 1.06 : 1,
                     zIndex: isFocused ? 30 : 1,
                   }}
-                  transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.32, ease: EASE }}
                 >
                   <div className="absolute inset-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -301,10 +312,10 @@ function AutoSlideGalleryHorizontalVariableWidth({
                     style={{ width: w, height: cardH }}
                     whileHover={{ scale: 1.02 }}
                     animate={{
-                      scale: isFocused ? 1.10 : 1,
+                      scale: isFocused ? 1.1 : 1,
                       zIndex: isFocused ? 30 : 1,
                     }}
-                    transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.32, ease: EASE }}
                   >
                     <div className="absolute inset-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -327,6 +338,81 @@ function AutoSlideGalleryHorizontalVariableWidth({
   );
 }
 
+function LeaderCard({
+  l,
+  roleText,
+  onOpen,
+  sizes,
+  className,
+  imageMode = "contain",
+  motionProps,
+}: {
+  l: Leader;
+  roleText: string;
+  onOpen: () => void;
+  sizes: string;
+  className: string;
+  imageMode?: "contain" | "cover";
+  motionProps?: {
+    variants?: Variants;
+    initial?: "hidden" | "show";
+    whileInView?: "hidden" | "show";
+    viewport?: {
+      once?: boolean;
+      amount?: number;
+      margin?: string;
+    };
+    custom?: number;
+  };
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onOpen}
+      className={cn(
+        // ✅ removed Tailwind `transition` (this was causing the flicker)
+        "group relative overflow-hidden rounded-3xl ring-1 ring-black/10",
+        className
+      )}
+      // hover animation stays, with its own transition
+      whileHover={{ y: -2, scale: 1.01 }}
+      whileTap={{ scale: 0.995 }}
+      // ✅ keep hover transition local (don’t conflict with variants)
+      transition={{ duration: 0.25, ease: EASE }}
+      style={{ willChange: "transform, opacity" }}
+      {...motionProps}
+    >
+      <div className="absolute inset-0 bg-white/35" />
+
+      <div className="absolute inset-0">
+        <Image
+          src={l.avatar ?? "/images/team/persona.jpg"}
+          alt={l.name}
+          fill
+          sizes={sizes}
+          className={cn(
+            imageMode === "cover"
+              ? "object-cover object-center"
+              : "object-contain object-bottom"
+          )}
+        />
+      </div>
+
+      <div className="absolute left-5 bottom-4">
+        <div className="inline-flex items-center rounded-full bg-white/85 backdrop-blur px-2 py-1 ring-1 ring-black/10">
+          <span className="inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-xs font-medium px-3 py-1">
+            {l.name}
+          </span>
+          <span className="ml-2 mr-2 text-xs text-(--olivea-ink)/70 whitespace-nowrap">
+            {roleText}
+          </span>
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+/* ---------------- page ---------------- */
 export default function TeamClient({
   lang,
   team,
@@ -334,40 +420,38 @@ export default function TeamClient({
   lang: Lang;
   team: TeamDict;
 }) {
-
   const router = useRouter();
   const pathname = usePathname();
 
-  // ✅ Source-of-truth language from URL: /es/... or /en/...
   const resolvedLang: Lang =
     pathname?.split("/")[1]?.toLowerCase().startsWith("es") ? "es" : "en";
-
-  // If you want: prefer prop lang when it’s correct, otherwise fall back:
-  const uiLang: Lang = (lang === "es" || lang === "en") ? lang : resolvedLang;
+  const uiLang: Lang = lang === "es" || lang === "en" ? lang : resolvedLang;
 
   const t = (x?: { es: string; en: string }) => (x ? x[uiLang] : "");
 
-
-  const leadersRaw: Leader[] = useMemo(() => TEAM, []);
-
-  const leadersSorted = useMemo(
-    () => [...leadersRaw].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999)),
-    [leadersRaw]
-  );
+  const leadersSorted = useMemo(() => {
+    return [...TEAM].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
+  }, []);
 
   const [category, setCategory] = useState<Category>("all");
 
-  const visibleLeaders = useMemo(
-    () => leadersSorted.filter((l) => matchesFilter(l, category)),
-    [leadersSorted, category]
+  const featured = useMemo(() => leadersSorted.slice(0, 3), [leadersSorted]);
+  const featuredIds = useMemo(
+    () => new Set(featured.map((x) => x.id)),
+    [featured]
   );
 
-  const [openId, setOpenId] = useState<string | null>(null);
+  const restVisible = useMemo(() => {
+    return leadersSorted
+      .filter((l) => !featuredIds.has(l.id))
+      .filter((l) => matchesFilter(l, category));
+  }, [leadersSorted, featuredIds, category]);
 
-  // IMPORTANT: look up active leader from full list (not filtered list)
+  const dockCount = featured.length + restVisible.length;
+
+  const [openId, setOpenId] = useState<string | null>(null);
   const active = leadersSorted.find((l) => l.id === openId) ?? null;
 
-  // ✅ FIX: Always give the galleries at least 3 items so autoplay works again.
   const modalImages = useMemo(() => {
     const base =
       active?.gallery?.length
@@ -410,203 +494,119 @@ export default function TeamClient({
   };
 
   const bioFallback =
-    lang === "es" ? "Historia en desarrollo — pronto." : "Story in progress — coming soon.";
+    lang === "es"
+      ? "Historia en desarrollo — pronto."
+      : "Story in progress — coming soon.";
 
-  const label = (c: Category) => {
-    if (c === "all") return "Olivea";
-    if (c === "hotel") return "Hotel";
-    if (c === "restaurant") return lang === "es" ? "Restaurante" : "Restaurant";
-    return lang === "es" ? "Café" : "Cafe";
-  };
-
-  const FULL_BLEED = "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
+  // Same geometry contract as PressClient
+  const FULL_BLEED =
+    "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
   const PAGE_PAD = "px-6 sm:px-10 md:px-12 lg:px-12";
   const RAIL = "max-w-[1400px]";
 
-  // ===== Animations =====
-  const EASE = [0.22, 1, 0.36, 1] as const;
-
-  const pageRef = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: pageRef,
-    offset: ["start start", "end start"],
-  });
-
-  const heroY = useSpring(useTransform(scrollYProgress, [0, 0.25], [0, -16]), {
-    stiffness: 120,
-    damping: 22,
-  });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.22], [1, 0.92]);
+  // Viewport settings: triggers when a card is meaningfully in view.
+const CARD_VIEWPORT = {
+  once: true,
+  amount: 0.22,                 // ⬅ trigger earlier
+  margin: "0px 0px -18% 0px",    // ⬅ begins before fully visible
+} as const;
 
   return (
-    <>
-      <motion.div
-        ref={pageRef}
-        className="-mt-10 md:mt-0"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: EASE }}
-      >
-        {/* HERO */}
-        <section className="mt-0 sm:mt-2">
-          <div className={`${FULL_BLEED} ${PAGE_PAD}`}>
-            <div className={`${RAIL} mx-auto`}>
-              <div className="grid grid-cols-12 gap-8 items-end">
-                <div className="col-span-12 lg:col-span-8">
-                  <div className="grid grid-cols-12">
-                    <div className="col-span-12 lg:col-span-8">
-                      <div className="flex items-start gap-5">
-                        <div className="hidden sm:block shrink-0 opacity-80">
-                          {/* mark */}
-                        </div>
+    <main id="top" className="w-full pt-0 pb-36 sm:pb-24">
+      <TeamDockLeft
+        lang={lang}
+        category={category}
+        setCategory={setCategory}
+        count={dockCount}
+      />
 
-                        <motion.header
-                          className="max-w-245 mt-0 sm:mt-6 lg:mt-10"
-                          style={{ y: heroY, opacity: heroOpacity }}
-                        >
+      <section className="mt-0 sm:mt-2">
+        <div className={FULL_BLEED}>
+          <div className={PAGE_PAD}>
+            <div
+              className={cn(
+                `${RAIL} mx-auto`,
+                "md:ml-80 xl:ml-85",
+                "md:mr-(--dock-right)",
+                "pr-2 sm:pr-0"
+              )}
+            >
+              <h1 className="sr-only">
+                {team.leadersTitle ??
+                  (lang === "es" ? "Líderes de Olivea" : "Leaders of Olivea")}
+              </h1>
 
-                          <motion.h1
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, ease: EASE, delay: 0.08 }}
-                            className="mt-1 text-(--olivea-ink) text-3xl md:text-4xl font-semibold leading-[1.05]"
-                            style={{ fontFamily: "var(--font-serif)" }}
-                          >
-                            {team.leadersTitle ?? (lang === "es" ? "Lideres de Olivea" : "Leaders of Olivea")}
-                          </motion.h1>
-                        </motion.header>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* DESKTOP FILTERS */}
-                <motion.div
-                  className="hidden lg:block col-span-4"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
-                >
-                  <div className="mt-4 flex flex-wrap gap-2 bg-transparent p-0 ring-0">
-                    {(["all", "hotel", "restaurant", "cafe"] as Category[]).map((c) => {
-                      const on = category === c;
-                      return (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setCategory(c)}
-                          className={[
-                            "inline-flex items-center rounded-full px-4 py-2 text-sm transition",
-                            on
-                              ? "bg-(--olivea-olive) text-(--olivea-cream)"
-                              : "bg-transparent text-(--olivea-ink)/70 ring-1 ring-(--olivea-ink)/20 hover:ring-(--olivea-ink)/35 hover:text-(--olivea-ink)",
-                          ].join(" ")}
-                        >
-                          {label(c)}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* MOBILE FILTER */}
-        <motion.div
-          className="lg:hidden mt-5"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: EASE, delay: 0.08 }}
-        >
-          <div className={`${FULL_BLEED} ${PAGE_PAD}`}>
-            <div className={`${RAIL} mx-auto`}>
-              <div className="flex items-center justify-between">
-                <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-ink)/55">
-                  {lang === "es" ? "Filtrar" : "Filter"}
-                </div>
-                <div className="text-xs text-(--olivea-ink)/55">
-                  {visibleLeaders.length}
-                </div>
-              </div>
-
-              <div className="mt-3 w-full overflow-x-auto no-scrollbar">
-                <div className="flex w-full gap-2">
-                  {(["all", "hotel", "restaurant", "cafe"] as Category[]).map((c) => {
-                    const on = category === c;
-                    return (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setCategory(c)}
-                        className={[
-                          "shrink-0 rounded-full px-4 py-2 text-sm ring-1 transition",
-                          on
-                            ? "bg-(--olivea-olive) text-(--olivea-cream) ring-black/10"
-                            : "bg-(--olivea-cream)/80 text-(--olivea-ink)/70 ring-black/10",
-                        ].join(" ")}
-                      >
-                        {label(c)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* GRID */}
-        <section className="mt-7">
-          <div className={`${FULL_BLEED} ${PAGE_PAD}`}>
-            <div className={`${RAIL} mx-auto`}>
-              {/* Desktop grid */}
-              <div className="hidden lg:grid grid-cols-12 gap-6 auto-rows-[360px]">
-                {visibleLeaders.map((l) => (
-                  <motion.button
-                    key={l.id}
-                    type="button"
-                    onClick={() => setOpenId(l.id)}
-                    className={[
-                      "group relative overflow-hidden rounded-3xl ring-1 ring-black/10 transition",
-                      tileClass((l.tile as TileSize) ?? "md"),
-                    ].join(" ")}
-                    whileHover={{ y: -2, scale: 1.01 }}
-                  >
-                    <div className="absolute inset-0 bg-white/35" />
-                    <div className="absolute inset-0">
-                      <Image
-                        src={l.avatar ?? "/images/team/persona.jpg"}
-                        alt={l.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-contain object-bottom"
+              {/* =========================
+                  DESKTOP ONLY
+                  ========================= */}
+              <div className="hidden lg:block">
+                {/* Featured row */}
+                <div className="mt-6 sm:mt-10">
+                  <div className="grid grid-cols-12 gap-6">
+                    {featured.map((l, idx) => (
+                      <LeaderCard
+                        key={l.id}
+                        l={l}
+                        roleText={t(l.role)}
+                        onOpen={() => setOpenId(l.id)}
+                        sizes="(max-width: 1200px) 33vw, 520px"
+                        className="col-span-4 h-85 xl:h-90"
+                        imageMode="cover"
+                        motionProps={{
+                          variants: cardInV,
+                          initial: "hidden",
+                          whileInView: "show",
+                          viewport: CARD_VIEWPORT,
+                          custom: idx, // stagger within this row
+                        }}
                       />
-                    </div>
+                    ))}
+                  </div>
+                </div>
 
-                    <div className="absolute left-5 bottom-5">
-                      <div className="inline-flex items-center rounded-full bg-white/85 backdrop-blur px-2 py-1 ring-1 ring-black/10">
-                        <span className="inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-xs font-medium px-3 py-1">
-                          {l.name}
-                        </span>
-                        <span className="ml-2 mr-2 text-xs text-(--olivea-ink)/70 whitespace-nowrap">
-                          {t(l.role)}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
+                {/* Rest: 4 per row */}
+                <div className="mt-7 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
+                  {restVisible.map((l, idx) => (
+                    <LeaderCard
+                      key={l.id}
+                      l={l}
+                      roleText={t(l.role)}
+                      onOpen={() => setOpenId(l.id)}
+                      sizes="(max-width: 1200px) 25vw, 360px"
+                      className="col-span-3"
+                      imageMode="contain"
+                      motionProps={{
+                        variants: cardInV,
+                        initial: "hidden",
+                        whileInView: "show",
+                        viewport: CARD_VIEWPORT,
+                        // stagger feels best per-row; 4 columns => 0..3 repeating
+                        custom: idx % 4,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
 
-              {/* Mobile cards */}
-              <div className="lg:hidden grid grid-cols-1 gap-6 pb-28">
-                {visibleLeaders.map((l) => (
+              {/* =========================
+                  MOBILE ONLY
+                  (prevents “double render”)
+                  ========================= */}
+              <div className="lg:hidden mt-4 grid grid-cols-1 gap-6 pb-28">
+                {[...featured, ...restVisible].map((l, idx) => (
                   <motion.button
                     key={l.id}
                     type="button"
                     onClick={() => setOpenId(l.id)}
                     className="group relative overflow-hidden rounded-3xl ring-1 ring-black/10 w-full h-85"
+                    whileTap={{ scale: 0.995 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                    variants={cardInV}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={CARD_VIEWPORT}
+                    // light stagger on mobile as you scroll
+                    custom={idx % 6}
                   >
                     <div className="absolute inset-0 bg-white/35" />
                     <div className="absolute inset-0">
@@ -636,8 +636,8 @@ export default function TeamClient({
               </div>
             </div>
           </div>
-        </section>
-      </motion.div>
+        </div>
+      </section>
 
       {/* MODAL */}
       {portalReady &&
@@ -675,7 +675,6 @@ export default function TeamClient({
                 >
                   <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
                     <div className="grid h-full grid-cols-1 lg:grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
-                      {/* ✅ FIX: remove the border that looked like a random line */}
                       <div className="hidden lg:block row-span-2 pl-6 pr-3">
                         <AutoSlideGalleryVerticalVariableHeight
                           images={modalImages.slice(0, 12)}
@@ -742,7 +741,6 @@ export default function TeamClient({
                           {t(active.bio) || bioFallback}
                         </p>
 
-                        {/* Linktree CTA */}
                         <div className="mt-7">
                           <button
                             type="button"
@@ -779,6 +777,6 @@ export default function TeamClient({
           </AnimatePresence>,
           document.body
         )}
-    </>
+    </main>
   );
 }
