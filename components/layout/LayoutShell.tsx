@@ -110,9 +110,9 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
     () => [
       { id: "team",        href: `/${pathLang}/team`,        label: dictionary.team.title,          icon: <Users /> },
       { id: "journal",      href: `/${pathLang}/journal`,      label: dictionary.journal.title,        icon: <BookOpen /> },
+      { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title,   icon: <Award /> },
       { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <Leaf /> },
       { id: "contact",      href: `/${pathLang}/contact`,      label: dictionary.contact.title,        icon: <Map /> },
-      { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title,   icon: <Award /> },
     ],
     [pathLang, dictionary]
   );
