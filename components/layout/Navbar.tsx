@@ -270,14 +270,28 @@ export default function Navbar({ lang: _langProp, dictionary }: NavbarProps) {
     window.addEventListener("pagehide", cleanup);
     window.addEventListener("visibilitychange", visHandler);
   }, []);
+  const [drawerOrigin, setDrawerOrigin] = useState<{ x: number; y: number } | undefined>(undefined);
 
   /* Mobile UI */
   if (isMobile) {
     return (
       <>
-        <AdaptiveNavbar lang={lang} isDrawerOpen={drawerOpen} onToggleDrawer={toggleDrawer} />
-        <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} lang={lang} dict={dictionary} />
-        <MobileNav />
+        <AdaptiveNavbar
+          lang={lang}
+          isDrawerOpen={drawerOpen}
+          onToggleDrawer={toggleDrawer}
+          onDrawerOriginChange={setDrawerOrigin}
+        />
+            
+        <MobileDrawer
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          lang={lang}
+          dict={dictionary}
+          origin={drawerOrigin}
+        />
+            
+        <MobileNav isDrawerOpen={drawerOpen} />
       </>
     );
   }

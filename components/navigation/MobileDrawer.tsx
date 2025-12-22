@@ -1,3 +1,4 @@
+// components/navigation/MobileDrawer.tsx
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
@@ -21,6 +22,12 @@ interface Props {
   lang: "en" | "es";
   dict: AppDictionary;
   origin?: { x: number; y: number };
+
+  /**
+   * Optional: called when the drawer is FULLY unmounted (after exit animation),
+   * perfect moment to refresh AdaptiveNavbar background detection.
+   */
+  onExitComplete?: () => void;
 }
 
 const container: Variants = {
@@ -63,7 +70,14 @@ function useBodyScrollLock(locked: boolean) {
   }, [locked]);
 }
 
-export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Props) {
+export default function MobileDrawer({
+  isOpen,
+  onClose,
+  lang,
+  dict,
+  origin,
+  onExitComplete,
+}: Props) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -86,7 +100,7 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
     setBlurReady(false);
 
     const tItems = window.setTimeout(() => setItemsReady(true), 120);
-    const tBlur = window.setTimeout(() => setBlurReady(true), 210); // ~90ms after items begin
+    const tBlur = window.setTimeout(() => setBlurReady(true), 210);
 
     return () => {
       window.clearTimeout(tItems);
@@ -114,12 +128,26 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
   const moreLinks = useMemo(() => {
     const L = dict.drawer?.more;
     return [
-      { href: `/${lang}/journal`, label: L?.journal ?? (lang === "es" ? "Diario" : "Journal") },
+      {
+        href: `/${lang}/journal`,
+        label: L?.journal ?? (lang === "es" ? "Diario" : "Journal"),
+      },
       { href: `/${lang}/team`, label: lang === "es" ? "Equipo" : "Team" },
-      { href: `/${lang}/sustainability`, label: L?.sustainability ?? (lang === "es" ? "Sostenibilidad" : "Sustainability") },
-      { href: `/${lang}/contact`, label: L?.contact ?? (lang === "es" ? "Contáctanos" : "Contact") },
+      {
+        href: `/${lang}/sustainability`,
+        label:
+          L?.sustainability ??
+          (lang === "es" ? "Sostenibilidad" : "Sustainability"),
+      },
+      {
+        href: `/${lang}/contact`,
+        label: L?.contact ?? (lang === "es" ? "Contáctanos" : "Contact"),
+      },
       { href: `/${lang}/press`, label: lang === "es" ? "Prensa" : "Press" },
-      { href: `/${lang}/carreras`, label: lang === "es" ? "Carreras" : "Careers" },
+      {
+        href: `/${lang}/carreras`,
+        label: lang === "es" ? "Carreras" : "Careers",
+      },
     ];
   }, [lang, dict]);
 
@@ -132,7 +160,9 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
   const rightsText =
     lang === "en" ? "All rights reserved." : "Todos los derechos reservados.";
 
-  const ox = origin?.x ?? (typeof window !== "undefined" ? window.innerWidth * 0.92 : 360);
+  const ox =
+    origin?.x ??
+    (typeof window !== "undefined" ? window.innerWidth * 0.92 : 360);
   const oy = origin?.y ?? 40;
 
   const isActive = (href: string) => {
@@ -143,9 +173,20 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
   const blurClass = blurReady ? "backdrop-blur-md" : "";
 
   return (
-    <AnimatePresence>
+    <AnimatePresence
+      onExitComplete={() => {
+        // ✅ best moment to refresh AdaptiveNavbar sampling
+        onExitComplete?.();
+
+        // ✅ also supports the event-based wiring (no-refactor)
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("olivea:drawer-exit"));
+        }
+      }}
+    >
       {isOpen && (
         <>
+          {/* Backdrop */}
           <motion.button
             type="button"
             aria-label={lang === "es" ? "Cerrar menú" : "Close menu"}
@@ -170,6 +211,7 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
                 aria-modal="true"
                 role="dialog"
               >
+                {/* Background layers */}
                 <div className="absolute inset-0 bg-(--olivea-olive)" />
                 <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/25 opacity-80" />
                 <div className="absolute inset-0 ring-1 ring-white/10" />
@@ -181,6 +223,7 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
                   exit="exit"
                   className="relative h-full w-full flex flex-col px-6 pb-10 pt-20"
                 >
+                  {/* Main links */}
                   <div className="flex flex-col gap-3">
                     {mainLinks.map(({ href, label }) => {
                       const active = isActive(href);
@@ -204,7 +247,13 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
                           ].join(" ")}
                         >
                           <span className="text-base font-semibold">{label}</span>
-                          <span className={active ? "text-(--olivea-cream)" : "text-(--olivea-cream)/70"}>
+                          <span
+                            className={
+                              active
+                                ? "text-(--olivea-cream)"
+                                : "text-(--olivea-cream)/70"
+                            }
+                          >
                             ↗
                           </span>
                         </motion.button>
@@ -216,6 +265,7 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
                     <div className="h-px w-full bg-white/10" />
                   </motion.div>
 
+                  {/* More links */}
                   <motion.div variants={item} className="mt-4">
                     <div className="grid grid-cols-2 gap-2">
                       {moreLinks.map(({ href, label }) => {
@@ -246,37 +296,74 @@ export default function MobileDrawer({ isOpen, onClose, lang, dict, origin }: Pr
 
                   <div className="flex-1 min-h-6" />
 
+                  {/* Footer */}
                   <div className="flex flex-col items-center gap-4 pb-2">
-                    <motion.div variants={item} className="transform-gpu will-change-transform">
+                    <motion.div
+                      variants={item}
+                      className="transform-gpu will-change-transform"
+                    >
                       <LocaleSwitcher
                         currentLang={lang}
                         className="border-(--olivea-cream) text-(--olivea-cream) hover:bg-(--olivea-cream) hover:text-(--olivea-olive)"
                       />
                     </motion.div>
 
-                    <motion.div variants={item} className="flex gap-5 transform-gpu will-change-transform">
-                      <a href="https://www.youtube.com/@GrupoOlivea" target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                    <motion.div
+                      variants={item}
+                      className="flex gap-5 transform-gpu will-change-transform"
+                    >
+                      <a
+                        href="https://www.youtube.com/@GrupoOlivea"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="YouTube"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
+                      >
                         <FaYoutube size={20} />
                       </a>
-                      <a href="https://instagram.com/oliveafarmtotable/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                      <a
+                        href="https://instagram.com/oliveafarmtotable/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Instagram"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
+                      >
                         <FaInstagram size={20} />
                       </a>
-                      <a href="https://www.tiktok.com/@grupoolivea" target="_blank" rel="noopener noreferrer" aria-label="TikTok"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                      <a
+                        href="https://www.tiktok.com/@grupoolivea"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="TikTok"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
+                      >
                         <FaTiktok size={20} />
                       </a>
-                      <a href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                      <a
+                        href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="LinkedIn"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
+                      >
                         <FaLinkedin size={20} />
                       </a>
-                      <a href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8" target="_blank" rel="noopener noreferrer" aria-label="Spotify"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                      <a
+                        href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Spotify"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
+                      >
                         <FaSpotify size={20} />
                       </a>
-                      <a href="https://mx.pinterest.com/familiaolivea/" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity">
+                      <a
+                        href="https://mx.pinterest.com/familiaolivea/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Pinterest"
+                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
+                      >
                         <FaPinterest size={20} />
                       </a>
                     </motion.div>

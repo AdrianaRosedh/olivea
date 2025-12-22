@@ -1,3 +1,4 @@
+// hooks/useBackgroundColorDetection.ts
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -8,37 +9,38 @@ type Options = {
   deadband?: number; // default 0.03
   mediaFallback?: MediaFallback; // default "previous"
   sampleUnderNavPx?: number; // default 8
+
+  /**
+   * NEW: consecutive samples required to flip state.
+   * 2 = snappy, 3 = stable on scroll.
+   */
+  stableSamples?: number; // default 3
 };
 
-/**
- * Updated for:
- * - Stable `check` (no listener churn on isDark flips)
- * - Avoid per-sample DOM creation (reuse one scratch element)
- * - Reduce false "media" classification (remove broad querySelector)
- * - Ignore elements inside the navbar itself (node.contains)
- * - Unified rAF tick guard for all triggers
- */
 export function useBackgroundColorDetection(opts: Options = {}) {
   const {
     threshold = 0.48,
     deadband = 0.03,
     mediaFallback = "previous",
     sampleUnderNavPx = 8,
+    stableSamples = 3,
   } = opts;
 
   const [isDark, setIsDark] = useState(false);
 
   const elementRef = useRef<HTMLDivElement>(null);
 
-  // Refs to avoid re-creating handlers when isDark changes
   const isDarkRef = useRef(false);
   const lastLumaRef = useRef<number | null>(null);
 
   const tickingRef = useRef(false);
   const roRef = useRef<ResizeObserver | null>(null);
 
-  // Reusable scratch element for color normalization (rarely used, but safer + cheaper)
   const scratchRef = useRef<HTMLDivElement | null>(null);
+
+  // ✅ stability via consecutive samples
+  const candidateRef = useRef<boolean | null>(null);
+  const candidateCountRef = useRef(0);
 
   useEffect(() => {
     isDarkRef.current = isDark;
@@ -65,16 +67,12 @@ export function useBackgroundColorDetection(opts: Options = {}) {
     bg === "transparent" ||
     (/rgba\(/i.test(bg) && (parseRGBA(bg)?.a ?? 1) <= 0.01);
 
-  // IMPORTANT: Keep this strict. The old `querySelector(...)` was too broad
-  // and could misclassify normal UI that contains an svg/icon as "media".
   const looksLikeMedia = (el: Element) =>
     el.matches("img, picture, video, canvas, svg");
 
   const normalizeColorToRGB = (color: string): string | null => {
-    // Most computed styles are already rgb/rgba. If so, return immediately.
     if (/^rgba?\(/i.test(color)) return color;
 
-    // Rare fallback: normalize named colors/hex via a reusable scratch element.
     if (!scratchRef.current) {
       const tmp = document.createElement("div");
       tmp.style.position = "fixed";
@@ -112,10 +110,8 @@ export function useBackgroundColorDetection(opts: Options = {}) {
   ): { type: "img" } | { type: "luma"; v: number } | null => {
     const stack = document.elementsFromPoint(x, y);
     for (const el of stack) {
-      // Ignore the navbar node itself and anything inside it
       if (el === navNode || navNode.contains(el)) continue;
 
-      // If a media element is directly on top, treat as media
       if (looksLikeMedia(el)) return { type: "img" };
 
       const bg = resolveBG(el);
@@ -146,6 +142,30 @@ export function useBackgroundColorDetection(opts: Options = {}) {
     return prevDark;
   };
 
+  const propose = (next: boolean) => {
+    const prev = isDarkRef.current;
+
+    if (next === prev) {
+      candidateRef.current = null;
+      candidateCountRef.current = 0;
+      return;
+    }
+
+    if (candidateRef.current !== next) {
+      candidateRef.current = next;
+      candidateCountRef.current = 1;
+      return;
+    }
+
+    candidateCountRef.current += 1;
+
+    if (candidateCountRef.current >= stableSamples) {
+      candidateRef.current = null;
+      candidateCountRef.current = 0;
+      setIsDark(next);
+    }
+  };
+
   const check = useCallback(() => {
     if (typeof window === "undefined") return;
 
@@ -155,14 +175,13 @@ export function useBackgroundColorDetection(opts: Options = {}) {
     const r = node.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) return;
 
-    // sample just below the bar; 2 rows for rounded top
     const rowsY = [
       r.bottom + sampleUnderNavPx,
       r.bottom + sampleUnderNavPx + 18,
     ];
     const colsX = [0.15, 0.35, 0.5, 0.65, 0.85].map((p) => r.left + r.width * p);
 
-    let anyDark = false;
+    let anyDarkVotes = 0;
     let mediaOnly = true;
     const lumas: number[] = [];
 
@@ -171,24 +190,26 @@ export function useBackgroundColorDetection(opts: Options = {}) {
         const res = sampleAt(sx, sy, node);
         if (!res) continue;
 
-        if (res.type === "img") continue; // keep mediaOnly true until we find luma
+        if (res.type === "img") continue;
         mediaOnly = false;
         lumas.push(res.v);
-        if (res.v < threshold - 0.02) anyDark = true; // early dark vote
+
+        if (res.v < threshold - 0.02) anyDarkVotes += 1;
       }
     }
 
     const prev = isDarkRef.current;
 
-    if (anyDark) {
-      if (!prev) setIsDark(true);
+    // Dark needs at least 2 points to vote dark (prevents single-point “dot” flicker)
+    if (anyDarkVotes >= 2) {
+      propose(true);
       return;
     }
 
     if (!mediaOnly && lumas.length) {
       const avg = lumas.reduce((a, b) => a + b, 0) / lumas.length;
       const next = decide(avg, prev);
-      if (next !== prev) setIsDark(next);
+      propose(next);
       return;
     }
 
@@ -198,13 +219,13 @@ export function useBackgroundColorDetection(opts: Options = {}) {
           ? true
           : mediaFallback === "never"
             ? false
-            : prev; // previous
-      if (next !== prev) setIsDark(next);
+            : prev;
+      propose(next);
       return;
     }
 
-    if (prev !== false) setIsDark(false);
-  }, [threshold, deadband, mediaFallback, sampleUnderNavPx]);
+    propose(false);
+  }, [threshold, deadband, mediaFallback, sampleUnderNavPx, stableSamples]);
 
   useEffect(() => {
     const tick = () => {
@@ -216,7 +237,6 @@ export function useBackgroundColorDetection(opts: Options = {}) {
       });
     };
 
-    // initial delayed check (lets first paint settle)
     const t = window.setTimeout(check, 120);
 
     window.addEventListener("scroll", tick, { passive: true });
@@ -241,11 +261,13 @@ export function useBackgroundColorDetection(opts: Options = {}) {
         roRef.current = null;
       }
 
-      // cleanup scratch element if it exists
       if (scratchRef.current) {
         scratchRef.current.remove();
         scratchRef.current = null;
       }
+
+      candidateRef.current = null;
+      candidateCountRef.current = 0;
     };
   }, [check]);
 
