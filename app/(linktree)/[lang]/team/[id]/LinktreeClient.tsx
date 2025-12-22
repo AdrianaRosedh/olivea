@@ -1,7 +1,9 @@
+// app/(linktree)/[lang]/team/[id]/LinktreeClient.tsx
 "use client";
 
 import Image from "next/image";
-import { useMemo } from "react";
+import Link from "next/link";
+import { useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import {
   ArrowLeft,
@@ -12,6 +14,7 @@ import {
   Facebook,
   Linkedin,
   Globe,
+  ArrowUpRight,
 } from "lucide-react";
 
 import OliveaLogo from "@/assets/alebrije-1.svg";
@@ -28,16 +31,13 @@ import type {
 const t = (x: I18nText | undefined, lang: Lang) => (x ? x[lang] : "");
 const isExternal = (href: string) => /^https?:\/\//i.test(href);
 
-// Olivea tokens
 const TOK = {
   cream: "#f1f1f1",
-  creamSoft: "rgba(241,241,241,0.72)",
   glassBorder: "rgba(255,255,255,0.35)",
 };
 
 const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/** `forceButton: true` => render as a full button even if it's a social URL */
 function hasForceButton(x: unknown): x is { forceButton: true } {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
@@ -55,53 +55,37 @@ type MotionPack = {
 
 function makeVariants(reduce: boolean): MotionPack {
   const container: Variants = {
-    hidden: {
-      opacity: 0,
-      y: reduce ? 0 : 28,
-      filter: reduce ? "none" : "blur(14px)",
-    },
+    hidden: { opacity: 0, y: reduce ? 0 : 18 },
     show: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: {
-        duration: reduce ? 0.1 : 0.75,
+        duration: reduce ? 0.1 : 0.55,
         ease: easeOut,
         when: "beforeChildren",
-        staggerChildren: reduce ? 0 : 0.07,
-        delayChildren: reduce ? 0 : 0.1,
+        staggerChildren: reduce ? 0 : 0.06,
+        delayChildren: reduce ? 0 : 0.08,
       },
     },
   };
 
   const item: Variants = {
-    hidden: {
-      opacity: 0,
-      y: reduce ? 0 : 14,
-      filter: reduce ? "none" : "blur(10px)",
-    },
+    hidden: { opacity: 0, y: reduce ? 0 : 10 },
     show: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
-      transition: { duration: reduce ? 0.1 : 0.55, ease: easeOut },
+      transition: { duration: reduce ? 0.1 : 0.45, ease: easeOut },
     },
   };
 
   const avatar: Variants = {
-    hidden: {
-      opacity: 0,
-      y: reduce ? 0 : 18,
-      scale: reduce ? 1 : 0.93,
-      filter: reduce ? "none" : "blur(12px)",
-    },
+    hidden: { opacity: 0, y: reduce ? 0 : 14, scale: reduce ? 1 : 0.97 },
     show: {
       opacity: 1,
       y: 0,
       scale: 1,
-      filter: "blur(0px)",
       transition: {
-        duration: reduce ? 0.1 : 0.75,
+        duration: reduce ? 0.1 : 0.55,
         ease: easeOut,
         delay: reduce ? 0 : 0.05,
       },
@@ -110,7 +94,7 @@ function makeVariants(reduce: boolean): MotionPack {
 
   const buttonsWrap: Variants = {
     hidden: {},
-    show: { transition: { staggerChildren: reduce ? 0 : 0.08 } },
+    show: { transition: { staggerChildren: reduce ? 0 : 0.07 } },
   };
 
   return { container, item, avatar, buttonsWrap };
@@ -155,6 +139,8 @@ function Avatar({
           WebkitBackdropFilter: "blur(18px) saturate(155%)",
           border: "1px solid rgba(255,255,255,0.35)",
           boxShadow: "0 18px 60px rgba(0,0,0,0.24)",
+          transform: "translateZ(0)",
+          willChange: "transform",
         }}
       />
 
@@ -170,6 +156,8 @@ function Avatar({
         style={{
           borderRadius: AVATAR_RADIUS,
           boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.10)",
+          transform: "translateZ(0)",
+          willChange: "transform",
         }}
       >
         <Image
@@ -182,17 +170,11 @@ function Avatar({
         />
 
         <div
-          className="pointer-events-none absolute inset-0 flex items-center justify-center"
+          className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 30% 22%, rgba(255,255,255,0.12), rgba(0,0,0,0.10))",
-            color: "rgba(255,255,255,0.80)",
-            fontFamily: "var(--font-sans)",
-            letterSpacing: "0.06em",
-            fontSize: 18,
-            fontWeight: 600,
+              "radial-gradient(circle at 30% 22%, rgba(255,255,255,0.12), rgba(0,0,0,0.12))",
           }}
-          aria-hidden="true"
         />
 
         <div
@@ -201,7 +183,7 @@ function Avatar({
             background:
               "radial-gradient(circle at 30% 22%, rgba(255,255,255,0.22), rgba(255,255,255,0.0) 58%)",
             mixBlendMode: "screen",
-            opacity: 0.9,
+            opacity: 0.85,
           }}
         />
 
@@ -282,11 +264,11 @@ function SocialRow({
           title={it.label}
           className={[
             "group flex h-10 w-10 items-center justify-center rounded-full",
-            "transition-all outline-none",
+            "transition-all outline-none transform-gpu",
             "focus-visible:ring-2 focus-visible:ring-white/40",
             "hover:bg-white/15 hover:backdrop-blur-md",
           ].join(" ")}
-          style={{ color: "#f1f1f1" }}
+          style={{ color: TOK.cream }}
           whileHover={reduce ? undefined : { scale: 1.06 }}
           whileTap={reduce ? undefined : { scale: 0.95 }}
         >
@@ -320,13 +302,13 @@ function LinkButton({
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
       variants={variants}
-      whileHover={reduce ? undefined : { y: -2, scale: 1.01 }}
-      whileTap={reduce ? undefined : { scale: 0.985 }}
+      whileHover={reduce ? undefined : { y: -2, scale: 1.015 }}
+      whileTap={reduce ? undefined : { scale: 0.975 }}
       className={[
         "group relative flex w-full items-center justify-center overflow-hidden",
         "rounded-2xl border px-6 py-4",
-        "min-h-[58px]",
-        "text-center outline-none",
+        "min-h-14.5",
+        "text-center outline-none transform-gpu",
         "transition-[transform,background-color,border-color] duration-300",
         "focus-visible:ring-2 focus-visible:ring-white/40",
       ].join(" ")}
@@ -336,7 +318,7 @@ function LinkButton({
           "linear-gradient(180deg, rgba(94,118,88,0.22), rgba(94,118,88,0.14))",
         backdropFilter: "blur(14px) saturate(145%)",
         WebkitBackdropFilter: "blur(14px) saturate(145%)",
-        boxShadow: "0 14px 34px rgba(0,0,0,0.12)",
+        boxShadow: "0 12px 28px rgba(0,0,0,0.12)",
       }}
     >
       <span
@@ -355,13 +337,21 @@ function LinkButton({
         }}
       />
       <span
-        className="relative text-[16px] font-semibold tracking-tight"
+        className="relative inline-flex items-center gap-2 text-[16px] font-semibold tracking-tight"
         style={{
-          color: "#f1f1f1",
+          color: TOK.cream,
           fontFamily: "var(--font-lora)",
         }}
       >
         {label}
+        {external && (
+          <ArrowUpRight
+            className="opacity-0 transition-opacity duration-200 group-hover:opacity-90"
+            size={18}
+            strokeWidth={1.6}
+            aria-hidden="true"
+          />
+        )}
       </span>
     </motion.a>
   );
@@ -382,6 +372,9 @@ export default function LinktreeClient({
   const role = member.role ? t(member.role, lang) : "";
   const org = member.org ? t(member.org, lang) : "";
   const avatar = member.avatar ?? "/images/team/persona.jpg";
+
+  const [bgReady, setBgReady] = useState(false);
+  const bgReadyOnce = useRef(false);
 
   const { socials, buttons } = useMemo(() => {
     const rawLinks = member.links ?? [];
@@ -424,39 +417,86 @@ export default function LinktreeClient({
 
   return (
     <div className="min-h-dvh">
+      {/* Ultra-fast base paint */}
+      <div className="fixed-lcp" aria-hidden="true" />
+
       {/* Background */}
       <div className="fixed inset-0 z-0">
-        <Image
-          src="/images/farm/garden6.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
+        <div
+          className="absolute inset-0"
+          style={{ background: "var(--olivea-olive)" }}
+          aria-hidden="true"
         />
+
+        <div
+          className="absolute inset-0 transition-opacity duration-500 will-change-[opacity]"
+          style={{ opacity: bgReady ? 0 : 1, pointerEvents: "none" }}
+          aria-hidden="true"
+        >
+          <Image
+            src="/images/linktree/gardenleaves-blur.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            quality={35}
+            className="object-cover"
+            style={{ objectPosition: "center", transform: "translateZ(0)" }}
+          />
+        </div>
+
+        <div
+          className="absolute inset-0 transition-opacity duration-700 will-change-[opacity]"
+          style={{ opacity: bgReady ? 1 : 0, pointerEvents: "none" }}
+          aria-hidden="true"
+        >
+          <Image
+            src="/images/linktree/gardenleaves.avif"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            quality={60}
+            className="object-cover"
+            style={{ objectPosition: "center", transform: "translateZ(0)" }}
+            onLoadingComplete={() => {
+              if (bgReadyOnce.current) return;
+              bgReadyOnce.current = true;
+              setBgReady(true);
+            }}
+          />
+        </div>
+
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 50% 25%, rgba(0,0,0,0.12), rgba(0,0,0,0.34))",
+              "radial-gradient(circle at 50% 25%, rgba(0,0,0,0.10), rgba(0,0,0,0.42))",
           }}
+          aria-hidden="true"
         />
       </div>
+
+      {/* Grain overlay (fix: z-2 -> z-[2]) */}
+      <div
+        className="pointer-events-none fixed inset-0 z-2 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage: "url(/images/ui/noise.png)",
+          backgroundRepeat: "repeat",
+        }}
+        aria-hidden="true"
+      />
 
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">
         <motion.div
           className="sticky top-6 z-20 self-start pl-5"
-          initial={{
-            opacity: 0,
-            x: reduce ? 0 : -10,
-            filter: reduce ? "none" : "blur(8px)",
-          }}
-          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          initial={{ opacity: 0, x: reduce ? 0 : -10 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: reduce ? 0.1 : 0.45, ease: easeOut }}
         >
-          <a
+          <Link
             href={`/${lang}/team`}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-lg transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-lg transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40 transform-gpu"
             style={{
               borderColor: "rgba(255,255,255,0.25)",
               background: "rgba(255,255,255,0.10)",
@@ -465,21 +505,26 @@ export default function LinktreeClient({
               WebkitBackdropFilter: "blur(14px)",
             }}
             aria-label="Back"
+            prefetch
           >
             <ArrowLeft size={18} strokeWidth={1.6} />
-          </a>
+          </Link>
         </motion.div>
 
         <motion.div
           className="relative mt-24 flex min-h-dvh flex-col items-center px-5 pb-10 pt-10"
           style={{
             background:
-              "linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.28))",
-            backdropFilter: "blur(26px) saturate(1.25)",
-            WebkitBackdropFilter: "blur(26px) saturate(1.25)",
+              "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.24))",
+            backdropFilter: "blur(18px) saturate(1.15)",
+            WebkitBackdropFilter: "blur(18px) saturate(1.15)",
             borderRadius: "65px 65px 0 0",
             borderTop: `1px solid ${TOK.glassBorder}`,
-            boxShadow: "0 -18px 60px rgba(0,0,0,0.18)",
+            boxShadow: "0 -16px 50px rgba(0,0,0,0.18)",
+            transform: "translateZ(0)",
+            willChange: "transform",
+            // ✅ modern layering without clipping avatar overlap
+            isolation: "isolate",
           }}
           variants={V.container}
           initial="hidden"
@@ -493,9 +538,10 @@ export default function LinktreeClient({
                 "linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.06) 72%, rgba(255,255,255,0.0))",
               opacity: 0.9,
             }}
+            aria-hidden="true"
           />
 
-          {/* Avatar overlap (higher + less on glass) */}
+          {/* Avatar overlap */}
           <motion.div variants={V.avatar} className="-mt-30 sm:-mt-33">
             <Avatar src={avatar} alt={member.name} reduce={!!reduce} />
           </motion.div>
@@ -542,7 +588,7 @@ export default function LinktreeClient({
 
           <motion.div
             variants={V.buttonsWrap}
-            className="mt-1 flex w-full max-w-sm flex-col gap-3"
+            className="mt-2 flex w-full max-w-sm flex-col gap-3"
           >
             {buttons.map((link) => (
               <LinkButton

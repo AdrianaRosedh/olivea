@@ -129,6 +129,8 @@
 @keyframes olivea-loader-bar { from { width: 0% } to { width: 100% } }
 @keyframes olivea-loader-vert { from { transform: scaleY(0) } to { transform: scaleY(1) } }
 
+
+
 @layer utilities {
   .loader-bar {
     position: absolute;
@@ -146,6 +148,11 @@
   /* Allow scroll override if a wrapper locks it */
   .allow-scroll {
     overflow-y: auto !important;
+  }
+  .gpu-smooth {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
   }
 
   /* ───────────────────────────────────────────── */

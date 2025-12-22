@@ -55,5 +55,24 @@ export default function LinktreeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      {/* ✅ Preload linktree background assets for mega-fast first paint */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/linktree/gardenleaves.avif"
+        type="image/avif"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        href="/images/linktree/gardenleaves-blur.jpg"
+        fetchPriority="high"
+      />
+
+      {children}
+    </>
+  );
 }
