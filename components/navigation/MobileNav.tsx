@@ -11,9 +11,16 @@ import { useReservation } from "@/contexts/ReservationContext";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { ReservationType } from "@/contexts/ReservationContext";
-import { motion, AnimatePresence, useMotionValue } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useDragControls,
+} from "framer-motion";
+import { track } from "@vercel/analytics";
 
 type Props = {
+  /** Optional: pass from Navbar state so we can hide these buttons when drawer is open */
   isDrawerOpen?: boolean;
 };
 
@@ -42,7 +49,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
   // collapsed by default; expands on tap
   const [expanded, setExpanded] = useState(false);
 
-  // long-press to drag
+  // long-press to drag (now via dragControls.start())
   const [dragEnabled, setDragEnabled] = useState(false);
   const pressTimerRef = useRef<number | null>(null);
   const pressedRef = useRef(false);
@@ -59,6 +66,9 @@ export function MobileNav({ isDrawerOpen }: Props) {
   // Motion values for smooth dragging
   const mvX = useMotionValue(0);
   const mvY = useMotionValue(0);
+
+  // Drag controls (required for long-press drag on iOS)
+  const dragControls = useDragControls();
 
   // Constraint measurement refs
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -120,7 +130,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
   /* ---------------- restore position ---------------- */
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v4");
+      const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v5");
       if (!raw) return;
       const parsed = JSON.parse(raw) as DockPos;
       if (!parsed) return;
@@ -171,18 +181,14 @@ export function MobileNav({ isDrawerOpen }: Props) {
   useEffect(() => {
     if (!visible) return;
 
-    // only once per session
     const key = "olivea_mobile_dock_hint_seen_v1";
     const seen = sessionStorage.getItem(key);
     if (seen) return;
 
-    // delay a hair so it feels intentional (not instant UI spam)
     const t = window.setTimeout(() => {
-      // if user opened drawer or something, still safe—just show softly
       setShowHint(true);
       sessionStorage.setItem(key, "1");
 
-      // auto-hide
       hintTimerRef.current = window.setTimeout(() => {
         setShowHint(false);
         hintTimerRef.current = null;
@@ -237,7 +243,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos.side]);
 
-  /* ---------------- long-press logic ---------------- */
+  /* ---------------- long-press helpers ---------------- */
   const clearPressTimer = () => {
     if (pressTimerRef.current) {
       window.clearTimeout(pressTimerRef.current);
@@ -290,7 +296,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
                   sideRight ? "ml-auto" : "",
                   "w-max max-w-55",
                   "rounded-xl",
-                  "bg-(--olivea-olive)/80 text-white",
+                  "bg-black/70 text-white",
                   "px-3 py-2",
                   "text-[11px] leading-snug",
                   "shadow-lg",
@@ -306,16 +312,23 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
           <motion.div
             ref={dockRef}
-            // ✅ only draggable after long-press
-            drag={dragEnabled}
+            // ✅ iOS-friendly long-press drag
+            drag
+            dragControls={dragControls}
+            dragListener={false}
             dragMomentum={false}
             dragElastic={0.06}
             dragConstraints={constraints ?? undefined}
-            style={{ x: mvX, y: mvY }}
+            style={{
+              x: mvX,
+              y: mvY,
+              // Safari tends to respect inline touchAction more consistently
+              touchAction: dragEnabled ? "none" : "auto",
+            }}
             onDragStart={() => {
               movedRef.current = true;
               setExpanded(false);
-              setShowHint(false); // once they drag, hint is unnecessary
+              setShowHint(false);
               if (hintTimerRef.current) {
                 window.clearTimeout(hintTimerRef.current);
                 hintTimerRef.current = null;
@@ -324,6 +337,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
             onDragEnd={(_, info) => {
               const vw = window.innerWidth;
 
+              // snap side by drop position (native-feel)
               const nextSide: DockPos["side"] =
                 info.point.x < vw / 2 ? "left" : "right";
 
@@ -332,10 +346,11 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
               setPos(next);
               sessionStorage.setItem(
-                "olivea_mobile_dock_pos_v4",
+                "olivea_mobile_dock_pos_v5",
                 JSON.stringify(next)
               );
 
+              // snap cleanly into anchored side and exit drag mode
               mvX.set(0);
               setDragEnabled(false);
             }}
@@ -350,10 +365,17 @@ export function MobileNav({ isDrawerOpen }: Props) {
               "transition-transform",
             ].join(" ")}
             aria-label="Quick actions"
-            // Long-press detection
             onPointerDown={(e) => {
-              if (e.pointerType === "mouse" && e.button !== 0) return;
+              // Desktop: drag immediately (better for devtools testing)
+              if (e.pointerType === "mouse") {
+                setDragEnabled(true);
+                setExpanded(false);
+                setShowHint(false);
+                dragControls.start(e);
+                return;
+              }
 
+              // Touch/Pen: long-press, then programmatically start drag
               pressedRef.current = true;
               movedRef.current = false;
               startPtRef.current = { x: e.clientX, y: e.clientY };
@@ -361,18 +383,24 @@ export function MobileNav({ isDrawerOpen }: Props) {
               clearPressTimer();
               pressTimerRef.current = window.setTimeout(() => {
                 if (!pressedRef.current) return;
+
                 setDragEnabled(true);
+                setExpanded(false);
+                setShowHint(false);
+                dragControls.start(e);
                 navigator?.vibrate?.(10);
               }, 180);
             }}
             onPointerMove={(e) => {
+              if (e.pointerType === "mouse") return;
+
               const s = startPtRef.current;
               if (!s || !pressedRef.current) return;
 
               const dx = e.clientX - s.x;
               const dy = e.clientY - s.y;
 
-              // cancel long-press if they start moving too early
+              // cancel long-press if user starts moving too early
               if (!dragEnabled && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
                 clearPressTimer();
               }
@@ -385,6 +413,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
             <button
               type="button"
               onClick={() => {
+                // If we’re in drag mode (mouse or touch), ignore click
                 if (dragEnabled) return;
                 setExpanded((v) => !v);
               }}
@@ -439,9 +468,16 @@ export function MobileNav({ isDrawerOpen }: Props) {
                       id="reserve-toggle"
                       type="button"
                       onClick={() => {
+                        track("Reservation Opened", {
+                          source: "mobile_floating_dock",
+                          section: reserveTab,        // hotel | cafe | restaurant
+                          lang,
+                        });
+                      
                         setExpanded(false);
                         openReservationModal(reserveTab);
                       }}
+
                       className={[
                         "w-full flex items-center gap-2",
                         "rounded-xl",
@@ -464,6 +500,11 @@ export function MobileNav({ isDrawerOpen }: Props) {
                       id="mobile-chat-button"
                       type="button"
                       onClick={() => {
+                        track("Chat Opened", {
+                          source: "mobile_floating_dock",
+                          available: chatAvailable,
+                          lang,
+                        });
                         setExpanded(false);
                         sessionStorage.setItem("olivea_chat_intent", "1");
                         document.body.classList.add("olivea-chat-open");
