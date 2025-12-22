@@ -1,7 +1,7 @@
 // app/(main)/[lang]/press/PressClient.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
@@ -14,10 +14,36 @@ import { Pin } from "lucide-react";
 /* ---------------- motion ---------------- */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const cardV: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
+// Same “slow rise” feel as Team
+const cardInV: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  show: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.9,
+      ease: EASE,
+      delay: Math.min(0.9, i * 0.08),
+    },
+  }),
 };
+
+// Section-level stagger (Awards grid / Mentions stack)
+const sectionStaggerV: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.085,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+const CARD_VIEWPORT = {
+  once: true,
+  amount: 0.22,
+  margin: "0px 0px -18% 0px",
+} as const;
 
 /* ---------------- helpers ---------------- */
 function tt(lang: Lang, es: string, en: string) {
@@ -41,6 +67,17 @@ function identityLabel(lang: Lang, x: Identity) {
   if (x === "hotel") return tt(lang, "Hotel", "Hotel");
   if (x === "restaurant") return tt(lang, "Restaurante", "Restaurant");
   return tt(lang, "Café", "Café");
+}
+
+function yearOf(iso: string): number {
+  const y = Number(iso.slice(0, 4));
+  return Number.isFinite(y) ? y : 0;
+}
+
+function uniqYearsNewestFirst(items: PressItem[]): number[] {
+  const ys = new Set<number>();
+  for (const it of items) ys.add(yearOf(it.publishedAt));
+  return Array.from(ys).filter(Boolean).sort((a, b) => b - a);
 }
 
 /* ---------------- sorting ---------------- */
@@ -81,7 +118,6 @@ const AWARD_BADGES: Array<{
   label: (lang: Lang, it: PressItem) => string;
   src: string;
 }> = [
-  // ✅ HOTEL: MICHELIN Guide (Hotels & Stays) ONLY
   {
     key: "michelin-guide-hotel",
     test: (it) =>
@@ -89,8 +125,6 @@ const AWARD_BADGES: Array<{
     label: () => "MICHELIN Guide",
     src: "/images/press/awards/michelinGuide.svg",
   },
-
-  // ✅ RESTAURANT: MICHELIN Star only if title/tags indicate star
   {
     key: "michelin-star",
     test: (it) =>
@@ -102,8 +136,6 @@ const AWARD_BADGES: Array<{
     label: (lang) => (lang === "es" ? "Estrella MICHELIN" : "MICHELIN Star"),
     src: "/images/press/awards/michelin.svg",
   },
-
-  // ✅ RESTAURANT: Green Star only when tagged
   {
     key: "green-star",
     test: (it) =>
@@ -115,8 +147,6 @@ const AWARD_BADGES: Array<{
     label: () => "Green Star",
     src: "/images/press/awards/michelin-green-star.svg",
   },
-
-  // ✅ MB100
   {
     key: "mb100",
     test: (it) =>
@@ -137,8 +167,63 @@ function getAwardBadges(it: PressItem, lang: Lang) {
   }));
 }
 
+/* ---------------- year tabs ---------------- */
+function YearTabs({
+  lang,
+  years,
+  value,
+  onChange,
+  align = "right",
+}: {
+  lang: Lang;
+  years: number[];
+  value: number;
+  onChange: (y: number) => void;
+  align?: "right" | "left";
+}) {
+  if (!years.length) return null;
+
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap gap-2",
+        align === "right" ? "justify-start sm:justify-end" : "justify-start"
+      )}
+      aria-label={tt(lang, "Filtrar por año", "Filter by year")}
+    >
+      {years.map((y) => {
+        const active = y === value;
+        return (
+          <button
+            key={y}
+            type="button"
+            onClick={() => onChange(y)}
+            className={cn(
+              "inline-flex items-center rounded-full px-4 py-2 text-[12px]",
+              "ring-1 transition",
+              active
+                ? "bg-(--olivea-olive) text-(--olivea-cream) ring-black/10"
+                : "bg-white/30 text-(--olivea-olive) ring-(--olivea-olive)/14 hover:bg-white/40"
+            )}
+          >
+            <span className="tabular-nums">{y}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ---------------- card ---------------- */
-function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
+function ItemCard({
+  lang,
+  it,
+  index = 0,
+}: {
+  lang: Lang;
+  it: PressItem;
+  index?: number;
+}) {
   const glass = cn(
     "rounded-3xl border border-(--olivea-olive)/12",
     "bg-white/62 sm:bg-white/56",
@@ -152,20 +237,17 @@ function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
 
   return (
     <motion.article
-      variants={cardV}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.18 }}
+      variants={cardInV}
+      custom={index}
       className={cn(glass, "overflow-hidden")}
+      style={{ willChange: "transform, opacity" }}
     >
       <div
         className={cn(
-          // ✅ tighter mobile padding
           "p-5 sm:p-8",
           hasThumb ? "grid gap-5 lg:grid-cols-[260px_1fr]" : ""
         )}
       >
-        {/* Mention thumbnail */}
         {hasThumb ? (
           <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 bg-white/20 h-48 sm:h-55 lg:h-full">
             <Image
@@ -181,10 +263,8 @@ function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
         ) : null}
 
         <div>
-          {/* Meta + pinned (mobile-optimized stack) */}
           <div className="relative">
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2 text-[12px] text-(--olivea-olive) opacity-80 pr-14 sm:pr-24">
-              {/* Row 1: date · issuer (issuer truncates on mobile) */}
               <div className="flex items-center gap-2 min-w-0">
                 <span className="tabular-nums whitespace-nowrap">
                   {fmtDate(lang, it.publishedAt)}
@@ -195,19 +275,16 @@ function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
                 </span>
               </div>
 
-              {/* Row 2: identity (and optional section) */}
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center rounded-full bg-white/30 ring-1 ring-(--olivea-olive)/12 px-3 py-1">
                   {identityLabel(lang, it.for)}
                 </span>
-
                 {it.section ? (
                   <span className="opacity-85">{it.section}</span>
                 ) : null}
               </div>
             </div>
 
-            {/* Pinned icon (top-right) */}
             {pinned ? (
               <span
                 className={cn(
@@ -225,7 +302,6 @@ function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
             ) : null}
           </div>
 
-          {/* Award badges */}
           {it.kind === "award" && awardBadges.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {awardBadges.map((b) => (
@@ -249,7 +325,6 @@ function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
             </div>
           ) : null}
 
-          {/* Title (smaller on mobile) */}
           <h3
             className="mt-4 text-[20px] sm:text-[24px] font-medium leading-[1.18] tracking-[-0.02em] text-(--olivea-olive)"
             style={{ fontFamily: "var(--font-serif)" }}
@@ -257,14 +332,12 @@ function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
             {it.title}
           </h3>
 
-          {/* Blurb (tighter mobile rhythm) */}
           {it.blurb ? (
             <p className="mt-2 text-[14px] sm:text-[15px] leading-[1.65] sm:leading-[1.75] text-(--olivea-clay) opacity-95 max-w-[80ch]">
               {it.blurb}
             </p>
           ) : null}
 
-          {/* Tiny tags (desktop only) */}
           {tagsTiny.length ? (
             <div className="mt-4 hidden sm:flex flex-wrap gap-2">
               {tagsTiny.map((t) => (
@@ -278,7 +351,6 @@ function ItemCard({ lang, it }: { lang: Lang; it: PressItem }) {
             </div>
           ) : null}
 
-          {/* Footer: Sources + Logos (mobile-first stacked) */}
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
             <div>
               <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-75">
@@ -363,16 +435,14 @@ export default function PressClient({
   const [identity, setIdentity] = useState<Identity>("all");
   const [year, setYear] = useState<number | "all">("all");
 
-  // 1) Apply filters (NO sorting here)
+  // 1) Apply global filters from dock (NO sorting here)
   const filteredBase = useMemo(() => {
     const query = q.trim().toLowerCase();
 
     return items
       .filter((it) => (kind === "all" ? true : it.kind === kind))
       .filter((it) => (identity === "all" ? true : it.for === identity))
-      .filter((it) =>
-        year === "all" ? true : Number(it.publishedAt.slice(0, 4)) === year
-      )
+      .filter((it) => (year === "all" ? true : yearOf(it.publishedAt) === year))
       .filter((it) => {
         if (!query) return true;
         const hay = [
@@ -388,30 +458,59 @@ export default function PressClient({
       });
   }, [items, kind, identity, year, q]);
 
-  // 2) Featured should always be the newest item overall (award or mention)
-  const filteredNewest = useMemo(() => {
-    return [...filteredBase].sort(sortNewestFirst);
-  }, [filteredBase]);
+  // 2) Featured should always be the newest item overall
+  const filteredNewest = useMemo(
+    () => [...filteredBase].sort(sortNewestFirst),
+    [filteredBase]
+  );
 
-  const featured = useMemo(() => {
-    return filteredNewest.length ? filteredNewest[0] : null;
-  }, [filteredNewest]);
+  const featured = useMemo(
+    () => (filteredNewest.length ? filteredNewest[0] : null),
+    [filteredNewest]
+  );
 
-  // 3) Remove featured from section lists to avoid duplicates
+  // 3) Remove featured from lists
   const rest = useMemo(() => {
     if (!featured) return filteredNewest;
     return filteredNewest.filter((x) => x.id !== featured.id);
   }, [filteredNewest, featured]);
 
-  // 4) Mentions: newest-first (no pinning)
-  const mentionsOnly = useMemo(() => {
-    return rest.filter((x) => x.kind === "mention").sort(sortNewestFirst);
-  }, [rest]);
+  const mentionsOnly = useMemo(
+    () => rest.filter((x) => x.kind === "mention").sort(sortNewestFirst),
+    [rest]
+  );
+  const awardsOnly = useMemo(
+    () => rest.filter((x) => x.kind === "award").sort(sortPinnedAwardThenNewest),
+    [rest]
+  );
 
-  // 5) Awards: pinned first, then newest-first
-  const awardsOnly = useMemo(() => {
-    return rest.filter((x) => x.kind === "award").sort(sortPinnedAwardThenNewest);
-  }, [rest]);
+  // 4) Year tabs (per section)
+  const awardsYears = useMemo(() => uniqYearsNewestFirst(awardsOnly), [awardsOnly]);
+  const mentionsYears = useMemo(() => uniqYearsNewestFirst(mentionsOnly), [mentionsOnly]);
+
+  const [awardsYearTab, setAwardsYearTab] = useState<number>(new Date().getFullYear());
+  const [mentionsYearTab, setMentionsYearTab] = useState<number>(new Date().getFullYear());
+
+  // Default to latest available year for each section
+  useEffect(() => {
+    if (!awardsYears.length) return;
+    if (!awardsYears.includes(awardsYearTab)) setAwardsYearTab(awardsYears[0]);
+  }, [awardsYears, awardsYearTab]);
+
+  useEffect(() => {
+    if (!mentionsYears.length) return;
+    if (!mentionsYears.includes(mentionsYearTab)) setMentionsYearTab(mentionsYears[0]);
+  }, [mentionsYears, mentionsYearTab]);
+
+  const awardsShown = useMemo(() => {
+    if (!awardsYears.length) return awardsOnly;
+    return awardsOnly.filter((it) => yearOf(it.publishedAt) === awardsYearTab);
+  }, [awardsOnly, awardsYears.length, awardsYearTab]);
+
+  const mentionsShown = useMemo(() => {
+    if (!mentionsYears.length) return mentionsOnly;
+    return mentionsOnly.filter((it) => yearOf(it.publishedAt) === mentionsYearTab);
+  }, [mentionsOnly, mentionsYears.length, mentionsYearTab]);
 
   const count = filteredBase.length;
 
@@ -422,7 +521,6 @@ export default function PressClient({
   const RAIL = "max-w-[1400px]";
 
   return (
-    // ✅ extra bottom padding on mobile so DockRight buttons don't overlap content
     <main id="top" className="w-full pt-0 pb-36 sm:pb-24">
       <PressDockLeft
         lang={lang}
@@ -438,7 +536,6 @@ export default function PressClient({
         count={count}
       />
 
-      {/* FULL BLEED like Team */}
       <section className="mt-0 sm:mt-2">
         <div className={FULL_BLEED}>
           <div className={PAGE_PAD}>
@@ -447,7 +544,6 @@ export default function PressClient({
                 `${RAIL} mx-auto`,
                 "md:ml-80 xl:ml-85",
                 "md:mr-(--dock-right)",
-                // small right padding on mobile for breathing room
                 "pr-2 sm:pr-0"
               )}
             >
@@ -458,9 +554,15 @@ export default function PressClient({
                 </div>
 
                 {featured ? (
-                  <div className="mt-4 w-full">
-                    <ItemCard lang={lang} it={featured} />
-                  </div>
+                  <motion.div
+                    className="mt-4 w-full"
+                    variants={sectionStaggerV}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={CARD_VIEWPORT}
+                  >
+                    <ItemCard lang={lang} it={featured} index={0} />
+                  </motion.div>
                 ) : (
                   <div className="mt-4 text-(--olivea-clay) opacity-85">
                     {tt(lang, "Aún no hay elementos.", "No items yet.")}
@@ -470,34 +572,64 @@ export default function PressClient({
 
               {/* Awards */}
               <section id="awards" className="mt-12 sm:mt-14">
-                <h2
-                  className="text-[26px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
-                  style={{ fontFamily: "var(--font-serif)" }}
-                >
-                  {tt(lang, "Reconocimientos", "Awards & Recognition")}
-                </h2>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <h2
+                    className="text-[26px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
+                    style={{ fontFamily: "var(--font-serif)" }}
+                  >
+                    {tt(lang, "Reconocimientos", "Awards & Recognition")}
+                  </h2>
 
-                <div className="mt-6 sm:mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-10">
-                  {awardsOnly.map((it) => (
-                    <ItemCard key={it.id} lang={lang} it={it} />
-                  ))}
+                  <YearTabs
+                    lang={lang}
+                    years={awardsYears}
+                    value={awardsYearTab}
+                    onChange={setAwardsYearTab}
+                  />
                 </div>
+
+                <motion.div
+                  className="mt-6 sm:mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-10"
+                  variants={sectionStaggerV}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={CARD_VIEWPORT}
+                >
+                  {awardsShown.map((it, idx) => (
+                    <ItemCard key={it.id} lang={lang} it={it} index={idx} />
+                  ))}
+                </motion.div>
               </section>
 
               {/* Mentions */}
               <section id="mentions" className="mt-12 sm:mt-14">
-                <h2
-                  className="text-[26px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
-                  style={{ fontFamily: "var(--font-serif)" }}
-                >
-                  {tt(lang, "Menciones en Prensa", "Press Mentions")}
-                </h2>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <h2
+                    className="text-[26px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
+                    style={{ fontFamily: "var(--font-serif)" }}
+                  >
+                    {tt(lang, "Menciones en Prensa", "Press Mentions")}
+                  </h2>
 
-                <div className="mt-6 sm:mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-10">
-                  {mentionsOnly.map((it) => (
-                    <ItemCard key={it.id} lang={lang} it={it} />
-                  ))}
+                  <YearTabs
+                    lang={lang}
+                    years={mentionsYears}
+                    value={mentionsYearTab}
+                    onChange={setMentionsYearTab}
+                  />
                 </div>
+
+                <motion.div
+                  className="mt-6 sm:mt-8 flex flex-col gap-6 sm:gap-10"
+                  variants={sectionStaggerV}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={CARD_VIEWPORT}
+                >
+                  {mentionsShown.map((it, idx) => (
+                    <ItemCard key={it.id} lang={lang} it={it} index={idx} />
+                  ))}
+                </motion.div>
               </section>
 
               {/* Presskit */}
