@@ -31,19 +31,27 @@ export default function Footer({ dict }: FooterProps) {
   const pathname = usePathname() ?? "/es";
   const router = useRouter();
 
-  // 🔑 Derive lang from URL segment, default to "es"
   const firstSeg = pathname.split("/")[1];
   const lang: "en" | "es" = firstSeg === "en" ? "en" : "es";
 
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // NEW: tiny, non-visual enhancement — lift lang button if a bubble overlaps
   const [lift, setLift] = useState(0);
+
+  // subtle one-time attention to language toggle
+  const [hintLang, setHintLang] = useState(true);
+  useEffect(() => {
+    const t = window.setTimeout(() => setHintLang(false), 1400);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: PointerEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -51,7 +59,6 @@ export default function Footer({ dict }: FooterProps) {
     return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, []);
 
-  // Detect Whistle / Cloudbeds bubbles and nudge the lang button up a bit if needed
   useEffect(() => {
     function calcLift() {
       const bubble =
@@ -68,7 +75,7 @@ export default function Footer({ dict }: FooterProps) {
       }
 
       const r = bubble.getBoundingClientRect();
-      const barH = 52; // your footer bar height approx
+      const barH = 52;
       const pad = 16;
 
       const overlapsVert = r.bottom > window.innerHeight - (pad + barH);
@@ -112,7 +119,6 @@ export default function Footer({ dict }: FooterProps) {
     Cookies.set("NEXT_LOCALE", newLang, { path: "/" });
 
     const segments = pathname.split("/");
-    // if we already have /en or /es, replace it; otherwise prepend
     if (segments[1] === "en" || segments[1] === "es") {
       segments[1] = newLang;
       const newPath = segments.join("/") || `/${newLang}`;
@@ -125,8 +131,11 @@ export default function Footer({ dict }: FooterProps) {
     setOpen(false);
   };
 
+  // ✅ cleaner “signature” rights
   const rightsText =
-    lang === "en" ? "All rights reserved." : "Todos los derechos reservados.";
+    lang === "en"
+      ? "All rights reserved — Casa Olivea A.C."
+      : "Todos los derechos reservados — Casa Olivea A.C.";
 
   const socialItems: SocialItem[] = [
     { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <FaYoutube /> },
@@ -137,35 +146,54 @@ export default function Footer({ dict }: FooterProps) {
     { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <FaPinterest /> },
   ];
 
+  const TextLink = ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: ReactNode;
+  }) => (
+    <Link
+      href={href}
+      className={[
+        "group relative inline-flex items-center",
+        "opacity-80 hover:opacity-100",
+        "transition-[opacity,transform,color] duration-200",
+        "hover:-translate-y-px",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-clay)/40",
+      ].join(" ")}
+    >
+      <span className="transition-colors group-hover:text-(--olivea-clay)">{children}</span>
+      {/* underline reveal */}
+      <span
+        className="pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(94,118,88,0.0), rgba(94,118,88,0.65), rgba(94,118,88,0.0))",
+        }}
+      />
+    </Link>
+  );
+
   return (
     <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-200 bg-transparent backdrop-blur-md text-[12px] text-(--olivea-ink) font-light tracking-wide pointer-events-auto isolate">
+      {/* subtle top divider haze */}
+      <div
+        className="pointer-events-none absolute top-0 left-0 right-0 h-px opacity-70"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(94,118,88,0.25), transparent)",
+        }}
+        aria-hidden="true"
+      />
+
       <div className="w-full flex justify-between items-center px-2 sm:px-3 py-2">
-        {/* Left */}
-        <div className="flex-1 whitespace-nowrap">
-          <span className="cursor-default transition-colors hover:text-(--olivea-clay)">
-            © {new Date().getFullYear()} Casa Olivea AC. {rightsText}
-          </span>
-        </div>
-
-        {/* Center: Social Dock */}
-        <FooterSocialDock items={socialItems} />
-
-        {/* Right */}
-        <div className="flex-1 flex items-center justify-end gap-4 relative" ref={dropdownRef}>
-          <Link
-            href={`/${lang}/carreras`}
-            className="transition-colors opacity-80 hover:text-(--olivea-clay) hover:opacity-100"
-          >
-            {dict.footer.careers}
-          </Link>
-          <Link
-            href={`/${lang}/legal`}
-            className="transition-colors opacity-80 hover:text-(--olivea-clay) hover:opacity-100"
-          >
-            {dict.footer.legal}
-          </Link>
-
-          {/* Lang button + dropdown — visually identical; only lifts if needed */}
+        {/* LEFT: language (first) + links */}
+        <div
+          className="flex-1 flex items-center justify-start gap-3 relative"
+          ref={dropdownRef}
+        >
+          {/* Language toggle (subtle attention + dot) */}
           <div
             style={{
               transform: lift ? `translateY(-${lift}px)` : undefined,
@@ -181,8 +209,37 @@ export default function Footer({ dict }: FooterProps) {
               }}
               aria-haspopup="menu"
               aria-expanded={open}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors border border-[rgba(0,0,0,0.05)] hover:bg-(--olivea-clay) hover:text-white"
+              className={[
+                "group relative flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md",
+                "transition-[transform,box-shadow,background-color,color,border-color] duration-200",
+                "border border-[rgba(0,0,0,0.06)]",
+                "hover:bg-(--olivea-clay) hover:text-white",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-clay)/40",
+              ].join(" ")}
+              style={{
+                boxShadow:
+                  open || hintLang ? "0 0 0 3px rgba(94,118,88,0.16)" : undefined,
+              }}
             >
+              {/* tiny status dot */}
+              <span
+                className="absolute -left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full"
+                style={{
+                  background: "rgba(94,118,88,0.85)",
+                  opacity: open ? 0.95 : 0.55,
+                }}
+                aria-hidden="true"
+              />
+              {/* spotlight */}
+              <span
+                className="pointer-events-none absolute -inset-2 rounded-xl opacity-0 transition-opacity duration-300"
+                style={{
+                  opacity: open ? 1 : hintLang ? 0.55 : 0,
+                  background:
+                    "radial-gradient(circle at 30% 30%, rgba(94,118,88,0.18), rgba(94,118,88,0.0) 65%)",
+                }}
+                aria-hidden="true"
+              />
               <GlobeIcon className="w-4 h-4 text-current transition-colors" />
               {lang.toUpperCase()}
             </button>
@@ -194,19 +251,19 @@ export default function Footer({ dict }: FooterProps) {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="absolute bottom-full mb-2 right-0 bg-[#e7eae1] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-500 w-32 pointer-events-auto"
+                  className="absolute bottom-full mb-2 left-0 bg-[#e7eae1] backdrop-blur-md border border-gray-200 rounded-md shadow-lg z-500 w-32 pointer-events-auto overflow-hidden"
                 >
                   <button
                     type="button"
                     onClick={() => switchLocale("en")}
-                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-(--olivea-clay) hover:text-white"
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-clay) hover:text-white transition-colors"
                   >
                     🇺🇸 English
                   </button>
                   <button
                     type="button"
                     onClick={() => switchLocale("es")}
-                    className="w-full px-3 py-1.5 text-sm text-left hover:bg-(--olivea-clay) hover:text-white"
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-clay) hover:text-white transition-colors"
                   >
                     🇲🇽 Español
                   </button>
@@ -214,6 +271,19 @@ export default function Footer({ dict }: FooterProps) {
               )}
             </AnimatePresence>
           </div>
+
+          <TextLink href={`/${lang}/carreras`}>{dict.footer.careers}</TextLink>
+          <TextLink href={`/${lang}/legal`}>{dict.footer.legal}</TextLink>
+        </div>
+
+        {/* CENTER: Social Dock */}
+        <FooterSocialDock items={socialItems} />
+
+        {/* RIGHT: rights */}
+        <div className="flex-1 whitespace-nowrap text-right">
+          <span className="cursor-default opacity-80 transition-colors hover:text-(--olivea-clay)">
+            © {new Date().getFullYear()} {rightsText}
+          </span>
         </div>
       </div>
     </footer>
@@ -234,7 +304,7 @@ function FooterSocialDock({ items }: { items: SocialItem[] }) {
 function FooterSocialIcon({ item }: { item: SocialItem }) {
   const CELL_W = 36;
   const CELL_H = 36;
-  const ICON_BASE_PX = 22; // adjust to taste
+  const ICON_BASE_PX = 22;
 
   return (
     <motion.a
