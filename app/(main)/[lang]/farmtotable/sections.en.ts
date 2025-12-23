@@ -6,7 +6,6 @@ export const SECTIONS_EN: NavSection[] = [
     title: "The experience",
     subs: [
       { id: "origen",     title: "Origin" },
-      { id: "equilibrio", title: "Balance" },
       { id: "valores",    title: "Values" },
     ],
   },
