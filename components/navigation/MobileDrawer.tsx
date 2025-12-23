@@ -116,40 +116,30 @@ export default function MobileDrawer({
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
+  const tFarm = dict.drawer.main.farmtotable;
+  const tCasa = dict.drawer.main.casa;
+  const tCafe = dict.drawer.main.cafe;
+
   const mainLinks = useMemo(
     () => [
-      { href: `/${lang}/farmtotable`, label: dict.drawer.main.farmtotable },
-      { href: `/${lang}/casa`, label: dict.drawer.main.casa },
-      { href: `/${lang}/cafe`, label: dict.drawer.main.cafe },
+      { href: `/${lang}/farmtotable`, label: tFarm },
+      { href: `/${lang}/casa`, label: tCasa },
+      { href: `/${lang}/cafe`, label: tCafe },
     ],
-    [lang, dict]
+    [lang, tFarm, tCasa, tCafe]
   );
 
+
   const moreLinks = useMemo(() => {
-    const L = dict.drawer?.more;
     return [
-      {
-        href: `/${lang}/journal`,
-        label: L?.journal ?? (lang === "es" ? "Diario" : "Journal"),
-      },
-      { href: `/${lang}/team`, label: lang === "es" ? "Equipo" : "Team" },
-      {
-        href: `/${lang}/sustainability`,
-        label:
-          L?.sustainability ??
-          (lang === "es" ? "Sostenibilidad" : "Sustainability"),
-      },
-      {
-        href: `/${lang}/contact`,
-        label: L?.contact ?? (lang === "es" ? "Contáctanos" : "Contact"),
-      },
       { href: `/${lang}/press`, label: lang === "es" ? "Prensa" : "Press" },
-      {
-        href: `/${lang}/carreras`,
-        label: lang === "es" ? "Carreras" : "Careers",
-      },
+      { href: `/${lang}/sustainability`, label: lang === "es" ? "Filosofía" : "Philosophy" },
+      { href: `/${lang}/journal`, label: lang === "es" ? "Diario" : "Journal" },
+      { href: `/${lang}/team`, label: lang === "es" ? "Equipo" : "Team" },    
+      { href: `/${lang}/contact`, label: lang === "es" ? "Contáctanos" : "Contact" },
+      { href: `/${lang}/carreras`, label: lang === "es" ? "Carreras" : "Careers"},
     ];
-  }, [lang, dict]);
+  }, [lang]);
 
   const handleClick = (href: string) => {
     window.navigator.vibrate?.(10);
