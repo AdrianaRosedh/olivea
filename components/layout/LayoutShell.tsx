@@ -130,21 +130,39 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
 
   // Mobile bottom nav items (memo)
-  const mobileNavItems = useMemo(() => {
+ const mobileNavItems = useMemo(() => {
     if (section?.id === "casa") {
       const src = pathLang === "es" ? SECTIONS_CASA_ES : SECTIONS_CASA_EN;
-      return src.map((s) => ({ id: s.id, label: s.title }));
+      return src.map((s) => ({ id: s.id, label: s.title, subs: s.subs?.map((ss) => ({ id: ss.id, label: ss.title })) }));
     }
     if (section?.id === "farmtotable") {
       const src = pathLang === "es" ? FARM_ES : FARM_EN;
-      return src.map((s) => ({ id: s.id, label: s.title }));
+      return src.map((s) => ({ id: s.id, label: s.title, subs: s.subs?.map((ss) => ({ id: ss.id, label: ss.title })) }));
     }
     if (section?.id === "cafe") {
       const src = pathLang === "es" ? SECTIONS_CAFE_ES : SECTIONS_CAFE_EN;
-      return src.map((s) => ({ id: s.id, label: s.title }));
+      return src.map((s) => ({ id: s.id, label: s.title, subs: s.subs?.map((ss) => ({ id: ss.id, label: ss.title })) }));
     }
     return [];
   }, [section?.id, pathLang]);
+
+  // ✅ Page title for the MobileSectionNav (localized)
+  const mobilePageTitle = useMemo(() => {
+    // If you prefer your exact identity naming, change these strings.
+    if (section?.id === "farmtotable") {
+      return { es: "Olivea Farm To Table", en: "Olivea Farm To Table" };
+    }
+    if (section?.id === "casa") {
+      return { es: "Casa Olivea", en: "Casa Olivea" };
+    }
+    if (section?.id === "cafe") {
+      return { es: "Olivea Café", en: "Olivea Café" };
+    }
+
+    // Fallbacks for non-identity pages that still might use the nav later
+    return { es: "Secciones", en: "Sections" };
+  }, [section?.id]);
+
 
 
   // Only load chat on identity pages (avoid loading on /team, /journal, etc.)
@@ -187,8 +205,8 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {/* MOBILE BOTTOM NAV */}
       {!isHome && isMobile && mobileNavItems.length > 0 && (
         <ClientOnly>
-          <div className="fixed bottom-17 inset-x-0 z-95 pointer-events-none">
-            <MobileSectionNav items={mobileNavItems} />
+          <div className="fixed bottom-0 inset-x-0 z-95 pointer-events-none">
+            <MobileSectionNav items={mobileNavItems} lang={pathLang} pageTitle={mobilePageTitle} enableSubRow={false}/>
           </div>
         </ClientOnly>
       )}

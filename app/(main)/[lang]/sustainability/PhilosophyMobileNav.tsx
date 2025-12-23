@@ -7,6 +7,7 @@ import MobileSectionNav, {
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 
 export default function PhilosophyMobileNav({
+  lang,
   sections,
 }: {
   lang: Lang;
@@ -26,7 +27,11 @@ export default function PhilosophyMobileNav({
 
   return (
     <div className="lg:hidden">
-      <MobileSectionNav items={items} />
+      <MobileSectionNav
+        items={items}
+        lang={lang}
+        pageTitle={{ es: "Filosofía", en: "Philosophy" }}
+      />
     </div>
   );
 }
