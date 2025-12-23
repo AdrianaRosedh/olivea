@@ -2,30 +2,46 @@
 "use client";
 
 import {
-  Calendar,
-  MessageSquare,
-  ChevronLeft,
-  ChevronRight,
-  GripVertical,
-} from "lucide-react";
-import { useReservation } from "@/contexts/ReservationContext";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { usePathname } from "next/navigation";
+import { useReservation } from "@/contexts/ReservationContext";
 import type { ReservationType } from "@/contexts/ReservationContext";
-import { useSpring, animate } from "framer-motion";
+import { track } from "@vercel/analytics";
 import {
   motion,
   AnimatePresence,
-  useMotionValue,
   useDragControls,
+  useMotionValue,
+  useSpring,
+  animate,
+  type PanInfo,
 } from "framer-motion";
-import { track } from "@vercel/analytics";
+import { Calendar, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  /** Optional: pass from Navbar state so we can hide these buttons when drawer is open */
-  isDrawerOpen?: boolean;
-};
+type Props = { isDrawerOpen?: boolean };
+type DockSide = "left" | "right";
+type DockPos = { side: DockSide; y: number };
+
+const SPRING = { stiffness: 560, damping: 48, mass: 0.8 } as const;
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/* ───────────────── Slimmer geometry ───────────────── */
+const ROW = 36; // slimmer
+const GAP = 8;
+const PAD = 7;
+const TEXT_PAD_X = 10;
+const PILL_GAP = 8;
+
+/* “give” away from edge so it feels draggable but never vanishes */
+const MAX_AWAY_COLLAPSED = 28;
+const MAX_AWAY_EXPANDED = 40;
 
 function getTijuanaMinutesNow(): number {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -34,13 +50,10 @@ function getTijuanaMinutesNow(): number {
     minute: "2-digit",
     hour12: false,
   }).formatToParts(new Date());
-
   const hh = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
   const mm = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
   return hh * 60 + mm;
 }
-
-type DockPos = { side: "left" | "right"; y: number };
 
 function getMobileNavH(): number {
   if (typeof window === "undefined") return 84;
@@ -60,49 +73,100 @@ function getHeaderH(): number {
   return Number.isFinite(n) && n > 0 ? n : 64;
 }
 
+function clamp(n: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, n));
+}
+
+/**
+ * Dock height is basically constant (expanding only changes WIDTH),
+ * so keep this param-less to avoid TS “declared but never read”.
+ */
+function approxDockH(): number {
+  // handle + 2 actions + toggle, plus padding/gaps
+  const rows = 4 * ROW;
+  const gaps = 3 * GAP;
+  const pad = 2 * PAD;
+  return rows + gaps + pad + 8;
+}
+
+function clampDockY(y: number): number {
+  if (typeof window === "undefined") return y;
+  const padTop = 12 + getHeaderH();
+  const padBottom = 12 + getMobileNavH();
+  const h = approxDockH();
+  const minY = -(window.innerHeight - h - padBottom);
+  const maxY = padTop;
+  return clamp(y, minY, maxY);
+}
+
+function clampDockX(x: number, side: DockSide, expanded: boolean): number {
+  if (typeof window === "undefined") return x;
+  const maxAway = expanded ? MAX_AWAY_EXPANDED : MAX_AWAY_COLLAPSED;
+  if (side === "right") return clamp(x, -maxAway, 0);
+  return clamp(x, 0, maxAway);
+}
+
+function MeasureText({
+  text,
+  className,
+  onWidth,
+}: {
+  text: string;
+  className: string;
+  onWidth: (w: number) => void;
+}) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const measure = () => {
+      const w = Math.ceil(el.getBoundingClientRect().width);
+      if (w > 0) onWidth(w);
+    };
+
+    measure();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fonts: any = (document as any).fonts;
+    if (fonts?.ready) fonts.ready.then(measure).catch(() => {});
+
+    return () => {};
+  }, [text, onWidth]);
+
+  return (
+    <span
+      ref={ref}
+      className={cn(
+        "absolute opacity-0 pointer-events-none select-none",
+        className
+      )}
+      aria-hidden="true"
+    >
+      {text}
+    </span>
+  );
+}
+
 export function MobileNav({ isDrawerOpen }: Props) {
   const { openReservationModal } = useReservation();
   const pathname = usePathname();
 
   const [chatAvailable, setChatAvailable] = useState(false);
   const [visible, setVisible] = useState(false);
-
-  // expands on tap
   const [expanded, setExpanded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // long-press to drag
-  const [dragEnabled, setDragEnabled] = useState(false);
-  const pressTimerRef = useRef<number | null>(null);
-  const pressedRef = useRef(false);
-  const movedRef = useRef(false);
-  const startPtRef = useRef<{ x: number; y: number } | null>(null);
-
-  // one-time tooltip hint
-  const [showHint, setShowHint] = useState(false);
-  const hintTimerRef = useRef<number | null>(null);
-
-  // anchored side + remembered Y offset
   const [pos, setPos] = useState<DockPos>(() => ({ side: "right", y: 0 }));
 
-  // Motion values
   const mvX = useMotionValue(0);
   const mvY = useMotionValue(0);
 
-  // Springs (magnetic snap feel)
-  const sx = useSpring(mvX, { stiffness: 520, damping: 38, mass: 0.7 });
-  const sy = useSpring(mvY, { stiffness: 520, damping: 38, mass: 0.7 });
+  const sx = useSpring(mvX, SPRING);
+  const sy = useSpring(mvY, SPRING);
 
   const dragControls = useDragControls();
-
-  // Measure actual dock size to clamp constraints properly
-  const dockRef = useRef<HTMLDivElement | null>(null);
-
-  const [constraints, setConstraints] = useState<{
-    left: number;
-    right: number;
-    top: number;
-    bottom: number;
-  } | null>(null);
 
   const lang = useMemo<"es" | "en">(() => {
     if (!pathname) return "es";
@@ -114,22 +178,24 @@ export function MobileNav({ isDrawerOpen }: Props) {
       ? {
           reserve: "Reservar",
           chat: "Chat",
-          actions: "Acciones",
-          hint: "Mantén presionado para mover",
+          move: "Mover",
+          open: "Abrir",
+          close: "Cerrar",
         }
       : {
           reserve: "Reserve",
           chat: "Chat",
-          actions: "Actions",
-          hint: "Hold to move",
+          move: "Move",
+          open: "Open",
+          close: "Close",
         };
   }, [lang]);
 
   const reserveTab: ReservationType = pathname?.includes("/casa")
     ? "hotel"
     : pathname?.includes("/cafe")
-      ? "cafe"
-      : "restaurant";
+    ? "cafe"
+    : "restaurant";
 
   const isContentHeavy =
     !!pathname &&
@@ -137,22 +203,33 @@ export function MobileNav({ isDrawerOpen }: Props) {
       pathname.includes("/diario") ||
       pathname.includes("/posts"));
 
-  /* ---------------- chat availability ---------------- */
+  /* measured label widths */
+  const [wReserve, setWReserve] = useState(64);
+  const [wChat, setWChat] = useState(34);
+
+  const pillWReserve = ROW + PILL_GAP + wReserve + TEXT_PAD_X * 2;
+  const pillWChat = ROW + PILL_GAP + wChat + TEXT_PAD_X * 2;
+
+  const compactW = ROW + PAD * 2;
+  const expandedW = Math.max(pillWReserve, pillWChat, ROW) + PAD * 2;
+
+  const sideRight = pos.side === "right";
+
+  /* ───────────────── chat availability ───────────────── */
   useEffect(() => {
     const updateChat = () => {
       const minutes = getTijuanaMinutesNow();
       setChatAvailable(minutes >= 8 * 60 && minutes <= 21 * 60 + 30);
     };
-
     updateChat();
     const id = window.setInterval(updateChat, 60_000);
     return () => window.clearInterval(id);
   }, []);
 
-  /* ---------------- restore position ---------------- */
+  /* ───────────────── restore pos ───────────────── */
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v6");
+      const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v17");
       if (!raw) return;
       const parsed = JSON.parse(raw) as DockPos;
       if (!parsed) return;
@@ -168,407 +245,372 @@ export function MobileNav({ isDrawerOpen }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ---------------- reset on route change ---------------- */
+  /* ───────────────── reset on route change ───────────────── */
   useEffect(() => {
     setVisible(false);
     setExpanded(false);
-    setDragEnabled(false);
-    setShowHint(false);
-
-    if (hintTimerRef.current) {
-      window.clearTimeout(hintTimerRef.current);
-      hintTimerRef.current = null;
-    }
-
     mvX.set(0);
     mvY.set(pos.y);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  /* ---------------- visibility based on scroll ---------------- */
+  /* ───────────────── visibility based on scroll ───────────────── */
   useEffect(() => {
     const threshold = isContentHeavy ? 140 : 110;
-
     const onScroll = () => {
-      const y = window.scrollY || 0;
-      setVisible(y > threshold);
+      if (isDragging) return;
+      setVisible((window.scrollY || 0) > threshold);
     };
-
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isContentHeavy]);
+  }, [isContentHeavy, isDragging]);
 
-  /* ---------------- show hint once per session ---------------- */
-  useEffect(() => {
-    if (!visible) return;
+  /* ───────────────── constraints (prevents “disappearing”) ───────────────── */
+  const [dragConstraints, setDragConstraints] = useState({
+    top: -500,
+    bottom: 100,
+    left: -MAX_AWAY_COLLAPSED,
+    right: 0,
+  });
 
-    const key = "olivea_mobile_dock_hint_seen_v2";
-    const seen = sessionStorage.getItem(key);
-    if (seen) return;
+  const recomputeConstraints = useCallback(() => {
+    if (typeof window === "undefined") return;
 
-    const t = window.setTimeout(() => {
-      setShowHint(true);
-      sessionStorage.setItem(key, "1");
+    const padTop = 12 + getHeaderH();
+    const padBottom = 12 + getMobileNavH();
+    const h = approxDockH();
 
-      hintTimerRef.current = window.setTimeout(() => {
-        setShowHint(false);
-        hintTimerRef.current = null;
-      }, 2400);
-    }, 500);
+    const top = -(window.innerHeight - h - padBottom);
+    const bottom = padTop;
 
-    return () => window.clearTimeout(t);
-  }, [visible]);
+    const maxAway = expanded ? MAX_AWAY_EXPANDED : MAX_AWAY_COLLAPSED;
+    const left = pos.side === "right" ? -maxAway : 0;
+    const right = pos.side === "right" ? 0 : maxAway;
 
-  /* ---------------- constraints (viewport-based, stable) ---------------- */
-  const recalcConstraints = useCallback(() => {
-    const dock = dockRef.current;
-    if (!dock) return;
+    setDragConstraints({ top, bottom, left, right });
 
-    const r = dock.getBoundingClientRect();
-
-    // Keep away from edges, top navbar, and bottom MobileSectionNav
-    const padX = 10;
-    const padTop = 14 + getHeaderH();
-    const padBottom = 12 + getMobileNavH() + (expanded ? 8 : 0);
-
-    const left = -r.left + padX;
-    const right = window.innerWidth - (r.left + r.width) - padX;
-
-    const top = -r.top + padTop;
-    const bottom = window.innerHeight - (r.top + r.height) - padBottom;
-
-    setConstraints({ left, right, top, bottom });
-  }, [expanded]);
-
-  useEffect(() => {
-    if (!visible) return;
-    const raf = requestAnimationFrame(recalcConstraints);
-
-    window.addEventListener("resize", recalcConstraints);
-    window.addEventListener("orientationchange", recalcConstraints);
-
-    // recalc after layout settles
-    const t1 = window.setTimeout(recalcConstraints, 120);
-    const t2 = window.setTimeout(recalcConstraints, 520);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", recalcConstraints);
-      window.removeEventListener("orientationchange", recalcConstraints);
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, [visible, expanded, recalcConstraints]);
-
-  // When side changes, keep y and reset x
-  useEffect(() => {
-    mvX.set(0);
-    mvY.set(pos.y);
+    mvY.set(clampDockY(mvY.get()));
+    mvX.set(clampDockX(mvX.get(), pos.side, expanded));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pos.side]);
+  }, [expanded, pos.side]);
 
-  /* ---------------- long-press helpers ---------------- */
-  const clearPressTimer = () => {
-    if (pressTimerRef.current) {
-      window.clearTimeout(pressTimerRef.current);
-      pressTimerRef.current = null;
-    }
-  };
+  useEffect(() => {
+    if (!visible) return;
+    recomputeConstraints();
+    window.addEventListener("resize", recomputeConstraints);
+    window.addEventListener("orientationchange", recomputeConstraints);
+    return () => {
+      window.removeEventListener("resize", recomputeConstraints);
+      window.removeEventListener("orientationchange", recomputeConstraints);
+    };
+  }, [visible, recomputeConstraints]);
 
-  const endPress = () => {
-    clearPressTimer();
-    pressedRef.current = false;
-    startPtRef.current = null;
+  const onReserve = useCallback(() => {
+    track("Reservation Opened", {
+      source: expanded
+        ? "mobile_floating_dock_expanded"
+        : "mobile_floating_dock",
+      section: reserveTab,
+      lang,
+    });
+    setExpanded(false);
+    openReservationModal(reserveTab);
+  }, [expanded, lang, openReservationModal, reserveTab]);
 
-    if (!movedRef.current) setDragEnabled(false);
-    movedRef.current = false;
-  };
+  const onChat = useCallback(() => {
+    track("Chat Opened", {
+      source: expanded
+        ? "mobile_floating_dock_expanded"
+        : "mobile_floating_dock",
+      available: chatAvailable,
+      lang,
+    });
+    setExpanded(false);
+    sessionStorage.setItem("olivea_chat_intent", "1");
+    document.body.classList.add("olivea-chat-open");
+    document.getElementById("chatbot-toggle")?.click();
+    document.body.classList.add("olivea-chat-open");
+  }, [chatAvailable, expanded, lang]);
+
+  const onDragStart = useCallback(() => {
+    setExpanded(false);
+    setIsDragging(true);
+    setVisible(true);
+  }, []);
+
+  const onDragEnd = useCallback(
+    (_: PointerEvent, info: PanInfo) => {
+      const vw = window.innerWidth;
+      const nextSide: DockSide = info.point.x < vw / 2 ? "left" : "right";
+
+      const clampedY = clampDockY(mvY.get());
+      mvY.set(clampedY);
+
+      const clampedX = clampDockX(mvX.get(), nextSide, false);
+      mvX.set(clampedX);
+
+      const next: DockPos = { side: nextSide, y: clampedY };
+      setPos(next);
+      sessionStorage.setItem("olivea_mobile_dock_pos_v17", JSON.stringify(next));
+
+      animate(mvX, 0, { type: "spring", ...SPRING });
+
+      setIsDragging(false);
+    },
+    [mvX, mvY]
+  );
+
+  const handleStyle = { touchAction: "none" } satisfies CSSProperties;
 
   if (isDrawerOpen) return null;
 
-  const sideRight = pos.side === "right";
+  function ActionRow({
+    tone,
+    label,
+    pillW,
+    onClick,
+    showDot,
+  }: {
+    tone: "reserve" | "chat";
+    label: string;
+    pillW: number;
+    onClick: () => void;
+    showDot?: boolean;
+  }) {
+    const isReserve = tone === "reserve";
+
+    const boxBg = isReserve
+      ? "bg-(--olivea-olive) ring-1 ring-black/5"
+      : "bg-white/10 ring-1 ring-white/12";
+
+    const fg = isReserve ? "text-white" : "text-(--olivea-olive)";
+
+    const icon = isReserve ? (
+      <Calendar className="h-4 w-4" />
+    ) : (
+      <MessageSquare className="h-4 w-4" />
+    );
+
+    return (
+      <motion.button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          "relative isolate rounded-[18px]",
+          "inline-flex items-center",
+          expanded
+            ? sideRight
+              ? "justify-end" // ✅ expanded on RIGHT: content hugs right edge
+              : "justify-start"
+            : "justify-start",
+          "active:scale-[0.99] transition-transform",
+          "h-9"
+        )}
+        style={{ width: expanded ? pillW : ROW }}
+        animate={{ width: expanded ? pillW : ROW }}
+        transition={{ type: "spring", ...SPRING }}
+      >
+        <motion.span
+          className={cn("absolute inset-0 rounded-[18px]", boxBg)}
+          layout
+          transition={{ type: "spring", ...SPRING }}
+        />
+
+        <span
+          className={cn(
+            "relative z-10 inline-flex items-center justify-center",
+            fg
+          )}
+          style={{ width: ROW, height: ROW }}
+        >
+          {icon}
+        </span>
+
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.span
+              className={cn("relative z-10 inline-flex items-center", fg)}
+              // ✅ when on RIGHT we want the label to come from the RIGHT and sit aligned
+              initial={{ opacity: 0, x: sideRight ? 6 : -6 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: sideRight ? 6 : -6 }}
+              transition={{ duration: 0.16, ease: EASE }}
+              // ✅ swap padding so it feels correct when right-aligned
+              style={{
+                paddingLeft: sideRight ? TEXT_PAD_X : PILL_GAP,
+                paddingRight: sideRight ? PILL_GAP : TEXT_PAD_X,
+              }}
+            >
+              <span className="text-[14px] font-medium tracking-[0.02em]">
+                {label}
+              </span>
+
+              {showDot ? (
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "ml-3 block h-2.5 w-2.5 rounded-full border border-white/70",
+                    chatAvailable ? "bg-green-500" : "bg-red-500"
+                  )}
+                />
+              ) : null}
+            </motion.span>
+          )}
+        </AnimatePresence>
+
+        {!expanded && showDot ? (
+          <span
+            aria-hidden="true"
+            className={cn(
+              "absolute right-2 top-2 z-10",
+              "block h-2 w-2 rounded-full border border-white/70",
+              chatAvailable ? "bg-green-500" : "bg-red-500"
+            )}
+          />
+        ) : null}
+      </motion.button>
+    );
+  }
+
+  // Chevron direction:
+  // - Right side: collapsed shows Left (open left), expanded shows Right (close right)
+  // - Left side: collapsed shows Right (open right), expanded shows Left (close left)
+  const ToggleIcon = sideRight
+    ? expanded
+      ? ChevronRight
+      : ChevronLeft
+    : expanded
+    ? ChevronLeft
+    : ChevronRight;
 
   return (
     <AnimatePresence>
       {visible && (
-        <motion.div
-          className={[
-            "fixed md:hidden z-200 pointer-events-none",
-            sideRight ? "right-3" : "left-3",
-            // stay above MobileSectionNav
-            "bottom-[calc(env(safe-area-inset-bottom,0px)+var(--mobile-nav-h,84px)+10px)]",
-            isContentHeavy ? "opacity-95" : "",
-          ].join(" ")}
-          initial={{ opacity: 0, x: sideRight ? 40 : -40, y: 8 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          exit={{ opacity: 0, x: sideRight ? 40 : -40, y: 8 }}
-          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {/* Hint tooltip */}
-          <AnimatePresence>
-            {showHint && !dragEnabled && (
-              <motion.div
-                initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                className={[
-                  "pointer-events-auto mb-2",
-                  sideRight ? "ml-auto" : "",
-                  "w-max max-w-60",
-                  "rounded-2xl",
-                  "bg-black/70 text-white",
-                  "px-3 py-2",
-                  "text-[11px] leading-snug",
-                  "shadow-lg",
-                  "backdrop-blur",
-                ].join(" ")}
-                role="status"
-                aria-live="polite"
-              >
-                {labels.hint}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <>
+          <MeasureText
+            text={labels.reserve}
+            className="text-[14px] font-medium tracking-[0.02em]"
+            onWidth={setWReserve}
+          />
+          <MeasureText
+            text={labels.chat}
+            className="text-[14px] font-medium tracking-[0.02em]"
+            onWidth={setWChat}
+          />
 
           <motion.div
-            ref={dockRef}
-            // ✅ critical: wrapper is pointer-events-none; dock must re-enable
             className={cn(
-              "pointer-events-auto select-none",
-              "rounded-2xl overflow-hidden",
-              "bg-(--olivea-cream)/70 backdrop-blur-md",
-              "ring-1 ring-(--olivea-olive)/14",
-              "shadow-[0_10px_28px_rgba(18,24,16,0.12)]",
-              dragEnabled ? "scale-[1.015]" : "",
-              "transition-transform"
+              "fixed md:hidden z-200 pointer-events-none",
+              sideRight ? "right-3" : "left-3",
+              "bottom-[calc(env(safe-area-inset-bottom,0px)+var(--mobile-nav-h,84px)+10px)]",
+              isContentHeavy ? "opacity-95" : ""
             )}
-            drag
-            dragControls={dragControls}
-            dragListener={false}
-            dragMomentum={false}
-            dragElastic={0.06}
-            dragConstraints={constraints ?? undefined}
-            style={{
-              x: sx,
-              y: sy,
-              touchAction: dragEnabled ? "none" : "auto",
-            }}
-            onDragStart={() => {
-              movedRef.current = true;
-              setExpanded(false);
-              setShowHint(false);
-              if (hintTimerRef.current) {
-                window.clearTimeout(hintTimerRef.current);
-                hintTimerRef.current = null;
-              }
-            }}
-            onDragEnd={(_, info) => {
-              const vw = window.innerWidth;
-              const nextSide: DockPos["side"] =
-                info.point.x < vw / 2 ? "left" : "right";
-
-              const nextY = mvY.get();
-              const next: DockPos = { side: nextSide, y: nextY };
-
-              setPos(next);
-              sessionStorage.setItem("olivea_mobile_dock_pos_v6", JSON.stringify(next));
-
-              // magnetic snap: x → 0 with spring (wrapper anchors edge)
-              animate(mvX, 0, {
-                type: "spring",
-                stiffness: 520,
-                damping: 38,
-                mass: 0.7,
-              });
-
-              setDragEnabled(false);
-            }}
-            aria-label="Quick actions"
+            initial={{ opacity: 0, x: sideRight ? 18 : -18, y: 8 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, x: sideRight ? 18 : -18, y: 8 }}
+            transition={{ duration: 0.22, ease: EASE }}
           >
-            {/* HEADER ROW */}
-            <div className="flex items-center gap-2 px-2.5 py-2">
-              {/* Dedicated grip (drag here) */}
-              <button
-                type="button"
-                className={cn(
-                  "shrink-0 inline-flex items-center justify-center",
-                  "h-9 w-9 rounded-xl",
-                  "bg-transparent text-(--olivea-olive)/70 hover:text-(--olivea-olive)",
-                  "ring-1 ring-(--olivea-olive)/10",
-                  "active:scale-[0.99] transition-transform",
-                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)"
-                )}
-                aria-label={lang === "es" ? "Mover" : "Move"}
-                onPointerDown={(e) => {
-                  // Mouse: enable drag immediately AND still allow normal click elsewhere
-                  if (e.pointerType === "mouse") {
-                    setDragEnabled(true);
-                    setExpanded(false);
-                    setShowHint(false);
-                    dragControls.start(e);
-                    return;
-                  }
-
-                  // Touch/Pen: long press
-                  pressedRef.current = true;
-                  movedRef.current = false;
-                  startPtRef.current = { x: e.clientX, y: e.clientY };
-
-                  clearPressTimer();
-                  pressTimerRef.current = window.setTimeout(() => {
-                    if (!pressedRef.current) return;
-
-                    setDragEnabled(true);
-                    setExpanded(false);
-                    setShowHint(false);
-                    dragControls.start(e);
-                    navigator?.vibrate?.(10);
-                  }, 180);
-                }}
-                onPointerMove={(e) => {
-                  if (e.pointerType === "mouse") return;
-                  const s = startPtRef.current;
-                  if (!s || !pressedRef.current) return;
-
-                  const dx = e.clientX - s.x;
-                  const dy = e.clientY - s.y;
-                  if (!dragEnabled && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-                    clearPressTimer();
-                  }
-                }}
-                onPointerUp={() => endPress()}
-                onPointerCancel={() => endPress()}
-                onPointerLeave={() => endPress()}
-              >
-                <GripVertical className="h-4 w-4 opacity-80" />
-              </button>
-
-              {/* Tap area (expand/collapse) */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (dragEnabled) return;
-                  setExpanded((v) => !v);
-                }}
-                className={cn(
-                  "min-w-0 flex-1",
-                  "h-9 rounded-xl",
-                  "px-3",
-                  "bg-(--olivea-cream)/60",
-                  "text-(--olivea-olive)",
-                  "ring-1 ring-(--olivea-olive)/14",
-                  "inline-flex items-center justify-between gap-2",
-                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)"
-                )}
-                aria-expanded={expanded}
-              >
-                <span className="truncate text-[11px] leading-none font-medium tracking-[0.28em] uppercase">
-                  {labels.actions}
-                </span>
-
-                <span className="opacity-80">
-                  {expanded ? (
-                    sideRight ? (
-                      <ChevronRight className="w-4 h-4" />
-                    ) : (
-                      <ChevronLeft className="w-4 h-4" />
-                    )
-                  ) : sideRight ? (
-                    <ChevronLeft className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </span>
-              </button>
-            </div>
-
-            {/* Expanded actions */}
-            <AnimatePresence initial={false}>
-              {expanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                  className="border-t border-(--olivea-olive)/14"
-                >
-                  <div className="p-3 flex flex-col gap-2">
-                    {/* Reserve */}
-                    <button
-                      id="reserve-toggle"
-                      type="button"
-                      onClick={() => {
-                        track("Reservation Opened", {
-                          source: "mobile_floating_dock",
-                          section: reserveTab,
-                          lang,
-                        });
-
-                        setExpanded(false);
-                        openReservationModal(reserveTab);
-                      }}
-                      className={cn(
-                        "w-full inline-flex items-center gap-2",
-                        "rounded-2xl",
-                        "bg-(--olivea-olive) text-white",
-                        "ring-1 ring-white/15",
-                        "shadow-sm",
-                        "px-3 py-2",
-                        "active:scale-[0.99] transition-transform"
-                      )}
-                      aria-label={labels.reserve}
-                    >
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm font-medium">{labels.reserve}</span>
-                    </button>
-
-                    {/* Chat */}
-                    <button
-                      id="mobile-chat-button"
-                      type="button"
-                      onClick={() => {
-                        track("Chat Opened", {
-                          source: "mobile_floating_dock",
-                          available: chatAvailable,
-                          lang,
-                        });
-                        setExpanded(false);
-                        sessionStorage.setItem("olivea_chat_intent", "1");
-                        document.body.classList.add("olivea-chat-open");
-                        document.getElementById("chatbot-toggle")?.click();
-                        document.body.classList.add("olivea-chat-open");
-                      }}
-                      className={cn(
-                        "relative w-full inline-flex items-center gap-2",
-                        "rounded-2xl",
-                        "bg-(--olivea-shell) text-(--olivea-olive)",
-                        "ring-1 ring-(--olivea-olive)/14",
-                        "shadow-sm",
-                        "px-3 py-2",
-                        "active:scale-[0.99] transition-transform"
-                      )}
-                      aria-label={labels.chat}
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      <span className="text-sm font-medium">{labels.chat}</span>
-
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "absolute right-2 top-1/2 -translate-y-1/2",
-                          "block h-2.5 w-2.5 rounded-full border border-white",
-                          chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
-                        )}
-                      />
-                    </button>
-                  </div>
-                </motion.div>
+            <motion.div
+              className={cn(
+                "pointer-events-auto select-none",
+                "rounded-[20px] overflow-hidden",
+                "bg-white/8 backdrop-blur-xl",
+                "ring-1 ring-white/14",
+                "shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
               )}
-            </AnimatePresence>
+              drag
+              dragControls={dragControls}
+              dragListener={false}
+              dragMomentum={false}
+              dragElastic={0.06}
+              dragConstraints={dragConstraints}
+              style={{ x: sx, y: sy, touchAction: "none" }}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              aria-label="Quick actions"
+            >
+              <motion.div
+                className="p-1.75"
+                // ✅ key: when dock is on RIGHT, expand LEFT (anchor on right edge)
+                style={{ originX: sideRight ? 1 : 0 }}
+                animate={{ width: expanded ? expandedW : compactW, x: 0 }}
+                transition={{ type: "spring", ...SPRING }}
+              >
+                <div
+                  className={cn(
+                    "flex flex-col",
+                    expanded
+                      ? sideRight
+                        ? "items-end" // ✅ expanded on RIGHT: align to right
+                        : "items-start"
+                      : "items-center"
+                  )}
+                  style={{ gap: GAP }}
+                >
+                  {/* TOP = Toggle (open/close) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExpanded((v) => !v);
+                      requestAnimationFrame(() => recomputeConstraints());
+                    }}
+                    aria-label={expanded ? labels.close : labels.open}
+                    className={cn(
+                      "w-9 h-9 rounded-[18px]",
+                      "inline-flex items-center justify-center",
+                      "bg-white/10",
+                      "ring-1 ring-white/12",
+                      "active:scale-[0.98] transition-transform"
+                    )}
+                  >
+                    <ToggleIcon className="h-4 w-4 text-(--olivea-olive) opacity-70" />
+                  </button>
+
+                  <ActionRow
+                    tone="reserve"
+                    label={labels.reserve}
+                    pillW={pillWReserve}
+                    onClick={onReserve}
+                  />
+
+                  <ActionRow
+                    tone="chat"
+                    label={labels.chat}
+                    pillW={pillWChat}
+                    onClick={onChat}
+                    showDot
+                  />
+
+                  {/* BOTTOM = Drag handle */}
+                  <button
+                    type="button"
+                    aria-label={labels.move}
+                    style={handleStyle}
+                    onPointerDown={(e) => dragControls.start(e)}
+                    className={cn(
+                      "w-9 h-9 rounded-[18px]",
+                      "inline-flex items-center justify-center",
+                      "active:bg-white/10 transition-colors"
+                    )}
+                  >
+                    <span
+                      className="grid grid-cols-3 gap-0.75"
+                      aria-hidden="true"
+                    >
+                      {Array.from({ length: 9 }).map((_, i) => (
+                        <span
+                          key={i}
+                          className="h-0.75 w-0.75 rounded-full bg-(--olivea-olive)/40"
+                        />
+                      ))}
+                    </span>
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
