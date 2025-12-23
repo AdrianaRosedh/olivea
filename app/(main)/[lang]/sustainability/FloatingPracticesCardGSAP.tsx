@@ -6,6 +6,8 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import type { PhilosophySection, Lang } from "./philosophyTypes";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Keep this if you like; it’s fine.
 gsap.ticker.lagSmoothing(1000, 16);
 
 function tt(lang: Lang, es: string, en: string) {
@@ -16,7 +18,7 @@ function tt(lang: Lang, es: string, en: string) {
 
 const FIRST_CHAPTER_ID = "origins";
 
-const STICKY_TOP = 150; // move to 120–140 if you want it higher
+const STICKY_TOP = 150;
 const PICK_LINE = STICKY_TOP + 40;
 
 const REVEAL_OFFSET_Y = 10;
@@ -28,17 +30,21 @@ const RESIZE_DUR = 0.55;
 const TEXT_FADE_DUR = 0.30;
 const EASE = "power3.out";
 
-// Olivea “ink” (darker + warmer)
 const INK = "#5e7658";
-const INK_SOFT = "a3b09d";
+const INK_SOFT = "#a3b09d";
 
-/* ---------------- UI: Olivea Field Note ---------------- */
+/* ---------------- UI ---------------- */
 
 function Dot() {
   return (
     <span
       aria-hidden="true"
-      className="mt-1.75 h-1.5 w-1,5 rounded-full bg-(--olivea-olive) opacity-60"
+      className="mt-1.5 h-1.5 w-1.5 rounded-full bg-(--olivea-olive) opacity-60"
+      style={{
+        // Helps prevent dot shimmer too
+        transform: "translateZ(0)",
+        backfaceVisibility: "hidden",
+      }}
     />
   );
 }
@@ -65,7 +71,7 @@ function PracticesContent({
         <div className="h-px flex-1 bg-(--olivea-olive)/25" />
       </div>
 
-      {/* Body (editorial) */}
+      {/* Body */}
       {hasItems ? (
         <ul
           className="mt-4 space-y-3 text-[15px] leading-[1.65]"
@@ -132,18 +138,18 @@ export default function FloatingPracticesCardGSAP({
     return { left: r.left, width: r.width };
   };
 
-  // initial hidden
+  // initial hidden (NO blur filter here → prevents text shimmer)
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
+
     gsap.set(wrap, {
       opacity: 0,
       y: STICKY_TOP + REVEAL_OFFSET_Y,
-      filter: "blur(2px)",
     });
   }, []);
 
-  // Reveal/hide: chapter 01 marker hits card top line
+  // Reveal/hide
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
@@ -163,7 +169,6 @@ export default function FloatingPracticesCardGSAP({
       gsap.to(wrap, {
         opacity: 1,
         y: STICKY_TOP,
-        filter: "blur(0px)",
         duration: REVEAL_IN_DUR,
         ease: "power2.out",
         overwrite: "auto",
@@ -180,7 +185,6 @@ export default function FloatingPracticesCardGSAP({
       gsap.to(wrap, {
         opacity: 0,
         y: STICKY_TOP + REVEAL_OFFSET_Y,
-        filter: "blur(2px)",
         duration: REVEAL_OUT_DUR,
         ease: "power2.out",
         overwrite: "auto",
@@ -199,10 +203,12 @@ export default function FloatingPracticesCardGSAP({
     return () => st.kill();
   }, [activeId, frontId]);
 
-  // Deterministic switching: marker hits PICK_LINE → setActiveId
+  // Deterministic switching
   useEffect(() => {
     const markers = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-practices-switch][data-section-id]")
+      document.querySelectorAll<HTMLElement>(
+        "[data-practices-switch][data-section-id]"
+      )
     );
     if (!markers.length) return;
 
@@ -226,7 +232,7 @@ export default function FloatingPracticesCardGSAP({
     return () => triggers.forEach((t) => t.kill());
   }, []);
 
-  // Keep x/width aligned on resize
+  // Align on resize
   useEffect(() => {
     if (!enabled) return;
     const wrap = wrapRef.current;
@@ -242,7 +248,7 @@ export default function FloatingPracticesCardGSAP({
     return () => window.removeEventListener("resize", onResize);
   }, [enabled, activeId]);
 
-  // Morph on active change (dual-layer). Kill in-flight morph to handle fast scrolling.
+  // Morph on active change (dual-layer)
   useEffect(() => {
     if (!enabled) return;
     if (!activeId) return;
@@ -285,14 +291,26 @@ export default function FloatingPracticesCardGSAP({
 
       tl.set(card, { height: frontH }, 0);
 
-      tl.to(wrap, { x: ar.left, width: ar.width, duration: MOVE_DUR, ease: EASE }, 0);
+      tl.to(
+        wrap,
+        { x: ar.left, width: ar.width, duration: MOVE_DUR, ease: EASE },
+        0
+      );
 
-      tl.to(card, { height: backH, duration: RESIZE_DUR, ease: EASE }, 0);
+      tl.to(
+        card,
+        { height: backH, duration: RESIZE_DUR, ease: EASE },
+        0
+      );
 
-      tl.to(front, { opacity: 0, duration: TEXT_FADE_DUR, ease: "power2.out" }, 0.18);
-      tl.fromTo(back, { opacity: 0 }, { opacity: 1, duration: TEXT_FADE_DUR, ease: "power2.out" }, 0.24);
-
-      tl.fromTo(card, { scale: 0.996 }, { scale: 1, duration: 0.30, ease: "power2.out" }, 0.10);
+      // Only opacity crossfade (no scale, no filter) → stable text
+      tl.to(front, { opacity: 0, duration: TEXT_FADE_DUR, ease: "power2.out" }, 0.12);
+      tl.fromTo(
+        back,
+        { opacity: 0 },
+        { opacity: 1, duration: TEXT_FADE_DUR, ease: "power2.out" },
+        0.18
+      );
     });
 
     return () => {
@@ -310,37 +328,56 @@ export default function FloatingPracticesCardGSAP({
       <div
         ref={wrapRef}
         className="pointer-events-none fixed z-80 hidden lg:block"
-        style={{ left: 0, top: 0, opacity: 0 }}
+        style={{
+          left: 0,
+          top: 0,
+          opacity: 0,
+          transform: "translateZ(0)",
+          backfaceVisibility: "hidden",
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+          willChange: "transform, width, opacity",
+        }}
       >
-        {/* Olivea Field Note card */}
         <div
           ref={cardRef}
           className={[
-            "relative overflow-hidden",
-            // less “bubble”, more “artifact”
-            "rounded-2xl",
-            // paper tint (not bright white)
+            "relative overflow-hidden rounded-2xl",
             "bg-(--olivea-cream)/70",
-            // subtle border like stationery
             "ring-1 ring-(--olivea-olive)/18",
-            // calm shadow
             "shadow-[0_18px_44px_rgba(18,24,16,0.10)]",
           ].join(" ")}
-          style={{ willChange: "height, transform, filter" }}
+          style={{
+            willChange: "height",
+            transform: "translateZ(0)",
+            backfaceVisibility: "hidden",
+          }}
         >
-          {/* top paper edge */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/70" />
-          {/* gentle wash */}
           <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-white/20 via-transparent to-(--olivea-olive)/3" />
-          {/* micro grain */}
-          <div className="pointer-events-none absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_1px_1px,rgba(40,60,35,0.22)_1px,transparent_0)] bg-size-[10pm_10px]" />
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_1px_1px,rgba(40,60,35,0.22)_1px,transparent_0)] bg-size-[10px_10px]"
+            aria-hidden="true"
+          />
 
           <div className="relative">
-            <div ref={frontRef} className="relative">
+            <div
+              ref={frontRef}
+              className="relative"
+              style={{ willChange: "opacity", transform: "translateZ(0)" }}
+            >
               <PracticesContent title={title} items={frontItems} />
             </div>
 
-            <div ref={backRef} className="absolute inset-0" style={{ opacity: 0 }}>
+            <div
+              ref={backRef}
+              className="absolute inset-0"
+              style={{
+                opacity: 0,
+                willChange: "opacity",
+                transform: "translateZ(0)",
+              }}
+            >
               <PracticesContent title={title} items={backItems} />
             </div>
           </div>
@@ -349,7 +386,7 @@ export default function FloatingPracticesCardGSAP({
 
       {/* Offscreen measurers */}
       <div
-        className="fixed -left-625] top-0 opacity-0 pointer-events-none hidden lg:block"
+        className="fixed -left-156.25 top-0 opacity-0 pointer-events-none hidden lg:block"
         aria-hidden="true"
       >
         <div className="w-105">

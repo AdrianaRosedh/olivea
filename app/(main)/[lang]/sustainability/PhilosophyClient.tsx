@@ -165,7 +165,7 @@ export default function PhilosophyClient({
   const inkSoft = "text-(--olivea-olive) ";
 
   return (
-    <main id="top" className="w-full pt-0 pb-40 sm:pb-28">
+    <main id="top" className="w-full pt-0 pb-38 sm:pb-28">
       <PhilosophyMobileNav lang={lang} sections={sections} />
       <PhilosophyDockLeft lang={lang} sections={sections} />
 
