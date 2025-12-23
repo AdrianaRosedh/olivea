@@ -134,8 +134,8 @@ export default function Footer({ dict }: FooterProps) {
   // ✅ cleaner “signature” rights
   const rightsText =
     lang === "en"
-      ? "All rights reserved — Casa Olivea A.C."
-      : "Todos los derechos reservados — Casa Olivea A.C.";
+      ? "All rights reserved"
+      : "Todos los derechos reservados";
 
   const socialItems: SocialItem[] = [
     { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <FaYoutube /> },
@@ -282,7 +282,7 @@ export default function Footer({ dict }: FooterProps) {
         {/* RIGHT: rights */}
         <div className="flex-1 whitespace-nowrap text-right">
           <span className="cursor-default opacity-80 transition-colors hover:text-(--olivea-clay)">
-            © {new Date().getFullYear()} {rightsText}
+            © {new Date().getFullYear()} Casa Olivea A.C.<span className="relative mx-1 inline-block align-middle"><span className="block h-0.75 w-0.75 rounded-full bg-current opacity-60" /></span> {rightsText}
           </span>
         </div>
       </div>
