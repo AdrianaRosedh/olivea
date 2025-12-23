@@ -96,10 +96,10 @@
     }
   },
   "sustainability": {
-    "title": "Sustainability",
+    "title": "Philosophy",
     "description": "Our commitment to sustainable practices and environmental stewardship.",
     "meta": {
-      "title": "Sustainability at Olivea | Water, Waste & Local Partnerships",
+      "title": "Olivea's Philosophy",
       "description": "Refillables, water care, responsible sourcing and compost—how Olivea reduces waste and supports local producers in Valle de Guadalupe.",
       "keywords": [
         "sustainability",
@@ -107,7 +107,8 @@
         "compost",
         "local producers",
         "Valle de Guadalupe",
-        "Olivea"
+        "Olivea",
+        "Philosophy"
       ],
       "ogImage": "/images/seo/sustainability-og.jpg"
     }

@@ -1,62 +1,33 @@
-// app/[lang]/sustainability/page.tsx
 import type { Metadata } from "next";
-import { loadLocale } from "@/lib/i18n";
-
-type PageProps = {
-  // Next 15.3 now passes params as a Promise
-  params: Promise<{ lang: string }>;
-};
-
-function withBrand(title: string) {
-  const t = (title || "").trim();
-  if (!t) return "OLIVEA";
-  // Avoid double-branding if already present
-  if (/\bolivea\b/i.test(t)) return t;
-  return `${t} | OLIVEA`;
-}
+import PhilosophyClient from "./PhilosophyClient";
+import { loadPhilosophySections } from "./load";
+import type { Lang } from "./philosophyTypes";
 
 export async function generateMetadata({
   params,
-}: PageProps): Promise<Metadata> {
-  // 1️⃣ Await params
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
   const p = await params;
-
-  // 2️⃣ Load locale safely
-  const { dict } = await loadLocale(p);
-
-  const baseTitle = dict.sustainability.title;
-  const description = dict.sustainability.description;
-
-  const pageTitle = withBrand(baseTitle);
+  const lang: Lang = p.lang === "en" ? "en" : "es";
 
   return {
-    title: pageTitle,
-    description,
-    openGraph: {
-      title: pageTitle,
-      description,
-      type: "website",
-    },
+    title: lang === "es" ? "Filosofía | OLIVEA" : "Philosophy | OLIVEA",
+    description:
+      lang === "es"
+        ? "La filosofía de Olivea: origen, identidad, eficiencia, innovación, gastronomía y comunidad."
+        : "Olivea’s philosophy: origins, identity, efficiency, innovation, gastronomy, and community.",
   };
 }
 
 export default async function SustainabilityPage({
   params,
-}: PageProps) {
-  // 1️⃣ Await params
+}: {
+  params: Promise<{ lang: string }>;
+}) {
   const p = await params;
+  const lang: Lang = p.lang === "en" ? "en" : "es";
+  const sections = loadPhilosophySections(lang);
 
-  // 2️⃣ Load locale
-  const { dict } = await loadLocale(p);
-
-  return (
-    <main className="p-10">
-      <h1 className="text-3xl font-semibold">
-        {dict.sustainability.title}
-      </h1>
-      <p className="mt-2 text-muted-foreground">
-        {dict.sustainability.description}
-      </p>
-    </main>
-  );
+  return <PhilosophyClient lang={lang} sections={sections} />;
 }

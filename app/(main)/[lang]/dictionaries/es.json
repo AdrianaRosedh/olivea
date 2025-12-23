@@ -96,10 +96,10 @@
   }
 },
   "sustainability": {
-    "title": "Sostenibilidad",
+    "title": "Filosofía",
     "description": "Nuestro compromiso con prácticas sostenibles y gestión ambiental.",
     "meta": {
-      "title": "Sostenibilidad en OLIVEA",
+      "title": "Filosofía de OLIVEA",
       "description": "Rellenables, cuidado del agua, compras responsables y compost: así reducimos residuos y apoyamos a productores del Valle.",
       "keywords": [
         "sostenibilidad",
@@ -107,7 +107,8 @@
         "compost",
         "productores locales",
         "Valle de Guadalupe",
-        "Olivea"
+        "Olivea",
+        "Filosofía"
       ],
       "ogImage": "/images/seo/sustainability-og.jpg"
     }

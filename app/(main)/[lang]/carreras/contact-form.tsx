@@ -61,7 +61,7 @@ export default function ContactForm({ lang }: { lang: string }) {
           id="name"
           name="name"
           type="text"
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--olivea-olive)]"
+          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
         />
         {state.errors?.name && (
           <p className="mt-1 text-sm text-red-600">{state.errors.name}</p>
@@ -77,7 +77,7 @@ export default function ContactForm({ lang }: { lang: string }) {
           id="email"
           name="email"
           type="email"
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--olivea-olive)]"
+          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
         />
         {state.errors?.email && (
           <p className="mt-1 text-sm text-red-600">{state.errors.email}</p>
@@ -93,7 +93,7 @@ export default function ContactForm({ lang }: { lang: string }) {
           id="subject"
           name="subject"
           type="text"
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--olivea-olive)]"
+          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
         />
         {state.errors?.subject && (
           <p className="mt-1 text-sm text-red-600">{state.errors.subject}</p>
@@ -109,7 +109,7 @@ export default function ContactForm({ lang }: { lang: string }) {
           id="message"
           name="message"
           rows={5}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--olivea-olive)]"
+          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
         />
         {state.errors?.message && (
           <p className="mt-1 text-sm text-red-600">{state.errors.message}</p>
@@ -125,7 +125,7 @@ export default function ContactForm({ lang }: { lang: string }) {
 
       <Button
         type="submit"
-        className="w-full bg-[var(--olivea-olive)] hover:bg-[var(--olivea-clay)] text-white py-3"
+        className="w-full bg-(--olivea-olive) hover:bg-(--olivea-clay) text-white py-3"
         disabled={isPending}
       >
         {isPending

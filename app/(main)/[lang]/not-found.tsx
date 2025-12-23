@@ -37,7 +37,7 @@ export default function NotFound() {
   return (
     <main className="relative w-full h-screen flex items-center justify-center text-white text-center">
       <Image
-        src="/images/hero.jpg"
+        src="/images/farm/hero.jpg"
         alt="Background"
         fill
         className="object-cover -z-10"
