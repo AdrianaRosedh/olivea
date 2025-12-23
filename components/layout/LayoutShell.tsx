@@ -108,10 +108,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   // Desktop Dock-Right items (memo)
   const dockRightItems = useMemo<DockItem[]>(
     () => [
-      { id: "team",        href: `/${pathLang}/team`,        label: dictionary.team.title,          icon: <Users /> },
-      { id: "journal",      href: `/${pathLang}/journal`,      label: dictionary.journal.title,        icon: <BookOpen /> },
       { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title,   icon: <Award /> },
       { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <Leaf /> },
+      { id: "journal",      href: `/${pathLang}/journal`,      label: dictionary.journal.title,        icon: <BookOpen /> },      
+      { id: "team",        href: `/${pathLang}/team`,        label: dictionary.team.title,          icon: <Users /> },
       { id: "contact",      href: `/${pathLang}/contact`,      label: dictionary.contact.title,        icon: <Map /> },
     ],
     [pathLang, dictionary]
