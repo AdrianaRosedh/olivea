@@ -74,21 +74,6 @@ function setSnapDisabled(disabled: boolean) {
   document.documentElement.classList.toggle("snap-disable", disabled);
 }
 
-/** Find the nearest vertical scrollable ancestor (else fall back to window) */
-function getScrollableAncestor(el: Element): Window | Element {
-  if (!canUseDom()) return ({} as unknown) as Window; // not used SSR
-  let node: Element | null = el.parentElement;
-  const isScrollable = (x: Element | null) =>
-    !!x && /auto|scroll|overlay/i.test(getComputedStyle(x).overflowY);
-
-  while (node && node !== document.body && !isScrollable(node)) {
-    node = node.parentElement;
-  }
-  return node && node !== document.body && node !== document.documentElement
-    ? node
-    : window;
-}
-
 /* ===========================
    Component
    =========================== */
@@ -159,76 +144,75 @@ export default function MobileSectionNav({ items }: Props) {
   }, [mainIds]);
 
   /* Tap → smooth GSAP scroll; shared manual lock; suppress snap & defer hash */
-  const scrollToId = useCallback(
-    (id: string) => {
-      if (!canUseDom()) return;
-      const el =
-        document.querySelector<HTMLElement>(`.main-section#${id}`) ||
-        document.getElementById(id);
-      if (!el) {
-        console.warn(`[MobileSectionNav] target not found: #${id}`);
-        return;
-      }
+    const scrollToId = useCallback(
+      (id: string) => {
+        if (!canUseDom()) return;
 
-      setIsManualNavigation(true);
-      setSnapDisabled(true);
+        const el =
+          document.querySelector<HTMLElement>(`.main-section#${id}`) ||
+          document.getElementById(id);
 
-      const header = headerPx() + 8;
-      const scroller = getScrollableAncestor(el);
-
-      // Respect reduced motion / data saver
-      if (reduceMotion.current || saveData.current) {
-        const rect = el.getBoundingClientRect();
-        if (scroller === window) {
-          window.scrollBy({ top: rect.top - header, behavior: "auto" });
-        } else {
-          (scroller as Element).scrollBy({
-            top: rect.top - header,
-            behavior: "auto",
-          });
+        if (!el) {
+          console.warn(`[MobileSectionNav] target not found: #${id}`);
+          return;
         }
-        if (window.location.hash.slice(1) !== id)
-          history.replaceState(null, "", `#${id}`);
-        setIsManualNavigation(false);
-        setSnapDisabled(false);
-        setActiveId(id);
-        setActiveSection(id);
-        return;
-      }
 
-      // kill any in-flight tween
-      gsapTween.current?.kill();
+        setIsManualNavigation(true);
+        setSnapDisabled(true);
 
-      gsapTween.current = gsap.to(scroller, {
-        duration: 0.9,
-        ease: "power3.out",
-        overwrite: "auto",
-        scrollTo: { y: el, offsetY: header, autoKill: false },
-        onComplete: () => {
-          // settle
-          const miss = el.getBoundingClientRect().top - header;
-          if (Math.abs(miss) > 10) {
-            if (scroller === window) window.scrollBy({ top: miss, behavior: "auto" });
-            else (scroller as Element).scrollBy({ top: miss, behavior: "auto" });
-          }
+        const header = headerPx() + 8;
+
+        // Respect reduced motion / data saver
+        if (reduceMotion.current || saveData.current) {
+          const rect = el.getBoundingClientRect();
+          window.scrollBy({ top: rect.top - header, behavior: "auto" });
+
           if (window.location.hash.slice(1) !== id)
             history.replaceState(null, "", `#${id}`);
+
           setIsManualNavigation(false);
           setSnapDisabled(false);
-        },
-      });
+          setActiveId(id);
+          setActiveSection(id);
+          return;
+        }
 
-      setActiveId(id);
-      setActiveSection(id);
+        // Kill any in-flight tween
+        gsapTween.current?.kill();
 
-      // backup unlock
-      safetyTO.current = window.setTimeout(() => {
-        setIsManualNavigation(false);
-        setSnapDisabled(false);
-      }, MANUAL_MS);
-    },
-    [setIsManualNavigation, setActiveSection]
-  );
+        // ✅ Compute target once (prevents “re-aim + bump”)
+        const rect = el.getBoundingClientRect();
+        const targetY = Math.max(
+          0,
+          window.scrollY + rect.top - header
+        );
+
+        gsapTween.current = gsap.to(window, {
+          duration: 0.85,
+          ease: "power3.out",
+          overwrite: "auto",
+          scrollTo: { y: targetY, autoKill: true }, // ✅ let user interrupt naturally
+          onComplete: () => {
+            if (window.location.hash.slice(1) !== id)
+              history.replaceState(null, "", `#${id}`);
+
+            setIsManualNavigation(false);
+            setSnapDisabled(false);
+          },
+        });
+
+        setActiveId(id);
+        setActiveSection(id);
+
+        // backup unlock
+        safetyTO.current = window.setTimeout(() => {
+          setIsManualNavigation(false);
+          setSnapDisabled(false);
+        }, MANUAL_MS);
+      },
+      [setIsManualNavigation, setActiveSection]
+    );
+
 
   const handleClick = useCallback(
     (e: React.MouseEvent, id: string) => {
