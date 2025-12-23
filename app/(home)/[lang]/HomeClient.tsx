@@ -220,7 +220,7 @@ export default function HomeClient() {
             {isMobile && !showVideo && (
               <Image
                 src="/images/hero-mobile.avif"
-                alt={isES ? "OLIVEA La Experiencia" : "OLIVEA The Experience"}
+                alt={isES ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience"}
                 fill
                 priority
                 fetchPriority="high"
@@ -329,7 +329,7 @@ export default function HomeClient() {
             style={{ paddingTop: isMobile ? HERO.overlapPx + extraGap : 0 }}
           >
             {/* Give extra bottom padding so the fixed bar never covers content */}
-            <div className="space-y-12 pb-[120px]">
+            <div className="space-y-12 pb-30">
               {mobileSections.map((sec, index) => (
                 <LazyShow key={sec.href}>
                   <m.div
