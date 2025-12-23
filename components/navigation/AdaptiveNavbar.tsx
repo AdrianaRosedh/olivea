@@ -27,6 +27,8 @@ export type Props = {
   onDrawerOriginChange?: (origin: DrawerOrigin) => void;
 };
 
+const SCROLL_BG_START = 14; // px before navbar gains background (tweak 8–28)
+
 export default function AdaptiveNavbar({
   lang,
   isDrawerOpen,
@@ -46,11 +48,37 @@ export default function AdaptiveNavbar({
     useBackgroundColorDetection({
       mediaFallback: isJournal ? "never" : "previous",
       sampleUnderNavPx: 12,
-      // keep default stableSamples=3 in the hook (recommended)
     });
 
   const { clearTransition } = useSharedTransition();
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  /* ---------------- scroll-based background ---------------- */
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!isMobile) return;
+
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY || 0;
+        setScrolled(y > SCROLL_BG_START);
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [isMobile, pathname]);
 
   /* ---------------- robust refresh ---------------- */
   const refreshNow = useCallback(() => {
@@ -67,18 +95,15 @@ export default function AdaptiveNavbar({
   const freezeTimerRef = useRef<number | null>(null);
   const FREEZE_MS = 260;
 
-  // Track last "trusted" isDark (used during freeze)
   const lastStableDarkRef = useRef(isDark);
   useEffect(() => {
     if (!freezeTone) lastStableDarkRef.current = isDark;
   }, [isDark, freezeTone]);
 
-  // ✅ refresh when drawer fully unmounts (MobileDrawer dispatches this)
   useEffect(() => {
     if (!isMobile) return;
 
     const onDrawerExit = () => {
-      // Freeze briefly to avoid “one-frame wrong sample” during clip-path shrink
       setFreezeTone(true);
       if (freezeTimerRef.current) window.clearTimeout(freezeTimerRef.current);
       freezeTimerRef.current = window.setTimeout(() => {
@@ -99,7 +124,6 @@ export default function AdaptiveNavbar({
     };
   }, [isMobile, refreshNow]);
 
-  // fallback refresh on close state flip
   useEffect(() => {
     if (!isMobile) return;
     if (!isDrawerOpen) {
@@ -109,13 +133,12 @@ export default function AdaptiveNavbar({
     }
   }, [isDrawerOpen, isMobile, refreshNow]);
 
-  // route/lang refresh
   useEffect(() => {
     if (!isMobile) return;
     refreshNow();
   }, [lang, pathname, isMobile, refreshNow]);
 
-  /* ---------------- measure MenuToggle center (clip-path origin) ---------------- */
+  /* ---------------- measure MenuToggle center ---------------- */
   useLayoutEffect(() => {
     if (!isMobile) return;
 
@@ -145,7 +168,6 @@ export default function AdaptiveNavbar({
     };
   }, [isMobile, onDrawerOriginChange]);
 
-  // re-measure right as drawer opens
   useEffect(() => {
     if (!isMobile || !isDrawerOpen) return;
     const t = window.setTimeout(() => {
@@ -160,7 +182,7 @@ export default function AdaptiveNavbar({
     return () => window.clearTimeout(t);
   }, [isDrawerOpen, isMobile, onDrawerOriginChange]);
 
-  /* ---------------- icon close-hold (X→hamburger morph timing) ---------------- */
+  /* ---------------- icon close-hold ---------------- */
   const [iconCloseHold, setIconCloseHold] = useState(false);
   const closeHoldTimer = useRef<number | null>(null);
   const ICON_CLOSE_HOLD_MS = 220;
@@ -194,32 +216,52 @@ export default function AdaptiveNavbar({
 
   if (!isMobile) return null;
 
-  // ✅ Use last stable value during freeze window
   const darkForTone = freezeTone ? lastStableDarkRef.current : isDark;
   const baseTone = darkForTone ? "text-[#e7eae1]" : "text-(--olivea-olive)";
 
-  // Logo updates immediately on close (after drawer-exit refresh), without flicker
   const logoTone = isDrawerOpen ? "text-white" : baseTone;
-
-  // Icon stays white a bit longer after close so morph feels synced
   const iconTone = isDrawerOpen || iconCloseHold ? "text-white" : baseTone;
+
+  const showBg = scrolled && !isDrawerOpen;
+
+  // Outer stays full-width and always transparent
+  // Inner becomes the rounded “glass pill” when showBg is true
+  const pillClass = showBg
+    ? cn(
+        "mx-3 mt-2", // space from edges + a little down from top
+        "rounded-2xl",
+        "bg-(--olivea-cream)/72 backdrop-blur-md",
+        "ring-1 ring-(--olivea-olive)/14",
+        "shadow-[0_10px_30px_rgba(18,24,16,0.10)]"
+      )
+    : cn("mx-0 mt-0 bg-transparent");
 
   return (
     <div
       ref={elementRef}
-      className={cn("fixed top-0 left-0 right-0 z-1000 bg-transparent", className)}
+      className={cn(
+        "fixed top-0 left-0 right-0 z-1000",
+        "transition-[background-color,box-shadow,backdrop-filter] duration-200 ease-out",
+        className
+      )}
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="flex items-center justify-between px-4 h-16">
-        <Link href="/" aria-label="Home" onClick={() => clearTransition()}>
-          <OliveaFTTLogo className={cn("h-10 w-auto", logoTone)} />
-        </Link>
+      {/* Rounded background only when scrolled */}
+      <div className={cn("transition-all duration-200 ease-out", pillClass)}>
+        <div className="flex items-center justify-between px-4 h-16">
+          <Link href="/" aria-label="Home" onClick={() => clearTransition()}>
+            <OliveaFTTLogo
+              className={cn("h-10 w-auto transition-colors duration-150", logoTone)}
+            />
+          </Link>
 
-        <MenuToggle
-          toggle={onToggleDrawer}
-          isOpen={isDrawerOpen}
-          className={iconTone}
-          buttonRef={menuBtnRef}
-        />
+          <MenuToggle
+            toggle={onToggleDrawer}
+            isOpen={isDrawerOpen}
+            className={cn("transition-colors duration-150", iconTone)}
+            buttonRef={menuBtnRef}
+          />
+        </div>
       </div>
     </div>
   );
