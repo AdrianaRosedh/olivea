@@ -6,11 +6,13 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
+  GripVertical,
 } from "lucide-react";
 import { useReservation } from "@/contexts/ReservationContext";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import type { ReservationType } from "@/contexts/ReservationContext";
+import { useSpring, animate } from "framer-motion";
 import {
   motion,
   AnimatePresence,
@@ -18,6 +20,7 @@ import {
   useDragControls,
 } from "framer-motion";
 import { track } from "@vercel/analytics";
+import { cn } from "@/lib/utils";
 
 type Props = {
   /** Optional: pass from Navbar state so we can hide these buttons when drawer is open */
@@ -39,6 +42,24 @@ function getTijuanaMinutesNow(): number {
 
 type DockPos = { side: "left" | "right"; y: number };
 
+function getMobileNavH(): number {
+  if (typeof window === "undefined") return 84;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(
+    "--mobile-nav-h"
+  );
+  const n = parseInt(v || "", 10);
+  return Number.isFinite(n) && n > 0 ? n : 84;
+}
+
+function getHeaderH(): number {
+  if (typeof window === "undefined") return 64;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(
+    "--header-h"
+  );
+  const n = parseInt(v || "", 10);
+  return Number.isFinite(n) && n > 0 ? n : 64;
+}
+
 export function MobileNav({ isDrawerOpen }: Props) {
   const { openReservationModal } = useReservation();
   const pathname = usePathname();
@@ -46,10 +67,10 @@ export function MobileNav({ isDrawerOpen }: Props) {
   const [chatAvailable, setChatAvailable] = useState(false);
   const [visible, setVisible] = useState(false);
 
-  // collapsed by default; expands on tap
+  // expands on tap
   const [expanded, setExpanded] = useState(false);
 
-  // long-press to drag (now via dragControls.start())
+  // long-press to drag
   const [dragEnabled, setDragEnabled] = useState(false);
   const pressTimerRef = useRef<number | null>(null);
   const pressedRef = useRef(false);
@@ -63,15 +84,17 @@ export function MobileNav({ isDrawerOpen }: Props) {
   // anchored side + remembered Y offset
   const [pos, setPos] = useState<DockPos>(() => ({ side: "right", y: 0 }));
 
-  // Motion values for smooth dragging
+  // Motion values
   const mvX = useMotionValue(0);
   const mvY = useMotionValue(0);
 
-  // Drag controls (required for long-press drag on iOS)
+  // Springs (magnetic snap feel)
+  const sx = useSpring(mvX, { stiffness: 520, damping: 38, mass: 0.7 });
+  const sy = useSpring(mvY, { stiffness: 520, damping: 38, mass: 0.7 });
+
   const dragControls = useDragControls();
 
-  // Constraint measurement refs
-  const wrapRef = useRef<HTMLDivElement | null>(null);
+  // Measure actual dock size to clamp constraints properly
   const dockRef = useRef<HTMLDivElement | null>(null);
 
   const [constraints, setConstraints] = useState<{
@@ -102,7 +125,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
         };
   }, [lang]);
 
-  // pick the initial tab based on URL
   const reserveTab: ReservationType = pathname?.includes("/casa")
     ? "hotel"
     : pathname?.includes("/cafe")
@@ -130,7 +152,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
   /* ---------------- restore position ---------------- */
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v5");
+      const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v6");
       if (!raw) return;
       const parsed = JSON.parse(raw) as DockPos;
       if (!parsed) return;
@@ -181,7 +203,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
   useEffect(() => {
     if (!visible) return;
 
-    const key = "olivea_mobile_dock_hint_seen_v1";
+    const key = "olivea_mobile_dock_hint_seen_v2";
     const seen = sessionStorage.getItem(key);
     if (seen) return;
 
@@ -192,49 +214,52 @@ export function MobileNav({ isDrawerOpen }: Props) {
       hintTimerRef.current = window.setTimeout(() => {
         setShowHint(false);
         hintTimerRef.current = null;
-      }, 2800);
+      }, 2400);
     }, 500);
 
     return () => window.clearTimeout(t);
   }, [visible]);
 
-  /* ---------------- measure drag constraints ---------------- */
-  const measureConstraints = () => {
-    const wrap = wrapRef.current;
+  /* ---------------- constraints (viewport-based, stable) ---------------- */
+  const recalcConstraints = useCallback(() => {
     const dock = dockRef.current;
-    if (!wrap || !dock) return null;
+    if (!dock) return;
 
-    const w = wrap.getBoundingClientRect();
-    const d = dock.getBoundingClientRect();
+    const r = dock.getBoundingClientRect();
 
-    const padX = 8;
-    const padTop = 12;
-    const padBottom = 12;
+    // Keep away from edges, top navbar, and bottom MobileSectionNav
+    const padX = 10;
+    const padTop = 14 + getHeaderH();
+    const padBottom = 12 + getMobileNavH() + (expanded ? 8 : 0);
 
-    const left = -w.left + padX;
-    const right = window.innerWidth - (w.left + d.width) - padX;
+    const left = -r.left + padX;
+    const right = window.innerWidth - (r.left + r.width) - padX;
 
-    const top = -w.top + padTop;
-    const bottom = window.innerHeight - (w.top + d.height) - padBottom;
+    const top = -r.top + padTop;
+    const bottom = window.innerHeight - (r.top + r.height) - padBottom;
 
-    return { left, right, top, bottom };
-  };
+    setConstraints({ left, right, top, bottom });
+  }, [expanded]);
 
   useEffect(() => {
     if (!visible) return;
+    const raf = requestAnimationFrame(recalcConstraints);
 
-    const recalc = () => {
-      requestAnimationFrame(() => setConstraints(measureConstraints()));
-    };
+    window.addEventListener("resize", recalcConstraints);
+    window.addEventListener("orientationchange", recalcConstraints);
 
-    recalc();
-    window.addEventListener("resize", recalc);
-    window.addEventListener("orientationchange", recalc);
+    // recalc after layout settles
+    const t1 = window.setTimeout(recalcConstraints, 120);
+    const t2 = window.setTimeout(recalcConstraints, 520);
+
     return () => {
-      window.removeEventListener("resize", recalc);
-      window.removeEventListener("orientationchange", recalc);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", recalcConstraints);
+      window.removeEventListener("orientationchange", recalcConstraints);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
     };
-  }, [visible, expanded, pos.side]);
+  }, [visible, expanded, recalcConstraints]);
 
   // When side changes, keep y and reset x
   useEffect(() => {
@@ -256,13 +281,10 @@ export function MobileNav({ isDrawerOpen }: Props) {
     pressedRef.current = false;
     startPtRef.current = null;
 
-    // If we didn't actually drag, turn off drag mode immediately
     if (!movedRef.current) setDragEnabled(false);
-
     movedRef.current = false;
   };
 
-  // If drawer is open, hide dock
   if (isDrawerOpen) return null;
 
   const sideRight = pos.side === "right";
@@ -271,19 +293,19 @@ export function MobileNav({ isDrawerOpen }: Props) {
     <AnimatePresence>
       {visible && (
         <motion.div
-          ref={wrapRef}
           className={[
-            "fixed md:hidden z-200",
-            "bottom-[calc(env(safe-area-inset-bottom,0px)+4.25rem)]",
+            "fixed md:hidden z-200 pointer-events-none",
             sideRight ? "right-3" : "left-3",
-            isContentHeavy ? "opacity-90" : "",
+            // stay above MobileSectionNav
+            "bottom-[calc(env(safe-area-inset-bottom,0px)+var(--mobile-nav-h,84px)+10px)]",
+            isContentHeavy ? "opacity-95" : "",
           ].join(" ")}
           initial={{ opacity: 0, x: sideRight ? 40 : -40, y: 8 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           exit={{ opacity: 0, x: sideRight ? 40 : -40, y: 8 }}
           transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Hint tooltip (one-time) */}
+          {/* Hint tooltip */}
           <AnimatePresence>
             {showHint && !dragEnabled && (
               <motion.div
@@ -292,10 +314,10 @@ export function MobileNav({ isDrawerOpen }: Props) {
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
                 transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                 className={[
-                  "mb-2",
+                  "pointer-events-auto mb-2",
                   sideRight ? "ml-auto" : "",
-                  "w-max max-w-55",
-                  "rounded-xl",
+                  "w-max max-w-60",
+                  "rounded-2xl",
                   "bg-black/70 text-white",
                   "px-3 py-2",
                   "text-[11px] leading-snug",
@@ -312,7 +334,16 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
           <motion.div
             ref={dockRef}
-            // ✅ iOS-friendly long-press drag
+            // ✅ critical: wrapper is pointer-events-none; dock must re-enable
+            className={cn(
+              "pointer-events-auto select-none",
+              "rounded-2xl overflow-hidden",
+              "bg-(--olivea-cream)/70 backdrop-blur-md",
+              "ring-1 ring-(--olivea-olive)/14",
+              "shadow-[0_10px_28px_rgba(18,24,16,0.12)]",
+              dragEnabled ? "scale-[1.015]" : "",
+              "transition-transform"
+            )}
             drag
             dragControls={dragControls}
             dragListener={false}
@@ -320,9 +351,8 @@ export function MobileNav({ isDrawerOpen }: Props) {
             dragElastic={0.06}
             dragConstraints={constraints ?? undefined}
             style={{
-              x: mvX,
-              y: mvY,
-              // Safari tends to respect inline touchAction more consistently
+              x: sx,
+              y: sy,
               touchAction: dragEnabled ? "none" : "auto",
             }}
             onDragStart={() => {
@@ -336,8 +366,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
             }}
             onDragEnd={(_, info) => {
               const vw = window.innerWidth;
-
-              // snap side by drop position (native-feel)
               const nextSide: DockPos["side"] =
                 info.point.x < vw / 2 ? "left" : "right";
 
@@ -345,112 +373,116 @@ export function MobileNav({ isDrawerOpen }: Props) {
               const next: DockPos = { side: nextSide, y: nextY };
 
               setPos(next);
-              sessionStorage.setItem(
-                "olivea_mobile_dock_pos_v5",
-                JSON.stringify(next)
-              );
+              sessionStorage.setItem("olivea_mobile_dock_pos_v6", JSON.stringify(next));
 
-              // snap cleanly into anchored side and exit drag mode
-              mvX.set(0);
+              // magnetic snap: x → 0 with spring (wrapper anchors edge)
+              animate(mvX, 0, {
+                type: "spring",
+                stiffness: 520,
+                damping: 38,
+                mass: 0.7,
+              });
+
               setDragEnabled(false);
             }}
-            className={[
-              dragEnabled ? "touch-none" : "touch-auto",
-              "select-none",
-              "rounded-2xl overflow-hidden",
-              "bg-white/55 backdrop-blur-xl",
-              "ring-1 ring-black/10",
-              "shadow-[0_10px_30px_rgba(0,0,0,0.12)]",
-              dragEnabled ? "scale-[1.02]" : "",
-              "transition-transform",
-            ].join(" ")}
             aria-label="Quick actions"
-            onPointerDown={(e) => {
-              // Desktop: drag immediately (better for devtools testing)
-              if (e.pointerType === "mouse") {
-                setDragEnabled(true);
-                setExpanded(false);
-                setShowHint(false);
-                dragControls.start(e);
-                return;
-              }
-
-              // Touch/Pen: long-press, then programmatically start drag
-              pressedRef.current = true;
-              movedRef.current = false;
-              startPtRef.current = { x: e.clientX, y: e.clientY };
-
-              clearPressTimer();
-              pressTimerRef.current = window.setTimeout(() => {
-                if (!pressedRef.current) return;
-
-                setDragEnabled(true);
-                setExpanded(false);
-                setShowHint(false);
-                dragControls.start(e);
-                navigator?.vibrate?.(10);
-              }, 180);
-            }}
-            onPointerMove={(e) => {
-              if (e.pointerType === "mouse") return;
-
-              const s = startPtRef.current;
-              if (!s || !pressedRef.current) return;
-
-              const dx = e.clientX - s.x;
-              const dy = e.clientY - s.y;
-
-              // cancel long-press if user starts moving too early
-              if (!dragEnabled && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-                clearPressTimer();
-              }
-            }}
-            onPointerUp={() => endPress()}
-            onPointerCancel={() => endPress()}
-            onPointerLeave={() => endPress()}
           >
-            {/* Handle (tap = expand) */}
-            <button
-              type="button"
-              onClick={() => {
-                // If we’re in drag mode (mouse or touch), ignore click
-                if (dragEnabled) return;
-                setExpanded((v) => !v);
-              }}
-              className={[
-                "w-full flex items-center justify-between gap-3",
-                "px-3 py-2",
-                "text-(--olivea-olive)",
-              ].join(" ")}
-              aria-expanded={expanded}
-            >
-              <span className="flex items-center gap-2">
-                {/* subtle grip hint */}
-                <span
-                  aria-hidden="true"
-                  className="text-[12px] leading-none opacity-40 tracking-[2px]"
-                >
-                  ⋮⋮
-                </span>
-                <span className="text-xs font-medium tracking-wide">
+            {/* HEADER ROW */}
+            <div className="flex items-center gap-2 px-2.5 py-2">
+              {/* Dedicated grip (drag here) */}
+              <button
+                type="button"
+                className={cn(
+                  "shrink-0 inline-flex items-center justify-center",
+                  "h-9 w-9 rounded-xl",
+                  "bg-transparent text-(--olivea-olive)/70 hover:text-(--olivea-olive)",
+                  "ring-1 ring-(--olivea-olive)/10",
+                  "active:scale-[0.99] transition-transform",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)"
+                )}
+                aria-label={lang === "es" ? "Mover" : "Move"}
+                onPointerDown={(e) => {
+                  // Mouse: enable drag immediately AND still allow normal click elsewhere
+                  if (e.pointerType === "mouse") {
+                    setDragEnabled(true);
+                    setExpanded(false);
+                    setShowHint(false);
+                    dragControls.start(e);
+                    return;
+                  }
+
+                  // Touch/Pen: long press
+                  pressedRef.current = true;
+                  movedRef.current = false;
+                  startPtRef.current = { x: e.clientX, y: e.clientY };
+
+                  clearPressTimer();
+                  pressTimerRef.current = window.setTimeout(() => {
+                    if (!pressedRef.current) return;
+
+                    setDragEnabled(true);
+                    setExpanded(false);
+                    setShowHint(false);
+                    dragControls.start(e);
+                    navigator?.vibrate?.(10);
+                  }, 180);
+                }}
+                onPointerMove={(e) => {
+                  if (e.pointerType === "mouse") return;
+                  const s = startPtRef.current;
+                  if (!s || !pressedRef.current) return;
+
+                  const dx = e.clientX - s.x;
+                  const dy = e.clientY - s.y;
+                  if (!dragEnabled && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+                    clearPressTimer();
+                  }
+                }}
+                onPointerUp={() => endPress()}
+                onPointerCancel={() => endPress()}
+                onPointerLeave={() => endPress()}
+              >
+                <GripVertical className="h-4 w-4 opacity-80" />
+              </button>
+
+              {/* Tap area (expand/collapse) */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (dragEnabled) return;
+                  setExpanded((v) => !v);
+                }}
+                className={cn(
+                  "min-w-0 flex-1",
+                  "h-9 rounded-xl",
+                  "px-3",
+                  "bg-(--olivea-cream)/60",
+                  "text-(--olivea-olive)",
+                  "ring-1 ring-(--olivea-olive)/14",
+                  "inline-flex items-center justify-between gap-2",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)"
+                )}
+                aria-expanded={expanded}
+              >
+                <span className="truncate text-[11px] leading-none font-medium tracking-[0.28em] uppercase">
                   {labels.actions}
                 </span>
-              </span>
 
-              <span className="opacity-80">
-                {expanded ? (
-                  sideRight ? (
-                    <ChevronRight className="w-4 h-4" />
-                  ) : (
+                <span className="opacity-80">
+                  {expanded ? (
+                    sideRight ? (
+                      <ChevronRight className="w-4 h-4" />
+                    ) : (
+                      <ChevronLeft className="w-4 h-4" />
+                    )
+                  ) : sideRight ? (
                     <ChevronLeft className="w-4 h-4" />
-                  )
-                ) : sideRight ? (
-                  <ChevronLeft className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-              </span>
-            </button>
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </span>
+              </button>
+            </div>
 
             {/* Expanded actions */}
             <AnimatePresence initial={false}>
@@ -460,9 +492,9 @@ export function MobileNav({ isDrawerOpen }: Props) {
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                  className="border-t border-black/10"
+                  className="border-t border-(--olivea-olive)/14"
                 >
-                  <div className="p-2 flex flex-col gap-2">
+                  <div className="p-3 flex flex-col gap-2">
                     {/* Reserve */}
                     <button
                       id="reserve-toggle"
@@ -470,29 +502,26 @@ export function MobileNav({ isDrawerOpen }: Props) {
                       onClick={() => {
                         track("Reservation Opened", {
                           source: "mobile_floating_dock",
-                          section: reserveTab,        // hotel | cafe | restaurant
+                          section: reserveTab,
                           lang,
                         });
-                      
+
                         setExpanded(false);
                         openReservationModal(reserveTab);
                       }}
-
-                      className={[
-                        "w-full flex items-center gap-2",
-                        "rounded-xl",
+                      className={cn(
+                        "w-full inline-flex items-center gap-2",
+                        "rounded-2xl",
                         "bg-(--olivea-olive) text-white",
                         "ring-1 ring-white/15",
                         "shadow-sm",
                         "px-3 py-2",
-                        "active:scale-[0.99] transition-transform",
-                      ].join(" ")}
+                        "active:scale-[0.99] transition-transform"
+                      )}
                       aria-label={labels.reserve}
                     >
                       <Calendar className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        {labels.reserve}
-                      </span>
+                      <span className="text-sm font-medium">{labels.reserve}</span>
                     </button>
 
                     {/* Chat */}
@@ -508,35 +537,30 @@ export function MobileNav({ isDrawerOpen }: Props) {
                         setExpanded(false);
                         sessionStorage.setItem("olivea_chat_intent", "1");
                         document.body.classList.add("olivea-chat-open");
-                        const toggleBtn =
-                          document.getElementById("chatbot-toggle");
-                        toggleBtn?.click();
+                        document.getElementById("chatbot-toggle")?.click();
                         document.body.classList.add("olivea-chat-open");
                       }}
-                      className={[
-                        "relative w-full flex items-center gap-2",
-                        "rounded-xl",
+                      className={cn(
+                        "relative w-full inline-flex items-center gap-2",
+                        "rounded-2xl",
                         "bg-(--olivea-shell) text-(--olivea-olive)",
-                        "ring-1 ring-black/10",
+                        "ring-1 ring-(--olivea-olive)/14",
                         "shadow-sm",
                         "px-3 py-2",
-                        "active:scale-[0.99] transition-transform",
-                      ].join(" ")}
+                        "active:scale-[0.99] transition-transform"
+                      )}
                       aria-label={labels.chat}
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span className="text-sm font-medium">{labels.chat}</span>
 
-                      {/* Availability dot */}
                       <span
                         aria-hidden="true"
-                        className={[
+                        className={cn(
                           "absolute right-2 top-1/2 -translate-y-1/2",
                           "block h-2.5 w-2.5 rounded-full border border-white",
-                          chatAvailable
-                            ? "bg-green-500 animate-pulse"
-                            : "bg-red-500",
-                        ].join(" ")}
+                          chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
+                        )}
                       />
                     </button>
                   </div>
