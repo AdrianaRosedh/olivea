@@ -88,13 +88,13 @@ function buildCsp({
     `frame-ancestors${frameAncestors}`,
     "form-action 'self'",
 
-    `connect-src 'self' data: https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
-    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
+    `connect-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
+    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://www.googletagmanager.com https://www.google-analytics.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
 
     // ✅ Allow Google Fonts stylesheet
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
-    `img-src 'self' data: blob: https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org${cloudbedsImgExtra}${locatorImgExtra}`,
+    `img-src 'self' data: blob: https://www.google-analytics.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org${cloudbedsImgExtra}${locatorImgExtra}`,
 
     "media-src 'self' blob:",
 
