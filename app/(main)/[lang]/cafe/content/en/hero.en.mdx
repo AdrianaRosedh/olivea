@@ -63,10 +63,9 @@ import CafeLogo from '@/assets/herocafe.svg'
             />
           </Reveal>
 
-          {/* Phrase (mobile + desktop variants) */}
+          {/* Phrase */}
           <Reveal preset="up" delay={0.12}>
             <div className="w-full text-center">
-              {/* Mobile: single line, no side rules */}
               <span
                 className="
                   md:hidden
@@ -81,7 +80,6 @@ import CafeLogo from '@/assets/herocafe.svg'
               </span>
               <span className="mt-1 h-[1px] w-20 bg-white/35 md:hidden block mx-auto" />
 
-              {/* Desktop: side rules, one line */}
               <span className="hidden md:inline-flex items-center md:gap-4 md:[--rule:2.5rem] lg:[--rule:3.5rem]">
                 <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
                 <span
@@ -105,16 +103,14 @@ import CafeLogo from '@/assets/herocafe.svg'
               <button
                 type="button"
                 aria-label="Reserve"
+                data-reserve-intent
+                onPointerEnter={() => {
+                  if (typeof window === 'undefined') return
+                  window.dispatchEvent(new Event('olivea:reserve-intent'))
+                }}
                 onClick={() => {
-                  const isDesktop =
-                    typeof window !== 'undefined' &&
-                    window.matchMedia('(min-width: 768px)').matches;
-                  if (isDesktop) {
-                    window.dispatchEvent(new Event('olivea:reserve'));
-                  } else {
-                    const el = document.getElementById('reserve-toggle');
-                    if (el && typeof el.click === 'function') el.click();
-                  }
+                  if (typeof window === 'undefined') return
+                  window.dispatchEvent(new Event('olivea:reserve'))
                 }}
                 className="
                   inline-flex items-center justify-center
@@ -136,16 +132,18 @@ import CafeLogo from '@/assets/herocafe.svg'
                 href="#menu"
                 aria-label="View menu"
                 onClick={(e) => {
-                  e.preventDefault();
+                  e.preventDefault()
+                  if (typeof window === 'undefined') return
                   const el =
                     document.getElementById('menu') ||
-                    document.querySelector('.main-section#menu');
-                  if (!el) return;
-                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
-                  const header = Number.parseInt(v || '64', 10) || 64;
-                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8;
-                  window.scrollTo({ top, behavior: 'smooth' });
-                  if (window.location.hash.slice(1) !== 'menu') history.replaceState(null, '', '#menu');
+                    document.querySelector('.main-section#menu')
+                  if (!el) return
+                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h')
+                  const header = Number.parseInt(v || '64', 10) || 64
+                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8
+                  window.scrollTo({ top, behavior: 'smooth' })
+                  if (window.location.hash.slice(1) !== 'menu')
+                    history.replaceState(null, '', '#menu')
                 }}
                 className="
                   inline-flex items-center justify-center

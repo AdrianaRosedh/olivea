@@ -57,10 +57,10 @@ import CasaLogo from '@/assets/herocasa.svg'
             <CasaLogo className="mx-auto w-[170px] md:w-[240px] lg:w-[280px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] text-white fill-white" />
           </Reveal>
 
-          {/* Frase */}
+          {/* Slogan */}
           <Reveal preset="up" delay={0.12}>
             <div className="w-full text-center">
-              {/* Móvil */}
+              {/* Mobile */}
               <span
                 className="
                   md:hidden
@@ -92,22 +92,20 @@ import CasaLogo from '@/assets/herocasa.svg'
             </div>
           </Reveal>
 
-          {/* Botones */}
+          {/* Buttons */}
           <Reveal preset="fade" delay={0.18}>
             <div className="flex items-center justify-center gap-2.5 md:gap-4 pb-[max(0px,env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 aria-label="Reserve a room"
+                data-reserve-intent
+                onPointerEnter={() => {
+                  if (typeof window === 'undefined') return
+                  window.dispatchEvent(new Event('olivea:reserve-intent'))
+                }}
                 onClick={() => {
-                  const isDesktop =
-                    typeof window !== 'undefined' &&
-                    window.matchMedia('(min-width: 768px)').matches;
-                  if (isDesktop) {
-                    window.dispatchEvent(new Event('olivea:reserve'));
-                  } else {
-                    const t = document.getElementById('reserve-toggle');
-                    if (t && typeof t.click === 'function') t.click();
-                  }
+                  if (typeof window === 'undefined') return
+                  window.dispatchEvent(new Event('olivea:reserve'))
                 }}
                 className="
                   inline-flex items-center justify-center
@@ -129,14 +127,18 @@ import CasaLogo from '@/assets/herocasa.svg'
                 href="#services"
                 aria-label="View services"
                 onClick={(e) => {
-                  e.preventDefault();
-                  const el = document.getElementById('services') || document.querySelector('.main-section#services');
-                  if (!el) return;
-                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h');
-                  const header = Number.parseInt(v || '64', 10) || 64;
-                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8;
-                  window.scrollTo({ top, behavior: 'smooth' });
-                  if (window.location.hash.slice(1) !== 'services') history.replaceState(null, '', '#services');
+                  e.preventDefault()
+                  if (typeof window === 'undefined') return
+                  const el =
+                    document.getElementById('services') ||
+                    document.querySelector('.main-section#services')
+                  if (!el) return
+                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h')
+                  const header = Number.parseInt(v || '64', 10) || 64
+                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8
+                  window.scrollTo({ top, behavior: 'smooth' })
+                  if (window.location.hash.slice(1) !== 'services')
+                    history.replaceState(null, '', '#services')
                 }}
                 className="
                   inline-flex items-center justify-center

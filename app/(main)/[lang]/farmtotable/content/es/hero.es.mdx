@@ -101,19 +101,14 @@ import MenuScrollButton from "@/components/links/MenuScrollButton";
               <button
                 type="button"
                 aria-label="Reservar"
+                data-reserve-intent
+                onPointerEnter={() => {
+                  if (typeof window === "undefined") return;
+                  window.dispatchEvent(new Event("olivea:reserve-intent"));
+                }}
                 onClick={() => {
                   if (typeof window === "undefined") return;
-
-                  const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-
-                  if (isDesktop) {
-                    window.dispatchEvent(new Event("olivea:reserve"));
-                  } else {
-                    const el = document.getElementById("reserve-toggle");
-                    if (el && typeof el.click === "function") {
-                      el.click();
-                    }
-                  }
+                  window.dispatchEvent(new Event("olivea:reserve"));
                 }}
                 className="
                   inline-flex items-center justify-center

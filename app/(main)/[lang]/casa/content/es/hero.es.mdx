@@ -35,7 +35,6 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
       sizes="(max-width: 768px) 100vw, min(1600px, calc(100vw - var(--dock-left,220px) - var(--dock-right,96px) - 48px))"
     />
 
-    {/* Overlay and central content */}
     <div className="absolute inset-0 pointer-events-none">
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
       <h1 className="sr-only">Casa OLIVEA</h1>
@@ -65,7 +64,6 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
 
           <Reveal preset="up" delay={0.12}>
             <div className="w-full text-center">
-              {/* Slogan móvil */}
               <span
                 className="
                   md:hidden
@@ -80,7 +78,6 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
               </span>
               <span className="mt-1 h-[1px] w-20 bg-white/35 md:hidden block mx-auto" />
 
-              {/* Slogan desktop */}
               <span className="hidden md:inline-flex items-center md:gap-4 md:[--rule:2.5rem] lg:[--rule:3.5rem]">
                 <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
                 <span
@@ -103,16 +100,14 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
               <button
                 type="button"
                 aria-label="Reservar"
+                data-reserve-intent
+                onPointerEnter={() => {
+                  if (typeof window === 'undefined') return
+                  window.dispatchEvent(new Event('olivea:reserve-intent'))
+                }}
                 onClick={() => {
-                  const isDesktop =
-                    typeof window !== 'undefined' &&
-                    window.matchMedia('(min-width: 768px)').matches;
-                  if (isDesktop) {
-                    window.dispatchEvent(new Event('olivea:reserve'));
-                  } else {
-                    const t = document.getElementById('reserve-toggle');
-                    if (t && typeof t.click === 'function') t.click();
-                  }
+                  if (typeof window === 'undefined') return
+                  window.dispatchEvent(new Event('olivea:reserve'))
                 }}
                 className="
                   inline-flex items-center justify-center

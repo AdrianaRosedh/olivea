@@ -214,7 +214,8 @@ export function MobileNav({ isDrawerOpen }: Props) {
   const expandedW = Math.max(pillWReserve, pillWChat, ROW) + PAD * 2;
 
   const sideRight = pos.side === "right";
-    // ✅ Hide action dock while MobileSectionNav outline is open
+
+  // ✅ Hide action dock while MobileSectionNav outline is open
   const [outlineOpen, setOutlineOpen] = useState(false);
 
   useEffect(() => {
@@ -229,7 +230,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
       window.removeEventListener("olivea:mobile-outline-close", onClose);
     };
   }, []);
-
 
   /* ───────────────── chat availability ───────────────── */
   useEffect(() => {
@@ -334,6 +334,35 @@ export function MobileNav({ isDrawerOpen }: Props) {
     openReservationModal(reserveTab);
   }, [expanded, lang, openReservationModal, reserveTab]);
 
+  // ✅ NEW: allow ANY component (hero, cards, etc) to open reservations on mobile
+  useEffect(() => {
+    const handler = () => {
+      // if dock is intentionally not present, ignore
+      if (isDrawerOpen || outlineOpen) return;
+
+      // show the dock (so it feels intentional) then open
+      setVisible(true);
+
+      // avoid opening mid-drag
+      if (isDragging) return;
+
+      onReserve();
+    };
+
+    const prewarm = () => {
+      // if you later add "warm mount" logic, this is where it goes.
+      // (keeping for parity with desktop + hover intent)
+    };
+
+    window.addEventListener("olivea:reserve", handler as EventListener);
+    window.addEventListener("olivea:reserve-intent", prewarm as EventListener);
+
+    return () => {
+      window.removeEventListener("olivea:reserve", handler as EventListener);
+      window.removeEventListener("olivea:reserve-intent", prewarm as EventListener);
+    };
+  }, [isDrawerOpen, outlineOpen, isDragging, onReserve]);
+
   const onChat = useCallback(() => {
     track("Chat Opened", {
       source: expanded
@@ -417,7 +446,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
           "inline-flex items-center",
           expanded
             ? sideRight
-              ? "justify-end" // ✅ expanded on RIGHT: content hugs right edge
+              ? "justify-end"
               : "justify-start"
             : "justify-start",
           "active:scale-[0.99] transition-transform",
@@ -447,12 +476,10 @@ export function MobileNav({ isDrawerOpen }: Props) {
           {expanded && (
             <motion.span
               className={cn("relative z-10 inline-flex items-center", fg)}
-              // ✅ when on RIGHT we want the label to come from the RIGHT and sit aligned
               initial={{ opacity: 0, x: sideRight ? 6 : -6 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: sideRight ? 6 : -6 }}
               transition={{ duration: 0.16, ease: EASE }}
-              // ✅ swap padding so it feels correct when right-aligned
               style={{
                 paddingLeft: sideRight ? TEXT_PAD_X : PILL_GAP,
                 paddingRight: sideRight ? PILL_GAP : TEXT_PAD_X,
@@ -489,9 +516,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     );
   }
 
-  // Chevron direction:
-  // - Right side: collapsed shows Left (open left), expanded shows Right (close right)
-  // - Left side: collapsed shows Right (open right), expanded shows Left (close left)
   const ToggleIcon = sideRight
     ? expanded
       ? ChevronRight
@@ -548,7 +572,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
             >
               <motion.div
                 className="p-1.75"
-                // ✅ key: when dock is on RIGHT, expand LEFT (anchor on right edge)
                 style={{ originX: sideRight ? 1 : 0 }}
                 animate={{ width: expanded ? expandedW : compactW, x: 0 }}
                 transition={{ type: "spring", ...SPRING }}
@@ -558,7 +581,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
                     "flex flex-col",
                     expanded
                       ? sideRight
-                        ? "items-end" // ✅ expanded on RIGHT: align to right
+                        ? "items-end"
                         : "items-start"
                       : "items-center"
                   )}
@@ -610,10 +633,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
                       "active:bg-white/10 transition-colors"
                     )}
                   >
-                    <span
-                      className="grid grid-cols-3 gap-0.75"
-                      aria-hidden="true"
-                    >
+                    <span className="grid grid-cols-3 gap-0.75" aria-hidden="true">
                       {Array.from({ length: 9 }).map((_, i) => (
                         <span
                           key={i}
