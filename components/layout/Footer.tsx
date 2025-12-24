@@ -176,7 +176,7 @@ export default function Footer({ dict }: FooterProps) {
   );
 
   return (
-    <footer className="hidden md:flex fixed bottom-0 left-0 w-full z-200 bg-transparent backdrop-blur-md text-[12px] text-(--olivea-ink) font-light tracking-wide pointer-events-auto isolate">
+    <footer className="fixed bottom-0 left-0 w-full z-200 bg-transparent backdrop-blur-md text-[12px] text-(--olivea-ink) font-light tracking-wide pointer-events-auto isolate">
       {/* subtle top divider haze */}
       <div
         className="pointer-events-none absolute top-0 left-0 right-0 h-px opacity-70"

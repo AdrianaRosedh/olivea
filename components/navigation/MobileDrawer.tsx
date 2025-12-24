@@ -1,20 +1,21 @@
-// components/navigation/MobileDrawer.tsx
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
-import {
-  FaYoutube,
-  FaInstagram,
-  FaTiktok,
-  FaLinkedin,
-  FaSpotify,
-  FaPinterest,
-} from "react-icons/fa";
+
+/**
+ * ✅ Big mobile weight win:
+ * `react-icons` lives ONLY inside this chunk, which loads ONLY when drawer is open.
+ */
+const MobileDrawerSocialDock = dynamic(
+  () => import("./MobileDrawerSocialDock"),
+  { ssr: false, loading: () => null }
+);
 
 interface Props {
   isOpen: boolean;
@@ -86,9 +87,6 @@ export default function MobileDrawer({
 
   useBodyScrollLock(isOpen);
 
-  // Faster staging:
-  // - start items shortly after open (feels snappy)
-  // - enable blur shortly after items begin (helps avoid flicker)
   useEffect(() => {
     if (!isOpen) {
       setItemsReady(false);
@@ -129,15 +127,23 @@ export default function MobileDrawer({
     [lang, tFarm, tCasa, tCafe]
   );
 
-
   const moreLinks = useMemo(() => {
     return [
       { href: `/${lang}/press`, label: lang === "es" ? "Prensa" : "Press" },
-      { href: `/${lang}/sustainability`, label: lang === "es" ? "Filosofía" : "Philosophy" },
+      {
+        href: `/${lang}/sustainability`,
+        label: lang === "es" ? "Filosofía" : "Philosophy",
+      },
       { href: `/${lang}/journal`, label: lang === "es" ? "Cuaderno" : "Journal" },
-      { href: `/${lang}/team`, label: lang === "es" ? "Equipo" : "Team" },    
-      { href: `/${lang}/contact`, label: lang === "es" ? "Contáctanos" : "Contact" },
-      { href: `/${lang}/carreras`, label: lang === "es" ? "Carreras" : "Careers"},
+      { href: `/${lang}/team`, label: lang === "es" ? "Equipo" : "Team" },
+      {
+        href: `/${lang}/contact`,
+        label: lang === "es" ? "Contáctanos" : "Contact",
+      },
+      {
+        href: `/${lang}/carreras`,
+        label: lang === "es" ? "Carreras" : "Careers",
+      },
     ];
   }, [lang]);
 
@@ -165,10 +171,7 @@ export default function MobileDrawer({
   return (
     <AnimatePresence
       onExitComplete={() => {
-        // ✅ best moment to refresh AdaptiveNavbar sampling
         onExitComplete?.();
-
-        // ✅ also supports the event-based wiring (no-refactor)
         if (typeof window !== "undefined") {
           window.dispatchEvent(new Event("olivea:drawer-exit"));
         }
@@ -298,64 +301,12 @@ export default function MobileDrawer({
                       />
                     </motion.div>
 
+                    {/* ✅ Social icons are dynamic → react-icons loads only when drawer opens */}
                     <motion.div
                       variants={item}
-                      className="flex gap-5 transform-gpu will-change-transform"
+                      className="transform-gpu will-change-transform"
                     >
-                      <a
-                        href="https://www.youtube.com/@GrupoOlivea"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="YouTube"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
-                      >
-                        <FaYoutube size={20} />
-                      </a>
-                      <a
-                        href="https://instagram.com/oliveafarmtotable/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Instagram"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
-                      >
-                        <FaInstagram size={20} />
-                      </a>
-                      <a
-                        href="https://www.tiktok.com/@grupoolivea"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="TikTok"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
-                      >
-                        <FaTiktok size={20} />
-                      </a>
-                      <a
-                        href="https://www.linkedin.com/company/inmobiliaria-casa-olivea/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="LinkedIn"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
-                      >
-                        <FaLinkedin size={20} />
-                      </a>
-                      <a
-                        href="https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Spotify"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
-                      >
-                        <FaSpotify size={20} />
-                      </a>
-                      <a
-                        href="https://mx.pinterest.com/familiaolivea/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Pinterest"
-                        className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
-                      >
-                        <FaPinterest size={20} />
-                      </a>
+                      <MobileDrawerSocialDock />
                     </motion.div>
 
                     <motion.button

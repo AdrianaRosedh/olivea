@@ -3,7 +3,7 @@
 import React, { memo, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import FooterDesktop from "@/components/layout/FooterDesktop";
 import DockLeft from "@/components/navigation/DockLeft";
 import DockRight from "@/components/navigation/DockRight";
 import MobileSectionNav from "@/components/navigation/MobileSectionNav";
@@ -192,7 +192,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
       </main>
 
-      {!isHome && <Footer dict={dictionary} />}
+      {!isHome && <FooterDesktop dict={dictionary} />}
 
       {/* DESKTOP DOCKS */}
       {!isHome && !isMobile && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   motion,
   AnimatePresence,
@@ -8,10 +8,6 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-import gsap from "gsap";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-gsap.registerPlugin(ScrollToPlugin);
 
 /* ── Types ───────────────────────────────────────────────────────── */
 type Identity = "casa" | "cafe" | "farmtotable";
@@ -37,6 +33,61 @@ const SWAP_Y = 28;
 /** Active detection “center band” */
 const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
 
+/* ── GSAP dynamic loader (cached, no `any`) ───────────────────────── */
+type GsapCore = {
+  to: (target: unknown, vars: Record<string, unknown>) => unknown;
+  registerPlugin: (...plugins: unknown[]) => void;
+};
+
+type DefaultExport<T> = { default: T };
+
+let _gsapPromise: Promise<GsapCore> | null = null;
+
+function pickGsap(mod: typeof import("gsap")): GsapCore {
+  // Common modern shape: { gsap }
+  if ("gsap" in mod && typeof mod.gsap === "object" && mod.gsap) {
+    return mod.gsap as unknown as GsapCore;
+  }
+  // Sometimes default export
+  if ("default" in mod) {
+    return (mod as DefaultExport<unknown>).default as unknown as GsapCore;
+  }
+  throw new Error("GSAP module shape not recognized.");
+}
+
+function pickScrollToPlugin(mod: typeof import("gsap/ScrollToPlugin")): unknown {
+  if ("ScrollToPlugin" in mod) return mod.ScrollToPlugin;
+  if ("default" in mod) return (mod as DefaultExport<unknown>).default;
+  throw new Error("ScrollToPlugin module shape not recognized.");
+}
+
+async function getGsap(): Promise<GsapCore> {
+  if (_gsapPromise) return _gsapPromise;
+
+  _gsapPromise = (async () => {
+    const mod = await import("gsap");
+    const gsap = pickGsap(mod);
+
+    const pluginMod = await import("gsap/ScrollToPlugin");
+    const ScrollToPlugin = pickScrollToPlugin(pluginMod);
+
+    gsap.registerPlugin(ScrollToPlugin);
+    return gsap;
+  })();
+
+  return _gsapPromise;
+}
+
+function isDesktop(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(min-width: 768px)").matches; // Tailwind md
+}
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 /* ── Helpers ─────────────────────────────────────────────────────── */
 function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
   const vh = window.innerHeight;
@@ -49,7 +100,10 @@ function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
 }
 
 function clampToMaxScroll(y: number) {
-  const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const maxY = Math.max(
+    0,
+    document.documentElement.scrollHeight - window.innerHeight
+  );
   return Math.min(Math.max(0, y), maxY);
 }
 
@@ -65,7 +119,31 @@ function getScrollableAncestor(el: Element): Window | Element {
   while (node && node !== document.body && !isScrollable(node)) {
     node = node.parentElement;
   }
-  return node && node !== document.body && node !== document.documentElement ? node : window;
+  return node && node !== document.body && node !== document.documentElement
+    ? node
+    : window;
+}
+
+/** Mobile-safe native scroll fallback (no GSAP download) */
+function nativeScrollToElement(
+  scroller: Window | Element,
+  el: HTMLElement,
+  offsetY: number,
+  smooth: boolean
+) {
+  const rect = el.getBoundingClientRect();
+
+  if (scroller === window) {
+    const y = clampToMaxScroll(window.scrollY + rect.top - offsetY);
+    window.scrollTo({ top: y, behavior: smooth ? "smooth" : "auto" });
+    return;
+  }
+
+  const sEl = scroller as Element;
+  const sRect = sEl.getBoundingClientRect();
+  const current = sEl.scrollTop;
+  const target = Math.max(0, current + (rect.top - sRect.top) - offsetY);
+  sEl.scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
 }
 
 /* ── Motion easings ──────────────────────────────────────────────── */
@@ -125,13 +203,15 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
   );
 
   const subsForSection = useCallback(
-    (sectionId: string) => sectionsOverride.find((s) => s.id === sectionId)?.subs ?? [],
+    (sectionId: string) =>
+      sectionsOverride.find((s) => s.id === sectionId)?.subs ?? [],
     [sectionsOverride]
   );
 
   const subToParent = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const s of sectionsOverride) (s.subs ?? []).forEach((sub) => (map[sub.id] = s.id));
+    for (const s of sectionsOverride)
+      (s.subs ?? []).forEach((sub) => (map[sub.id] = s.id));
     return map;
   }, [sectionsOverride]);
 
@@ -149,9 +229,12 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
     safetyTimer.current = null;
   }, []);
 
-  /* Smooth scroll (your existing behavior preserved) */
+  /* Smooth scroll:
+     - Desktop: uses GSAP (loaded lazily on first use)
+     - Mobile/Reduced: native scroll fallback (zero GSAP download)
+  */
   const scrollToSection = useCallback(
-    (id: string) => {
+    async (id: string) => {
       const el =
         document.querySelector<HTMLElement>(`.subsection#${id}`) ||
         document.querySelector<HTMLElement>(`.main-section#${id}`) ||
@@ -161,11 +244,37 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
 
       clearTimers();
       setSnapDisabled(true);
-      unlockTimer.current = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS);
+      unlockTimer.current = window.setTimeout(
+        () => setSnapDisabled(false),
+        MANUAL_MS
+      );
 
       const scroller = getScrollableAncestor(el);
 
-      gsap.to(scroller, {
+      const shouldUseNative = !isDesktop() || reduce || prefersReducedMotion();
+
+      if (shouldUseNative) {
+        nativeScrollToElement(
+          scroller,
+          el,
+          TOP_OFFSET_PX,
+          /* smooth */ !reduce && !prefersReducedMotion()
+        );
+
+        if (window.location.hash.slice(1) !== id) {
+          window.history.replaceState(null, "", `#${id}`);
+        }
+
+        safetyTimer.current = window.setTimeout(
+          () => setSnapDisabled(false),
+          MANUAL_MS + 250
+        );
+        return;
+      }
+
+      const gsap = await getGsap();
+
+      const vars: Record<string, unknown> = {
         duration: reduce ? 0 : 1.05,
         ease: "power3.out",
         overwrite: "auto",
@@ -173,21 +282,30 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
         onComplete: () => {
           const targetY = clampToMaxScroll(centerYFor(el));
           const currentY =
-            scroller === window ? window.scrollY : (scroller as Element).scrollTop;
+            scroller === window
+              ? window.scrollY
+              : (scroller as Element).scrollTop;
 
           if (Math.abs(currentY - targetY) > 10) {
-            if (scroller === window) window.scrollTo({ top: targetY, behavior: "auto" });
-            else (scroller as Element).scrollTo({ top: targetY, behavior: "auto" });
+            if (scroller === window)
+              window.scrollTo({ top: targetY, behavior: "auto" });
+            else
+              (scroller as Element).scrollTo({ top: targetY, behavior: "auto" });
           }
           setSnapDisabled(false);
         },
-      });
+      };
+
+      gsap.to(scroller, vars);
 
       if (window.location.hash.slice(1) !== id) {
         window.history.replaceState(null, "", `#${id}`);
       }
 
-      safetyTimer.current = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS + 250);
+      safetyTimer.current = window.setTimeout(
+        () => setSnapDisabled(false),
+        MANUAL_MS + 250
+      );
     },
     [clearTimers, reduce]
   );
@@ -195,7 +313,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
   const handleSmoothScroll = useCallback(
     (e: React.MouseEvent, id: string) => {
       e.preventDefault();
-      scrollToSection(id);
+      void scrollToSection(id);
     },
     [scrollToSection]
   );
@@ -210,7 +328,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
       const el = document.getElementById(hash);
       if (!el && ++tries < 40) return window.setTimeout(kick, 50);
       if (!el) return;
-      scrollToSection(hash);
+      void scrollToSection(hash);
     };
     kick();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -220,7 +338,8 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
   useEffect(() => {
     if (items.length === 0) return;
 
-    const observed: Array<{ el: HTMLElement; id: string; kind: "main" | "sub" }> = [];
+    const observed: Array<{ el: HTMLElement; id: string; kind: "main" | "sub" }> =
+      [];
 
     for (const it of items) {
       const el =
@@ -242,7 +361,9 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
       (entries) => {
         const visible = entries
           .filter((e) => e.isIntersecting)
-          .sort((a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0));
+          .sort(
+            (a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0)
+          );
 
         if (visible.length === 0) return;
 
@@ -258,7 +379,11 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
           setActiveSection(match.id);
         }
       },
-      { root: null, rootMargin: IO_ROOT_MARGIN, threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+      {
+        root: null,
+        rootMargin: IO_ROOT_MARGIN,
+        threshold: [0, 0.2, 0.4, 0.6, 0.8, 1],
+      }
     );
 
     observed.forEach((x) => io.observe(x.el));
@@ -281,30 +406,32 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
     >
       <div className="relative">
         {/* Rail that breathes (feng shui): fades top/bottom */}
-        <div className="absolute left-4.5top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/10 to-transparent" />
+        <div className="absolute left-4.5 top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/10 to-transparent" />
 
         <div className="flex flex-col gap-6">
           {items.map((item) => {
             const isActive = item.id === activeSection;
             const isHovered = item.id === hoveredId;
 
-            // This is the key: hover gets the full swap; active stays grounded.
+            // hover gets the full swap; active stays grounded.
             const isSwapping = isHovered;
             const isIntent = isHovered || isActive;
 
-            // more depth/flow: active “inked”, inactive “whisper”
             const textClass = isActive
               ? "text-(--olivea-olive)"
               : "text-(--olivea-clay) opacity-70 hover:opacity-100 hover:text-(--olivea-olive)";
 
-            // micro “organic” drift outside swap (safe)
             const driftX = reduce ? 0 : isIntent ? 3 : 0;
-
-            // spacing: give the active section a little breathing room
             const wrapperClass = isActive ? "mb-4" : "mb-0";
 
             return (
-              <div key={item.id} className={cn("flex flex-col transition-[margin] duration-200", wrapperClass)}>
+              <div
+                key={item.id}
+                className={cn(
+                  "flex flex-col transition-[margin] duration-200",
+                  wrapperClass
+                )}
+              >
                 <a
                   href={`#${item.id}`}
                   onClick={(e) => handleSmoothScroll(e, item.id)}
@@ -329,13 +456,16 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                         initial={{ opacity: 0, scaleY: 0.7 }}
                         animate={{ opacity: 1, scaleY: 1 }}
                         exit={{ opacity: 0, scaleY: 0.7 }}
-                        transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
+                        transition={{
+                          duration: reduce ? 0 : 0.18,
+                          ease: EASE_OUT,
+                        }}
                         className="absolute left-4.5 top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-olive)/35 origin-center"
                       />
                     )}
                   </AnimatePresence>
 
-                  {/* Chapter numbers: calm + editorial */}
+                  {/* Chapter numbers */}
                   <span
                     className={cn(
                       "w-10 tabular-nums text-sm tracking-[0.22em] font-semibold",
@@ -345,14 +475,14 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                     {item.number}
                   </span>
 
-                  {/* Drift wraps the label swap so swap stays perfectly aligned */}
+                  {/* Drift wraps the label swap so swap stays aligned */}
                   <motion.div
                     initial={false}
                     animate={reduce ? { x: 0 } : { x: driftX }}
                     transition={{ type: "spring", stiffness: 220, damping: 22 }}
                     className="relative h-8 overflow-hidden min-w-55"
                   >
-                    {/* outgoing label (base) */}
+                    {/* outgoing label */}
                     <motion.div
                       className={cn(
                         "block text-2xl font-semibold whitespace-nowrap",
@@ -379,7 +509,6 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                     <motion.div
                       className={cn(
                         "block text-2xl font-semibold absolute top-0 left-0 whitespace-nowrap",
-                        // slightly “inked” on hover; active stays grounded
                         isSwapping ? "opacity-100" : "opacity-0"
                       )}
                       initial={reduce ? false : { y: SWAP_Y, opacity: 0 }}
@@ -399,7 +528,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                       {item.label}
                     </motion.div>
 
-                    {/* Subtle “root line” underline on hover/active */}
+                    {/* underline */}
                     <motion.span
                       aria-hidden="true"
                       className="absolute left-0 right-6 -bottom-2 h-px bg-(--olivea-olive)/14 origin-left"
@@ -408,7 +537,10 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                         scaleX: isIntent ? 1 : 0,
                         opacity: isIntent ? 1 : 0,
                       }}
-                      transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
+                      transition={{
+                        duration: reduce ? 0 : 0.18,
+                        ease: EASE_OUT,
+                      }}
                     />
                   </motion.div>
                 </a>
@@ -448,11 +580,12 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                                 )}
                                 aria-current={isSubActive ? "page" : undefined}
                               >
-                                {/* Seed capsule marker */}
                                 <span
                                   className={cn(
                                     "absolute -left-3 top-[0.62em] h-1 w-2 rounded-full",
-                                    isSubActive ? "bg-(--olivea-olive)/40" : "bg-transparent"
+                                    isSubActive
+                                      ? "bg-(--olivea-olive)/40"
+                                      : "bg-transparent"
                                   )}
                                 />
                                 {sub.label}
