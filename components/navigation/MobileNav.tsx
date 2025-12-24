@@ -214,6 +214,22 @@ export function MobileNav({ isDrawerOpen }: Props) {
   const expandedW = Math.max(pillWReserve, pillWChat, ROW) + PAD * 2;
 
   const sideRight = pos.side === "right";
+    // ✅ Hide action dock while MobileSectionNav outline is open
+  const [outlineOpen, setOutlineOpen] = useState(false);
+
+  useEffect(() => {
+    const onOpen = () => setOutlineOpen(true);
+    const onClose = () => setOutlineOpen(false);
+
+    window.addEventListener("olivea:mobile-outline-open", onOpen);
+    window.addEventListener("olivea:mobile-outline-close", onClose);
+
+    return () => {
+      window.removeEventListener("olivea:mobile-outline-open", onOpen);
+      window.removeEventListener("olivea:mobile-outline-close", onClose);
+    };
+  }, []);
+
 
   /* ───────────────── chat availability ───────────────── */
   useEffect(() => {
@@ -363,7 +379,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
   const handleStyle = { touchAction: "none" } satisfies CSSProperties;
 
-  if (isDrawerOpen) return null;
+  if (isDrawerOpen || outlineOpen) return null;
 
   function ActionRow({
     tone,

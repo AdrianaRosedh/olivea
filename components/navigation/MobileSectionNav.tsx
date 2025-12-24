@@ -14,17 +14,16 @@ import { useNavigation } from "@/contexts/NavigationContext";
 export interface MobileSectionNavItem {
   id: string; // anchor id (must be unique in the DOM)
   label: string;
-  subs?: { id: string; label: string }[]; // optional nested anchors (we won’t show on mobile row)
+  subs?: { id: string; label: string }[];
 }
 
 type I18nText = { es: string; en: string };
 
 interface Props {
   items: MobileSectionNavItem[];
-  pageTitle: I18nText; // localized
+  pageTitle: I18nText;
   lang: "es" | "en";
   enableSheet?: boolean;
-  /** Default false on mobile bar: subs live in Outline, not the bar */
   enableSubRow?: boolean;
 }
 
@@ -34,8 +33,6 @@ interface Props {
 const MANUAL_MS = 900;
 const STABLE_MS = 220;
 const RAF_MIN_MS = 16;
-
-// Top row appears only at bottom; hide immediately on scroll up
 const BOTTOM_THRESHOLD_PX = 48;
 
 /* ===========================
@@ -89,12 +86,12 @@ export default function MobileSectionNav({
   pageTitle,
   lang,
   enableSheet = true,
-  enableSubRow = false, // ✅ default: don’t show subs on mobile bar
+  enableSubRow = false,
 }: Props) {
   const pathname = usePathname();
-  const { isManualNavigation, setIsManualNavigation, setActiveSection } = useNavigation();
+  const { isManualNavigation, setIsManualNavigation, setActiveSection } =
+    useNavigation();
 
-  // Flattened id list for scrollspy (mains + subs for picking active)
   const flatIds = useMemo(() => {
     const out: string[] = [];
     for (const it of items) {
@@ -107,28 +104,37 @@ export default function MobileSectionNav({
   const [activeId, setActiveId] = useState(items[0]?.id || "");
   const [open, setOpen] = useState(false);
 
-  // Top row visibility (only at bottom; hides on scroll up)
+  // ✅ helpers to coordinate with MobileNav (action dock)
+  const openSheet = useCallback(() => {
+    setOpen(true);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("olivea:mobile-outline-open"));
+    }
+  }, []);
+
+  const closeSheet = useCallback(() => {
+    setOpen(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("olivea:mobile-outline-close"));
+    }
+  }, []);
+
   const [showTopRow, setShowTopRow] = useState(false);
   const lastYRef = useRef(0);
   const showRef = useRef(false);
 
-  // For horizontal centering of active chip
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Hysteresis
   const pendingIdRef = useRef<string | null>(null);
   const pendingAtRef = useRef<number>(0);
 
-  // Scrollspy caches
   const allTargets = useRef<HTMLElement[]>([]);
   const tickingRef = useRef(false);
   const lastTsRef = useRef(0);
 
-  // Manual nav safety unlock
   const safetyTO = useRef<number | null>(null);
 
-  // Reduced motion / data saver
   const reduceMotion = useRef(false);
   const saveData = useRef(false);
 
@@ -146,12 +152,11 @@ export default function MobileSectionNav({
     return () => mql.removeEventListener?.("change", onMqlChange);
   }, []);
 
-  // Close sheet on route change
-  useEffect(() => setOpen(false), [pathname]);
+  // ✅ Close sheet on route change (and tell MobileNav)
+  useEffect(() => closeSheet(), [pathname, closeSheet]);
 
   const resolvedPageTitle = useMemo(() => pageTitle[lang], [pageTitle, lang]);
 
-  // Build target list (mains + subs)
   const rebuildTargets = useCallback(() => {
     if (!canUseDom()) return [] as HTMLElement[];
     const targets = flatIds
@@ -161,7 +166,6 @@ export default function MobileSectionNav({
     return targets;
   }, [flatIds]);
 
-  // Smooth scroll (native)
   const scrollToId = useCallback(
     (id: string) => {
       if (!canUseDom()) return;
@@ -204,7 +208,6 @@ export default function MobileSectionNav({
     [setIsManualNavigation, setActiveSection]
   );
 
-  // Active main (for centering)
   const activeMain = useMemo(() => {
     for (const m of items) {
       if (m.id === activeId) return m;
@@ -216,12 +219,11 @@ export default function MobileSectionNav({
   const handleTap = useCallback(
     (id: string) => {
       scrollToId(id);
-      setOpen(false);
+      closeSheet(); // ✅ also closes + notifies MobileNav
     },
-    [scrollToId]
+    [scrollToId, closeSheet]
   );
 
-  // Scrollspy (stable)
   useEffect(() => {
     if (!canUseDom()) return;
 
@@ -303,7 +305,6 @@ export default function MobileSectionNav({
     };
   }, [activeId, isManualNavigation, rebuildTargets, setActiveSection]);
 
-  // Center active chip horizontally (no side gutters; still centers nicely)
   useEffect(() => {
     const cont = containerRef.current;
     const btn = buttonRefs.current[activeMain?.id || activeId];
@@ -319,7 +320,6 @@ export default function MobileSectionNav({
     });
   }, [activeId, activeMain]);
 
-  // Top row visibility: show only at bottom; hide immediately on scroll up
   useEffect(() => {
     if (!canUseDom()) return;
 
@@ -365,7 +365,6 @@ export default function MobileSectionNav({
     };
   }, [pathname]);
 
-  // Cleanup
   useEffect(() => {
     return () => {
       if (safetyTO.current) {
@@ -373,6 +372,10 @@ export default function MobileSectionNav({
         safetyTO.current = null;
       }
       setSnapDisabled(false);
+      // ✅ ensure MobileNav gets released if component unmounts
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("olivea:mobile-outline-close"));
+      }
     };
   }, []);
 
@@ -384,14 +387,11 @@ export default function MobileSectionNav({
 
   return (
     <>
-      {/* Bottom bar: edge-to-edge + pinned to safe-area bottom */}
       <nav
         className={cn("fixed inset-x-0 bottom-0 z-96 lg:hidden", "pointer-events-none")}
         aria-label="Mobile section navigation"
       >
-        {/* ✅ No max width, no side px — true full width */}
         <div className="pointer-events-auto w-full pb-[env(safe-area-inset-bottom)]">
-          {/* ✅ Full width card, flush to edges */}
           <div
             className={cn(
               "w-full",
@@ -399,12 +399,9 @@ export default function MobileSectionNav({
               "ring-1 ring-(--olivea-olive)/18",
               "bg-(--olivea-cream)/80 backdrop-blur-md",
               "shadow-[0_18px_44px_rgba(18,24,16,0.12)]",
-              // keep the nice corners but let it hit edges:
-              // use rounded-t only so it feels “docked”
               "rounded-t-2xl"
             )}
           >
-            {/* Top row: only appears at bottom */}
             <AnimatePresence initial={false}>
               {showTopRow ? (
                 <motion.div
@@ -421,7 +418,7 @@ export default function MobileSectionNav({
                       "text-[13px] uppercase tracking-[0.36em]",
                       "text-(--olivea-olive)"
                     )}
-                    onClick={() => enableSheet && setOpen(true)}
+                    onClick={() => enableSheet && openSheet()}
                     aria-label="Open section outline"
                   >
                     <span className="block truncate">{resolvedPageTitle}</span>
@@ -435,7 +432,7 @@ export default function MobileSectionNav({
                     {enableSheet && (
                       <button
                         type="button"
-                        onClick={() => setOpen(true)}
+                        onClick={() => openSheet()}
                         className={cn(
                           "inline-flex items-center gap-2",
                           "rounded-xl px-3 py-2",
@@ -454,16 +451,9 @@ export default function MobileSectionNav({
               ) : null}
             </AnimatePresence>
 
-            {/* Main chips row (always visible) */}
             <div
               ref={containerRef}
-              className={cn(
-                "no-scrollbar flex gap-2 overflow-x-auto",
-                // ✅ full width padding, but no “side gaps” relative to screen
-                // (this is content padding, not outer margin)
-                "px-4",
-                showTopRow ? "mt-2 pb-3" : "mt-3 pb-3"
-              )}
+              className={cn("no-scrollbar flex gap-2 overflow-x-auto", "px-4", showTopRow ? "mt-2 pb-3" : "mt-3 pb-3")}
               role="tablist"
             >
               {items.map((m) => {
@@ -479,7 +469,6 @@ export default function MobileSectionNav({
                     role="tab"
                     aria-selected={isActive}
                     className={cn(
-                      // ✅ thinner + perfectly centered text
                       "shrink-0 inline-flex items-center justify-center",
                       "rounded-xl border",
                       "px-3 py-1.75",
@@ -496,7 +485,6 @@ export default function MobileSectionNav({
               })}
             </div>
 
-            {/* Sub row (disabled by default on mobile bar; keep for Outline if you ever want it) */}
             {enableSubRow && activeMain?.subs?.length ? (
               <div className="no-scrollbar -mt-1 flex gap-2 overflow-x-auto px-4 pb-3">
                 {activeMain.subs.map((s) => {
@@ -525,21 +513,20 @@ export default function MobileSectionNav({
         </div>
       </nav>
 
-      {/* Bottom Sheet Outline */}
       <AnimatePresence>
         {enableSheet && open ? (
           <>
             <motion.div
-              className="fixed inset-0 z-120 bg-black/30 backdrop-blur-[2px] lg:hidden"
+              className="fixed inset-0 z-999 bg-black/30 backdrop-blur-[2px] lg:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
+              onClick={() => closeSheet()}
               aria-hidden="true"
             />
 
             <motion.div
-              className={cn("fixed inset-x-0 bottom-0 z-121 lg:hidden", "pb-[env(safe-area-inset-bottom)]")}
+              className={cn("fixed inset-x-0 bottom-0 z-1000 lg:hidden", "pb-[env(safe-area-inset-bottom)]")}
               initial={{ y: 24, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 24, opacity: 0 }}
@@ -548,7 +535,6 @@ export default function MobileSectionNav({
               aria-modal="true"
               aria-label="Section outline"
             >
-              {/* ✅ Full width sheet (no mx/max caps) */}
               <div className="w-full px-3 pb-3">
                 <div
                   className={cn(
@@ -576,7 +562,7 @@ export default function MobileSectionNav({
                         "text-(--olivea-olive)",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)"
                       )}
-                      onClick={() => setOpen(false)}
+                      onClick={() => closeSheet()}
                       aria-label="Close outline"
                     >
                       <X className="h-5 w-5" />
@@ -599,42 +585,10 @@ export default function MobileSectionNav({
                                 : "bg-transparent border-(--olivea-olive)/18 hover:bg-(--olivea-olive)/8"
                             )}
                           >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)/80 truncate">
-                                  {m.label}
-                                </div>
-                              </div>
-                              <span className="text-[11px] tracking-[0.18em] text-(--olivea-olive)/55">
-                                {m.subs?.length ? `${m.subs.length}` : ""}
-                              </span>
+                            <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)/80 truncate">
+                              {m.label}
                             </div>
                           </button>
-
-                          {m.subs?.length ? (
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                              {m.subs.map((s) => {
-                                const isSubActive = activeId === s.id;
-                                return (
-                                  <button
-                                    key={s.id}
-                                    type="button"
-                                    onClick={() => handleTap(s.id)}
-                                    className={cn(
-                                      "rounded-2xl border px-3 py-2 text-left",
-                                      "text-[13px] leading-tight",
-                                      "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)",
-                                      isSubActive
-                                        ? "bg-(--olivea-olive) text-white border-(--olivea-olive)"
-                                        : "bg-(--olivea-cream)/60 text-(--olivea-olive) border-(--olivea-olive)/18 hover:bg-(--olivea-olive)/10"
-                                    )}
-                                  >
-                                    {s.label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          ) : null}
                         </div>
                       );
                     })}

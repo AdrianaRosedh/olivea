@@ -205,11 +205,19 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {/* MOBILE BOTTOM NAV */}
       {!isHome && isMobile && mobileNavItems.length > 0 && (
         <ClientOnly>
-          <div className="fixed bottom-0 inset-x-0 z-95 pointer-events-none">
-            <MobileSectionNav items={mobileNavItems} lang={pathLang} pageTitle={mobilePageTitle} enableSubRow={false}/>
+          {/* MobileSectionNav already uses fixed positioning internally.
+              Don't wrap it in a pointer-events-none fixed container. */}
+          <div className="relative z-300 lg:hidden">
+            <MobileSectionNav
+              items={mobileNavItems}
+              lang={pathLang}
+              pageTitle={mobilePageTitle}
+              enableSubRow={false}
+            />
           </div>
         </ClientOnly>
       )}
+
 
       {/* CHAT (singleton, only where it matters) */}
       {wantsChat && (

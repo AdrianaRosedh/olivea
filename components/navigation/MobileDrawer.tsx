@@ -134,7 +134,7 @@ export default function MobileDrawer({
     return [
       { href: `/${lang}/press`, label: lang === "es" ? "Prensa" : "Press" },
       { href: `/${lang}/sustainability`, label: lang === "es" ? "Filosofía" : "Philosophy" },
-      { href: `/${lang}/journal`, label: lang === "es" ? "Diario" : "Journal" },
+      { href: `/${lang}/journal`, label: lang === "es" ? "Cuaderno" : "Journal" },
       { href: `/${lang}/team`, label: lang === "es" ? "Equipo" : "Team" },    
       { href: `/${lang}/contact`, label: lang === "es" ? "Contáctanos" : "Contact" },
       { href: `/${lang}/carreras`, label: lang === "es" ? "Carreras" : "Careers"},
