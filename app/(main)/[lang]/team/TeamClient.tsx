@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import Link from "next/link";
 import {
   AnimatePresence,
   motion,
@@ -17,7 +18,7 @@ import {
   useMotionValue,
   type Variants,
 } from "framer-motion";
-import { X } from "lucide-react";
+import { X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { TEAM, type LeaderProfile } from "./teamData";
@@ -87,6 +88,26 @@ function useIsLg(): boolean | null {
   }, []);
 
   return isLg;
+}
+
+/* ---------------- modal helpers: dummy story ---------------- */
+
+function getModalDummy(lang: Lang, name: string) {
+  const es = [
+    `Este perfil está en construcción — pero el diseño ya es el final.`,
+    `Aquí irá una historia breve sobre ${name}: su rol, su enfoque, y cómo se conecta con el huerto.`,
+    `Agrega un detalle humano (origen, filosofía, método) + una nota concreta (por ejemplo, un ingrediente favorito de temporada).`,
+    `También puedes incluir responsabilidades clave, logros y una mini “firma” personal.`,
+  ].join(" ");
+
+  const en = [
+    `This profile is being built — but the layout is already in its final style.`,
+    `This is where a short story about ${name} will live: their role, their focus, and how it connects back to the garden.`,
+    `Add a human detail (origin, philosophy, method) plus one concrete touch (e.g. a favorite seasonal ingredient).`,
+    `You can also include key responsibilities, milestones, and a small personal signature.`,
+  ].join(" ");
+
+  return lang === "es" ? es : en;
 }
 
 /** Desktop vertical autoplay gallery (variable height per image) */
@@ -434,7 +455,10 @@ export default function TeamClient({
 
   // Desktop grouping stays
   const featured = useMemo(() => leadersSorted.slice(0, 3), [leadersSorted]);
-  const featuredIds = useMemo(() => new Set(featured.map((x) => x.id)), [featured]);
+  const featuredIds = useMemo(
+    () => new Set(featured.map((x) => x.id)),
+    [featured]
+  );
 
   const restVisible = useMemo(() => {
     return leadersSorted
@@ -738,11 +762,17 @@ export default function TeamClient({
 
                           <div className="mb-3">
                             <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
-                              {t(active.tag) || (lang === "es" ? "Equipo" : "Team")}
+                              {t(active.tag) ||
+                                (lang === "es" ? "Equipo" : "Team")}
                             </span>
                           </div>
 
-                          <button type="button" onClick={goToProfile} className="text-left">
+                          {/* ✅ name click goes to Linktree */}
+                          <button
+                            type="button"
+                            onClick={goToProfile}
+                            className="text-left"
+                          >
                             <h3
                               className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
                               style={{ fontFamily: "var(--font-serif)" }}
@@ -755,9 +785,44 @@ export default function TeamClient({
                             {t(active.role)} · {t(active.org)}
                           </div>
 
+                          {/* story: real if present, otherwise dummy so modal doesn't feel empty */}
                           <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
-                            {t(active.bio) || bioFallback}
+                            {(() => {
+                              const bio = (t(active.bio) || "").trim();
+                              if (!bio || bio.length < 28)
+                                return getModalDummy(lang, active.name);
+                              return bio;
+                            })() || bioFallback}
                           </p>
+
+                          {/* ✅ ONLY BUTTON: go to Linktree/profile page */}
+                          <div className="mt-7">
+                            <Link
+                              href={`/${lang}/team/${active.id}`}
+                              onClick={() => close()}
+                              className={cn(
+                                "inline-flex w-full items-center justify-center gap-2",
+                                "rounded-2xl px-5 py-3 text-sm font-semibold",
+                                "bg-(--olivea-olive) text-(--olivea-cream)",
+                                "ring-1 ring-black/10 hover:opacity-95 transition",
+                                "shadow-[0_18px_44px_-22px_rgba(0,0,0,0.35)]"
+                              )}
+                            >
+                              {lang === "es" ? "Ver perfil completo" : "View full profile"}
+                              <ArrowUpRight
+                                size={16}
+                                className="opacity-90"
+                                aria-hidden="true"
+                              />
+                            </Link>
+                          </div>
+
+                          {/* tiny hint (optional, keeps it feeling intentional) */}
+                          <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/45">
+                            {lang === "es"
+                              ? "El perfil completo vive en el Linktree."
+                              : "Full profile lives on the Linktree."}
+                          </div>
                         </div>
                       </div>
                     </div>
