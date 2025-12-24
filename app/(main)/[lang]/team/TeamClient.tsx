@@ -24,6 +24,8 @@ import { TEAM, type LeaderProfile } from "./teamData";
 import { useRouter, usePathname } from "next/navigation";
 
 import TeamDockLeft, { type TeamCategory } from "./TeamDockLeft";
+import TeamMobileNav from "./TeamMobileNav";
+import { NavigationProvider } from "@/contexts/NavigationContext";
 
 type Lang = "es" | "en";
 
@@ -41,22 +43,15 @@ type Category = TeamCategory;
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* ---------------- scroll-in animations ---------------- */
-/**
- * Per-card “enter” animation that triggers ONLY when the card scrolls into view.
- * Uses `custom` to stagger by index *within the currently visible group*.
- */
 const cardInV: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 26,            // slightly more travel
-  },
+  hidden: { opacity: 0, y: 26 },
   show: (i: number) => ({
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.9,                 // ⬅ slower, more cinematic
+      duration: 0.9,
       ease: EASE,
-      delay: Math.min(0.9, i * 0.1),  // ⬅ slower stagger
+      delay: Math.min(0.9, i * 0.1),
     },
   }),
 };
@@ -73,13 +68,25 @@ function leaderCategoryFromOrg(
   return "experience";
 }
 
-/**
- * Olivea The Experience appears in ALL filters.
- */
 function matchesFilter(leader: Leader, filter: Category): boolean {
   if (filter === "all") return true;
   const cat = leaderCategoryFromOrg(leader.org);
   return cat === filter || cat === "experience";
+}
+
+/* ---------------- breakpoint (prevents duplicate DOM ids) ---------------- */
+function useIsLg(): boolean | null {
+  const [isLg, setIsLg] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => setIsLg(mq.matches);
+    onChange();
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+
+  return isLg;
 }
 
 /** Desktop vertical autoplay gallery (variable height per image) */
@@ -242,12 +249,6 @@ function AutoSlideGalleryHorizontalVariableWidth({
   const [pausedUntil, setPausedUntil] = useState(0);
   const pause = (ms = 4500) => setPausedUntil(Date.now() + ms);
 
-  const getW = (src: string) => {
-    const r = ratios[src] ?? 0.75;
-    const w = Math.round(cardH * r);
-    return Math.max(minW, Math.min(maxW, w));
-  };
-
   const loopLen = useMemo(() => {
     return safe.reduce((acc, src) => {
       const r = ratios[src] ?? 0.75;
@@ -297,7 +298,10 @@ function AutoSlideGalleryHorizontalVariableWidth({
           <motion.div className="absolute inset-0 flex items-center" style={{ x }}>
             <div className="flex items-center" style={{ gap }}>
               {items.map((src, idx) => {
-                const w = getW(src);
+                const w = Math.max(
+                  180,
+                  Math.min(520, Math.round(cardH * (ratios[src] ?? 0.75)))
+                );
                 const isFocused = focusedIdx === idx;
 
                 return (
@@ -357,11 +361,7 @@ function LeaderCard({
     variants?: Variants;
     initial?: "hidden" | "show";
     whileInView?: "hidden" | "show";
-    viewport?: {
-      once?: boolean;
-      amount?: number;
-      margin?: string;
-    };
+    viewport?: { once?: boolean; amount?: number; margin?: string };
     custom?: number;
   };
 }) {
@@ -370,20 +370,16 @@ function LeaderCard({
       type="button"
       onClick={onOpen}
       className={cn(
-        // ✅ removed Tailwind `transition` (this was causing the flicker)
         "group relative overflow-hidden rounded-3xl ring-1 ring-black/10",
         className
       )}
-      // hover animation stays, with its own transition
       whileHover={{ y: -2, scale: 1.01 }}
       whileTap={{ scale: 0.995 }}
-      // ✅ keep hover transition local (don’t conflict with variants)
       transition={{ duration: 0.25, ease: EASE }}
       style={{ willChange: "transform, opacity" }}
       {...motionProps}
     >
       <div className="absolute inset-0 bg-white/35" />
-
       <div className="absolute inset-0">
         <Image
           src={l.avatar ?? "/images/team/persona.jpg"}
@@ -422,6 +418,7 @@ export default function TeamClient({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const isLg = useIsLg(); // ✅ ensures we don't render both grids
 
   const resolvedLang: Lang =
     pathname?.split("/")[1]?.toLowerCase().startsWith("es") ? "es" : "en";
@@ -435,11 +432,9 @@ export default function TeamClient({
 
   const [category, setCategory] = useState<Category>("all");
 
+  // Desktop grouping stays
   const featured = useMemo(() => leadersSorted.slice(0, 3), [leadersSorted]);
-  const featuredIds = useMemo(
-    () => new Set(featured.map((x) => x.id)),
-    [featured]
-  );
+  const featuredIds = useMemo(() => new Set(featured.map((x) => x.id)), [featured]);
 
   const restVisible = useMemo(() => {
     return leadersSorted
@@ -448,6 +443,11 @@ export default function TeamClient({
   }, [leadersSorted, featuredIds, category]);
 
   const dockCount = featured.length + restVisible.length;
+
+  // ✅ Mobile nav list should match what exists in DOM on mobile
+  const mobileLeaders = useMemo(() => {
+    return leadersSorted.filter((l) => matchesFilter(l, category));
+  }, [leadersSorted, category]);
 
   const [openId, setOpenId] = useState<string | null>(null);
   const active = leadersSorted.find((l) => l.id === openId) ?? null;
@@ -461,7 +461,6 @@ export default function TeamClient({
           : ["/images/team/persona.jpg"];
 
     const first = base[0] ?? "/images/team/persona.jpg";
-
     if (base.length >= 3) return base;
     if (base.length === 2) return [base[0], base[1], `${base[0]}?dup=1`];
     return [first, `${first}?dup=1`, `${first}?dup=2`];
@@ -498,285 +497,277 @@ export default function TeamClient({
       ? "Historia en desarrollo — pronto."
       : "Story in progress — coming soon.";
 
-  // Same geometry contract as PressClient
   const FULL_BLEED =
     "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
   const PAGE_PAD = "px-6 sm:px-10 md:px-12 lg:px-12";
   const RAIL = "max-w-[1400px]";
 
-  // Viewport settings: triggers when a card is meaningfully in view.
-const CARD_VIEWPORT = {
-  once: true,
-  amount: 0.22,                 // ⬅ trigger earlier
-  margin: "0px 0px -18% 0px",    // ⬅ begins before fully visible
-} as const;
+  const CARD_VIEWPORT = {
+    once: true,
+    amount: 0.22,
+    margin: "0px 0px -18% 0px",
+  } as const;
 
   return (
-    <main id="top" className="w-full pt-0 pb-36 sm:pb-24">
-      <TeamDockLeft
-        lang={lang}
-        category={category}
-        setCategory={setCategory}
-        count={dockCount}
-      />
+    <NavigationProvider>
+      <main id="top" className="w-full pt-0 pb-36 sm:pb-24">
+        <TeamDockLeft
+          lang={lang}
+          category={category}
+          setCategory={setCategory}
+          count={dockCount}
+        />
 
-      <section className="mt-0 sm:mt-2">
-        <div className={FULL_BLEED}>
-          <div className={PAGE_PAD}>
-            <div
-              className={cn(
-                `${RAIL} mx-auto`,
-                "md:ml-80 xl:ml-85",
-                "md:mr-(--dock-right)",
-                "pr-2 sm:pr-0"
-              )}
-            >
-              <h1 className="sr-only">
-                {team.leadersTitle ??
-                  (lang === "es" ? "Líderes de Olivea" : "Leaders of Olivea")}
-              </h1>
+        {/* ✅ Team MobileSectionNav */}
+        <TeamMobileNav lang={uiLang} leaders={mobileLeaders} />
 
-              {/* =========================
-                  DESKTOP ONLY
-                  ========================= */}
-              <div className="hidden lg:block">
-                {/* Featured row */}
-                <div className="mt-6 sm:mt-10">
-                  <div className="grid grid-cols-12 gap-6">
-                    {featured.map((l, idx) => (
-                      <LeaderCard
-                        key={l.id}
-                        l={l}
-                        roleText={t(l.role)}
-                        onOpen={() => setOpenId(l.id)}
-                        sizes="(max-width: 1200px) 33vw, 520px"
-                        className="col-span-4 h-85 xl:h-90"
-                        imageMode="cover"
-                        motionProps={{
-                          variants: cardInV,
-                          initial: "hidden",
-                          whileInView: "show",
-                          viewport: CARD_VIEWPORT,
-                          custom: idx, // stagger within this row
-                        }}
-                      />
-                    ))}
+        <section className="mt-0 sm:mt-2">
+          <div className={FULL_BLEED}>
+            <div className={PAGE_PAD}>
+              <div
+                className={cn(
+                  `${RAIL} mx-auto`,
+                  "md:ml-80 xl:ml-85",
+                  "md:mr-(--dock-right)",
+                  "pr-2 sm:pr-0"
+                )}
+              >
+                <h1 className="sr-only">
+                  {team.leadersTitle ??
+                    (lang === "es" ? "Líderes de Olivea" : "Leaders of Olivea")}
+                </h1>
+
+                {/* While breakpoint is unknown (first paint), don't render either grid → avoids duplicate ids */}
+                {isLg === null ? null : isLg ? (
+                  /* ========================= DESKTOP GRID (only rendered on lg+) ========================= */
+                  <div>
+                    <div className="mt-6 sm:mt-10">
+                      <div className="grid grid-cols-12 gap-6">
+                        {featured.map((l, idx) => (
+                          <div
+                            key={l.id}
+                            id={l.id}
+                            className={cn(
+                              "main-section",
+                              "scroll-mt-[calc(var(--header-h,64px)+18px)]",
+                              "col-span-4 h-85 xl:h-90"
+                            )}
+                          >
+                            <LeaderCard
+                              l={l}
+                              roleText={t(l.role)}
+                              onOpen={() => setOpenId(l.id)}
+                              sizes="(max-width: 1200px) 33vw, 520px"
+                              className="w-full h-full"
+                              imageMode="cover"
+                              motionProps={{
+                                variants: cardInV,
+                                initial: "hidden",
+                                whileInView: "show",
+                                viewport: CARD_VIEWPORT,
+                                custom: idx,
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-7 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
+                      {restVisible.map((l, idx) => (
+                        <div
+                          key={l.id}
+                          id={l.id}
+                          className={cn(
+                            "main-section",
+                            "scroll-mt-[calc(var(--header-h,64px)+18px)]",
+                            "col-span-3"
+                          )}
+                        >
+                          <LeaderCard
+                            l={l}
+                            roleText={t(l.role)}
+                            onOpen={() => setOpenId(l.id)}
+                            sizes="(max-width: 1200px) 25vw, 360px"
+                            className="w-full h-full"
+                            imageMode="contain"
+                            motionProps={{
+                              variants: cardInV,
+                              initial: "hidden",
+                              whileInView: "show",
+                              viewport: CARD_VIEWPORT,
+                              custom: idx % 4,
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                {/* Rest: 4 per row */}
-                <div className="mt-7 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
-                  {restVisible.map((l, idx) => (
-                    <LeaderCard
-                      key={l.id}
-                      l={l}
-                      roleText={t(l.role)}
-                      onOpen={() => setOpenId(l.id)}
-                      sizes="(max-width: 1200px) 25vw, 360px"
-                      className="col-span-3"
-                      imageMode="contain"
-                      motionProps={{
-                        variants: cardInV,
-                        initial: "hidden",
-                        whileInView: "show",
-                        viewport: CARD_VIEWPORT,
-                        // stagger feels best per-row; 4 columns => 0..3 repeating
-                        custom: idx % 4,
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* =========================
-                  MOBILE ONLY
-                  (prevents “double render”)
-                  ========================= */}
-              <div className="lg:hidden mt-4 grid grid-cols-1 gap-6 pb-28">
-                {[...featured, ...restVisible].map((l, idx) => (
-                  <motion.button
-                    key={l.id}
-                    type="button"
-                    onClick={() => setOpenId(l.id)}
-                    className="group relative overflow-hidden rounded-3xl ring-1 ring-black/10 w-full h-85"
-                    whileTap={{ scale: 0.995 }}
-                    transition={{ duration: 0.2, ease: EASE }}
-                    variants={cardInV}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={CARD_VIEWPORT}
-                    // light stagger on mobile as you scroll
-                    custom={idx % 6}
-                  >
-                    <div className="absolute inset-0 bg-white/35" />
-                    <div className="absolute inset-0">
-                      <Image
-                        src={l.avatar ?? "/images/team/persona.jpg"}
-                        alt={l.name}
-                        fill
-                        sizes="100vw"
-                        className="object-cover object-center"
-                      />
-                    </div>
-
-                    <div className="absolute left-4 right-4 bottom-4">
-                      <div className="flex items-stretch rounded-full bg-white/85 backdrop-blur ring-1 ring-black/10 overflow-hidden">
-                        <span className="shrink-0 inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-sm font-medium px-5 py-3 max-w-[46%]">
-                          <span className="block leading-none truncate whitespace-nowrap">
-                            {l.name}
-                          </span>
-                        </span>
-                        <span className="min-w-0 flex-1 px-4 py-2 text-sm text-(--olivea-ink)/70 text-left truncate">
-                          {t(l.role)}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MODAL */}
-      {portalReady &&
-        createPortal(
-          <AnimatePresence>
-            {(isOpen || present) && active && (
-              <>
-                <motion.div
-                  className="fixed inset-0 bg-black/55 backdrop-blur-sm"
-                  style={{ zIndex: 99998 }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isOpen ? 1 : 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.28, ease: EASE }}
-                  onClick={close}
-                  aria-hidden
-                />
-
-                <motion.div
-                  className="fixed inset-0 flex items-center justify-center p-3 sm:p-4"
-                  style={{ zIndex: 99999 }}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{
-                    opacity: isOpen ? 1 : 0,
-                    scale: isOpen ? 1 : 0.98,
-                  }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.35, ease: EASE }}
-                  onAnimationComplete={() => {
-                    if (!isOpen) setPresent(false);
-                  }}
-                  role="dialog"
-                  aria-modal="true"
-                  aria-label={active.name}
-                >
-                  <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
-                    <div className="grid h-full grid-cols-1 lg:grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
-                      <div className="hidden lg:block row-span-2 pl-6 pr-3">
-                        <AutoSlideGalleryVerticalVariableHeight
-                          images={modalImages.slice(0, 12)}
-                          width={260}
-                        />
-                      </div>
-
-                      <div className="relative h-12 flex items-center justify-center">
-                        <span
-                          className="uppercase tracking-[0.25em] text-(--olivea-ink)/70"
-                          style={{
-                            fontFamily: "var(--font-serif)",
-                            fontSize: 18,
-                            fontWeight: 200,
-                          }}
-                        >
-                          {lang === "es" ? "Perfil" : "Profile"}
-                        </span>
-
-                        <button
-                          ref={closeBtnRef}
-                          onClick={close}
-                          aria-label={lang === "es" ? "Cerrar" : "Close"}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
-                        >
-                          <X size={18} className="text-current" />
-                        </button>
-                      </div>
-
-                      <div
-                        className="px-6 py-8 overflow-auto lg:pl-10"
-                        onWheelCapture={(e) => e.stopPropagation()}
-                        style={{
-                          WebkitOverflowScrolling: "touch",
-                          overscrollBehavior: "contain",
-                        }}
+                ) : (
+                  /* ========================= MOBILE GRID (only rendered below lg) ========================= */
+                  <div className="mt-4 grid grid-cols-1 gap-6 pb-28">
+                    {mobileLeaders.map((l, idx) => (
+                      <motion.button
+                        key={l.id}
+                        id={l.id}
+                        type="button"
+                        onClick={() => setOpenId(l.id)}
+                        className={cn(
+                          "main-section",
+                          "scroll-mt-[calc(var(--header-h,64px)+18px)]",
+                          "group relative overflow-hidden rounded-3xl ring-1 ring-black/10 w-full h-85"
+                        )}
+                        whileTap={{ scale: 0.995 }}
+                        transition={{ duration: 0.2, ease: EASE }}
+                        variants={cardInV}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={CARD_VIEWPORT}
+                        custom={idx % 6}
                       >
-                        <div className="lg:hidden mb-6">
-                          <AutoSlideGalleryHorizontalVariableWidth
-                            images={modalImages.slice(0, 12)}
+                        <div className="absolute inset-0 bg-white/35" />
+                        <div className="absolute inset-0">
+                          <Image
+                            src={l.avatar ?? "/images/team/persona.jpg"}
+                            alt={l.name}
+                            fill
+                            sizes="100vw"
+                            className="object-cover object-center"
                           />
                         </div>
 
-                        <div className="mb-3">
-                          <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
-                            {t(active.tag) || (lang === "es" ? "Equipo" : "Team")}
-                          </span>
-                        </div>
-
-                        <button type="button" onClick={goToProfile} className="text-left">
-                          <h3
-                            className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
-                            style={{ fontFamily: "var(--font-serif)" }}
-                          >
-                            {active.name}
-                          </h3>
-                        </button>
-
-                        <div className="mt-1 text-sm text-(--olivea-ink)/70">
-                          {t(active.role)} · {t(active.org)}
-                        </div>
-
-                        <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
-                          {t(active.bio) || bioFallback}
-                        </p>
-
-                        <div className="mt-7">
-                          <button
-                            type="button"
-                            onClick={goToProfile}
-                            className={[
-                              "w-full sm:w-fit inline-flex items-center justify-center gap-2",
-                              "rounded-2xl px-5 py-3 ring-1 ring-black/10 transition",
-                              "bg-(--olivea-olive) text-(--olivea-cream)",
-                              "hover:brightness-[1.02] active:scale-[0.99]",
-                            ].join(" ")}
-                          >
-                            <span className="text-sm font-medium">
-                              {lang === "es" ? "Ver links" : "View links"}
+                        <div className="absolute left-4 right-4 bottom-4">
+                          <div className="flex items-stretch rounded-full bg-white/85 backdrop-blur ring-1 ring-black/10 overflow-hidden">
+                            <span className="shrink-0 inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-sm font-medium px-5 py-3 max-w-[46%]">
+                              <span className="block leading-none truncate whitespace-nowrap">
+                                {l.name}
+                              </span>
                             </span>
-                            <span className="opacity-90">↗</span>
-                          </button>
-
-                          <div className="mt-2 text-[12px] text-(--olivea-ink)/55">
-                            {lang === "es"
-                              ? "Abre el perfil tipo Linktree de este miembro del equipo."
-                              : "Opens this team member’s Linktree-style profile."}
+                            <span className="min-w-0 flex-1 px-4 py-2 text-sm text-(--olivea-ink)/70 text-left truncate">
+                              {t(l.role)}
+                            </span>
                           </div>
                         </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
-                        <div className="mt-7 inline-flex rounded-full px-4 py-1 text-xs text-(--olivea-ink)/65 ring-1 ring-black/10 w-fit bg-white/40">
-                          OLIVEA · {t(active.org)}
+        {/* MODAL */}
+        {portalReady &&
+          createPortal(
+            <AnimatePresence>
+              {(isOpen || present) && active && (
+                <>
+                  <motion.div
+                    className="fixed inset-0 bg-black/55 backdrop-blur-sm"
+                    style={{ zIndex: 99998 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: isOpen ? 1 : 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.28, ease: EASE }}
+                    onClick={close}
+                    aria-hidden
+                  />
+
+                  <motion.div
+                    className="fixed inset-0 flex items-center justify-center p-3 sm:p-4"
+                    style={{ zIndex: 99999 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{
+                      opacity: isOpen ? 1 : 0,
+                      scale: isOpen ? 1 : 0.98,
+                    }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                    onAnimationComplete={() => {
+                      if (!isOpen) setPresent(false);
+                    }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={active.name}
+                  >
+                    <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
+                      <div className="grid h-full grid-cols-1 lg:grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
+                        <div className="hidden lg:block row-span-2 pl-6 pr-3">
+                          <AutoSlideGalleryVerticalVariableHeight
+                            images={modalImages.slice(0, 12)}
+                            width={260}
+                          />
+                        </div>
+
+                        <div className="relative h-12 flex items-center justify-center">
+                          <span
+                            className="uppercase tracking-[0.25em] text-(--olivea-ink)/70"
+                            style={{
+                              fontFamily: "var(--font-serif)",
+                              fontSize: 18,
+                              fontWeight: 200,
+                            }}
+                          >
+                            {lang === "es" ? "Perfil" : "Profile"}
+                          </span>
+
+                          <button
+                            ref={closeBtnRef}
+                            onClick={close}
+                            aria-label={lang === "es" ? "Cerrar" : "Close"}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                          >
+                            <X size={18} className="text-current" />
+                          </button>
+                        </div>
+
+                        <div
+                          className="px-6 py-8 overflow-auto lg:pl-10"
+                          onWheelCapture={(e) => e.stopPropagation()}
+                          style={{
+                            WebkitOverflowScrolling: "touch",
+                            overscrollBehavior: "contain",
+                          }}
+                        >
+                          <div className="lg:hidden mb-6">
+                            <AutoSlideGalleryHorizontalVariableWidth
+                              images={modalImages.slice(0, 12)}
+                            />
+                          </div>
+
+                          <div className="mb-3">
+                            <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
+                              {t(active.tag) || (lang === "es" ? "Equipo" : "Team")}
+                            </span>
+                          </div>
+
+                          <button type="button" onClick={goToProfile} className="text-left">
+                            <h3
+                              className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
+                              style={{ fontFamily: "var(--font-serif)" }}
+                            >
+                              {active.name}
+                            </h3>
+                          </button>
+
+                          <div className="mt-1 text-sm text-(--olivea-ink)/70">
+                            {t(active.role)} · {t(active.org)}
+                          </div>
+
+                          <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
+                            {t(active.bio) || bioFallback}
+                          </p>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>,
-          document.body
-        )}
-    </main>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
+      </main>
+    </NavigationProvider>
   );
 }
