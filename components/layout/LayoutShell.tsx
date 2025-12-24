@@ -181,27 +181,26 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   // ✅ HYBRID: prefetch desktop-only chunks on desktop to reduce “late pop-in”
   useEffect(() => {
     if (isMobile) return;
-    
+
     const prefetch = () => {
       void import("@/components/layout/Footer");
       void import("@/components/navigation/DockRight");
-    void import("@/components/navigation/DockLeft");
+      void import("@/components/navigation/DockLeft");
       void import("@/components/ui/DesktopChatButton");
       void import("lucide-react");
     };
-  
+
     // Prefer idle to avoid competing with critical render
     const ric = (globalThis as typeof globalThis & {
       requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
     }).requestIdleCallback;
-  
+
     if (ric) {
       ric(prefetch, { timeout: 800 });
     } else {
-      setTimeout(prefetch, 60); // ✅ not window.setTimeout
+      setTimeout(prefetch, 60); // ✅ avoid window typing issues
     }
   }, [isMobile]);
-  
 
   // Lenis → CSS var (desktop only)
   useEffect(() => {
@@ -276,36 +275,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       if (isMobile) return [];
 
       return [
-        {
-          id: "press",
-          href: `/${pathLang}/press`,
-          label: dictionary.press.title,
-          icon: <AwardIcon />,
-        },
-        {
-          id: "sustainability",
-          href: `/${pathLang}/sustainability`,
-          label: dictionary.sustainability.title,
-          icon: <LeafIcon />,
-        },
-        {
-          id: "journal",
-          href: `/${pathLang}/journal`,
-          label: dictionary.journal.title,
-          icon: <BookOpenIcon />,
-        },
-        {
-          id: "team",
-          href: `/${pathLang}/team`,
-          label: dictionary.team.title,
-          icon: <UsersIcon />,
-        },
-        {
-          id: "contact",
-          href: `/${pathLang}/contact`,
-          label: dictionary.contact.title,
-          icon: <MapIcon />,
-        },
+        { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title, icon: <AwardIcon /> },
+        { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <LeafIcon /> },
+        { id: "journal", href: `/${pathLang}/journal`, label: dictionary.journal.title, icon: <BookOpenIcon /> },
+        { id: "team", href: `/${pathLang}/team`, label: dictionary.team.title, icon: <UsersIcon /> },
+        { id: "contact", href: `/${pathLang}/contact`, label: dictionary.contact.title, icon: <MapIcon /> },
       ];
     },
     [isMobile, pathLang, dictionary]
@@ -315,14 +289,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
   return (
     <>
-      {/* NAVBAR (KEEP AS-IS) */}
+      {/* NAVBAR (KEEP THIS EXACT PATTERN) */}
       {!isHome && (
         <ClientOnly>
-          {isMobile ? (
-            <MobileNavbar dictionary={dictionary} />
-          ) : (
-            <DesktopNavbar lang={lang} dictionary={dictionary} />
-          )}
+          {isMobile ? <MobileNavbar dictionary={dictionary} /> : <DesktopNavbar lang={lang} dictionary={dictionary} />}
         </ClientOnly>
       )}
 
@@ -342,10 +312,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         </SubtleContentFade>
       </main>
 
-      {/* FOOTER (KEEP CHANGE) */}
+      {/* FOOTER (YES) */}
       {!isHome && !isMobile && <Footer dict={dictionary} />}
 
-      {/* DESKTOP DOCKS (KEEP CHANGE) */}
+      {/* DESKTOP DOCKS (YES) */}
       {!isHome && !isMobile && (
         <>
           {identity && <DockLeft identity={identity} sectionsOverride={sectionsOverride ?? []} />}
@@ -376,7 +346,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
-      {/* Desktop chat trigger (KEEP AS-IS) */}
+      {/* Desktop chat trigger (KEEP THIS) */}
       {!isHome && !isMobile && (
         <ClientOnly>
           <DesktopChatButton lang={pathLang} />
