@@ -9,8 +9,9 @@ import {
   useTransform,
   AnimatePresence,
   MotionValue,
+  useReducedMotion,
 } from "framer-motion";
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -27,12 +28,35 @@ interface DockRightProps {
 
 export default function DockRight({ items }: DockRightProps) {
   const pathname = usePathname();
+  const reduce = useReducedMotion();
+
+  // When not hovering, keep mouseY at Infinity so items settle into base size
   const mouseY: MotionValue<number> = useMotionValue(Number.POSITIVE_INFINITY);
+  const [hovering, setHovering] = useState(false);
+
+  const onEnter = useCallback(() => {
+    if (reduce) return;
+    setHovering(true);
+  }, [reduce]);
+
+  const onLeave = useCallback(() => {
+    setHovering(false);
+    mouseY.set(Number.POSITIVE_INFINITY);
+  }, [mouseY]);
+
+  const onMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!hovering) return;
+      mouseY.set(e.clientY);
+    },
+    [hovering, mouseY]
+  );
 
   return (
     <motion.div
-      onMouseMove={(e) => mouseY.set(e.clientY)}
-      onMouseLeave={() => mouseY.set(Number.POSITIVE_INFINITY)}
+      onPointerEnter={onEnter}
+      onPointerLeave={onLeave}
+      onPointerMove={onMove}
       className="fixed top-1/2 right-6 -translate-y-1/2 z-60 hidden md:flex flex-col gap-6 items-end"
       aria-label="Quick navigation"
     >
@@ -48,6 +72,7 @@ export default function DockRight({ items }: DockRightProps) {
             item={item}
             active={active}
             mouseY={mouseY}
+            reduce={!!reduce}
           />
         );
       })}
@@ -70,10 +95,12 @@ function IconContainer({
   item,
   active,
   mouseY,
+  reduce,
 }: {
   item: DockRightItem;
   active: boolean;
   mouseY: MotionValue<number>;
+  reduce: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const centerY = useRef(0);
@@ -92,11 +119,12 @@ function IconContainer({
     };
 
     update();
-    window.addEventListener("resize", update);
+    window.addEventListener("resize", update, { passive: true });
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const distance = useTransform(mouseY, (y) => y - centerY.current);
+  // If reduced motion, skip live transforms
+  const distance = useTransform(mouseY, (y) => (reduce ? 0 : y - centerY.current));
 
   const containerSize = useTransform(distance, [-180, 0, 180], [56, 78, 56], {
     clamp: true,

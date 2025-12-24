@@ -1,14 +1,11 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import MobileAudioFeedback           from "@/components/ui/MobileAudioFeedback";
-import NextGenBackgroundInitializer  from "@/components/animations/NextGenBackgroundInitializer";
-import NextGenBackground             from "@/components/animations/NextGenBackground";
+import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback";
 
 interface ClientProvidersProps {
   children: ReactNode;
 }
-
 export default function ClientProviders({ children }: ClientProvidersProps) {
   const [mounted, setMounted]   = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -28,11 +25,7 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
 
   return (
     <>
-      {/* 1) Wire up Lenis scroll → background events */}
-      <NextGenBackgroundInitializer />
 
-      {/* 2) Render the scroll‐driven background layer */}
-      <NextGenBackground />
 
       {/* 3) Trigger audio feedback on mobile when sections come into view */}
       {isMobile && <MobileAudioFeedback />}

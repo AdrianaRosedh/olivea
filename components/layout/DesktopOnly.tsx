@@ -1,12 +1,11 @@
+// components/layout/DesktopOnly.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 
 type Props = {
   children: React.ReactNode;
-  /** Tailwind md = 768 by default */
-  minWidth?: number;
-  /** Optional: render this while detecting (defaults to null) */
+  minWidth?: number; // default md
   fallback?: React.ReactNode;
 };
 
@@ -15,26 +14,28 @@ export default function DesktopOnly({
   minWidth = 768,
   fallback = null,
 }: Props) {
-  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+  const get = () =>
+    typeof window !== "undefined"
+      ? window.matchMedia(`(min-width: ${minWidth}px)`).matches
+      : false;
+
+  // ✅ immediate correct value on first render
+  const [isDesktop, setIsDesktop] = useState<boolean>(get);
 
   useEffect(() => {
     const mq = window.matchMedia(`(min-width: ${minWidth}px)`);
+    const onChange = () => setIsDesktop(mq.matches);
+    onChange();
 
-    const update = () => setIsDesktop(mq.matches);
-    update();
-
-    // Safari fallback
     if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", update);
-      return () => mq.removeEventListener("change", update);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
     } else {
-      mq.addListener(update);
-      return () => mq.removeListener(update);
+      mq.addListener(onChange);
+      return () => mq.removeListener(onChange);
     }
   }, [minWidth]);
 
-  if (isDesktop === null) return <>{fallback}</>;
-  if (!isDesktop) return null;
-
+  if (!isDesktop) return <>{fallback}</>;
   return <>{children}</>;
 }
