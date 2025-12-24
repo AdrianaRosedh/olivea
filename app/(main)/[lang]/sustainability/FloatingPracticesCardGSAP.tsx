@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import type { PhilosophySection, Lang } from "./philosophyTypes";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Keep this if you like; it’s fine.
+// optional; ok to keep
 gsap.ticker.lagSmoothing(1000, 16);
 
 function tt(lang: Lang, es: string, en: string) {
@@ -40,11 +40,7 @@ function Dot() {
     <span
       aria-hidden="true"
       className="mt-1.5 h-1.5 w-1.5 rounded-full bg-(--olivea-olive) opacity-60"
-      style={{
-        // Helps prevent dot shimmer too
-        transform: "translateZ(0)",
-        backfaceVisibility: "hidden",
-      }}
+      style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
     />
   );
 }
@@ -60,7 +56,6 @@ function PracticesContent({
 
   return (
     <div className="px-6 py-5">
-      {/* Label row */}
       <div className="flex items-center gap-4">
         <div
           className="text-[11px] uppercase tracking-[0.42em] text-(--olivea-olive)"
@@ -71,7 +66,6 @@ function PracticesContent({
         <div className="h-px flex-1 bg-(--olivea-olive)/25" />
       </div>
 
-      {/* Body */}
       {hasItems ? (
         <ul
           className="mt-4 space-y-3 text-[15px] leading-[1.65]"
@@ -96,6 +90,295 @@ function PracticesContent({
   );
 }
 
+/* ---------------- Mobile accordion (smooth open + stagger text) ---------------- */
+
+function MobilePracticesAccordion({
+  lang,
+  sections,
+}: {
+  lang: Lang;
+  sections: PhilosophySection[];
+}) {
+  const title = tt(lang, "Prácticas", "Practices");
+  const viewLabel = tt(lang, "Ver", "View");
+
+  // start closed (recommended)
+  const [openId, setOpenId] = useState<string>("");
+
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false
+    );
+  }, []);
+
+  // per-card refs
+  const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const tlRefs = useRef<Record<string, gsap.core.Timeline | null>>({});
+
+  const setPanelRef = useCallback((id: string) => {
+    return (el: HTMLDivElement | null) => {
+      panelRefs.current[id] = el;
+    };
+  }, []);
+
+  // init: force all panels collapsed and content hidden (prevents first-tap pop)
+  useEffect(() => {
+    for (const s of sections) {
+      const panel = panelRefs.current[s.id];
+      if (!panel) continue;
+
+      gsap.set(panel, { height: 0, overflow: "hidden" });
+
+      const inner = panel.querySelector<HTMLElement>("[data-panel-inner]");
+      if (inner) gsap.set(inner, { opacity: 0, y: 10 });
+
+      const items = panel.querySelectorAll<HTMLElement>("[data-practice-item]");
+      if (items.length) gsap.set(items, { opacity: 0, y: 10 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const animateOpen = useCallback(
+    (id: string) => {
+      const panel = panelRefs.current[id];
+      if (!panel) return;
+
+      const inner = panel.querySelector<HTMLElement>("[data-panel-inner]");
+      const items = panel.querySelectorAll<HTMLElement>("[data-practice-item]");
+
+      // kill in-flight
+      tlRefs.current[id]?.kill();
+      tlRefs.current[id] = null;
+
+      // ensure collapsed baseline
+      gsap.set(panel, { overflow: "hidden" });
+      gsap.set(panel, { height: 0 });
+
+      // keep content hidden at start
+      if (inner) gsap.set(inner, { opacity: 0, y: 10 });
+      if (items.length) gsap.set(items, { opacity: 0, y: 10 });
+
+      // IMPORTANT: measure AFTER DOM is in "open" state (content exists),
+      // but while height is 0; scrollHeight still gives target.
+      const target = Math.ceil(panel.scrollHeight);
+
+      if (prefersReducedMotion) {
+        gsap.set(panel, { height: "auto" });
+        if (inner) gsap.set(inner, { opacity: 1, y: 0 });
+        if (items.length) gsap.set(items, { opacity: 1, y: 0 });
+        return;
+      }
+
+      const tl = gsap.timeline({ defaults: { overwrite: "auto" } });
+      tlRefs.current[id] = tl;
+
+      // 1) grow the card (visible growth)
+      tl.to(panel, { height: target, duration: 0.55, ease: "power3.out" }, 0);
+
+      // 2) reveal inner after growth begins (feels intentional)
+      if (inner) {
+        tl.to(inner, { opacity: 1, y: 0, duration: 0.38, ease: "power2.out" }, 0.14);
+      }
+
+      // 3) stagger bullet lines
+      if (items.length) {
+        tl.to(
+          items,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.32,
+            ease: "power2.out",
+            stagger: 0.055,
+          },
+          0.18
+        );
+      }
+
+      // 4) after animation, allow auto height for orientation/font changes
+      tl.set(panel, { height: "auto" }, ">");
+    },
+    [prefersReducedMotion]
+  );
+
+  const animateClose = useCallback(
+    (id: string) => {
+      const panel = panelRefs.current[id];
+      if (!panel) return;
+
+      const inner = panel.querySelector<HTMLElement>("[data-panel-inner]");
+      const items = panel.querySelectorAll<HTMLElement>("[data-practice-item]");
+
+      tlRefs.current[id]?.kill();
+      tlRefs.current[id] = null;
+
+      if (prefersReducedMotion) {
+        gsap.set(panel, { height: 0, overflow: "hidden" });
+        if (inner) gsap.set(inner, { opacity: 0, y: 10 });
+        if (items.length) gsap.set(items, { opacity: 0, y: 10 });
+        return;
+      }
+
+      // lock current pixel height (because it may be auto)
+      const current = Math.ceil(panel.getBoundingClientRect().height);
+      gsap.set(panel, { height: current, overflow: "hidden" });
+
+      const tl = gsap.timeline({ defaults: { overwrite: "auto" } });
+      tlRefs.current[id] = tl;
+
+      // fade text out slightly before collapse
+      if (items.length) {
+        tl.to(
+          items,
+          {
+            opacity: 0,
+            y: 6,
+            duration: 0.16,
+            ease: "power2.out",
+            stagger: { each: 0.025, from: "end" },
+          },
+          0
+        );
+      }
+      if (inner) {
+        tl.to(inner, { opacity: 0, y: 6, duration: 0.20, ease: "power2.out" }, 0.02);
+      }
+
+      // then collapse
+      tl.to(panel, { height: 0, duration: 0.36, ease: "power3.inOut" }, 0.05);
+    },
+    [prefersReducedMotion]
+  );
+
+  const toggle = useCallback(
+    (id: string) => {
+      const next = openId === id ? "" : id;
+
+      // close currently open
+      if (openId) animateClose(openId);
+
+      setOpenId(next);
+
+      // open new
+      if (next) {
+        // ensure next tick so layout has settled
+        requestAnimationFrame(() => animateOpen(next));
+      }
+    },
+    [openId, animateOpen, animateClose]
+  );
+
+  return (
+    <div className="lg:hidden px-4 pb-6">
+      <div className="space-y-3">
+        {sections.map((s) => {
+          const isOpen = openId === s.id;
+          const items = s.practices ?? [];
+          const panelId = `practices-panel-${s.id}`;
+
+          return (
+            <div
+              key={s.id}
+              className={[
+                "rounded-2xl overflow-hidden",
+                "bg-(--olivea-cream)/70",
+                "ring-1 ring-(--olivea-olive)/18",
+                "shadow-[0_14px_34px_rgba(18,24,16,0.08)]",
+              ].join(" ")}
+              style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
+            >
+              {/* Header */}
+              <button
+                type="button"
+                onClick={() => toggle(s.id)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="text-[11px] uppercase tracking-[0.42em] text-(--olivea-olive)"
+                      style={{ opacity: 0.85 }}
+                    >
+                      {title}
+                    </div>
+                    <div className="h-px flex-1 bg-(--olivea-olive)/18" />
+                  </div>
+
+                  <div className="mt-3 text-[12px] uppercase tracking-[0.32em] text-(--olivea-olive)/70">
+                    {tt(lang, "Capítulo", "Chapter")}{" "}
+                    {String(s.order ?? "").padStart(2, "0")}
+                  </div>
+
+                  <div className="mt-2 text-[18px] leading-tight text-(--olivea-olive) font-medium">
+                    {s.title}
+                  </div>
+                </div>
+
+                <div className="shrink-0 flex items-center gap-3">
+                  <span className="text-[14px] text-(--olivea-olive)/65">
+                    {viewLabel}
+                  </span>
+
+                  <span
+                    aria-hidden="true"
+                    className="h-9 w-9 rounded-full ring-1 ring-(--olivea-olive)/18 bg-white/35 flex items-center justify-center"
+                  >
+                    <span
+                      className="block h-2.5 w-2.5 border-r border-b border-(--olivea-olive)/70"
+                      style={{
+                        transform: isOpen
+                          ? "rotate(-135deg) translateY(1px)"
+                          : "rotate(45deg) translateY(-1px)",
+                        transition: "transform 180ms ease",
+                      }}
+                    />
+                  </span>
+                </div>
+              </button>
+
+              {/* Expandable panel — THIS is what grows */}
+              <div
+                id={panelId}
+                ref={setPanelRef(s.id)}
+                className="border-t border-(--olivea-olive)/12 will-change-[height]"
+                style={{ height: 0, overflow: "hidden" }}
+              >
+                <div data-panel-inner className="px-6 pb-5">
+                  {items.length ? (
+                    <ul
+                      className="pt-4 space-y-3 text-[15px] leading-[1.65]"
+                      style={{ color: INK }}
+                    >
+                      {items.map((x) => (
+                        <li key={x} data-practice-item className="flex gap-3">
+                          <Dot />
+                          <span className="flex-1">{x}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div
+                      className="pt-4 text-[15px] leading-[1.65]"
+                      style={{ color: INK_SOFT }}
+                    >
+                      —
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Desktop floating card (GSAP) ---------------- */
+
 export default function FloatingPracticesCardGSAP({
   lang,
   sections,
@@ -108,6 +391,33 @@ export default function FloatingPracticesCardGSAP({
     sections.forEach((s) => m.set(s.id, s));
     return m;
   }, [sections]);
+
+  /* ---- DESKTOP-ONLY SWITCH (prevents heavy work on phones) ---- */
+  const [isDesktop, setIsDesktop] = useState(false);
+  const isDesktopRef = useRef(false);
+
+  const triggersRef = useRef<ScrollTrigger[]>([]);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const sync = () => {
+      setIsDesktop(mq.matches);
+      isDesktopRef.current = mq.matches;
+    };
+
+    sync();
+
+    if (mq.addEventListener) mq.addEventListener("change", sync);
+    else mq.addListener(sync);
+
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", sync);
+      else mq.removeListener(sync);
+    };
+  }, []);
 
   const [activeId, setActiveId] = useState<string>(sections[0]?.id ?? "");
   const [frontId, setFrontId] = useState<string>(sections[0]?.id ?? "");
@@ -138,19 +448,39 @@ export default function FloatingPracticesCardGSAP({
     return { left: r.left, width: r.width };
   };
 
-  // initial hidden (NO blur filter here → prevents text shimmer)
+  // When leaving desktop, HARD kill all GSAP work from this component
   useEffect(() => {
+    if (isDesktop) return;
+
+    setEnabled(false);
+
+    tlRef.current?.kill();
+    tlRef.current = null;
+
+    triggersRef.current.forEach((t) => t.kill());
+    triggersRef.current = [];
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = 0;
+
+    if (wrapRef.current) {
+      gsap.set(wrapRef.current, { opacity: 0, clearProps: "x,width,y" });
+    }
+  }, [isDesktop]);
+
+  // initial hidden (desktop only)
+  useEffect(() => {
+    if (!isDesktop) return;
     const wrap = wrapRef.current;
     if (!wrap) return;
 
-    gsap.set(wrap, {
-      opacity: 0,
-      y: STICKY_TOP + REVEAL_OFFSET_Y,
-    });
-  }, []);
+    gsap.set(wrap, { opacity: 0, y: STICKY_TOP + REVEAL_OFFSET_Y });
+  }, [isDesktop]);
 
-  // Reveal/hide
+  // Reveal/hide (desktop only)
   useEffect(() => {
+    if (!isDesktop) return;
+
     const wrap = wrapRef.current;
     if (!wrap) return;
 
@@ -160,6 +490,7 @@ export default function FloatingPracticesCardGSAP({
     if (!firstMarker) return;
 
     const show = () => {
+      if (!isDesktopRef.current) return;
       if (enabledRef.current) return;
       setEnabled(true);
 
@@ -199,12 +530,21 @@ export default function FloatingPracticesCardGSAP({
       onLeaveBack: hide,
     });
 
-    requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => st.kill();
-  }, [activeId, frontId]);
+    triggersRef.current.push(st);
+    rafRef.current = requestAnimationFrame(() => ScrollTrigger.refresh());
 
-  // Deterministic switching
+    return () => {
+      st.kill();
+      triggersRef.current = triggersRef.current.filter((x) => x !== st);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    };
+  }, [isDesktop, activeId, frontId]);
+
+  // Deterministic switching (desktop only)
   useEffect(() => {
+    if (!isDesktop) return;
+
     const markers = Array.from(
       document.querySelectorAll<HTMLElement>(
         "[data-practices-switch][data-section-id]"
@@ -212,33 +552,47 @@ export default function FloatingPracticesCardGSAP({
     );
     if (!markers.length) return;
 
-    const triggers: ScrollTrigger[] = [];
+    const local: ScrollTrigger[] = [];
 
     for (const el of markers) {
       const id = el.dataset.sectionId;
       if (!id) continue;
 
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: el,
-          start: () => `top top+=${PICK_LINE}`,
-          onEnter: () => enabledRef.current && setActiveId(id),
-          onEnterBack: () => enabledRef.current && setActiveId(id),
-        })
-      );
+      const st = ScrollTrigger.create({
+        trigger: el,
+        start: () => `top top+=${PICK_LINE}`,
+        onEnter: () =>
+          enabledRef.current && isDesktopRef.current && setActiveId(id),
+        onEnterBack: () =>
+          enabledRef.current && isDesktopRef.current && setActiveId(id),
+      });
+
+      local.push(st);
+      triggersRef.current.push(st);
     }
 
-    requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => triggers.forEach((t) => t.kill());
-  }, []);
+    rafRef.current = requestAnimationFrame(() => ScrollTrigger.refresh());
 
-  // Align on resize
+    return () => {
+      local.forEach((t) => t.kill());
+      triggersRef.current = triggersRef.current.filter(
+        (t) => !local.includes(t)
+      );
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    };
+  }, [isDesktop]);
+
+  // Align on resize (desktop only)
   useEffect(() => {
+    if (!isDesktop) return;
     if (!enabled) return;
+
     const wrap = wrapRef.current;
     if (!wrap) return;
 
     const onResize = () => {
+      if (!isDesktopRef.current) return;
       const ar = getAnchorRect(activeId);
       if (!ar) return;
       gsap.set(wrap, { x: ar.left, width: ar.width, y: STICKY_TOP });
@@ -246,10 +600,11 @@ export default function FloatingPracticesCardGSAP({
 
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [enabled, activeId]);
+  }, [isDesktop, enabled, activeId]);
 
-  // Morph on active change (dual-layer)
+  // Morph on active change (desktop only)
   useEffect(() => {
+    if (!isDesktop) return;
     if (!enabled) return;
     if (!activeId) return;
     if (activeId === frontId) return;
@@ -271,8 +626,8 @@ export default function FloatingPracticesCardGSAP({
 
     setBackId(activeId);
 
-    let raf = 0;
-    raf = window.requestAnimationFrame(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = window.requestAnimationFrame(() => {
       const frontH = mf.getBoundingClientRect().height;
       const backH = mb.getBoundingClientRect().height;
 
@@ -297,14 +652,13 @@ export default function FloatingPracticesCardGSAP({
         0
       );
 
-      tl.to(
-        card,
-        { height: backH, duration: RESIZE_DUR, ease: EASE },
-        0
-      );
+      tl.to(card, { height: backH, duration: RESIZE_DUR, ease: EASE }, 0);
 
-      // Only opacity crossfade (no scale, no filter) → stable text
-      tl.to(front, { opacity: 0, duration: TEXT_FADE_DUR, ease: "power2.out" }, 0.12);
+      tl.to(
+        front,
+        { opacity: 0, duration: TEXT_FADE_DUR, ease: "power2.out" },
+        0.12
+      );
       tl.fromTo(
         back,
         { opacity: 0 },
@@ -314,9 +668,10 @@ export default function FloatingPracticesCardGSAP({
     });
 
     return () => {
-      if (raf) cancelAnimationFrame(raf);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
     };
-  }, [enabled, activeId, frontId]);
+  }, [isDesktop, enabled, activeId, frontId]);
 
   const frontSection = sectionById.get(frontId);
   const backSection = sectionById.get(backId);
@@ -325,6 +680,10 @@ export default function FloatingPracticesCardGSAP({
 
   return (
     <>
+      {/* ✅ Mobile: light accordion only */}
+      <MobilePracticesAccordion lang={lang} sections={sections} />
+
+      {/* ✅ Desktop: floating card only (and GSAP only runs on desktop) */}
       <div
         ref={wrapRef}
         className="pointer-events-none fixed z-80 hidden lg:block"
