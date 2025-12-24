@@ -85,6 +85,28 @@ export default function PressDockLeft({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetTab, setSheetTab] = useState<"filters" | "jump">("filters");
 
+  // ✅ Desktop gate (prevents desktop behaviors from running on mobile)
+  const [isDesktop, setIsDesktop] = useState(false);
+  const isDesktopRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 768px)"); // Tailwind md
+    const sync = () => {
+      setIsDesktop(mq.matches);
+      isDesktopRef.current = mq.matches;
+    };
+    sync();
+
+    if (mq.addEventListener) mq.addEventListener("change", sync);
+    else mq.addListener(sync);
+
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", sync);
+      else mq.removeListener(sync);
+    };
+  }, []);
+
   // ✅ mobile bar hide/show (Safari-like)
   const { scrollY } = useScroll();
   const lastY = useRef<number>(0);
@@ -97,6 +119,9 @@ export default function PressDockLeft({
   }, []);
 
   useMotionValueEvent(scrollY, "change", (y) => {
+    // ✅ MOBILE ONLY
+    if (isDesktopRef.current) return;
+
     const prev = lastY.current;
     lastY.current = y;
 
@@ -214,8 +239,11 @@ export default function PressDockLeft({
   const topYearPicks = years.slice(0, 4);
 
   // ---- Smooth scroll to section (GSAP) ----
+  // ✅ DESKTOP ONLY (prevents bleed + keeps mobile interaction simple)
   const scrollToSection = useCallback(
     (id: string) => {
+      if (!isDesktopRef.current) return;
+
       const el =
         document.querySelector<HTMLElement>(`#${CSS.escape(id)}`) ||
         document.getElementById(id);
@@ -248,14 +276,33 @@ export default function PressDockLeft({
   const onNav = useCallback(
     (e: React.MouseEvent, id: string) => {
       e.preventDefault();
+
+      // ✅ mobile: native smooth scroll (no GSAP)
+      if (!isDesktopRef.current) {
+        const el =
+          document.querySelector<HTMLElement>(`#${CSS.escape(id)}`) ||
+          document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({
+            behavior: reduce ? "auto" : "smooth",
+            block: "start",
+          });
+        }
+        setSheetOpen(false);
+        return;
+      }
+
+      // ✅ desktop: GSAP
       scrollToSection(id);
       setSheetOpen(false);
     },
-    [scrollToSection]
+    [reduce, scrollToSection]
   );
 
-  // deep link on mount
+  // deep link on mount — ✅ DESKTOP ONLY
   useEffect(() => {
+    if (!isDesktop) return;
+
     const hash = window.location.hash.slice(1);
     if (!hash) return;
 
@@ -268,7 +315,7 @@ export default function PressDockLeft({
     };
     kick();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isDesktop]);
 
   useEffect(() => {
     return () => {
@@ -287,7 +334,7 @@ export default function PressDockLeft({
   }, [sheetOpen]);
 
   /* =========================
-     MOBILE UI (md:hidden) — fixed overlay + spacer
+     MOBILE UI (md:hidden) — MATCH TeamDockLeft colors EXACTLY
      ========================= */
 
   const TOP_OFFSET_CLASS = "top-14"; // adjust if your main navbar height differs
@@ -300,7 +347,7 @@ export default function PressDockLeft({
 
       <motion.div
         className={cn(
-          "md:hidden fixed left-0 right-0 z-40",
+          "md:hidden fixed left-0 right-0 z-210",
           TOP_OFFSET_CLASS,
           "pointer-events-none"
         )}
@@ -315,11 +362,23 @@ export default function PressDockLeft({
         }}
       >
         <div className="px-3 pt-2 pointer-events-auto">
-          <div className="rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 backdrop-blur-[10px] shadow-[0_10px_24px_rgba(40,60,35,0.10)]">
+          <div
+            className={cn(
+              "rounded-2xl",
+              "bg-(--olivea-cream)/72 backdrop-blur-md",
+              "ring-1 ring-(--olivea-olive)/14",
+              "shadow-[0_10px_30px_rgba(18,24,16,0.10)]"
+            )}
+          >
             <div className="px-2.5 py-2 flex items-center gap-2">
               {/* Search */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 rounded-full bg-white/35 ring-1 ring-(--olivea-olive)/14 px-3 py-2">
+                <div
+                  className={cn(
+                    "flex items-center gap-2 rounded-full px-3 py-2",
+                    "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md"
+                  )}
+                >
                   <Search className="h-4 w-4 opacity-70 shrink-0 text-(--olivea-olive)" />
                   <input
                     value={q}
@@ -338,7 +397,7 @@ export default function PressDockLeft({
                       className={cn(
                         "inline-flex items-center justify-center",
                         "h-7 w-7 rounded-full",
-                        "bg-white/35 ring-1 ring-(--olivea-olive)/12",
+                        "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/12 backdrop-blur-md",
                         "text-(--olivea-olive) opacity-80 hover:opacity-100 transition"
                       )}
                       aria-label={tt(lang, "Borrar", "Clear")}
@@ -363,7 +422,7 @@ export default function PressDockLeft({
                   className={cn(
                     "inline-flex items-center justify-center",
                     "h-10 w-10 rounded-full",
-                    "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                    "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
                     "text-(--olivea-olive) hover:bg-white/45 transition"
                   )}
                   aria-label={tt(lang, "Limpiar filtros", "Reset filters")}
@@ -383,7 +442,7 @@ export default function PressDockLeft({
                 className={cn(
                   "inline-flex items-center justify-center",
                   "h-10 w-10 rounded-full",
-                  "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                  "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
                   "text-(--olivea-olive) hover:bg-white/45 transition"
                 )}
                 aria-label={tt(lang, "Filtros", "Filters")}
@@ -402,7 +461,7 @@ export default function PressDockLeft({
                 className={cn(
                   "inline-flex items-center justify-center",
                   "h-10 w-10 rounded-full",
-                  "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                  "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
                   "text-(--olivea-olive) hover:bg-white/45 transition"
                 )}
                 aria-label={tt(lang, "Secciones", "Sections")}
@@ -421,7 +480,7 @@ export default function PressDockLeft({
               {/* overlay */}
               <motion.button
                 type="button"
-                className="fixed inset-0 z-40 bg-black/25 pointer-events-auto"
+                className="fixed inset-0 z-220 bg-black/25 pointer-events-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -432,9 +491,11 @@ export default function PressDockLeft({
               {/* sheet */}
               <motion.div
                 className={cn(
-                  "fixed z-50 left-0 right-0 bottom-0 pointer-events-auto",
-                  "rounded-t-3xl bg-white/75 ring-1 ring-(--olivea-olive)/14",
-                  "backdrop-blur-[10px] shadow-[0_-16px_40px_rgba(0,0,0,0.18)]"
+                  "fixed z-221 left-0 right-0 bottom-0 pointer-events-auto",
+                  "rounded-t-3xl",
+                  "bg-(--olivea-cream)/72 backdrop-blur-md",
+                  "ring-1 ring-(--olivea-olive)/14",
+                  "shadow-[0_-16px_40px_rgba(18,24,16,0.18)]"
                 )}
                 initial={{ y: 420, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}

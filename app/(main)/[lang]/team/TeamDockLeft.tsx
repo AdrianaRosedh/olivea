@@ -169,7 +169,7 @@ export default function TeamDockLeft({
 
       <motion.div
         className={cn(
-          "md:hidden fixed left-0 right-0 z-40",
+          "md:hidden fixed left-0 right-0 z-210",
           TOP_OFFSET_CLASS,
           "pointer-events-none"
         )}
@@ -184,7 +184,14 @@ export default function TeamDockLeft({
         }}
       >
         <div className="px-3 pt-2 pointer-events-auto">
-          <div className="rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 backdrop-blur-[10px] shadow-[0_10px_24px_rgba(40,60,35,0.10)]">
+          <div
+            className={cn(
+              "rounded-2xl",
+              "bg-(--olivea-cream)/72 backdrop-blur-md",
+              "ring-1 ring-(--olivea-olive)/14",
+              "shadow-[0_10px_30px_rgba(18,24,16,0.10)]"
+            )}
+          >
             <div className="px-3 py-2 flex items-center gap-2">
               <div className="min-w-0 flex-1">
                 <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-80">
@@ -206,7 +213,7 @@ export default function TeamDockLeft({
                 className={cn(
                   "inline-flex items-center justify-center",
                   "h-10 w-10 rounded-full",
-                  "bg-white/35 ring-1 ring-(--olivea-olive)/14",
+                  "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
                   "text-(--olivea-olive) hover:bg-white/45 transition"
                 )}
                 aria-label={tt(lang, "Filtros", "Filters")}
@@ -223,7 +230,7 @@ export default function TeamDockLeft({
             <>
               <motion.button
                 type="button"
-                className="fixed inset-0 z-40 bg-black/25 pointer-events-auto"
+                className="fixed inset-0 z-220 bg-black/25 pointer-events-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -233,9 +240,11 @@ export default function TeamDockLeft({
 
               <motion.div
                 className={cn(
-                  "fixed z-50 left-0 right-0 bottom-0 pointer-events-auto",
-                  "rounded-t-3xl bg-white/75 ring-1 ring-(--olivea-olive)/14",
-                  "backdrop-blur-[10px] shadow-[0_-16px_40px_rgba(0,0,0,0.18)]"
+                  "fixed z-221 left-0 right-0 bottom-0 pointer-events-auto",
+                  "rounded-t-3xl",
+                  "bg-(--olivea-cream)/72 backdrop-blur-md",
+                  "ring-1 ring-(--olivea-olive)/14",
+                  "shadow-[0_-16px_40px_rgba(18,24,16,0.18)]"
                 )}
                 initial={{ y: 420, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -338,8 +347,8 @@ export default function TeamDockLeft({
           <div className="mt-4 text-[12px] text-(--olivea-clay) opacity-70">
             {tt(
               lang,
-              "Incluye The Experience en cada filtro.",
-              "Includes The Experience in every filter."
+              "Incluye los lideres en cada filtro.",
+              "Includes the leaders in every filter."
             )}
           </div>
         </div>

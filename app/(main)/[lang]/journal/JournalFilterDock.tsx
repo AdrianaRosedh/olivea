@@ -78,6 +78,27 @@ export default function JournalFilterDock({
   // Desktop: compact "More" (like press)
   const [moreOpen, setMoreOpen] = useState(false);
 
+  // ✅ Desktop gate (prevents mobile scroll logic from running on desktop)
+    const isDesktopRef = useRef(false);
+
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+      const mq = window.matchMedia("(min-width: 768px)"); // Tailwind md
+      const sync = () => {
+        isDesktopRef.current = mq.matches;
+      };
+      sync();
+    
+      if (mq.addEventListener) mq.addEventListener("change", sync);
+      else mq.addListener(sync);
+    
+      return () => {
+        if (mq.removeEventListener) mq.removeEventListener("change", sync);
+        else mq.removeListener(sync);
+      };
+    }, []);
+  
+
   const pillars = useMemo(() => {
     const s = new Set<string>();
     posts.forEach((p) => s.add(p.pillar));
@@ -159,6 +180,9 @@ export default function JournalFilterDock({
   }, []);
 
   useMotionValueEvent(scrollY, "change", (y) => {
+    // ✅ MOBILE ONLY
+    if (isDesktopRef.current) return;
+
     const prev = lastY.current;
     lastY.current = y;
 
@@ -216,6 +240,7 @@ export default function JournalFilterDock({
 
   /* =========================
      MOBILE BAR (fixed overlay + spacer)
+     ✅ MATCH TeamDockLeft colors exactly
      ========================= */
 
   const TOP_OFFSET_CLASS = "top-14"; // ~56px
@@ -227,7 +252,7 @@ export default function JournalFilterDock({
 
       <motion.div
         className={cn(
-          "md:hidden fixed left-0 right-0 z-40",
+          "md:hidden fixed left-0 right-0 z-210",
           TOP_OFFSET_CLASS,
           "pointer-events-none"
         )}
@@ -242,11 +267,22 @@ export default function JournalFilterDock({
         }}
       >
         <div className="px-3 pt-2 pointer-events-auto">
-          {/* match PressDockLeft tone: less shadow, more “glass” */}
-          <div className="rounded-2xl bg-white/32 ring-1 ring-(--olivea-olive)/12 backdrop-blur-[10px]">
+          <div
+            className={cn(
+              "rounded-2xl",
+              "bg-(--olivea-cream)/72 backdrop-blur-md",
+              "ring-1 ring-(--olivea-olive)/14",
+              "shadow-[0_10px_30px_rgba(18,24,16,0.10)]"
+            )}
+          >
             <div className="px-2.5 py-2 flex items-center gap-2">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 rounded-full bg-white/24 ring-1 ring-(--olivea-olive)/14 px-3 py-2">
+                <div
+                  className={cn(
+                    "flex items-center gap-2 rounded-full px-3 py-2",
+                    "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md"
+                  )}
+                >
                   <Search className="h-4 w-4 opacity-70 shrink-0 text-(--olivea-olive)" />
                   <input
                     value={q}
@@ -265,7 +301,7 @@ export default function JournalFilterDock({
                       className={cn(
                         "inline-flex items-center justify-center",
                         "h-7 w-7 rounded-full",
-                        "bg-white/24 ring-1 ring-(--olivea-olive)/12",
+                        "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/12 backdrop-blur-md",
                         "text-(--olivea-olive) opacity-80 hover:opacity-100 transition"
                       )}
                       aria-label={tt(lang, "Borrar", "Clear")}
@@ -284,8 +320,8 @@ export default function JournalFilterDock({
                   className={cn(
                     "inline-flex items-center justify-center",
                     "h-10 w-10 rounded-full",
-                    "bg-white/24 ring-1 ring-(--olivea-olive)/14",
-                    "text-(--olivea-olive) hover:bg-white/32 transition"
+                    "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
+                    "text-(--olivea-olive) hover:bg-white/45 transition"
                   )}
                   aria-label={tt(lang, "Limpiar", "Reset")}
                   title={tt(lang, "Limpiar", "Reset")}
@@ -303,8 +339,8 @@ export default function JournalFilterDock({
                 className={cn(
                   "inline-flex items-center justify-center",
                   "h-10 w-10 rounded-full",
-                  "bg-white/24 ring-1 ring-(--olivea-olive)/14",
-                  "text-(--olivea-olive) hover:bg-white/32 transition"
+                  "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
+                  "text-(--olivea-olive) hover:bg-white/45 transition"
                 )}
                 aria-label={tt(lang, "Filtros", "Filters")}
                 title={tt(lang, "Filtros", "Filters")}
@@ -321,8 +357,8 @@ export default function JournalFilterDock({
                 className={cn(
                   "inline-flex items-center justify-center",
                   "h-10 w-10 rounded-full",
-                  "bg-white/24 ring-1 ring-(--olivea-olive)/14",
-                  "text-(--olivea-olive) hover:bg-white/32 transition"
+                  "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
+                  "text-(--olivea-olive) hover:bg-white/45 transition"
                 )}
                 aria-label={tt(lang, "Secciones", "Sections")}
                 title={tt(lang, "Secciones", "Sections")}
@@ -338,7 +374,7 @@ export default function JournalFilterDock({
             <>
               <motion.button
                 type="button"
-                className="fixed inset-0 z-40 bg-black/25 pointer-events-auto"
+                className="fixed inset-0 z-220 bg-black/25 pointer-events-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -348,9 +384,11 @@ export default function JournalFilterDock({
 
               <motion.div
                 className={cn(
-                  "fixed z-50 left-0 right-0 bottom-0 pointer-events-auto",
-                  "rounded-t-3xl bg-white/75 ring-1 ring-(--olivea-olive)/14",
-                  "backdrop-blur-[10px] shadow-[0_-16px_40px_rgba(0,0,0,0.18)]"
+                  "fixed z-221 left-0 right-0 bottom-0 pointer-events-auto",
+                  "rounded-t-3xl",
+                  "bg-(--olivea-cream)/72 backdrop-blur-md",
+                  "ring-1 ring-(--olivea-olive)/14",
+                  "shadow-[0_-16px_40px_rgba(18,24,16,0.18)]"
                 )}
                 initial={{ y: 420, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
