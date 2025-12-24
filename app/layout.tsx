@@ -1,10 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import Script from "next/script";
 import { AppProviders } from "./providers";
 import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
 import { absoluteUrl } from "@/lib/site";
-import { Analytics } from "@vercel/analytics/react"; // ← ADD THIS
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl("/")),
@@ -81,7 +82,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={fontsClass}>
-      <head />
+      <head>
+        {/* ✅ Google Analytics (GA4) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-M3JEDWZ732"
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-M3JEDWZ732');
+          `}
+        </Script>
+      </head>
+
       <body className="bg-background text-foreground">
         <noscript>
           <style>
