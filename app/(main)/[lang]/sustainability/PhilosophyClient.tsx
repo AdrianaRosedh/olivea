@@ -1,6 +1,7 @@
+// app/(main)/[lang]/sustainability/PhilosophyClient.tsx
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import {
   motion,
@@ -16,7 +17,6 @@ import FloatingPracticesCardGSAP from "./FloatingPracticesCardGSAP";
 import { PracticesCard, SignalsRow } from "./ProofModules";
 import PhilosophyMobileNav from "./PhilosophyMobileNav";
 
-
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 function tt(lang: Lang, es: string, en: string) {
@@ -28,6 +28,51 @@ function paragraphs(body: string) {
     .split("\n\n")
     .map((p) => p.trim())
     .filter(Boolean);
+}
+
+/* ---------------- inline bio links (no MDX compile required) ---------------- */
+
+const BIO_TARGETS: Array<{ name: string; id: string }> = [
+  { name: "Ange Joy", id: "ange" },
+  { name: "Cristina", id: "cristina" },
+  { name: "Adriana Rose", id: "adrianarose" },
+  { name: "Daniel Nates", id: "danielnates" },
+];
+
+function escapeRe(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function linkifyNames(text: string, lang: Lang): ReactNode {
+  const pattern = BIO_TARGETS.map((x) => escapeRe(x.name)).join("|");
+  if (!pattern) return text;
+
+  const re = new RegExp(`(${pattern})`, "g");
+  const parts = text.split(re);
+
+  return parts.map((part, idx) => {
+    const hit = BIO_TARGETS.find((x) => x.name === part);
+    if (!hit) return part;
+
+    const href = `/${lang}/team/${hit.id}`;
+
+    return (
+      <a
+        key={`${hit.id}-${idx}`}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          "underline underline-offset-4",
+          "decoration-(--olivea-olive)/55",
+          "hover:decoration-(--olivea-olive)",
+          "transition-colors"
+        )}
+      >
+        {hit.name}
+      </a>
+    );
+  });
 }
 
 function MobilePractices({
@@ -362,7 +407,7 @@ export default function PhilosophyClient({
                             "max-w-[92ch]"
                           )}
                         >
-                          {p}
+                          {linkifyNames(p, lang)}
                         </motion.p>
                       ))}
                     </div>
