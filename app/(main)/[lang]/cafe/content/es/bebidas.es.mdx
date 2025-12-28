@@ -1,19 +1,33 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Sub from "@/components/scroll/Sub";
 
 <StickyBlock
   id="menu"
-  className="main-section snap-center"
-  title={null}
+  variant="top"
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
+  className="py-12 md:py-20 snap-start"
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">
+        Menú
+      </h2>
+    </Reveal>
+  }
 >
-  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Menú</h2></Reveal>
+  <Sub id="espresso" preset="up">
+    Espresso calibrado cada mañana…
+  </Sub>
 
-  <div className="space-y-6 md:space-y-8">
-    <Sub id="espresso" preset="up">Espresso calibrado cada mañana…</Sub>
-    <Sub id="filtro" preset="left">Métodos de filtro limpios: V60, Chemex, prensa…</Sub>
-    <Sub id="te" preset="right">Tés e infusiones con agua adecuada…</Sub>
-    <Sub id="frio" preset="fade">Fríos de estación: cold brew, limonadas, kombucha…</Sub>
-  </div>
+  <Sub id="filtro" preset="left">
+    Métodos de filtro limpios: V60, Chemex, prensa…
+  </Sub>
+
+  <Sub id="te" preset="right">
+    Tés e infusiones con agua adecuada…
+  </Sub>
+
+  <Sub id="frio" preset="fade">
+    Fríos de estación: cold brew, limonadas, kombucha…
+  </Sub>
 </StickyBlock>

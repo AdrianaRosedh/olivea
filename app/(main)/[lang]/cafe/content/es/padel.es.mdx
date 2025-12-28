@@ -1,23 +1,45 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Sub from "@/components/scroll/Sub";
+import ParallaxImage from "@/components/scroll/ParallaxImage";
 
 <StickyBlock
   id="padel"
-  className="main-section snap-center"
-  title={null}
+  variant="top"
   containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
+  className="py-12 md:py-20 snap-start"
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">
+        Pádel
+      </h2>
+    </Reveal>
+  }
 >
-  <Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Pádel</h2></Reveal>
+  <Sub id="comunidad" preset="up">
+    Canchas, torneos amistosos y clases…
+  </Sub>
 
-  <div className="space-y-6 md:space-y-8">
-    <Sub id="comunidad" preset="up">Canchas, torneos amistosos y clases…</Sub>
-
-    <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
-      <ParallaxImage src="/images/cafe/padel.jpg" alt="Canchas de pádel" heightVh={46} speed={0.22} />
-    </div>
-
-    <Sub id="servicios" preset="fade">Tienda, renta de equipo y eventos…</Sub>
+  <div
+    className="
+      relative w-full max-w-[950px] mx-auto my-10
+      overflow-hidden rounded-[28px]
+      ring-1 ring-black/10
+      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
+    "
+  >
+    <ParallaxImage
+      src="/images/cafe/padel.jpg"
+      alt="Canchas de pádel"
+      heightVh={46}
+      speed={0.22}
+      fit="cover"
+      objectPosition="50% 50%"
+      className="rounded-[28px]"
+    />
   </div>
+
+  <Sub id="servicios" preset="fade">
+    Tienda, renta de equipo y eventos…
+  </Sub>
 </StickyBlock>
