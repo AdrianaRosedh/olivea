@@ -27,19 +27,22 @@ import Farmpop from '@/components/ui/popup/farmpop'
 
   <div className="mt-8 md:mt-9 text-center">
     <p className="mx-auto max-w-[70ch] text-[17px] md:text-[18px] leading-[1.7] text-[var(--olivea-ink)]/90">
-      Seasonal seven-course tasting. Three off-menu gestures open, reset, and close the journey.
+      A seasonal <strong>8-course tasting menu</strong>, with no à la carte options.
+      Three off-menu gestures open, guide, and close the journey. The menu changes
+      approximately every <strong>5–6 weeks</strong>, depending on what the garden
+      and the season allow us to work with at their peak.
     </p>
 
     <div className="mt-6 flex justify-center">
       <Farmpop
-        title="Live Menu"
+        title="Live menu"
         label="View live menu"
         initialTabId="menu"
         tabs={[
-          { id: 'menu',    label: 'Menu',    url: 'https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view' },
-          { id: 'licores', label: 'Licors', url: 'https://www.canva.com/design/DAGJkYeYkNM/vHYhvJ4AeHzpcORgUm5NLg/view' },
-          { id: 'vinos',   label: 'Wine',    url: 'https://www.canva.com/design/DAG7WfJyc-Q/zzlxLRMbBptlCOOmeDwqjw/view' },
-          { id: 'bebidas', label: 'Drinks',  url: 'https://www.canva.com/design/DAGKBfcrXNw/tB4P2epiDJbu1tfvsaXBcg/view' },
+          { id: 'menu',    label: 'Menu',    url: 'https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view', emoji: '🍽️' },
+          { id: 'licores', label: 'Spirits', url: 'https://www.canva.com/design/DAGJkYeYkNM/vHYhvJ4AeHzpcORgUm5NLg/view', emoji: '🥃' },
+          { id: 'vinos',   label: 'Wine',    url: 'https://www.canva.com/design/DAG7WfJyc-Q/zzlxLRMbBptlCOOmeDwqjw/view', emoji: '🍷' },
+          { id: 'bebidas', label: 'Drinks',  url: 'https://www.canva.com/design/DAGKBfcrXNw/tB4P2epiDJbu1tfvsaXBcg/view', emoji: '🍹' },
         ]}
         triggerClassName="
           rounded-full px-7 md:px-8 py-3 text-[13.5px] tracking-[0.20em] uppercase font-semibold
@@ -50,28 +53,41 @@ import Farmpop from '@/components/ui/popup/farmpop'
       />
     </div>
 
-  <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+    <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
   </div>
 
   <div className="mt-8 grid gap-6 md:grid-cols-3">
     <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
-      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Valley Pairing</div>
+      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">
+        Pairings & corkage
+      </div>
       <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
-        Local wines and a <em>non-alcoholic route</em> crafted with flavor science.
+        A wine journey through the Valley and a <em>non-alcoholic pairing</em>
+        designed through flavor science. We offer a <strong>corkage service</strong>
+        with a fee of <strong>$350 MXN per bottle</strong>.
       </p>
     </div>
 
     <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
-      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Preferences & Allergies</div>
+      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">
+        Preferences & allergies
+      </div>
       <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
-        We adapt with notice. <em>Vegetarian path</em> available on request.
+        We adapt the menu for <strong>allergies or dietary restrictions</strong>
+        with prior notice at the time of booking. A <em>vegetarian version</em>
+        is available upon request, always seeking to preserve the essence
+        of the menu.
       </p>
     </div>
 
     <div className="relative rounded-2xl bg-white/30 backdrop-blur-sm ring-1 ring-black/5 p-5 md:p-6 transition-all hover:bg-white/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
-      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">Garden at the Core</div>
+      <div className="mb-2 text-[13px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/90">
+        The garden at the center
+      </div>
       <p className="text-[15.5px] leading-relaxed text-[var(--olivea-ink)]/85">
-        Seasonal product; precise technique, balance, and contrast in every step.
+        Seasonal produce; precise technique, balance, and contrast in every course.
+        The full experience lasts between <strong>2 and 3 hours</strong> and is
+        designed primarily for adults who wish to dedicate time to the journey.
       </p>
     </div>
   </div>

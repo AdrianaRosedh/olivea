@@ -1,49 +1,45 @@
+// app/(main)/[lang]/farmtotable/sections.en.ts
 import type { NavSection } from "./sections.es";
 
 export const SECTIONS_EN: NavSection[] = [
   {
-    id: "experiencia",
+    id: "experience",
     title: "The experience",
     subs: [
-      { id: "origen",     title: "Origin" },
-      { id: "valores",    title: "Values" },
+      { id: "origin",  title: "Origin" },
+      { id: "balance", title: "Balance" },
+      { id: "values",  title: "Values" },
     ],
   },
   {
-    id: "cocina",
+    id: "kitchen",
     title: "The kitchen",
     subs: [
-      { id: "equilibrio", title: "Balance" },
-      { id: "estetica",          title: "Aesthetics" },
-      { id: "tecnica",           title: "Technique" },
-      { id: "vision",            title: "Vision" },
+      { id: "product",   title: "Product" },
+      { id: "technique", title: "Technique" },
+      { id: "team",      title: "Team" },
     ],
   },
   {
-    id: "mesa",
+    id: "table",
     title: "The table",
     subs: [
-      { id: "hospitalidad", title: "Hospitality" },
-      { id: "atencion",     title: "Attentiveness" },
-      { id: "narrativa",    title: "Narrative" },
+      { id: "hospitality", title: "Hospitality" },
+      { id: "narrative",   title: "Narrative" },
     ],
   },
   {
-    id: "despensa",
+    id: "pantry",
     title: "The larder",
     subs: [
-      { id: "proximidad",   title: "Proximity" },
-      { id: "temporada",    title: "Seasonality" },
-      { id: "trazabilidad", title: "Traceability" },
+      { id: "proximity",    title: "Proximity" },
+      { id: "season",       title: "Season" },
+      { id: "traceability", title: "Traceability" },
     ],
   },
   {
     id: "menu",
     title: "Menu",
-    subs: [
-      { id: "estructura", title: "Structure" },
-      { id: "maridaje",        title: "Pairing" },
-      { id: "preferencias",    title: "Preferences" },
-    ],
+    subs: [],
   },
 ];

@@ -1,39 +1,72 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
-import CardParallax from '@/components/mdx/CardParallax'
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Sub from "@/components/scroll/Sub";
+import ParallaxImage from "@/components/scroll/ParallaxImage";
+import FieldNote from "@/components/mdx/FieldNote";
 
 <StickyBlock
-  id="cocina"
+  id="kitchen"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Kitchen</h2></Reveal>}
+  containerClassName="w-full md:max-w-[min(1120px,94vw)] md:mx-auto"
+  className="py-12 md:py-20 snap-start"
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">
+        The kitchen
+      </h2>
+    </Reveal>
+  }
 >
-  <Sub id="plate_balance" preset="up">
-    Product leads. Plates that balance the garden with local proteins in clean, legible layers.
+  {/* BLOCK 1 — opening text (aligned with experience) */}
+  <Sub id="product" preset="up">
+    <p>
+      The product leads. The kitchen is born from the garden and from
+      nearby producers: clean layers, precise techniques, and cooking
+      methods that respect the natural point of each ingredient.
+    </p>
+    <p className="mt-3">
+      We do not work with an à la carte menu: the team’s creativity and
+      the garden’s availability define each seasonal menu.
+    </p>
   </Sub>
 
-  <Sub id="aesthetics" preset="left">
-    Sober, precise aesthetics; tableware that speaks of place. Elegance without excess.
+  {/* PARALLAX IMAGE — same overall proportions as experience */}
+  <div
+    className="
+      relative mt-6 w-full max-w-[1100px] mx-auto
+      overflow-hidden rounded-[32px]
+      ring-1 ring-black/15
+      shadow-[0_28px_70px_rgba(0,0,0,0.35)]
+      bg-[var(--olivea-cream)]/95
+    "
+  >
+    <ParallaxImage
+      src="/images/farm/kitchen.jpg"
+      alt="Kitchen pass at Olivea"
+      heightVh={56}
+      speed={0.22}
+      fit="cover"
+      objectPosition="50% 50%"
+    />
+  </div>
+
+  {/* BLOCK 2 — second text section + note, with similar spacing */}
+  <Sub id="technique" preset="fade">
+    Technique is never the protagonist: it exists to enhance flavor,
+    not to distract from it. Stocks, reductions, and ferments are used
+    with intention, always in service of balance.
   </Sub>
 
-  <Sub id="technique" preset="right">
-    Clear broths, controlled ferments, exact curing and doneness. Bitterness and umami tuned by clean acidity and intentional temperature.
+  <Sub id="team" preset="left" className="mt-6">
+    The team cooks by reading the climate, the garden, and the service:
+    understanding what is at its peak, what is being reserved, and what
+    is evolving in the pantry.
   </Sub>
 
-  <CardParallax
-    src="/images/farm/kitchen.jpg"
-    alt="Technique & precision"
-    widthVariant="narrow"
-    align="right"
-    speed={0.24}
-    heightVh={100}
-    hVh={{ mobile: 52, md: 62 }}
-    style={{ objectPosition: "center 40%" }}
-  />
-
-  <Sub id="vision" preset="fade">
-    Ongoing research and respect for producers. Aim: clarity of flavor and measured emotion.
-  </Sub>
+  <FieldNote className="mt-6">
+    We can adapt the menu for <strong>allergies or dietary restrictions</strong>
+    with prior notice. Our approach is technical, precise, and
+    product-driven; each adjustment is made while preserving the
+    essence of the journey.
+  </FieldNote>
 </StickyBlock>

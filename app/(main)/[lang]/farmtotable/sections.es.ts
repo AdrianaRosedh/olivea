@@ -1,3 +1,4 @@
+// app/(main)/[lang]/farmtotable/sections.es.ts
 export type NavSub = { id: string; title: string };
 export type NavSection = { id: string; title: string; subs?: NavSub[] };
 
@@ -7,6 +8,7 @@ export const SECTIONS_ES: NavSection[] = [
     title: "La experiencia",
     subs: [
       { id: "origen",      title: "Origen" },
+      { id: "equilibrio",  title: "Equilibrio" },
       { id: "valores",     title: "Valores" },
     ],
   },
@@ -14,10 +16,9 @@ export const SECTIONS_ES: NavSection[] = [
     id: "cocina",
     title: "La cocina",
     subs: [
-      { id: "equilibrio", title: "Equilibrio" },
-      { id: "estetica",          title: "Estética" },
-      { id: "tecnica",           title: "Técnica" },
-      { id: "vision",            title: "Visión" },
+      { id: "producto", title: "Producto" },
+      { id: "tecnica",  title: "Técnica" },
+      { id: "equipo",   title: "Equipo" },
     ],
   },
   {
@@ -25,7 +26,6 @@ export const SECTIONS_ES: NavSection[] = [
     title: "La mesa",
     subs: [
       { id: "hospitalidad", title: "Hospitalidad" },
-      { id: "atencion",     title: "Atención" },
       { id: "narrativa",    title: "Narrativa" },
     ],
   },
@@ -41,10 +41,6 @@ export const SECTIONS_ES: NavSection[] = [
   {
     id: "menu",
     title: "Menú",
-    subs: [
-      { id: "estructura", title: "Estructura" },
-      { id: "maridaje",        title: "Maridaje" },
-      { id: "preferencias",    title: "Preferencias" },
-    ],
+    subs: [],
   },
 ];
