@@ -67,7 +67,7 @@ export const TEAM: LeaderProfile[] = [
     id: "ange",
     name: "Ange Joy",
     role: { es: "Fundadora", en: "Founder" },
-    org: { es: "OLIVEA La Experiencia", en: "OLIVEA The Experience" },
+    org: { es: "OLIVEA · La Experiencia", en: "OLIVEA · The Experience" },
     tag: { es: "Fundación", en: "Founding" },
     bio: {
       es: "Co-crea la visión integral de Olivea: diseño, sensibilidad y coherencia estética en toda la experiencia.",
@@ -137,7 +137,7 @@ export const TEAM: LeaderProfile[] = [
       es: "CEO · Tecnología y Visión",
       en: "CEO · Technology & Vision",
     },
-    org: { es: "OLIVEA La Experencia", en: "OLIVEA The Experience" },
+    org: { es: "OLIVEA · La Experencia", en: "OLIVEA · The Experience" },
     bio: {
       es: "Lidera la visión estratégica, tecnológica y de experiencia de Olivea. Fundadora de Roseiies, una plataforma de inteligencia aplicada para hospitalidad y experiencias.",
       en: "Leads the strategic, technological, and experiential vision of Olivea. Founder of Roseiies, an intelligence-driven platform for hospitality and experiential brands.",
@@ -158,8 +158,8 @@ export const TEAM: LeaderProfile[] = [
       {
     href: "https://oliveafarmtotable.com",
       label: {
-        es: "Olivea La Experiencia",
-        en: "Olivea The Experience",
+        es: "Olivea · La Experiencia",
+        en: "Olivea · The Experience",
       },
       highlight: true,
     },
