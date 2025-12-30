@@ -121,11 +121,6 @@ export const TEAM: LeaderProfile[] = [
         href: "https://www.instagram.com/fritanguita_",
         forceButton: true,
       },
-      {
-        label: { es: "Recio CDMX", en: "Recio CDMX" },
-        href: "https://www.instagram.com/recioelrecio",
-        forceButton: true,
-      },
 
       // 🔹 Personal social
       {
