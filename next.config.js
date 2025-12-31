@@ -119,6 +119,7 @@ const nextConfig = {
       { source: "/fonts/:path*", headers: immutable },
       { source: "/icons/:path*", headers: immutable },
       { source: "/_next/static/:path*", headers: immutable },
+      { source: "/_next/image", headers: immutable },
       {
         source: "/:path*",
         headers: [{ key: "Timing-Allow-Origin", value: "*" }],

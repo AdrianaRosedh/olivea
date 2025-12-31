@@ -33,9 +33,10 @@ import MenuScrollButton from "@/components/links/MenuScrollButton";
       fit="cover"
       objectPosition="50% 40%"
       priority
-      sizes="100vw"
+      quality={60}
+      sizes="(min-width: 1024px) calc(100vw - 220px - 96px - 48px), 100vw"
     />
-
+    
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
       <h1 className="sr-only">Olivea Farm To Table</h1>

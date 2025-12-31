@@ -1,4 +1,3 @@
-// components/mdx/CardParallax.tsx
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -16,7 +15,7 @@ export default function CardParallax({
   fit = "cover",
   objectPosition,
   className,
-  sizes = "100vw",          // 👈 default: full viewport width (good for hero)
+  sizes = "100vw",
   loading,
   quality,
   placeholder = "empty",
@@ -41,15 +40,13 @@ export default function CardParallax({
   priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const [ready, setReady] = useState(false);  // 👈 wait for image decode
+  const [ready, setReady] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  // Parallax effect
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
 
-    // Don’t animate until the image is ready
     if (!ready) {
       el.style.transform = "translateY(0px)";
       return;
@@ -94,7 +91,6 @@ export default function CardParallax({
 
   if (failed) return null;
 
-  // Surface sizing (height via vh or aspect-ratio)
   const surfaceStyle: StyleVars = {};
   let surfaceBaseClass = "relative w-full";
 
@@ -107,25 +103,19 @@ export default function CardParallax({
     surfaceBaseClass = "relative w-full md:card-md lg:card-lg";
   }
 
-  const effectivePlaceholder: "blur" | "empty" =
-    blurDataURL ? "blur" : placeholder;
+  const effectivePlaceholder: "blur" | "empty" = blurDataURL ? "blur" : placeholder;
 
-  const effectiveLoading: ImageProps["loading"] =
-    priority ? "eager" : loading;
+  // Let Next manage priority images (preload + eager). Only set loading for non-priority.
+  const effectiveLoading: ImageProps["loading"] = priority ? undefined : loading;
 
   return (
     <div
-      className={
-        surfaceClassName
-          ? `relative w-full ${surfaceClassName}`
-          : surfaceBaseClass
-      }
+      className={surfaceClassName ? `relative w-full ${surfaceClassName}` : surfaceBaseClass}
       style={surfaceStyle}
     >
-      {/* MOVING LAYER */}
       <div
         ref={wrapRef}
-        className={["absolute -inset-1px will-change-transform", className]
+        className={["absolute -inset-px will-change-transform", className] // ✅ fixed
           .filter(Boolean)
           .join(" ")}
         style={{ borderRadius: "inherit" }}
@@ -136,12 +126,19 @@ export default function CardParallax({
           fill
           sizes={sizes}
           priority={priority}
-          loading={effectiveLoading}
+          {...(effectiveLoading ? { loading: effectiveLoading } : {})}
           fetchPriority={priority ? "high" : undefined}
           quality={quality}
           placeholder={effectivePlaceholder}
           blurDataURL={blurDataURL}
-          onLoadingComplete={() => setReady(true)}   // 👈 unlock parallax only after load
+          onLoadingComplete={(img) => {
+            // ✅ Unlock parallax after decode (more stable on slow devices)
+            if (img?.decode) {
+              img.decode().catch(() => {}).finally(() => setReady(true));
+            } else {
+              setReady(true);
+            }
+          }}
           onError={() => setFailed(true)}
           style={{
             objectFit: fit,
