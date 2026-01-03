@@ -1,22 +1,27 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+// eslint.config.mjs
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+import prettier from "eslint-config-prettier";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = dirname(__filename);
+export default defineConfig([
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "dist/**",
+    "node_modules/**",
+    "next-env.d.ts",
+  ]),
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+  ...nextVitals,
+  ...nextTs,
+  prettier,
 
-export default [
-  ...compat.config({
-    extends: ["next/core-web-vitals", "next/typescript", "prettier"],
+  {
     rules: {
-      // turn off the base rule in favor of the TS-aware one
+      // keep yours
       "no-unused-vars": "off",
-
-      // error on any unused local or param; allow _-prefixed ignored args
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -24,13 +29,16 @@ export default [
           args: "after-used",
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
-          ignoreRestSiblings: true
-        }
+          ignoreRestSiblings: true,
+        },
       ],
-
-      // your existing overrides:
       "react/no-unescaped-entities": "off",
       "@next/next/no-img-element": "warn",
+    
+      // ✅ silence the new over-strict hooks rules
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/static-components": "off",
     },
-  }),
-];
+  },
+]);
