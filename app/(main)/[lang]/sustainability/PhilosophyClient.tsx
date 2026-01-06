@@ -206,6 +206,16 @@ export default function PhilosophyClient({
     ],
     [lang]
   );
+  
+  const sustainabilitySpine = useMemo(
+    () =>
+      tt(
+        lang,
+        "En Olivea, la sustentabilidad es eficiencia, no como tendencia, no como etiqueta, sino como respeto llevado a la práctica.",
+        "At Olivea, sustainability is efficiency, not as a trend, not as a label, but as respect made practical."
+      ),
+    [lang]
+  );
 
   const inkSoft = "text-(--olivea-olive) ";
 
@@ -270,8 +280,8 @@ export default function PhilosophyClient({
                 </span>{" "}
                 {tt(
                   lang,
-                  "es un nombre femenino de origen latino, derivado de oliva — el olivo.",
-                  "is a feminine name of Latin origin, derived from oliva — the olive."
+                  "es un nombre femenino de origen latino, derivado de oliva, el olivo.",
+                  "is a feminine name of Latin origin, derived from oliva, the olive."
                 )}
               </p>
 
@@ -296,10 +306,46 @@ export default function PhilosophyClient({
               >
                 {tt(
                   lang,
-                  "Esta página reúne lo que es Olivea: valores, sistemas y decisiones. No como promesa — sino como práctica.",
-                  "This page holds what Olivea is made of: values, systems, and decisions. Not as a promise — but as a practice."
+                  "Esta página reúne lo que es Olivea: valores, sistemas y decisiones. No como promesa, sino como práctica.",
+                  "This page holds what Olivea is made of: values, systems, and decisions. Not as a promise, but as a practice."
                 )}
               </p>
+
+              {/* ✅ Sustainability spine highlight */}
+              <motion.div
+                className={cn(
+                  "mt-6 w-full max-w-[82ch]",
+                  "rounded-[22px]",
+                  "bg-transparent",
+                  "pl-5 sm:pl-6 py-2",
+                  "border-l border-(--olivea-olive)/18"
+                )}
+                initial={reduce ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.7, ease: EASE }}
+              >
+                <div className="text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-60">
+                  {tt(lang, "Principio rector", "Guiding principle")}
+                </div>
+              
+                <p
+                  className={cn(
+                    "mt-2 text-[16px] sm:text-[17px] leading-[1.9]",
+                    "text-(--olivea-olive)"
+                  )}
+                  style={{ fontFamily: "var(--font-serif)" }}
+                >
+                  <span className="font-semibold">{sustainabilitySpine}</span>
+                </p>
+                
+                <div className="mt-2 text-[12px] text-(--olivea-olive) opacity-55">
+                  {tt(
+                    lang,
+                    "Presente en cada decisión, no solo en un capítulo.",
+                    "Present in every decision, not confined to a single chapter."
+                  )}
+                </div>
+              </motion.div>
 
               <div className="mt-7">
                 <SignalsRow items={heroSignals} />
@@ -454,8 +500,8 @@ export default function PhilosophyClient({
               >
                 {tt(
                   lang,
-                  "Olivea no está terminada. Las ideas fluyen, las preguntas aparecen, y con este equipo no hay límites — solo dirección. Medimos, reflexionamos, mejoramos. Y seguimos.",
-                  "Olivea is not finished. Ideas keep flowing, questions keep appearing, and with this team there are no limits — only direction. We measure, reflect, improve. And we keep going."
+                  "Olivea no está terminada. Las ideas fluyen, las preguntas aparecen, y con este equipo no hay límites, solo dirección. Medimos, reflexionamos, mejoramos. Y seguimos.",
+                  "Olivea is not finished. Ideas keep flowing, questions keep appearing, and with this team there are no limits, only direction. We measure, reflect, improve. And we keep going."
                 )}
               </p>
             </motion.section>
