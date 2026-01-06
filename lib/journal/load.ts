@@ -58,9 +58,20 @@ function normalizeFrontmatterData(data: unknown): Record<string, unknown> {
   return obj;
 }
 
+/** ✅ Safe readdir: missing folder => [] (prevents Vercel build failures) */
+async function safeReaddir(dir: string): Promise<string[]> {
+  try {
+    return await fs.readdir(dir);
+  } catch (e: unknown) {
+    const err = e as { code?: string };
+    if (err?.code === "ENOENT") return [];
+    throw e;
+  }
+}
+
 export async function listJournalSlugs(lang: JournalLang): Promise<string[]> {
   const dir = langDir(lang);
-  const files = await fs.readdir(dir);
+  const files = await safeReaddir(dir);
 
   return files
     .filter(isMdxFile)
@@ -73,12 +84,22 @@ export async function loadJournalBySlug(
   fileSlug: string
 ): Promise<JournalPost> {
   const filePath = path.join(langDir(lang), `${fileSlug}.mdx`);
-  const raw0 = await fs.readFile(filePath, "utf8");
-  const raw = stripBom(raw0);
 
+  let raw0: string;
+  try {
+    raw0 = await fs.readFile(filePath, "utf8");
+  } catch (e: unknown) {
+    const err = e as { code?: string };
+    if (err?.code === "ENOENT") {
+      // Consistent not-found behavior (page will call notFound())
+      throw new Error(`Journal post not found: ${lang}/${fileSlug}`);
+    }
+    throw e;
+  }
+
+  const raw = stripBom(raw0);
   const { content, data } = matter(raw);
 
-  // Helpful debug: detect "no frontmatter" situations
   const hasFrontmatterFence = raw.trimStart().startsWith("---");
   if (!hasFrontmatterFence) {
     console.error(
@@ -94,7 +115,6 @@ export async function loadJournalBySlug(
       `[journal] Invalid frontmatter for ${lang}/${fileSlug}`,
       parsed.error.flatten()
     );
-    // Extra hint if data is empty
     if (Object.keys(normalized).length === 0) {
       console.error(
         `[journal] Frontmatter data is empty for ${lang}/${fileSlug}. Check for BOM, missing --- fences, or malformed YAML.`
@@ -118,7 +138,9 @@ export async function loadJournalBySlug(
   };
 }
 
-export async function listJournalIndex(lang: JournalLang): Promise<JournalIndexItem[]> {
+export async function listJournalIndex(
+  lang: JournalLang
+): Promise<JournalIndexItem[]> {
   const fileSlugs = await listJournalSlugs(lang);
 
   const items = await Promise.all(
