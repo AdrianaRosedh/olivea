@@ -213,14 +213,27 @@ export default async function JournalPostPage({
                 {post.fm.title}
               </h1>
 
+              {/* ✅ Bigger editorial deck/subtitle */}
               {description ? (
-                <p className="mt-3 max-w-2xl text-pretty text-lg opacity-80">
-                  {description}
-                </p>
+                <>
+                  <p
+                    className={[
+                      "mt-6 max-w-3xl text-pretty",
+                      "text-[20px] md:text-[22px] lg:text-[23px]",
+                      "leading-[1.6] md:leading-[1.55]",
+                      "text-(--olivea-clay) opacity-95",
+                    ].join(" ")}
+                  >
+                    {description}
+                  </p>
+                  
+                  {/* Editorial divider */}
+                  <div className="mt-8 h-px w-24 bg-(--olivea-olive)/15" />
+                </>
               ) : null}
 
               {/* Editorial byline (official) */}
-              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-80">
+              <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-80">
                 <span>
                   {lang === "es" ? "Por " : "By "}
                   {authorId ? (
@@ -274,13 +287,43 @@ export default async function JournalPostPage({
               ) : null}
             </header>
 
+            {/* ✅ Editorial typography preset + remove separators */}
             <article
               className={[
                 "prose prose-neutral dark:prose-invert",
-                "prose-headings:scroll-mt-28",
-                "prose-img:rounded-2xl",
-                "prose-a:underline prose-a:underline-offset-4",
                 "max-w-none",
+              
+                // Body rhythm
+                "prose-p:my-5",
+                "prose-p:leading-[1.85]",
+                "prose-p:text-(--olivea-clay)",
+              
+                // ✅ Force H2 styling (works even if prose-h2 utilities don’t)
+                "[&_h2]:uppercase",
+                "[&_h2]:tracking-[0.12em] md:[&_h2]:tracking-[0.14em]",
+                "[&_h2]:text-[13px] md:[&_h2]:text-[14px]",
+                "[&_h2]:leading-[1.2]",
+                "[&_h2]:font-medium",
+                "[&_h2]:text-(--olivea-olive) [&_h2]:opacity-80",
+                "[&_h2]:mt-14 [&_h2]:mb-3",
+              
+                // Optional H3 styling
+                "[&_h3]:uppercase",
+                "[&_h3]:tracking-widest md:[&_h3]:tracking-[0.12em]",
+                "[&_h3]:text-[12px] md:[&_h3]:text-[13px]",
+                "[&_h3]:leading-[1.2]",
+                "[&_h3]:font-medium",
+                "[&_h3]:text-(--olivea-olive) [&_h3]:opacity-75",
+                "[&_h3]:mt-10 [&_h3]:mb-2",
+              
+                // ✅ Kill separators no matter what
+                "prose-hr:hidden",
+                "[&_hr]:hidden",
+              
+                // Links + images
+                "prose-img:rounded-2xl",
+                "prose-a:text-(--olivea-olive)",
+                "prose-a:underline prose-a:underline-offset-4",
               ].join(" ")}
               style={{ fontSize: "calc(1rem * var(--journal-font-scale, 1))" }}
             >

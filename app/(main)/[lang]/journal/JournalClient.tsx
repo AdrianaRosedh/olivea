@@ -64,6 +64,8 @@ function tt(lang: Lang, es: string, en: string) {
 
 export default function JournalClient({
   lang,
+  title: _title,
+  subtitle: _subtitle,
   posts,
 }: {
   lang: Lang;

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getDictionary, type Lang } from "../dictionaries";
-import { listJournalIndex } from "@/lib/journal/load";
+import { listJournalIndex, type JournalIndexItem } from "@/lib/journal/load";
 import JournalClient from "./JournalClient";
+
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -31,7 +33,15 @@ export default async function JournalPage({
   const lang: Lang = raw === "es" ? "es" : "en";
 
   const dict = await getDictionary(lang);
-  const posts = await listJournalIndex(lang);
+
+  // ✅ typed, resilient
+  let posts: JournalIndexItem[] = [];
+  try {
+    posts = await listJournalIndex(lang);
+  } catch (err) {
+    console.error(`[journal] Failed to list journal index for ${lang}`, err);
+    posts = [];
+  }
 
   return (
     <JournalClient
