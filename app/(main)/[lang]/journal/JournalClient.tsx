@@ -22,27 +22,6 @@ type Post = {
   cover?: { src: string; alt: string };
 };
 
-/* =============== helpers (pure) =============== */
-function hash32(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-function dayKey(d = new Date()) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${dd}`;
-}
-
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
-
 /* =================== motion =================== */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -79,6 +58,10 @@ const VIEWPORT = {
 
 const MotionLink = motion(Link);
 
+function tt(lang: Lang, es: string, en: string) {
+  return lang === "es" ? es : en;
+}
+
 export default function JournalClient({
   lang,
   posts,
@@ -94,10 +77,23 @@ export default function JournalClient({
   const [pillar, setPillar] = useState<string>("all");
   const [tag, setTag] = useState<string>("all");
 
+  // ✅ NEW
+  const [year, setYear] = useState<string>("all");
+  const [time, setTime] = useState<string>("all"); // "quick" | "medium" | "deep" | "all"
+  const [sort, setSort] = useState<"newest" | "oldest">("newest");
+
   const rafRef = useRef<number | null>(null);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
+
+    const matchesTime = (minutes: number) => {
+      if (time === "all") return true;
+      if (time === "quick") return minutes <= 3;
+      if (time === "medium") return minutes >= 4 && minutes <= 6;
+      if (time === "deep") return minutes >= 7;
+      return true;
+    };
 
     return posts.filter((p) => {
       const matchQ =
@@ -110,14 +106,33 @@ export default function JournalClient({
       const matchPillar = pillar === "all" || p.pillar === pillar;
       const matchTag = tag === "all" || (p.tags ?? []).includes(tag);
 
-      return matchQ && matchPillar && matchTag;
+      const y = String(new Date(p.publishedAt).getFullYear());
+      const matchYear = year === "all" || y === year;
+
+      const matchReadTime = matchesTime(p.readingMinutes);
+
+      return matchQ && matchPillar && matchTag && matchYear && matchReadTime;
     });
-  }, [posts, q, pillar, tag]);
+  }, [posts, q, pillar, tag, year, time]);
+
+  const sortedFiltered = useMemo(() => {
+    const arr = [...filtered];
+    arr.sort((a, b) => {
+      const ta = Date.parse(a.publishedAt);
+      const tb = Date.parse(b.publishedAt);
+      if (Number.isNaN(ta) || Number.isNaN(tb)) return 0;
+      return sort === "newest" ? tb - ta : ta - tb;
+    });
+    return arr;
+  }, [filtered, sort]);
 
   const clear = () => {
     setQ("");
     setPillar("all");
     setTag("all");
+    setYear("all");
+    setTime("all");
+    setSort("newest");
   };
 
   const fmtDate = (iso: string) => {
@@ -130,19 +145,16 @@ export default function JournalClient({
     });
   };
 
+  // ✅ Featured is now always “first” based on sort/filter (no random mismatch per lang)
   const { featured, rest } = useMemo(() => {
-    if (!filtered.length)
+    if (!sortedFiltered.length) {
       return { featured: null as Post | null, rest: [] as Post[] };
-
-    const seed = `${dayKey()}-${lang}-${pillar}-${tag}-${q
-      .trim()
-      .toLowerCase()}`;
-    const idx = hash32(seed) % filtered.length;
-    const feat = filtered[idx];
-    const remainder = filtered.filter((_, i) => i !== idx);
-
-    return { featured: feat, rest: remainder };
-  }, [filtered, lang, pillar, tag, q]);
+    }
+    return {
+      featured: sortedFiltered[0],
+      rest: sortedFiltered.slice(1),
+    };
+  }, [sortedFiltered]);
 
   const canHover = useCallback(() => {
     if (typeof window === "undefined") return false;
@@ -185,7 +197,6 @@ export default function JournalClient({
   const onLeave = (e: React.MouseEvent<HTMLElement>) =>
     resetProgress(e.currentTarget);
 
-  // Ensure RAF is cleaned up on unmount
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -204,8 +215,14 @@ export default function JournalClient({
         setPillar={setPillar}
         tag={tag}
         setTag={setTag}
+        year={year}
+        setYear={setYear}
+        time={time}
+        setTime={setTime}
+        sort={sort}
+        setSort={setSort}
         onClear={clear}
-        count={filtered.length}
+        count={sortedFiltered.length}
       />
 
       <section
@@ -221,7 +238,6 @@ export default function JournalClient({
               {tt(lang, "Destacado", "Featured")}
             </div>
 
-            {/* Scroll-triggered + slow-rise, not autoplay on mount */}
             <motion.div
               className="mt-4"
               variants={sectionStaggerV}
@@ -229,18 +245,13 @@ export default function JournalClient({
               whileInView="show"
               viewport={VIEWPORT}
             >
-              <motion.div
-                variants={cardInV}
-                custom={0}
-                style={{ willChange: "transform, opacity" }}
-              >
+              <motion.div variants={cardInV} custom={0} style={{ willChange: "transform, opacity" }}>
                 <MotionLink
                   href={`/${lang}/journal/${featured.slug}`}
                   className={cn(
                     "group block overflow-hidden rounded-3xl",
                     "border border-(--olivea-olive)/14 bg-white/60",
                     "shadow-[0_16px_40px_rgba(40,60,35,0.10)]",
-                    // keep hover transitions on the link (fine)
                     "transition hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(40,60,35,0.14)]"
                   )}
                   onMouseEnter={onEnter}
@@ -270,13 +281,9 @@ export default function JournalClient({
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="truncate">{featured.pillar}</span>
                           <span className="opacity-60">·</span>
-                          <span className="whitespace-nowrap">
-                            {fmtDate(featured.publishedAt)}
-                          </span>
+                          <span className="whitespace-nowrap">{fmtDate(featured.publishedAt)}</span>
                           <span className="opacity-60">·</span>
-                          <span className="whitespace-nowrap">
-                            {featured.readingMinutes} min
-                          </span>
+                          <span className="whitespace-nowrap">{featured.readingMinutes} min</span>
                         </div>
                       </div>
 
@@ -321,7 +328,6 @@ export default function JournalClient({
         ) : null}
 
         <section id="posts" className="mt-8 sm:mt-10">
-          {/* Section-level stagger so it feels like Team/Press */}
           <motion.div
             className={cn(
               "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[repeat(3,minmax(360px,1fr))] gap-6 sm:gap-10"
@@ -340,11 +346,7 @@ export default function JournalClient({
                   key={`${p.lang}:${p.slug}`}
                   className="will-change-transform h-full"
                   variants={cardInV}
-                  custom={
-                    // “per-row” feel: 3 cols on xl, 2 cols on lg, 1 on mobile.
-                    // This keeps the stagger elegant instead of super long.
-                    i % 6
-                  }
+                  custom={i % 6}
                   style={{ willChange: "transform, opacity" }}
                 >
                   <MotionLink
@@ -384,9 +386,7 @@ export default function JournalClient({
                           <span className="opacity-60">·</span>
                           <span className="whitespace-nowrap">{prettyDate}</span>
                           <span className="opacity-60">·</span>
-                          <span className="whitespace-nowrap">
-                            {p.readingMinutes} min
-                          </span>
+                          <span className="whitespace-nowrap">{p.readingMinutes} min</span>
                         </div>
                       </div>
 
@@ -398,7 +398,6 @@ export default function JournalClient({
                         {p.excerpt || " "}
                       </p>
 
-                      {/* Footer zone pinned to bottom for uniform card height */}
                       <div className="mt-auto pt-5">
                         <div className="hidden sm:block min-h-14">
                           {p.tags?.length ? (
@@ -436,7 +435,7 @@ export default function JournalClient({
             })}
           </motion.div>
 
-          {filtered.length === 0 && (
+          {sortedFiltered.length === 0 && (
             <div className="mt-10 text-[15px] leading-7 text-(--olivea-clay) opacity-85">
               {lang === "es" ? "No hay resultados." : "No results found."}
             </div>
