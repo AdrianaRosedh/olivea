@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import ArticleReadTracker from "@/components/journal/ArticleReadTracker";
 
 import { getDictionary, type Lang } from "../../dictionaries";
 import {
@@ -180,6 +181,7 @@ export default async function JournalPostPage({
   return (
     <>
       <ReadingProgress />
+      <ArticleReadTracker slug={slug} />
 
       <ArticleDock
         lang={lang}
