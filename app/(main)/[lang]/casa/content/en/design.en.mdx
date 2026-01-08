@@ -1,53 +1,64 @@
+'use client';
+
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
-<StickyBlock
-  id="design"
-  variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        Design
-      </h2>
-    </Reveal>
-  }
->
-  <Sub id="luz" preset="up">
-    Natural light leads the architecture: soft in the morning, warmer by
-    afternoon. We avoid glare and favor indirect, gentle lighting.
-  </Sub>
+export default function Page() {
+  return (
+    <StickyBlock
+      id="design"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Design That Feels</h2>
+        </Reveal>
+      }
+    >
+      <div className="flex flex-col md:flex-row gap-10 items-center">
+        {/* Image LEFT */}
+        <motion.div
+          initial={{ opacity: 0, x: -60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="w-full md:w-1/2 h-[50vh] relative rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl"
+        >
+          <Image
+            src="/images/casa/InteriorRooms1.jpg"
+            alt="Design textures: clay, linen, light"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 500px"
+            quality={80}
+            priority
+          />
+        </motion.div>
 
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/casa/InteriorRooms1.jpg"
-      alt="Honest materials: stone, wood, linen"
-      heightVh={48}
-      speed={0.24}
-      scale={[1.04, 1]}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
-  </div>
-
-  <Sub id="materiales" preset="right">
-    Honest materials—stone, wood, linen, and clay. Textures that age well,
-    neutral aromas, and surfaces that invite touch and lingering.
-  </Sub>
-
-  <Sub id="sostenibilidad" preset="fade">
-    Glass water, refillable amenities, and solar power. Less plastic, more
-    efficiency—sustainability you feel without shouting.
-  </Sub>
-</StickyBlock>
+        {/* Text RIGHT */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="w-full md:w-1/2 text-gray-800 space-y-5"
+        >
+          <p className="text-lg" id="luz">
+            Light leads the architecture. In the morning, it’s soft and indirect.
+            By afternoon, warm and grounding. Every surface avoids glare, favoring calm.
+          </p>
+          <p className="text-base text-gray-700 leading-snug" id="materiales">
+            We use stone, wood, linen, and clay — materials that age well and hold warmth.
+            Nothing calls attention. Everything invites touch.
+          </p>
+          <p className="text-base text-gray-700 leading-snug" id="sostenibilidad">
+            Glass water. Refillable amenities. Solar power. Sustainability is embedded — not signposted.
+          </p>
+        </motion.div>
+      </div>
+    </StickyBlock>
+  );
+}

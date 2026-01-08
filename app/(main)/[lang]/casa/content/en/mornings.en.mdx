@@ -1,53 +1,86 @@
+'use client';
+
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
-<StickyBlock
-  id="mornings"
-  variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        Mornings
-      </h2>
-    </Reveal>
-  }
->
-  <Sub id="breakfast" preset="up">
-    Breakfast from the garden: fresh bread, seasonal fruit, whipped butter,
-    and house preserves—light or full, at your rhythm.
-  </Sub>
+export default function Page() {
+  return (
+    <StickyBlock
+      id="mornings"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Mornings at Olivea</h2>
+        </Reveal>
+      }
+    >
+      {/* Hero Image Full Bleed */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+        className="relative w-full h-[60vh] md:h-[70vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl mb-10"
+      >
+        <Image
+          src="/images/casa/cafe.jpg"
+          alt="Olivea Café — morning calm"
+          fill
+          className="object-cover"
+          quality={80}
+          sizes="100vw"
+          priority
+        />
+      </motion.div>
 
-  <Sub id="cafe" preset="left">
-    Single-origin coffee and clean brewing methods; tea and infusions on
-    request. Alternative milks available; beans ground to order to keep
-    aromas intact.
-  </Sub>
+      {/* Layered Text Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-800 leading-relaxed">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          id="breakfast"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">Breakfast</p>
+          <p>
+            A seasonal continental breakfast is included every day. Bread, fruit, soft-boiled eggs, and house-made preserves —
+            served at Olivea Café.
+          </p>
+        </motion.div>
 
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/casa/cafe.jpg"
-      alt="Mornings: coffee, light, and calm"
-      heightVh={46}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
-  </div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          viewport={{ once: true }}
+          id="cafe"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">Coffee & Ritual</p>
+          <p>
+            Single-origin beans. Clean brewing. Teas and infusions on request. Alternative milks available.
+            Ground to order — aromas preserved until the pour.
+          </p>
+        </motion.div>
 
-  <Sub id="ritmo" preset="fade">
-    Pool hours and quiet hours protect your rest. Leaving early? We’ll pack
-    a small basket—fruit, bread, and a drink for the road.
-  </Sub>
-</StickyBlock>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          viewport={{ once: true }}
+          id="ritmo"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">Quiet Mornings</p>
+          <p>
+            Pool hours and quiet zones protect the early rhythm. Leaving early? We’ll pack a basket —
+            fruit, bread, and a drink for the road.
+          </p>
+        </motion.div>
+      </div>
+    </StickyBlock>
+  );
+}

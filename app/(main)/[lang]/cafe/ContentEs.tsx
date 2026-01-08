@@ -10,7 +10,7 @@ import Bebidas     from './content/es/bebidas.es.mdx';
 
 export default function ContentEs() {
   return (
-    <ScrollLimiter topOffsetPx={120} anchorSelector=".subsection" className="snap-container">
+    <ScrollLimiter topOffsetPx={120} anchorSelector=".subsection" className="snap-container scroll-smooth">
       <Hero />
       <Experiencia />
       <Desayuno />

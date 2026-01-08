@@ -1,52 +1,70 @@
+'use client';
+
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
+import { motion } from 'framer-motion';
+import Image from "next/image";
 
-<StickyBlock
-  id="rooms"
-  variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        Rooms
-      </h2>
-    </Reveal>
-  }
->
-  <Sub id="esencia" preset="blur-up">
-    We’re a warm extension of your home. Fourteen rooms named after aromatic
-    plants welcome you with what matters most: rest and peace.
-  </Sub>
+export default function Page() {
+  return (
+    <StickyBlock
+      id="rooms"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Our Suites</h2>
+        </Reveal>
+      }
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2 }}
+        viewport={{ once: true }}
+        className="text-lg text-gray-800 leading-relaxed max-w-[720px] space-y-5"
+      >
+        <p>
+          Fourteen suites — each named after an aromatic plant — offer space, warmth, and a sense of return.
+          This is where your rhythm resets.
+        </p>
+        <p>
+          King-size beds, blackout curtains, and natural fiber textures invite deep rest. All rooms are designed for two adults — quiet, light-filled, and considered.
+        </p>
+      </motion.div>
 
-  <Sub id="detalle" preset="up">
-    Beds, linens, and every detail are chosen for comfort. Filtered water in
-    glass is refreshed daily; we avoid visual noise so sleep comes easily.
-  </Sub>
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2, delay: 0.2 }}
+        viewport={{ once: true }}
+        className="mt-10 relative w-full max-w-5xl h-[50vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl"
+      >
+        <Image
+          src="/images/casa/room.jpg"
+          alt="Suite with soft textures and calm lighting"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 900px"
+          quality={80}
+          priority
+        />
+      </motion.div>
 
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/casa/room.jpg"
-      alt="Room — light, order and calm"
-      heightVh={46}
-      speed={0.24}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
-  </div>
-
-  <Sub id="luz" preset="left">
-    Rooms and bathrooms are generous; natural light plays a central role.
-    It feels like arriving at your own room—and letting the space settle you.
-  </Sub>
-</StickyBlock>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.1, delay: 0.4 }}
+        viewport={{ once: true }}
+        className="text-base text-gray-700 leading-snug max-w-[700px] mt-6"
+        id="luz"
+      >
+        <p>
+          Light shifts throughout the day. In the morning, it filters softly through curtains.
+          In the evening, it settles — warm, indirect, grounding.
+        </p>
+      </motion.div>
+    </StickyBlock>
+  );
+}

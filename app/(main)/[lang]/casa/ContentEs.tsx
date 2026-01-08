@@ -10,7 +10,7 @@ import Servicios from './content/es/servicios.es.mdx'
 
 export default function ContentEs() {
   return (
-    <ScrollLimiter topOffsetPx={120} anchorSelector=".subsection" className="snap-container">
+    <ScrollLimiter topOffsetPx={120} anchorSelector=".subsection" className="snap-container scroll-smooth">
       <Hero />
       <Habitaciones />
       <Patio />
