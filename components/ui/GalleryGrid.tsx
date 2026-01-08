@@ -38,7 +38,7 @@ export default function ScrollGallerySplit() {
         {topImages.map((img, i) => (
           <div
             key={`top-${i}`}
-            className="relative min-w-[75vw] md:min-w-[35vw] h-[50vh] rounded-2xl overflow-hidden shadow-xl border border-black/10"
+            className="relative min-w-[75vw] md:min-w-[35vw] h-[50vh] rounded-2xl overflow-hidden border border-black/10"
           >
             <Image
               src={img.src}
@@ -59,7 +59,7 @@ export default function ScrollGallerySplit() {
         {bottomImages.map((img, i) => (
           <div
             key={`bottom-${i}`}
-            className="relative min-w-[75vw] md:min-w-[35vw] h-[50vh] rounded-2xl overflow-hidden shadow-xl border border-black/10"
+            className="relative min-w-[75vw] md:min-w-[35vw] h-[50vh] rounded-2xl overflow-hidden border border-black/10"
           >
             <Image
               src={img.src}
