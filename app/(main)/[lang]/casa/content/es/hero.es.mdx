@@ -126,7 +126,23 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
                 RESERVAR
               </button>
 
-              <MenuScrollButton
+              <a
+                href="#servicios"
+                aria-label="Ver servicios"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (typeof window === 'undefined') return
+                  const el =
+                    document.getElementById('servicios') ||
+                    document.querySelector('.main-section#servicios')
+                  if (!el) return
+                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h')
+                  const header = Number.parseInt(v || '64', 10) || 64
+                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8
+                  window.scrollTo({ top, behavior: 'smooth' })
+                  if (window.location.hash.slice(1) !== 'servicios')
+                    history.replaceState(null, '', '#servicios')
+                }}
                 className="
                   inline-flex items-center justify-center
                   rounded-full px-3.5 py-1.5 text-[15px]
@@ -141,7 +157,8 @@ import MenuScrollButton from '@/components/links/MenuScrollButton'
                 "
               >
                 Servicios
-              </MenuScrollButton>
+              </a>
+              
             </div>
           </Reveal>
         </div>
