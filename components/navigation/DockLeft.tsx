@@ -1,3 +1,4 @@
+// components/navigation/DockLeft.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 /* ── Types ───────────────────────────────────────────────────────── */
 type Identity = "casa" | "cafe" | "farmtotable";
+type Lang = "es" | "en";
 
 export type NavOverride = Array<{
   id: string;
@@ -21,14 +23,17 @@ export type NavOverride = Array<{
 interface DockLeftProps {
   identity: Identity;
   sectionsOverride: NavOverride;
+
+  /** Optional: lets DockLeft render “Capítulos/Chapters” like PhilosophyDockLeft */
+  lang?: Lang;
 }
 
 /* ── Constants ───────────────────────────────────────────────────── */
 const TOP_OFFSET_PX = 120;
-const MANUAL_MS = 1000;
+const MANUAL_MS = 900;
 
 /** Must be constant for clean up/down swap */
-const SWAP_Y = 28;
+const SWAP_Y = 26;
 
 /** Active detection “center band” */
 const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
@@ -37,6 +42,7 @@ const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
 type GsapCore = {
   to: (target: unknown, vars: Record<string, unknown>) => unknown;
   registerPlugin: (...plugins: unknown[]) => void;
+  killTweensOf: (target: unknown) => void;
 };
 
 type DefaultExport<T> = { default: T };
@@ -89,6 +95,10 @@ function prefersReducedMotion(): boolean {
 }
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
+function tt(lang: Lang, es: string, en: string) {
+  return lang === "es" ? es : en;
+}
+
 function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
   const vh = window.innerHeight;
   const rect = el.getBoundingClientRect();
@@ -141,15 +151,24 @@ function nativeScrollToElement(
 
   const sEl = scroller as Element;
   const sRect = sEl.getBoundingClientRect();
-  const current = sEl.scrollTop;
+  const current = (sEl as HTMLElement).scrollTop;
   const target = Math.max(0, current + (rect.top - sRect.top) - offsetY);
-  sEl.scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
+  (sEl as HTMLElement).scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
 }
 
-/* ── Motion easings ──────────────────────────────────────────────── */
-const EASE_IN_OUT: [number, number, number, number] = [0.4, 0, 0.2, 1];
+/* ── Motion easings / variants (Philosophy look) ─────────────────── */
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE_IN_OUT: [number, number, number, number] = [0.4, 0, 0.2, 1];
 const EASE_IN: [number, number, number, number] = [0.12, 0, 0.39, 0];
+
+const dockV: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: EASE_OUT, delay: 0.25 },
+  },
+};
 
 const subContainerVariants: Variants = {
   open: {
@@ -189,7 +208,10 @@ const subItemVariants: Variants = {
 };
 
 /* ── Component ───────────────────────────────────────────────────── */
-export default function DockLeft({ sectionsOverride }: DockLeftProps) {
+export default function DockLeft({
+  sectionsOverride,
+  lang = "es",
+}: DockLeftProps) {
   const reduce = useReducedMotion();
 
   const items = useMemo(
@@ -250,7 +272,6 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
       );
 
       const scroller = getScrollableAncestor(el);
-
       const shouldUseNative = !isDesktop() || reduce || prefersReducedMotion();
 
       if (shouldUseNative) {
@@ -274,8 +295,10 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
 
       const gsap = await getGsap();
 
+      gsap.killTweensOf(scroller);
+
       const vars: Record<string, unknown> = {
-        duration: reduce ? 0 : 1.05,
+        duration: reduce ? 0 : 0.95,
         ease: "power3.out",
         overwrite: "auto",
         scrollTo: { y: el, offsetY: TOP_OFFSET_PX, autoKill: false },
@@ -284,14 +307,15 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
           const currentY =
             scroller === window
               ? window.scrollY
-              : (scroller as Element).scrollTop;
+              : (scroller as HTMLElement).scrollTop;
 
           if (Math.abs(currentY - targetY) > 10) {
             if (scroller === window)
               window.scrollTo({ top: targetY, behavior: "auto" });
             else
-              (scroller as Element).scrollTo({ top: targetY, behavior: "auto" });
+              (scroller as HTMLElement).scrollTo({ top: targetY, behavior: "auto" });
           }
+
           setSnapDisabled(false);
         },
       };
@@ -402,36 +426,35 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
   return (
     <nav
       className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 pointer-events-auto"
-      aria-label="Secciones"
+      aria-label={tt(lang, "Capítulos", "Chapters")}
     >
-      <div className="relative">
-        {/* Rail that breathes (feng shui): fades top/bottom */}
-        <div className="absolute left-4.5 top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/10 to-transparent" />
+      <motion.div
+        variants={dockV}
+        initial={reduce ? false : "hidden"}
+        animate="show"
+        className="relative"
+      >
+        {/* rail */}
+        <div className="absolute left-4.5 top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/12 to-transparent" />
 
-        <div className="flex flex-col gap-6">
+        {/* header */}
+        <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-55">
+          {tt(lang, "Capítulos", "Chapters")}
+        </div>
+
+        <div className="flex flex-col gap-5">
           {items.map((item) => {
             const isActive = item.id === activeSection;
             const isHovered = item.id === hoveredId;
-
-            // hover gets the full swap; active stays grounded.
-            const isSwapping = isHovered;
-            const isIntent = isHovered || isActive;
+            const isIntent = isActive || isHovered;
+            const isSwapping = isHovered && !reduce;
 
             const textClass = isActive
-              ? "text-(--olivea-olive)"
-              : "text-(--olivea-clay) opacity-70 hover:opacity-100 hover:text-(--olivea-olive)";
-
-            const driftX = reduce ? 0 : isIntent ? 3 : 0;
-            const wrapperClass = isActive ? "mb-4" : "mb-0";
+              ? "text-(--olivea-olive) font-black"
+              : "text-(--olivea-olive) opacity-75 hover:opacity-100 hover:text-(--olivea-olive)";
 
             return (
-              <div
-                key={item.id}
-                className={cn(
-                  "flex flex-col transition-[margin] duration-200",
-                  wrapperClass
-                )}
-              >
+              <div key={item.id} className={cn("flex flex-col", isActive ? "mb-4" : "mb-0")}>
                 <a
                   href={`#${item.id}`}
                   onClick={(e) => handleSmoothScroll(e, item.id)}
@@ -440,15 +463,14 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                   onFocus={() => setHoveredId(item.id)}
                   onBlur={() => setHoveredId(null)}
                   className={cn(
-                    "group relative flex items-center gap-4 cursor-pointer",
-                    "rounded-md outline-none",
+                    "group relative flex items-center gap-4 rounded-md outline-none",
                     "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/25",
                     "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-white)",
                     textClass
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  {/* Active stem marker */}
+                  {/* active stem */}
                   <AnimatePresence initial={false}>
                     {isActive && (
                       <motion.span
@@ -456,46 +478,32 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                         initial={{ opacity: 0, scaleY: 0.7 }}
                         animate={{ opacity: 1, scaleY: 1 }}
                         exit={{ opacity: 0, scaleY: 0.7 }}
-                        transition={{
-                          duration: reduce ? 0 : 0.18,
-                          ease: EASE_OUT,
-                        }}
+                        transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
                         className="absolute left-4.5 top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-olive)/35 origin-center"
                       />
                     )}
                   </AnimatePresence>
 
-                  {/* Chapter numbers */}
+                  {/* numbers (Philosophy sizing) */}
                   <span
                     className={cn(
-                      "w-10 tabular-nums text-sm tracking-[0.22em] font-semibold",
-                      isActive ? "opacity-85" : "opacity-55"
+                      "w-10 tabular-nums text-[12px] tracking-[0.28em] font-semibold",
+                      isActive ? "opacity-80" : "opacity-55"
                     )}
                   >
                     {item.number}
                   </span>
 
-                  {/* Drift wraps the label swap so swap stays aligned */}
-                  <motion.div
-                    initial={false}
-                    animate={reduce ? { x: 0 } : { x: driftX }}
-                    transition={{ type: "spring", stiffness: 220, damping: 22 }}
-                    className="relative h-8 overflow-hidden min-w-55"
-                  >
-                    {/* outgoing label */}
+                  {/* label swap (Philosophy sizing + serif) */}
+                  <div className="relative h-8 overflow-hidden min-w-55">
                     <motion.div
-                      className={cn(
-                        "block text-2xl font-semibold whitespace-nowrap",
-                        isActive ? "opacity-100" : "opacity-95"
-                      )}
+                      className="block text-[18px] font-semibold whitespace-nowrap"
+                      style={{ fontFamily: "var(--font-serif)" }}
                       initial={false}
                       animate={
                         reduce
                           ? { y: 0, opacity: 1 }
-                          : {
-                              y: isSwapping ? -SWAP_Y : 0,
-                              opacity: isSwapping ? 0 : 1,
-                            }
+                          : { y: isSwapping ? -SWAP_Y : 0, opacity: isSwapping ? 0 : 1 }
                       }
                       transition={{
                         y: { type: "spring", stiffness: 220, damping: 22 },
@@ -505,20 +513,14 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                       {item.label}
                     </motion.div>
 
-                    {/* incoming label (hover reveal) */}
                     <motion.div
-                      className={cn(
-                        "block text-2xl font-semibold absolute top-0 left-0 whitespace-nowrap",
-                        isSwapping ? "opacity-100" : "opacity-0"
-                      )}
+                      className="block text-[18px] font-semibold absolute top-0 left-0 whitespace-nowrap"
+                      style={{ fontFamily: "var(--font-serif)" }}
                       initial={reduce ? false : { y: SWAP_Y, opacity: 0 }}
                       animate={
                         reduce
                           ? { y: 0, opacity: 1 }
-                          : {
-                              y: isSwapping ? 0 : SWAP_Y,
-                              opacity: isSwapping ? 1 : 0,
-                            }
+                          : { y: isSwapping ? 0 : SWAP_Y, opacity: isSwapping ? 1 : 0 }
                       }
                       transition={{
                         y: { type: "spring", stiffness: 220, damping: 22 },
@@ -528,7 +530,6 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                       {item.label}
                     </motion.div>
 
-                    {/* underline */}
                     <motion.span
                       aria-hidden="true"
                       className="absolute left-0 right-6 -bottom-2 h-px bg-(--olivea-olive)/14 origin-left"
@@ -537,15 +538,12 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                         scaleX: isIntent ? 1 : 0,
                         opacity: isIntent ? 1 : 0,
                       }}
-                      transition={{
-                        duration: reduce ? 0 : 0.18,
-                        ease: EASE_OUT,
-                      }}
+                      transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
                     />
-                  </motion.div>
+                  </div>
                 </a>
 
-                {/* Sub-sections */}
+                {/* Sub-sections (kept, but typography already calm) */}
                 <AnimatePresence initial={false}>
                   {isActive && subsForSection(item.id).length > 0 && (
                     <motion.div
@@ -576,16 +574,14 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
                                   "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-white)",
                                   isSubActive
                                     ? "text-(--olivea-olive) font-semibold"
-                                    : "text-(--olivea-clay) opacity-80 hover:opacity-100 hover:text-(--olivea-olive)"
+                                    : "text-(--olivea-olive) opacity-70 hover:opacity-100 hover:text-(--olivea-olive)"
                                 )}
                                 aria-current={isSubActive ? "page" : undefined}
                               >
                                 <span
                                   className={cn(
                                     "absolute -left-3 top-[0.62em] h-1 w-2 rounded-full",
-                                    isSubActive
-                                      ? "bg-(--olivea-olive)/40"
-                                      : "bg-transparent"
+                                    isSubActive ? "bg-(--olivea-olive)/40" : "bg-transparent"
                                   )}
                                 />
                                 {sub.label}
@@ -601,7 +597,7 @@ export default function DockLeft({ sectionsOverride }: DockLeftProps) {
             );
           })}
         </div>
-      </div>
+      </motion.div>
     </nav>
   );
 }

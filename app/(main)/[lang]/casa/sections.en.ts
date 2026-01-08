@@ -54,10 +54,10 @@ export const SECTIONS_CASA_EN: NavSection[] = [
     subs: [
       { id: "conectividad", title: "Wi-Fi" },
       { id: "confort", title: "Comfort" },
-      { id: "amenities", title: "Amenities" },
-      { id: "accesibilidad", title: "Access" },
-      { id: "concierge", title: "Concierge" },
-      { id: "valle", title: "Valle Support" },
+      { id: "detalles-habitacion", title: "Amenities" },
+      { id: "opciones-accesibles", title: "Access" },
+      { id: "conserjeria", title: "Concierge" },
+      { id: "conexion-local", title: "Valle Support" },
     ],
   },
   {

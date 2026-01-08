@@ -4,23 +4,25 @@ export type NavSection = { id: string; title: string; subs?: NavSub[] };
 
 export const SECTIONS_CASA_ES: NavSection[] = [
   {
-    id: "habitaciones",
+    id: "rooms",
     title: "Habitaciones",
     subs: [
+      { id: "esencia", title: "Esencia" },
+      { id: "detalle", title: "Comodidad" },
       { id: "luz", title: "Luz" },
     ],
   },
   {
-    id: "diseno",
+    id: "design",
     title: "Diseño",
     subs: [
-      { id: "iluminacion", title: "Luz" },
+      { id: "luz", title: "Luz" },
       { id: "materiales", title: "Materiales" },
       { id: "sostenibilidad", title: "Sostenibilidad" },
     ],
   },
   {
-    id: "patio",
+    id: "courtyard",
     title: "Patio",
     subs: [
       { id: "memoria", title: "Memoria" },
@@ -30,11 +32,11 @@ export const SECTIONS_CASA_ES: NavSection[] = [
   },
 
   {
-    id: "mananas",
+    id: "mornings",
     title: "Mañanas",
     subs: [
       { id: "desayuno", title: "Desayuno" },
-      { id: "programa_cafe", title: "Café" },
+      { id: "cafe", title: "Café" },
       { id: "ritmo", title: "Ritmo" },
     ],
   },
@@ -49,15 +51,15 @@ export const SECTIONS_CASA_ES: NavSection[] = [
     ],
   },
   {
-    id: "servicios",
+    id: "services",
     title: "Servicios",
     subs: [
       { id: "conectividad", title: "Conectividad" },
       { id: "confort", title: "Comodidad" },
-      { id: "detalles-habitacion", title: "Amenidades" },
-      { id: "opciones-accesibles", title: "Accesibilidad" },
-      { id: "conserjeria", title: "Conserjería" },
-      { id: "conexion-local", title: "Conexión local" },
+      { id: "amenidades", title: "Amenidades" },
+      { id: "accesibilidad", title: "Accesibilidad" },
+      { id: "concierge", title: "Conserjería" },
+      { id: "valle", title: "Conexión local" },
     ],
   },
   {

@@ -1,32 +1,86 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
+"use client";
 
-<StickyBlock
-  id="mananas"
-  variant="top"
-  className="main-section snap-start py-12 md:py-20"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Mañanas</h2></Reveal>}
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
->
-  <Sub id="desayuno" preset="up">
-    Cada mañana despierta con aromas frescos. El desayuno en Olivea incluye pan recién horneado, fruta de estación y café de especialidad, servido en nuestro patio bañado por el sol temprano.
-  </Sub>
-  <Sub id="programa_cafe" preset="left">
-    Nuestro programa de café destaca variedades locales e internacionales tostadas a la perfección. Puedes disfrutar tu taza en la tranquilidad de tu habitación o acompañado de la brisa matutina en el jardín.
-  </Sub>
+import StickyBlock from '@/components/scroll/StickyBlock';
+import Reveal from '@/components/scroll/Reveal';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 
-  <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
-    <ParallaxImage 
-      src="/images/casa/morning.jpg" 
-      alt="Desayuno al aire libre en Casa Olivea" 
-      heightVh={50} 
-      speed={0.20} 
-    />
-  </div>
+export default function Page() {
+  return (
+    <StickyBlock
+      id="mananas"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Mañanas en Olivea</h2>
+        </Reveal>
+      }
+    >
+      {/* Imagen principal */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+        className="relative w-full h-[60vh] md:h-[70vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl mb-10"
+      >
+        <Image
+          src="/images/casa/morning.jpg"
+          alt="Desayuno al aire libre en Casa Olivea"
+          fill
+          className="object-cover"
+          quality={80}
+          sizes="100vw"
+          priority
+        />
+      </motion.div>
 
-  <Sub id="ritmo" preset="fade">
-    Las mañanas en Casa OLIVEA tienen su propio ritmo, sin prisas. Ya sea que salgas a explorar el Valle o prefieras quedarte leyendo en nuestro patio, te brindamos un comienzo de día sereno y revitalizante.
-  </Sub>
-</StickyBlock>
+      {/* Texto en columnas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-800 leading-relaxed">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          id="desayuno"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">Desayuno</p>
+          <p>
+            Cada mañana comienza con pan artesanal, fruta fresca, huevos suaves y mermeladas caseras —
+            servido en nuestro café rodeado de calma.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          viewport={{ once: true }}
+          id="programa_cafe"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">Café & Ritual</p>
+          <p>
+            Granos de origen único, métodos de extracción limpios, infusiones y tés a pedido. 
+            Leches vegetales disponibles. El aroma se conserva hasta el último vertido.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          viewport={{ once: true }}
+          id="ritmo"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">Ritmo Suave</p>
+          <p>
+            Las zonas de silencio y horarios suaves en la alberca cuidan el inicio del día.
+            ¿Tienes que salir temprano? Te preparamos una canasta: fruta, pan y bebida para llevar.
+          </p>
+        </motion.div>
+      </div>
+    </StickyBlock>
+  );
+}

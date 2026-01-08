@@ -1,33 +1,62 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
-import ParallaxImage from '@/components/scroll/ParallaxImage'
+'use client';
 
-<StickyBlock
-  id="patio"
-  variant="top"
-  className="main-section snap-start py-12 md:py-20"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold">Patio</h2></Reveal>}
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
->
-  <Sub id="memoria" preset="up">
-    Como en las casas de antaño, nuestro patio central evoca memorias: corredores largos que abrazan un espacio de paz donde cada paso apacigua.
-  </Sub>
-  <Sub id="estetica_equilibrio" preset="left">
-    Plantas aromáticas, grava impecable y al centro una piscina serena. Un cuadro estético y equilibrado que te recarga de energía a cualquier hora del día.
-  </Sub>
+import StickyBlock from '@/components/scroll/StickyBlock';
+import Reveal from '@/components/scroll/Reveal';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 
-  <div className="relative overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]">
-    <ParallaxImage 
-      src="/images/casa/patio.jpg" 
-      alt="Patio central de Casa Olivea — armonía y serenidad" 
-      heightVh={50} 
-      speed={0.26} 
-      scale={[1.04, 1]} 
-    />
-  </div>
+export default function Page() {
+  return (
+    <StickyBlock
+      id="patio"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Patio</h2>
+        </Reveal>
+      }
+    >
+      <div className="flex flex-col md:flex-row gap-10 md:items-center">
+        {/* Text Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="w-full md:w-1/2 text-gray-800 space-y-5"
+        >
+          <p className="text-lg" id="memoria">
+            Como en las casas de antaño, nuestro patio central evoca memorias: corredores largos que abrazan un espacio de paz donde cada paso apacigua.
+          </p>
+          <p className="text-base text-gray-700 leading-snug" id="estetica_equilibrio">
+            Plantas aromáticas, grava impecable y al centro una piscina serena. Un cuadro estético y equilibrado que te recarga de energía a cualquier hora del día.
+          </p>
+          <p className="text-base text-gray-700 leading-snug" id="serenidad_clima">
+            Es un refugio al aire libre donde el clima y la naturaleza regalan serenidad. Bajo el sol o las estrellas, el patio cobija con su tranquilidad en cada estación.
+          </p>
+        </motion.div>
 
-  <Sub id="serenidad_clima" preset="fade">
-    Es un refugio al aire libre donde el clima y la naturaleza regalan serenidad. Bajo el sol o las estrellas, el patio cobija con su tranquilidad en cada estación.
-  </Sub>
-</StickyBlock>
+        {/* Image Section */}
+        <motion.div
+          initial={{ opacity: 0, x: 60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="w-full md:w-1/2 h-[50vh] relative rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl"
+        >
+          <Image
+            src="/images/casa/patio.jpg"
+            alt="Patio central de Casa Olivea — armonía y serenidad"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            quality={80}
+            priority
+          />
+        </motion.div>
+      </div>
+    </StickyBlock>
+  );
+}

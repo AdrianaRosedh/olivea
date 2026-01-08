@@ -1,0 +1,21 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import ModernFAQ from "@/components/ui/ModernFAQ";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="faq"
+      variant="top"
+      className="pt-10 pb-10 md:pt-20 md:pb-18 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Before You Book</h2>
+        </Reveal>
+      }
+    >
+      <ModernFAQ />
+    </StickyBlock>
+  );
+}

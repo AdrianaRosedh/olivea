@@ -1,29 +1,23 @@
-import StickyBlock from '@/components/scroll/StickyBlock'
-import Reveal from '@/components/scroll/Reveal'
-import Sub from '@/components/scroll/Sub'
+'use client';
 
-<StickyBlock
-  id="servicios"
-  variant="top"
-  className="main-section snap-start py-12 md:py-20"
-  title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Servicios</h2></Reveal>}
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
->
-  <div className="space-y-6 md:space-y-8">
-    <Sub id="conectividad" preset="up">
-      **Wi-Fi:** Conexión Wi-Fi rápida y estable en todas las áreas, con enchufes universales y puertos USB-C a mano para que siempre estés conectado.
-    </Sub>
-    <Sub id="confort_termico" preset="left">
-      **Confort Térmico:** Habitaciones equipadas con cortinas blackout efectivas, ventilación natural y climatización regulable, para que descanses a tu temperatura ideal.
-    </Sub>
-    <Sub id="agua_amenities" preset="right">
-      **Agua y Amenities:** Agua purificada ofrecida en botellas de vidrio reutilizables y amenidades de baño rellenables – lujo sostenible que reduce plásticos.
-    </Sub>
-    <Sub id="accesibilidad" preset="fade">
-      **Accesibilidad:** Contamos con habitaciones en planta baja disponibles bajo petición, facilitando el acceso a personas con movilidad reducida.
-    </Sub>
-    <Sub id="concierge" preset="up">
-      **Concierge:** Servicio de concierge vía WhatsApp para ayudarte con recomendaciones locales, reservas en restaurantes y cualquier otra solicitud durante tu estancia.
-    </Sub>
-  </div>
-</StickyBlock>
+import StickyBlock from '@/components/scroll/StickyBlock';
+import Reveal from '@/components/scroll/Reveal';
+import ServicesList from '@/components/mdx/ServicesGrid';
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="servicios"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Servicios</h2>
+        </Reveal>
+      }
+    >
+      <ServicesList />
+    </StickyBlock>
+  );
+}

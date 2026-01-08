@@ -1,0 +1,15 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import GalleryGrid from "@/components/ui/GalleryGrid";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="gallery"
+      variant="top"
+      className="pt-20 pb-10 md:pt-32 md:pb-20 snap-start"
+      containerClassName="w-full md:max-w-[92vw] md:mx-auto"
+    >
+      <GalleryGrid />
+    </StickyBlock>
+  );
+}
