@@ -12,22 +12,18 @@ export default function Page() {
       variant="top"
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
-      title={
-        <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">Mornings at Olivea</h2>
-        </Reveal>
-      }
+      title={null}   
     >
-      {/* Hero Image Full Bleed */}
+      {/* Hero Image */}
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="relative w-full h-[60vh] md:h-[70vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl mb-10"
+        className="relative w-full h-[60vh] md:h-[70vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl mb-6 md:mb-10"
       >
         <Image
-          src="/images/casa/cafe.jpg"
+          src="/images/casa/morning.jpg"
           alt="Olivea Café — morning calm"
           fill
           className="object-cover"
@@ -37,8 +33,16 @@ export default function Page() {
         />
       </motion.div>
 
-      {/* Layered Text Grid */}
+      {/* Title UNDER image */}
+      <Reveal preset="up">
+        <h2 className="text-2xl md:text-4xl font-semibold mb-8">
+          Mornings at Olivea
+        </h2>
+      </Reveal>
+
+      {/* Text Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-800 leading-relaxed">
+        {/* Breakfast */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -46,13 +50,22 @@ export default function Page() {
           viewport={{ once: true }}
           id="breakfast"
         >
-          <p className="text-lg font-medium text-gray-600 mb-2">Breakfast</p>
+          <p className="text-lg font-medium text-gray-600 mb-2">
+            Breakfast
+          </p>
           <p>
-            A seasonal continental breakfast is included every day. Bread, fruit, soft-boiled eggs, and house-made preserves —
-            served at Olivea Café.
+            Hotel guests begin the day with a thoughtfully designed continental
+            breakfast, created by the Olivea kitchen. House-made bread, vegetables 
+            from our garden, and a selection of local and in-house preparations are served
+            simply — fresh, balanced, and rooted in the garden.
+          </p>
+          <p className="mt-3 text-sm text-gray-600">
+            Coffee service included with breakfast consists of an americano,
+            espresso, or tea.
           </p>
         </motion.div>
 
+        {/* Coffee & Café */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -60,24 +73,18 @@ export default function Page() {
           viewport={{ once: true }}
           id="cafe"
         >
-          <p className="text-lg font-medium text-gray-600 mb-2">Coffee & Ritual</p>
-          <p>
-            Single-origin beans. Clean brewing. Teas and infusions on request. Alternative milks available.
-            Ground to order — aromas preserved until the pour.
+          <p className="text-lg font-medium text-gray-600 mb-2">
+            Coffee & Olivea Café
           </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          viewport={{ once: true }}
-          id="ritmo"
-        >
-          <p className="text-lg font-medium text-gray-600 mb-2">Quiet Mornings</p>
           <p>
-            Pool hours and quiet zones protect the early rhythm. Leaving early? We’ll pack a basket —
-            fruit, bread, and a drink for the road.
+            For guests seeking a broader or more expressive morning experience,
+            Olivea Café offers an expanded breakfast menu alongside a full
+            selection of crafted coffee drinks. Espresso-based beverages,
+            specialty preparations, and additional breakfast plates are available
+            directly at the café.
+          </p>
+          <p className="mt-3 text-sm text-gray-600">
+            There are certain items ordered from Olivea Café that are not included in the hotel stay.
           </p>
         </motion.div>
       </div>

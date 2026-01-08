@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import StickyBlock from '@/components/scroll/StickyBlock';
-import Reveal from '@/components/scroll/Reveal';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function Page() {
   return (
@@ -14,12 +14,13 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">Patio</h2>
+          {/* Mobile title */}
+          <h2 className="text-2xl md:text-4xl font-semibold md:hidden">Patio</h2>
         </Reveal>
       }
     >
       <div className="flex flex-col md:flex-row gap-10 md:items-center">
-        {/* Text Section */}
+        {/* Text LEFT */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -27,18 +28,36 @@ export default function Page() {
           viewport={{ once: true }}
           className="w-full md:w-1/2 text-gray-800 space-y-5"
         >
+          {/* Desktop title */}
+          <Reveal preset="up">
+            <h2 className="hidden md:block text-3xl lg:text-4xl font-semibold mb-6">
+              Patio
+            </h2>
+          </Reveal>
+
           <p className="text-lg" id="memoria">
-            Como en las casas de antaño, nuestro patio central evoca memorias: corredores largos que abrazan un espacio de paz donde cada paso apacigua.
+            Como en la naturaleza, nuestro patio central evoca memorias:
+            corredores largos que abrazan un espacio de paz donde cada paso
+            apacigua.
           </p>
-          <p className="text-base text-gray-700 leading-snug" id="estetica_equilibrio">
-            Plantas aromáticas, grava impecable y al centro una piscina serena. Un cuadro estético y equilibrado que te recarga de energía a cualquier hora del día.
+
+          <p
+            className="text-base text-gray-700 leading-snug"
+            id="estetica_equilibrio"
+          >
+            Plantas aromáticas, grava impecable y al centro una piscina serena.
+            Un cuadro estético y equilibrado que te recarga de energía a cualquier
+            hora del día.
           </p>
+ 
           <p className="text-base text-gray-700 leading-snug" id="serenidad_clima">
-            Es un refugio al aire libre donde el clima y la naturaleza regalan serenidad. Bajo el sol o las estrellas, el patio cobija con su tranquilidad en cada estación.
+            Es un refugio al aire libre donde el clima y la naturaleza regalan
+            serenidad. Bajo el sol o las estrellas, el patio cobija con su
+            tranquilidad en cada estación.
           </p>
         </motion.div>
 
-        {/* Image Section */}
+        {/* Image RIGHT */}
         <motion.div
           initial={{ opacity: 0, x: 60 }}
           whileInView={{ opacity: 1, x: 0 }}

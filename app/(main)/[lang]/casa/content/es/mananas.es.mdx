@@ -1,9 +1,9 @@
 "use client";
 
-import StickyBlock from '@/components/scroll/StickyBlock';
-import Reveal from '@/components/scroll/Reveal';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function Page() {
   return (
@@ -12,11 +12,7 @@ export default function Page() {
       variant="top"
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
-      title={
-        <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">Mañanas en Olivea</h2>
-        </Reveal>
-      }
+      title={null} // ✅ remove top title
     >
       {/* Imagen principal */}
       <motion.div
@@ -24,11 +20,11 @@ export default function Page() {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="relative w-full h-[60vh] md:h-[70vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl mb-10"
+        className="relative w-full h-[60vh] md:h-[70vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl mb-6 md:mb-10"
       >
         <Image
           src="/images/casa/morning.jpg"
-          alt="Desayuno al aire libre en Casa Olivea"
+          alt="Mañanas en Casa Olivea"
           fill
           className="object-cover"
           quality={80}
@@ -37,8 +33,16 @@ export default function Page() {
         />
       </motion.div>
 
+      {/* Título debajo de la imagen */}
+      <Reveal preset="up">
+        <h2 className="text-2xl md:text-4xl font-semibold mb-8">
+          Mañanas en Olivea
+        </h2>
+      </Reveal>
+
       {/* Texto en columnas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-800 leading-relaxed">
+        {/* Desayuno */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -48,36 +52,36 @@ export default function Page() {
         >
           <p className="text-lg font-medium text-gray-600 mb-2">Desayuno</p>
           <p>
-            Cada mañana comienza con pan artesanal, fruta fresca, huevos suaves y mermeladas caseras —
-            servido en nuestro café rodeado de calma.
+            Los huéspedes del hotel comienzan el día con un desayuno continental
+            diseñado por la cocina de Olivea. Pan hecho en casa, vegetales
+            de nuestro huerto y una selección de acompañamientos locales y preparados
+            internamente — servido de forma simple, fresca y equilibrada.
+          </p>
+          <p className="mt-3 text-sm text-gray-600">
+            El café incluido en el desayuno es americano, espresso o té.
           </p>
         </motion.div>
 
+        {/* Café & Olivea Café */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           viewport={{ once: true }}
-          id="programa_cafe"
+          id="cafe"
         >
-          <p className="text-lg font-medium text-gray-600 mb-2">Café & Ritual</p>
-          <p>
-            Granos de origen único, métodos de extracción limpios, infusiones y tés a pedido. 
-            Leches vegetales disponibles. El aroma se conserva hasta el último vertido.
+          <p className="text-lg font-medium text-gray-600 mb-2">
+            Café & Olivea Café
           </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          viewport={{ once: true }}
-          id="ritmo"
-        >
-          <p className="text-lg font-medium text-gray-600 mb-2">Ritmo Suave</p>
           <p>
-            Las zonas de silencio y horarios suaves en la alberca cuidan el inicio del día.
-            ¿Tienes que salir temprano? Te preparamos una canasta: fruta, pan y bebida para llevar.
+            Para quienes buscan una mañana más amplia — o un desayuno más
+            expresivo — Olivea Café ofrece un menú extendido y una selección
+            completa de bebidas de café. Bebidas con espresso, preparaciones
+            especiales y platos adicionales están disponibles directamente en el
+            café.
+          </p>
+          <p className="mt-3 text-sm text-gray-600">
+            Algunos productos de Olivea Café se disfrutan de forma independiente a la estancia.
           </p>
         </motion.div>
       </div>

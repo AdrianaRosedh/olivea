@@ -12,11 +12,8 @@ const topImages = [
 
 const bottomImages = [
   { src: '/images/casa/lounge.jpg', alt: 'Garden walkway' },
-  { src: '/images/casa/morning.jpg', alt: 'Morning breakfast tray' },
+  { src: '/images/casa/pool2.jpg', alt: 'Morning breakfast tray' },
   { src: '/images/casa/patio3.jpg', alt: 'Courtyard with pool' },
-  { src: '/images/casa/patio3.jpg', alt: 'Olive trees at dusk' },
-  { src: '/images/casa/patio3.jpg', alt: 'Textured clay wall' },
-  { src: '/images/casa/gallery4.jpg', alt: 'Evening light in suite' },
 ];
 
 export default function ScrollGallerySplit() {
@@ -32,11 +29,12 @@ export default function ScrollGallerySplit() {
   return (
     <div
       ref={containerRef}
-      className="w-full py-12 md:py-20 space-y-10 overflow-hidden min-h-[120vh]"
+      className="w-full py-10 md:py-12 overflow-hidden"
     >
+
       {/* Top row */}
       <motion.div style={{ x: topX }} className="flex gap-6 w-max px-6">
-        <div className="min-w-[10vw] md:min-w-[5vw]" /> {/* Spacer for reveal */}
+        <div className="min-w-[10vw] md:min-w-[5vw]" />
         {topImages.map((img, i) => (
           <div
             key={`top-${i}`}
@@ -56,8 +54,8 @@ export default function ScrollGallerySplit() {
       </motion.div>
 
       {/* Bottom row */}
-      <motion.div style={{ x: bottomX }} className="flex gap-6 w-max px-6">
-        <div className="min-w-[10vw] md:min-w-[5vw]" /> {/* Matching spacer */}
+      <motion.div style={{ x: bottomX }} className="flex gap-6 w-max px-6 mt-8 md:mt-10">
+        <div className="min-w-[10vw] md:min-w-[5vw]" />
         {bottomImages.map((img, i) => (
           <div
             key={`bottom-${i}`}
@@ -70,7 +68,6 @@ export default function ScrollGallerySplit() {
               className="object-cover"
               sizes="(max-width: 768px) 75vw, 35vw"
               quality={80}
-              priority={false}
             />
           </div>
         ))}

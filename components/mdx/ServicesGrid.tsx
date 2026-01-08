@@ -22,64 +22,64 @@ const services: Record<"en" | "es", ServiceItem[]> = {
     {
       id: "conectividad",
       title: "Connectivity",
-      text: "Wi-Fi in all rooms and patios. Paddle court coverage. USB-C and universal outlets throughout.",
+      text: "Wi-Fi is available throughout the property, including all rooms, patios, and the paddle court. Electrical outlets are thoughtfully placed across shared and private spaces.",
     },
     {
       id: "confort",
       title: "Comfort",
-      text: "Blackout curtains, natural airflow, and climate control — every detail to protect your rest.",
+      text: "Blackout curtains, natural airflow, and climate control — every detail designed to protect your rest.",
     },
     {
       id: "detalles-habitacion",
       title: "Room Details",
-      text: "Filtered water in glass, refillable toiletries, and our own house scent — botanical and balanced.",
+      text: "Filtered water in glass, refillable amenities, and our own house scent — botanical, balanced, and understated.",
     },
     {
       id: "opciones-accesibles",
-      title: "Accessible Options",
-      text: "We offer accessible ground-floor rooms on request — no steps, no visual clutter.",
+      title: "Accessible Design",
+      text: "All rooms at Casa Olivea are located on the ground floor, ensuring easy access without steps or level changes.",
     },
     {
       id: "conserjeria",
       title: "Concierge",
-      text: "Message us anytime via WhatsApp. We’ll help with bookings, transport, or local tips.",
+      text: "Reach us anytime via WhatsApp or through our guest portal. We’re happy to assist with reservations, transportation, or local recommendations.",
     },
     {
       id: "conexion-local",
       title: "Local Connection",
-      text: "Need a vineyard to visit? We’ll suggest our favorites — from long-table lunches to hidden corners.",
+      text: "Looking for a vineyard or a quiet place to explore? We’ll share our personal recommendations — from long-table lunches to hidden corners.",
     },
   ],
   es: [
     {
       id: "conectividad",
       title: "Conectividad",
-      text: "Wi-Fi en habitaciones y patios. Cobertura incluso en la cancha de pádel. Enchufes universales y USB-C donde los necesitas.",
+      text: "Wi-Fi disponible en toda la propiedad, incluyendo habitaciones, patios y la cancha de pádel. Hay enchufes distribuidos de forma práctica en áreas comunes y privadas.",
     },
     {
       id: "confort",
       title: "Confort",
-      text: "Cortinas blackout, ventilación natural y control de temperatura — cada detalle cuida tu descanso.",
+      text: "Cortinas blackout, ventilación natural y control de temperatura — cada detalle está pensado para cuidar tu descanso.",
     },
     {
       id: "detalles-habitacion",
       title: "Detalles de Habitación",
-      text: "Agua filtrada en vidrio, amenidades rellenables y nuestra esencia botánica propia — equilibrio sin excesos.",
+      text: "Agua filtrada en vidrio, amenidades rellenables y nuestra esencia botánica propia — equilibrio y sencillez.",
     },
     {
       id: "opciones-accesibles",
-      title: "Opciones Accesibles",
-      text: "Habitaciones accesibles en planta baja disponibles bajo solicitud — sin escalones, sin distracciones visuales.",
+      title: "Diseño Accesible",
+      text: "Todas las habitaciones de Casa Olivea se encuentran en planta baja, permitiendo un acceso cómodo y continuo, sin escalones.",
     },
     {
       id: "conserjeria",
       title: "Conserjería",
-      text: "Escríbenos por WhatsApp. Te ayudamos con reservas, traslados y recomendaciones en el Valle.",
+      text: "Escríbenos por WhatsApp o a través de nuestro portal para huéspedes en cualquier momento. Con gusto te ayudamos con reservas, traslados y recomendaciones locales.",
     },
     {
       id: "conexion-local",
       title: "Conexión Local",
-      text: "¿Buscas un viñedo? Te recomendamos nuestros favoritos — desde almuerzos largos hasta rincones escondidos.",
+      text: "¿Buscas un viñedo o un rincón especial del Valle? Compartimos nuestras recomendaciones personales — desde mesas largas hasta lugares discretos.",
     },
   ],
 };
@@ -111,9 +111,10 @@ export default function ServicesGrid() {
           <h3 className="font-semibold text-sm italic text-gray-700 mb-2">
             {item.title}
           </h3>
-          <p className="text-sm text-gray-800 leading-relaxed">{item.text}</p>
+          <p className="text-sm text-gray-800 leading-relaxed">
+            {item.text}
+          </p>
 
-          {/* subtle anchor hint (optional, but nice) */}
           <span className="sr-only">{`Anchor: #${item.id}`}</span>
         </motion.article>
       ))}

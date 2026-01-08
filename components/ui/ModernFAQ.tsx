@@ -9,7 +9,7 @@ const faqs = {
   en: [
     {
       q: "Is breakfast included?",
-      a: "Yes — a seasonal continental breakfast is included daily for two people from Olivea Café.",
+      a: "Yes — a seasonal continental breakfast is included daily for two people made by Olivea.",
     },
     {
       q: "Do you allow children or pets?",
@@ -17,7 +17,7 @@ const faqs = {
     },
     {
       q: "Can I use the paddle courts?",
-      a: "Yes — guests have free access to the courts from 8am–6pm, with reservation.",
+      a: "Yes — guests have access to the paddle courts during daylight hours, until the sun goes away, with reservation.",
     },
     {
       q: "Do you offer airport pickup?",
@@ -25,13 +25,13 @@ const faqs = {
     },
     {
       q: "Are you part of the Michelin Guide?",
-      a: "Yes — Casa Olivea is listed in the Michelin Guide, and our restaurant holds a Michelin Star and Green Star.",
+      a: "Yes — Casa Olivea is listed in the Michelin Guide, and our restaurant Olivea Farm To Table  holds a Michelin Star and Green Star.",
     },
   ],
   es: [
     {
       q: "¿El desayuno está incluido?",
-      a: "Sí — el desayuno continental de temporada está incluido todos los días para dos personas de Olivea Café.",
+      a: "Sí — el desayuno continental de temporada está incluido todos los días para dos personas hecho por Olivea.",
     },
     {
       q: "¿Se permiten niños o mascotas?",
@@ -39,7 +39,7 @@ const faqs = {
     },
     {
       q: "¿Puedo usar las canchas de pádel?",
-      a: "Sí — los huéspedes tienen acceso gratuito de 8 am a 6 pm con reservación.",
+      a: "Sí — los huéspedes pueden usar las canchas durante las horas de luz natural, hasta que se va el sol, con reservación."
     },
     {
       q: "¿Ofrecen transporte desde el aeropuerto?",
@@ -47,7 +47,7 @@ const faqs = {
     },
     {
       q: "¿Están en la Guía Michelin?",
-      a: "Sí — Casa Olivea aparece en la Guía Michelin y nuestro restaurante cuenta con una Estrella Michelin y Estrella Verde.",
+      a: "Sí — Casa Olivea aparece en la Guía Michelin y nuestro restaurante Olivea Farm To Table cuenta con una Estrella Michelin y Estrella Verde.",
     },
   ],
 };
