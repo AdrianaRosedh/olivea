@@ -1,68 +1,80 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
-import SeasonTimeline from "@/components/mdx/SeasonTimeline";
+import ServicesGrid from "@/components/mdx/ServicesGrid";
 
 <StickyBlock
   id="pantry"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20"
+  containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
   title={
     <Reveal preset="up">
       <h2 className="text-2xl md:text-4xl font-semibold">
-        The pantry
+        Time, Fermentation, Memory
       </h2>
     </Reveal>
   }
 >
-  <Sub id="proximity" preset="up">
-    Our own harvest and nearby producers: living textures and aromatics
-    at their peak.
-  </Sub>
+  <Reveal preset="fade" delay={0.12}>
+    <div className="mt-6 max-w-[78ch] text-[15.5px] md:text-[16.5px] leading-relaxed text-[var(--olivea-ink)]/85">
+      <p>
+        A garden is the essence. But with a garden, what do you create?
+      </p>
+      <p className="mt-3">
+        Food. And with food, good company. And with good company, experience.
+      </p>
+      <p className="mt-3">
+        At Olivea, the garden is the origin — but it is not the only voice.
+        Sustainability here is also restraint: cooking with what the territory gives,
+        without forcing it.
+      </p>
+    </div>
+  </Reveal>
 
-  <Sub id="season" preset="left">
-    The menu breathes with the season. Small, frequent changes; the
-    garden’s calendar shapes the narrative.
-  </Sub>
-
-  {/* CardParallax → ParallaxImage wrapped in a card */}
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/farm/garden7.jpg"
-      alt="Garden and proximity"
-      heightVh={56}
-      speed={0.26}
-      className="rounded-[28px]"
-      fit="cover"
-      objectPosition="50% 50%"
-    />
-  </div>
-
-  <SeasonTimeline
+  <ServicesGrid
     items={[
-      { title: "Early spring", text: "Fava beans, peas, tender herbs" },
       {
-        title: "Mid spring",
-        text: "Artichoke, fennel, squash blossom",
+        id: "territory",
+        title: "Territory",
+        text:
+          "We cook from place: Valle de Guadalupe, Baja California, Mexico. Soil and salt. Desert light, coastal wind, and a season that can change overnight.",
       },
       {
-        title: "Late spring",
-        text: "Tomato, basil, stone fruit",
+        id: "ecosystem",
+        title: "One Kitchen System",
+        text:
+          "Our kitchens are deeply connected. What one cannot use, the other often can — allowing ingredients, preparations, and ideas to find their right context.",
+      },
+      {
+        id: "cycle",
+        title: "The Continuous Cycle",
+        text:
+          "The cycle is continuous: garden → Olivea Farm To Table → Olivea Café → fermentation → compost → back to the garden. Nothing stands alone; everything returns.",
+      },
+      {
+        id: "fermentation",
+        title: "Fermentation as Time Intelligence",
+        text:
+          "Fermentation extends the season without replacing it. It preserves peak moments, builds depth through living processes, and allows memory to remain active within the menu.",
+      },
+      {
+        id: "research",
+        title: "Comité de Investigación",
+        text:
+          "Each season is studied. We document, test, refine, and decide — aligning garden reality, kitchen technique, and the rhythm of service into a precise, repeatable standard.",
+      },
+      {
+        id: "chef-daniel",
+        title: "Shared Standard",
+        text:
+          "This vision is deeply shared with Chef Daniel Nates — curious, disciplined, and exact. With him, gastronomy becomes dialogue: garden and coast, technique and memory, Baja and Mexico, translated with care.",
+      },
+      {
+        id: "storytelling",
+        title: "Storytelling as Craft",
+        text:
+          "Ingredients matter here. Storytelling matters. Every dish carries a season, a decision, and a place — communicated with honesty, without performance.",
       },
     ]}
   />
-
-  <Sub id="traceability" preset="fade">
-    We document batches and processes: from seed to dining room. Composting
-    and full utilization close the cycle.
-  </Sub>
 </StickyBlock>

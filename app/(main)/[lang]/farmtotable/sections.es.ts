@@ -4,43 +4,58 @@ export type NavSection = { id: string; title: string; subs?: NavSub[] };
 
 export const SECTIONS_ES: NavSection[] = [
   {
-    id: "experiencia",
-    title: "La experiencia",
+    id: 'experiencia',
+    title: 'La experiencia',
     subs: [
-      { id: "origen",      title: "Origen" },
-      { id: "equilibrio",  title: "Equilibrio" },
-      { id: "valores",     title: "Valores" },
+      { id: 'origen', title: 'Origen' },
+      { id: 'equilibrio', title: 'Equilibrio' },
+      { id: 'valores', title: 'Valores' },
     ],
   },
   {
-    id: "cocina",
-    title: "La cocina",
+    id: 'cocina',
+    title: 'La cocina',
     subs: [
-      { id: "producto", title: "Producto" },
-      { id: "tecnica",  title: "Técnica" },
-      { id: "equipo",   title: "Equipo" },
+      { id: 'producto', title: 'Producto' },
+      { id: 'tecnica', title: 'Técnica' },
+      { id: 'equipo', title: 'Equipo' },
     ],
   },
   {
-    id: "mesa",
-    title: "La mesa",
+    id: 'mesa',
+    title: 'La mesa',
     subs: [
-      { id: "hospitalidad", title: "Hospitalidad" },
-      { id: "narrativa",    title: "Narrativa" },
+      { id: 'hospitalidad', title: 'Hospitalidad' },
+      { id: 'narrativa', title: 'Narrativa' },
     ],
   },
   {
-    id: "despensa",
-    title: "La despensa",
+    id: 'despensa',
+    title: 'La despensa',
     subs: [
-      { id: "proximidad",   title: "Proximidad" },
-      { id: "temporada",    title: "Temporada" },
-      { id: "trazabilidad", title: "Trazabilidad" },
+      { id: 'proximidad', title: 'Proximidad' },
+      { id: 'temporada', title: 'Temporada' },
+      { id: 'trazabilidad', title: 'Trazabilidad' },
     ],
   },
+
+  // NEW (match <StickyBlock id="galeria"> in gallery.es.mdx)
   {
-    id: "menu",
-    title: "Menú",
+    id: 'galeria',
+    title: 'Galería',
+    subs: [],
+  },
+
+  {
+    id: 'menu',
+    title: 'Menú',
+    subs: [],
+  },
+
+  // NEW (match <StickyBlock id="faq"> in faq.es.mdx)
+  {
+    id: 'faq',
+    title: 'Preguntas frecuentes',
     subs: [],
   },
 ];

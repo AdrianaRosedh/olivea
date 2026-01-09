@@ -1,0 +1,144 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import ModernFAQ from "@/components/ui/ModernFAQ";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="faq"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Before you reserve</h2>
+        </Reveal>
+      }
+    >
+      <ModernFAQ
+        items={[
+          {
+            q: "What kind of experience is Olivea Farm To Table?",
+            a: (
+              <>
+                <p>
+                  Olivea Farm To Table is a <strong>seasonal tasting menu</strong> shaped by our garden and nearby producers.
+                  The experience is designed as a complete journey—paced, immersive, and guided by the season.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "How long should we plan for dinner?",
+            a: (
+              <>
+                <p>
+                  Most guests enjoy the full experience in <strong>2 to 3 hours</strong>.
+                  We pace each table with care so the menu arrives at its ideal rhythm.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Do you offer à la carte dishes?",
+            a: (
+              <>
+                <p>
+                  The menu is served as a <strong>single tasting journey</strong>.
+                  This structure allows the kitchen to cook with precision and continuity across the season.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Can you accommodate allergies or dietary restrictions?",
+            a: (
+              <>
+                <p>
+                  Yes—when shared with <strong>advance notice at the time of booking</strong>, we adapt thoughtfully for important allergies
+                  or dietary restrictions while preserving the intent of the menu.
+                </p>
+                <p>
+                  A <strong>vegetarian version</strong> may be available upon request, depending on the season.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Is Olivea Farm To Table designed for children?",
+            a: (
+              <>
+                <p>
+                  The experience is designed primarily for <strong>adults</strong> who wish to dedicate time to the journey.
+                  If you’re planning a family visit, we’re happy to help you choose the Olivea experience that fits best.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Do you welcome pets?",
+            a: (
+              <>
+                <p>
+                  We welcome dogs in <strong>designated terrace areas</strong>, depending on the service flow and the evening’s rhythm.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Do you offer wine pairings and non-alcoholic pairings?",
+            a: (
+              <>
+                <p>
+                  Yes. We offer a wine journey through the Valley and a <strong>non-alcoholic pairing</strong> designed through flavor science.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Do you offer corkage?",
+            a: (
+              <>
+                <p>
+                  Yes—corkage is available at <strong>$350 MXN per bottle</strong>.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Is there a dress code?",
+            a: (
+              <>
+                <p>
+                  We suggest <strong>smart casual</strong>—comfortable, polished, and suited to an evening in Valle de Guadalupe.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Can I request a terrace table or a specific view?",
+            a: (
+              <>
+                <p>
+                  We take preferences into account with care, and assign tables based on availability and service flow.
+                  If you have a specific request, include it in your reservation notes.
+                </p>
+              </>
+            ),
+          },
+          {
+            q: "Can you help plan celebrations or special events?",
+            a: (
+              <>
+                <p>
+                  Yes—celebrations are welcome with <strong>advance planning</strong>.
+                  Share your intention when booking and we’ll guide the best way to honor the moment.
+                </p>
+              </>
+            ),
+          },
+        ]}
+      />
+    </StickyBlock>
+  );
+}

@@ -1,68 +1,79 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
-import SeasonTimeline from "@/components/mdx/SeasonTimeline";
+import ServicesGrid from "@/components/mdx/ServicesGrid";
 
 <StickyBlock
   id="despensa"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20"
+  containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
   title={
     <Reveal preset="up">
       <h2 className="text-2xl md:text-4xl font-semibold">
-        La despensa
+        Tiempo, fermentación, memoria
       </h2>
     </Reveal>
   }
 >
-  <Sub id="proximidad" preset="up">
-    Cosecha propia y productores cercanos: textura viva y aromáticos en su
-    punto.
-  </Sub>
+  <Reveal preset="fade" delay={0.12}>
+    <div className="mt-6 max-w-[78ch] text-[15.5px] md:text-[16.5px] leading-relaxed text-[var(--olivea-ink)]/85">
+      <p>El huerto es la esencia. Pero con un huerto, ¿qué se crea?</p>
+      <p className="mt-3">
+        Comida. Y con la comida — buena compañía. Y con la buena compañía —
+        experiencia.
+      </p>
+      <p className="mt-3">
+        En Olivea, el huerto es el origen — pero no es la única voz. La
+        sustentabilidad aquí también es contención: cocinar con lo que el
+        territorio da, sin forzarlo.
+      </p>
+    </div>
+  </Reveal>
 
-  <Sub id="temporada" preset="left">
-    El menú respira con la estación. Cambios pequeños y frecuentes; el
-    calendario del huerto ordena el relato.
-  </Sub>
-
-  {/* CardParallax → ParallaxImage envuelta en una tarjeta */}
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/farm/garden7.jpg"
-      alt="Huerto y cercanía"
-      heightVh={56}
-      speed={0.26}
-      className="rounded-[28px]"
-      fit="cover"
-      objectPosition="50% 50%"
-    />
-  </div>
-
-  <SeasonTimeline
+  <ServicesGrid
     items={[
-      { title: "Inicio de primavera", text: "Habas, arvejas, hierbas tiernas" },
       {
-        title: "Media primavera",
-        text: "Alcachofa, hinojo, flor de calabaza",
+        id: "territory",
+        title: "Territorio",
+        text:
+          "Cocinamos desde el lugar: Valle de Guadalupe, Baja California, México. Tierra y sal. Luz de desierto, viento costero y una temporada que puede cambiar de un día a otro.",
       },
       {
-        title: "Fin de primavera",
-        text: "Tomate, albahaca, frutales de hueso",
+        id: "ecosystem",
+        title: "Un solo sistema de cocina",
+        text:
+          "Nuestras cocinas están profundamente conectadas. Lo que una no puede usar, la otra muchas veces sí — permitiendo que ingredientes, preparaciones e ideas encuentren su contexto correcto.",
+      },
+      {
+        id: "cycle",
+        title: "El ciclo continuo",
+        text:
+          "El ciclo es continuo: huerto → Olivea Farm To Table → Olivea Café → fermentación → composta → regreso al huerto. Nada existe aislado; todo regresa.",
+      },
+      {
+        id: "fermentation",
+        title: "Fermentación como inteligencia del tiempo",
+        text:
+          "La fermentación extiende la temporada sin reemplazarla. Conserva momentos en su punto, construye profundidad con procesos vivos y mantiene activa la memoria dentro del menú.",
+      },
+      {
+        id: "research",
+        title: "Comité de Investigación",
+        text:
+          "Cada temporada se estudia. Documentamos, probamos, refinamos y decidimos — alineando la realidad del huerto, la técnica de cocina y el ritmo del servicio en un estándar preciso y repetible.",
+      },
+      {
+        id: "chef-daniel",
+        title: "Estándar compartido",
+        text:
+          "Esta visión se comparte profundamente con el Chef Daniel Nates — curioso, disciplinado y exacto. Con él, la gastronomía se vuelve diálogo: huerto y costa, técnica y memoria, Baja y México, traducidos con cuidado.",
+      },
+      {
+        id: "storytelling",
+        title: "Narrativa como oficio",
+        text:
+          "Aquí importan los ingredientes. Importa la narrativa. Cada plato carga una temporada, una decisión y un lugar — comunicados con honestidad, sin espectáculo.",
       },
     ]}
   />
-
-  <Sub id="trazabilidad" preset="fade">
-    Documentamos lotes y procesos: de la semilla a la sala. Compost y
-    aprovechamiento integral cierran el ciclo.
-  </Sub>
 </StickyBlock>

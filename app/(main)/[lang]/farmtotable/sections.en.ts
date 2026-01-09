@@ -30,16 +30,26 @@ export const SECTIONS_EN: NavSection[] = [
   },
   {
     id: "pantry",
-    title: "The larder",
+    title: "Ecosystem",
     subs: [
-      { id: "proximity",    title: "Proximity" },
-      { id: "season",       title: "Season" },
-      { id: "traceability", title: "Traceability" },
+      { id: "territory", title: "Territory" },
+      { id: "ecosystem", title: "System" },
+      { id: "cycle", title: "Cycle" },
+      { id: "fermentation", title: "Fermentation" },
+      { id: "research", title: "Research" },
+      { id: "chef-daniel", title: "Chef Daniel" },
+      { id: "storytelling", title: "Storytelling" },
     ],
   },
+
   {
     id: "menu",
     title: "Menu",
+    subs: [],
+  },
+  {
+    id: "faq",
+    title: "Before you book",
     subs: [],
   },
 ];

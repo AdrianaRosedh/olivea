@@ -1,75 +1,104 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
 import StatChips from "@/components/mdx/StatChips";
 import FieldNote from "@/components/mdx/FieldNote";
+import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 
 <StickyBlock
   id="experiencia"
   variant="top"
   containerClassName="w-full md:max-w-[min(1120px,94vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        La experiencia
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
+>
+  {/* Bloque de título */}
+  <div className="max-w-[860px]">
+    <Reveal preset="up" delay={0.08}>
+      <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+        Un recorrido gastronómico guiado por el huerto
       </h2>
     </Reveal>
-  }
->
-  <Sub id="origen" preset="blur-up">
-    Olivea Farm To Table es una experiencia de{" "}
-    <strong>menú degustación</strong>, nacida en el huerto.
-    La cocina interpreta clima y suelo; la mesa transforma ese paisaje en
-    memoria.
-  </Sub>
 
-  <StatChips
-    items={[
-      { label: "Formato", value: "Menú degustación • 8 tiempos" },
-      { label: "Temporada", value: "Cambia cada 5–6 semanas - depende del huerto" },
-      { label: "Origen", value: "Huerto propio • Valle de Guadalupe" },
-    ]}
-  />
+    <Reveal preset="fade" delay={0.18}>
+      <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)]/60 leading-relaxed">
+        Un solo menú degustación, compuesto por estaciones — guiado por la tierra,
+        el clima y el tiempo.
+      </p>
+    </Reveal>
 
-  <div
-    className="
-      relative mt-6 w-full max-w-[1100px] mx-auto
-      overflow-hidden rounded-[32px]
-      ring-1 ring-black/15
-      shadow-[0_28px_70px_rgba(0,0,0,0.35)]
-      bg-[var(--olivea-cream)]/95
-    "
-  >
-    <ParallaxImage
-      src="/images/farm/garden.jpg"
-      alt="Huerto de Olivea Farm To Table"
-      heightVh={56}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 40%"
-    />
+    <Reveal preset="fade" delay={0.26}>
+      <div className="mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+    </Reveal>
   </div>
 
-  <Sub id="equilibrio" preset="up">
-    El Valle nos da tierra, mar y granja. Buscamos equilibrio entre acidez y
-    grasa, amargor y dulzor, temperatura y textura. No trabajamos con carta
-    tradicional: el menú se ajusta según lo que el huerto y los productores
-    cercanos ofrecen en mejor punto cada temporada.
+  {/* Apertura */}
+  <Sub id="origen" preset="blur-up" className="mt-10">
+    Olivea Farm To Table es un <strong>menú degustación</strong> nacido del huerto.
+    La cocina interpreta la tierra y el clima; la mesa traduce ese paisaje en
+    memoria, a través del tiempo, la técnica y la contención.
   </Sub>
 
-  <FieldNote>
-    El ciclo de compost alimenta los bancales que alimentan el menú. Con{" "}
-    <strong>previa notificación</strong> podemos adaptar el recorrido a
-    alergias o restricciones importantes, siempre que respeten la esencia
-    del huerto.
-  </FieldNote>
+  {/* Especificaciones */}
+  <Reveal preset="fade" delay={0.18}>
+    <div className="mt-8">
+      <StatChips
+        items={[
+          { label: "Formato", value: "Menú degustación • 8 tiempos" },
+          { label: "Temporada", value: "Cambia cada 5–6 semanas • guiado por el huerto" },
+          { label: "Origen", value: "Huerto privado • Valle de Guadalupe" },
+          { label: "Duración", value: "~3 horas • pensado para disfrutarse sin prisa" },
+        ]}
+      />
+    </div>
+  </Reveal>
 
-  <Sub id="valores" preset="fade" className="!min-h-0 !mb-0">
-    Trazabilidad, cuidado del agua y circularidad guían cada decisión.
-    Sostenibilidad, técnica y responsabilidad están presentes en todo el
-    recorrido, pensado como una experiencia pausada para adultos que puedan
-    dedicarle de dos a tres horas.
+  {/* Banda de imagen con crecimiento por scroll */}
+  <ScrollGrowImageBand
+    src="/images/farm/garden.jpg"
+    alt="Huerto de Olivea Farm To Table"
+    startH="150px"
+    endH="460px"
+    delayStart={0.22}
+    holdAt={0.94}
+    scrollContainerSelector="main"
+  />
+
+  {/* Línea de señal */}
+  <Reveal preset="fade" delay={0.08}>
+    <div className="mt-4 max-w-275 mx-auto flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+      <span className="h-[1px] w-10 bg-black/10" />
+      <span>Ritmo del huerto • cosechar, preservar, componer</span>
+    </div>
+  </Reveal>
+
+  {/* Segundo bloque */}
+  <Sub id="equilibrio" preset="up" className="mt-12">
+    El Valle ofrece tierra, mar y campo en diálogo constante.
+    Buscamos equilibrio — acidez y profundidad, amargor y dulzor,
+    temperatura y textura — guiados por lo que el huerto y los productores
+    cercanos ofrecen en su punto natural.
+  </Sub>
+
+  {/* Nota de campo */}
+  <Reveal preset="fade" delay={0.14}>
+    <div className="mt-10">
+      <FieldNote>
+        El huerto es un sistema vivo con retorno completo:
+        cosecha → cocina → composta → suelo → cosecha.
+        Con <strong>aviso previo</strong>, adaptamos cuidadosamente el menú para
+        alergias importantes o restricciones alimentarias, preservando siempre
+        la esencia del recorrido.
+      </FieldNote>
+    </div>
+  </Reveal>
+
+  {/* Cierre / valores */}
+  <Sub id="valores" preset="fade" className="!min-h-0 !mb-0 mt-10">
+    La trazabilidad, el cuidado del agua y el pensamiento circular guían
+    nuestras decisiones. La sustentabilidad se practica como disciplina diaria —
+    medida, concreta y anclada a la realidad del territorio.
+    La experiencia se vive con calma, pensada para adultos que pueden dedicar
+    <strong>~3 horas</strong> a la mesa.
   </Sub>
 </StickyBlock>

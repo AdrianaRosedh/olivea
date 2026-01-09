@@ -2,71 +2,96 @@ import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
 import ParallaxImage from "@/components/scroll/ParallaxImage";
-import FieldNote from "@/components/mdx/FieldNote";
+import ScrollDrift from "@/components/scroll/ScrollDrift";
 
 <StickyBlock
   id="kitchen"
   variant="top"
-  containerClassName="w-full md:max-w-[min(1120px,94vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        The kitchen
-      </h2>
-    </Reveal>
-  }
+  containerClassName="w-full md:max-w-[min(1220px,94vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
 >
-  {/* BLOCK 1 — opening text (aligned with experience) */}
-  <Sub id="product" preset="up">
-    <p>
-      The product leads. The kitchen is born from the garden and from
-      nearby producers: clean layers, precise techniques, and cooking
-      methods that respect the natural point of each ingredient.
-    </p>
-    <p className="mt-3">
-      We do not work with an à la carte menu: the team’s creativity and
-      the garden’s availability define each seasonal menu.
-    </p>
-  </Sub>
+  <div className="mt-10 md:mt-14 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-start">
+    {/* Image LEFT */}
+    <div className="md:col-span-6">
+      <ScrollDrift fromX={-18} toX={26} reveal className="w-full">
+        <div
+          className="
+            relative w-full
+            overflow-hidden rounded-[34px]
+            ring-1 ring-black/10
+            shadow-[0_34px_90px_rgba(0,0,0,0.32)]
+            bg-[var(--olivea-cream)]/95
+          "
+        >
+          <ParallaxImage
+            src="/images/farm/kitchen.jpg"
+            alt="Kitchen pass at Olivea"
+            heightVh={62}
+            speed={0.14}
+            fit="cover"
+            objectPosition="50% 50%"
+          />
 
-  {/* PARALLAX IMAGE — same overall proportions as experience */}
-  <div
-    className="
-      relative mt-6 w-full max-w-[1100px] mx-auto
-      overflow-hidden rounded-[32px]
-      ring-1 ring-black/15
-      shadow-[0_28px_70px_rgba(0,0,0,0.35)]
-      bg-[var(--olivea-cream)]/95
-    "
-  >
-    <ParallaxImage
-      src="/images/farm/kitchen.jpg"
-      alt="Kitchen pass at Olivea"
-      heightVh={56}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 50%"
-    />
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/26 via-black/10 to-transparent" />
+            <div className="absolute inset-0 ring-1 ring-white/10" />
+          </div>
+        </div>
+      </ScrollDrift>
+
+      <Reveal preset="fade" delay={0.12}>
+        <div className="mt-4 flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+          <span className="h-[1px] w-10 bg-black/10" />
+          <span>Kitchen pass • precision, timing, clarity</span>
+        </div>
+      </Reveal>
+    </div>
+
+    {/* Right column: TITLE + TEXT (same top as image) */}
+    <div className="md:col-span-6 md:pt-1">
+      <Reveal preset="up" delay={0.10}>
+        <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+          Technique in Service of Origin
+        </h2>
+      </Reveal>
+
+      <Reveal preset="fade" delay={0.22}>
+        <div className="mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+      </Reveal>
+
+      <div className="mt-8">
+        <Sub id="product" preset="up">
+          <p>
+            The product leads. The kitchen is rooted in the garden and nearby
+            producers — clean layers, precise heat, and methods that respect each
+            ingredient at its natural point.
+          </p>
+          <p className="mt-3">
+            We work with a single seasonal tasting menu. Creativity lives inside
+            the season: what is abundant, what is delicate, and what is ready to be
+            carried forward.
+          </p>
+        </Sub>
+
+        <Sub id="technique" preset="fade" className="mt-7">
+          Technique exists to clarify flavor and preserve balance. Stocks,
+          reductions, and careful seasoning build depth without masking origin.
+          Fermentation extends the season — allowing continuity with elegance and
+          restraint.
+        </Sub>
+      </div>
+    </div>
+
+    {/* Full-width continuation under both columns (tight + intentional cue) */}
+    <div className="md:col-span-12 -mt-2 md:-mt-4">
+      <div className="max-w-[1120px] mx-auto">
+        <Sub id="team" preset="left" className="mt-0">
+          The team cooks by reading climate, garden, and service as one system —
+          understanding what is at its peak, what is being preserved, and what is
+          evolving quietly in the pantry.
+        </Sub>
+      </div>
+    </div>
   </div>
-
-  {/* BLOCK 2 — second text section + note, with similar spacing */}
-  <Sub id="technique" preset="fade">
-    Technique is never the protagonist: it exists to enhance flavor,
-    not to distract from it. Stocks, reductions, and ferments are used
-    with intention, always in service of balance.
-  </Sub>
-
-  <Sub id="team" preset="left" className="mt-6">
-    The team cooks by reading the climate, the garden, and the service:
-    understanding what is at its peak, what is being reserved, and what
-    is evolving in the pantry.
-  </Sub>
-
-  <FieldNote className="mt-6">
-    We can adapt the menu for <strong>allergies or dietary restrictions</strong>
-    with prior notice. Our approach is technical, precise, and
-    product-driven; each adjustment is made while preserving the
-    essence of the journey.
-  </FieldNote>
 </StickyBlock>

@@ -2,98 +2,121 @@ import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
 import ParallaxImage from "@/components/scroll/ParallaxImage";
-import FieldNote from "@/components/mdx/FieldNote";
+import ScrollDrift from "@/components/scroll/ScrollDrift";
 
 <StickyBlock
   id="table"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        The table
-      </h2>
-    </Reveal>
-  }
+  containerClassName="w-full md:max-w-[min(1220px,94vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
 >
-  {/* BLOCK 1 — text aligned with the title */}
-  <div className="max-w-[720px] w-full text-left">
-    <Sub id="hospitality" preset="up">
-      <p>
-        We host friends. Service is present, discreet, and attentive to the
-        rhythm of each table.
-      </p>
-      <p className="mt-3">
-        We read culture, allergies, and preferences. Timing and temperature
-        are adjusted so each dish arrives at its ideal point.
-      </p>
-    </Sub>
-  </div>
+  <div className="mt-10 md:mt-14 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-start">
+    {/* LEFT: title + text */}
+    <div className="md:col-span-6 md:pt-1">
+      <Reveal preset="up" delay={0.10}>
+        <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+          Hospitality as Calibration
+        </h2>
+      </Reveal>
 
-  {/* PARALLAX IMAGE (central card) */}
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/farm/dining.jpg"
-      alt="Rhythm and hospitality"
-      heightVh={56}
-      speed={0.2}
-      className="rounded-[28px]"
-      fit="cover"
-      objectPosition="50% 50%"
-    />
-  </div>
+      <Reveal preset="fade" delay={0.22}>
+        <div className="mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+      </Reveal>
 
-  {/* BLOCK 2 — paragraph + centered box */}
-  <div className="max-w-[720px] w-full text-left">
-    <Sub
-      id="narrative"
-      preset="fade"
-      className="!min-h-0"
-    >
-      Each course adds context: its origin, the hands that care for it, and
-      the reasoning behind each pairing. An honest narrative, without artifice.
-    </Sub>
-  </div>
+      <div className="mt-8">
+        <Sub id="hospitality" preset="up">
+          <p>
+            We host friends. Service is present, discreet, and calibrated to the
+            rhythm of each table.
+          </p>
+          <p className="mt-3">
+            Timing and temperature are guided with care so each dish arrives at
+            its ideal moment — composed, clear, and alive.
+          </p>
+        </Sub>
 
-  {/* CENTERED NOTE, SAME WIDTH AS IMAGE */}
-  <div className="w-full max-w-[950px] mx-auto mt-4 flex justify-center">
-    <FieldNote className="max-w-[720px] w-full">
-      We offer a <strong>garden-view terrace</strong> and warm interior spaces.
-      Tables are assigned according to your preferences and service flow.
-      We are <strong>pet friendly</strong> in designated terrace areas and can
-      also assist in coordinating
-      <strong> celebrations or special events</strong> with prior notice.
-    </FieldNote>
-  </div>
+        <Sub id="narrative" preset="fade" className="mt-7 !min-h-0">
+          Each course carries context: its origin, the hands that care for it,
+          and the reasoning behind each pairing. The narrative remains honest
+          and precise.
+        </Sub>
 
-  {/* PLATES GALLERY */}
-  <div className="w-full max-w-[950px] mx-auto pt-8 grid gap-4 md:grid-cols-2 md:gap-6">
-    <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)]">
-      <ParallaxImage
-        src="/images/farm/plates-1.jpg"
-        alt="Correct temperature"
-        heightVh={45}
-        speed={0.12}
-        className="h-full"
-      />
+        {/* Integrated continuation (formerly FieldNote) */}
+        <Sub preset="fade" className="mt-7 !min-h-0">
+          We offer a <strong>garden-view terrace</strong> and warm interior
+          spaces. Tables are assigned according to your preferences and service
+          flow. We welcome dogs in designated terrace areas and can coordinate
+          <strong> celebrations or special events</strong> with advance planning.
+        </Sub>
+      </div>
     </div>
 
-    <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)]">
-      <ParallaxImage
-        src="/images/farm/plates-2.jpg"
-        alt="Course cadence"
-        heightVh={45}
-        speed={0.12}
-        className="h-full"
-      />
+    {/* RIGHT: image with scroll drift */}
+    <div className="md:col-span-6">
+      <ScrollDrift fromX={18} toX={-26} reveal align="right" className="w-full">
+        <div
+          className="
+            relative w-full
+            overflow-hidden rounded-[34px]
+            ring-1 ring-black/10
+            shadow-[0_34px_90px_rgba(0,0,0,0.32)]
+            bg-[var(--olivea-cream)]/95
+          "
+        >
+          <ParallaxImage
+            src="/images/farm/dining.jpg"
+            alt="Rhythm and hospitality"
+            heightVh={62}
+            speed={0.14}
+            fit="cover"
+            objectPosition="50% 50%"
+          />
+
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/26 via-black/10 to-transparent" />
+            <div className="absolute inset-0 ring-1 ring-white/10" />
+          </div>
+        </div>
+      </ScrollDrift>
+
+      <Reveal preset="fade" delay={0.12}>
+        <div className="mt-4 flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+          <span className="h-[1px] w-10 bg-black/10" />
+          <span>Rhythm • timing • temperature</span>
+        </div>
+      </Reveal>
+    </div>
+
+    {/* Plates gallery — explicit heights so images render reliably */}
+    <div className="md:col-span-12 mt-6 md:mt-8">
+      <div className="max-w-[1120px] mx-auto">
+        <div className="mt-8 w-full grid gap-4 md:grid-cols-2 md:gap-6">
+          <ScrollDrift fromX={-14} toX={14} reveal align="left" className="w-full">
+            <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)] h-[38vh] md:h-[45vh]">
+              <ParallaxImage
+                src="/images/farm/ceasar.jpg"
+                alt="Our version of a caesar salad"
+                heightVh={45}
+                speed={0.10}
+                className="h-full"
+              />
+            </div>
+          </ScrollDrift>
+
+          <ScrollDrift fromX={14} toX={-14} reveal align="right" className="w-full">
+            <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)] h-[38vh] md:h-[45vh]">
+              <ParallaxImage
+                src="/images/farm/amuse.jpg"
+                alt="Amuse-bouche"
+                heightVh={45}
+                speed={0.10}
+                className="h-full"
+              />
+            </div>
+          </ScrollDrift>
+        </div>
+      </div>
     </div>
   </div>
 </StickyBlock>

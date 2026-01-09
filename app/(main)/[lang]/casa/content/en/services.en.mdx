@@ -1,6 +1,6 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import ServicesList from "@/components/mdx/ServicesGrid";
+import ServicesGrid from "@/components/mdx/ServicesGrid";
 
 export default function Page() {
   return (
@@ -17,7 +17,40 @@ export default function Page() {
         </Reveal>
       }
     >
-      <ServicesList />
+      <ServicesGrid
+        items={[
+          {
+            id: "conectividad",
+            title: "Connectivity",
+            text: "Wi-Fi is available throughout the property, including all rooms, patios, and the paddle court. Electrical outlets are thoughtfully placed across shared and private spaces.",
+          },
+          {
+            id: "confort",
+            title: "Comfort",
+            text: "Blackout curtains, natural airflow, and climate control — every detail designed to protect your rest.",
+          },
+          {
+            id: "detalles-habitacion",
+            title: "Room Details",
+            text: "Filtered water in glass, refillable amenities, and our own house scent — botanical, balanced, and understated.",
+          },
+          {
+            id: "opciones-accesibles",
+            title: "Accessible Design",
+            text: "All rooms at Casa Olivea are located on the ground floor, ensuring easy access without steps or level changes.",
+          },
+          {
+            id: "conserjeria",
+            title: "Concierge",
+            text: "Reach us anytime via WhatsApp or through our guest portal. We’re happy to assist with reservations, transportation, or local recommendations.",
+          },
+          {
+            id: "conexion-local",
+            title: "Local Connection",
+            text: "Looking for a vineyard or a quiet place to explore? We’ll share our personal recommendations — from long-table lunches to hidden corners.",
+          },
+        ]}
+      />
     </StickyBlock>
   );
 }

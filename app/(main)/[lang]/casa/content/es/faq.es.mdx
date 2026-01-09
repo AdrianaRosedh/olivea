@@ -11,11 +11,34 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">Before You Book</h2>
+          <h2 className="text-2xl md:text-4xl font-semibold">Antes de reservar</h2>
         </Reveal>
       }
     >
-      <ModernFAQ />
+      <ModernFAQ
+        items={[
+          {
+            q: "¿El desayuno está incluido?",
+            a: "Sí — el desayuno continental de temporada está incluido todos los días para dos personas, diseñado por la cocina de Olivea.",
+          },
+          {
+            q: "¿Se permiten niños o mascotas?",
+            a: "Casa Olivea es solo para adultos (18+). Recibimos perros en áreas designadas.",
+          },
+          {
+            q: "¿Puedo usar las canchas de pádel?",
+            a: "Sí — los huéspedes pueden usar las canchas durante las horas de luz natural, hasta el atardecer, con reservación.",
+          },
+          {
+            q: "¿Ofrecen transporte desde el aeropuerto?",
+            a: "Podemos coordinar conductores locales de confianza bajo solicitud.",
+          },
+          {
+            q: "¿Aparecen en la Guía Michelin?",
+            a: "Casa Olivea aparece en la Guía Michelin y nuestro restaurante Olivea Farm To Table cuenta con Estrella Michelin y Estrella Verde.",
+          },
+        ]}
+      />
     </StickyBlock>
   );
 }

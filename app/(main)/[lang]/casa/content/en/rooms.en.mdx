@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import { motion } from 'framer-motion';
-import Image from "next/image";
+import { motion } from "framer-motion";
+import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 
 export default function Page() {
   return (
@@ -26,31 +26,31 @@ export default function Page() {
         className="text-lg text-gray-800 leading-relaxed max-w-[720px] space-y-5"
       >
         <p>
-          Fourteen suites — each named after an aromatic plant or tree — offer space, warmth, and a sense of return.
-          This is where your rhythm resets.
+          Fourteen suites — each named after an aromatic plant or tree — offer
+          space, warmth, and a sense of return. This is where your rhythm
+          resets.
         </p>
         <p>
-          King-size beds, blackout curtains, and natural fiber textures invite deep rest. All rooms are designed for two adults — quiet, light-filled, and considered.
+          King-size beds, blackout curtains, and natural fiber textures invite
+          deep rest. All rooms are designed for two adults — quiet, light-filled,
+          and considered.
         </p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, delay: 0.2 }}
-        viewport={{ once: true }}
-        className="mt-10 relative w-full max-w-5xl h-[50vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl"
-      >
-        <Image
-          src="/images/casa/room.jpg"
-          alt="Suite with soft textures and calm lighting"
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 900px"
-          quality={80}
-          priority
-        />
-      </motion.div>
+      {/* Scroll-grow image band (starts thinner, grows as you scroll) */}
+      <ScrollGrowImageBand
+        src="/images/casa/room.jpg"
+        alt="Suite with soft textures and calm lighting"
+        startH="170px"
+        endH="520px"
+        delayStart={0.18}
+        holdAt={0.92}
+        scrollContainerSelector="main"
+        maxWClassName="max-w-5xl"
+        className="rounded-[28px] shadow-xl mt-10"
+        objectPosition="50% 55%"
+        priority
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -61,8 +61,9 @@ export default function Page() {
         id="luz"
       >
         <p>
-          Light shifts throughout the day. In the morning, it filters softly through curtains.
-          In the evening, it settles — warm, indirect, grounding.
+          Light shifts throughout the day. In the morning, it filters softly
+          through curtains. In the evening, it settles — warm, indirect,
+          grounding.
         </p>
       </motion.div>
     </StickyBlock>

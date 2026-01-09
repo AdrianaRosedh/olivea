@@ -1,9 +1,11 @@
+// app/(main)/[lang]/casa/content/en/design.en.mdx
 "use client";
 
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import ScrollDrift from "@/components/scroll/ScrollDrift";
 
 export default function Page() {
   return (
@@ -27,30 +29,32 @@ export default function Page() {
       }
     >
       <div className="flex flex-col md:flex-row gap-10 items-center">
-        {/* Image LEFT */}
-        <motion.div
-          initial={{ opacity: 0, x: -60 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true }}
-          className="w-full md:w-1/2 h-[50vh] relative rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl"
+        {/* Image LEFT — ScrollDrift (reveal + drift) */}
+        <ScrollDrift
+          fromX={-48}
+          toX={22}
+          reveal
+          className="w-full md:w-1/2"
         >
-          <Image
-            src="/images/casa/InteriorRooms1.jpg"
-            alt="Design textures: clay, cotton, light"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 500px"
-            quality={80}
-            priority
-          />
-        </motion.div>
+          <div className="w-full h-[50vh] relative rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl">
+            <Image
+              src="/images/casa/InteriorRooms1.jpg"
+              alt="Texturas del diseño: barro, algodón y luz natural"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 500px"
+              quality={80}
+              priority
+            />
+          </div>
+        </ScrollDrift>
+        
 
         {/* Text RIGHT */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
+          transition={{ duration: 0.9, delay: 0.18 }}
           viewport={{ once: true }}
           className="w-full md:w-1/2 text-gray-800 space-y-5"
         >
@@ -67,16 +71,18 @@ export default function Page() {
 
           <p className="text-lg" id="iluminacion">
             Light leads the architecture. In the morning, it’s soft and indirect.
-            By afternoon, warm and grounding. Every surface avoids glare, favoring calm.
+            By afternoon, warm and grounding. Every surface avoids glare,
+            favoring calm.
           </p>
 
           <p className="text-base text-gray-700 leading-snug" id="materiales">
-            We use stone, wood, cotton, and clay — materials that age well and hold warmth.
-            Nothing calls attention. Everything invites touch.
+            We use stone, wood, cotton, and clay — materials that age well and
+            hold warmth. Nothing calls attention. Everything invites touch.
           </p>
 
           <p className="text-base text-gray-700 leading-snug" id="sostenibilidad">
-            Glass water. Refillable amenities. Solar power. Sustainability is embedded — not signposted.
+            Glass water. Refillable amenities. Solar power. Sustainability is
+            embedded — not signposted.
           </p>
         </motion.div>
       </div>

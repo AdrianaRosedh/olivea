@@ -1,123 +1,184 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  useSpring,
+} from "framer-motion";
 
-type ServiceId =
-  | "conectividad"
-  | "confort"
-  | "detalles-habitacion"
-  | "opciones-accesibles"
-  | "conserjeria"
-  | "conexion-local";
-
-type ServiceItem = {
-  id: ServiceId;
+export type ServiceItem = {
+  id: string;
   title: string;
   text: string;
 };
 
-const services: Record<"en" | "es", ServiceItem[]> = {
-  en: [
-    {
-      id: "conectividad",
-      title: "Connectivity",
-      text: "Wi-Fi is available throughout the property, including all rooms, patios, and the paddle court. Electrical outlets are thoughtfully placed across shared and private spaces.",
-    },
-    {
-      id: "confort",
-      title: "Comfort",
-      text: "Blackout curtains, natural airflow, and climate control — every detail designed to protect your rest.",
-    },
-    {
-      id: "detalles-habitacion",
-      title: "Room Details",
-      text: "Filtered water in glass, refillable amenities, and our own house scent — botanical, balanced, and understated.",
-    },
-    {
-      id: "opciones-accesibles",
-      title: "Accessible Design",
-      text: "All rooms at Casa Olivea are located on the ground floor, ensuring easy access without steps or level changes.",
-    },
-    {
-      id: "conserjeria",
-      title: "Concierge",
-      text: "Reach us anytime via WhatsApp or through our guest portal. We’re happy to assist with reservations, transportation, or local recommendations.",
-    },
-    {
-      id: "conexion-local",
-      title: "Local Connection",
-      text: "Looking for a vineyard or a quiet place to explore? We’ll share our personal recommendations — from long-table lunches to hidden corners.",
-    },
-  ],
-  es: [
-    {
-      id: "conectividad",
-      title: "Conectividad",
-      text: "Wi-Fi disponible en toda la propiedad, incluyendo habitaciones, patios y la cancha de pádel. Hay enchufes distribuidos de forma práctica en áreas comunes y privadas.",
-    },
-    {
-      id: "confort",
-      title: "Confort",
-      text: "Cortinas blackout, ventilación natural y control de temperatura — cada detalle está pensado para cuidar tu descanso.",
-    },
-    {
-      id: "detalles-habitacion",
-      title: "Detalles de Habitación",
-      text: "Agua filtrada en vidrio, amenidades rellenables y nuestra esencia botánica propia — equilibrio y sencillez.",
-    },
-    {
-      id: "opciones-accesibles",
-      title: "Diseño Accesible",
-      text: "Todas las habitaciones de Casa Olivea se encuentran en planta baja, permitiendo un acceso cómodo y continuo, sin escalones.",
-    },
-    {
-      id: "conserjeria",
-      title: "Conserjería",
-      text: "Escríbenos por WhatsApp o a través de nuestro portal para huéspedes en cualquier momento. Con gusto te ayudamos con reservas, traslados y recomendaciones locales.",
-    },
-    {
-      id: "conexion-local",
-      title: "Conexión Local",
-      text: "¿Buscas un viñedo o un rincón especial del Valle? Compartimos nuestras recomendaciones personales — desde mesas largas hasta lugares discretos.",
-    },
-  ],
-};
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-export default function ServicesGrid() {
-  const pathname = usePathname();
-  const lang: "es" | "en" = pathname?.includes("/es") ? "es" : "en";
-  const items = services[lang];
+// nearest scroll container (snap container / ScrollLimiter wrapper)
+function getScrollParent(el: HTMLElement | null): HTMLElement | null {
+  if (!el) return null;
+  let p: HTMLElement | null = el.parentElement;
+  while (p) {
+    const oy = getComputedStyle(p).overflowY;
+    if (oy === "auto" || oy === "scroll" || oy === "overlay") return p;
+    p = p.parentElement;
+  }
+  return null;
+}
+
+function ServiceCard({
+  item,
+  index,
+  containerRef,
+}: {
+  item: ServiceItem;
+  index: number;
+  containerRef: React.RefObject<HTMLElement | null>;
+}) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLElement | null>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    container: containerRef,
+    // Enter → active → leave (tune these for more/less “solo” tilt)
+    offset: ["start 0.9", "end 0.15"],
+  });
+
+  // Wave intensity: 0 -> 1 -> 0 as the card passes the sweet spot
+  const wave = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
+
+  // Deterministic per-card “tilt signature” (stable + different per id)
+  const sig = useMemo(() => {
+    let h = 0;
+    for (let i = 0; i < item.id.length; i++) {
+      h = (h * 31 + item.id.charCodeAt(i)) >>> 0;
+    }
+
+    const r1 = (h % 997) / 997; // 0..1
+    const r2 = ((h * 7) % 991) / 991;
+    const r3 = ((h * 13) % 983) / 983;
+
+    const sx = r1 < 0.5 ? -1 : 1; // rotateX sign
+    const sy = r2 < 0.5 ? -1 : 1; // rotateY sign
+    const sz = r3 < 0.5 ? -1 : 1; // rotateZ sign
+
+    // subtle amplitude variation (kept elegant)
+    const ax = 0.9 + r2 * 1.0; // 0.9..1.9
+    const ay = 0.8 + r3 * 1.0; // 0.8..1.8
+    const az = 0.9 + r1 * 1.1; // 0.9..2.0
+
+    // tiny unique drift per card (still cohesive)
+    const yAmp = 8 + r1 * 10; // 8..18
+
+    // optional: micro “settle” differences
+    const scaleFrom = 0.992 + r2 * 0.004; // 0.992..0.996
+
+    return { sx, sy, sz, ax, ay, az, yAmp, scaleFrom };
+  }, [item.id]);
+
+  // Editorial settling as it becomes “active”
+  const yRaw = useTransform(wave, [0, 1], [sig.yAmp, 0]);
+  const opacityRaw = useTransform(wave, [0, 1], [0.55, 1]);
+  const scaleRaw = useTransform(wave, [0, 1], [sig.scaleFrom, 1]);
+
+  // Tilt wave: strongest near the middle of the card’s journey
+  const rotateRaw = useTransform(wave, [0, 1], [sig.sz * sig.az, 0]);
+  const rotateXRaw = useTransform(wave, [0, 1], [sig.sx * sig.ax, 0]);
+  const rotateYRaw = useTransform(wave, [0, 1], [sig.sy * sig.ay, 0]);
+
+  // Spring so it never jitters in snap/scroll containers
+  const SPR = { stiffness: 220, damping: 34, mass: 0.85 } as const;
+
+  const y = useSpring(yRaw, SPR);
+  const opacity = useSpring(opacityRaw, SPR);
+  const scale = useSpring(scaleRaw, SPR);
+  const rotate = useSpring(rotateRaw, SPR);
+  const rotateX = useSpring(rotateXRaw, SPR);
+  const rotateY = useSpring(rotateYRaw, SPR);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-      {items.map((item, i) => (
-        <motion.article
-          key={item.id}
-          id={item.id}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: i * 0.07 }}
-          viewport={{ once: true }}
-          whileHover={{ y: -4 }}
-          className="
-            group
-            p-5 bg-[#e7eae1] rounded-xl border border-[#dce3db] shadow-sm
-            transition-transform duration-300 ease-out
-            scroll-mt-30
-          "
-          aria-label={item.title}
-        >
-          <h3 className="font-semibold text-sm italic text-gray-700 mb-2">
-            {item.title}
-          </h3>
-          <p className="text-sm text-gray-800 leading-relaxed">
-            {item.text}
-          </p>
+    <motion.article
+      ref={ref}
+      id={item.id}
+      style={
+        reduce
+          ? undefined
+          : {
+              y,
+              opacity,
+              scale,
+              rotate,
+              rotateX,
+              rotateY,
+              transformPerspective: 900,
+            }
+      }
+      // ✅ no hover at all
+      transition={{ duration: 0.35, ease: EASE }}
+      className="
+        relative
+        p-5 rounded-xl border border-[#dce3db]
+        bg-[#e7eae1]
+        shadow-sm
+        scroll-mt-30
+        overflow-hidden
+        will-change-transform
+      "
+      aria-label={item.title}
+      data-index={index}
+    >
+      <h3 className="font-semibold text-sm italic text-gray-700 mb-2">
+        {item.title}
+      </h3>
 
-          <span className="sr-only">{`Anchor: #${item.id}`}</span>
-        </motion.article>
-      ))}
+      <p className="text-sm text-gray-800 leading-relaxed relative">
+        {item.text}
+      </p>
+
+      <span className="sr-only">{`Anchor: #${item.id}`}</span>
+    </motion.article>
+  );
+}
+
+export default function ServicesGrid({ items }: { items: ServiceItem[] }) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  // Force a re-render once containerRef is discovered (so cards bind correctly)
+  const [, bump] = useState(0);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const setContainer = () => {
+      containerRef.current = getScrollParent(root);
+      bump((n) => n + 1);
+    };
+
+    setContainer();
+    window.addEventListener("resize", setContainer);
+    return () => window.removeEventListener("resize", setContainer);
+  }, []);
+
+  return (
+    <div ref={rootRef} className="relative mt-8">
+      {/* ✅ left line removed */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {items.map((item, i) => (
+          <ServiceCard
+            key={item.id}
+            item={item}
+            index={i}
+            containerRef={containerRef}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,6 @@
-'use client';
-
-import StickyBlock from '@/components/scroll/StickyBlock';
-import Reveal from '@/components/scroll/Reveal';
-import ServicesList from '@/components/mdx/ServicesGrid';
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import ServicesGrid from "@/components/mdx/ServicesGrid";
 
 export default function Page() {
   return (
@@ -13,11 +11,46 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">Servicios</h2>
+          <h2 className="text-2xl md:text-4xl font-semibold">
+            Esenciales, Elegidos con Intención
+          </h2>
         </Reveal>
       }
     >
-      <ServicesList />
+      <ServicesGrid
+        items={[
+          {
+            id: "conectividad",
+            title: "Conectividad",
+            text: "Wi-Fi disponible en toda la propiedad, incluyendo habitaciones, patios y la cancha de pádel. Hay enchufes distribuidos de forma práctica en áreas comunes y privadas.",
+          },
+          {
+            id: "confort",
+            title: "Confort",
+            text: "Cortinas blackout, ventilación natural y control de temperatura — cada detalle está pensado para cuidar tu descanso.",
+          },
+          {
+            id: "detalles-habitacion",
+            title: "Detalles de Habitación",
+            text: "Agua filtrada en vidrio, amenidades rellenables y nuestra esencia botánica propia — equilibrio y sencillez.",
+          },
+          {
+            id: "opciones-accesibles",
+            title: "Diseño Accesible",
+            text: "Todas las habitaciones de Casa Olivea se encuentran en planta baja, permitiendo un acceso cómodo y continuo, sin escalones.",
+          },
+          {
+            id: "conserjeria",
+            title: "Conserjería",
+            text: "Escríbenos por WhatsApp o a través de nuestro portal para huéspedes en cualquier momento. Con gusto te ayudamos con reservas, traslados y recomendaciones locales.",
+          },
+          {
+            id: "conexion-local",
+            title: "Conexión Local",
+            text: "¿Buscas un viñedo o un rincón especial del Valle? Compartimos nuestras recomendaciones personales — desde mesas largas hasta lugares discretos.",
+          },
+        ]}
+      />
     </StickyBlock>
   );
 }

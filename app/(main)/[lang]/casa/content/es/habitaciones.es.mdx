@@ -3,7 +3,7 @@
 import StickyBlock from '@/components/scroll/StickyBlock';
 import Reveal from '@/components/scroll/Reveal';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
+import ScrollGrowImageBand from '@/components/mdx/ScrollGrowImageBand';
 
 export default function Page() {
   return (
@@ -14,7 +14,9 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">Habitaciones</h2>
+          <h2 className="text-2xl md:text-4xl font-semibold">
+            Habitaciones
+          </h2>
         </Reveal>
       }
     >
@@ -26,30 +28,31 @@ export default function Page() {
         className="text-lg text-gray-800 leading-relaxed max-w-[720px] space-y-5"
       >
         <p>
-          Somos la extensión cálida de tu hogar en el valle. Catorce habitaciones llevan nombres de plantas aromáticas o árboles y te reciben con lo que más importa: descanso y paz.
+          Somos la extensión cálida de tu hogar en el valle. Catorce habitaciones
+          llevan nombres de plantas aromáticas o árboles y te reciben con lo que
+          más importa: descanso y paz.
         </p>
         <p>
-          Cada detalle está pensado para tu confort: camas amplias, sábanas suaves y texturas naturales. Agua filtrada en cristal cada día y cero ruido visual – aquí el sueño llega fácil.
+          Cada detalle está pensado para tu confort: camas amplias, sábanas
+          suaves y texturas naturales. Agua filtrada en cristal cada día y cero
+          ruido visual — aquí el sueño llega fácil.
         </p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, delay: 0.2 }}
-        viewport={{ once: true }}
-        className="mt-10 relative w-full max-w-5xl h-[50vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl"
-      >
-        <Image
-          src="/images/casa/room.jpg"
-          alt="Habitación iluminada y ordenada"
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 900px"
-          quality={80}
-          priority
-        />
-      </motion.div>
+      {/* Scroll-grow image band — same interaction language as Farm & English Casa */}
+      <ScrollGrowImageBand
+        src="/images/casa/room.jpg"
+        alt="Habitación iluminada y ordenada"
+        startH="170px"
+        endH="520px"
+        delayStart={0.18}
+        holdAt={0.92}
+        scrollContainerSelector="main"
+        maxWClassName="max-w-5xl"
+        className="rounded-[28px] shadow-xl mt-10"
+        objectPosition="50% 55%"
+        priority
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -60,7 +63,9 @@ export default function Page() {
         id="luz"
       >
         <p>
-          Habitaciones y baños generosos, donde la luz natural es protagonista en cada rincón. Al llegar, sientes que el espacio te acoge con calidez.
+          Habitaciones y baños generosos, donde la luz natural es protagonista
+          en cada rincón. Al llegar, sientes que el espacio te acoge con
+          calidez.
         </p>
       </motion.div>
     </StickyBlock>

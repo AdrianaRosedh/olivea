@@ -1,71 +1,26 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
-const faqs = {
-  en: [
-    {
-      q: "Is breakfast included?",
-      a: "Yes — a seasonal continental breakfast is included daily for two people made by Olivea.",
-    },
-    {
-      q: "Do you allow children or pets?",
-      a: "Casa Olivea is adults-only (18+). Pets are not allowed in rooms.",
-    },
-    {
-      q: "Can I use the paddle courts?",
-      a: "Yes — guests have access to the paddle courts during daylight hours, until the sun goes away, with reservation.",
-    },
-    {
-      q: "Do you offer airport pickup?",
-      a: "Not directly, but we can recommend trusted local drivers.",
-    },
-    {
-      q: "Are you part of the Michelin Guide?",
-      a: "Yes — Casa Olivea is listed in the Michelin Guide, and our restaurant Olivea Farm To Table  holds a Michelin Star and Green Star.",
-    },
-  ],
-  es: [
-    {
-      q: "¿El desayuno está incluido?",
-      a: "Sí — el desayuno continental de temporada está incluido todos los días para dos personas hecho por Olivea.",
-    },
-    {
-      q: "¿Se permiten niños o mascotas?",
-      a: "Casa Olivea es solo para adultos (18+). No se permiten mascotas en las habitaciones.",
-    },
-    {
-      q: "¿Puedo usar las canchas de pádel?",
-      a: "Sí — los huéspedes pueden usar las canchas durante las horas de luz natural, hasta que se va el sol, con reservación."
-    },
-    {
-      q: "¿Ofrecen transporte desde el aeropuerto?",
-      a: "No directamente, pero podemos recomendar conductores locales de confianza.",
-    },
-    {
-      q: "¿Están en la Guía Michelin?",
-      a: "Sí — Casa Olivea aparece en la Guía Michelin y nuestro restaurante Olivea Farm To Table cuenta con una Estrella Michelin y Estrella Verde.",
-    },
-  ],
+export type FAQItem = {
+  q: string;
+  a: React.ReactNode;
 };
 
-export default function ModernFAQ() {
+export default function ModernFAQ({ items }: { items: FAQItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const pathname = usePathname();
-  const lang = pathname?.includes('/es') ? 'es' : 'en';
 
   const toggle = (i: number) => {
-    setOpenIndex(openIndex === i ? null : i);
+    setOpenIndex((prev) => (prev === i ? null : i));
   };
 
   return (
     <div className="space-y-4 mt-6">
-      {faqs[lang].map((item, i) => (
+      {items.map((item, i) => (
         <motion.div
-          key={i}
+          key={`${i}-${item.q}`}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: i * 0.05 }}
@@ -73,15 +28,19 @@ export default function ModernFAQ() {
           className="rounded-xl border border-black/5 p-4 bg-transparent backdrop-blur-sm"
         >
           <button
+            type="button"
             onClick={() => toggle(i)}
             className="flex items-center justify-between w-full text-left"
+            aria-expanded={openIndex === i}
           >
             <span className="font-semibold text-gray-800 text-base">
               {item.q}
             </span>
+
             <motion.div
               animate={{ rotate: openIndex === i ? 180 : 0 }}
               transition={{ duration: 0.3 }}
+              aria-hidden="true"
             >
               <ChevronDown className="w-5 h-5 text-gray-500" />
             </motion.div>
@@ -91,13 +50,13 @@ export default function ModernFAQ() {
             {openIndex === i && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <p className="mt-3 text-sm text-gray-700 leading-relaxed">
+                <div className="mt-3 text-sm text-gray-700 leading-relaxed space-y-2">
                   {item.a}
-                </p>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

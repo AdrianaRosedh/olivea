@@ -15,7 +15,30 @@ export default function Page() {
         </Reveal>
       }
     >
-      <ModernFAQ />
+      <ModernFAQ
+        items={[
+          {
+            q: "Is breakfast included?",
+            a: "Yes — a seasonal continental breakfast is included daily for two people, designed by the Olivea kitchen.",
+          },
+          {
+            q: "Do you allow children or pets?",
+            a: "Casa Olivea is adults-only (18+). Dogs are welcomed in designated areas.",
+          },
+          {
+            q: "Can I use the paddle courts?",
+            a: "Yes — guests may use the paddle courts during daylight hours, until sunset, with reservation.",
+          },
+          {
+            q: "Do you offer airport pickup?",
+            a: "We can coordinate trusted local drivers upon request.",
+          },
+          {
+            q: "Are you part of the Michelin Guide?",
+            a: "Casa Olivea appears in the Michelin Guide, and our restaurant Olivea Farm To Table holds a Michelin Star and Green Star.",
+          },
+        ]}
+      />
     </StickyBlock>
   );
 }

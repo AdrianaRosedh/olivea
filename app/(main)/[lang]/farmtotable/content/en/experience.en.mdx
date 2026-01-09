@@ -1,76 +1,102 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
 import StatChips from "@/components/mdx/StatChips";
 import FieldNote from "@/components/mdx/FieldNote";
+import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 
 <StickyBlock
   id="experience"
   variant="top"
   containerClassName="w-full md:max-w-[min(1120px,94vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        The experience
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
+>
+  {/* Title block */}
+  <div className="max-w-[860px]">
+    <Reveal preset="up" delay={0.08}>
+      <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+        A Garden-Driven Culinary Journey
       </h2>
     </Reveal>
-  }
->
-  <Sub id="origin" preset="blur-up">
-    Olivea Farm To Table is a{" "}
-    <strong>tasting menu</strong> experience, born in the garden.
-    The kitchen interprets climate and soil; the table transforms that
-    landscape into memory.
-  </Sub>
 
-  <StatChips
-    items={[
-      { label: "Format", value: "Tasting menu • 8 courses" },
-      { label: "Season", value: "Changes every 5–6 weeks • garden-driven" },
-      { label: "Origin", value: "Private garden • Valle de Guadalupe" },
-    ]}
-  />
+    <Reveal preset="fade" delay={0.18}>
+      <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)]/60 leading-relaxed">
+        A single tasting menu, composed in seasons — guided by soil, climate, and time.
+      </p>
+    </Reveal>
 
-  <div
-    className="
-      relative mt-6 w-full max-w-[1100px] mx-auto
-      overflow-hidden rounded-[32px]
-      ring-1 ring-black/15
-      shadow-[0_28px_70px_rgba(0,0,0,0.35)]
-      bg-[var(--olivea-cream)]/95
-    "
-  >
-    <ParallaxImage
-      src="/images/farm/garden.jpg"
-      alt="Olivea Farm To Table garden"
-      heightVh={56}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 40%"
-    />
+    <Reveal preset="fade" delay={0.26}>
+      <div className="mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+    </Reveal>
   </div>
 
-  <Sub id="balance" preset="up">
-    The Valley gives us land, sea, and farm. We seek balance between acidity
-    and richness, bitterness and sweetness, temperature and texture.
-    We do not work with a traditional à la carte menu: each experience is
-    shaped by what the garden and nearby producers offer at their peak,
-    season by season.
+  {/* Opening */}
+  <Sub id="origin" preset="blur-up" className="mt-10">
+    Olivea Farm To Table is a <strong>tasting menu</strong> shaped by the garden.
+    The kitchen reads climate and soil; the table translates that landscape into
+    memory through time, technique, and restraint.
   </Sub>
 
-  <FieldNote>
-    The compost cycle nourishes the beds that nourish the menu. With{" "}
-    <strong>prior notice</strong>, we can adapt the journey to important
-    allergies or dietary restrictions, as long as they respect the essence
-    of the garden.
-  </FieldNote>
+  {/* Specs */}
+  <Reveal preset="fade" delay={0.18}>
+    <div className="mt-8">
+      <StatChips
+        items={[
+          { label: "Format", value: "Tasting menu • 8 courses" },
+          { label: "Season", value: "Changes every 5–6 weeks • garden-led" },
+          { label: "Origin", value: "Private garden • Valle de Guadalupe" },
+          { label: "Duration", value: "~3 hours • designed to unfold slowly" },
+        ]}
+      />
+    </div>
+  </Reveal>
 
-  <Sub id="values" preset="fade" className="!min-h-0 !mb-0">
-    Traceability, water stewardship, and circularity guide every decision.
-    Sustainability, technique, and responsibility are present throughout the
-    experience, conceived as a slow, immersive journey for adults who can
-    dedicate two to three hours.
+  {/* ✅ Scroll-grow hero band (starts thinner, grows until it hits endH) */}
+  <ScrollGrowImageBand
+    src="/images/farm/garden.jpg"
+    alt="Olivea Farm To Table garden"
+    startH="150px"
+    endH="460px"
+    delayStart={0.22}
+    holdAt={0.94}
+    scrollContainerSelector="main"
+  />
+  
+  {/* Caption / signal line */}
+  <Reveal preset="fade" delay={0.08}>
+    <div className="mt-4 max-w-275 mx-auto flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+      <span className="h-[1px] w-10 bg-black/10" />
+      <span>Garden cadence • harvest, preserve, compose</span>
+    </div>
+  </Reveal>
+
+  {/* Second block */}
+  <Sub id="balance" preset="up" className="mt-12">
+    The Valley offers land, sea, and farm in constant dialogue.
+    We work toward balance — acidity and richness, bitterness and sweetness,
+    temperature and texture — guided by what the garden and nearby producers
+    offer at their natural peak.
+  </Sub>
+
+  {/* Field note */}
+  <Reveal preset="fade" delay={0.14}>
+    <div className="mt-10">
+      <FieldNote>
+        The garden is a working system with a full return loop:
+        harvest → kitchen → compost → soil → harvest.
+        With <strong>prior notice</strong>, we adapt thoughtfully for important allergies
+        or dietary restrictions while preserving the essence of the journey.
+      </FieldNote>
+    </div>
+  </Reveal>
+
+  {/* Closing values */}
+  <Sub id="values" preset="fade" className="!min-h-0 !mb-0 mt-10">
+    Traceability, water stewardship, and circular thinking guide our decisions.
+    Sustainability is practiced as daily discipline — measured, specific, and
+    grounded in the realities of the land. The experience unfolds slowly,
+    designed for adults who can dedicate <strong>~3 hours</strong>
+    to the table.
   </Sub>
 </StickyBlock>

@@ -9,7 +9,18 @@ export default function Page() {
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[92vw] md:mx-auto"
     >
-      <GalleryGrid />
+      <GalleryGrid
+        topImages={[
+          { src: "/images/casa/interior.jpg", alt: "Luz interior" },
+          { src: "/images/casa/bed.jpg", alt: "Habitación con textiles naturales" },
+          { src: "/images/casa/lounge.jpg", alt: "Área social abierta" },
+        ]}
+        bottomImages={[
+          { src: "/images/casa/lounge.jpg", alt: "Camino hacia el huerto" },
+          { src: "/images/casa/pool2.jpg", alt: "Desayuno por la mañana" },
+          { src: "/images/casa/patio3.jpg", alt: "Patio con alberca" },
+        ]}
+      />
     </StickyBlock>
   );
 }

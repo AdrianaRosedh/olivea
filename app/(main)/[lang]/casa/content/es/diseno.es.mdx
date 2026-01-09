@@ -1,7 +1,11 @@
-import StickyBlock from '@/components/scroll/StickyBlock';
-import Reveal from '@/components/scroll/Reveal';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+// app/(main)/[lang]/casa/content/es/diseno.es.mdx
+"use client";
+
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import ScrollDrift from "@/components/scroll/ScrollDrift";
 
 export default function Page() {
   return (
@@ -25,30 +29,31 @@ export default function Page() {
       }
     >
       <div className="flex flex-col md:flex-row gap-10 items-center">
-        {/* Imagen IZQUIERDA */}
-        <motion.div
-          initial={{ opacity: 0, x: -60 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true }}
-          className="w-full md:w-1/2 h-[50vh] relative rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl"
+        {/* Imagen IZQUIERDA — ScrollDrift (reveal + drift) */}   
+        <ScrollDrift
+          fromX={-48}
+          toX={22}
+          reveal
+          className="w-full md:w-1/2"
         >
-          <Image
-            src="/images/casa/InteriorRooms1.jpg"
-            alt="Texturas del diseño: barro, algodón y luz natural"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 500px"
-            quality={80}
-            priority
-          />
-        </motion.div>
-
+          <div className="w-full h-[50vh] relative rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl">
+            <Image
+              src="/images/casa/InteriorRooms1.jpg"
+              alt="Design textures: clay, cotton, light"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 500px"
+              quality={80}
+              priority
+            />
+          </div>
+        </ScrollDrift>
+        
         {/* Texto DERECHA */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
+          transition={{ duration: 0.9, delay: 0.18 }}
           viewport={{ once: true }}
           className="w-full md:w-1/2 text-gray-800 space-y-5"
         >
@@ -70,9 +75,9 @@ export default function Page() {
           </p>
 
           <p className="text-base text-gray-700 leading-snug" id="materiales">
-            Usamos piedra, madera, algodón y barro — materiales honestos que envejecen
-            con belleza y transmiten calidez. Nada busca llamar la atención. Todo
-            invita a tocar.
+            Usamos piedra, madera, algodón y barro — materiales honestos que
+            envejecen con belleza y transmiten calidez. Nada busca llamar la
+            atención. Todo invita a tocar.
           </p>
 
           <p className="text-base text-gray-700 leading-snug" id="sostenibilidad">
