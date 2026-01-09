@@ -44,66 +44,94 @@ function ServiceCard({
   const { scrollYProgress } = useScroll({
     target: ref,
     container: containerRef,
-    // Enter → active → leave (tune these for more/less “solo” tilt)
+    // Enter → active → leave
     offset: ["start 0.9", "end 0.15"],
   });
 
-  // Wave intensity: 0 -> 1 -> 0 as the card passes the sweet spot
-  const wave = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
-
-  // Deterministic per-card “tilt signature” (stable + different per id)
+  // Deterministic per-card “signature” (stable + subtle variation)
   const sig = useMemo(() => {
     let h = 0;
     for (let i = 0; i < item.id.length; i++) {
       h = (h * 31 + item.id.charCodeAt(i)) >>> 0;
     }
 
-    const r1 = (h % 997) / 997; // 0..1
+    const r1 = (h % 997) / 997;
     const r2 = ((h * 7) % 991) / 991;
     const r3 = ((h * 13) % 983) / 983;
 
-    const sx = r1 < 0.5 ? -1 : 1; // rotateX sign
-    const sy = r2 < 0.5 ? -1 : 1; // rotateY sign
-    const sz = r3 < 0.5 ? -1 : 1; // rotateZ sign
+    const sz = r3 < 0.5 ? -1 : 1;
 
-    // subtle amplitude variation (kept elegant)
-    const ax = 0.9 + r2 * 1.0; // 0.9..1.9
-    const ay = 0.8 + r3 * 1.0; // 0.8..1.8
-    const az = 0.9 + r1 * 1.1; // 0.9..2.0
+    // Elegant, editorial amplitudes (no 3D wobble)
+    const zAmp = 0.45 + r2 * 0.45; // 0.45..0.90 degrees
+    const yAmp = 16 + r1 * 12; // 16..28px lift
+    const scaleFrom = 0.985 + r2 * 0.01; // 0.985..0.995
 
-    // tiny unique drift per card (still cohesive)
-    const yAmp = 8 + r1 * 10; // 8..18
-
-    // optional: micro “settle” differences
-    const scaleFrom = 0.992 + r2 * 0.004; // 0.992..0.996
-
-    return { sx, sy, sz, ax, ay, az, yAmp, scaleFrom };
+    return { sz, zAmp, yAmp, scaleFrom };
   }, [item.id]);
 
-  // Editorial settling as it becomes “active”
-  const yRaw = useTransform(wave, [0, 1], [sig.yAmp, 0]);
-  const opacityRaw = useTransform(wave, [0, 1], [0.55, 1]);
-  const scaleRaw = useTransform(wave, [0, 1], [sig.scaleFrom, 1]);
+  // Small stagger so the grid feels choreographed, not chaotic
+  const d = Math.min(index * 0.04, 0.14);
 
-  // Tilt wave: strongest near the middle of the card’s journey
-  const rotateRaw = useTransform(wave, [0, 1], [sig.sz * sig.az, 0]);
-  const rotateXRaw = useTransform(wave, [0, 1], [sig.sx * sig.ax, 0]);
-  const rotateYRaw = useTransform(wave, [0, 1], [sig.sy * sig.ay, 0]);
+  /**
+   * One-shot pulse:
+   * - straight at start
+   * - peaks around center
+   * - settles to straight early
+   * - stays straight after
+   */
+  const pulse = useTransform(
+    scrollYProgress,
+    [0 + d, 0.5 + d, 0.64 + d, 1],
+    [0, 1, 0, 0],
+    { clamp: true }
+  );
 
-  // Spring so it never jitters in snap/scroll containers
-  const SPR = { stiffness: 220, damping: 34, mass: 0.85 } as const;
+  // Editorial motion: lift + tiny rotateZ + focus
+  const yRaw = useTransform(pulse, [0, 1], [0, -sig.yAmp], { clamp: true });
+
+  const scaleRaw = useTransform(
+    scrollYProgress,
+    [0, 0.28, 0.64, 1],
+    [sig.scaleFrom, 1, 1, 1],
+    { clamp: true }
+  );
+
+  const opacityRaw = useTransform(
+    scrollYProgress,
+    [0, 0.22, 0.64, 1],
+    [0.7, 1, 1, 1],
+    { clamp: true }
+  );
+
+  // Only rotateZ (no rotateX/rotateY => no “crooked grid” feeling)
+  const rotateRaw = useTransform(pulse, [0, 1], [0, sig.sz * sig.zAmp], {
+    clamp: true,
+  });
+
+  // Subtle focus polish
+  const blurRaw = useTransform(pulse, [0, 1, 0], [2.5, 0, 0], {
+    clamp: true,
+  });
+
+  // Sheen overlay intensity
+  const sheenRaw = useTransform(pulse, [0, 1, 0], [0, 1, 0], { clamp: true });
+
+  // ✅ Move this hook OUT of JSX (fixes conditional hook lint)
+  const shadowRaw = useTransform(sheenRaw, [0, 1], [0, 0.55], { clamp: true });
+
+  // Springs (smooth in scroll/snap containers)
+  const SPR = { stiffness: 260, damping: 36, mass: 0.8 } as const;
 
   const y = useSpring(yRaw, SPR);
-  const opacity = useSpring(opacityRaw, SPR);
   const scale = useSpring(scaleRaw, SPR);
+  const opacity = useSpring(opacityRaw, SPR);
   const rotate = useSpring(rotateRaw, SPR);
-  const rotateX = useSpring(rotateXRaw, SPR);
-  const rotateY = useSpring(rotateYRaw, SPR);
 
   return (
     <motion.article
       ref={ref}
       id={item.id}
+      transition={{ duration: 0.35, ease: EASE }}
       style={
         reduce
           ? undefined
@@ -112,13 +140,11 @@ function ServiceCard({
               opacity,
               scale,
               rotate,
-              rotateX,
-              rotateY,
               transformPerspective: 900,
+              // blur is not springed on purpose (feels “optical”)
+              filter: blurRaw,
             }
       }
-      // ✅ no hover at all
-      transition={{ duration: 0.35, ease: EASE }}
       className="
         relative
         p-5 rounded-xl border border-[#dce3db]
@@ -131,7 +157,32 @@ function ServiceCard({
       aria-label={item.title}
       data-index={index}
     >
-      <h3 className="font-semibold text-sm italic text-gray-700 mb-2">
+      {/* Sheen / highlight (editorial luxury) */}
+      {!reduce && (
+        <motion.span
+          aria-hidden
+          style={{ opacity: sheenRaw }}
+          className="
+            pointer-events-none absolute inset-0
+            bg-[radial-gradient(700px_280px_at_18%_0%,rgba(255,255,255,0.38),transparent_60%)]
+            mix-blend-soft-light
+          "
+        />
+      )}
+
+      {/* Micro shadow lift (soft, not “card-y”) */}
+      {!reduce && (
+        <motion.span
+          aria-hidden
+          style={{ opacity: shadowRaw }}
+          className="
+            pointer-events-none absolute inset-0
+            bg-[radial-gradient(520px_240px_at_50%_100%,rgba(0,0,0,0.14),transparent_65%)]
+          "
+        />
+      )}
+
+      <h3 className="font-semibold text-sm italic text-gray-700 mb-2 relative">
         {item.title}
       </h3>
 
@@ -167,8 +218,6 @@ export default function ServicesGrid({ items }: { items: ServiceItem[] }) {
 
   return (
     <div ref={rootRef} className="relative mt-8">
-      {/* ✅ left line removed */}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {items.map((item, i) => (
           <ServiceCard
