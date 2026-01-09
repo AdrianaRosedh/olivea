@@ -1,7 +1,7 @@
 // components/scroll/ScrollDrift.tsx
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -17,6 +17,20 @@ type ScrollOffset = NonNullable<UseScrollOptions["offset"]>;
 type InViewMargin = NonNullable<UseInViewOptions["margin"]>;
 type Align = "left" | "right" | "auto";
 
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const onChange = () => setMatches(mql.matches);
+    onChange();
+    mql.addEventListener?.("change", onChange);
+    return () => mql.removeEventListener?.("change", onChange);
+  }, [query]);
+
+  return matches;
+}
+
 export default function ScrollDrift({
   children,
   className = "",
@@ -26,22 +40,17 @@ export default function ScrollDrift({
   reveal = true,
   revealOnce = true,
 
-  /**
-   * How the element is positioned in the layout:
-   * - left: reveal slides in from left
-   * - right: reveal slides in from right
-   * - auto: infer from fromX/toX direction (default)
-   */
   align = "auto",
-
-  /**
-   * How strong the reveal push is (px).
-   * Positive number; direction is applied automatically.
-   */
   revealOffset = 26,
+
+  // ✅ Mobile reveal slides up by default
+  mobileReveal = "up",
+  mobileRevealOffset = 18,
 
   driftOffset = ["start 70%", "end 20%"] as ScrollOffset,
   revealMargin = "-30% 0px -30% 0px" as InViewMargin,
+
+  driftMode = "desktop",
 }: {
   children: React.ReactNode;
   className?: string;
@@ -53,50 +62,88 @@ export default function ScrollDrift({
   align?: Align;
   revealOffset?: number;
 
+  /** ✅ Mobile reveal behavior */
+  mobileReveal?: "up" | "none";
+  mobileRevealOffset?: number;
+
   driftOffset?: ScrollOffset;
   revealMargin?: InViewMargin;
+
+  driftMode?: "desktop" | "always" | "never";
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const reduce = useReducedMotion();
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: driftOffset,
-  });
-
-  const rawX = useTransform(scrollYProgress, [0, 1], [fromX, toX]);
-  const x = useSpring(rawX, { stiffness: 170, damping: 18, mass: 0.75 });
+  // Tailwind md parity
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const inView = useInView(ref, {
     once: revealOnce,
     margin: revealMargin,
   });
 
-  const shouldReveal = !reduce && reveal;
+  const shouldReveal = reveal && !reduce;
 
-  // Decide which side we "enter from"
+  // Decide which side we "enter from" (desktop x reveal)
   const inferredAlign: Align =
-    align !== "auto"
-      ? align
-      : toX < fromX
-      ? "right" // drifting left => likely positioned right => enter from right
-      : "left"; // drifting right => likely positioned left => enter from left
+    align !== "auto" ? align : toX < fromX ? "right" : "left";
 
   const enterFromX =
     inferredAlign === "right" ? fromX + revealOffset : fromX - revealOffset;
+
+  // ✅ Drift only on desktop by default (prevents mobile jitter)
+  const allowDrift =
+    !reduce &&
+    driftMode !== "never" &&
+    (driftMode === "always" || !isMobile);
+
+  // Only bind scroll progress when drift is enabled
+  const { scrollYProgress } = useScroll(
+    allowDrift ? { target: ref, offset: driftOffset } : { target: ref }
+  );
+
+  const rawX = useTransform(scrollYProgress, [0, 1], [fromX, toX]);
+  const x = useSpring(rawX, { stiffness: 170, damping: 18, mass: 0.75 });
+
+  // ✅ Mobile reveal uses Y (slide up)
+  const mobileEnterY =
+    mobileReveal === "up" ? mobileRevealOffset : 0;
+
+  // Initial values:
+  // - mobile: y only
+  // - desktop: x only
+  const initial = shouldReveal
+    ? isMobile
+      ? { opacity: 0, y: mobileEnterY }
+      : { opacity: 0, x: enterFromX }
+    : undefined;
+
+  // Animate values:
+  // - mobile: y to 0
+  // - desktop: x to 0 (then drift takes over via style)
+  const animate = shouldReveal
+    ? isMobile
+      ? { opacity: inView ? 1 : 0, y: inView ? 0 : mobileEnterY }
+      : { opacity: inView ? 1 : 0, x: inView ? 0 : enterFromX }
+    : undefined;
 
   return (
     <motion.div
       ref={ref}
       className={className}
-      initial={shouldReveal ? { opacity: 0, x: enterFromX } : undefined}
-      animate={shouldReveal ? { opacity: inView ? 1 : 0 } : undefined}
+      initial={initial}
+      animate={animate}
       transition={
         shouldReveal
-          ? { opacity: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+          ? {
+              opacity: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+              x: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+              y: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+            }
           : undefined
       }
-      style={reduce ? undefined : { x }}
+      // ✅ Desktop drift only
+      style={allowDrift ? { x } : undefined}
     >
       {children}
     </motion.div>
