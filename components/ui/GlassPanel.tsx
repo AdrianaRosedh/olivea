@@ -1,46 +1,110 @@
-// components/ui/GlassPanel.tsx
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { useScroll, useTransform, motion } from "framer-motion";
+import Image from "next/image";
 
-interface GlassPanelProps {
-  children: React.ReactNode;
-  className?: string;
-}
+export type GalleryImage = {
+  src: string;
+  alt: string;
+};
 
-/**
- * A frosted-glass panel that blurs whatever’s behind it,
- * animating its blur on entry.
- */
-export function GlassPanel({ children, className = "" }: GlassPanelProps) {
+export default function GalleryGrid({
+  topImages,
+  bottomImages,
+}: {
+  topImages: GalleryImage[];
+  bottomImages: GalleryImage[];
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const topX = useTransform(scrollYProgress, [0, 1], ["0%", "-20%"]);
+  const bottomX = useTransform(scrollYProgress, [0, 1], ["-20%", "0%"]);
+
+  // Tune these once to match Olivea softness
+  const R_MOBILE = 28;
+  const R_DESKTOP = 34;
+
   return (
-    <motion.div
-      // core glass styling
-      className={`
-        relative
-        bg-white/70 border border-white/30
-        shadow-2xl
-        backdrop-blur-md
+    <div
+      ref={containerRef}
+      className="
+        w-full py-10 md:py-12
         overflow-hidden
-        rounded-2xl
-        ${className}
-      `}
-      // animate blur on mount/unmount
-      initial={{ backdropFilter: "blur(0px)" }}
-      animate={{ backdropFilter: "blur(16px)" }}
-      exit={{ backdropFilter: "blur(0px)" }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+        rounded-[28px] md:rounded-[34px]
+        ring-1 ring-black/10
+        bg-[#e7eae1]/35
+      "
       style={{
-        // some browsers need the vendor prefix inline
-        WebkitBackdropFilter: "blur(16px)",
-        backdropFilter: "blur(16px)",
+        // ✅ smoother rounded clipping while the inside is translating
+        clipPath: `inset(0 round ${R_MOBILE}px)`,
       }}
     >
-      {/* your content stays on top */}
-      <div className="relative z-10">
-        {children}
-      </div>
-    </motion.div>
+      {/* Desktop clip-path override for bigger radius */}
+      <div
+        aria-hidden
+        className="hidden md:block absolute inset-0 pointer-events-none"
+        style={{ clipPath: `inset(0 round ${R_DESKTOP}px)` }}
+      />
+
+      {/* Top row */}
+      <motion.div style={{ x: topX }} className="flex gap-6 w-max px-6">
+        <div className="min-w-[10vw] md:min-w-[5vw]" />
+        {topImages.map((img, i) => (
+          <div
+            key={`top-${img.src}-${i}`}
+            className="
+              relative min-w-[75vw] md:min-w-[35vw] h-[50vh]
+              rounded-2xl overflow-hidden
+              border border-black/10
+              bg-[#e7eae1]
+            "
+          >
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 75vw, 35vw"
+              quality={80}
+              priority={i === 0}
+            />
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Bottom row */}
+      <motion.div
+        style={{ x: bottomX }}
+        className="flex gap-6 w-max px-6 mt-8 md:mt-10"
+      >
+        <div className="min-w-[10vw] md:min-w-[5vw]" />
+        {bottomImages.map((img, i) => (
+          <div
+            key={`bottom-${img.src}-${i}`}
+            className="
+              relative min-w-[75vw] md:min-w-[35vw] h-[50vh]
+              rounded-2xl overflow-hidden
+              border border-black/10
+              bg-[#e7eae1]
+            "
+          >
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 75vw, 35vw"
+              quality={80}
+            />
+          </div>
+        ))}
+      </motion.div>
+    </div>
   );
 }
