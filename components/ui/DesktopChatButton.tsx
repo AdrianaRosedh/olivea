@@ -12,12 +12,11 @@ interface DesktopChatButtonProps {
 }
 
 function seededBlobRadius(seed: string) {
-  // deterministic organic radius (so it feels designed, not random each reload)
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
   const rand = () => {
     h = (h * 1664525 + 1013904223) >>> 0;
-    return 40 + (h % 21); // 40–60
+    return 40 + (h % 21);
   };
   const p = () => `${rand()}%`;
   return `${p()} ${p()} ${p()} ${p()} / ${p()} ${p()} ${p()} ${p()}`;
@@ -29,10 +28,8 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
   const [extraBottom, setExtraBottom] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // stable, organic radius
   const blobRadius = useMemo(() => seededBlobRadius("olivea-chat"), []);
 
-  /** Whistle helpers */
   const getWhistleHost = useCallback(
     () => document.getElementById("w-live-chat") as HTMLElement | null,
     []
@@ -86,7 +83,6 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     };
   }, [getWhistleHost, isWhistleOpen, setWhistleInteractive]);
 
-  /** Availability */
   useEffect(() => {
     const updateAvailability = () => {
       const now = new Date().toLocaleString("en-US", { timeZone: "America/Tijuana", hour12: false });
@@ -99,7 +95,6 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     return () => clearInterval(interval);
   }, []);
 
-  /** Dynamic offset to avoid overlap */
   useEffect(() => {
     const candidates = [
       avoidSelector,
@@ -118,18 +113,22 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
 
       const selfRect = host.getBoundingClientRect();
       const target =
-        candidates.map((sel) => document.querySelector<HTMLElement>(sel))
+        candidates
+          .map((sel) => document.querySelector<HTMLElement>(sel))
           .find((el) => el && el.offsetParent !== null) ?? null;
 
-      if (!target) { setExtraBottom(0); return; }
+      if (!target) {
+        setExtraBottom(0);
+        return;
+      }
 
       const tRect = target.getBoundingClientRect();
       const horizontallyOverlaps = tRect.left < selfRect.right && tRect.right > selfRect.left;
-      const verticallyOverlaps   = tRect.top  < selfRect.bottom && tRect.bottom > selfRect.top;
+      const verticallyOverlaps = tRect.top < selfRect.bottom && tRect.bottom > selfRect.top;
 
       if (horizontallyOverlaps && verticallyOverlaps) {
         const neededLift = Math.ceil(selfRect.bottom - tRect.top) + 12;
-        setExtraBottom((v) => Math.max(v, neededLift));
+        setExtraBottom(Math.max(0, neededLift)); // ✅ allow decrease
       } else {
         setExtraBottom(0);
       }
@@ -140,7 +139,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
 
     computeOffset();
     window.addEventListener("resize", computeOffset, { passive: true });
-    window.addEventListener("scroll",  computeOffset, { passive: true });
+    window.addEventListener("scroll", computeOffset, { passive: true });
     mo.observe(document.body, { childList: true, subtree: true });
 
     candidates.forEach((sel) => {
@@ -152,22 +151,27 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
       ro.disconnect();
       mo.disconnect();
       window.removeEventListener("resize", computeOffset);
-      window.removeEventListener("scroll",  computeOffset);
+      window.removeEventListener("scroll", computeOffset);
     };
   }, [avoidSelector]);
 
-  /** Labels */
   const labels = {
     en: { available: "Live Chat — Available", unavailable: "Chat — Out of Office Hours", open: "Open Chat" },
     es: { available: "Chat en Vivo — Disponible", unavailable: "Chat — Fuera de Horario", open: "Abrir Chat" },
   };
   const currentLabel = chatAvailable ? labels[lang].available : labels[lang].unavailable;
 
-  /** Click */
   const handleClick = () => {
-    const globalToggle = document.getElementById("chatbot-toggle");
+    const globalToggle = document.getElementById("chatbot-toggle") as HTMLElement | null;
+
     setWhistleInteractive(true);
-    globalToggle?.click();
+
+    if (!globalToggle) {
+      console.warn("[Chat] #chatbot-toggle not found. Chat cannot open.");
+      return;
+    }
+
+    globalToggle.click();
 
     const start = performance.now();
     const tick = () => {
@@ -178,14 +182,13 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     requestAnimationFrame(tick);
   };
 
-  // Position: higher + more right than your previous (and still safe-area aware)
-  const BASE_BOTTOM = 92; // a bit higher than 80
-  const BASE_RIGHT  = 32; // a bit more right than 24
+  const BASE_BOTTOM = 92;
+  const BASE_RIGHT = 32;
 
   return (
     <div
       ref={rootRef}
-      className="fixed z-60 hidden md:block"
+      className="fixed z-9999 hidden md:block" 
       style={{
         right: `max(${BASE_RIGHT}px, env(safe-area-inset-right))`,
         bottom: `calc(max(${BASE_BOTTOM}px, env(safe-area-inset-bottom)) + ${extraBottom}px)`,
@@ -206,28 +209,21 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
           onClick={handleClick}
           className={cn(
             "relative w-14 h-14 text-(--olivea-cream)",
-            // ✅ Olivea base + hover
             "bg-(--olivea-olive) hover:bg-(--olivea-clay)",
-            // ✅ organic shape (deterministic)
             "shadow-[0_18px_44px_-28px_rgba(0,0,0,0.6)]",
             "transition-colors"
           )}
           style={{ borderRadius: blobRadius }}
         >
           <MessageCircle className="w-7 h-7" />
-
-          {/* Availability bulb: functional + visible */}
           <span
             aria-hidden="true"
             className={cn(
               "absolute block rounded-full shadow-sm",
-              // higher + more right (slightly outside the button like a pin)
               "-top-1 -right-1",
               "h-2.5 w-2.5",
               "ring-1.5 ring-(--olivea-cream)",
-              chatAvailable
-                ? "bg-green-500 animate-pulse"
-                : "bg-red-500"
+              chatAvailable ? "bg-green-500 animate-pulse" : "bg-red-500"
             )}
           />
         </MagneticButton>
