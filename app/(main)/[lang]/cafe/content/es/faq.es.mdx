@@ -1,0 +1,76 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import ModernFAQ from "@/components/ui/ModernFAQ";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="faq"
+      variant="top"
+      className="pt-10 pb-10 md:pt-20 md:pb-18 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Para tener en cuenta</h2>
+        </Reveal>
+      }
+    >
+      <ModernFAQ
+        items={[
+          {
+            q: "¿Para quién es Olivea Café?",
+            a: "En Casa Olivea, el día comienza aquí. Quienes visitan por el día también son bienvenidos — el café es una puerta de entrada al ritmo Olivea.",
+          },
+          {
+            q: "¿Cuál es el horario de Olivea Café?",
+            a: "Olivea Café abre todos los días de 8:00am a 3:00pm.",
+          },
+          {
+            q: "¿Qué estilo de desayuno ofrecen?",
+            a: "El desayuno es mayormente salado, con alma mexicana — pensado para sentirse calmado, nutritivo e intencional.",
+          },
+          {
+            q: "¿Cómo funciona el desayuno para huéspedes de Casa Olivea?",
+            a: "El desayuno está incluido para dos personas, servido en Olivea Café.",
+          },
+          {
+            q: "¿De dónde proviene el café?",
+            a: "El café proviene exclusivamente de México, trabajado con técnica y constancia.",
+          },
+          {
+            q: "¿Sirven matcha?",
+            a: "Sí — matcha ceremonial, preparado con cuidado. Los jarabes estacionales evolucionan con el huerto.",
+          },
+          {
+            q: "¿En qué horarios están disponibles las canchas de pádel?",
+            a: "Las canchas están disponibles con reserva entre 8:00am y 6:00pm.",
+          },
+          {
+            q: "¿Cuántas canchas tienen?",
+            a: "Una cancha de dobles y una cancha de singles.",
+          },
+          {
+            q: "¿Qué equipo está disponible?",
+            a: "Las palas están disponibles en renta. Los huéspedes de Casa Olivea disfrutan palas como parte de su estancia. Las pelotas nuevas están disponibles para compra.",
+          },
+          {
+            q: "¿Tienen algún día comunitario de pádel?",
+            a: "Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo.",
+          },
+          {
+            q: "¿Cómo se vive la experiencia alrededor de las canchas?",
+            a: "Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café — café, música y un flujo relajado entre el juego y la mesa.",
+          },
+          {
+            q: "¿Las mascotas son bienvenidas?",
+            a: "Sí — las áreas de café y pádel son pet friendly.",
+          },
+          {
+            q: "¿Qué se vive por las tardes en el café?",
+            a: "Por las tardes, ofrecemos una selección pequeña de cocteles, vino y tapas como continuidad relajada del día.",
+          },
+        ]}
+      />
+    </StickyBlock>
+  );
+}

@@ -2,52 +2,91 @@ import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
 import ParallaxImage from "@/components/scroll/ParallaxImage";
+import ScrollDrift from "@/components/scroll/ScrollDrift";
 
 <StickyBlock
-  id="breakfast"
+  id="desayuno"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        Breakfast
-      </h2>
-    </Reveal>
-  }
+  containerClassName="w-full md:max-w-[min(1220px,94vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
 >
-  <Sub id="flavor" preset="up">
-    On the simplest plate, we highlight home flavor…
-  </Sub>
+  <div className="mt-10 md:mt-14 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-start">
+    {/* Image LEFT */}
+    <div className="md:col-span-6">
+      <ScrollDrift fromX={-18} toX={26} reveal className="w-full">
+        <div
+          className="
+            relative w-full
+            overflow-hidden rounded-[34px]
+            ring-1 ring-black/10
+            shadow-[0_34px_90px_rgba(0,0,0,0.32)]
+            bg-[var(--olivea-cream)]/95
+          "
+        >
+          <ParallaxImage
+            src="/images/cafe/breakfast6.jpg"
+            alt="Breakfast at Olivea Café"
+            heightVh={62}
+            speed={0.14}
+            fit="cover"
+            objectPosition="50% 58%"
+          />
 
-  <Sub id="source" preset="left">
-    Ingredients are followed back to source…
-  </Sub>
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/26 via-black/10 to-transparent" />
+            <div className="absolute inset-0 ring-1 ring-white/10" />
+          </div>
+        </div>
+      </ScrollDrift>
 
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/cafe/breakfast.jpg"
-      alt="Breakfast from the garden"
-      heightVh={46}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
+      <Reveal preset="fade" delay={0.12}>
+        <div className="mt-4 flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+          <span className="h-[1px] w-10 bg-black/10" />
+          <span>Slow food • morning calm • garden-led</span>
+        </div>
+      </Reveal>
+    </div>
+
+    {/* Right column */}
+    <div className="md:col-span-6 md:pt-1">
+      <Reveal preset="up" delay={0.10}>
+        <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+          Breakfast, Homey &amp; Precise
+        </h2>
+      </Reveal>
+
+      <Reveal preset="fade" delay={0.20}>
+        <div className="mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+      </Reveal>
+
+      <div className="mt-7 max-w-[42ch] space-y-6">
+        <Sub id="flavor" preset="up" className="!min-h-0 !mb-0">
+          Breakfast at Olivea Café moves at a calm pace. The goal is rhythm:
+          plates that feel warm and familiar, while staying clean and intentional.
+        </Sub>
+
+        <Sub id="source" preset="fade" className="!min-h-0 !mb-0">
+          The style is mostly savory, rooted in Mexican comfort — simple food, done
+          with care, guided by what the garden and the season are offering.
+        </Sub>
+
+        <Sub id="sustainable" preset="fade" className="!min-h-0 !mb-0">
+          We share ingredients and preparations with Olivea Farm To Table when it
+          makes sense — supporting efficiency and coherence. One ecosystem: less waste,
+          more continuity.
+        </Sub>
+      </div>
+    </div>
+
+    {/* Full-width continuation */}
+    <div className="md:col-span-12 -mt-2 md:-mt-4">
+      <div className="max-w-[1120px] mx-auto">
+        <Sub id="morning" preset="left" className="mt-0 !min-h-0 !mb-0">
+          Casa Olivea guests begin the day with Olivea Café. Guests visiting for the day
+          are welcome as well — the café is an open door into the Olivea rhythm.
+        </Sub>
+      </div>
+    </div>
   </div>
-
-  <Sub id="sustainable" preset="fade">
-    The menu follows our sustainability line…
-  </Sub>
-
-  <Sub id="morning" preset="right">
-    No made-up stories—just the warmth of home…
-  </Sub>
 </StickyBlock>

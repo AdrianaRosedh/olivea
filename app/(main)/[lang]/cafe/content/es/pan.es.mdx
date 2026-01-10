@@ -2,52 +2,128 @@ import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
 import ParallaxImage from "@/components/scroll/ParallaxImage";
+import ScrollDrift from "@/components/scroll/ScrollDrift";
 
 <StickyBlock
   id="pan"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        Pan
-      </h2>
-    </Reveal>
-  }
+  containerClassName="w-full md:max-w-[min(1220px,94vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
 >
-  <Sub id="harinas" preset="up">
-    Nuestro amor por el pan es de toda la vida…
-  </Sub>
+  <div className="mt-10 md:mt-14 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-start">
+    {/* LEFT */}
+    <div className="md:col-span-6 md:pt-1">
+      <Reveal preset="up" delay={0.10}>
+        <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+          Pan como rito
+        </h2>
+      </Reveal>
 
-  <Sub id="recetas" preset="left">
-    Recetario propio y diálogo con panaderos…
-  </Sub>
+      <Reveal preset="fade" delay={0.22}>
+        <div className="mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+      </Reveal>
 
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/cafe/pan.jpg"
-      alt="Pan de casa — corteza, miga y aroma"
-      heightVh={46}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
+      <div className="mt-7 max-w-[42ch] space-y-6">
+        <Sub id="harinas" preset="up" className="!min-h-0 !mb-0">
+          La harina es estructura. La elegimos por sabor y desempeño en fermentación —
+          una miga ligera y completa, pensada para sentirse limpia y equilibrada.
+        </Sub>
+
+        <Sub id="recetas" preset="fade" className="!min-h-0 !mb-0">
+          Las recetas se componen para claridad: capas limpias, sazón balanceada y
+          textura intencional. La meta es precisión que se siente suave.
+        </Sub>
+
+        <Sub id="obradores" preset="fade" className="!min-h-0 !mb-0">
+          Olivea Café comparte liderazgo con Farm To Table — guiado por el Chef Daniel Nates —
+          junto con un chef dedicado a pan y pastelería que sostiene ambas cocinas.
+          Coherencia por encima de uniformidad: una visión, muchas expresiones.
+        </Sub>
+      </div>
+    </div>
+
+    {/* RIGHT */}
+    <div className="md:col-span-6">
+      <ScrollDrift fromX={18} toX={-26} reveal align="right" className="w-full">
+        <div
+          className="
+            relative w-full
+            overflow-hidden rounded-[34px]
+            ring-1 ring-black/10
+            shadow-[0_34px_90px_rgba(0,0,0,0.32)]
+            bg-[var(--olivea-cream)]/95
+          "
+        >
+          <ParallaxImage
+            src="/images/cafe/pan.jpg"
+            alt="Pan y pastelería en Olivea Café"
+            heightVh={62}
+            speed={0.14}
+            fit="cover"
+            objectPosition="50% 55%"
+          />
+
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/26 via-black/10 to-transparent" />
+            <div className="absolute inset-0 ring-1 ring-white/10" />
+          </div>
+        </div>
+      </ScrollDrift>
+
+      <Reveal preset="fade" delay={0.12}>
+        <div className="mt-4 flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+          <span className="h-[1px] w-10 bg-black/10" />
+          <span>Fermentar • hornear • repetir</span>
+        </div>
+      </Reveal>
+    </div>
+
+    {/* Full-width continuation */}
+    <div className="md:col-span-12 -mt-2 md:-mt-4">
+      <div className="max-w-[1120px] mx-auto">
+        <Sub id="rito" preset="fade" className="mt-0 !min-h-0 !mb-0">
+          El pan acompaña naturalmente el café lento de la mañana y sostiene el mismo estándar
+          que vive en todo Olivea. La fermentación es inteligencia del tiempo: extiende la temporada
+          con elegancia, preserva momentos en su punto, y mantiene continuidad — integrando lo que queda
+          al ciclo del sistema a través de la composta.
+        </Sub>
+      </div>
+    </div>
+
+    {/* Bottom gallery */}
+    <div className="md:col-span-12 mt-6 md:mt-8">
+      <div className="max-w-[1120px] mx-auto">
+        <div className="mt-8 w-full grid gap-4 md:grid-cols-2 md:gap-6">
+          <ScrollDrift fromX={-14} toX={14} reveal align="left" className="w-full">
+            <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)] h-[38vh] md:h-[45vh] bg-[var(--olivea-cream)]/60">
+              <ParallaxImage
+                src="/images/cafe/beautiful.jpg"
+                alt="Ambiente de Olivea Café"
+                heightVh={45}
+                speed={0.10}
+                className="h-full"
+                fit="cover"
+                objectPosition="50% 50%"
+              />
+            </div>
+          </ScrollDrift>
+
+          <ScrollDrift fromX={14} toX={-14} reveal align="right" className="w-full">
+            <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)] h-[38vh] md:h-[45vh] bg-[var(--olivea-cream)]/60">
+              <ParallaxImage
+                src="/images/cafe/latte.jpg"
+                alt="Ritual de café en Olivea Café"
+                heightVh={45}
+                speed={0.10}
+                className="h-full"
+                fit="cover"
+                objectPosition="50% 55%"
+              />
+            </div>
+          </ScrollDrift>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <Sub id="obradores" preset="right">
-    Cada harina usada tiene dos vertientes…
-  </Sub>
-
-  <Sub id="rito" preset="fade">
-    Queremos que el pan complete tu café…
-  </Sub>
 </StickyBlock>

@@ -7,30 +7,30 @@ export const SECTIONS_CAFE_EN: NavSection[] = [
     title: "Experience",
     subs: [
       { id: "origin", title: "Origin" },
-      { id: "bean",   title: "Bean" },
-      { id: "roast",  title: "Roast" },
-      { id: "water",  title: "Water" },
-      { id: "bar",    title: "Bar" },
+      { id: "bean", title: "Bean" },
+      { id: "roast", title: "Roast" },
+      { id: "water", title: "Water" },
+      { id: "bar", title: "Bar" },
     ],
   },
   {
     id: "desayuno",
     title: "Breakfast",
     subs: [
-      { id: "flavor",      title: "Flavor" },
-      { id: "source",      title: "Source" },
+      { id: "flavor", title: "Flavor" },
+      { id: "source", title: "Source" },
       { id: "sustainable", title: "Sustainable" },
-      { id: "morning",     title: "Morning" },
+      { id: "morning", title: "Morning" },
     ],
   },
   {
     id: "pan",
     title: "Bread",
     subs: [
-      { id: "flours",  title: "Flours" },
+      { id: "flours", title: "Flours" },
       { id: "recipes", title: "Recipes" },
-      { id: "bakers",  title: "Bakers" },
-      { id: "ritual",  title: "Ritual" },
+      { id: "bakers", title: "Bakers" },
+      { id: "ritual", title: "Ritual" },
     ],
   },
   {
@@ -39,8 +39,8 @@ export const SECTIONS_CAFE_EN: NavSection[] = [
     subs: [
       { id: "courts", title: "Courts" },
       { id: "lights", title: "Lights" },
-      { id: "play",   title: "Play" },
-      { id: "life",   title: "Life" },
+      { id: "play", title: "Play" },
+      { id: "life", title: "Life" },
     ],
   },
   {
@@ -48,9 +48,10 @@ export const SECTIONS_CAFE_EN: NavSection[] = [
     title: "Menu",
     subs: [
       { id: "espresso", title: "Espresso" },
-      { id: "filter",   title: "Filter" },
-      { id: "tea",      title: "Tea" },
-      { id: "cold",     title: "Cold" },
+      { id: "filter", title: "Filter" },
+      { id: "tea", title: "Tea" },
+      { id: "cold", title: "Cold" },
     ],
   },
+  { id: "faq", title: "FAQ" },
 ];

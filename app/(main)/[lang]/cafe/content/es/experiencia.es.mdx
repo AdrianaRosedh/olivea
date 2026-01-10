@@ -1,57 +1,114 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
+import StatChips from "@/components/mdx/StatChips";
+import FieldNote from "@/components/mdx/FieldNote";
+import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 
 <StickyBlock
   id="experiencia"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        Experiencia
+  containerClassName="w-full md:max-w-[min(1120px,94vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
+>
+  {/* Title block */}
+  <div className="max-w-[860px]">
+    <Reveal preset="up" delay={0.08}>
+      <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+        El ritmo diario de Olivea
       </h2>
     </Reveal>
-  }
->
-  <Sub id="origen" preset="blur-up">
-    El café inicia con muchas manos…
-  </Sub>
 
-  <Sub id="seleccion" preset="up">
-    Seleccionamos lotes trazables…
-  </Sub>
+    <Reveal preset="fade" delay={0.18}>
+      <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)]/60 leading-relaxed">
+        Café lento. Comida lenta. Energía calmada — práctica cotidiana, disciplina suave.
+      </p>
+    </Reveal>
 
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/cafe/roast.jpg"
-      alt="Tueste preciso para elevar el origen"
-      heightVh={46}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
+    <Reveal preset="fade" delay={0.26}>
+      <div className="mt-5 md:mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+    </Reveal>
   </div>
 
-  <Sub id="tueste" preset="left">
-    Tostamos con precisión y contención…
+  {/* Opening */}
+  <Sub id="origen" preset="blur-up" className="mt-7 md:mt-8 !min-h-0">
+    Olivea Café es la expresión más relajada del ecosistema Olivea — donde la mañana se
+    despliega con calma, el movimiento se siente humano, y el huerto sigue marcando el
+    rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que
+    Casa Olivea y Olivea Farm To Table.
   </Sub>
 
-  <Sub id="agua" preset="right">
-    El agua es parte de la receta…
-  </Sub>
+  {/* Specs */}
+  <Reveal preset="fade" delay={0.18}>
+    <div className="mt-6 md:mt-7">
+      <StatChips
+        items={[
+          { label: "Horario", value: "Diario • 8:00am – 3:00pm" },
+          { label: "Café", value: "Origen México • técnica cuidada" },
+          { label: "Cocina", value: "Conectada a Farm To Table • sistema compartido" },
+          { label: "Ritmo", value: "Desayuno • pádel • volver a la calma" },
+        ]}
+      />
+    </div>
+  </Reveal>
 
-  <Sub id="barra" preset="fade">
-    En barra servimos café con memoria…
+  {/* Scroll-grow hero band */}
+  <ScrollGrowImageBand
+    src="/images/cafe/cafe.jpg"
+    alt="Ambiente de Olivea Café"
+    startH="130px"
+    endH="400px"
+    delayStart={0.22}
+    holdAt={0.94}
+    scrollContainerSelector="main"
+  />
+
+  {/* Caption / signal line */}
+  <Reveal preset="fade" delay={0.08}>
+    <div className="mt-3 max-w-275 mx-auto flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+      <span className="h-[1px] w-10 bg-black/10" />
+      <span>Cadencia diaria • preparar, hornear, preservar, regresar</span>
+    </div>
+  </Reveal>
+
+  {/* Coffee stack */}
+  <div className="mt-8 md:mt-9 max-w-[860px] space-y-6 md:space-y-7">
+    <Sub id="grano" preset="up" className="!min-h-0 !mb-0">
+      Nuestro café proviene exclusivamente de México. Lo elegimos por balance, claridad
+      y un final limpio — diseñado para sentirse sereno y sin prisa. El tueste en casa
+      vive como una fase futura, incorporada cuando el sistema esté listo.
+    </Sub>
+
+    <Sub id="tueste" preset="fade" className="!min-h-0 !mb-0">
+      La técnica vive en silencio. Espresso afinado para estructura. Filtrado con
+      transparencia. Constancia y contención guían cada taza — excelencia que se siente
+      natural.
+    </Sub>
+
+    <Sub id="agua" preset="fade" className="!min-h-0 !mb-0">
+      Servimos matcha ceremonial, preparado con el mismo cuidado que el café. Y jugamos
+      con el huerto — creando jarabes que mantienen el menú estacional, con sabor expresivo
+      y claridad.
+    </Sub>
+  </div>
+
+  {/* Field note */}
+  <Reveal preset="fade" delay={0.14}>
+    <div className="mt-7 md:mt-8">
+      <FieldNote>
+        En Olivea, la sustentabilidad es eficiencia: respeto hecho práctico. El café comparte
+        ingredientes, trabajo de fermentación y un ciclo continuo con Farm To Table —
+        huerto → cocina → composta → regreso a la tierra.
+      </FieldNote>
+    </div>
+  </Reveal>
+
+  {/* Bar / forward */}
+  <Sub id="barra" preset="fade" className="mt-7 md:mt-8 !min-h-0 !mb-0">
+    Olivea Café se vive con calma. Por las tardes, ofrecemos una selección pequeña de
+    cocteles, vino y tapas — una continuación suave del día. A futuro, se explora un
+    formato de wine bar nocturno, construido con paciencia e intención, coherente con el
+    ecosistema Olivea.
   </Sub>
 </StickyBlock>

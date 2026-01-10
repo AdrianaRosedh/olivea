@@ -1,0 +1,76 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import ModernFAQ from "@/components/ui/ModernFAQ";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="faq"
+      variant="top"
+      className="pt-10 pb-10 md:pt-20 md:pb-18 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Good to Know</h2>
+        </Reveal>
+      }
+    >
+      <ModernFAQ
+        items={[
+          {
+            q: "Who is Olivea Café for?",
+            a: "Casa Olivea guests begin the day here, and day visitors are welcome as well — the café is an open door into the Olivea rhythm.",
+          },
+          {
+            q: "What are the café hours?",
+            a: "Olivea Café is open daily from 8:00am to 3:00pm.",
+          },
+          {
+            q: "What is the breakfast style?",
+            a: "Breakfast is mostly savory, rooted in Mexican comfort — designed to feel calm, nourishing, and intentional.",
+          },
+          {
+            q: "How does breakfast work for Casa Olivea guests?",
+            a: "Breakfast is included for two, served at Olivea Café.",
+          },
+          {
+            q: "Where does the coffee come from?",
+            a: "Coffee is sourced exclusively from Mexico, crafted with technique and consistency.",
+          },
+          {
+            q: "Do you serve matcha?",
+            a: "Yes — ceremonial matcha, prepared with care. Seasonal syrups and jarabes evolve with the garden.",
+          },
+          {
+            q: "When are padel courts available?",
+            a: "Courts are available by reservation between 8:00am and 6:00pm.",
+          },
+          {
+            q: "How many courts are available?",
+            a: "One doubles court and one singles court.",
+          },
+          {
+            q: "What equipment is available?",
+            a: "Rackets are available for rent. Casa Olivea guests enjoy rackets as part of their stay. New balls are available for purchase.",
+          },
+          {
+            q: "Is there a community padel day?",
+            a: "Tuesdays welcome local hospitality industry friends for free play.",
+          },
+          {
+            q: "What is the courtside experience like?",
+            a: "Courtside, guests enjoy food and beverages from Olivea Café — coffee, music, and a relaxed flow between play and the table.",
+          },
+          {
+            q: "Are pets welcome?",
+            a: "Yes — café and padel areas are pet friendly.",
+          },
+          {
+            q: "What happens in the afternoons?",
+            a: "Afternoons offer a small list of cocktails, wine, and tapas as a relaxed continuation of the day.",
+          },
+        ]}
+      />
+    </StickyBlock>
+  );
+}

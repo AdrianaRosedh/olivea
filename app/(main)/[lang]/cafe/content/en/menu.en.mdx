@@ -1,0 +1,163 @@
+"use client";
+
+import { useEffect } from "react";
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Farmpop from "@/components/ui/popup/farmpop";
+import CardParallax from "@/components/mdx/CardParallax";
+
+export default function Page() {
+  useEffect(() => {
+    const open = () => {
+      const btn = document.querySelector(".js-cafe-menu-trigger");
+      if (btn && "click" in btn) {
+        // @ts-ignore - runtime-safe, MDX is JS
+        btn.click();
+      }
+    };
+
+    window.addEventListener("olivea:cafe:menu:open", open);
+    return () => window.removeEventListener("olivea:cafe:menu:open", open);
+  }, []);
+
+  return (
+    <StickyBlock
+      id="menu"
+      variant="top"
+      containerClassName="w-full md:max-w-[min(1180px,92vw)] md:mx-auto"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start overflow-hidden"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">The menu</h2>
+        </Reveal>
+      }
+    >
+      {/* IMAGE */}
+      <div className="relative mt-6">
+        {/* Mobile */}
+        <div
+          className="
+            md:hidden
+            relative overflow-hidden rounded-[22px]
+            ring-1 ring-black/10
+            h-[190px]
+          "
+        >
+          <CardParallax
+            src="/images/cafe/garden2.jpg"
+            alt="Olivea Café — menu and atmosphere"
+            speed={0.12}
+            fit="cover"
+            objectPosition="50% 60%"
+            sizes="100vw"
+            loading="lazy"
+            placeholder="empty"
+            className="-inset-[99px]"
+            surfaceClassName="h-full w-full"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/12 via-transparent to-transparent" />
+        </div>
+
+        {/* Desktop */}
+        <div
+          className="
+            hidden md:block
+            relative overflow-hidden rounded-[22px]
+            ring-1 ring-black/10
+            h-[300px]
+          "
+        >
+          <CardParallax
+            src="/images/cafe/cafe.jpg"
+            alt="Olivea Café — menu and atmosphere"
+            speed={0.16}
+            fit="cover"
+            objectPosition="50% 52%"
+            sizes="(max-width: 768px) 100vw, 1180px"
+            loading="lazy"
+            placeholder="empty"
+            className="-inset-[34px]"
+            surfaceClassName="h-full w-full"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/14 via-transparent to-transparent" />
+        </div>
+      </div>
+
+      <div className="mt-8 md:mt-9 text-center">
+        <p className="mx-auto max-w-[72ch] text-[17px] md:text-[18px] leading-[1.7] text-[var(--olivea-ink)]/90">
+          A curated <strong>coffee + café menu</strong>, designed around clarity and rhythm —
+          espresso with structure, filter with transparency, tea with calm, and cold drinks that feel bright.
+          Coffee is sourced exclusively from <strong>Mexico</strong>. Matcha is ceremonial.
+          Syrups and jarabes evolve with the garden.
+        </p>
+
+        <div className="mt-6 flex justify-center">
+          <Farmpop
+            title="Live menu"
+            label="View live menu"
+            initialTabId="coffee"
+            tabs={[
+              { id: "coffee", label: "Coffee", url: "https://www.canva.com/design/REPLACE_ME/view", emoji: "☕️" },
+              { id: "breakfast", label: "Breakfast", url: "https://www.canva.com/design/REPLACE_ME/view", emoji: "🥐" },
+              { id: "tea", label: "Tea", url: "https://www.canva.com/design/REPLACE_ME/view", emoji: "🍵" },
+              { id: "cold", label: "Cold", url: "https://www.canva.com/design/REPLACE_ME/view", emoji: "🧊" },
+            ]}
+            triggerClassName="
+              js-cafe-menu-trigger
+              rounded-full px-7 md:px-8 py-3 text-[13.5px] tracking-[0.20em] uppercase font-semibold
+              bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)]
+              shadow-[0_10px_28px_rgba(0,0,0,0.14)] ring-1 ring-white/10
+              transition-transform duration-300 hover:-translate-y-[1px]
+            "
+          />
+        </div>
+
+        <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+      </div>
+
+      {/* DockLeft anchors */}
+      <div className="sr-only">
+        <div id="espresso" className="subsection" />
+        <div id="filter" className="subsection" />
+        <div id="tea" className="subsection" />
+        <div id="cold" className="subsection" />
+      </div>
+
+      {/* INFO */}
+      <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-3">
+        <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+          <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+            ☕ Coffee • Mexico-sourced
+          </div>
+          <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+            Espresso and filter are tuned for clarity and balance. In-house roasting is part of a future phase,
+            introduced once the system is ready.
+          </p>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+          <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+            🍵 Matcha • garden jarabes
+          </div>
+          <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+            Ceremonial matcha, prepared with technique. Seasonal syrups and jarabes evolve with the garden —
+            expressive, while staying clear.
+          </p>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+          <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+            🍷 Afternoons • small list
+          </div>
+          <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+            Afternoons offer a small selection of cocktails, wine, and tapas — a relaxed continuation of the day,
+            designed to remain calm and coherent with Olivea.
+          </p>
+        </div>
+      </div>
+    </StickyBlock>
+  );
+}

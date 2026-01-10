@@ -1,45 +1,79 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
-import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
+import ServicesGrid from "@/components/mdx/ServicesGrid";
+import CardParallax from "@/components/mdx/CardParallax";
 
 <StickyBlock
   id="padel"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
+  containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start overflow-hidden"
   title={
     <Reveal preset="up">
       <h2 className="text-2xl md:text-4xl font-semibold">
-        Pádel
+        Pádel como estilo de vida
       </h2>
     </Reveal>
   }
 >
-  <Sub id="comunidad" preset="up">
-    Canchas, torneos amistosos y clases…
-  </Sub>
-
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/cafe/padel.jpg"
-      alt="Canchas de pádel"
-      heightVh={46}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
+  {/* Image band */}
+  <div className="relative mt-6">
+    <div className="relative overflow-hidden rounded-[22px] ring-1 ring-black/10 h-[190px] md:h-[300px]">
+      <CardParallax
+        src="/images/cafe/padel3.jpg"
+        alt="Pádel en Olivea"
+        speed={0.14}
+        fit="cover"
+        objectPosition="50% 84%"
+        sizes="(max-width: 768px) 100vw, 1080px"
+        loading="lazy"
+        placeholder="empty"
+        className="-inset-[12px]"
+        surfaceClassName="h-full w-full"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/14 via-transparent to-transparent" />
+    </div>
   </div>
 
-  <Sub id="servicios" preset="fade">
-    Tienda, renta de equipo y eventos…
-  </Sub>
+  <Reveal preset="fade" delay={0.12}>
+    <div className="mt-6 max-w-[78ch] text-[15.5px] md:text-[16.5px] leading-relaxed text-[var(--olivea-ink)]/85">
+      <p>
+        Olivea es un ecosistema del huerto, y una experiencia completa incluye ritmo.
+        El movimiento le da claridad al día. El café te regresa a la calma.
+      </p>
+      <p className="mt-3">
+        El pádel aquí es social y curado: café, música, buena energía — integrado
+        a la propiedad y vivido en el mismo tono Olivea.
+      </p>
+    </div>
+  </Reveal>
+
+  <ServicesGrid
+    items={[
+      {
+        id: "canchas",
+        title: "Canchas",
+        text:
+          "Contamos con una cancha de dobles y una de singles. El pádel está disponible para huéspedes de Casa Olivea y visitantes del día, con reserva entre 8:00am y 6:00pm.",
+      },
+      {
+        id: "luz",
+        title: "Ritmo & energía",
+        text:
+          "La atmósfera se mantiene limpia, calmada y divertida — nuestra música, nuestro ritmo, y una transición natural entre juego y café.",
+      },
+      {
+        id: "juego",
+        title: "Palas & pelotas",
+        text:
+          "Las palas están disponibles en renta. Los huéspedes de Casa Olivea disfrutan palas como parte de su estancia. Las pelotas nuevas están disponibles para compra.",
+      },
+      {
+        id: "vida",
+        title: "Comunidad & flujo",
+        text:
+          "Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo. Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café. Las áreas de café y pádel son pet friendly.",
+      },
+    ]}
+  />
 </StickyBlock>

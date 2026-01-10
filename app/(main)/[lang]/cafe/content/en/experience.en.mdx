@@ -1,57 +1,114 @@
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import Sub from "@/components/scroll/Sub";
-import ParallaxImage from "@/components/scroll/ParallaxImage";
+import StatChips from "@/components/mdx/StatChips";
+import FieldNote from "@/components/mdx/FieldNote";
+import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 
 <StickyBlock
-  id="experience"
+  id="experiencia"
   variant="top"
-  containerClassName="w-full md:max-w-[min(900px,92vw)] md:mx-auto"
-  className="py-12 md:py-20 snap-start"
-  title={
-    <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold">
-        Experience
+  containerClassName="w-full md:max-w-[min(1120px,94vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+  title={null}
+>
+  {/* Title block */}
+  <div className="max-w-[860px]">
+    <Reveal preset="up" delay={0.08}>
+      <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+        The Daily Rhythm of Olivea
       </h2>
     </Reveal>
-  }
->
-  <Sub id="origin" preset="blur-up">
-    Our coffee begins with many hands…
-  </Sub>
 
-  <Sub id="bean" preset="up">
-    We select traceable lots…
-  </Sub>
+    <Reveal preset="fade" delay={0.18}>
+      <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)]/60 leading-relaxed">
+        Slow coffee. Slow food. Calm energy — built as practice, as daily discipline.
+      </p>
+    </Reveal>
 
-  <div
-    className="
-      relative w-full max-w-[950px] mx-auto my-10
-      overflow-hidden rounded-[28px]
-      ring-1 ring-black/10
-      shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
-    "
-  >
-    <ParallaxImage
-      src="/images/cafe/roast.jpg"
-      alt="Precise roast to elevate origin"
-      heightVh={46}
-      speed={0.22}
-      fit="cover"
-      objectPosition="50% 50%"
-      className="rounded-[28px]"
-    />
+    <Reveal preset="fade" delay={0.26}>
+      <div className="mt-5 md:mt-6 h-px w-24 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+    </Reveal>
   </div>
 
-  <Sub id="roast" preset="left">
-    Roasting is precise and restrained…
+  {/* Opening */}
+  <Sub id="origin" preset="blur-up" className="mt-7 md:mt-8 !min-h-0">
+    Olivea Café is the most relaxed expression of the Olivea ecosystem — where
+    mornings unfold slowly, movement stays human, and the garden remains the
+    source. It carries the same leaders, the same standards, and the same
+    philosophy as Casa Olivea and Olivea Farm To Table.
   </Sub>
 
-  <Sub id="water" preset="right">
-    Water is part of the recipe…
-  </Sub>
+  {/* Specs */}
+  <Reveal preset="fade" delay={0.18}>
+    <div className="mt-6 md:mt-7">
+      <StatChips
+        items={[
+          { label: "Hours", value: "Daily • 8:00am – 3:00pm" },
+          { label: "Coffee", value: "Sourced in Mexico • crafted with technique" },
+          { label: "Kitchen", value: "Connected to Farm To Table • shared system" },
+          { label: "Rhythm", value: "Breakfast • padel • return to calm" },
+        ]}
+      />
+    </div>
+  </Reveal>
 
-  <Sub id="bar" preset="fade">
-    At the bar we serve coffee with memory…
+  {/* Scroll-grow hero band */}
+  <ScrollGrowImageBand
+    src="/images/cafe/cafe.jpg"
+    alt="Olivea Café atmosphere"
+    startH="130px"
+    endH="400px"
+    delayStart={0.22}
+    holdAt={0.94}
+    scrollContainerSelector="main"
+  />
+
+  {/* Caption / signal line */}
+  <Reveal preset="fade" delay={0.08}>
+    <div className="mt-3 max-w-275 mx-auto flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+      <span className="h-[1px] w-10 bg-black/10" />
+      <span>Daily cadence • brew, bake, preserve, return</span>
+    </div>
+  </Reveal>
+
+  {/* Coffee stack */}
+  <div className="mt-8 md:mt-9 max-w-[860px] space-y-6 md:space-y-7">
+    <Sub id="bean" preset="up" className="!min-h-0 !mb-0">
+      Our coffee is sourced exclusively from Mexico. We choose it for balance,
+      clarity, and a finish that stays clean — designed to feel calm and unhurried.
+      Roasting in-house is part of a future phase, introduced once the system is ready.
+    </Sub>
+
+    <Sub id="roast" preset="fade" className="!min-h-0 !mb-0">
+      Technique lives quietly here. Espresso is tuned for structure. Filter stays
+      transparent. Consistency and restraint guide every cup — excellence that
+      feels effortless.
+    </Sub>
+
+    <Sub id="water" preset="fade" className="!min-h-0 !mb-0">
+      Ceremonial matcha is prepared with the same care we bring to coffee. We also
+      play with the garden — creating syrups and jarabes that keep the menu seasonal
+      while staying clear and balanced.
+    </Sub>
+  </div>
+
+  {/* Field note */}
+  <Reveal preset="fade" delay={0.14}>
+    <div className="mt-7 md:mt-8">
+      <FieldNote>
+        At Olivea, sustainability is efficiency: respect made practical. The café
+        shares ingredients, fermentation work, and a continuous return loop with
+        Farm To Table — garden → kitchen → compost → back to the soil.
+      </FieldNote>
+    </div>
+  </Reveal>
+
+  {/* Bar / forward */}
+  <Sub id="bar" preset="fade" className="mt-7 md:mt-8 !min-h-0 !mb-0">
+    Olivea Café is calm by design. In the afternoons, we serve a small selection
+    of cocktails, wine, and tapas — a soft continuation of the day. Looking forward,
+    an evening wine-bar format is being explored, built slowly and intentionally,
+    consistent with the Olivea ecosystem.
   </Sub>
 </StickyBlock>

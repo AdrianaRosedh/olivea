@@ -1,6 +1,7 @@
-import CardParallax from '@/components/mdx/CardParallax'
-import Reveal from '@/components/scroll/Reveal'
-import CafeLogo from '@/assets/herocafe.svg'
+import CardParallax from "@/components/mdx/CardParallax";
+import Reveal from "@/components/scroll/Reveal";
+import CafeLogo from "@/assets/herocafe.svg";
+import MenuScrollButton from "@/components/links/MenuScrollButton";
 
 <section
   id="hero"
@@ -106,12 +107,12 @@ import CafeLogo from '@/assets/herocafe.svg'
                 aria-label="Reserve"
                 data-reserve-intent
                 onPointerEnter={() => {
-                  if (typeof window === 'undefined') return
-                  window.dispatchEvent(new Event('olivea:reserve-intent'))
+                  if (typeof window === "undefined") return;
+                  window.dispatchEvent(new Event("olivea:reserve-intent"));
                 }}
                 onClick={() => {
-                  if (typeof window === 'undefined') return
-                  window.dispatchEvent(new Event('olivea:reserve'))
+                  if (typeof window === "undefined") return;
+                  window.dispatchEvent(new Event("olivea:reserve"));
                 }}
                 className="
                   inline-flex items-center justify-center
@@ -129,23 +130,9 @@ import CafeLogo from '@/assets/herocafe.svg'
                 RESERVE
               </button>
 
-              <a
-                href="#menu"
-                aria-label="View menu"
-                onClick={(e) => {
-                  e.preventDefault()
-                  if (typeof window === 'undefined') return
-                  const el =
-                    document.getElementById('menu') ||
-                    document.querySelector('.main-section#menu')
-                  if (!el) return
-                  const v = getComputedStyle(document.documentElement).getPropertyValue('--header-h')
-                  const header = Number.parseInt(v || '64', 10) || 64
-                  const top = window.scrollY + el.getBoundingClientRect().top - header - 8
-                  window.scrollTo({ top, behavior: 'smooth' })
-                  if (window.location.hash.slice(1) !== 'menu')
-                    history.replaceState(null, '', '#menu')
-                }}
+              <MenuScrollButton
+                targetId="menu"
+                openEventName="olivea:cafe:menu:open"
                 className="
                   inline-flex items-center justify-center
                   rounded-full px-3.5 py-1.5 text-[15px]
@@ -160,7 +147,7 @@ import CafeLogo from '@/assets/herocafe.svg'
                 "
               >
                 Menu
-              </a>
+              </MenuScrollButton>
             </div>
           </Reveal>
         </div>
