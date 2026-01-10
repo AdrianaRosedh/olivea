@@ -4,14 +4,6 @@ import { z } from "zod";
 export const JournalLang = z.enum(["es", "en"]);
 export type JournalLang = z.infer<typeof JournalLang>;
 
-/**
- * Pillars:
- * - Canonical Olivea pillars (original)
- * - Extra ES/EN-friendly values (so writing dummy posts doesn't break builds)
- *
- * If later you want ONE canonical set for filtering/UI, we can normalize these
- * in lib/journal/load.ts before validation.
- */
 export const JournalPillar = z.enum([
   // canonical
   "territorio",
@@ -32,8 +24,33 @@ export const JournalPillar = z.enum([
   "hospitality",
   "cuisine",
 ]);
-
 export type JournalPillar = z.infer<typeof JournalPillar>;
+
+/** For "best places" list posts */
+const SeoItemListItem = z.object({
+  name: z.string().min(1),
+  url: z.string().min(1).optional(), // absolute or relative ok
+  description: z.string().min(1).optional(),
+  address: z.string().min(1).optional(),
+  geo: z
+    .object({
+      lat: z.number(),
+      lng: z.number(),
+    })
+    .optional(),
+  image: z.string().min(1).optional(),
+});
+
+const SeoItemList = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1).optional(),
+  items: z.array(SeoItemListItem).min(1),
+});
+
+const SeoFaqItem = z.object({
+  q: z.string().min(1),
+  a: z.string().min(1),
+});
 
 export const JournalFrontmatterSchema = z.object({
   id: z.string().min(3),
@@ -64,9 +81,19 @@ export const JournalFrontmatterSchema = z.object({
       ogImage: z.string().min(1).optional(),
       canonical: z.string().min(1).optional(),
       noindex: z.boolean().optional(),
+
+      /** Optional: editorial keywords (NOT meta keywords) */
+      keywords: z.array(z.string().min(1)).optional(),
+
+      /** Optional: structured data for list posts */
+      itemList: SeoItemList.optional(),
+
+      /** Optional: structured data for FAQ rich results */
+      faq: z.array(SeoFaqItem).optional(),
     })
     .optional(),
 
+  // Optional fields your UI supports
   description: z.string().min(1).optional(),
   author: z
     .union([

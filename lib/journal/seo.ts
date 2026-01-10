@@ -51,7 +51,6 @@ export function buildJournalMetadata(args: {
 
   const locale = fm.lang === "es" ? "es_MX" : "en_US";
   const a = normalizeAuthor(fm.author, fm.lang);
-  const authorDisplay = a.name;
 
   return {
     title,
@@ -77,7 +76,7 @@ export function buildJournalMetadata(args: {
       locale,
       publishedTime: fm.publishedAt,
       modifiedTime: fm.updatedAt ?? fm.publishedAt,
-      authors: [authorDisplay],
+      authors: [a.name],
       images: ogImage
         ? [{ url: ogImage, width: 1200, height: 630, alt: title }]
         : [],
@@ -138,10 +137,7 @@ export function buildArticleJsonLd(args: {
             name: a.name,
             ...(authorPageUrl ? { url: authorPageUrl } : {}),
           }
-        : {
-            "@type": "Person",
-            name: a.name,
-          },
+        : { "@type": "Person", name: a.name },
     ],
     publisher: {
       "@type": "Organization",
@@ -149,5 +145,78 @@ export function buildArticleJsonLd(args: {
       name: "Olivea",
       url: absoluteUrl("/"),
     },
+  };
+}
+
+/** Optional: ItemList JSON-LD for "best places" list posts */
+export function buildItemListJsonLd(fm: JournalFrontmatter) {
+  const list = fm.seo?.itemList;
+  if (!list) return null;
+
+  const pageUrl = absoluteUrl(journalPath(fm.lang, fm.slug));
+
+  const items = list.items.map((it, idx) => {
+    const url = it.url ? toAbs(it.url) : undefined;
+    const image = it.image ? toAbs(it.image) : undefined;
+
+    // We keep this lightweight: ListItem + (optionally) Place/Restaurant-like info.
+    // Search engines mainly need the ordered list + names + URLs.
+    return {
+      "@type": "ListItem",
+      position: idx + 1,
+      name: it.name,
+      url: url,
+      item: {
+        "@type": "Place",
+        name: it.name,
+        ...(url ? { url } : {}),
+        ...(image ? { image } : {}),
+        ...(it.address ? { address: it.address } : {}),
+        ...(it.geo
+          ? {
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: it.geo.lat,
+                longitude: it.geo.lng,
+              },
+            }
+          : {}),
+        ...(it.description ? { description: it.description } : {}),
+      },
+    };
+  });
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#itemlist`,
+    url: pageUrl,
+    name: list.title,
+    ...(list.description ? { description: list.description } : {}),
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: items.length,
+    itemListElement: items,
+  };
+}
+
+/** Optional: FAQPage JSON-LD */
+export function buildFaqJsonLd(fm: JournalFrontmatter) {
+  const faq = fm.seo?.faq;
+  if (!faq || faq.length === 0) return null;
+
+  const pageUrl = absoluteUrl(journalPath(fm.lang, fm.slug));
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${pageUrl}#faq`,
+    mainEntity: faq.map((x) => ({
+      "@type": "Question",
+      name: x.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: x.a,
+      },
+    })),
   };
 }

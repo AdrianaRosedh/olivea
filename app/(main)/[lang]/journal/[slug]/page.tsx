@@ -5,13 +5,18 @@ import Image from "next/image";
 import Link from "next/link";
 import ArticleReadTracker from "@/components/journal/ArticleReadTracker";
 
-import { getDictionary, type Lang } from "../../dictionaries";
+import { getDictionary, type Lang } from "@/app/(main)/[lang]/dictionaries";
 import {
   listJournalSlugs,
   loadJournalBySlug,
   findTranslationSlug,
 } from "@/lib/journal/load";
-import { buildArticleJsonLd, buildJournalMetadata } from "@/lib/journal/seo";
+import {
+  buildArticleJsonLd,
+  buildJournalMetadata,
+  buildItemListJsonLd,
+  buildFaqJsonLd,
+} from "@/lib/journal/seo";
 import { SITE } from "@/lib/site";
 
 import ReadingProgress from "@/components/journal/ReadingProgress";
@@ -133,6 +138,8 @@ export default async function JournalPostPage({
 }) {
   const { lang: rawLang, slug } = await params;
   const lang: Lang = rawLang === "es" ? "es" : "en";
+
+  // ✅ FIX: import getDictionary + call with lang
   const dict = await getDictionary(lang);
 
   let post: Awaited<ReturnType<typeof loadJournalBySlug>>;
@@ -150,6 +157,11 @@ export default async function JournalPostPage({
     readingMinutes: post.readingMinutes,
   });
 
+  // ✅ Optional structured data
+  const itemListLd = buildItemListJsonLd(post.fm);
+  const faqLd = buildFaqJsonLd(post.fm);
+
+  // ✅ Breadcrumbs JSON-LD
   const journalPath = `/${lang}/journal`;
   const postPath = `/${lang}/journal/${slug}`;
   const journalUrl = `${SITE.baseUrl}${journalPath}`;
@@ -186,6 +198,7 @@ export default async function JournalPostPage({
 
       <main className="mx-auto w-full px-6 pb-16 pt-10 md:px-10">
         <div className="mx-auto w-full max-w-215 lg:pl-24">
+          {/* Cover leads */}
           {post.fm.cover?.src ? (
             <CoverLead>
               <div className="relative mb-8 h-[38vh] min-h-60 w-full overflow-hidden rounded-3xl">
@@ -202,12 +215,14 @@ export default async function JournalPostPage({
             </CoverLead>
           ) : null}
 
+          {/* Title + meta follows */}
           <BodyLead>
             <header className="mb-8">
               <h1 className="text-balance text-4xl font-semibold tracking-tight md:text-5xl">
                 {post.fm.title}
               </h1>
 
+              {/* Bigger editorial deck/subtitle */}
               {description ? (
                 <>
                   <p
@@ -225,6 +240,7 @@ export default async function JournalPostPage({
                 </>
               ) : null}
 
+              {/* Editorial byline */}
               <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-80">
                 <span>
                   {lang === "es" ? "Por " : "By "}
@@ -279,6 +295,7 @@ export default async function JournalPostPage({
               ) : null}
             </header>
 
+            {/* Editorial typography preset */}
             <article
               className={[
                 "prose prose-neutral dark:prose-invert",
@@ -316,6 +333,7 @@ export default async function JournalPostPage({
               {post.content}
             </article>
 
+            {/* ✅ Breadcrumbs + Article + optional ItemList/FAQ JSON-LD */}
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
@@ -324,9 +342,24 @@ export default async function JournalPostPage({
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
+            {itemListLd ? (
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+              />
+            ) : null}
+            {faqLd ? (
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+              />
+            ) : null}
 
             <div className="mt-12 text-sm opacity-70">
-              <a className="underline underline-offset-4 hover:opacity-90" href={journalPath}>
+              <a
+                className="underline underline-offset-4 hover:opacity-90"
+                href={`/${lang}/journal`}
+              >
                 {dict.journal?.backToJournal ?? "Back to Journal"}
               </a>
             </div>
