@@ -187,8 +187,8 @@ export default async function CarrerasPage({ params }: Params) {
               <p className="mt-5 max-w-[62ch] text-[16px] md:text-[17px] leading-[1.9] text-(--olivea-ink)/76">
                 {t(
                   lang,
-                  "Olivea es un ecosistema: restaurante, casa y café — guiados por el huerto. Buscamos personas con técnica, humildad y ritmo. No es “solo un trabajo”. Es oficio.",
-                  "Olivea is an ecosystem: restaurant, house, and café — led by the garden. We look for people with technique, humility, and rhythm. Not “just a job.” A craft."
+                  "Olivea es un ecosistema: restaurante, hotel y café — guiados por el huerto. Buscamos personas con técnica, humildad y ritmo. No es “solo un trabajo”. Es oficio.",
+                  "Olivea is an ecosystem: restaurant, hotel, and café — led by the garden. We look for people with technique, humility, and rhythm. Not “just a job.” A craft."
                 )}
               </p>
             </Reveal>
