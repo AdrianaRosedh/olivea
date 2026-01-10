@@ -1,140 +1,287 @@
-// app/[lang]/contact/contact-form.tsx
 "use client";
 
-import { useActionState } from "react";       // React 19
-import { Button }          from "@/components/ui/button";
-import { handleSubmit, type ContactErrors } from "./actions";
-import { useCallback }     from "react";
+import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { handleSubmit, type ApplicationErrors } from "./actions";
 
-type ContactState = {
+type Lang = "es" | "en";
+
+type State = {
   success?: boolean;
-  errors?: ContactErrors;
+  errors?: ApplicationErrors;
 };
 
-// initial form state
-const initialState: ContactState = {
-  success: false,
-  errors:  {},
-};
+const initialState: State = { success: false, errors: {} };
 
-export default function ContactForm({ lang }: { lang: string }) {
-  // wrap your server action so it matches (state, payload) => newState
-  const actionWrapper = useCallback(
-    async (
-      _state: ContactState,
-      formData: FormData
-    ): Promise<ContactState> => {
-      const result = await handleSubmit(formData);
-      if (result.success) {
-        return { success: true, errors: {} };
-      } else {
-        return { success: false, errors: result.errors ?? {} };
+const copy = (lang: Lang) => ({
+  successTitle: lang === "es" ? "Recibido." : "Received.",
+  successBody:
+    lang === "es"
+      ? "Gracias. Leemos cada aplicación con intención. Si tu perfil encaja, te contactamos pronto."
+      : "Thank you. We read every application with intention. If your profile matches, we’ll reach out soon.",
+  name: lang === "es" ? "Nombre" : "Name",
+  email: lang === "es" ? "Correo" : "Email",
+  phone: lang === "es" ? "WhatsApp / Teléfono" : "WhatsApp / Phone",
+  area: lang === "es" ? "Área de interés" : "Track",
+  availability: lang === "es" ? "Disponibilidad" : "Availability",
+  languages: lang === "es" ? "Idiomas" : "Languages",
+  role: lang === "es" ? "Rol deseado (opcional)" : "Desired role (optional)",
+  links: lang === "es" ? "Links (opcional)" : "Links (optional)",
+  notes: lang === "es" ? "Notas (opcional)" : "Notes (optional)",
+  submit: lang === "es" ? "Enviar" : "Send",
+  sending: lang === "es" ? "Enviando..." : "Sending...",
+  verify: lang === "es" ? "Verificación anti-spam" : "Anti-spam verification",
+  q1:
+    lang === "es"
+      ? "¿Qué significa excelencia para ti en tu rol?"
+      : "What does excellence mean to you in your role?",
+  q2:
+    lang === "es"
+      ? "Cuéntanos de una vez que recibiste feedback difícil. ¿Qué hiciste?"
+      : "Tell us about a time you received difficult feedback. What did you do?",
+  q3: lang === "es" ? "¿Por qué Olivea?" : "Why Olivea?",
+  placeholders: {
+    role: lang === "es" ? "Ej. Barista / Mesero / Cocina / Huerto…" : "e.g. Barista / Service / Kitchen / Garden…",
+    links: lang === "es" ? "LinkedIn, portafolio, Instagram profesional…" : "LinkedIn, portfolio, professional Instagram…",
+    languages: lang === "es" ? "Ej. Español nativo, Inglés intermedio" : "e.g. Spanish native, English intermediate",
+  },
+  areas: [
+    { v: "foh", l: lang === "es" ? "FOH / Servicio" : "FOH / Service" },
+    { v: "boh", l: lang === "es" ? "BOH / Cocina" : "BOH / Kitchen" },
+    { v: "garden", l: lang === "es" ? "Huerto / Grounds" : "Garden / Grounds" },
+    { v: "hotel", l: lang === "es" ? "Hotel / Casa Olivea" : "Hotel / Casa Olivea" },
+    { v: "cafe", l: lang === "es" ? "Café / Padel" : "Café / Padel" },
+    { v: "ops", l: lang === "es" ? "Operaciones" : "Operations" },
+  ],
+  availabilityOptions: [
+    { v: "full", l: lang === "es" ? "Tiempo completo" : "Full-time" },
+    { v: "part", l: lang === "es" ? "Medio tiempo" : "Part-time" },
+    { v: "weekends", l: lang === "es" ? "Fines de semana" : "Weekends" },
+    { v: "seasonal", l: lang === "es" ? "Temporal" : "Seasonal" },
+  ],
+});
+
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="block text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)/85">
+        {label}
+      </label>
+      <div className="mt-2">{children}</div>
+      {error ? <p className="mt-1 text-sm text-red-600">{error}</p> : null}
+    </div>
+  );
+}
+
+const inputClass =
+  "w-full px-3 py-2.5 rounded-xl border border-black/10 bg-white/70 " +
+  "focus:outline-none focus:ring-2 focus:ring-black/15 " +
+  "text-[15px] text-(--olivea-ink) placeholder:text-(--olivea-ink)/45";
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (el: HTMLElement, opts: Record<string, unknown>) => unknown;
+    };
+  }
+}
+
+export default function ContactForm({ lang }: { lang: Lang }) {
+  const c = copy(lang);
+
+  const startedAt = useMemo(() => String(Date.now()), []);
+  const [turnstileToken, setTurnstileToken] = useState("");
+
+  // Load turnstile script once
+  useEffect(() => {
+    const existing = document.querySelector('script[data-turnstile="1"]');
+    if (existing) return;
+
+    const s = document.createElement("script");
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.async = true;
+    s.defer = true;
+    s.dataset.turnstile = "1";
+    document.head.appendChild(s);
+  }, []);
+
+  // Render widget (invisible mode still renders a small placeholder div)
+  useEffect(() => {
+    let cancelled = false;
+
+    const mount = async () => {
+      const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+      if (!sitekey) return;
+
+      // wait until window.turnstile exists
+      for (let i = 0; i < 60; i++) {
+        if (window.turnstile) break;
+        await new Promise((r) => setTimeout(r, 100));
       }
+      if (cancelled) return;
+
+      const el = document.getElementById("turnstile-widget");
+      if (!el || !window.turnstile) return;
+
+      if (el.getAttribute("data-rendered") === "1") return;
+      el.setAttribute("data-rendered", "1");
+
+      window.turnstile.render(el, {
+        sitekey,
+        callback: (token: string) => setTurnstileToken(token),
+        "error-callback": () => setTurnstileToken(""),
+        "expired-callback": () => setTurnstileToken(""),
+        // NOTE: Invisible widgets can auto-run; we still keep it explicit via render + callback.
+      });
+    };
+
+    mount();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const actionWrapper = useCallback(
+    async (_state: State, formData: FormData): Promise<State> => {
+      const result = await handleSubmit(formData);
+      if (result.success) return { success: true, errors: {} };
+      return { success: false, errors: result.errors ?? {} };
     },
     []
   );
 
-  // now this lines up with the second overload of useActionState
-  const [state, runAction, isPending] = useActionState(
-    actionWrapper,
-    initialState
-  );
+  const [state, runAction, isPending] = useActionState(actionWrapper, initialState);
 
   if (state.success) {
     return (
-      <div className="p-4 bg-green-50 border border-green-200 rounded-md text-green-800">
-        {lang === "es"
-          ? "¡Gracias por contactarnos! Te responderemos pronto."
-          : "Thank you for contacting us! We'll get back to you soon."}
+      <div className="rounded-xl bg-white/60 ring-1 ring-black/10 p-5">
+        <div className="text-[14px] font-semibold text-(--olivea-ink)">{c.successTitle}</div>
+        <p className="mt-2 text-[15px] leading-[1.7] text-(--olivea-ink)/80">{c.successBody}</p>
       </div>
     );
   }
 
   return (
-    <form action={runAction} className="space-y-4">
-      {/* Name */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium mb-1">
-          {lang === "es" ? "Nombre" : "Name"}
+    <form action={runAction} className="space-y-5">
+      {/* honeypot */}
+      <div className="hidden" aria-hidden="true">
+        <label>
+          Website
+          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
-        />
-        {state.errors?.name && (
-          <p className="mt-1 text-sm text-red-600">{state.errors.name}</p>
-        )}
       </div>
 
-      {/* Email */}
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium mb-1">
-          {lang === "es" ? "Correo electrónico" : "Email"}
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
-        />
-        {state.errors?.email && (
-          <p className="mt-1 text-sm text-red-600">{state.errors.email}</p>
-        )}
+      <input type="hidden" name="startedAt" value={startedAt} />
+      <input type="hidden" name="turnstileToken" value={turnstileToken} />
+
+      <div className="grid gap-5 md:grid-cols-2">
+        <Field label={c.name} error={state.errors?.name}>
+          <input name="name" type="text" className={inputClass} />
+        </Field>
+
+        <Field label={c.email} error={state.errors?.email}>
+          <input name="email" type="email" className={inputClass} />
+        </Field>
+
+        <Field label={c.phone} error={state.errors?.phone}>
+          <input name="phone" type="text" className={inputClass} />
+        </Field>
+
+        <Field label={c.languages} error={state.errors?.languages}>
+          <input
+            name="languages"
+            type="text"
+            className={inputClass}
+            placeholder={c.placeholders.languages}
+          />
+        </Field>
+
+        <Field label={c.area} error={state.errors?.area}>
+          <select name="area" className={inputClass} defaultValue="">
+            <option value="" disabled>
+              {lang === "es" ? "Selecciona…" : "Select…"}
+            </option>
+            {c.areas.map((a) => (
+              <option key={a.v} value={a.v}>
+                {a.l}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label={c.availability} error={state.errors?.availability}>
+          <select name="availability" className={inputClass} defaultValue="">
+            <option value="" disabled>
+              {lang === "es" ? "Selecciona…" : "Select…"}
+            </option>
+            {c.availabilityOptions.map((o) => (
+              <option key={o.v} value={o.v}>
+                {o.l}
+              </option>
+            ))}
+          </select>
+        </Field>
       </div>
 
-      {/* Subject */}
-      <div>
-        <label htmlFor="subject" className="block text-sm font-medium mb-1">
-          {lang === "es" ? "Asunto" : "Subject"}
-        </label>
-        <input
-          id="subject"
-          name="subject"
-          type="text"
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
-        />
-        {state.errors?.subject && (
-          <p className="mt-1 text-sm text-red-600">{state.errors.subject}</p>
-        )}
+      <div className="grid gap-5 md:grid-cols-2">
+        <Field label={c.role} error={state.errors?.role}>
+          <input name="role" type="text" className={inputClass} placeholder={c.placeholders.role} />
+        </Field>
+
+        <Field label={c.links} error={state.errors?.links}>
+          <input name="links" type="text" className={inputClass} placeholder={c.placeholders.links} />
+        </Field>
       </div>
 
-      {/* Message */}
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium mb-1">
-          {lang === "es" ? "Mensaje" : "Message"}
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          rows={5}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-(--olivea-olive)"
-        />
-        {state.errors?.message && (
-          <p className="mt-1 text-sm text-red-600">{state.errors.message}</p>
-        )}
+      <div className="rounded-2xl bg-white/40 ring-1 ring-black/8 p-4 md:p-5 space-y-5">
+        <Field label={c.q1} error={state.errors?.q1}>
+          <textarea name="q1" rows={3} className={inputClass} />
+        </Field>
+
+        <Field label={c.q2} error={state.errors?.q2}>
+          <textarea name="q2" rows={3} className={inputClass} />
+        </Field>
+
+        <Field label={c.q3} error={state.errors?.q3}>
+          <textarea name="q3" rows={2} className={inputClass} />
+        </Field>
       </div>
 
-      {/* Form‐level error */}
-      {state.errors?.form && (
+      <Field label={c.notes} error={state.errors?.notes}>
+        <textarea name="notes" rows={3} className={inputClass} />
+      </Field>
+
+      <div className="rounded-2xl bg-white/35 ring-1 ring-black/8 p-4">
+        <div className="text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)/85">
+          {c.verify}
+        </div>
+        <div className="mt-3" id="turnstile-widget" />
+        {state.errors?.turnstileToken ? (
+          <p className="mt-2 text-sm text-red-600">{state.errors.turnstileToken}</p>
+        ) : null}
+      </div>
+
+      {state.errors?.form ? (
         <div className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-md">
           {state.errors.form}
         </div>
-      )}
+      ) : null}
 
       <Button
         type="submit"
-        className="w-full bg-(--olivea-olive) hover:bg-(--olivea-clay) text-white py-3"
-        disabled={isPending}
+        className="w-full rounded-full bg-(--olivea-olive) hover:bg-(--olivea-clay) text-white py-6
+          uppercase tracking-[0.20em] text-[12px] font-semibold"
+        disabled={isPending || !turnstileToken}
       >
-        {isPending
-          ? lang === "es"
-            ? "Enviando..."
-            : "Sending..."
-          : lang === "es"
-          ? "Enviar"
-          : "Send"}
+        {isPending ? c.sending : c.submit}
       </Button>
     </form>
   );
