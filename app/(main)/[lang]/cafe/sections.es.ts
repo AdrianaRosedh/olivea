@@ -53,6 +53,5 @@ export const SECTIONS_CAFE_ES: NavSection[] = [
       { id: "frio", title: "Frío" },
     ],
   },
-  { id: "galeria", title: "Galería" },
   { id: "faq", title: "Preguntas" },
 ];
