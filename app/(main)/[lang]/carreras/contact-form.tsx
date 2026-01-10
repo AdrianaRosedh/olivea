@@ -37,18 +37,9 @@ const copy = (lang: Lang) => ({
       : "Tell us about a time you received difficult feedback. What did you do?",
   q3: lang === "es" ? "¿Por qué Olivea?" : "Why Olivea?",
   placeholders: {
-    role:
-      lang === "es"
-        ? "Ej. Barista / Mesero / Cocina / Huerto…"
-        : "e.g. Barista / Service / Kitchen / Garden…",
-    links:
-      lang === "es"
-        ? "LinkedIn, portafolio, Instagram profesional…"
-        : "LinkedIn, portfolio, professional Instagram…",
-    languages:
-      lang === "es"
-        ? "Ej. Español nativo, Inglés intermedio"
-        : "e.g. Spanish native, English intermediate",
+    role: lang === "es" ? "Ej. Barista / Mesero / Cocina / Huerto…" : "e.g. Barista / Service / Kitchen / Garden…",
+    links: lang === "es" ? "LinkedIn, portafolio, Instagram profesional…" : "LinkedIn, portfolio, professional Instagram…",
+    languages: lang === "es" ? "Ej. Español nativo, Inglés intermedio" : "e.g. Spanish native, English intermediate",
   },
   areas: [
     { v: "foh", l: lang === "es" ? "FOH / Servicio" : "FOH / Service" },
@@ -95,7 +86,6 @@ declare global {
   interface Window {
     turnstile?: {
       render: (el: HTMLElement, opts: Record<string, unknown>) => string;
-      execute: (widgetId: string, opts?: Record<string, unknown>) => void;
       reset: (widgetId: string) => void;
     };
   }
@@ -104,17 +94,16 @@ declare global {
 export default function ContactForm({ lang }: { lang: Lang }) {
   const c = copy(lang);
 
-  // ✅ purity-safe: set startedAt in an effect (not during render)
+  // purity-safe: set startedAt in effect
   const [startedAt, setStartedAt] = useState("0");
   useEffect(() => {
     setStartedAt(String(Date.now()));
   }, []);
 
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReady, setTurnstileReady] = useState(false);
 
-  const formRef = useRef<HTMLFormElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
-  const pendingSubmitRef = useRef(false);
 
   const actionWrapper = useCallback(
     async (_state: State, formData: FormData): Promise<State> => {
@@ -127,7 +116,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
   const [state, runAction, isPending] = useActionState(actionWrapper, initialState);
 
-  // Load Turnstile script once
+  // Load script once
   useEffect(() => {
     const existing = document.querySelector('script[data-turnstile="1"]');
     if (existing) return;
@@ -140,7 +129,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
     document.head.appendChild(s);
   }, []);
 
-  // Render Invisible widget + capture widgetId
+  // Render Managed widget (most reliable)
   useEffect(() => {
     let cancelled = false;
 
@@ -148,7 +137,6 @@ export default function ContactForm({ lang }: { lang: Lang }) {
       const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
       if (!sitekey) return;
 
-      // wait for window.turnstile
       for (let i = 0; i < 60; i++) {
         if (window.turnstile) break;
         await new Promise((r) => setTimeout(r, 100));
@@ -163,20 +151,13 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
       const wid = window.turnstile.render(el, {
         sitekey,
-        size: "invisible",
-        callback: (token: string) => {
-          setTurnstileToken(token);
-
-          if (pendingSubmitRef.current) {
-            pendingSubmitRef.current = false;
-            formRef.current?.requestSubmit();
-          }
-        },
+        callback: (token: string) => setTurnstileToken(token),
         "expired-callback": () => setTurnstileToken(""),
         "error-callback": () => setTurnstileToken(""),
       });
 
       widgetIdRef.current = wid;
+      setTurnstileReady(true);
     };
 
     mount();
@@ -185,7 +166,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
     };
   }, []);
 
-  // If server returns errors, reset Turnstile so next attempt works
+  // reset turnstile if server returned errors
   useEffect(() => {
     const wid = widgetIdRef.current;
     if (!wid || !window.turnstile) return;
@@ -198,34 +179,6 @@ export default function ContactForm({ lang }: { lang: Lang }) {
     }
   }, [state.errors]);
 
-  const onClickSend = () => {
-    if (isPending) return;
-
-    // startedAt might still be "0" if effect hasn't run yet
-    // Don't allow submission in the first tick.
-    if (startedAt === "0") return;
-
-    if (turnstileToken) {
-      formRef.current?.requestSubmit();
-      return;
-    }
-
-    const wid = widgetIdRef.current;
-    if (!wid || !window.turnstile) {
-      // fallback: let server reject with token missing
-      formRef.current?.requestSubmit();
-      return;
-    }
-
-    pendingSubmitRef.current = true;
-    try {
-      window.turnstile.execute(wid);
-    } catch {
-      pendingSubmitRef.current = false;
-      formRef.current?.requestSubmit();
-    }
-  };
-
   if (state.success) {
     return (
       <div className="rounded-xl bg-white/60 ring-1 ring-black/10 p-5">
@@ -236,7 +189,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
   }
 
   return (
-    <form ref={formRef} action={runAction} className="space-y-5">
+    <form action={runAction} className="space-y-5">
       {/* honeypot */}
       <div className="hidden" aria-hidden="true">
         <label>
@@ -248,51 +201,30 @@ export default function ContactForm({ lang }: { lang: Lang }) {
       <input type="hidden" name="startedAt" value={startedAt} />
       <input type="hidden" name="turnstileToken" value={turnstileToken} />
 
+      {/* … your fields stay the same … */}
       <div className="grid gap-5 md:grid-cols-2">
         <Field label={c.name} error={state.errors?.name}>
           <input name="name" type="text" className={inputClass} />
         </Field>
-
         <Field label={c.email} error={state.errors?.email}>
           <input name="email" type="email" className={inputClass} />
         </Field>
-
         <Field label={c.phone} error={state.errors?.phone}>
           <input name="phone" type="text" className={inputClass} />
         </Field>
-
         <Field label={c.languages} error={state.errors?.languages}>
-          <input
-            name="languages"
-            type="text"
-            className={inputClass}
-            placeholder={c.placeholders.languages}
-          />
+          <input name="languages" type="text" className={inputClass} placeholder={c.placeholders.languages} />
         </Field>
-
         <Field label={c.area} error={state.errors?.area}>
           <select name="area" className={inputClass} defaultValue="">
-            <option value="" disabled>
-              {lang === "es" ? "Selecciona…" : "Select…"}
-            </option>
-            {c.areas.map((a) => (
-              <option key={a.v} value={a.v}>
-                {a.l}
-              </option>
-            ))}
+            <option value="" disabled>{lang === "es" ? "Selecciona…" : "Select…"}</option>
+            {c.areas.map((a) => <option key={a.v} value={a.v}>{a.l}</option>)}
           </select>
         </Field>
-
         <Field label={c.availability} error={state.errors?.availability}>
           <select name="availability" className={inputClass} defaultValue="">
-            <option value="" disabled>
-              {lang === "es" ? "Selecciona…" : "Select…"}
-            </option>
-            {c.availabilityOptions.map((o) => (
-              <option key={o.v} value={o.v}>
-                {o.l}
-              </option>
-            ))}
+            <option value="" disabled>{lang === "es" ? "Selecciona…" : "Select…"}</option>
+            {c.availabilityOptions.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
           </select>
         </Field>
       </div>
@@ -301,7 +233,6 @@ export default function ContactForm({ lang }: { lang: Lang }) {
         <Field label={c.role} error={state.errors?.role}>
           <input name="role" type="text" className={inputClass} placeholder={c.placeholders.role} />
         </Field>
-
         <Field label={c.links} error={state.errors?.links}>
           <input name="links" type="text" className={inputClass} placeholder={c.placeholders.links} />
         </Field>
@@ -323,11 +254,21 @@ export default function ContactForm({ lang }: { lang: Lang }) {
         <textarea name="notes" rows={3} className={inputClass} />
       </Field>
 
+      {/* Turnstile area */}
       <div className="rounded-2xl bg-white/35 ring-1 ring-black/8 p-4">
         <div className="text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)/85">
           {c.verify}
         </div>
-        <div className="mt-3" id="turnstile-widget" />
+
+        {/* Keep it visually calm */}
+        <div className="mt-3">
+          <div id="turnstile-widget" className="min-h-16.25" />
+        </div>
+
+        {!turnstileReady ? (
+          <p className="mt-2 text-[12.5px] text-(--olivea-ink)/60">Cargando verificación…</p>
+        ) : null}
+
         {state.errors?.turnstileToken ? (
           <p className="mt-2 text-sm text-red-600">{state.errors.turnstileToken}</p>
         ) : null}
@@ -340,11 +281,10 @@ export default function ContactForm({ lang }: { lang: Lang }) {
       ) : null}
 
       <Button
-        type="button"
-        onClick={onClickSend}
+        type="submit"
         className="w-full rounded-full bg-(--olivea-olive) hover:bg-(--olivea-clay) text-white py-6
           uppercase tracking-[0.20em] text-[12px] font-semibold"
-        disabled={isPending || startedAt === "0"}
+        disabled={isPending || startedAt === "0" || !turnstileToken}
       >
         {isPending ? c.sending : c.submit}
       </Button>
