@@ -3,10 +3,44 @@ import type { Metadata } from "next";
 import { getDictionary, type Lang } from "../dictionaries";
 import { listJournalIndex, type JournalIndexItem } from "@/lib/journal/load";
 import JournalClient from "./JournalClient";
+import { SITE } from "@/lib/site";
 
 export const revalidate = 60;
 
-const SITE_URL = "https://www.oliveafarmtotable.com";
+/* ------------------ safe dict helpers (no any) ------------------ */
+
+type UnknownRecord = Record<string, unknown>;
+
+function isRecord(x: unknown): x is UnknownRecord {
+  return !!x && typeof x === "object";
+}
+
+function getString(obj: unknown, key: string): string | undefined {
+  if (!isRecord(obj)) return undefined;
+  const v = obj[key];
+  return typeof v === "string" ? v : undefined;
+}
+
+function getNested(obj: unknown, key: string): unknown {
+  if (!isRecord(obj)) return undefined;
+  return obj[key];
+}
+
+function readJournalMeta(dict: unknown) {
+  const journal = getNested(dict, "journal");
+  const meta = getNested(journal, "meta");
+
+  const title = getString(journal, "title");
+  const subtitle = getString(journal, "subtitle");
+  const ogImage = getString(meta, "ogImage");
+
+  const metadata = getNested(dict, "metadata");
+  const ogDefault = getString(metadata, "ogDefault");
+
+  return { title, subtitle, ogImage, ogDefault };
+}
+
+/* ------------------ next ------------------ */
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -21,40 +55,51 @@ export async function generateMetadata({
   const lang: Lang = raw === "es" ? "es" : "en";
   const dict = await getDictionary(lang);
 
-  const title = `${dict.journal.title} | OLIVEA`;
-  const description = dict.journal.subtitle;
+  const jm = readJournalMeta(dict);
+
+  const title = `${jm.title ?? "Journal"} | Olivea`;
+  const description =
+    jm.subtitle ??
+    (lang === "es"
+      ? "Artículos, notas y decisiones del ecosistema Olivea."
+      : "Articles, field notes, and decisions from the Olivea ecosystem.");
 
   const path = `/${lang}/journal`;
-  const canonical = `${SITE_URL}${path}`;
+  const canonical = `${SITE.baseUrl}${path}`;
+
+  const ogImage = jm.ogImage ?? jm.ogDefault ?? "/images/seo/journal-og.jpg";
+  const ogLocale = lang === "es" ? "es_MX" : "en_US";
 
   return {
     title,
     description,
+    metadataBase: new URL(SITE.baseUrl),
 
-    // ✅ Make indexing unambiguous
     robots: { index: true, follow: true },
 
-    // ✅ Canonical + hreflang
     alternates: {
-      canonical,
+      canonical: path,
       languages: {
-        es: `${SITE_URL}/es/journal`,
-        en: `${SITE_URL}/en/journal`,
+        es: "/es/journal",
+        en: "/en/journal",
       },
     },
 
     openGraph: {
       type: "website",
       url: canonical,
-      siteName: "OLIVEA",
+      siteName: "Olivea",
+      locale: ogLocale,
       title,
       description,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
 
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [ogImage],
     },
   };
 }
@@ -68,8 +113,8 @@ export default async function JournalPage({
   const lang: Lang = raw === "es" ? "es" : "en";
 
   const dict = await getDictionary(lang);
+  const jm = readJournalMeta(dict);
 
-  // ✅ typed, resilient
   let posts: JournalIndexItem[] = [];
   try {
     posts = await listJournalIndex(lang);
@@ -81,8 +126,13 @@ export default async function JournalPage({
   return (
     <JournalClient
       lang={lang}
-      title={dict.journal.title}
-      subtitle={dict.journal.subtitle}
+      title={jm.title ?? (lang === "es" ? "Journal" : "Journal")}
+      subtitle={
+        jm.subtitle ??
+        (lang === "es"
+          ? "Artículos, notas y decisiones del ecosistema Olivea."
+          : "Articles, field notes, and decisions from the Olivea ecosystem.")
+      }
       posts={posts}
     />
   );

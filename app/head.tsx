@@ -1,10 +1,13 @@
 import { SITE, absoluteUrl } from "@/lib/site";
 
 export default function Head() {
+  const orgId = `${SITE.baseUrl}#organization`;
+
   const org = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "OLIVEA",
+    "@id": orgId,
+    name: "Olivea",
     url: SITE.baseUrl,
     logo: absoluteUrl("/images/logos/olivea-mark.png"),
     sameAs: [
@@ -12,14 +15,21 @@ export default function Head() {
       "https://www.tiktok.com/@familiaolivea",
       "https://www.youtube.com/@grupoolivea",
     ],
+    hasPart: [
+      { "@id": absoluteUrl("/cafe") + "#cafe" },
+      { "@id": absoluteUrl("/casa") + "#hotel" },
+      { "@id": absoluteUrl("/farmtotable") + "#restaurant" },
+    ],
   };
 
   const webSite = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "OLIVEA",
+    "@id": `${SITE.baseUrl}#website`,
+    name: "Olivea",
     url: SITE.baseUrl,
     inLanguage: "es-MX",
+    publisher: { "@id": orgId },
     potentialAction: {
       "@type": "SearchAction",
       target: absoluteUrl("/es?search={query}"),
@@ -29,31 +39,12 @@ export default function Head() {
 
   return (
     <>
-      {/* Existing preconnect to your own origin */}
+      {/* Preconnects */}
       <link rel="preconnect" href={SITE.baseUrl} crossOrigin="" />
-
-      {/* New: preconnects to Cloudbeds for faster Immersive loading */}
-      <link
-        rel="preconnect"
-        href="https://static1.cloudbeds.com"
-        crossOrigin=""
-      />
-      <link
-        rel="preconnect"
-        href="https://hotels.cloudbeds.com"
-        crossOrigin=""
-      />
-      <link
-        rel="preconnect"
-        href="https://www.opentable.com"
-        crossOrigin=""
-      />
-      <link
-        rel="preconnect"
-        href="https://www.opentable.com.mx"
-        crossOrigin=""
-      />
-
+      <link rel="preconnect" href="https://static1.cloudbeds.com" crossOrigin="" />
+      <link rel="preconnect" href="https://hotels.cloudbeds.com" crossOrigin="" />
+      <link rel="preconnect" href="https://www.opentable.com" crossOrigin="" />
+      <link rel="preconnect" href="https://www.opentable.com.mx" crossOrigin="" />
 
       {/* Structured data */}
       <script

@@ -1,4 +1,3 @@
-// app/(main)/[lang]/journal/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -12,6 +11,7 @@ import {
   findTranslationSlug,
 } from "@/lib/journal/load";
 import { buildArticleJsonLd, buildJournalMetadata } from "@/lib/journal/seo";
+import { SITE } from "@/lib/site";
 
 import ReadingProgress from "@/components/journal/ReadingProgress";
 import ArticleAudioPlayer from "@/components/journal/ArticleAudioPlayer";
@@ -165,6 +165,32 @@ export default async function JournalPostPage({
     readingMinutes: post.readingMinutes,
   });
 
+  // ✅ Breadcrumbs JSON-LD (best practice)
+  const journalPath = `/${lang}/journal`;
+  const postPath = `/${lang}/journal/${slug}`;
+  const journalUrl = `${SITE.baseUrl}${journalPath}`;
+  const postUrl = `${SITE.baseUrl}${postPath}`;
+
+  const breadcrumbsLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Olivea", item: SITE.baseUrl },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Journal",
+        item: journalUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.fm.title,
+        item: postUrl,
+      },
+    ],
+  };
+
   const toc = safeToc(hasHeadings(post) ? post.headings : undefined);
   const audio = safeAudio(post.fm);
   const description = safeDescription(post.fm);
@@ -173,8 +199,7 @@ export default async function JournalPostPage({
 
   const a = safeAuthor(post.fm);
   const authorId = a.id;
-  const authorName =
-    a.name ?? (lang === "es" ? "Equipo Olivea" : "Olivea Editorial");
+  const authorName = a.name ?? (lang === "es" ? "Equipo Olivea" : "Olivea Editorial");
 
   const publishedPrefix = lang === "es" ? "Publicado el" : "Published on";
 
@@ -183,11 +208,7 @@ export default async function JournalPostPage({
       <ReadingProgress />
       <ArticleReadTracker slug={slug} />
 
-      <ArticleDock
-        lang={lang}
-        canonicalPath={`/${lang}/journal/${slug}`}
-        toc={toc}
-      />
+      <ArticleDock lang={lang} canonicalPath={postPath} toc={toc} />
 
       <main className="mx-auto w-full px-6 pb-16 pt-10 md:px-10">
         <div className="mx-auto w-full max-w-215 lg:pl-24">
@@ -215,7 +236,7 @@ export default async function JournalPostPage({
                 {post.fm.title}
               </h1>
 
-              {/* ✅ Bigger editorial deck/subtitle */}
+              {/* Bigger editorial deck/subtitle */}
               {description ? (
                 <>
                   <p
@@ -228,13 +249,12 @@ export default async function JournalPostPage({
                   >
                     {description}
                   </p>
-                  
-                  {/* Editorial divider */}
+
                   <div className="mt-8 h-px w-24 bg-(--olivea-olive)/15" />
                 </>
               ) : null}
 
-              {/* Editorial byline (official) */}
+              {/* Editorial byline */}
               <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-80">
                 <span>
                   {lang === "es" ? "Por " : "By "}
@@ -272,7 +292,7 @@ export default async function JournalPostPage({
                       className="underline underline-offset-4 hover:opacity-90"
                       href={`/${otherLang}/journal/${otherSlug}`}
                     >
-                      {lang === "es" ? "Read in English" : "Leer en Español"}
+                      {lang === "es" ? "Leer en inglés" : "Read in Spanish"}
                     </a>
                   </>
                 ) : null}
@@ -289,18 +309,16 @@ export default async function JournalPostPage({
               ) : null}
             </header>
 
-            {/* ✅ Editorial typography preset + remove separators */}
+            {/* Editorial typography preset */}
             <article
               className={[
                 "prose prose-neutral dark:prose-invert",
                 "max-w-none",
-              
-                // Body rhythm
+
                 "prose-p:my-5",
                 "prose-p:leading-[1.85]",
                 "prose-p:text-(--olivea-clay)",
-              
-                // ✅ Force H2 styling (works even if prose-h2 utilities don’t)
+
                 "[&_h2]:uppercase",
                 "[&_h2]:tracking-[0.12em] md:[&_h2]:tracking-[0.14em]",
                 "[&_h2]:text-[13px] md:[&_h2]:text-[14px]",
@@ -308,8 +326,7 @@ export default async function JournalPostPage({
                 "[&_h2]:font-medium",
                 "[&_h2]:text-(--olivea-olive) [&_h2]:opacity-80",
                 "[&_h2]:mt-14 [&_h2]:mb-3",
-              
-                // Optional H3 styling
+
                 "[&_h3]:uppercase",
                 "[&_h3]:tracking-widest md:[&_h3]:tracking-[0.12em]",
                 "[&_h3]:text-[12px] md:[&_h3]:text-[13px]",
@@ -317,12 +334,10 @@ export default async function JournalPostPage({
                 "[&_h3]:font-medium",
                 "[&_h3]:text-(--olivea-olive) [&_h3]:opacity-75",
                 "[&_h3]:mt-10 [&_h3]:mb-2",
-              
-                // ✅ Kill separators no matter what
+
                 "prose-hr:hidden",
                 "[&_hr]:hidden",
-              
-                // Links + images
+
                 "prose-img:rounded-2xl",
                 "prose-a:text-(--olivea-olive)",
                 "prose-a:underline prose-a:underline-offset-4",
@@ -332,6 +347,11 @@ export default async function JournalPostPage({
               {post.content}
             </article>
 
+            {/* ✅ Breadcrumbs + Article JSON-LD */}
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+            />
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
