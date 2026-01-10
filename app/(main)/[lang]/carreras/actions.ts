@@ -141,7 +141,7 @@ export async function handleSubmit(
       html,
       replyTo: data.email,
     });
-  } catch (_e) {
+  } catch {
     return { errors: { form: "No se pudo enviar. Intenta más tarde." } };
   }
 

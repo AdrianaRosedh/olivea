@@ -228,7 +228,7 @@ export default async function CarrerasPage({ params }: Params) {
           <div className="lg:col-span-7">
             <div className="relative overflow-hidden rounded-[34px] ring-1 ring-black/10 h-64 sm:h-80 md:h-115">
               <CardParallax
-                src="/images/cafe/seasonal-garden.avif"
+                src="/images/journal/seasonal-garden.avif"
                 alt="Olivea — garden craft"
                 speed={0.14}
                 fit="cover"

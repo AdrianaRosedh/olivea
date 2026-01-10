@@ -1,15 +1,11 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { handleSubmit, type ApplicationErrors } from "./actions";
 
 type Lang = "es" | "en";
-
-type State = {
-  success?: boolean;
-  errors?: ApplicationErrors;
-};
+type State = { success?: boolean; errors?: ApplicationErrors };
 
 const initialState: State = { success: false, errors: {} };
 
@@ -41,9 +37,18 @@ const copy = (lang: Lang) => ({
       : "Tell us about a time you received difficult feedback. What did you do?",
   q3: lang === "es" ? "¿Por qué Olivea?" : "Why Olivea?",
   placeholders: {
-    role: lang === "es" ? "Ej. Barista / Mesero / Cocina / Huerto…" : "e.g. Barista / Service / Kitchen / Garden…",
-    links: lang === "es" ? "LinkedIn, portafolio, Instagram profesional…" : "LinkedIn, portfolio, professional Instagram…",
-    languages: lang === "es" ? "Ej. Español nativo, Inglés intermedio" : "e.g. Spanish native, English intermediate",
+    role:
+      lang === "es"
+        ? "Ej. Barista / Mesero / Cocina / Huerto…"
+        : "e.g. Barista / Service / Kitchen / Garden…",
+    links:
+      lang === "es"
+        ? "LinkedIn, portafolio, Instagram profesional…"
+        : "LinkedIn, portfolio, professional Instagram…",
+    languages:
+      lang === "es"
+        ? "Ej. Español nativo, Inglés intermedio"
+        : "e.g. Spanish native, English intermediate",
   },
   areas: [
     { v: "foh", l: lang === "es" ? "FOH / Servicio" : "FOH / Service" },
@@ -89,7 +94,9 @@ const inputClass =
 declare global {
   interface Window {
     turnstile?: {
-      render: (el: HTMLElement, opts: Record<string, unknown>) => unknown;
+      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+      execute: (widgetId: string, opts?: Record<string, unknown>) => void;
+      reset: (widgetId: string) => void;
     };
   }
 }
@@ -97,57 +104,17 @@ declare global {
 export default function ContactForm({ lang }: { lang: Lang }) {
   const c = copy(lang);
 
-  const startedAt = useMemo(() => String(Date.now()), []);
+  // ✅ purity-safe: set startedAt in an effect (not during render)
+  const [startedAt, setStartedAt] = useState("0");
+  useEffect(() => {
+    setStartedAt(String(Date.now()));
+  }, []);
+
   const [turnstileToken, setTurnstileToken] = useState("");
 
-  // Load turnstile script once
-  useEffect(() => {
-    const existing = document.querySelector('script[data-turnstile="1"]');
-    if (existing) return;
-
-    const s = document.createElement("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-    s.async = true;
-    s.defer = true;
-    s.dataset.turnstile = "1";
-    document.head.appendChild(s);
-  }, []);
-
-  // Render widget (invisible mode still renders a small placeholder div)
-  useEffect(() => {
-    let cancelled = false;
-
-    const mount = async () => {
-      const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-      if (!sitekey) return;
-
-      // wait until window.turnstile exists
-      for (let i = 0; i < 60; i++) {
-        if (window.turnstile) break;
-        await new Promise((r) => setTimeout(r, 100));
-      }
-      if (cancelled) return;
-
-      const el = document.getElementById("turnstile-widget");
-      if (!el || !window.turnstile) return;
-
-      if (el.getAttribute("data-rendered") === "1") return;
-      el.setAttribute("data-rendered", "1");
-
-      window.turnstile.render(el, {
-        sitekey,
-        callback: (token: string) => setTurnstileToken(token),
-        "error-callback": () => setTurnstileToken(""),
-        "expired-callback": () => setTurnstileToken(""),
-        // NOTE: Invisible widgets can auto-run; we still keep it explicit via render + callback.
-      });
-    };
-
-    mount();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const widgetIdRef = useRef<string | null>(null);
+  const pendingSubmitRef = useRef(false);
 
   const actionWrapper = useCallback(
     async (_state: State, formData: FormData): Promise<State> => {
@@ -160,6 +127,105 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
   const [state, runAction, isPending] = useActionState(actionWrapper, initialState);
 
+  // Load Turnstile script once
+  useEffect(() => {
+    const existing = document.querySelector('script[data-turnstile="1"]');
+    if (existing) return;
+
+    const s = document.createElement("script");
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.async = true;
+    s.defer = true;
+    s.dataset.turnstile = "1";
+    document.head.appendChild(s);
+  }, []);
+
+  // Render Invisible widget + capture widgetId
+  useEffect(() => {
+    let cancelled = false;
+
+    const mount = async () => {
+      const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+      if (!sitekey) return;
+
+      // wait for window.turnstile
+      for (let i = 0; i < 60; i++) {
+        if (window.turnstile) break;
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      if (cancelled || !window.turnstile) return;
+
+      const el = document.getElementById("turnstile-widget");
+      if (!el) return;
+
+      if (el.getAttribute("data-rendered") === "1") return;
+      el.setAttribute("data-rendered", "1");
+
+      const wid = window.turnstile.render(el, {
+        sitekey,
+        size: "invisible",
+        callback: (token: string) => {
+          setTurnstileToken(token);
+
+          if (pendingSubmitRef.current) {
+            pendingSubmitRef.current = false;
+            formRef.current?.requestSubmit();
+          }
+        },
+        "expired-callback": () => setTurnstileToken(""),
+        "error-callback": () => setTurnstileToken(""),
+      });
+
+      widgetIdRef.current = wid;
+    };
+
+    mount();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // If server returns errors, reset Turnstile so next attempt works
+  useEffect(() => {
+    const wid = widgetIdRef.current;
+    if (!wid || !window.turnstile) return;
+
+    if (state.errors && Object.keys(state.errors).length > 0) {
+      setTurnstileToken("");
+      try {
+        window.turnstile.reset(wid);
+      } catch {}
+    }
+  }, [state.errors]);
+
+  const onClickSend = () => {
+    if (isPending) return;
+
+    // startedAt might still be "0" if effect hasn't run yet
+    // Don't allow submission in the first tick.
+    if (startedAt === "0") return;
+
+    if (turnstileToken) {
+      formRef.current?.requestSubmit();
+      return;
+    }
+
+    const wid = widgetIdRef.current;
+    if (!wid || !window.turnstile) {
+      // fallback: let server reject with token missing
+      formRef.current?.requestSubmit();
+      return;
+    }
+
+    pendingSubmitRef.current = true;
+    try {
+      window.turnstile.execute(wid);
+    } catch {
+      pendingSubmitRef.current = false;
+      formRef.current?.requestSubmit();
+    }
+  };
+
   if (state.success) {
     return (
       <div className="rounded-xl bg-white/60 ring-1 ring-black/10 p-5">
@@ -170,7 +236,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
   }
 
   return (
-    <form action={runAction} className="space-y-5">
+    <form ref={formRef} action={runAction} className="space-y-5">
       {/* honeypot */}
       <div className="hidden" aria-hidden="true">
         <label>
@@ -245,11 +311,9 @@ export default function ContactForm({ lang }: { lang: Lang }) {
         <Field label={c.q1} error={state.errors?.q1}>
           <textarea name="q1" rows={3} className={inputClass} />
         </Field>
-
         <Field label={c.q2} error={state.errors?.q2}>
           <textarea name="q2" rows={3} className={inputClass} />
         </Field>
-
         <Field label={c.q3} error={state.errors?.q3}>
           <textarea name="q3" rows={2} className={inputClass} />
         </Field>
@@ -270,16 +334,17 @@ export default function ContactForm({ lang }: { lang: Lang }) {
       </div>
 
       {state.errors?.form ? (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-md">
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-red-800">
           {state.errors.form}
         </div>
       ) : null}
 
       <Button
-        type="submit"
+        type="button"
+        onClick={onClickSend}
         className="w-full rounded-full bg-(--olivea-olive) hover:bg-(--olivea-clay) text-white py-6
           uppercase tracking-[0.20em] text-[12px] font-semibold"
-        disabled={isPending || !turnstileToken}
+        disabled={isPending || startedAt === "0"}
       >
         {isPending ? c.sending : c.submit}
       </Button>
