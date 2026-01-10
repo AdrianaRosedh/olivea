@@ -67,7 +67,6 @@ export const JournalFrontmatterSchema = z.object({
     })
     .optional(),
 
-  // Optional fields your UI now supports (safe, non-breaking)
   description: z.string().min(1).optional(),
   author: z
     .union([

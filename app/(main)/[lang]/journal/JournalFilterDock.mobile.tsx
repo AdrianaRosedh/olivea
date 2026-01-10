@@ -54,7 +54,7 @@ export default function JournalFilterDockMobile({
   const [sheetTab, setSheetTab] = useState<"filters" | "jump">("filters");
 
   const t = {
-    ph: lang === "es" ? "Título, tag, tema…" : "Title, tag, topic…",
+    ph: lang === "es" ? "Título, autor, tag…" : "Title, author, tag…",
     clear: lang === "es" ? "Limpiar" : "Clear",
     pillar: lang === "es" ? "Pilar" : "Pillar",
     tag: "Tag",
@@ -112,7 +112,6 @@ export default function JournalFilterDockMobile({
 
   const readTimes = useMemo(() => ["all", "quick", "medium", "deep"] as const, []);
 
-  // lock body scroll when sheet open
   useEffect(() => {
     if (!sheetOpen) return;
     const prev = document.body.style.overflow;
@@ -219,7 +218,7 @@ export default function JournalFilterDockMobile({
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder={tt(lang, "Buscar…", "Search…")}
+                    placeholder={t.ph}
                     className={cn(
                       "w-full bg-transparent outline-none",
                       "text-[13px] text-(--olivea-olive)",

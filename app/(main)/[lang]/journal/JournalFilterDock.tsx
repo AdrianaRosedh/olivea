@@ -10,6 +10,9 @@ type Post = {
   tags?: string[];
   publishedAt: string;
   readingMinutes: number;
+
+  // ✅ matches your schema
+  author?: string | { id?: string; name: string };
 };
 
 export type JournalFilterDockProps = {
@@ -65,8 +68,6 @@ export default function JournalFilterDock(props: JournalFilterDockProps) {
     };
   }, []);
 
-  // Render nothing until we know the breakpoint,
-  // so we don't accidentally load both mobile+desktop chunks.
   if (isDesktop === null) return null;
 
   return isDesktop ? <DesktopDock {...props} /> : <MobileDock {...props} />;

@@ -2,7 +2,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  type Variants,
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { JournalFilterDockProps } from "./JournalFilterDock";
 import { Search, X } from "lucide-react";
@@ -81,7 +86,7 @@ export default function JournalFilterDockDesktop({
   const t = {
     filter: lang === "es" ? "Filtrar" : "Filter",
     search: lang === "es" ? "Buscar" : "Search",
-    ph: lang === "es" ? "Título, tag, tema…" : "Title, tag, topic…",
+    ph: lang === "es" ? "Título, autor, tag, tema…" : "Title, author, tag, topic…",
     pillar: lang === "es" ? "Pilar" : "Pillar",
     tag: "Tag",
     year: lang === "es" ? "Año" : "Year",

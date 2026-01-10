@@ -20,12 +20,14 @@ type Post = {
   tags?: string[];
   readingMinutes: number;
   cover?: { src: string; alt: string };
+
+  // ✅ matches schema
+  author?: string | { id?: string; name: string };
 };
 
 /* =================== motion =================== */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-// Same “slow rise” feel as Team/Press
 const cardInV: Variants = {
   hidden: { opacity: 0, y: 22 },
   show: (i: number) => ({
@@ -39,7 +41,6 @@ const cardInV: Variants = {
   }),
 };
 
-// Section-level stagger container
 const sectionStaggerV: Variants = {
   hidden: {},
   show: {
@@ -79,9 +80,8 @@ export default function JournalClient({
   const [pillar, setPillar] = useState<string>("all");
   const [tag, setTag] = useState<string>("all");
 
-  // ✅ NEW
   const [year, setYear] = useState<string>("all");
-  const [time, setTime] = useState<string>("all"); // "quick" | "medium" | "deep" | "all"
+  const [time, setTime] = useState<string>("all");
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
 
   const rafRef = useRef<number | null>(null);
@@ -98,12 +98,23 @@ export default function JournalClient({
     };
 
     return posts.filter((p) => {
-      const matchQ =
-        !query ||
-        p.title.toLowerCase().includes(query) ||
-        p.excerpt.toLowerCase().includes(query) ||
-        (p.tags ?? []).some((t) => t.toLowerCase().includes(query)) ||
-        String(p.pillar).toLowerCase().includes(query);
+      const authorName =
+        typeof p.author === "string" ? p.author : p.author?.name ?? "";
+      const authorId =
+        typeof p.author === "object" && p.author?.id ? p.author.id : "";
+
+      const searchText = [
+        p.title,
+        p.excerpt,
+        p.pillar,
+        ...(p.tags ?? []),
+        authorName,
+        authorId,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      const matchQ = !query || searchText.includes(query);
 
       const matchPillar = pillar === "all" || p.pillar === pillar;
       const matchTag = tag === "all" || (p.tags ?? []).includes(tag);
@@ -147,7 +158,6 @@ export default function JournalClient({
     });
   };
 
-  // ✅ Featured is now always “first” based on sort/filter (no random mismatch per lang)
   const { featured, rest } = useMemo(() => {
     if (!sortedFiltered.length) {
       return { featured: null as Post | null, rest: [] as Post[] };
@@ -247,7 +257,11 @@ export default function JournalClient({
               whileInView="show"
               viewport={VIEWPORT}
             >
-              <motion.div variants={cardInV} custom={0} style={{ willChange: "transform, opacity" }}>
+              <motion.div
+                variants={cardInV}
+                custom={0}
+                style={{ willChange: "transform, opacity" }}
+              >
                 <MotionLink
                   href={`/${lang}/journal/${featured.slug}`}
                   className={cn(
@@ -283,9 +297,13 @@ export default function JournalClient({
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="truncate">{featured.pillar}</span>
                           <span className="opacity-60">·</span>
-                          <span className="whitespace-nowrap">{fmtDate(featured.publishedAt)}</span>
+                          <span className="whitespace-nowrap">
+                            {fmtDate(featured.publishedAt)}
+                          </span>
                           <span className="opacity-60">·</span>
-                          <span className="whitespace-nowrap">{featured.readingMinutes} min</span>
+                          <span className="whitespace-nowrap">
+                            {featured.readingMinutes} min
+                          </span>
                         </div>
                       </div>
 
@@ -388,7 +406,9 @@ export default function JournalClient({
                           <span className="opacity-60">·</span>
                           <span className="whitespace-nowrap">{prettyDate}</span>
                           <span className="opacity-60">·</span>
-                          <span className="whitespace-nowrap">{p.readingMinutes} min</span>
+                          <span className="whitespace-nowrap">
+                            {p.readingMinutes} min
+                          </span>
                         </div>
                       </div>
 

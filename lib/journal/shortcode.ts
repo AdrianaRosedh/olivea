@@ -1,6 +1,7 @@
 // lib/journal/shortcode.ts
 
-const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" as const;
+const ALPHABET =
+  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" as const;
 
 function base62FromBigInt(n: bigint): string {
   if (n === 0n) return "0";
@@ -21,7 +22,7 @@ function base62FromBigInt(n: bigint): string {
  */
 export function fnv1a64(input: string): bigint {
   let hash = 14695981039346656037n; // offset basis
-  const prime = 1099511628211n;     // FNV prime
+  const prime = 1099511628211n; // FNV prime
 
   for (let i = 0; i < input.length; i++) {
     hash ^= BigInt(input.charCodeAt(i));
@@ -31,13 +32,14 @@ export function fnv1a64(input: string): bigint {
 }
 
 /**
- * Short code from an id string. We slice to 8 chars for compactness.
- * Increase to 9-10 if you ever want even lower collision probability.
+ * Short code from an id string.
+ * We pad so output is consistent length.
+ * (10 chars is still compact and drops collision risk further.)
  */
 export function makeShortCode(id: string): string {
   const h = fnv1a64(id);
   const code = base62FromBigInt(h);
-  return code.slice(0, 8);
+  return code.padStart(10, "0").slice(0, 10);
 }
 
 /** Build a shortlink path for an article */

@@ -1,3 +1,4 @@
+// app/(main)/[lang]/journal/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -18,6 +19,7 @@ import ArticleAudioPlayer from "@/components/journal/ArticleAudioPlayer";
 import ArticleDock from "@/components/journal/ArticleDock";
 import type { TocItem } from "@/components/journal/ArticleTOC";
 import { CoverLead, BodyLead } from "@/components/journal/JournalSlugEnter";
+import { normalizeAuthor } from "@/lib/journal/author";
 
 type Params = { lang: string; slug: string };
 
@@ -122,23 +124,6 @@ function safeDescription(x: unknown): string | undefined {
   return typeof d === "string" ? d : undefined;
 }
 
-function safeAuthor(x: unknown): { id?: string; name?: string } {
-  if (!x || typeof x !== "object") return {};
-  const a = (x as Record<string, unknown>).author;
-  if (!a) return {};
-
-  if (typeof a === "string") return { name: a };
-
-  if (typeof a === "object") {
-    const o = a as Record<string, unknown>;
-    const id = typeof o.id === "string" ? o.id : undefined;
-    const name = typeof o.name === "string" ? o.name : undefined;
-    return { id, name };
-  }
-
-  return {};
-}
-
 /* ---------- page ---------- */
 
 export default async function JournalPostPage({
@@ -165,7 +150,6 @@ export default async function JournalPostPage({
     readingMinutes: post.readingMinutes,
   });
 
-  // ✅ Breadcrumbs JSON-LD (best practice)
   const journalPath = `/${lang}/journal`;
   const postPath = `/${lang}/journal/${slug}`;
   const journalUrl = `${SITE.baseUrl}${journalPath}`;
@@ -176,18 +160,8 @@ export default async function JournalPostPage({
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Olivea", item: SITE.baseUrl },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Journal",
-        item: journalUrl,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: post.fm.title,
-        item: postUrl,
-      },
+      { "@type": "ListItem", position: 2, name: "Journal", item: journalUrl },
+      { "@type": "ListItem", position: 3, name: post.fm.title, item: postUrl },
     ],
   };
 
@@ -197,9 +171,9 @@ export default async function JournalPostPage({
 
   const publishedLabel = formatDateEditorial(post.fm.publishedAt, lang);
 
-  const a = safeAuthor(post.fm);
+  const a = normalizeAuthor(post.fm.author, lang);
   const authorId = a.id;
-  const authorName = a.name ?? (lang === "es" ? "Equipo Olivea" : "Olivea Editorial");
+  const authorName = a.name;
 
   const publishedPrefix = lang === "es" ? "Publicado el" : "Published on";
 
@@ -212,7 +186,6 @@ export default async function JournalPostPage({
 
       <main className="mx-auto w-full px-6 pb-16 pt-10 md:px-10">
         <div className="mx-auto w-full max-w-215 lg:pl-24">
-          {/* Cover leads */}
           {post.fm.cover?.src ? (
             <CoverLead>
               <div className="relative mb-8 h-[38vh] min-h-60 w-full overflow-hidden rounded-3xl">
@@ -229,14 +202,12 @@ export default async function JournalPostPage({
             </CoverLead>
           ) : null}
 
-          {/* Title + meta follows */}
           <BodyLead>
             <header className="mb-8">
               <h1 className="text-balance text-4xl font-semibold tracking-tight md:text-5xl">
                 {post.fm.title}
               </h1>
 
-              {/* Bigger editorial deck/subtitle */}
               {description ? (
                 <>
                   <p
@@ -254,7 +225,6 @@ export default async function JournalPostPage({
                 </>
               ) : null}
 
-              {/* Editorial byline */}
               <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-80">
                 <span>
                   {lang === "es" ? "Por " : "By "}
@@ -309,7 +279,6 @@ export default async function JournalPostPage({
               ) : null}
             </header>
 
-            {/* Editorial typography preset */}
             <article
               className={[
                 "prose prose-neutral dark:prose-invert",
@@ -347,7 +316,6 @@ export default async function JournalPostPage({
               {post.content}
             </article>
 
-            {/* ✅ Breadcrumbs + Article JSON-LD */}
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
@@ -358,10 +326,7 @@ export default async function JournalPostPage({
             />
 
             <div className="mt-12 text-sm opacity-70">
-              <a
-                className="underline underline-offset-4 hover:opacity-90"
-                href={`/${lang}/journal`}
-              >
+              <a className="underline underline-offset-4 hover:opacity-90" href={journalPath}>
                 {dict.journal?.backToJournal ?? "Back to Journal"}
               </a>
             </div>

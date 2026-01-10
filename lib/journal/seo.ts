@@ -1,6 +1,8 @@
+// lib/journal/seo.ts
 import type { Metadata } from "next";
 import { absoluteUrl, SITE } from "@/lib/site";
 import type { JournalFrontmatter } from "./schema";
+import { normalizeAuthor } from "./author";
 
 export function journalPath(lang: "es" | "en", slug: string) {
   return `/${lang}/journal/${slug}`;
@@ -21,17 +23,6 @@ function pickDescription(fm: JournalFrontmatter): string {
 
 function pickTitle(fm: JournalFrontmatter): string {
   return fm.seo?.title ?? fm.title;
-}
-
-function authorNameFromFm(fm: JournalFrontmatter): string {
-  const a = fm.author as unknown;
-  if (typeof a === "string" && a.trim()) return a.trim();
-  if (a && typeof a === "object") {
-    const o = a as Record<string, unknown>;
-    const n = typeof o.name === "string" ? o.name.trim() : "";
-    if (n) return n;
-  }
-  return fm.lang === "es" ? "Equipo Olivea" : "Olivea Editorial";
 }
 
 export function buildJournalMetadata(args: {
@@ -59,7 +50,8 @@ export function buildJournalMetadata(args: {
     : { index: true, follow: true };
 
   const locale = fm.lang === "es" ? "es_MX" : "en_US";
-  const authorName = authorNameFromFm(fm);
+  const a = normalizeAuthor(fm.author, fm.lang);
+  const authorDisplay = a.name;
 
   return {
     title,
@@ -68,7 +60,6 @@ export function buildJournalMetadata(args: {
 
     alternates: {
       canonical,
-      // ✅ Next-friendly keys
       languages: {
         es: esUrl,
         en: enUrl,
@@ -86,7 +77,7 @@ export function buildJournalMetadata(args: {
       locale,
       publishedTime: fm.publishedAt,
       modifiedTime: fm.updatedAt ?? fm.publishedAt,
-      authors: [authorName],
+      authors: [authorDisplay],
       images: ogImage
         ? [{ url: ogImage, width: 1200, height: 630, alt: title }]
         : [],
@@ -111,7 +102,15 @@ export function buildArticleJsonLd(args: {
   const imageRaw = pickOgImage(fm);
   const image = toAbs(imageRaw);
 
-  const authorName = authorNameFromFm(fm);
+  const a = normalizeAuthor(fm.author, fm.lang);
+
+  const authorEntityId = a.id
+    ? absoluteUrl(`/${fm.lang}/journal/author/${a.id}#person`)
+    : undefined;
+
+  const authorPageUrl = a.id
+    ? absoluteUrl(`/${fm.lang}/journal/author/${a.id}`)
+    : undefined;
 
   const orgId = `${SITE.baseUrl}#organization`;
 
@@ -132,10 +131,17 @@ export function buildArticleJsonLd(args: {
     image: image ? [image] : undefined,
     timeRequired: `PT${Math.max(1, readingMinutes)}M`,
     author: [
-      {
-        "@type": "Person",
-        name: authorName,
-      },
+      authorEntityId
+        ? {
+            "@type": "Person",
+            "@id": authorEntityId,
+            name: a.name,
+            ...(authorPageUrl ? { url: authorPageUrl } : {}),
+          }
+        : {
+            "@type": "Person",
+            name: a.name,
+          },
     ],
     publisher: {
       "@type": "Organization",
