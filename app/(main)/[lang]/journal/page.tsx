@@ -1,9 +1,12 @@
+// app/(main)/[lang]/journal/page.tsx
 import type { Metadata } from "next";
 import { getDictionary, type Lang } from "../dictionaries";
 import { listJournalIndex, type JournalIndexItem } from "@/lib/journal/load";
 import JournalClient from "./JournalClient";
 
 export const revalidate = 60;
+
+const SITE_URL = "https://www.oliveafarmtotable.com";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -18,9 +21,41 @@ export async function generateMetadata({
   const lang: Lang = raw === "es" ? "es" : "en";
   const dict = await getDictionary(lang);
 
+  const title = `${dict.journal.title} | OLIVEA`;
+  const description = dict.journal.subtitle;
+
+  const path = `/${lang}/journal`;
+  const canonical = `${SITE_URL}${path}`;
+
   return {
-    title: `${dict.journal.title} | OLIVEA`,
-    description: dict.journal.subtitle,
+    title,
+    description,
+
+    // ✅ Make indexing unambiguous
+    robots: { index: true, follow: true },
+
+    // ✅ Canonical + hreflang
+    alternates: {
+      canonical,
+      languages: {
+        es: `${SITE_URL}/es/journal`,
+        en: `${SITE_URL}/en/journal`,
+      },
+    },
+
+    openGraph: {
+      type: "website",
+      url: canonical,
+      siteName: "OLIVEA",
+      title,
+      description,
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 

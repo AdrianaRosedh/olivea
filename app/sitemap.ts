@@ -23,11 +23,43 @@ function getTeamIds(): string[] {
   return [];
 }
 
-async function getJournalSlugs(lang: "es" | "en"): Promise<string[]> {
+function cleanUrl(u: string): string {
+  // remove any accidental whitespace/newlines
+  return u.trim().replace(/\s+/g, "");
+}
+
+function cleanPath(p: string): string {
+  // ensure no accidental spaces and collapse // (but keep https:// intact via absoluteUrl)
+  return p.trim().replace(/\s+/g, "").replace(/\/{2,}/g, "/");
+}
+
+async function safeStat(fullPath: string): Promise<Date | null> {
+  try {
+    const st = await fs.stat(fullPath);
+    return st.mtime ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function getJournalEntries(
+  lang: "es" | "en"
+): Promise<Array<{ slug: string; lastModified: Date }>> {
   const dir = path.join(process.cwd(), "content", "journal", lang);
   try {
     const files = await fs.readdir(dir);
-    return files.filter((f) => f.endsWith(".mdx")).map((f) => f.replace(/\.mdx$/, ""));
+    const mdx = files.filter((f) => f.endsWith(".mdx"));
+
+    const entries = await Promise.all(
+      mdx.map(async (f) => {
+        const slug = f.replace(/\.mdx$/, "");
+        const mtime = await safeStat(path.join(dir, f));
+        return { slug, lastModified: mtime ?? new Date() };
+      })
+    );
+
+    entries.sort((a, b) => a.slug.localeCompare(b.slug));
+    return entries;
   } catch {
     return [];
   }
@@ -47,40 +79,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/legal",
     "/farmtotable",
     "/team",
-  ];
+  ] as const;
 
   const out: MetadataRoute.Sitemap = [];
   const ids = getTeamIds();
   const now = new Date();
 
   for (const lang of ["es", "en"] as const) {
-    // base routes
     for (const route of routes) {
       const p = route === "" ? `/${lang}` : `/${lang}${route}`;
+      const pClean = cleanPath(p);
+
+      const isHome = route === "";
+      const isJournalIndex = route === "/journal";
+      const isSustainability = route === "/sustainability";
+
       out.push({
-        url: absoluteUrl(p),
+        url: cleanUrl(absoluteUrl(pClean)),
         lastModified: now,
-        changeFrequency: route === "" ? "daily" : "weekly",
-        priority: route === "" ? 1.0 : 0.8,
+        changeFrequency: isHome ? "daily" : isJournalIndex || isSustainability ? "weekly" : "weekly",
+        priority: isHome ? 1.0 : isJournalIndex ? 0.9 : isSustainability ? 0.85 : 0.8,
       });
     }
 
-    // team member pages
     for (const id of ids) {
       out.push({
-        url: absoluteUrl(`/${lang}/team/${id}`),
+        url: cleanUrl(absoluteUrl(cleanPath(`/${lang}/team/${id}`))),
         lastModified: now,
-        changeFrequency: "weekly",
+        changeFrequency: "monthly",
         priority: 0.6,
       });
     }
 
-    // journal posts
-    const journalFileSlugs = await getJournalSlugs(lang);
-    for (const fileSlug of journalFileSlugs) {
+    const journalEntries = await getJournalEntries(lang);
+    for (const it of journalEntries) {
       out.push({
-        url: absoluteUrl(`/${lang}/journal/${fileSlug}`),
-        lastModified: now,
+        url: cleanUrl(absoluteUrl(cleanPath(`/${lang}/journal/${it.slug}`))),
+        lastModified: it.lastModified,
         changeFrequency: "monthly",
         priority: 0.7,
       });

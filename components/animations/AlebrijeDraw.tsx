@@ -2,22 +2,23 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useReducedMotion } from "framer-motion";
 import Alebrije1 from "@/assets/alebrije-1.svg";
 
-type GsapContextLike = { revert(): void };
-
 interface Props {
-  size?: number;                 // px
-  strokeDuration?: number;       // seconds (2.4–3.2 calm)
-  microStaggerEach?: number;     // 0 or ~0.001–0.002 for whisper cascade
+  size?: number;             // px
+  strokeDuration?: number;   // seconds (2.4–3.2 calm)
+  microStaggerEach?: number; // 0 or ~0.001–0.002 for whisper cascade
   onComplete?: () => void;
 }
 
 /**
- * Smooth “draw”:
- * - SVG starts hidden on first paint (SSR-safe)
- * - prepare dash (L L, offset L)
- * - tiny stroke fade-in + constant-speed reveal
+ * WAAPI “draw”:
+ * - SSR-safe (SVG hidden until prepared)
+ * - dasharray/dashoffset reveal
+ * - fade-in stroke + constant-speed draw
+ * - reduced-motion aware
+ * - fallback if WAAPI isn't available on SVGElement
  */
 export default function AlebrijeDraw({
   size = 1000,
@@ -26,108 +27,157 @@ export default function AlebrijeDraw({
   onComplete,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+
+  // Cache lengths per instance
+  const lengthsRef = useRef<WeakMap<SVGPathElement, number>>(new WeakMap());
 
   useEffect(() => {
-    let ctx: GsapContextLike | undefined;
+    const el = containerRef.current;
+    const svg = el?.querySelector<SVGSVGElement>("svg");
+    if (!svg) return;
+
+    // Reduced motion: just show
+    if (reduceMotion) {
+      svg.style.visibility = "visible";
+      return;
+    }
+
     let raf1 = 0;
     let raf2 = 0;
+    let cancelled = false;
 
-    const start = async () => {
-      const { default: gsap } = await import("gsap");
+    const anims: Animation[] = [];
 
-      const el = containerRef.current;
-      if (!el) return;
+    const cleanup = () => {
+      cancelled = true;
+      anims.forEach((a) => {
+        try {
+          a.cancel();
+        } catch {}
+      });
+    };
 
-      const svg = el.querySelector<SVGSVGElement>("svg");
-      if (!svg) return;
+    const prepAndAnimate = () => {
+      if (cancelled) return;
 
-      // Keep hidden until fully prepared (we also set it inline at render)
       svg.setAttribute("shape-rendering", "geometricPrecision");
 
-      const raw = Array.from(svg.querySelectorAll<SVGPathElement>("path"));
-      if (!raw.length) return;
+      const rawPaths = Array.from(svg.querySelectorAll<SVGPathElement>("path"));
+      if (!rawPaths.length) {
+        svg.style.visibility = "visible";
+        return;
+      }
 
-      // Measure once
-      const pairs = raw.map((p) => [p, p.getTotalLength()] as const);
-
-      // Filter microscopic segments that create visual “ticks”
+      // Measure & filter
       const MIN_LEN = 0.5;
-      const filtered = pairs.filter(([, L]) => L >= MIN_LEN);
-      if (!filtered.length) return;
+      const paths: Array<{ p: SVGPathElement; L: number }> = [];
 
-      // Prepare reveal
-      for (const [p, L] of filtered) {
+      for (const p of rawPaths) {
+        const cached = lengthsRef.current.get(p);
+        const L = typeof cached === "number" ? cached : p.getTotalLength();
+        if (typeof cached !== "number") lengthsRef.current.set(p, L);
+        if (L >= MIN_LEN) paths.push({ p, L });
+      }
+
+      if (!paths.length) {
+        svg.style.visibility = "visible";
+        return;
+      }
+
+      // If WAAPI isn't supported for SVG in this environment, just reveal
+      const waapiOk = typeof paths[0]?.p.animate === "function";
+      if (!waapiOk) {
+        for (const { p } of paths) {
+          p.style.fillOpacity = "0";
+          p.style.strokeOpacity = "1";
+        }
+        svg.style.visibility = "visible";
+        onComplete?.();
+        return;
+      }
+
+      // Prepare styles
+      for (const { p, L } of paths) {
         p.setAttribute("vector-effect", "non-scaling-stroke");
         p.style.strokeLinecap = "round";
         p.style.strokeLinejoin = "round";
         p.style.strokeMiterlimit = "1";
+
         p.style.strokeDasharray = `${L} ${L}`;
         p.style.strokeDashoffset = `${L}`;
         p.style.fillOpacity = "0";
-        p.style.strokeOpacity = "0";  // fade-in strokes, not container
+        p.style.strokeOpacity = "0";
         p.style.willChange = "stroke-dashoffset, stroke-opacity";
 
-        const color = getComputedStyle(p).fill;
-        if (color && color !== "none") p.style.stroke = color;
+        const fill = getComputedStyle(p).fill;
+        if (
+          fill &&
+          fill !== "none" &&
+          !fill.includes("rgba(0,0,0,0)") &&
+          !fill.includes("rgba(0, 0, 0, 0)")
+        ) {
+          p.style.stroke = fill;
+        }
+
         p.style.strokeWidth = ".3";
       }
 
-      const elements = filtered.map(([p]) => p);
-
-      // Ensure initial style is applied before showing svg
-      gsap.set(elements, {
-        strokeDashoffset: (_i, _t, targets) =>
-          (targets[_i] as SVGPathElement).style.strokeDashoffset,
-      });
-
-      // Now that everything is prepped, show the svg and animate
+      // Show after prep
       svg.style.visibility = "visible";
 
-      ctx = (gsap.context(() => {
-        const tl = gsap.timeline({
-          onComplete: () => onComplete?.(),
-          defaults: { lazy: false },
+      const durMs = Math.max(0, Math.round(strokeDuration * 1000));
+      const fadeMs = 180;
+      const eachDelayMs = microStaggerEach
+        ? Math.max(0, Math.round(microStaggerEach * 1000))
+        : 0;
+
+      let finished = 0;
+      const total = paths.length;
+
+      const markDone = () => {
+        finished += 1;
+        if (finished >= total && !cancelled) onComplete?.();
+      };
+
+      paths.forEach(({ p, L }, i) => {
+        const delay = eachDelayMs * i;
+
+        // Fade in
+        const a1 = p.animate([{ strokeOpacity: 0 }, { strokeOpacity: 1 }], {
+          duration: fadeMs,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          delay,
+          fill: "forwards",
         });
 
-        // Soft on-ramp (no pop)
-        tl.to(
-          elements,
-          {
-            strokeOpacity: 1,
-            duration: 0.18,
-            ease: "power1.out",
-          },
-          0
-        );
+        // Draw
+        const a2 = p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], {
+          duration: durMs,
+          easing: "linear",
+          delay,
+          fill: "forwards",
+        });
 
-        // Constant-speed draw
-        tl.to(
-          elements,
-          {
-            strokeDashoffset: 0,
-            duration: strokeDuration,
-            ease: "none",
-            autoRound: false,
-            stagger: microStaggerEach ? { each: microStaggerEach, from: 0 } : 0,
-          },
-          0
-        );
-      }, el) as unknown) as GsapContextLike;
+        a2.onfinish = () => markDone();
+
+        anims.push(a1, a2);
+      });
     };
 
-    // Give layout two RAFs to settle (prevents initial batching artifacts)
+    // Two RAFs like your GSAP version
     raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
-        void start();
+        prepAndAnimate();
       });
     });
 
     return () => {
       if (raf1) cancelAnimationFrame(raf1);
       if (raf2) cancelAnimationFrame(raf2);
-      ctx?.revert?.();
+      cleanup();
     };
-  }, [strokeDuration, microStaggerEach, onComplete]);
+  }, [strokeDuration, microStaggerEach, onComplete, reduceMotion]);
 
   return (
     <div
@@ -135,7 +185,6 @@ export default function AlebrijeDraw({
       style={{ width: size, height: size, contain: "paint" }}
       className="flex items-center justify-center"
     >
-      {/* SSR-safe: hidden on first paint to avoid a visible prepped/unprepped frame */}
       <Alebrije1 className="w-full h-full" style={{ visibility: "hidden" }} />
     </div>
   );

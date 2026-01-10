@@ -1,10 +1,17 @@
 // app/(home)/[lang]/HomeClient.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { LazyMotion, domAnimation, m, AnimatePresence, type Variants } from "framer-motion";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import {
+  LazyMotion,
+  domAnimation,
+  m,
+  AnimatePresence,
+  type Variants,
+} from "framer-motion";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cormHero } from "@/app/fonts";
 import ReservationButton from "@components/ui/ReservationButton";
@@ -42,6 +49,14 @@ const itemVariants: Variants = {
   },
 };
 
+type SectionDef = {
+  href: string;
+  title: string;
+  description: string;
+  Logo: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  sectionKey: SectionKey;
+};
+
 export default function HomeClient() {
   useEffect(() => {
     watchLCP();
@@ -68,14 +83,13 @@ export default function HomeClient() {
     revealMain,
     introStarted,
     overlayGone,
-    showVideo,              // can still drive video; we’ll OR it with our local gate
+    showVideo,
     hideBase,
     setOverlayGone,
     setShowLoader,
     setIntroStarted,
   } = useIntroAnimation(isMobile);
 
-  // Morph sequence (unchanged)
   useMorphSequence(
     hideBase,
     introStarted,
@@ -91,46 +105,60 @@ export default function HomeClient() {
   );
 
   // --- Mobile video show logic ---
-  // 1) wait for hero image decode (so image wins LCP)
-  // 2) after a short idle delay, show video
   const [heroDecoded, setHeroDecoded] = useState(false);
   const [mobileVideoVisible, setMobileVideoVisible] = useState(false);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (!isMobile || !heroDecoded) return;
-    const t = setTimeout(() => setMobileVideoVisible(true), 600); // gentle idle-like delay
+    const t = setTimeout(() => setMobileVideoVisible(true), 600);
     return () => clearTimeout(t);
   }, [isMobile, heroDecoded]);
 
-  // Localized copy + section config
-  type SectionDef = {
-    href: string;
-    title: string;
-    description: string;
-    Logo: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    sectionKey: SectionKey;
-  };
+  const descriptions = useMemo(() => {
+    return isES
+      ? {
+          casa: "Una estancia cerca del huerto.",
+          farm: "Donde el huerto se goza.",
+          cafe: "Despierta con sabor.",
+        }
+      : {
+          casa: "A stay with nature's garden.",
+          farm: "Where the garden is enjoyed.",
+          cafe: "Wake up with flavor.",
+        };
+  }, [isES]);
 
-  const descriptions = isES
-    ? {
-        casa: "Una estancia cerca del huerto.",
-        farm: "Donde el huerto se goza.",
-        cafe: "Despierta con sabor.",
-      }
-    : {
-        casa: "A stay with nature's garden.",
-        farm: "Where the garden is enjoyed.",
-        cafe: "Wake up with flavor.",
-      };
+  const sections = useMemo<SectionDef[]>(() => {
+    return [
+      {
+        href: `${basePath}/casa`,
+        title: "Casa Olivea",
+        description: descriptions.casa,
+        Logo: CasaLogo,
+        sectionKey: "casa",
+      },
+      {
+        href: `${basePath}/farmtotable`,
+        title: "Olivea Farm To Table",
+        description: descriptions.farm,
+        Logo: FarmLogo,
+        sectionKey: "farmtotable",
+      },
+      {
+        href: `${basePath}/cafe`,
+        title: "Olivea Café",
+        description: descriptions.cafe,
+        Logo: CafeLogo,
+        sectionKey: "cafe",
+      },
+    ];
+  }, [basePath, descriptions]);
 
-  const sections: SectionDef[] = [
-    { href: `${basePath}/casa`,        title: "Casa Olivea",          description: descriptions.casa,  Logo: CasaLogo,  sectionKey: "casa" },
-    { href: `${basePath}/farmtotable`, title: "Olivea Farm To Table",  description: descriptions.farm,  Logo: FarmLogo,  sectionKey: "farmtotable" },
-    { href: `${basePath}/cafe`,        title: "Olivea Café",           description: descriptions.cafe,  Logo: CafeLogo,  sectionKey: "cafe" },
-  ];
+  const mobileSections = useMemo(() => {
+    return isMobile ? [sections[1], sections[0], sections[2]] : sections;
+  }, [isMobile, sections]);
 
-  const mobileSections = isMobile ? [sections[1], sections[0], sections[2]] : sections;
   const overlayBg = "var(--olivea-olive)";
 
   // helper for mobile gap calc (avoids SSR window access)
@@ -138,6 +166,7 @@ export default function HomeClient() {
     typeof window !== "undefined"
       ? (window.visualViewport?.height ?? window.innerHeight) / 100
       : 8;
+
   const extraGap = Math.max(
     HERO.minGapPx,
     Math.round(HERO.baseGapPx - (HERO.vh - HERO.baseVh) * vhPx)
@@ -239,7 +268,7 @@ export default function HomeClient() {
               />
             )}
 
-            {/* MOBILE VIDEO: show after hero decode + small delay (or if hook wants it) */}
+            {/* MOBILE VIDEO: show after hero decode + small delay */}
             {isMobile && (showVideo || mobileVideoVisible) && (
               <video
                 ref={mobileVideoRef}
@@ -248,14 +277,13 @@ export default function HomeClient() {
                 playsInline
                 autoPlay
                 loop
-                preload="metadata"          // more reliable for iOS autoplay than "none"
+                preload="metadata"
                 poster="/images/hero-mobile.avif"
                 aria-hidden
                 tabIndex={-1}
                 disablePictureInPicture
                 controls={false}
                 onLoadedData={() => {
-                  // nudge playback on iOS if needed
                   try { mobileVideoRef.current?.play(); } catch {}
                 }}
               >
@@ -320,7 +348,18 @@ export default function HomeClient() {
             <div className="absolute inset-0 z-1 pointer-events-none bg-linear-to-b from-transparent via-black/10 to-black/40 rounded-3xl" />
           </div>
 
-          {/* Mobile cards + button */}
+          {/* Hidden plain nav links (no visual impact, improves crawl clarity) */}
+          <nav aria-label={isES ? "Navegación principal" : "Primary navigation"} className="sr-only">
+            <ul>
+              {sections.map((sec) => (
+                <li key={sec.href}>
+                  <Link href={sec.href}>{sec.title}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Mobile cards */}
           <m.div
             className="relative z-10 flex flex-col md:hidden flex-1 w-full px-4"
             variants={containerVariants}
@@ -328,37 +367,40 @@ export default function HomeClient() {
             animate={introStarted ? "hidden" : "show"}
             style={{ paddingTop: isMobile ? HERO.overlapPx + extraGap : 0 }}
           >
-            {/* Give extra bottom padding so the fixed bar never covers content */}
-            <div className="space-y-12 pb-30">
-              {mobileSections.map((sec, index) => (
-                <LazyShow key={sec.href}>
-                  <m.div
-                    variants={itemVariants}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, amount: 0.2 }}
-                    style={
-                      index === 0
-                        ? { marginTop: isMobile ? -HERO.overlapPx : 0, position: "relative", zIndex: 20 }
-                        : undefined
-                    }
-                  >
-                    <InlineEntranceCard
-                      title={sec.title}
-                      href={sec.href}
-                      sectionKey={sec.sectionKey}
-                      description={sec.description}
-                      Logo={sec.Logo}
-                      className={index === 0 ? "relative z-30" : ""}
-                      onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                    />
-                  </m.div>
-                </LazyShow>
-              ))}
-            </div>
+            <nav aria-label={isES ? "Navegación principal" : "Primary navigation"}>
+              <ul className="space-y-12 pb-30">
+                {mobileSections.map((sec, index) => (
+                  <li key={sec.href}>
+                    <LazyShow>
+                      <m.div
+                        variants={itemVariants}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true, amount: 0.2 }}
+                        style={
+                          index === 0
+                            ? { marginTop: isMobile ? -HERO.overlapPx : 0, position: "relative", zIndex: 20 }
+                            : undefined
+                        }
+                      >
+                        <InlineEntranceCard
+                          title={sec.title}
+                          href={sec.href}
+                          sectionKey={sec.sectionKey}
+                          description={sec.description}
+                          Logo={sec.Logo}
+                          className={index === 0 ? "relative z-30" : ""}
+                          onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                        />
+                      </m.div>
+                    </LazyShow>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </m.div>
 
-          {/* FIXED bottom bar (mobile only) — always glued to the bottom */}
+          {/* FIXED bottom bar (mobile only) */}
           <div
             className="
               fixed bottom-0 left-0 right-0 md:hidden z-40
@@ -372,7 +414,7 @@ export default function HomeClient() {
             <ReservationButton />
           </div>
 
-          {/* Desktop flow (unchanged) */}
+          {/* Desktop flow */}
           <div className="absolute inset-0 hidden md:flex flex-col items-center z-40">
             <div
               ref={logoTargetRef}
@@ -387,19 +429,25 @@ export default function HomeClient() {
               {isES ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience"}
             </span>
 
-            <div className="mt-6 lg:mt-8 flex gap-6 pointer-events-auto">
-              {sections.map((sec) => (
-                <InlineEntranceCard
-                  key={sec.href}
-                  title={sec.title}
-                  href={sec.href}
-                  sectionKey={sec.sectionKey}
-                  description={sec.description}
-                  Logo={sec.Logo}
-                  onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                />
-              ))}
-            </div>
+            <nav
+              aria-label={isES ? "Navegación principal" : "Primary navigation"}
+              className="mt-6 lg:mt-8 pointer-events-auto"
+            >
+              <ul className="flex gap-6">
+                {sections.map((sec) => (
+                  <li key={sec.href}>
+                    <InlineEntranceCard
+                      title={sec.title}
+                      href={sec.href}
+                      sectionKey={sec.sectionKey}
+                      description={sec.description}
+                      Logo={sec.Logo}
+                      onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
             <div className="mt-8 md:mt-16 pointer-events-auto">
               <ReservationButton />

@@ -14,31 +14,28 @@ export async function generateMetadata(
   const isEs = lang === "es";
 
   const title = isEs ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience";
-
   const description = isEs
     ? "Olivea: restaurante de degustación, hotel y café nacidos del huerto en Valle de Guadalupe. Donde el huerto es la esencia."
     : "Olivea: a tasting-menu restaurant, boutique hotel and café rooted in a living garden in Valle de Guadalupe. Where the garden is the essence.";
 
-  // ✅ You said Spanish is default at "/"
   const canonicalPath = isEs ? "/es" : "/en";
   const url = `${SITE.baseUrl}${canonicalPath}`;
-
-  // ✅ OG image (absolute URL)
   const ogImage = `${SITE.baseUrl}/images/og/cover.jpg`;
 
   return {
     title,
     description,
     metadataBase: new URL(SITE.baseUrl),
-
+    robots: { index: true, follow: true },
     alternates: {
       canonical: canonicalPath,
       languages: {
+        es: "/es",
+        en: "/en",
         "es-MX": "/es",
         "en-US": "/en",
       },
     },
-
     openGraph: {
       title,
       description,
@@ -55,7 +52,6 @@ export async function generateMetadata(
         },
       ],
     },
-
     twitter: {
       card: "summary_large_image",
       title,
@@ -67,12 +63,55 @@ export async function generateMetadata(
 
 export default function HomeLangLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { lang: "es" | "en" };
 }) {
+  const lang = params.lang;
+  const isEs = lang === "es";
+
+  const siteUrl = SITE.baseUrl;
+  const homeUrl = `${siteUrl}${isEs ? "/es" : "/en"}`;
+
+  const nav = [
+    { name: "Casa Olivea", url: `${siteUrl}/${lang}/casa` },
+    { name: "Olivea Farm To Table", url: `${siteUrl}/${lang}/farmtotable` },
+    { name: "Olivea Café", url: `${siteUrl}/${lang}/cafe` },
+    { name: isEs ? "Sostenibilidad" : "Sustainability", url: `${siteUrl}/${lang}/sustainability` },
+    { name: isEs ? "Bitácora" : "Journal", url: `${siteUrl}/${lang}/journal` },
+  ];
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "OLIVEA",
+      url: homeUrl,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "SiteNavigationElement",
+      name: nav.map((n) => n.name),
+      url: nav.map((n) => n.url),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "OLIVEA",
+      url: siteUrl,
+    },
+  ];
+
   return (
     <>
       <FixedLCP />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {children}
     </>
   );

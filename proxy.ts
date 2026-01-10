@@ -1,3 +1,4 @@
+// proxy.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -18,7 +19,7 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
-/** Detect link preview scrapers (WhatsApp/Meta + common unfurl bots) */
+/** Detect link preview scrapers */
 function isPreviewScraper(request: NextRequest): boolean {
   const ua = request.headers.get("user-agent") || "";
   return /facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|SkypeUriPreview|Pinterest|BitlyBot|Google-InspectionTool/i.test(
@@ -27,20 +28,20 @@ function isPreviewScraper(request: NextRequest): boolean {
 }
 
 /** Paths that should bypass locale redirect / header munging */
-function isStaticPath(path: string): boolean {
+function isStaticPath(pathname: string): boolean {
   return (
-    path.startsWith("/j") ||
-    path.startsWith("/_next") ||
-    path.startsWith("/api") ||
-    path === "/favicon.ico" ||
-    path === "/robots.txt" ||
-    path === "/sitemap.xml" ||
-    path === "/manifest.webmanifest" ||
-    /\.[a-z0-9]+$/i.test(path)
+    pathname.startsWith("/j") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname === "/favicon.ico" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/manifest.webmanifest" ||
+    /\.[a-z0-9]+$/i.test(pathname)
   );
 }
 
-/** Build a CSP tuned to route needs */
+/** Build CSP tuned to route needs */
 function buildCsp({
   allowEmbeddingSelf,
   allowCloudbedsPage,
@@ -62,17 +63,14 @@ function buildCsp({
     ? " https://tile.openstreetmap.org https://*.cloudbeds.com https://lh3.googleusercontent.com"
     : "";
 
-  // ✅ Add www.gstatic.com for locator
   const locatorScriptExtra = allowLocatorPage
     ? " https://ajax.googleapis.com https://maps.googleapis.com https://maps.gstatic.com https://www.gstatic.com"
     : "";
 
-  // ✅ Add www.gstatic.com for locator
   const locatorConnectExtra = allowLocatorPage
     ? " https://maps.googleapis.com https://places.googleapis.com https://maps.gstatic.com https://www.gstatic.com"
     : "";
 
-  // ✅ Add maps.googleapis.com + www.gstatic.com for locator images
   const locatorImgExtra = allowLocatorPage
     ? " https://maps.gstatic.com https://www.gstatic.com https://maps.googleapis.com https://lh3.googleusercontent.com"
     : "";
@@ -88,17 +86,15 @@ function buildCsp({
     `frame-ancestors${frameAncestors}`,
     "form-action 'self'",
 
-    `connect-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://hotels.cloudbeds.com https://static1.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
+    `connect-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
     `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://www.googletagmanager.com https://www.google-analytics.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
 
-    // ✅ Allow Google Fonts stylesheet
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
     `img-src 'self' data: blob: https://www.google-analytics.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org${cloudbedsImgExtra}${locatorImgExtra}`,
 
     "media-src 'self' blob:",
 
-    // ✅ Allow Google Fonts font files
     "font-src 'self' data: https://fonts.gstatic.com",
 
     `frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com${locatorFrameExtra}`,
@@ -136,13 +132,12 @@ function applySecurityHeaders(
   return res;
 }
 
-// ⬇️ renamed from `middleware` to `proxy`
 export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const originalPath = url.pathname;
   const pathNoTrailing = originalPath.replace(/\/+$/, "") || "/";
 
-  // 1) Cloudbeds immersive iframe page
+  // 1) Special pages bypass locale redirect
   if (pathNoTrailing === "/cloudbeds-immersive.html") {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
@@ -152,7 +147,6 @@ export function proxy(request: NextRequest) {
     });
   }
 
-  // 1b) Locator route: must be embeddable by self + allow WASM/Google scripts
   if (pathNoTrailing === "/olivea-locator") {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
@@ -162,7 +156,7 @@ export function proxy(request: NextRequest) {
     });
   }
 
-  // 2) Bypass locale redirects for static/assets/api
+  // 2) Static/public bypass locale logic
   if (isStaticPath(pathNoTrailing)) {
     const res = NextResponse.next();
     return applySecurityHeaders(res, {
@@ -183,9 +177,6 @@ export function proxy(request: NextRequest) {
     const locale = getLocale(request);
     const target = `/${locale}${pathNoTrailing === "/" ? "" : pathNoTrailing}`;
 
-    // ✅ KEY FIX:
-    // Scrapers must get 200 HTML (rewrite) so they can read OG tags.
-    // Humans keep redirect so canonical locale URLs stay consistent.
     if (isPreviewScraper(request)) {
       response = NextResponse.rewrite(new URL(target, request.url));
     } else {
@@ -195,7 +186,6 @@ export function proxy(request: NextRequest) {
     response = NextResponse.next();
   }
 
-  // 4) Apply security headers to ALL app responses
   return applySecurityHeaders(response, {
     allowEmbeddingSelf: false,
     allowCloudbedsPage: true,

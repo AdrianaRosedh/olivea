@@ -190,7 +190,6 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       void import("lucide-react");
     };
 
-    // Prefer idle to avoid competing with critical render
     const ric = (globalThis as typeof globalThis & {
       requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
     }).requestIdleCallback;
@@ -198,7 +197,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
     if (ric) {
       ric(prefetch, { timeout: 800 });
     } else {
-      setTimeout(prefetch, 60); // ✅ avoid window typing issues
+      setTimeout(prefetch, 60);
     }
   }, [isMobile]);
 
@@ -294,6 +293,19 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         <ClientOnly>
           {isMobile ? <MobileNavbar dictionary={dictionary} /> : <DesktopNavbar lang={lang} dictionary={dictionary} />}
         </ClientOnly>
+      )}
+
+      {/* ✅ Always-present crawlable primary nav (no visual impact) */}
+      {!isHome && (
+        <nav aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"} className="sr-only">
+          <ul>
+            <li><a href={`/${pathLang}/farmtotable`}>Olivea Farm To Table</a></li>
+            <li><a href={`/${pathLang}/casa`}>Casa Olivea</a></li>
+            <li><a href={`/${pathLang}/cafe`}>Olivea Café</a></li>
+            <li><a href={`/${pathLang}/sustainability`}>{pathLang === "en" ? "Sustainability" : "Sostenibilidad"}</a></li>
+            <li><a href={`/${pathLang}/journal`}>{pathLang === "en" ? "Journal" : "Bitácora"}</a></li>
+          </ul>
+        </nav>
       )}
 
       <main

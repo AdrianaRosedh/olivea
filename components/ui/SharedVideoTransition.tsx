@@ -12,13 +12,19 @@ import {
   useTransform,
   animate,
 } from "framer-motion";
-import { useSharedTransition, type SectionKey } from "@/contexts/SharedTransitionContext";
+import {
+  useSharedTransition,
+  type SectionKey,
+} from "@/contexts/SharedTransitionContext";
 
 import HeroCasaLogo from "@/assets/herocasa.svg";
 import HeroCafeLogo from "@/assets/herocafe.svg";
 import HeroFarmLogo from "@/assets/herofarm.svg";
 
-const LogoMap: Record<SectionKey, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+const LogoMap: Record<
+  SectionKey,
+  React.ComponentType<React.SVGProps<SVGSVGElement>>
+> = {
   casa: HeroCasaLogo,
   cafe: HeroCafeLogo,
   farmtotable: HeroFarmLogo,
@@ -28,9 +34,9 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 function getDurations(isPhone: boolean) {
   return {
-    enter:  isPhone ? 0.90 : 1.10,
-    exit:   isPhone ? 0.85 : 1.05,
-    hold:   0.22,
+    enter: isPhone ? 0.9 : 1.1,
+    exit: isPhone ? 0.85 : 1.05,
+    hold: 0.22,
     logoIn: isPhone ? 0.32 : 0.38,
   } as const;
 }
@@ -60,40 +66,43 @@ type Phase = "idle" | "enter" | "covered" | "exit";
 
 /* Stable viewport: sets --vh and freezes while animating (prevents iOS URL bar jank) */
 function useStableViewport(phase: Phase) {
-  const [isPhone, setIsPhone] = useState<boolean>(
-    typeof window !== "undefined" ? window.innerWidth < 768 : false
-  );
-  const [vh, setVh] = useState<number>(
-    typeof window !== "undefined"
-      ? (window.visualViewport?.height ?? window.innerHeight)
-      : 800
-  );
+  const [isPhone, setIsPhone] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768;
+  });
+
+  const [vh, setVh] = useState<number>(() => {
+    if (typeof window === "undefined") return 800;
+    return window.visualViewport?.height ?? window.innerHeight;
+  });
+
   const frozenRef = useRef(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const vv = window.visualViewport;
     const pickH = () => vv?.height ?? window.innerHeight;
 
     frozenRef.current = phase !== "idle";
 
-    const apply = () => {
-      if (frozenRef.current) return;
-      setIsPhone(window.innerWidth < 768);
-      const h = pickH();
-      setVh(h);
-      document.documentElement.style.setProperty("--vh", `${h * 0.01}px`);
-    };
-
-    // initial
+    // Always set the CSS var once (even if frozen) so layout is correct.
     const h0 = pickH();
     setVh(h0);
     document.documentElement.style.setProperty("--vh", `${h0 * 0.01}px`);
     setIsPhone(window.innerWidth < 768);
 
-    // listeners
-    const onResizeWin = () => { if (!frozenRef.current) apply(); };
-    const onVVResize: EventListener = () => { if (!frozenRef.current) apply(); };
-    const onVVScroll: EventListener = () => { if (!frozenRef.current) apply(); };
+    const applyIfNotFrozen = () => {
+      if (frozenRef.current) return;
+      const h = pickH();
+      setVh(h);
+      document.documentElement.style.setProperty("--vh", `${h * 0.01}px`);
+      setIsPhone(window.innerWidth < 768);
+    };
+
+    const onResizeWin = () => applyIfNotFrozen();
+    const onVVResize: EventListener = () => applyIfNotFrozen();
+    const onVVScroll: EventListener = () => applyIfNotFrozen();
 
     window.addEventListener("resize", onResizeWin, { passive: true });
     vv?.addEventListener("resize", onVVResize, { passive: true });
@@ -110,11 +119,18 @@ function useStableViewport(phase: Phase) {
 }
 
 /* Capability sniff (strict-typed): saveData / deviceMemory */
-interface NetworkInformationLike { saveData?: boolean }
-interface NavigatorWithDM extends Navigator { deviceMemory?: number; connection?: NetworkInformationLike }
+interface NetworkInformationLike {
+  saveData?: boolean;
+}
+interface NavigatorWithDM extends Navigator {
+  deviceMemory?: number;
+  connection?: NetworkInformationLike;
+}
 
 export default function SharedVideoTransition() {
-  const { isActive, sectionKey, targetHref, clearTransition } = useSharedTransition();
+  const { isActive, sectionKey, targetHref, clearTransition } =
+    useSharedTransition();
+
   const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<Phase>("idle");
 
@@ -170,7 +186,8 @@ function Overlay({
     if (!isPhone) return false;
     const nav = navigator as NavigatorWithDM;
     const saveData = !!nav.connection?.saveData;
-    const dm = typeof nav.deviceMemory === "number" ? nav.deviceMemory : undefined;
+    const dm =
+      typeof nav.deviceMemory === "number" ? nav.deviceMemory : undefined;
     return saveData || (dm !== undefined && dm < 3);
   }, [isPhone]);
 
@@ -197,12 +214,16 @@ function Overlay({
     };
   }, []);
 
-  // optional prefetch (inline type guard; no deps warning)
+  // optional prefetch (inline type guard)
   useEffect(() => {
     type Prefetchable = { prefetch?: (href: string) => void | Promise<void> };
     const r = router as unknown as Prefetchable;
     if (typeof r.prefetch === "function") {
-      try { void r.prefetch(targetHref); } catch { /* ignore */ }
+      try {
+        void r.prefetch(targetHref);
+      } catch {
+        /* ignore */
+      }
     }
   }, [router, targetHref]);
 
@@ -216,20 +237,24 @@ function Overlay({
   const logoCtrls = useAnimation();
 
   const enterY = useMotionValue<number>(0);
-  const exitT  = useMotionValue<number>(0);
-  const irisT  = useMotionValue<number>(0);
+  const exitT = useMotionValue<number>(0);
+  const irisT = useMotionValue<number>(0);
 
   const overlayY = useTransform([enterY, exitT], (vals: number[]) => {
     const e = vals[0] ?? 0;
     const t = vals[1] ?? 0;
     return e + -vh * t;
   });
-  const logoY  = useTransform([enterY, exitT], (vals: number[]) => {
-    const e = vals[0] ?? 0; const t = vals[1] ?? 0;
+
+  const logoY = useTransform([enterY, exitT], (vals: number[]) => {
+    const e = vals[0] ?? 0;
+    const t = vals[1] ?? 0;
     return e + -vh * 0.92 * t;
   });
+
   const sheenY = useTransform([enterY, exitT], (vals: number[]) => {
-    const e = vals[0] ?? 0; const t = vals[1] ?? 0;
+    const e = vals[0] ?? 0;
+    const t = vals[1] ?? 0;
     return e + -vh * 1.04 * t;
   });
 
@@ -241,11 +266,26 @@ function Overlay({
   // Tap-blocking: keep pointerEvents active during animation
   const [blockTaps, setBlockTaps] = useState(true);
 
+  // Strict-mode safe: prevent double nav / double setPhase in dev
+  const navFiredRef = useRef(false);
+  const rafCoveredRef = useRef<number | null>(null);
+  const tmCoveredRef = useRef<number | null>(null);
+  const navTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
+      if (rafCoveredRef.current) cancelAnimationFrame(rafCoveredRef.current);
+      if (tmCoveredRef.current) window.clearTimeout(tmCoveredRef.current);
+    };
+  }, []);
+
   // ENTER
   useEffect(() => {
     if (phase !== "enter") return;
 
-    setBlockTaps(true); // start catching taps
+    navFiredRef.current = false;
+    setBlockTaps(true);
 
     containerCtrls.set({ opacity: 0, willChange: "transform, opacity" });
     logoCtrls.set({ willChange: "transform, opacity, filter" });
@@ -255,60 +295,110 @@ function Overlay({
     irisT.set(isPhone ? 1 : 0); // desktop irises in; mobile already card-sized
 
     logoCtrls.set({ opacity: 0, scale: 0.98, filter: "blur(8px)" });
-    logoCtrls.start({
+    void logoCtrls.start({
       opacity: 1,
       scale: 1,
       filter: "blur(0px)",
-      transition: { duration: reduce ? 0.18 : DUR.logoIn, ease: EASE, delay: 0.06 },
+      transition: {
+        duration: reduce ? 0.18 : DUR.logoIn,
+        ease: EASE,
+        delay: 0.06,
+      },
     });
 
     if (!isPhone) {
-      containerCtrls.start({
+      void containerCtrls.start({
         opacity: 1,
         transition: { duration: reduce ? 0.25 : DUR.enter, ease: EASE },
       });
-      animate(irisT, 1, { duration: reduce ? 0.25 : DUR.enter, ease: EASE });
+
+      // ✅ clip-path iris is expensive; skip for reduced motion
+      if (!reduce) {
+        animate(irisT, 1, { duration: DUR.enter, ease: EASE });
+      } else {
+        irisT.set(1);
+      }
     } else {
-      containerCtrls.start({
+      void containerCtrls.start({
         opacity: 1,
-        transition: { duration: reduce ? 0.20 : 0.26, ease: EASE },
+        transition: { duration: reduce ? 0.2 : 0.26, ease: EASE },
       });
     }
 
     animate(enterY, 0, { duration: reduce ? 0.25 : DUR.enter, ease: EASE });
 
-    const navTimer = window.setTimeout(() => {
+    // ✅ Correct cleanup handling (no nested return inside setTimeout)
+    if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
+    navTimerRef.current = window.setTimeout(() => {
+      if (navFiredRef.current) return;
+      navFiredRef.current = true;
+
       router.push(targetHref);
-      const raf = requestAnimationFrame(() => setPhase("covered"));
-      const tm  = window.setTimeout(() => setPhase("covered"), 80);
-      return () => { cancelAnimationFrame(raf); clearTimeout(tm); };
+
+      if (rafCoveredRef.current) cancelAnimationFrame(rafCoveredRef.current);
+      if (tmCoveredRef.current) window.clearTimeout(tmCoveredRef.current);
+
+      rafCoveredRef.current = requestAnimationFrame(() => setPhase("covered"));
+      tmCoveredRef.current = window.setTimeout(() => setPhase("covered"), 80);
     }, Math.max(1, Math.round(DUR.enter * 1000)) + NAV_BUFFER_MS);
 
-    return () => { clearTimeout(navTimer); };
-  }, [phase, isPhone, vh, DUR.enter, DUR.logoIn, router, targetHref, setPhase, logoCtrls, containerCtrls, reduce, enterY, exitT, irisT]);
+    return () => {
+      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
+      if (rafCoveredRef.current) cancelAnimationFrame(rafCoveredRef.current);
+      if (tmCoveredRef.current) window.clearTimeout(tmCoveredRef.current);
+    };
+  }, [
+    phase,
+    isPhone,
+    vh,
+    DUR.enter,
+    DUR.logoIn,
+    router,
+    targetHref,
+    setPhase,
+    logoCtrls,
+    containerCtrls,
+    reduce,
+    enterY,
+    exitT,
+    irisT,
+  ]);
 
   // COVERED → EXIT
   useEffect(() => {
     if (phase !== "covered") return;
-    const t = window.setTimeout(() => setPhase("exit"), reduce ? 80 : Math.round(DUR.hold * 1000));
+    const t = window.setTimeout(
+      () => setPhase("exit"),
+      reduce ? 80 : Math.round(DUR.hold * 1000)
+    );
     return () => clearTimeout(t);
   }, [phase, setPhase, DUR.hold, reduce]);
 
   // EXIT
   useEffect(() => {
     if (phase !== "exit") return;
+
     const controls = animate(exitT, 1, {
       duration: reduce ? 0.35 : DUR.exit,
       ease: EASE,
       onComplete: () => {
         containerCtrls.set({ willChange: "auto" });
         logoCtrls.set({ willChange: "auto" });
-        setBlockTaps(false); // release tap capture (defensive; we unmount next anyway)
+        setBlockTaps(false);
         onFullyDone();
       },
     });
+
     return () => controls.stop();
-  }, [phase, exitT, DUR.exit, reduce, onFullyDone, containerCtrls, logoCtrls]);
+  }, [
+    phase,
+    exitT,
+    DUR.exit,
+    reduce,
+    onFullyDone,
+    containerCtrls,
+    logoCtrls,
+  ]);
 
   const background = useMemo(
     () =>
@@ -322,7 +412,10 @@ function Overlay({
   );
 
   // Sheen opacity with low-end guard (mobile only)
-  const sheenOpacity = lowEndMobile ? 0 : (isPhone ? 0.12 : 0.22);
+  const sheenOpacity = lowEndMobile ? 0 : isPhone ? 0.12 : 0.22;
+
+  // ✅ Only use clip-path on desktop and only when NOT reduced motion
+  const resolvedClipPath = !isPhone && !reduce ? clipPath : undefined;
 
   return (
     <motion.div
@@ -338,24 +431,22 @@ function Overlay({
         zIndex: 2147483647,
         background,
         y: overlayY,
-        clipPath: isPhone ? undefined : clipPath,
-        WebkitClipPath: isPhone ? undefined : clipPath,
+        clipPath: resolvedClipPath,
+        WebkitClipPath: resolvedClipPath,
         transform: "translate3d(0,0,0)",
         backfaceVisibility: "hidden",
         WebkitBackfaceVisibility: "hidden",
         isolation: "isolate",
         contain: "paint",
-        // Tap-blocking ON during animation
         pointerEvents: blockTaps ? "auto" : "none",
         touchAction: "none",
       }}
-      // prevent accidental scroll bounce when tapped
       onTouchMove={(e) => {
         if (blockTaps) e.preventDefault();
       }}
     >
       {/* sheen (micro-parallax) */}
-      {(!lowEndMobile) && (
+      {!lowEndMobile && (
         <motion.div
           aria-hidden
           style={{
@@ -385,7 +476,7 @@ function Overlay({
           y: logoY,
         }}
       >
-        <Logo width={220} className="h-auto" />  
+        <Logo width={220} className="h-auto" />
       </motion.div>
 
       {/* subtle texture */}
