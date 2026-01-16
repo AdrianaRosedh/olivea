@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { fontsClass, lora } from "../fonts";
 import "./main.css";
 import PopupHost from "@/components/ui/popup/PopupHost";
+import SiteBanner from "@/components/ui/banner/SiteBanner";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
@@ -11,7 +12,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       className={`${fontsClass} ${lora.variable}`}
     >
       {children}
-      {/* Popups only on main pages */}
+      <SiteBanner />
       <PopupHost />
     </div>
   );
