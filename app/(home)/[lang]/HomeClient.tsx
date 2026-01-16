@@ -29,6 +29,9 @@ import LazyShow from "@/components/ui/LazyShow";
 import { watchLCP } from "@/lib/perf/watchLCP";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
 
+// bump this whenever you swap the hero videos
+const HERO_VIDEO_VERSION = "2026-01-15-v2";
+
 // Animated logo (client only)
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), {
   ssr: false,
@@ -248,7 +251,7 @@ export default function HomeClient() {
             {/* MOBILE: paint hero image immediately; demote overlay when decoded */}
             {isMobile && !showVideo && (
               <Image
-                src="/images/hero-mobile.avif"
+                src={`/images/hero-mobile.avif?v=${HERO_VIDEO_VERSION}`}
                 alt={isES ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience"}
                 fill
                 priority
@@ -278,7 +281,7 @@ export default function HomeClient() {
                 autoPlay
                 loop
                 preload="metadata"
-                poster="/images/hero-mobile.avif"
+                poster={`/images/hero-mobile.avif?v=${HERO_VIDEO_VERSION}`}
                 aria-hidden
                 tabIndex={-1}
                 disablePictureInPicture
@@ -287,8 +290,14 @@ export default function HomeClient() {
                   try { mobileVideoRef.current?.play(); } catch {}
                 }}
               >
-                <source src="/videos/homepage-mobile.webm" type="video/webm" />
-                <source src="/videos/homepage-mobile.mp4" type="video/mp4" />
+                <source
+                  src={`/videos/homepage-mobile.webm?v=${HERO_VIDEO_VERSION}`}
+                  type="video/webm"
+                />
+                <source
+                  src={`/videos/homepage-mobile.mp4?v=${HERO_VIDEO_VERSION}`}
+                  type="video/mp4"
+                />
               </video>
             )}
 
@@ -296,7 +305,7 @@ export default function HomeClient() {
             {!isMobile && (
               <>
                 <Image
-                  src="/images/hero.avif"
+                  src={`/images/hero.avif?v=${HERO_VIDEO_VERSION}`}
                   alt={isES ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience"}
                   fill
                   priority
@@ -320,12 +329,19 @@ export default function HomeClient() {
                   loop
                   autoPlay
                   preload="metadata"
-                  poster="/images/hero.avif"
+                  poster={`/images/hero.avif?v=${HERO_VIDEO_VERSION}`}
                   aria-hidden
                   tabIndex={-1}
                 >
-                  <source src="/videos/homepage-HD.webm" type="video/webm" />
-                  <source src="/videos/homepage-HD.mp4" type="video/mp4" />
+                  <source
+                    src={`/videos/homepage-HD.webm?v=${HERO_VIDEO_VERSION}`}
+                    type="video/webm"
+                  />
+                  <source
+                    src={`/videos/homepage-HD.mp4?v=${HERO_VIDEO_VERSION}`}
+                    type="video/mp4"
+                  />
+
                 </video>
               </>
             )}
