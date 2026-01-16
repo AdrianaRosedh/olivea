@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "id": "vacation-jan-2026-v1",
+  "type": "notice",
+
+  "translations": {
+    "es": {
+      "text": "Estaremos de vacaciones hasta el 26 de enero. Regresamos el 27.",
+      "ctaLabel": "Ver detalles",
+      "ctaHref": "/es/policies"
+    },
+    "en": {
+      "text": "We’ll be on vacation until January 26. We return on January 27.",
+      "ctaLabel": "Details",
+      "ctaHref": "/en/policies"
+    }
+  },
+
+  "startsAt": "000-01-01T00:00:00-08:00",
+  "endsAt": "2026-01-26T00:00:00-08:00",
+
+  "dismissible": true,
+
+  "includePaths": ["/es/*", "/en/*"],
+  "excludePaths": ["/es", "/en"]
+}
