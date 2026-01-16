@@ -1,14 +1,18 @@
 // app/(main)/layout.tsx
 import type { ReactNode } from "react";
-import { fontsClass, lora } from "../fonts"; // adjust path if needed
+import { fontsClass, lora } from "../fonts";
 import "./main.css";
+import PopupHost from "@/components/ui/popup/PopupHost";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es" className={`${fontsClass} ${lora.variable}`}>
-      <body data-scope="main">
-        {children}
-      </body>
-    </html>
+    <div
+      data-scope="main"
+      className={`${fontsClass} ${lora.variable}`}
+    >
+      {children}
+      {/* Popups only on main pages */}
+      <PopupHost />
+    </div>
   );
 }
