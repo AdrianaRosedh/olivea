@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Cookies from "js-cookie";
 import { AnimatePresence, motion } from "framer-motion";
@@ -27,9 +27,18 @@ type SocialItem = {
   icon: ReactNode;
 };
 
+// ✅ Trigger a real <a> click so SubtleContentFade can intercept & animate.
+function fadeNavigate(href: string) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 export default function Footer({ dict }: FooterProps) {
   const pathname = usePathname() ?? "/es";
-  const router = useRouter();
 
   const firstSeg = pathname.split("/")[1];
   const lang: "en" | "es" = firstSeg === "en" ? "en" : "es";
@@ -55,8 +64,11 @@ export default function Footer({ dict }: FooterProps) {
         setOpen(false);
       }
     };
-    document.addEventListener("pointerdown", handleClickOutside, { passive: true });
-    return () => document.removeEventListener("pointerdown", handleClickOutside);
+    document.addEventListener("pointerdown", handleClickOutside, {
+      passive: true,
+    });
+    return () =>
+      document.removeEventListener("pointerdown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -119,31 +131,62 @@ export default function Footer({ dict }: FooterProps) {
     Cookies.set("NEXT_LOCALE", newLang, { path: "/" });
 
     const segments = pathname.split("/");
+    let newPath: string;
+
     if (segments[1] === "en" || segments[1] === "es") {
       segments[1] = newLang;
-      const newPath = segments.join("/") || `/${newLang}`;
-      router.push(newPath);
+      newPath = segments.join("/") || `/${newLang}`;
     } else {
       const suffix = pathname.startsWith("/") ? pathname : `/${pathname}`;
-      router.push(`/${newLang}${suffix === "/" ? "" : suffix}`);
+      newPath = `/${newLang}${suffix === "/" ? "" : suffix}`;
     }
 
+    // ✅ close first, then navigate via <a> so SubtleContentFade fades
     setOpen(false);
+    fadeNavigate(newPath);
   };
 
   // ✅ cleaner “signature” rights
   const rightsText =
-    lang === "en"
-      ? "All rights reserved"
-      : "Todos los derechos reservados";
+    lang === "en" ? "All rights reserved" : "Todos los derechos reservados";
 
   const socialItems: SocialItem[] = [
-    { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <FaYoutube /> },
-    { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram", icon: <FaInstagram /> },
-    { id: "tt", href: "https://www.tiktok.com/@familiaolivea", label: "TikTok", icon: <FaTiktok /> },
-    { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <FaLinkedin /> },
-    { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <FaSpotify /> },
-    { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <FaPinterest /> },
+    {
+      id: "yt",
+      href: "https://www.youtube.com/@GrupoOlivea",
+      label: "YouTube",
+      icon: <FaYoutube />,
+    },
+    {
+      id: "ig",
+      href: "https://instagram.com/oliveafarmtotable/",
+      label: "Instagram",
+      icon: <FaInstagram />,
+    },
+    {
+      id: "tt",
+      href: "https://www.tiktok.com/@familiaolivea",
+      label: "TikTok",
+      icon: <FaTiktok />,
+    },
+    {
+      id: "li",
+      href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/",
+      label: "LinkedIn",
+      icon: <FaLinkedin />,
+    },
+    {
+      id: "sp",
+      href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8",
+      label: "Spotify",
+      icon: <FaSpotify />,
+    },
+    {
+      id: "pt",
+      href: "https://mx.pinterest.com/familiaolivea/",
+      label: "Pinterest",
+      icon: <FaPinterest />,
+    },
   ];
 
   const TextLink = ({
@@ -163,7 +206,9 @@ export default function Footer({ dict }: FooterProps) {
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-clay)/40",
       ].join(" ")}
     >
-      <span className="transition-colors group-hover:text-(--olivea-clay)">{children}</span>
+      <span className="transition-colors group-hover:text-(--olivea-clay)">
+        {children}
+      </span>
       {/* underline reveal */}
       <span
         className="pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
@@ -282,7 +327,11 @@ export default function Footer({ dict }: FooterProps) {
         {/* RIGHT: rights */}
         <div className="flex-1 whitespace-nowrap text-right">
           <span className="cursor-default opacity-80 transition-colors hover:text-(--olivea-clay)">
-            © {new Date().getFullYear()} Casa Olivea A.C.<span className="relative mx-1 inline-block align-middle"><span className="block h-0.75 w-0.75 rounded-full bg-current opacity-60" /></span> {rightsText}
+            © {new Date().getFullYear()} Casa Olivea A.C.
+            <span className="relative mx-1 inline-block align-middle">
+              <span className="block h-0.75 w-0.75 rounded-full bg-current opacity-60" />
+            </span>{" "}
+            {rightsText}
           </span>
         </div>
       </div>
@@ -321,7 +370,10 @@ function FooterSocialIcon({ item }: { item: SocialItem }) {
       <motion.span
         variants={{
           rest: { scale: 1.0, filter: "drop-shadow(0 0 0 rgba(0,0,0,0))" },
-          hover: { scale: 1.15, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))" },
+          hover: {
+            scale: 1.15,
+            filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))",
+          },
         }}
         transition={{ type: "spring", stiffness: 220, damping: 18, mass: 0.2 }}
         className="leading-none"

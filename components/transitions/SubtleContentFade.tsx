@@ -30,6 +30,11 @@ function normalizePath(p: string) {
   return p;
 }
 
+/** Remove leading locale segment like /en or /es */
+function stripLocale(pathname: string) {
+  return normalizePath(pathname).replace(/^\/(en|es)(?=\/|$)/, "");
+}
+
 /** Are we already on this page? (ignore hash) */
 function isSamePage(nextHref: string) {
   const cur = new URL(window.location.href);
@@ -42,6 +47,17 @@ function isSamePage(nextHref: string) {
   );
 }
 
+/** Is this a locale-only switch to the "same" logical page? */
+function isLocaleOnlySwitch(nextHref: string) {
+  const cur = new URL(window.location.href);
+  const next = new URL(nextHref, window.location.href);
+
+  // Same query? (keep strict so we don't preserve scroll across actual page variants)
+  if (cur.search !== next.search) return false;
+
+  return stripLocale(cur.pathname) === stripLocale(next.pathname);
+}
+
 export default function MainFadeRouter({
   children,
   duration = 0.6,
@@ -50,8 +66,8 @@ export default function MainFadeRouter({
 }: {
   children: React.ReactNode;
   duration?: number;
-  fadeInDuration?: number;  // ✅ optional override
-  fadeOutDuration?: number; // ✅ optional override
+  fadeInDuration?: number; // optional override
+  fadeOutDuration?: number; // optional override
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -59,6 +75,9 @@ export default function MainFadeRouter({
   const reduce = useReducedMotion();
 
   const pendingHrefRef = useRef<string | null>(null);
+  const pendingScrollYRef = useRef<number | null>(null);
+  const shouldRestoreScrollRef = useRef(false);
+
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   const outDur = fadeOutDuration ?? duration;
@@ -69,20 +88,33 @@ export default function MainFadeRouter({
     controls.set({ opacity: 1 });
   }, [controls]);
 
-  // When the route actually changes, fade back in (slower/smoother)
+  // When the route actually changes, optionally restore scroll, then fade back in
   useEffect(() => {
     if (!pendingHrefRef.current) return;
+
+    // Best-effort scroll restore (useful for locale-only switches)
+    if (shouldRestoreScrollRef.current && pendingScrollYRef.current != null) {
+      const y = pendingScrollYRef.current;
+
+      // Wait a tick so the new tree paints, then restore.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: y, left: 0, behavior: "auto" });
+        });
+      });
+    }
 
     controls.start({
       opacity: 1,
       transition: {
         duration: reduce ? 0 : inDur,
-        // slightly smoother than the fade-out ease
         ease: [0.22, 1, 0.36, 1],
       },
     });
 
     pendingHrefRef.current = null;
+    pendingScrollYRef.current = null;
+    shouldRestoreScrollRef.current = false;
   }, [pathname, controls, inDur, reduce]);
 
   // Global link interception
@@ -103,7 +135,7 @@ export default function MainFadeRouter({
       const href = getSameOriginHref(a);
       if (!href) return;
 
-      // ✅ SAME PAGE → no fade
+      // SAME PAGE → no fade (hash-only can be handled)
       if (isSamePage(href)) {
         const next = new URL(href, window.location.href);
         if (next.hash && next.hash !== window.location.hash) {
@@ -116,10 +148,19 @@ export default function MainFadeRouter({
       e.preventDefault();
       if (isFadingOut) return;
 
+      // Decide if we should preserve scroll for this navigation
+      // - Locale-only switches: preserve
+      // - Or allow manual override with data-preserve-scroll="true"
+      const preserveScroll =
+        a.dataset.preserveScroll === "true" || isLocaleOnlySwitch(href);
+
+      shouldRestoreScrollRef.current = preserveScroll;
+      pendingScrollYRef.current = preserveScroll ? window.scrollY : null;
+
       setIsFadingOut(true);
       pendingHrefRef.current = href;
 
-      // Fade out (keep snappy)
+      // Fade out
       await controls.start({
         opacity: 0,
         transition: {
@@ -129,7 +170,12 @@ export default function MainFadeRouter({
       });
 
       // Navigate while hidden
-      router.push(href);
+      if (preserveScroll) {
+        router.push(href, { scroll: false });
+      } else {
+        router.push(href);
+      }
+
       setIsFadingOut(false);
     };
 

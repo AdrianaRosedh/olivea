@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import Cookies from "js-cookie";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,16 @@ interface LocaleSwitcherProps {
   className?: string;
 }
 
+// ✅ Trigger a real <a> click so SubtleContentFade can intercept & animate.
+function fadeNavigate(href: string) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 export default function LocaleSwitcher({
   currentLang,
   className = "",
@@ -27,7 +37,6 @@ export default function LocaleSwitcher({
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const pathname = usePathname();
-  const router = useRouter();
 
   // Close when route changes (feels cleaner in drawers)
   useEffect(() => {
@@ -62,8 +71,8 @@ export default function LocaleSwitcher({
     const newPath =
       pathname?.replace(/^\/(en|es)(?=\/|$)/, `/${locale}`) || `/${locale}`;
 
-    router.push(newPath);
     setOpen(false);
+    fadeNavigate(newPath); // ✅ fade on /es <-> /en
   }
 
   const otherLanguages = languages.filter((l) => l.code !== currentLang);
@@ -106,9 +115,7 @@ export default function LocaleSwitcher({
             exit={{ opacity: 0, y: 8, scale: 0.98, filter: "blur(6px)" }}
             transition={{ duration: 0.18, ease: "easeOut" }}
             className={cn(
-              // KEY: anchored above the pill
               "absolute right-0 bottom-full mb-3 z-50",
-              // styling
               "min-w-42.5 overflow-hidden rounded-2xl",
               "bg-(--olivea-cream) ring-1 ring-(--olivea-olive)/30 shadow-md"
             )}
