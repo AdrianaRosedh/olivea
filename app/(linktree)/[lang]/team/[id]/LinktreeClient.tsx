@@ -104,20 +104,14 @@ function makeVariants(reduce: boolean): MotionPack {
 
 const AVATAR_RADIUS = 34;
 
-function Avatar({
-  src,
-  alt,
-  reduce,
-}: {
-  src: string;
-  alt: string;
-  reduce: boolean;
-}) {
+function Avatar({ src, alt, reduce }: { src: string; alt: string; reduce: boolean }) {
   return (
-    <div className="relative">
+    <div className="relative isolate">
+      {/* Back glow (always behind) */}
       <div
-        className="absolute -inset-5"
+        className="pointer-events-none absolute -inset-5"
         style={{
+          zIndex: 0,
           borderRadius: AVATAR_RADIUS,
           background:
             "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.22), rgba(255,255,255,0.0) 60%)",
@@ -126,12 +120,14 @@ function Avatar({
         }}
       />
 
+      {/* Glass frame (behind image, not on top) */}
       <motion.div
-        className="absolute -inset-2"
+        className="pointer-events-none absolute -inset-2"
         initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.965 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: reduce ? 0.1 : 0.6, ease: easeOut }}
         style={{
+          zIndex: 1,
           borderRadius: AVATAR_RADIUS,
           background:
             "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.42), rgba(255,255,255,0.10) 45%, rgba(255,255,255,0.20))",
@@ -139,13 +135,12 @@ function Avatar({
           WebkitBackdropFilter: "blur(18px) saturate(155%)",
           border: "1px solid rgba(255,255,255,0.35)",
           boxShadow: "0 18px 60px rgba(0,0,0,0.24)",
-          transform: "translateZ(0)",
-          willChange: "transform",
         }}
       />
 
+      {/* Image (always on top of frame) */}
       <motion.div
-        className="relative h-32 w-32 overflow-hidden sm:h-36 sm:w-36"
+        className="relative z-10 h-32 w-32 overflow-hidden sm:h-36 sm:w-36"
         initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.985 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{
@@ -156,37 +151,20 @@ function Avatar({
         style={{
           borderRadius: AVATAR_RADIUS,
           boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.10)",
-          transform: "translateZ(0)",
-          willChange: "transform",
         }}
       >
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          priority
-          sizes="160px"
-          className="object-cover"
-        />
+        <Image src={src} alt={alt} fill priority sizes="160px" className="object-cover" />
 
+        {/* Your existing overlays stay the same */}
+        {/* subtle vignette (no top haze) */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 30% 22%, rgba(255,255,255,0.12), rgba(0,0,0,0.12))",
+              "linear-gradient(to bottom, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.10) 65%, rgba(0,0,0,0.18) 100%)",
           }}
         />
-
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(circle at 30% 22%, rgba(255,255,255,0.22), rgba(255,255,255,0.0) 58%)",
-            mixBlendMode: "screen",
-            opacity: 0.85,
-          }}
-        />
-
+  
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -440,7 +418,7 @@ export default function LinktreeClient({
             priority
             sizes="100vw"
             quality={35}
-            className="object-cover"
+            className="object-cover scale-[1.08]"
             style={{ objectPosition: "center", transform: "translateZ(0)" }}
           />
         </div>

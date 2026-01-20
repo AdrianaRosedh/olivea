@@ -73,7 +73,14 @@ export const TEAM: LeaderProfile[] = [
       es: "Co-crea la visión integral de Olivea: diseño, sensibilidad y coherencia estética en toda la experiencia.",
       en: "Co-shapes Olivea’s holistic vision: design, sensibility, and visual cohesion across the full experience.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/ange.jpg",
+    gallery: [
+      "/images/team/ange.jpg",
+      "/images/team/ange/persona.jpg",
+      "/images/team/ange/persona.jpg",
+      "/images/team/ange/persona.jpg",
+      "/images/team/ange/persona.jpg",
+    ],
     tile: "hero",
     priority: 1,
     links: [
@@ -98,7 +105,14 @@ export const TEAM: LeaderProfile[] = [
       es: "Lidera la cocina con un enfoque huerto-primero: técnica, estacionalidad y precisión.",
       en: "Leads the kitchen with a garden-first philosophy: technique, seasonality, and precision.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/daniel.jpg",
+     gallery: [
+      "/images/team/daniel.jpg",
+      "/images/team/daniel/persona.jpg",
+      "/images/team/daniel/persona.jpg",
+      "/images/team/daniel/persona.jpg",
+      "/images/team/daniel/persona.jpg",
+    ],
     tile: "hero",
     priority: 2,
     links: [
@@ -142,7 +156,14 @@ export const TEAM: LeaderProfile[] = [
       es: "Lidera la visión estratégica, tecnológica y de experiencia de Olivea. Fundadora de Roseiies, una plataforma de inteligencia aplicada para hospitalidad y experiencias.",
       en: "Leads the strategic, technological, and experiential vision of Olivea. Founder of Roseiies, an intelligence-driven platform for hospitality and experiential brands.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/adriana.jpg",
+    gallery: [
+      "/images/team/adriana.jpg",
+      "/images/team/adriana/persona.jpg",
+      "/images/team/adriana/persona.jpg",
+      "/images/team/adriana/persona.jpg",
+      "/images/team/adriana/persona.jpg",
+    ],
     tile: "hero",
     priority: 3,
     links: [
@@ -221,24 +242,6 @@ export const TEAM: LeaderProfile[] = [
     priority: 10,
     links: [
       { label: { es: "Reservar habitación", en: "Book a Room" }, href: "/casa", icon: "hotel", highlight: true },
-    ],
-  },
-
-  {
-    id: "maro",
-    name: "Maro",
-    role: { es: "Encargado del Huerto", en: "Head of Garden" },
-    org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
-    tag: { es: "Huerto", en: "Garden" },
-    bio: {
-      es: "Cuida, investiga y cultiva el huerto que da origen a cada plato.",
-      en: "Cares for, researches, and cultivates the garden behind every dish.",
-    },
-    avatar: "/images/team/persona.jpg",
-    tile: "md",
-    priority: 12,
-    links: [
-      { label: { es: "El Huerto", en: "The Garden" }, href: "/restaurant", highlight: true },
     ],
   },
 

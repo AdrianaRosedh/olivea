@@ -224,7 +224,7 @@ function AutoSlideGalleryVerticalVariableHeight({
                     <img
                       src={src}
                       alt=""
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-cover object-center"
                       onLoad={onImgLoad(src)}
                       draggable={false}
                     />
@@ -347,7 +347,7 @@ function AutoSlideGalleryHorizontalVariableWidth({
                       <img
                         src={src}
                         alt=""
-                        className="h-full w-full object-contain"
+                        className="h-full w-full object-cover object-center"
                         onLoad={onImgLoad(src)}
                         draggable={false}
                       />

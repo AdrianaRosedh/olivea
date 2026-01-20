@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, useAnimation, useReducedMotion } from "framer-motion";
 
@@ -58,6 +58,49 @@ function isLocaleOnlySwitch(nextHref: string) {
   return stripLocale(cur.pathname) === stripLocale(next.pathname);
 }
 
+/** --- Cross-remount handoff (for /es <-> /en) --- */
+const FADE_STORAGE_KEY = "olivea:fade-nav";
+
+type FadeNavPayload = {
+  at: number; // timestamp
+  preserveScroll: boolean;
+  scrollY: number | null;
+};
+
+function readFadePayload(): FadeNavPayload | null {
+  try {
+    const raw = sessionStorage.getItem(FADE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as FadeNavPayload;
+
+    // stale guard (2s is plenty)
+    if (!parsed?.at || Date.now() - parsed.at > 2000) {
+      sessionStorage.removeItem(FADE_STORAGE_KEY);
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeFadePayload(payload: FadeNavPayload) {
+  try {
+    sessionStorage.setItem(FADE_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // ignore
+  }
+}
+
+function clearFadePayload() {
+  try {
+    sessionStorage.removeItem(FADE_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export default function MainFadeRouter({
   children,
   duration = 0.6,
@@ -75,28 +118,43 @@ export default function MainFadeRouter({
   const reduce = useReducedMotion();
 
   const pendingHrefRef = useRef<string | null>(null);
-  const pendingScrollYRef = useRef<number | null>(null);
-  const shouldRestoreScrollRef = useRef(false);
 
-  const [isFadingOut, setIsFadingOut] = useState(false);
+  // use a ref (no re-render mid-transition)
+  const isFadingOutRef = useRef(false);
 
   const outDur = fadeOutDuration ?? duration;
   const inDur = fadeInDuration ?? duration * 1.35;
 
-  // Ensure we start visible
+  // Read payload once per mount (if coming from a fade-out navigation)
+  const initialPayload = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    return readFadePayload();
+  }, []);
+
+  // Start hidden ONLY if we know we just faded out from the previous page.
+  const [startHidden] = useState(() => Boolean(initialPayload && !reduce));
+
+  // Ensure we start in the right opacity
   useEffect(() => {
-    controls.set({ opacity: 1 });
-  }, [controls]);
+    controls.set({ opacity: startHidden ? 0 : 1 });
+  }, [controls, startHidden]);
 
-  // When the route actually changes, optionally restore scroll, then fade back in
+  // When the route changes, restore scroll if needed, then fade back in
   useEffect(() => {
-    if (!pendingHrefRef.current) return;
+    if (reduce) {
+      controls.set({ opacity: 1 });
+      clearFadePayload();
+      pendingHrefRef.current = null;
+      isFadingOutRef.current = false;
+      return;
+    }
 
-    // Best-effort scroll restore (useful for locale-only switches)
-    if (shouldRestoreScrollRef.current && pendingScrollYRef.current != null) {
-      const y = pendingScrollYRef.current;
+    // If we have a payload from previous page, optionally restore scroll
+    const payload = readFadePayload();
+    if (payload?.preserveScroll && typeof payload.scrollY === "number") {
+      const y = payload.scrollY;
 
-      // Wait a tick so the new tree paints, then restore.
+      // Wait for paint, then restore
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           window.scrollTo({ top: y, left: 0, behavior: "auto" });
@@ -104,17 +162,18 @@ export default function MainFadeRouter({
       });
     }
 
+    // Always fade to visible on route change (safe even if already visible)
     controls.start({
       opacity: 1,
       transition: {
-        duration: reduce ? 0 : inDur,
+        duration: inDur,
         ease: [0.22, 1, 0.36, 1],
       },
     });
 
+    clearFadePayload();
     pendingHrefRef.current = null;
-    pendingScrollYRef.current = null;
-    shouldRestoreScrollRef.current = false;
+    isFadingOutRef.current = false;
   }, [pathname, controls, inDur, reduce]);
 
   // Global link interception
@@ -135,7 +194,7 @@ export default function MainFadeRouter({
       const href = getSameOriginHref(a);
       if (!href) return;
 
-      // SAME PAGE → no fade (hash-only can be handled)
+      // SAME PAGE → no fade
       if (isSamePage(href)) {
         const next = new URL(href, window.location.href);
         if (next.hash && next.hash !== window.location.hash) {
@@ -144,23 +203,16 @@ export default function MainFadeRouter({
         return;
       }
 
-      // Prevent immediate navigation
       e.preventDefault();
-      if (isFadingOut) return;
+      if (isFadingOutRef.current) return;
 
       // Decide if we should preserve scroll for this navigation
-      // - Locale-only switches: preserve
-      // - Or allow manual override with data-preserve-scroll="true"
       const preserveScroll =
         a.dataset.preserveScroll === "true" || isLocaleOnlySwitch(href);
 
-      shouldRestoreScrollRef.current = preserveScroll;
-      pendingScrollYRef.current = preserveScroll ? window.scrollY : null;
-
-      setIsFadingOut(true);
+      isFadingOutRef.current = true;
       pendingHrefRef.current = href;
 
-      // Fade out
       await controls.start({
         opacity: 0,
         transition: {
@@ -169,19 +221,24 @@ export default function MainFadeRouter({
         },
       });
 
+      // ✅ Persist "fade-in needed" across potential remounts (like /es <-> /en)
+      writeFadePayload({
+        at: Date.now(),
+        preserveScroll,
+        scrollY: preserveScroll ? window.scrollY : null,
+      });
+
       // Navigate while hidden
       if (preserveScroll) {
         router.push(href, { scroll: false });
       } else {
         router.push(href);
       }
-
-      setIsFadingOut(false);
     };
 
     document.addEventListener("click", onClick, true); // capture phase
     return () => document.removeEventListener("click", onClick, true);
-  }, [router, controls, outDur, reduce, isFadingOut]);
+  }, [router, controls, outDur, reduce]);
 
   return (
     <motion.div style={{ willChange: "opacity" }} animate={controls}>
