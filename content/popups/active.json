@@ -1,36 +1,36 @@
 {
   "enabled": true,
 
-  "id": "popup-2026-01-15-v8",
+  "id": "popup-2026-01-25-daniel-nates-territorio",
   "kind": "journal",
   "priority": 100,
 
   "translations": {
     "es": {
       "badge": "Nuevo en el Journal",
-      "title": "Así se construye la hospitalidad contemporánea con raíz en el huerto",
-      "excerpt": "Olivea como un caso vivo: sistemas, decisiones y ritmos que nacen en el huerto y se traducen en hospitalidad contemporánea.",
-      "href": "/es/journal/2026-01-05-modern-garden-rooted-hospitality"
+      "title": "Cocinar el territorio de Baja California",
+      "excerpt": "Un nuevo ensayo de nuestro chef ejecutivo, Daniel Nates, sobre huerto, mar y cocina como expresión del territorio.",
+      "href": "/es/journal/2026-01-25-cooking-the-territory-of-baja-california"
     },
     "en": {
       "badge": "New in the Journal",
-      "title": "How contemporary hospitality is built with roots in the garden",
-      "excerpt": "Olivea as a living case study: systems, decisions, and rhythms born in the garden and translated into contemporary hospitality.",
-      "href": "/en/journal/2026-01-05-modern-garden-rooted-hospitality"
+      "title": "Cooking the Territory of Baja California",
+      "excerpt": "A new essay by our Executive Chef, Daniel Nates, on garden, sea, and cooking as an expression of place.",
+      "href": "/en/journal/2026-01-25-cooking-the-territory-of-baja-california"
     }
   },
 
   "media": {
-    "coverSrc": "/images/journal/seasonal-garden.avif",
+    "coverSrc": "/images/journal/modern-garden-rooted-hospitality.avif",
     "coverAlt": {
-      "es": "Huerto y arquitectura de Olivea",
-      "en": "Olivea garden and architecture"
+      "es": "El huerto de Olivea en Baja California",
+      "en": "The Olivea garden in Baja California"
     }
   },
 
   "rules": {
-    "startsAt": "2026-01-15T00:00:00-08:00",
-    "endsAt": "2026-02-15T23:59:59-08:00",
+    "startsAt": "2026-01-25T00:00:00-08:00",
+    "endsAt": "2026-02-25T23:59:59-08:00",
 
     "includePaths": ["/*"],
 

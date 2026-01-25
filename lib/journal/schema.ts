@@ -26,6 +26,8 @@ export const JournalPillar = z.enum([
 ]);
 export type JournalPillar = z.infer<typeof JournalPillar>;
 
+/* ------------------ SEO helpers ------------------ */
+
 /** For "best places" list posts */
 const SeoItemListItem = z.object({
   name: z.string().min(1),
@@ -52,6 +54,15 @@ const SeoFaqItem = z.object({
   a: z.string().min(1),
 });
 
+/* ------------------ NEW: Gallery schema ------------------ */
+
+const JournalGalleryImage = z.object({
+  src: z.string().min(1),
+  alt: z.string().min(1),
+});
+
+/* ------------------ Frontmatter ------------------ */
+
 export const JournalFrontmatterSchema = z.object({
   id: z.string().min(3),
   lang: JournalLang,
@@ -73,6 +84,9 @@ export const JournalFrontmatterSchema = z.object({
       alt: z.string().min(1),
     })
     .optional(),
+
+  /** ✅ End-of-article image gallery (used by PhotoCarousel) */
+  gallery: z.array(JournalGalleryImage).optional(),
 
   seo: z
     .object({
