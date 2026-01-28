@@ -27,6 +27,7 @@ import { useRouter, usePathname } from "next/navigation";
 import TeamDockLeft, { type TeamCategory } from "./TeamDockLeft";
 import TeamMobileNav from "./TeamMobileNav";
 import { NavigationProvider } from "@/contexts/NavigationContext";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 type Lang = "es" | "en";
 
@@ -496,11 +497,11 @@ export default function TeamClient({
   useEffect(() => setPortalReady(true), []);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (!open) return;
+    const unlock = lockBodyScroll();
+    return unlock;
   }, [isOpen]);
+  
 
   const [present, setPresent] = useState(false);
   useEffect(() => {

@@ -16,6 +16,7 @@ import {
   useSharedTransition,
   type SectionKey,
 } from "@/contexts/SharedTransitionContext";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 import HeroCasaLogo from "@/assets/herocasa.svg";
 import HeroCafeLogo from "@/assets/herocafe.svg";
@@ -194,25 +195,22 @@ function Overlay({
   // lock scroll & overscroll during the transition
   useEffect(() => {
     const rootStyle = document.documentElement.style;
-    const bodyStyle = document.body.style;
 
-    const prevOverflow = bodyStyle.overflow;
+    // ✅ ref-counted overflow lock (prevents multi-overlay conflicts)
+    const unlock = lockBodyScroll();
+
+    // ✅ overscroll lock on root (restore after)
     const prevOB = rootStyle.getPropertyValue("overscroll-behavior");
-    const prevTA = bodyStyle.getPropertyValue("touch-action");
-
-    bodyStyle.overflow = "hidden";
     rootStyle.setProperty("overscroll-behavior", "none");
-    bodyStyle.setProperty("touch-action", "none");
 
     return () => {
-      bodyStyle.overflow = prevOverflow || "";
+      unlock();
+
       if (prevOB) rootStyle.setProperty("overscroll-behavior", prevOB);
       else rootStyle.removeProperty("overscroll-behavior");
-
-      if (prevTA) bodyStyle.setProperty("touch-action", prevTA);
-      else bodyStyle.removeProperty("touch-action");
     };
   }, []);
+
 
   // optional prefetch (inline type guard)
   useEffect(() => {

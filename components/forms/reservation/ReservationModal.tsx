@@ -22,6 +22,7 @@ import dynamic from "next/dynamic";
 import OliveaLogo from "@/assets/oliveaFTT1.svg";
 import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 // Client-only widgets (already memoized)
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), {
@@ -88,10 +89,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   // ── Body scroll lock
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (!open) return;
+    const unlock = lockBodyScroll();
+    return unlock;
   }, [isOpen]);
 
   // ── Full-screen overlays (mobile only)

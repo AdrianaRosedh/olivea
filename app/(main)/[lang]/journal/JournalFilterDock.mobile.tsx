@@ -20,6 +20,7 @@ import {
   BookOpen,
   Tag as TagIcon,
 } from "lucide-react";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -114,11 +115,8 @@ export default function JournalFilterDockMobile({
 
   useEffect(() => {
     if (!sheetOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    const unlock = lockBodyScroll();
+    return unlock;
   }, [sheetOpen]);
 
   /* MOBILE BAR hide/show */

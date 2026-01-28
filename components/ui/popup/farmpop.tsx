@@ -17,6 +17,7 @@ import {
   type Transition,
 } from "framer-motion";
 import { X } from "lucide-react";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 /** Idle scheduler (typed) */
 type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
@@ -143,11 +144,11 @@ export default function Farmpop({
 
   // Lock body scroll while open
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (!open) return;
+    const unlock = lockBodyScroll();
+    return unlock;
   }, [open]);
+  
 
   // Pre-mount all iframes once opened first time — idle time
   useEffect(() => {

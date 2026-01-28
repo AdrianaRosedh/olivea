@@ -1,14 +1,26 @@
-// app/components/PathTracker.tsx
+// components/PathTracker.tsx
 "use client";
+
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export default function PathTracker() {
-  const pathname = usePathname() || "/";
+  const pathname = usePathname();
+
   useEffect(() => {
-    const prev = sessionStorage.getItem("prevPath") || "";
-    sessionStorage.setItem("prevPathPrev", prev);
-    sessionStorage.setItem("prevPath", pathname);
+    // 🔒 Hard reset leaked locks on navigation
+    try {
+      document.body.style.overflow = "";
+      document.body.style.removeProperty("touch-action");
+      document.body.style.removeProperty("position");
+      document.body.style.removeProperty("top");
+      document.body.style.removeProperty("width");
+
+      document.documentElement.style.removeProperty("overscroll-behavior");
+    } catch {
+      // noop
+    }
   }, [pathname]);
+
   return null;
 }

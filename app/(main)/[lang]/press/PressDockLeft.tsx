@@ -12,6 +12,7 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Identity, ItemKind, Lang, PressItem } from "./pressTypes";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -326,11 +327,8 @@ export default function PressDockLeft({
   // ✅ lock body scroll when mobile sheet open
   useEffect(() => {
     if (!sheetOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    const unlock = lockBodyScroll();
+    return unlock;
   }, [sheetOpen]);
 
   /* =========================

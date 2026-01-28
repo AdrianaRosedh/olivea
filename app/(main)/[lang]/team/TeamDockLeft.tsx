@@ -12,6 +12,7 @@ import {
 } from "framer-motion";
 import { SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 export type TeamCategory = "all" | "hotel" | "restaurant" | "cafe";
 type Lang = "es" | "en";
@@ -137,14 +138,11 @@ export default function TeamDockLeft({
 
   // lock body scroll while sheet open
   useEffect(() => {
-    if (!sheetOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    if (!open) return;
+    const unlock = lockBodyScroll();
+    return unlock;
   }, [sheetOpen]);
-
+  
   // ✅ match PressDockLeft
   const TOP_OFFSET_CLASS = "top-14";
   const BAR_HEIGHT_SPACER = "h-16";

@@ -13,6 +13,7 @@ import type { Lang } from "@/app/(main)/[lang]/dictionaries";
 import ArticleTOC, { type TocItem } from "@/components/journal/ArticleTOC";
 import { Share2, Link2, Plus, Minus, List, X } from "lucide-react";
 import { shortPathForArticle } from "@/lib/journal/shortcode";
+import { lockBodyScroll } from "@/components/ui/scrollLock";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -90,12 +91,16 @@ export default function ArticleDock({
   }, [lang]);
 
   const shareLinks = useMemo(() => {
-    const threads = `https://www.threads.net/intent/post?text=${enc(shareText)}&url=${enc(
+    const threads = `https://www.threads.net/intent/post?text=${enc(
+      shareText
+    )}&url=${enc(url)}`;
+    const facebook = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
+    const x = `https://twitter.com/intent/tweet?text=${enc(
+      shareText
+    )}&url=${enc(url)}`;
+    const linkedin = `https://www.linkedin.com/sharing/share-offsite/?url=${enc(
       url
     )}`;
-    const facebook = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
-    const x = `https://twitter.com/intent/tweet?text=${enc(shareText)}&url=${enc(url)}`;
-    const linkedin = `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`;
     return { threads, facebook, x, linkedin };
   }, [shareText, url]);
 
@@ -131,7 +136,9 @@ export default function ArticleDock({
   const bumpFont = useCallback(
     (delta: number) => {
       const root = document.documentElement;
-      const raw = getComputedStyle(root).getPropertyValue("--journal-font-scale").trim();
+      const raw = getComputedStyle(root)
+        .getPropertyValue("--journal-font-scale")
+        .trim();
       const current = raw ? Number(raw) : 1;
       const safe = Number.isFinite(current) ? current : 1;
 
@@ -189,29 +196,21 @@ export default function ArticleDock({
     if (!ok) setShareOpen(true);
   }, [tryNativeShare]);
 
-  useEffect(() => {
-    if (!shareOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [shareOpen]);
-
   /* =========================
      toc sheet (mobile) + toc panel (desktop)
      ========================= */
   const [tocSheetOpen, setTocSheetOpen] = useState(false);
   const [tocPanelOpen, setTocPanelOpen] = useState(false);
 
+  // ✅ One ref-counted body lock for ANY mobile sheet open
+  // (prevents overlay A unlocking overlay B, and fixes old-mobile "stuck unscrollable" cases)
   useEffect(() => {
-    if (!tocSheetOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [tocSheetOpen]);
+    const anySheetOpen = shareOpen || tocSheetOpen;
+    if (!anySheetOpen) return;
+
+    const unlock = lockBodyScroll();
+    return unlock;
+  }, [shareOpen, tocSheetOpen]);
 
   /* =========================
      mobile bar hide/show
@@ -285,28 +284,44 @@ export default function ArticleDock({
 
     return (
       <div className="grid grid-cols-2 gap-3">
-        <button type="button" className={btn} onClick={() => openPopup(shareLinks.threads)}>
+        <button
+          type="button"
+          className={btn}
+          onClick={() => openPopup(shareLinks.threads)}
+        >
           <div className="flex items-center gap-3">
             <span className={iconWrap}>@</span>
             <div className="text-[13px] font-medium">{labels.threads}</div>
           </div>
         </button>
 
-        <button type="button" className={btn} onClick={() => openPopup(shareLinks.facebook)}>
+        <button
+          type="button"
+          className={btn}
+          onClick={() => openPopup(shareLinks.facebook)}
+        >
           <div className="flex items-center gap-3">
             <span className={iconWrap}>f</span>
             <div className="text-[13px] font-medium">{labels.facebook}</div>
           </div>
         </button>
 
-        <button type="button" className={btn} onClick={() => openPopup(shareLinks.x)}>
+        <button
+          type="button"
+          className={btn}
+          onClick={() => openPopup(shareLinks.x)}
+        >
           <div className="flex items-center gap-3">
             <span className={iconWrap}>𝕏</span>
             <div className="text-[13px] font-medium">{labels.x}</div>
           </div>
         </button>
 
-        <button type="button" className={btn} onClick={() => openPopup(shareLinks.linkedin)}>
+        <button
+          type="button"
+          className={btn}
+          onClick={() => openPopup(shareLinks.linkedin)}
+        >
           <div className="flex items-center gap-3">
             <span className={iconWrap}>in</span>
             <div className="text-[13px] font-medium">{labels.linkedin}</div>
