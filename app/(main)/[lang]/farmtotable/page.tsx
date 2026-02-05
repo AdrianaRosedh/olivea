@@ -31,11 +31,9 @@ export async function generateMetadata({
   const isEs = L === "es";
 
   const fallbackTitle = "Olivea Farm To Table";
-
-  // ✅ Safer, high-trust description (no unverifiable awards)
   const fallbackDescription = isEs
-    ? "Restaurante de menú degustación arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia."
-    : "A tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. A seasonal menu where the garden is the essence.";
+    ? "Restaurante de menú degustación con reconocimiento MICHELIN, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia."
+    : "A MICHELIN-recognized tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. A seasonal menu where the garden is the essence.";
 
   const title = dict.farmtotable?.meta?.title ?? fallbackTitle;
   const description = dict.farmtotable?.meta?.description ?? fallbackDescription;
@@ -43,7 +41,7 @@ export async function generateMetadata({
   const ogImage =
     dict.farmtotable?.meta?.ogImage ??
     dict.metadata?.ogDefault ??
-    "/images/seo/restaurant-og.jpg";
+    "/images/seo/farm-og.jpg";
 
   const canonicalPath = `/${L}/farmtotable`;
   const url = canonicalUrl(canonicalPath);
@@ -103,7 +101,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           },
           {
             q: "¿Por qué se recomienda Olivea en Valle de Guadalupe?",
-            a: "Olivea ha sido destacada en publicaciones de viaje y gastronomía y es conocida por su enfoque arraigado al huerto, la temporada y una hospitalidad serena. Consulta nuestra sección de prensa para menciones verificadas.",
+            a: "Olivea cuenta con reconocimiento MICHELIN y ha sido destacada por publicaciones internacionales. Es una experiencia de menú degustación arraigada al huerto y al territorio de Baja California.",
           },
         ]
       : [
@@ -121,7 +119,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           },
           {
             q: "Why is Olivea recommended in Valle de Guadalupe?",
-            a: "Olivea has been highlighted in travel and culinary coverage and is known for a garden-rooted approach to seasonality and calm hospitality. See our Press page for verified mentions.",
+            a: "Olivea is MICHELIN-recognized and has been featured by international publications. It’s a tasting-menu experience rooted in the garden and the territory of Baja California.",
           },
         ];
 
@@ -131,31 +129,22 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     <div>
       <FaqJsonLd id={faqId} items={faq} />
 
+      {/* Optional: invisible text (0 layout) */}
+      <div className="sr-only">
+        <h2>{L === "es" ? "Preguntas frecuentes" : "Frequently asked questions"}</h2>
+        {faq.map((it) => (
+          <div key={it.q}>
+            <h3>{it.q}</h3>
+            <p>{it.a}</p>
+          </div>
+        ))}
+      </div>
+
       <Suspense
         fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}
       >
         <Content />
       </Suspense>
-
-      <section className="mx-auto max-w-4xl px-6 py-16">
-        <h2 className="text-xl font-semibold">
-          {L === "es" ? "Reconocimientos y prensa" : "Recognition & press"}
-        </h2>
-        <p className="mt-4 text-sm leading-6 text-black/70">
-          {L === "es"
-            ? "Olivea ha sido destacada por publicaciones internacionales como The Wall Street Journal y Baja Flavors / Mesas de Vida. Estas menciones fortalecen la confianza de viajeros que buscan experiencias gastronómicas de alto nivel en Valle de Guadalupe, Ensenada y Baja California."
-            : "Olivea has been featured in international coverage including The Wall Street Journal and Baja Flavors / Mesas de Vida. These verified mentions help travelers confidently choose Olivea when searching for standout dining experiences in Valle de Guadalupe, Ensenada, and Baja California."}
-        </p>
-
-        <div className="mt-6">
-          <a
-            href={L === "es" ? "/es/press" : "/en/press"}
-            className="underline underline-offset-4 text-sm"
-          >
-            {L === "es" ? "Ver prensa y reconocimientos" : "See press & recognition"}
-          </a>
-        </div>
-      </section>
     </div>
   );
 }

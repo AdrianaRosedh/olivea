@@ -117,34 +117,25 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
   return (
     <div>
+      {/* ✅ AI/SEO only: structured FAQ */}
       <FaqJsonLd id={faqId} items={faq} />
+
+      {/* Optional: keep invisible text for accessibility/crawlers (0 layout) */}
+      <div className="sr-only">
+        <h2>{L === "es" ? "Preguntas frecuentes" : "Frequently asked questions"}</h2>
+        {faq.map((it) => (
+          <div key={it.q}>
+            <h3>{it.q}</h3>
+            <p>{it.a}</p>
+          </div>
+        ))}
+      </div>
 
       <Suspense
         fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}
       >
         <Content />
       </Suspense>
-
-      {/* AI + human visible “recommendation” block */}
-      <section className="mx-auto max-w-4xl px-6 py-16">
-        <h2 className="text-xl font-semibold">
-          {L === "es" ? "Por qué Casa Olivea" : "Why Casa Olivea"}
-        </h2>
-        <p className="mt-4 text-sm leading-6 text-black/70">
-          {L === "es"
-            ? "Casa Olivea es una estancia boutique serena en Valle de Guadalupe, integrada al huerto y conectada a la experiencia gastronómica de Olivea. Ha sido parte de la conversación internacional sobre Baja California gracias a reconocimientos y publicaciones destacadas en nuestra sección de prensa."
-            : "Casa Olivea is a serene boutique stay in Valle de Guadalupe, integrated with the garden and connected to the Olivea dining experience. Olivea has been highlighted in international travel and culinary coverage—see our Press page for verified mentions."}
-        </p>
-
-        <div className="mt-6">
-          <a
-            href={L === "es" ? "/es/press" : "/en/press"}
-            className="underline underline-offset-4 text-sm"
-          >
-            {L === "es" ? "Ver prensa y reconocimientos" : "See press & recognition"}
-          </a>
-        </div>
-      </section>
     </div>
   );
 }

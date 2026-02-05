@@ -14,7 +14,7 @@
         "equipo",
         "diseño"
       ],
-      "ogImage": "/images/seo/about-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "cafe": {
@@ -56,13 +56,13 @@
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": "Restaurante de degustación con estrella Michelin, nacido del huerto en Valle de Guadalupe.",
+    "description": "Menú degustación con Una Estrella MICHELIN y Estrella Verde, nacido del huerto en Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "Restaurante de degustación con estrella Michelin, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia.",
-      "ogImage": "/images/seo/restaurant-og.jpg"
+      "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia.",
+      "ogImage": "/images/seo/farm-og.jpg"
     }
-  },  
+  }, 
   "contact": {
   "title": "Contacto",
   "description": "Información de contacto de Olivea en Valle de Guadalupe.",
@@ -110,7 +110,7 @@
         "Olivea",
         "Filosofía"
       ],
-      "ogImage": "/images/seo/sustainability-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "journal": {
@@ -130,7 +130,7 @@
         "temporada",
         "investigación"
       ],
-      "ogImage": "/images/seo/journal-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "legal": {
@@ -145,7 +145,7 @@
         "políticas",
         "Olivea"
       ],
-      "ogImage": "/images/seo/legal-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "press": {
@@ -167,7 +167,7 @@
         "premios",
         "gastronomía"
       ],
-      "ogImage": "/images/seo/mesa-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "home": {
@@ -177,7 +177,7 @@
     "cta_casa": "Hospedarse en Casa Olivea",
     "meta": {
       "title": "OLIVEA | La Experiencia",
-      "description": "Olivea: restaurante de degustación con estrella Michelin, hotel boutique Casa Olivea y Olivea Café nacidos del huerto en Valle de Guadalupe, Baja California. Donde el huerto es la esencia.",
+      "description": "Olivea: restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, Casa Olivea listada en MICHELIN Guide (Hotels & Stays) y Olivea Café—nacidos del huerto en Valle de Guadalupe, Baja California.",
       "keywords": [
         "Olivea",
         "Valle de Guadalupe",
@@ -186,13 +186,16 @@
         "café",
         "hotel",
         "granja a la mesa",
-        "estrella Michelin"
+        "menú degustación",
+        "Estrella MICHELIN",
+        "Estrella Verde",
+        "MICHELIN Guide"
       ],
-      "ogImage": "/images/seo/home-og.jpg"
+      "ogImage": "/images/seo/default-og.jpg"
     }
   },
   "metadata": {
-    "description": "Restaurante con estrella Michelin, hotel boutique y café arraigados donde el huerto es la esencia en Valle de Guadalupe, Baja California.",
+    "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, hotel listado en MICHELIN Guide y café en Valle de Guadalupe, Baja California.",
     "siteName": "OLIVEA La Experiencia",
     "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/default-og.jpg"

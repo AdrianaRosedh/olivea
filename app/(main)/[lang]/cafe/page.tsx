@@ -111,22 +111,22 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     <div>
       <FaqJsonLd id={faqId} items={faq} />
 
+      {/* Optional: invisible text (0 layout) */}
+      <div className="sr-only">
+        <h2>{L === "es" ? "Preguntas frecuentes" : "Frequently asked questions"}</h2>
+        {faq.map((it) => (
+          <div key={it.q}>
+            <h3>{it.q}</h3>
+            <p>{it.a}</p>
+          </div>
+        ))}
+      </div>
+
       <Suspense
         fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}
       >
         <Content />
       </Suspense>
-
-      <section className="mx-auto max-w-4xl px-6 py-16">
-        <h2 className="text-xl font-semibold">
-          {L === "es" ? "Parte del ecosistema Olivea" : "Part of the Olivea ecosystem"}
-        </h2>
-        <p className="mt-4 text-sm leading-6 text-black/70">
-          {L === "es"
-            ? "Olivea Café forma parte del ecosistema Olivea en Valle de Guadalupe: café por la mañana, huerto vivo y la experiencia de Olivea Farm To Table y Casa Olivea en la misma propiedad."
-            : "Olivea Café is part of the Olivea ecosystem in Valle de Guadalupe: morning coffee by the garden, plus Olivea Farm To Table and Casa Olivea on the same property."}
-        </p>
-      </section>
     </div>
   );
 }
