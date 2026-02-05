@@ -3,7 +3,7 @@ import "../main.css";
 
 import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
-import StructuredData from "@/components/seo/StructuredData";
+import StructuredDataServer from "@/components/seo/StructuredDataServer";
 import LayoutShell from "@/components/layout/LayoutShell";
 import {
   loadLocale,
@@ -12,7 +12,6 @@ import {
 } from "@/app/(main)/[lang]/dictionaries";
 import ClientPrewarm from "./prewarm-client";
 
-// Optional but nice: prebuild both langs for this segment
 export function generateStaticParams() {
   return [{ lang: "es" }, { lang: "en" }];
 }
@@ -50,7 +49,7 @@ export default async function LangLayout({
 
   return (
     <div data-scope="main">
-      <StructuredData />
+      <StructuredDataServer />
       <ClientPrewarm />
       <LayoutShell lang={lang} dictionary={dict}>
         {children}

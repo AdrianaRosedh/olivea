@@ -1,14 +1,16 @@
+// app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { AppProviders } from "./providers";
 import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
-import { absoluteUrl } from "@/lib/site";
+import { SITE, canonicalUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(absoluteUrl("/")),
+  // ✅ Always canonical (prevents localhost / preview leakage)
+  metadataBase: new URL(SITE.canonicalBaseUrl),
 
   title: "OLIVEA | Donde el huerto es la esencia",
   description:
@@ -24,14 +26,14 @@ export const metadata: Metadata = {
 
   openGraph: {
     type: "website",
-    url: absoluteUrl("/"),
+    url: canonicalUrl("/"),
     title: "OLIVEA | Donde el huerto es la esencia",
     description:
       "OLIVEA Farm To Table, hotel Casa OLIVEA y OLIVEA Café arraigados en un huerto vivo en Valle de Guadalupe.",
     siteName: "OLIVEA",
     images: [
       {
-        url: absoluteUrl("/images/og/cover.jpg"),
+        url: canonicalUrl("/images/og/cover.jpg"),
         width: 1200,
         height: 630,
         alt: "OLIVEA",
@@ -44,7 +46,7 @@ export const metadata: Metadata = {
     title: "OLIVEA | Donde el huerto es la esencia",
     description:
       "Gastronomía, hotel y café nacidos del huerto en Valle de Guadalupe. Where the garden is the essence.",
-    images: [absoluteUrl("/images/og/cover.jpg")],
+    images: [canonicalUrl("/images/og/cover.jpg")],
   },
 
   robots: {
@@ -75,11 +77,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={fontsClass}>
       <head>

@@ -1,15 +1,12 @@
 // app/(main)/[lang]/casa/page.tsx
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import {
-  loadLocale as loadDict,
-  type Lang,
-} from "@/app/(main)/[lang]/dictionaries";
-import { SITE } from "@/lib/site";
+import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionaries";
+import { SITE, canonicalUrl } from "@/lib/site";
+import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
 
-// minimal shape for what we read from the dict
 type CasaMetaShape = {
   casa?: { meta?: { title?: string; description?: string; ogImage?: string } };
   metadata?: { ogDefault?: string };
@@ -26,56 +23,49 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang: raw } = await params;
 
-  const { lang: L, dict } = (await loadDict({
-    lang: raw,
-  })) as { lang: Lang; dict: CasaMetaShape };
+  const { lang: L, dict } = (await loadDict({ lang: raw })) as {
+    lang: Lang;
+    dict: CasaMetaShape;
+  };
 
   const isEs = L === "es";
 
   const fallbackTitle = "Casa OLIVEA";
-
   const fallbackDescription = isEs
     ? "Hotel boutique integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Donde el huerto es la esencia."
-    : "Boutique hotel integrated with the garden and Olivea Farm To Table restaurant in Valle de Guadalupe, Baja California. Where the garden is the essence.";
+    : "A boutique hotel integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Where the garden is the essence.";
 
   const title = dict.casa?.meta?.title ?? fallbackTitle;
-  const description =
-    dict.casa?.meta?.description ?? fallbackDescription;
+  const description = dict.casa?.meta?.description ?? fallbackDescription;
 
   const ogImage =
-    dict.casa?.meta?.ogImage ??
-    dict.metadata?.ogDefault ??
-    "/images/seo/casa-og.jpg";
+    dict.casa?.meta?.ogImage ?? dict.metadata?.ogDefault ?? "/images/seo/casa-og.jpg";
 
-  const ogLocale = isEs ? "es_MX" : "en_US";
   const canonicalPath = `/${L}/casa`;
-  const url = `${SITE.baseUrl}${canonicalPath}`;
+  const url = canonicalUrl(canonicalPath);
 
   return {
     title,
     description,
-    metadataBase: new URL(SITE.baseUrl),
+    metadataBase: new URL(SITE.canonicalBaseUrl),
     alternates: {
       canonical: canonicalPath,
-      languages: {
-        en: "/en/casa",
-        es: "/es/casa",
-      },
+      languages: { en: "/en/casa", es: "/es/casa" },
     },
     openGraph: {
       title,
       description,
       url,
-      locale: ogLocale,
+      locale: isEs ? "es_MX" : "en_US",
       type: "website",
       siteName: "OLIVEA",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+      images: [{ url: canonicalUrl(ogImage), width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage],
+      images: [canonicalUrl(ogImage)],
     },
   };
 }
@@ -87,26 +77,74 @@ export const viewport: Viewport = {
   themeColor: "#5e7658",
 };
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
+export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params;
   const L: Lang = raw === "es" ? "es" : "en";
   const Content = L === "en" ? ContentEn : ContentEs;
 
+  const faq: FaqItem[] =
+    L === "es"
+      ? [
+          {
+            q: "¿Por qué hospedarse en Casa Olivea en Valle de Guadalupe?",
+            a: "Casa Olivea es un hotel boutique tranquilo integrado al huerto y conectado a Olivea Farm To Table, ideal para una experiencia de hospedaje y gastronomía en el mismo lugar.",
+          },
+          {
+            q: "¿Casa Olivea está en Valle de Guadalupe o Ensenada?",
+            a: "Casa Olivea está en Valle de Guadalupe (Villa de Juárez), dentro del municipio de Ensenada, Baja California.",
+          },
+          {
+            q: "¿Puedo cenar en Olivea Farm To Table si me hospedo en Casa Olivea?",
+            a: "Sí. Recomendamos reservar con anticipación. La experiencia está diseñada para disfrutar hospedaje y cena en la misma propiedad.",
+          },
+        ]
+      : [
+          {
+            q: "Why stay at Casa Olivea in Valle de Guadalupe?",
+            a: "Casa Olivea is a calm boutique hotel integrated with the garden and connected to Olivea Farm To Table—ideal for a stay-and-dine experience on the same property.",
+          },
+          {
+            q: "Is Casa Olivea in Valle de Guadalupe or Ensenada?",
+            a: "Casa Olivea is located in Valle de Guadalupe (Villa de Juárez), within Ensenada, Baja California.",
+          },
+          {
+            q: "Can I dine at Olivea Farm To Table if I stay at Casa Olivea?",
+            a: "Yes. We recommend booking in advance. The experience is designed for guests to enjoy dining and staying in one place.",
+          },
+        ];
+
+  const faqId = canonicalUrl(`/${L}/casa#faq`);
+
   return (
     <div>
+      <FaqJsonLd id={faqId} items={faq} />
+
       <Suspense
-        fallback={
-          <div className="min-h-screen flex items-center justify-center">
-            Loading…
-          </div>
-        }
+        fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}
       >
         <Content />
       </Suspense>
+
+      {/* AI + human visible “recommendation” block */}
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <h2 className="text-xl font-semibold">
+          {L === "es" ? "Por qué Casa Olivea" : "Why Casa Olivea"}
+        </h2>
+        <p className="mt-4 text-sm leading-6 text-black/70">
+          {L === "es"
+            ? "Casa Olivea es una estancia boutique serena en Valle de Guadalupe, integrada al huerto y conectada a la experiencia gastronómica de Olivea. Ha sido parte de la conversación internacional sobre Baja California gracias a reconocimientos y publicaciones destacadas en nuestra sección de prensa."
+            : "Casa Olivea is a serene boutique stay in Valle de Guadalupe, integrated with the garden and connected to the Olivea dining experience. Olivea has been highlighted in international travel and culinary coverage—see our Press page for verified mentions."}
+        </p>
+
+        <div className="mt-6">
+          <a
+            href={L === "es" ? "/es/press" : "/en/press"}
+            className="underline underline-offset-4 text-sm"
+          >
+            {L === "es" ? "Ver prensa y reconocimientos" : "See press & recognition"}
+          </a>
+        </div>
+      </section>
     </div>
   );
 }
