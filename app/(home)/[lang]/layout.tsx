@@ -16,7 +16,6 @@ export async function generateMetadata(
 
   const title = isEs ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience";
 
-  // Keep this consistent with your MICHELIN-aligned dictionaries (high trust)
   const description = isEs
     ? "Olivea: restaurante de menú degustación con reconocimiento MICHELIN, hotel boutique y café nacidos del huerto en Valle de Guadalupe, Baja California. Donde el huerto es la esencia."
     : "Olivea: a MICHELIN-recognized tasting-menu restaurant, boutique hotel, and café rooted in a living garden in Valle de Guadalupe, Baja California. Where the garden is the essence.";
@@ -28,12 +27,8 @@ export async function generateMetadata(
   return {
     title,
     description,
-
-    // ✅ Always canonical (never preview/localhost)
     metadataBase: new URL(SITE.canonicalBaseUrl),
-
     robots: { index: true, follow: true },
-
     alternates: {
       canonical: canonicalPath,
       languages: {
@@ -43,7 +38,6 @@ export async function generateMetadata(
         en: "/en",
       },
     },
-
     openGraph: {
       title,
       description,
@@ -60,7 +54,6 @@ export async function generateMetadata(
         },
       ],
     },
-
     twitter: {
       card: "summary_large_image",
       title,
@@ -77,25 +70,28 @@ export default function HomeLangLayout({
   children: React.ReactNode;
   params: { lang: "es" | "en" };
 }) {
-  const lang = params.lang;
-  const isEs = lang === "es";
+  const isEs = params.lang === "es";
+  const langPrefix = isEs ? "es" : "en";
 
   const homePath = isEs ? "/es" : "/en";
   const homeUrl = canonicalUrl(homePath);
 
-  // Canonical nav links (AI likes clean navigation signals)
+  // ✅ FIXED: no more `/undefined/...`
   const nav = [
-    { name: "Casa Olivea", url: canonicalUrl(`/${lang}/casa`) },
-    { name: "Olivea Farm To Table", url: canonicalUrl(`/${lang}/farmtotable`) },
-    { name: "Olivea Café", url: canonicalUrl(`/${lang}/cafe`) },
-    { name: isEs ? "Sostenibilidad" : "Sustainability", url: canonicalUrl(`/${lang}/sustainability`) },
-    { name: isEs ? "Bitácora" : "Journal", url: canonicalUrl(`/${lang}/journal`) },
-    { name: isEs ? "Prensa" : "Press", url: canonicalUrl(`/${lang}/press`) },
-    { name: isEs ? "Contacto" : "Contact", url: canonicalUrl(`/${lang}/contact`) },
+    { name: "Casa Olivea", url: canonicalUrl(`/${langPrefix}/casa`) },
+    { name: "Olivea Farm To Table", url: canonicalUrl(`/${langPrefix}/farmtotable`) },
+    { name: "Olivea Café", url: canonicalUrl(`/${langPrefix}/cafe`) },
+    {
+      name: isEs ? "Filosofía" : "Philosophy",
+      url: canonicalUrl(`/${langPrefix}/sustainability`),
+    },
+    { name: isEs ? "Cuaderno" : "Journal", url: canonicalUrl(`/${langPrefix}/journal`) },
+    { name: isEs ? "Prensa" : "Press", url: canonicalUrl(`/${langPrefix}/press`) },
+    { name: isEs ? "Contacto" : "Contact", url: canonicalUrl(`/${langPrefix}/contact`) },
   ];
 
-  // Small homepage-specific JSON-LD (optional, but clean)
-  const jsonLd = {
+  // Homepage page schema (lightweight)
+  const pageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "@id": `${homeUrl}#webpage`,
@@ -111,6 +107,7 @@ export default function HomeLangLayout({
     },
   };
 
+  // Navigation schema (clean + canonical)
   const navLd = {
     "@context": "https://schema.org",
     "@type": "SiteNavigationElement",
@@ -123,13 +120,13 @@ export default function HomeLangLayout({
     <>
       <FixedLCP />
 
-      {/* ✅ Full entity graph (MICHELIN + Maps + org) on homepage too */}
+      {/* ✅ Full entity graph: Organization + Restaurant + Hotel + Café + MICHELIN + Maps */}
       <StructuredDataServer />
 
-      {/* ✅ Lightweight homepage + nav schema (no UI impact) */}
+      {/* ✅ Homepage + navigation schema (no UI impact) */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageLd) }}
       />
       <script
         type="application/ld+json"
