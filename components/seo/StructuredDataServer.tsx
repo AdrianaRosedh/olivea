@@ -7,25 +7,50 @@ type Recognition = {
   url?: string;
 };
 
-const RECOGNITION: Recognition[] = [
-  {
-    name: "Featured in The Wall Street Journal – Best Travel Destinations 2026",
-    publisher: "The Wall Street Journal",
-    url: canonicalUrl("/press"),
-  },
-  {
-    name: "Featured in Baja Flavors / Mesas de Vida",
-    publisher: "Baja Flavors / Mesas de Vida",
-    url: canonicalUrl("/press"),
-  },
-];
-
-// ✅ Google Maps entity anchors (highest ROI)
+// ✅ Google Maps entity anchors (your URLs)
 const GOOGLE_MAPS = {
   restaurant: "https://maps.app.goo.gl/c2RsfNfQom2Jg73P7",
   hotel: "https://maps.app.goo.gl/CnKY7KYNN5yxYtfi8",
   cafe: "https://maps.app.goo.gl/gYH1qsUourCZqXiX6",
 };
+
+// ✅ Official sources (from your /press page links)
+const MICHELIN = {
+  restaurant:
+    "https://guide.michelin.com/en/baja-california/ensenada_2059847/restaurant/olivea-farm-to-table",
+  hotel:
+    "https://guide.michelin.com/mx/es/hotels-stays/Ensenada/casa-olivea-14762",
+  mexicoSelection:
+    "https://www.michelin.com/en/publications/products-and-services/the-michelin-guide-mexico-2025-selection",
+};
+
+const RECOGNITION: Recognition[] = [
+  {
+    name: "MICHELIN Guide — One MICHELIN Star",
+    publisher: "MICHELIN Guide",
+    url: MICHELIN.restaurant,
+  },
+  {
+    name: "MICHELIN Guide — MICHELIN Green Star",
+    publisher: "MICHELIN Guide",
+    url: MICHELIN.mexicoSelection,
+  },
+  {
+    name: "MICHELIN Guide (Hotels & Stays) — Casa Olivea",
+    publisher: "MICHELIN Guide",
+    url: MICHELIN.hotel,
+  },
+  {
+    name: "Featured in The Wall Street Journal — Best Travel Destinations 2026",
+    publisher: "The Wall Street Journal",
+    url: canonicalUrl("/es/press"),
+  },
+  {
+    name: "Featured in Baja Flavors — Mesas de Vida",
+    publisher: "Baja Flavors",
+    url: canonicalUrl("/es/press"),
+  },
+];
 
 export default function StructuredDataServer() {
   const base = SITE.canonicalBaseUrl;
@@ -39,18 +64,20 @@ export default function StructuredDataServer() {
     addressCountry: "MX",
   };
 
-  const recognitionWorks = RECOGNITION.map((r) => ({
-    "@type": "CreativeWork",
-    name: r.name,
-    ...(r.publisher ? { publisher: { "@type": "Organization", name: r.publisher } } : {}),
-    ...(r.url ? { url: r.url } : {}),
-  }));
-
   const geo = {
     "@type": "GeoCoordinates",
     latitude: 31.9909261,
     longitude: -116.6420781,
   };
+
+  const recognitionWorks = RECOGNITION.map((r) => ({
+    "@type": "CreativeWork",
+    name: r.name,
+    ...(r.publisher
+      ? { publisher: { "@type": "Organization", name: r.publisher } }
+      : {}),
+    ...(r.url ? { url: r.url } : {}),
+  }));
 
   const graph = [
     {
@@ -76,7 +103,6 @@ export default function StructuredDataServer() {
       },
     },
 
-    // Bind site → org for AI & crawlers
     {
       "@type": "WebSite",
       "@id": `${base}#website`,
@@ -86,7 +112,6 @@ export default function StructuredDataServer() {
       inLanguage: ["es-MX", "en-US"],
     },
 
-    // Restaurant entity (best places to eat)
     {
       "@type": "Restaurant",
       "@id": `${base}#restaurant`,
@@ -99,13 +124,14 @@ export default function StructuredDataServer() {
       servesCuisine: ["Farm-to-table", "Baja California"],
       priceRange: "$$$",
       hasMap: GOOGLE_MAPS.restaurant,
-      sameAs: [GOOGLE_MAPS.restaurant],
+      // ✅ Maps + official MICHELIN listing to anchor the entity
+      sameAs: [GOOGLE_MAPS.restaurant, MICHELIN.restaurant],
       acceptsReservations: true,
-      award: RECOGNITION.map((r) => r.name),
+      // ✅ Keep awards explicit + aligned with your Press page
+      award: ["One MICHELIN Star", "MICHELIN Green Star"],
       subjectOf: recognitionWorks,
     },
 
-    // Hotel entity (best places to stay)
     {
       "@type": "Hotel",
       "@id": `${base}#hotel`,
@@ -117,11 +143,10 @@ export default function StructuredDataServer() {
       geo,
       priceRange: "$$$",
       hasMap: GOOGLE_MAPS.hotel,
-      sameAs: [GOOGLE_MAPS.hotel],
+      sameAs: [GOOGLE_MAPS.hotel, MICHELIN.hotel],
       subjectOf: recognitionWorks,
     },
 
-    // Café entity
     {
       "@type": "CafeOrCoffeeShop",
       "@id": `${base}#cafe`,

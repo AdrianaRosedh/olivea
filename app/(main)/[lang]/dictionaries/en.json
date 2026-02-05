@@ -14,7 +14,7 @@
         "team",
         "design"
       ],
-      "ogImage": "/images/seo/about-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "cafe": {
@@ -56,11 +56,11 @@
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": "Michelin-starred tasting menu shaped by a living garden in Valle de Guadalupe.",
+    "description": "One MICHELIN Star & MICHELIN Green Star tasting menu shaped by a living garden in Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "Michelin-starred tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. Seasonal menu where the garden is the essence.",
-      "ogImage": "/images/seo/restaurant-og.jpg"
+      "description": "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. Seasonal menu where the garden is the essence.",
+      "ogImage": "/images/seo/farm-og.jpg"
     }
   },
   "contact": {
@@ -110,7 +110,7 @@
         "Olivea",
         "Philosophy"
       ],
-      "ogImage": "/images/seo/sustainability-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "journal": {
@@ -130,7 +130,7 @@
         "seasonal",
         "producers"
       ],
-      "ogImage": "/images/seo/journal-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "legal": {
@@ -145,7 +145,7 @@
         "policies",
         "Olivea"
       ],
-      "ogImage": "/images/seo/legal-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "press": {
@@ -167,7 +167,7 @@
         "awards",
         "gastronomy"
       ],
-      "ogImage": "/images/seo/mesa-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "home": {
@@ -177,7 +177,7 @@
     "cta_casa": "Stay at Casa Olivea",
     "meta": {
       "title": "OLIVEA | The Experience",
-      "description": "Olivea: a Michelin-starred tasting-menu restaurant, boutique hotel and café rooted in a living garden in Valle de Guadalupe, Baja California. Where the garden is the essence.",
+      "description": "Olivea: One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café—rooted in a living garden in Valle de Guadalupe, Baja California.",
       "keywords": [
         "Olivea",
         "Valle de Guadalupe",
@@ -186,13 +186,16 @@
         "cafe",
         "hotel",
         "farm-to-table",
-        "Michelin-starred"
+        "tasting menu",
+        "MICHELIN Star",
+        "MICHELIN Green Star",
+        "MICHELIN Guide"
       ],
-      "ogImage": "/images/seo/home-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "metadata": {
-    "description": "A Michelin-starred, garden-rooted restaurant, hotel and café in Valle de Guadalupe, Baja California.",
+    "description": "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café in Valle de Guadalupe, Baja California.",
     "siteName": "Olivea The Experience",
     "twitter": "@yourhandle",
     "ogDefault": "/images/seo/default-og.jpg"
