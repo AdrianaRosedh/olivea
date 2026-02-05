@@ -1,6 +1,6 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
-import { absoluteUrl } from "@/lib/site";
+import { canonicalUrl } from "@/lib/site";
 import { TEAM } from "@/app/(main)/[lang]/team/teamData";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -24,12 +24,12 @@ function getTeamIds(): string[] {
 }
 
 function cleanUrl(u: string): string {
-  // remove any accidental whitespace/newlines
   return u.trim().replace(/\s+/g, "");
 }
 
 function cleanPath(p: string): string {
-  // ensure no accidental spaces and collapse // (but keep https:// intact via absoluteUrl)
+  // Ensure no accidental spaces and collapse //
+  // (safe because canonicalUrl will handle https:// properly)
   return p.trim().replace(/\s+/g, "").replace(/\/{2,}/g, "/");
 }
 
@@ -95,7 +95,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const isSustainability = route === "/sustainability";
 
       out.push({
-        url: cleanUrl(absoluteUrl(pClean)),
+        // ✅ Always canonical (never preview / localhost)
+        url: cleanUrl(canonicalUrl(pClean)),
         lastModified: now,
         changeFrequency: isHome ? "daily" : isJournalIndex || isSustainability ? "weekly" : "weekly",
         priority: isHome ? 1.0 : isJournalIndex ? 0.9 : isSustainability ? 0.85 : 0.8,
@@ -104,7 +105,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const id of ids) {
       out.push({
-        url: cleanUrl(absoluteUrl(cleanPath(`/${lang}/team/${id}`))),
+        url: cleanUrl(canonicalUrl(cleanPath(`/${lang}/team/${id}`))),
         lastModified: now,
         changeFrequency: "monthly",
         priority: 0.6,
@@ -114,7 +115,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const journalEntries = await getJournalEntries(lang);
     for (const it of journalEntries) {
       out.push({
-        url: cleanUrl(absoluteUrl(cleanPath(`/${lang}/journal/${it.slug}`))),
+        url: cleanUrl(canonicalUrl(cleanPath(`/${lang}/journal/${it.slug}`))),
         lastModified: it.lastModified,
         changeFrequency: "monthly",
         priority: 0.7,

@@ -1,6 +1,6 @@
 // app/robots.ts
 import type { MetadataRoute } from "next";
-import { absoluteUrl } from "@/lib/site";
+import { canonicalUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,10 +8,11 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // If you have private routes later, add disallow entries here.
+        // If you add private routes later, uncomment:
         // disallow: ["/api/", "/_next/"],
       },
     ],
-    sitemap: absoluteUrl("/sitemap.xml"),
+    // ✅ Always canonical (never preview / localhost)
+    sitemap: canonicalUrl("/sitemap.xml"),
   };
 }
