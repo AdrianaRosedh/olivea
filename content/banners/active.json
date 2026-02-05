@@ -1,26 +1,22 @@
 {
   "enabled": true,
-  "id": "vacation-jan-2026-v1",
+  "id": "pmg-sustainability-2026-v1",
   "type": "notice",
-
   "translations": {
     "es": {
-      "text": "Estaremos de vacaciones hasta el 26 de enero. Regresamos el 27.",
-      "ctaLabel": "Ver detalles",
-      "ctaHref": "/es/policies"
+      "text": "Olivea recibió el Premio México Gastronómico de Sustentabilidad 2026.",
+      "ctaLabel": "Ver reconocimiento",
+      "ctaHref": "/es/press#awards"
     },
     "en": {
-      "text": "We’ll be on vacation until January 26. We return on January 27.",
-      "ctaLabel": "Details",
-      "ctaHref": "/en/policies"
+      "text": "Olivea received the México Gastronómico Sustainability Award 2026.",
+      "ctaLabel": "View award",
+      "ctaHref": "/en/press#awards"
     }
   },
-
-  "startsAt": "000-01-01T00:00:00-08:00",
-  "endsAt": "2026-01-26T00:00:00-08:00",
-
+  "startsAt": "2026-02-05T00:00:00-08:00",
+  "endsAt": "2026-03-20T00:00:00-08:00",
   "dismissible": true,
-
   "includePaths": ["/es/*", "/en/*"],
   "excludePaths": ["/es", "/en"]
 }
