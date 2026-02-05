@@ -1,0 +1,89 @@
+'use client';
+
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import { motion } from "framer-motion";
+import Image from "next/image";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="mornings"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={null}   
+    >
+      {/* Hero Image */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+        className="relative w-full h-[60vh] md:h-[70vh] rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl mb-6 md:mb-10"
+      >
+        <Image
+          src="/images/casa/morning.jpg"
+          alt="Olivea Café — morning calm"
+          fill
+          className="object-cover"
+          quality={80}
+          sizes="100vw"
+          priority
+        />
+      </motion.div>
+
+      {/* Title UNDER image */}
+      <Reveal preset="up">
+        <h2 className="text-2xl md:text-4xl font-semibold mb-8">
+          Mornings at Olivea
+        </h2>
+      </Reveal>
+
+      {/* Text Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-800 leading-relaxed">
+        {/* Breakfast */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          id="breakfast"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">
+            Breakfast
+          </p>
+          <p>
+            Hotel guests begin the day with a thoughtfully designed continental
+            breakfast, created by the Olivea kitchen. House-made bread, vegetables 
+            from our garden, and a selection of local and in-house preparations are served
+            simply — fresh, balanced, and rooted in the garden.
+          </p>
+          <p className="mt-3 text-sm text-gray-600">
+            Coffee service included with breakfast consists of an americano or tea.
+          </p>
+        </motion.div>
+
+        {/* Coffee & Café */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          viewport={{ once: true }}
+          id="cafe"
+        >
+          <p className="text-lg font-medium text-gray-600 mb-2">
+            Coffee & Olivea Café
+          </p>
+          <p>
+            For guests seeking a broader or more expressive morning experience,
+            Olivea Café offers an expanded breakfast menu alongside a full
+            selection of crafted coffee drinks. Espresso-based beverages,
+            specialty preparations, and additional breakfast plates are available
+            directly at the café.
+          </p>
+        </motion.div>
+      </div>
+    </StickyBlock>
+  );
+}

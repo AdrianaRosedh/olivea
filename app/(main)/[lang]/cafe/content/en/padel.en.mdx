@@ -1,0 +1,79 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import ServicesGrid from "@/components/mdx/ServicesGrid";
+import CardParallax from "@/components/mdx/CardParallax";
+
+<StickyBlock
+  id="padel"
+  variant="top"
+  containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start overflow-hidden"
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">
+        Padel as Lifestyle
+      </h2>
+    </Reveal>
+  }
+>
+  {/* Image band */}
+  <div className="relative mt-6">
+    <div className="relative overflow-hidden rounded-[22px] ring-1 ring-black/10 h-[190px] md:h-[300px]">
+      <CardParallax
+        src="/images/cafe/padel3.jpg"
+        alt="Padel at Olivea"
+        speed={0.14}
+        fit="cover"
+        objectPosition="50% 60%"
+        sizes="(max-width: 768px) 100vw, 1080px"
+        loading="lazy"
+        placeholder="empty"
+        className="-inset-[12px]"
+        surfaceClassName="h-full w-full"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/14 via-transparent to-transparent" />
+    </div>
+  </div>
+
+  <Reveal preset="fade" delay={0.12}>
+    <div className="mt-6 max-w-[78ch] text-[15.5px] md:text-[16.5px] leading-relaxed text-[var(--olivea-ink)]/85">
+      <p>
+        Olivea is a garden ecosystem, and a full experience includes rhythm.
+        Movement helps the day feel clearer. The café brings you back to calm.
+      </p>
+      <p className="mt-3">
+        Padel here is social and curated: coffee, music, good energy — integrated
+        with the property, carried in the same Olivea tone.
+      </p>
+    </div>
+  </Reveal>
+
+  <ServicesGrid
+    items={[
+      {
+        id: "courts",
+        title: "Courts",
+        text:
+          "We offer both a doubles court and a singles court. Padel is available to Casa Olivea guests and day visitors by reservation, from 8:00am until daylight hours.",
+      },
+      {
+        id: "lights",
+        title: "Rhythm & Energy",
+        text:
+          "The atmosphere stays clean, calm, and fun — our music, our pace, and a smooth flow between play and café.",
+      },
+      {
+        id: "play",
+        title: "Rackets & Balls",
+        text:
+          "Rackets are available for rent. Casa Olivea guests enjoy rackets as part of their stay. New balls are available for purchase.",
+      },
+      {
+        id: "life",
+        title: "Community & Flow",
+        text:
+          "Tuesdays welcome local hospitality industry friends for free play. Courtside, guests enjoy food and beverages from Olivea Café. Café and padel areas are pet friendly.",
+      },
+    ]}
+  />
+</StickyBlock>

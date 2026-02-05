@@ -1,0 +1,61 @@
+'use client';
+
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import { motion } from "framer-motion";
+
+export default function Page() {
+  const infoItems = [
+    {
+      id: "arrival",
+      title: "Check-In / Check-Out",
+      body: "Check-in from 3:00 pm. Check-out by 11:00 am.",
+    },
+    {
+      id: "included",
+      title: "Breakfast & Inclusions",
+      body: "A continental breakfast is included daily for two. Paddle courts, pool access, and daily housekeeping are also part of your stay.",
+    },
+    {
+      id: "access",
+      title: "Getting Here",
+      body: "We don’t offer airport pickup, but we’re happy to coordinate with trusted local drivers or help you arrange transport.",
+    },
+    {
+      id: "concierge",
+      title: "Concierge",
+      body: "Message us anytime via WhatsApp. We’ll assist with reservations, custom itineraries, and Valle de Guadalupe suggestions.",
+    },
+  ];
+
+  return (
+    <StickyBlock
+      id="practical"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Stay Info</h2>
+        </Reveal>
+      }
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {infoItems.map((item, i) => (
+          <motion.div
+            key={item.id}
+            id={item.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.1 }}
+            viewport={{ once: true }}
+            className="bg-white/10 backdrop-blur-md rounded-2xl border border-black/10 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+          >
+            <p className="text-sm font-medium text-gray-500 tracking-wide uppercase mb-1">{item.title}</p>
+            <p className="text-[1.05rem] text-black leading-relaxed">{item.body}</p>
+          </motion.div>
+        ))}
+      </div>
+    </StickyBlock>
+  );
+}

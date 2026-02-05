@@ -1,0 +1,146 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import Farmpop from "@/components/ui/popup/farmpop";
+import CardParallax from "@/components/mdx/CardParallax";
+
+<StickyBlock
+  id="menu"
+  variant="top"
+  containerClassName="w-full md:max-w-[min(1180px,92vw)] md:mx-auto"
+  className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start overflow-hidden"
+  title={
+    <Reveal preset="up">
+      <h2 className="text-2xl md:text-4xl font-semibold">The menu</h2>
+    </Reveal>
+  }
+>
+  {/* IMAGE — mobile crop anchored LOW */}
+  <div className="relative mt-6">
+    {/* Mobile */}
+    <div
+      className="
+        md:hidden
+        relative overflow-hidden rounded-[22px]
+        ring-1 ring-black/10
+        h-[190px]
+      "
+    >
+      <CardParallax
+        src="/images/farm/garden7.jpg"
+        alt="The garden — Olivea Farm To Table"
+        speed={0.12}
+        fit="cover"
+        objectPosition="35% 82%"
+        sizes="100vw"
+        loading="lazy"
+        placeholder="empty"
+        className="-inset-[28px]" 
+        surfaceClassName="h-full w-full"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/12 via-transparent to-transparent" />
+    </div>
+
+    {/* Desktop */}
+    <div
+      className="
+        hidden md:block
+        relative overflow-hidden rounded-[22px]
+        ring-1 ring-black/10
+        h-[300px]
+      "
+    >
+      <CardParallax
+        src="/images/farm/garden7.jpg"
+        alt="The garden — Olivea Farm To Table"
+        speed={0.16}
+        fit="cover"
+        objectPosition="40% 55%"  
+        sizes="(max-width: 768px) 100vw, 1180px"
+        loading="lazy"
+        placeholder="empty"
+        className="-inset-[34px]" 
+        surfaceClassName="h-full w-full"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/14 via-transparent to-transparent" />
+    </div>
+  </div>
+
+  <div className="mt-8 md:mt-9 text-center">
+    <p className="mx-auto max-w-[70ch] text-[17px] md:text-[18px] leading-[1.7] text-[var(--olivea-ink)]/90">
+      A seasonal <strong>8-course tasting menu</strong>, composed as a single
+      journey. The menu shifts approximately every{" "}
+      <strong>5–6 weeks</strong>, guided by what the garden and the season offer
+      at their peak.
+    </p>
+
+    <div className="mt-6 flex justify-center">
+      <Farmpop
+        title="Live menu"
+        label="View live menu"
+        initialTabId="menu"
+        tabs={[
+          {
+            id: "menu",
+            label: "Menu",
+            url: "https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view",
+            emoji: "🍽️",
+          },
+          {
+            id: "licores",
+            label: "Spirits",
+            url: "https://www.canva.com/design/DAGJkYeYkNM/vHYhvJ4AeHzpcORgUm5NLg/view",
+            emoji: "🥃",
+          },
+          {
+            id: "vinos",
+            label: "Wine",
+            url: "https://www.canva.com/design/DAG7WfJyc-Q/zzlxLRMbBptlCOOmeDwqjw/view",
+            emoji: "🍷",
+          },
+          {
+            id: "bebidas",
+            label: "Drinks",
+            url: "https://www.canva.com/design/DAGKBfcrXNw/tB4P2epiDJbu1tfvsaXBcg/view",
+            emoji: "🍹",
+          },
+        ]}
+        triggerClassName="
+          rounded-full px-7 md:px-8 py-3 text-[13.5px] tracking-[0.20em] uppercase font-semibold
+          bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)]
+          shadow-[0_10px_28px_rgba(0,0,0,0.14)] ring-1 ring-white/10
+          transition-transform duration-300 hover:-translate-y-[1px]
+        "
+      />
+    </div>
+
+    <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+  </div>
+
+  {/* INFO — unchanged */}
+  <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-3">
+    <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">🍷 Pairings & corkage</div>
+      <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+        A wine journey through the Valley and a <em>non-alcoholic pairing</em>. Corkage:
+        <strong> $350 MXN per bottle</strong>.
+      </p>
+    </div>
+
+    <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">🌿 Preferences & allergies</div>
+      <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+        With advance notice, we adapt thoughtfully. Vegetarian available upon request.
+      </p>
+    </div>
+
+    <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">🫒 The garden at the center</div>
+      <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+        Seasonal produce; precise technique. The experience lasts <strong>~3 hours</strong>.
+      </p>
+    </div>
+  </div>
+</StickyBlock>

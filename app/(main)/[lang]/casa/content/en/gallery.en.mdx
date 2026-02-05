@@ -1,0 +1,26 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import GalleryGrid from "@/components/ui/GalleryGrid";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="gallery"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[92vw] md:mx-auto"
+    >
+      <GalleryGrid
+        topImages={[
+          { src: "/images/casa/bed.jpg", alt: "Suite with linen bedding" },
+          { src: "/images/casa/interior.jpg", alt: "Interior sunlight" },
+          { src: "/images/casa/lounge.jpg", alt: "Open living area" },
+        ]}
+        bottomImages={[
+          { src: "/images/casa/lounge.jpg", alt: "Garden walkway" },
+          { src: "/images/casa/pool2.jpg", alt: "Morning breakfast tray" },
+          { src: "/images/casa/patio3.jpg", alt: "Courtyard with pool" },
+        ]}
+      />
+    </StickyBlock>
+  );
+}

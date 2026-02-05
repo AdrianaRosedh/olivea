@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reservas Casa Olivea</title>
+
+    <!-- Fonts for embedded UI -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Cloudbeds Immersive Experience 2.0 -->
+    <script
+      src="https://static1.cloudbeds.com/booking-engine/latest/static/js/immersive-experience/cb-immersive-experience.js"
+      type="text/javascript"
+      defer
+    ></script>
+
+    <style>
+      :root {
+        --olivea-cream: #e7eae1;
+        --olivea-ink: #5e7658;
+        --olivea-olive: #5e7658;
+        --olivea-panel: #f1f1f1;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        background: var(--olivea-cream);
+        font-family: "Lora", serif;
+        letter-spacing: 0.15px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      .olivea-shell {
+        width: 100%;
+        min-height: 100%;
+        background: var(--olivea-cream);
+      }
+
+      .root {
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+      }
+
+      cb-immersive-experience {
+        display: block;
+        width: 100%;
+        min-height: 100vh;
+        background: transparent;
+        animation: olivea-fade-in 600ms ease-out 60ms both;
+      }
+
+      /* ─────────────────────────────────────────────
+         TEXT COLOR + TYPOGRAPHY (NO BUTTONS)
+      ───────────────────────────────────────────── */
+      .olivea-shell
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
+        :where(p, span, li, label, a, div.cb-text, strong, em, small, h1, h2, h3, h4, h5, h6) {
+        color: var(--olivea-ink) !important;
+        font-family: "Lora", serif !important;
+        letter-spacing: 0.15px;
+      }
+
+      /* Larger, modern reading size */
+      .olivea-shell
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
+        :where(p, li, label, div.cb-text, span) {
+        font-size: 1.06rem !important; /* ~17px */
+        line-height: 1.6 !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        :where(h1, h2, h3, h4, h5) {
+        font-weight: 500 !important;
+        font-size: clamp(1.25rem, 1.4vw, 1.5rem) !important;
+        line-height: 1.3 !important;
+      }
+
+      /* ─────────────────────────────────────────────
+         UI HEADER / PROPERTY NAME → Jakarta Sans
+         (Casa Olivea label)
+      ───────────────────────────────────────────── */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        p.cb-title-text,
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        p.cb-property-name {
+        font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif !important;
+        font-weight: 600 !important; /* matches font-bold feel */
+        letter-spacing: 0.02em !important;
+        font-size: clamp(0.9rem, 2vw, 1.15rem) !important;
+        line-height: 1.25 !important;
+        margin: 0 !important;
+      }
+
+      /* ─────────────────────────────────────────────
+         Cards
+      ───────────────────────────────────────────── */
+      .olivea-shell :is(#cb-bookingengine, .cb-bookingengine-root) .cb-card {
+        background: var(--olivea-panel) !important;
+        border-radius: 24px !important;
+      }
+
+      /* ─────────────────────────────────────────────
+         CTA BUTTONS ONLY
+         - Buscar (global)
+         - Room/action pills ONLY inside .cb-card
+      ───────────────────────────────────────────── */
+
+      /* Buscar button */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button {
+        background-color: var(--olivea-olive) !important;
+        border-color: var(--olivea-olive) !important;
+        color: var(--olivea-cream) !important;
+        font-family: "Lora", serif !important;
+      }
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button * {
+        color: var(--olivea-cream) !important;
+        fill: var(--olivea-cream) !important;
+      }
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button:hover {
+        background-color: #4f6650 !important;
+        border-color: #4f6650 !important;
+      }
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button:active {
+        background-color: #445946 !important;
+        border-color: #445946 !important;
+      }
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        button.cb-search-button:focus-visible {
+        outline: 2px solid var(--olivea-cream) !important;
+        outline-offset: 2px;
+      }
+
+      /* Room/action pills ONLY inside cards */
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        .cb-card
+        :is(button.cb-select-button, button.cb-add-button, button.cb-book-button, button.cb-room-button) {
+        background-color: var(--olivea-olive) !important;
+        border-color: var(--olivea-olive) !important;
+        color: var(--olivea-cream) !important;
+        font-family: "Lora", serif !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        .cb-card
+        :is(button.cb-select-button, button.cb-add-button, button.cb-book-button, button.cb-room-button)
+        * {
+        color: var(--olivea-cream) !important;
+        fill: var(--olivea-cream) !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        .cb-card
+        :is(button.cb-select-button, button.cb-add-button, button.cb-book-button, button.cb-room-button):hover {
+        background-color: #4f6650 !important;
+        border-color: #4f6650 !important;
+      }
+
+      .olivea-shell
+        :is(#cb-bookingengine, .cb-bookingengine-root)
+        .cb-card
+        :is(button.cb-select-button, button.cb-add-button, button.cb-book-button, button.cb-room-button):active {
+        background-color: #445946 !important;
+        border-color: #445946 !important;
+      }
+
+      @keyframes olivea-fade-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="olivea-shell">
+      <div class="root">
+        <cb-immersive-experience
+          property-code="pkwnrX"
+          mode="standard"
+          lang="es"
+          currency="mxn"
+        ></cb-immersive-experience>
+      </div>
+    </div>
+  </body>
+</html>

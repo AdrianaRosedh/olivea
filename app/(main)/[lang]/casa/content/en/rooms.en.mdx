@@ -1,0 +1,71 @@
+"use client";
+
+import StickyBlock from "@/components/scroll/StickyBlock";
+import Reveal from "@/components/scroll/Reveal";
+import { motion } from "framer-motion";
+import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="rooms"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
+      title={
+        <Reveal preset="up">
+          <h2 className="text-2xl md:text-4xl font-semibold">Our Suites</h2>
+        </Reveal>
+      }
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2 }}
+        viewport={{ once: true }}
+        className="text-lg text-gray-800 leading-relaxed max-w-[720px] space-y-5"
+      >
+        <p>
+          Fourteen suites — each named after an aromatic plant or tree — offer
+          space, warmth, and a sense of return. This is where your rhythm
+          resets.
+        </p>
+        <p>
+          King-size beds, blackout curtains, and natural fiber textures invite
+          deep rest. All rooms are designed for two adults — quiet, light-filled,
+          and considered.
+        </p>
+      </motion.div>
+
+      {/* Scroll-grow image band (starts thinner, grows as you scroll) */}
+      <ScrollGrowImageBand
+        src="/images/casa/room.jpg"
+        alt="Suite with soft textures and calm lighting"
+        startH="170px"
+        endH="520px"
+        delayStart={0.18}
+        holdAt={0.92}
+        scrollContainerSelector="main"
+        maxWClassName="max-w-5xl"
+        className="rounded-[28px] shadow-xl mt-10"
+        objectPosition="50% 55%"
+        priority
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.1, delay: 0.4 }}
+        viewport={{ once: true }}
+        className="text-base text-gray-700 leading-snug max-w-[700px] mt-6"
+        id="luz"
+      >
+        <p>
+          Light shifts throughout the day. In the morning, it filters softly
+          through curtains. In the evening, it settles — warm, indirect,
+          grounding.
+        </p>
+      </motion.div>
+    </StickyBlock>
+  );
+}

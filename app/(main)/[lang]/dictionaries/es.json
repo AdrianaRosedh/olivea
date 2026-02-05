@@ -1,0 +1,230 @@
+{
+  "team": {
+    "title": "Equipo",
+    "description": "Nuestra historia, filosofía y las personas detrás de la visión.",
+    "meta": {
+      "title": "Equipo OLIVEA",
+      "description": "Cómo Olivea lleva la luz, la tierra y a los productores del Valle a la mesa: equipo, valores y diseño en Ensenada, Baja California.",
+      "keywords": [
+        "Olivea",
+        "sobre",
+        "Valle de Guadalupe",
+        "Ensenada",
+        "granja a la mesa",
+        "equipo",
+        "diseño"
+      ],
+      "ogImage": "/images/seo/about-og.jpg"
+    }
+  },
+  "cafe": {
+    "title": "Olivea Café",
+    "description": "Café de casa, pan propio y mañanas serenas en Valle de Guadalupe.",
+    "error": "Error al cargar el menú:",
+    "meta": {
+      "title": "OLIVEA Café",
+      "description": "Café de especialidad, pan de casa y patio tranquilo. Desayuno desde el huerto en Olivea Café, Valle de Guadalupe, Baja California.",
+      "keywords": [
+        "Olivea Café",
+        "café",
+        "desayuno",
+        "panadería",
+        "Valle de Guadalupe",
+        "Ensenada",
+        "pádel"
+      ],
+      "ogImage": "/images/seo/cafe-og.jpg"
+    }
+  },
+  "casa": {
+    "title": "Casa Olivea",
+    "description": "Hotel boutique integrado al huerto: habitaciones, servicios y reservas.",
+    "meta": {
+      "title": "Casa OLIVEA",
+      "description": "Hotel boutique integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Luz, silencio y confort honesto en cada habitación.",
+      "keywords": [
+        "Casa Olivea",
+        "hotel",
+        "hotel boutique",
+        "habitaciones",
+        "Valle de Guadalupe",
+        "Ensenada",
+        "diseño"
+      ],
+      "ogImage": "/images/seo/casa-og.jpg"
+    }
+  },
+  "farmtotable": {
+    "title": "Olivea Farm To Table",
+    "description": "Restaurante de degustación con estrella Michelin, nacido del huerto en Valle de Guadalupe.",
+    "meta": {
+      "title": "OLIVEA Farm To Table",
+      "description": "Restaurante de degustación con estrella Michelin, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia.",
+      "ogImage": "/images/seo/restaurant-og.jpg"
+    }
+  },  
+  "contact": {
+  "title": "Contacto",
+  "description": "Información de contacto de Olivea en Valle de Guadalupe.",
+  "metaTitle": "Contacto",
+  "metaDescription": "Dirección, teléfonos y contacto de Olivea Farm To Table, Casa Olivea y Olivea Café en Valle de Guadalupe.",
+  "kicker": "Contacto",
+  "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café",
+  "actions": {
+    "maps": "Mapa",
+    "email": "Email",
+    "call": "Llamar"
+  },
+  "labels": {
+    "address": "Dirección",
+    "email": "Email"
+  },
+  "sections": {
+    "farmToTableTitle": "Olivea Farm To Table",
+    "casaCafeTitle": "Casa Olivea & Olivea Café"
+  },
+  "hours": {
+    "farmToTable": "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
+    "casaCafe": "Mié–Lun 7:30–2:30 · Mar 7:30–9:30"
+  },
+  "footerNote": "Para eventos especiales o coordinación de grupos, escríbenos por email y te ayudamos a organizarlo.",
+  "map": {
+    "iframeTitle": "Mapa de Olivea",
+    "badgeLabel": "Ubicación",
+    "badgeValue": "Valle de Guadalupe",
+    "googleMapsCta": "Google Maps"
+  }
+},
+  "sustainability": {
+    "title": "Filosofía",
+    "description": "Nuestro compromiso con prácticas sostenibles y gestión ambiental.",
+    "meta": {
+      "title": "Filosofía de OLIVEA",
+      "description": "Rellenables, cuidado del agua, compras responsables y compost: así reducimos residuos y apoyamos a productores del Valle.",
+      "keywords": [
+        "sostenibilidad",
+        "rellenables",
+        "compost",
+        "productores locales",
+        "Valle de Guadalupe",
+        "Olivea",
+        "Filosofía"
+      ],
+      "ogImage": "/images/seo/sustainability-og.jpg"
+    }
+  },
+  "journal": {
+    "title": "Cuardeno",
+    "subtitle": "Historias desde la tierra, la cocina y el corazón.",
+    "loading": "Cargando entradas…",
+    "empty": "Aún no hay entradas disponibles.",
+    "error": "Error al cargar el diario:",
+    "by": "por",
+    "meta": {
+      "title": "Cuardeno",
+      "description": "Notas del huerto y la cocina: técnica, productores y temporada en Valle de Guadalupe.",
+      "keywords": [
+        "Cuardeno",
+        "historias",
+        "Valle de Guadalupe",
+        "temporada",
+        "investigación"
+      ],
+      "ogImage": "/images/seo/journal-og.jpg"
+    }
+  },
+  "legal": {
+    "title": "Información Legal",
+    "description": "Detalles legales y términos para todas las propiedades Olivea.",
+    "meta": {
+      "title": "Avisos legales y políticas | OLIVEA",
+      "description": "Entidad legal, privacidad, cookies y políticas de reserva de Olivea.",
+      "keywords": [
+        "legal",
+        "privacidad",
+        "políticas",
+        "Olivea"
+      ],
+      "ogImage": "/images/seo/legal-og.jpg"
+    }
+  },
+  "press": {
+    "title": "Prensa",
+    "tagline": "Una plataforma colectiva que une a las voces de gastronomía, vino y hospitalidad del Valle de Guadalupe y Ensenada.",
+    "description": [
+      "Nacida del deseo compartido de elevar la identidad de la región, Mesa del Valle reúne a chefs, enólogos, hoteleros y artesanos para contar una historia unificada de excelencia, sostenibilidad y orgullo cultural.",
+      "A través de colaboraciones estratégicas, difusión internacional y eventos conjuntos, buscamos posicionar al Valle de Guadalupe como la capital gastronómica y cultural de América Latina.",
+      "La mesa está puesta. El futuro se comparte."
+    ],
+    "meta": {
+      "title": "Prensa | OLIVEA",
+      "description": "Chefs, enólogos, hoteleros y artesanos que proyectan la identidad del Valle—prensa, colaboraciones y eventos compartidos.",
+      "keywords": [
+        "Prensa",
+        "colectivo",
+        "logros",
+        "Valle de Guadalupe",
+        "premios",
+        "gastronomía"
+      ],
+      "ogImage": "/images/seo/mesa-og.jpg"
+    }
+  },
+  "home": {
+    "title": "OLIVEA",
+    "subtitle": "Donde el huerto es la esencia.",
+    "cta_restaurant": "Visitar el Restaurante",
+    "cta_casa": "Hospedarse en Casa Olivea",
+    "meta": {
+      "title": "OLIVEA | La Experiencia",
+      "description": "Olivea: restaurante de degustación con estrella Michelin, hotel boutique Casa Olivea y Olivea Café nacidos del huerto en Valle de Guadalupe, Baja California. Donde el huerto es la esencia.",
+      "keywords": [
+        "Olivea",
+        "Valle de Guadalupe",
+        "Ensenada",
+        "restaurante",
+        "café",
+        "hotel",
+        "granja a la mesa",
+        "estrella Michelin"
+      ],
+      "ogImage": "/images/seo/home-og.jpg"
+    }
+  },
+  "metadata": {
+    "description": "Restaurante con estrella Michelin, hotel boutique y café arraigados donde el huerto es la esencia en Valle de Guadalupe, Baja California.",
+    "siteName": "OLIVEA La Experiencia",
+    "twitter": "@OLIVEAFARMTOTABLE",
+    "ogDefault": "/images/seo/default-og.jpg"
+  },
+  "drawer": {
+    "main": {
+      "farmtotable": "Olivea Farm To Table",
+      "casa": "Casa Olivea",
+      "cafe": "Olivea Café"
+    },
+    "more": {
+      "journal": "Diario",
+      "sustainability": "Sostenibilidad",
+      "awards": "Premios",
+      "contact": "Contáctanos",
+      "legal": "Legales",
+      "seeMore": "Ver más",
+      "hide": "Ocultar",
+      "copyright": "© 2025 Casa Olivea AC. Todos los derechos reservados."
+    }
+  },
+  "footer": {
+    "careers": "Trabaja con Nosotros",
+    "legal": "Avisos Legales & Políticas"
+  },
+  "notFound": {
+    "message": "La página que buscas no existe.",
+    "cta": "Volver al inicio",
+    "meta": {
+      "title": "Página no encontrada | OLIVEA",
+      "description": "La página que buscas no existe. Regresa al inicio de OLIVEA.",
+      "ogImage": "/images/seo/default-og.jpg"
+    }
+  }
+}

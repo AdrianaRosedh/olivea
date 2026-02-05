@@ -1,0 +1,26 @@
+import StickyBlock from "@/components/scroll/StickyBlock";
+import GalleryGrid from "@/components/ui/GalleryGrid";
+
+export default function Page() {
+  return (
+    <StickyBlock
+      id="gallery"
+      variant="top"
+      className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
+      containerClassName="w-full md:max-w-[92vw] md:mx-auto"
+    >
+      <GalleryGrid
+        topImages={[
+          { src: "/images/cafe/garden4.jpg", alt: "Garden surrounding Olivea Café" },
+          { src: "/images/cafe/roast.jpg", alt: "Coffee craft" },
+          { src: "/images/cafe/breakfast.jpg", alt: "Breakfast at Olivea Café" },
+        ]}
+        bottomImages={[
+          { src: "/images/cafe/breakfast.jpg", alt: "Breakfast at Olivea Café" },
+          { src: "/images/cafe/matcha2.jpg", alt: "Matcha ritual" },
+          { src: "/images/cafe/padel4.jpg", alt: "Padel courts at Olivea" },
+        ]}
+      />
+    </StickyBlock>
+  );
+}
