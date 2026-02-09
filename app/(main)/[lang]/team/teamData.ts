@@ -266,7 +266,7 @@ export const TEAM: LeaderProfile[] = [
   {
     id: "luis",
     name: "Luis",
-    role: { es: "Encargado de Investigación", en: "Head of Research" },
+    role: { es: "Encargado de I+D", en: "Head of R&D" },
     org: { es: "Olivea", en: "Olivea" },
     tag: { es: "I+D", en: "R&D" },
     bio: {
@@ -326,6 +326,23 @@ export const TEAM: LeaderProfile[] = [
     bio: {
       es: "Postres con precisión y elegancia.",
       en: "Desserts with precision and elegance.",
+    },
+    avatar: "/images/team/persona.jpg",
+    tile: "md",
+    priority: 17,
+    links: [
+      { label: { es: "Menú", en: "Menu" }, href: "/restaurant" },
+    ],
+  },
+  {
+    id: "fran",
+    name: "Fran",
+    role: { es: "Coord. Operaciones", en: "Operations Coordinator" },
+    org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
+    tag: { es: "Operations", en: "Operaciones" },
+    bio: {
+      es: "Coordina las operaciones diarias, compras y procesos administrativos para asegurar el buen funcionamiento de Olivea.",
+      en: "Oversees daily operations, purchasing, and administrative processes to keep Olivea running smoothly.",
     },
     avatar: "/images/team/persona.jpg",
     tile: "md",
