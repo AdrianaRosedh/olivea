@@ -8,9 +8,13 @@ import {
   SharedTransitionProvider,
   useSharedTransition,
 } from "@/contexts/SharedTransitionContext";
-import { ReservationProvider, useReservation } from "@/contexts/ReservationContext";
+import {
+  ReservationProvider,
+  useReservation,
+} from "@/contexts/ReservationContext";
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
 import ClientProviders from "@/components/providers/ClientProviders";
+import PathTracker from "@/components/PathTracker";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -51,7 +55,10 @@ const ConditionalReservationModal = () => {
 
     return () => {
       window.removeEventListener("pointerover", onPointerOver);
-      window.removeEventListener("olivea:reserve-intent", prewarm as EventListener);
+      window.removeEventListener(
+        "olivea:reserve-intent",
+        prewarm as EventListener
+      );
     };
   }, []);
 
@@ -94,7 +101,10 @@ function TransitionOverlayGate() {
     window.addEventListener("pointerover", onPointerOver, { passive: true });
 
     return () => {
-      window.removeEventListener("olivea:transition-intent", onIntent as EventListener);
+      window.removeEventListener(
+        "olivea:transition-intent",
+        onIntent as EventListener
+      );
       window.removeEventListener("pointerover", onPointerOver);
     };
   }, []);
@@ -110,6 +120,9 @@ export function AppProviders({ children }: AppProvidersProps) {
         <ReservationProvider>
           <ScrollProvider>
             <ClientProviders>
+              {/* ✅ IMPORTANT: mounts the unlock-on-navigation safety net */}
+              <PathTracker />
+
               {children}
               <ConditionalReservationModal />
             </ClientProviders>
