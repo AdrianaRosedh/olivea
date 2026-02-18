@@ -497,11 +497,10 @@ export default function TeamClient({
   useEffect(() => setPortalReady(true), []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     const unlock = lockBodyScroll();
-    return unlock;
+    return () => unlock();
   }, [isOpen]);
-  
 
   const [present, setPresent] = useState(false);
   useEffect(() => {
