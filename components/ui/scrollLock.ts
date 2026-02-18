@@ -2,6 +2,38 @@
 
 let lockCount = 0;
 let previousOverflow: string | null = null;
+let hasSafetyListeners = false;
+
+function restore() {
+  if (typeof document === "undefined") return;
+  lockCount = 0;
+  document.body.style.overflow = previousOverflow ?? "";
+  previousOverflow = null;
+}
+
+function ensureSafetyListeners() {
+  if (typeof window === "undefined") return;
+  if (hasSafetyListeners) return;
+  hasSafetyListeners = true;
+
+  // If the page is being backgrounded / navigated away / put in bfcache,
+  // make sure we never leave the body stuck in overflow:hidden.
+  window.addEventListener(
+    "pagehide",
+    () => {
+      restore();
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (document.visibilityState === "hidden") restore();
+    },
+    { passive: true }
+  );
+}
 
 /**
  * Ref-counted body scroll lock.
@@ -14,6 +46,8 @@ let previousOverflow: string | null = null;
 export function lockBodyScroll() {
   if (typeof document === "undefined") return () => {};
 
+  ensureSafetyListeners();
+
   if (lockCount === 0) {
     previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -25,9 +59,7 @@ export function lockBodyScroll() {
     lockCount--;
 
     if (lockCount <= 0) {
-      lockCount = 0;
-      document.body.style.overflow = previousOverflow ?? "";
-      previousOverflow = null;
+      restore();
     }
   };
 }
