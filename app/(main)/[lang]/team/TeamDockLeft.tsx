@@ -84,7 +84,6 @@ export default function TeamDockLeft({
 
   /* =========================
      MOBILE: bar hide/show + sheet
-     (match PressDockLeft behavior)
      ========================= */
 
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -136,14 +135,14 @@ export default function TeamDockLeft({
     }
   });
 
-  // lock body scroll while sheet open
+  // ✅ FIX: lock body scroll while sheet open
+  // (was incorrectly checking `open` instead of `sheetOpen`)
   useEffect(() => {
-    if (!open) return;
+    if (!sheetOpen) return;
     const unlock = lockBodyScroll();
     return unlock;
   }, [sheetOpen]);
-  
-  // ✅ match PressDockLeft
+
   const TOP_OFFSET_CLASS = "top-14";
   const BAR_HEIGHT_SPACER = "h-16";
 
@@ -299,10 +298,7 @@ export default function TeamDockLeft({
   );
 
   /* =========================
-     DESKTOP: EXACT SAME position as PressDockLeft
-     - md:block
-     - left-6
-     - top: 255
+     DESKTOP dock
      ========================= */
 
   const desktopDock = (

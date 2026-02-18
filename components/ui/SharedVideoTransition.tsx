@@ -44,6 +44,10 @@ function getDurations(isPhone: boolean) {
 
 const NAV_BUFFER_MS = 60;
 
+// ✅ Failsafe so scroll can’t be trapped on weird devices/transitions.
+// (Long enough to not interrupt normal animations.)
+const FAILSAFE_MS = 9000;
+
 // Desktop: match the desktop hero frame
 const DESKTOP_FRAME = {
   top: "1vh",
@@ -196,10 +200,8 @@ function Overlay({
   useEffect(() => {
     const rootStyle = document.documentElement.style;
 
-    // ✅ ref-counted overflow lock (prevents multi-overlay conflicts)
     const unlock = lockBodyScroll();
 
-    // ✅ overscroll lock on root (restore after)
     const prevOB = rootStyle.getPropertyValue("overscroll-behavior");
     rootStyle.setProperty("overscroll-behavior", "none");
 
@@ -211,6 +213,14 @@ function Overlay({
     };
   }, []);
 
+  // ✅ HARD FAILSAFE (prevents “stuck overlay => stuck scroll” on some Androids/PCs)
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      // if anything went sideways, force completion
+      onFullyDone();
+    }, FAILSAFE_MS);
+    return () => window.clearTimeout(t);
+  }, [onFullyDone]);
 
   // optional prefetch (inline type guard)
   useEffect(() => {
@@ -261,8 +271,15 @@ function Overlay({
     return `inset(${inset}% ${inset}% ${inset}% ${inset}% round ${frame.radius})`;
   });
 
-  // Tap-blocking: keep pointerEvents active during animation
+  // Tap-blocking:
+  // - We only block during the risky part (enter + just-covered)
+  // - During exit / after, we stop intercepting so scroll can’t be trapped
+  const shouldBlockNow = phase === "enter" || phase === "covered";
   const [blockTaps, setBlockTaps] = useState(true);
+
+  useEffect(() => {
+    setBlockTaps(shouldBlockNow);
+  }, [shouldBlockNow]);
 
   // Strict-mode safe: prevent double nav / double setPhase in dev
   const navFiredRef = useRef(false);
@@ -283,14 +300,13 @@ function Overlay({
     if (phase !== "enter") return;
 
     navFiredRef.current = false;
-    setBlockTaps(true);
 
     containerCtrls.set({ opacity: 0, willChange: "transform, opacity" });
     logoCtrls.set({ willChange: "transform, opacity, filter" });
 
     enterY.set(isPhone ? vh : 24);
     exitT.set(0);
-    irisT.set(isPhone ? 1 : 0); // desktop irises in; mobile already card-sized
+    irisT.set(isPhone ? 1 : 0);
 
     logoCtrls.set({ opacity: 0, scale: 0.98, filter: "blur(8px)" });
     void logoCtrls.start({
@@ -310,7 +326,6 @@ function Overlay({
         transition: { duration: reduce ? 0.25 : DUR.enter, ease: EASE },
       });
 
-      // ✅ clip-path iris is expensive; skip for reduced motion
       if (!reduce) {
         animate(irisT, 1, { duration: DUR.enter, ease: EASE });
       } else {
@@ -325,7 +340,6 @@ function Overlay({
 
     animate(enterY, 0, { duration: reduce ? 0.25 : DUR.enter, ease: EASE });
 
-    // ✅ Correct cleanup handling (no nested return inside setTimeout)
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
     navTimerRef.current = window.setTimeout(() => {
       if (navFiredRef.current) return;
@@ -382,21 +396,12 @@ function Overlay({
       onComplete: () => {
         containerCtrls.set({ willChange: "auto" });
         logoCtrls.set({ willChange: "auto" });
-        setBlockTaps(false);
         onFullyDone();
       },
     });
 
     return () => controls.stop();
-  }, [
-    phase,
-    exitT,
-    DUR.exit,
-    reduce,
-    onFullyDone,
-    containerCtrls,
-    logoCtrls,
-  ]);
+  }, [phase, exitT, DUR.exit, reduce, onFullyDone, containerCtrls, logoCtrls]);
 
   const background = useMemo(
     () =>
@@ -409,10 +414,8 @@ function Overlay({
     [isPhone]
   );
 
-  // Sheen opacity with low-end guard (mobile only)
   const sheenOpacity = lowEndMobile ? 0 : isPhone ? 0.12 : 0.22;
 
-  // ✅ Only use clip-path on desktop and only when NOT reduced motion
   const resolvedClipPath = !isPhone && !reduce ? clipPath : undefined;
 
   return (
@@ -436,8 +439,10 @@ function Overlay({
         WebkitBackfaceVisibility: "hidden",
         isolation: "isolate",
         contain: "paint",
+
+        // ✅ Only intercept when necessary
         pointerEvents: blockTaps ? "auto" : "none",
-        touchAction: "none",
+        touchAction: blockTaps ? "none" : "auto",
       }}
       onTouchMove={(e) => {
         if (blockTaps) e.preventDefault();
