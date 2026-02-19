@@ -35,7 +35,7 @@ export default function NotFound() {
   const { title, message, cta } = dict.notFound
 
   return (
-    <main className="relative w-full h-screen flex items-center justify-center text-white text-center">
+    <main className="relative w-full mk-fullh flex items-center justify-center text-white text-center">
       <Image
         src="/images/farm/hero.jpg"
         alt="Background"
