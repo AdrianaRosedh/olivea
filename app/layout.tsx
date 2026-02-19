@@ -7,9 +7,9 @@ import { fontsClass } from "./fonts";
 import PathTracker from "@/components/PathTracker";
 import { SITE, canonicalUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
+import VhSetter from "@/components/ui/VhSetter";
 
 export const metadata: Metadata = {
-  // ✅ Always canonical (prevents localhost / preview leakage)
   metadataBase: new URL(SITE.canonicalBaseUrl),
 
   title: "OLIVEA | Donde el huerto es la esencia",
@@ -81,7 +81,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={fontsClass}>
       <head>
-        {/* ✅ Google Analytics (GA4) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-M3JEDWZ732"
           strategy="afterInteractive"
@@ -91,7 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-M3JEDWZ732');
+            gtag('config', 'G-M3JEDWZZ732');
           `}
         </Script>
       </head>
@@ -103,10 +102,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </style>
         </noscript>
 
+        {/* ✅ sets --app-vh globally (Android/iOS viewport fixes) */}
+        <VhSetter />
+
         <PathTracker />
         <AppProviders>{children}</AppProviders>
 
-        {/* ✅ Vercel Web Analytics */}
         <Analytics />
       </body>
     </html>

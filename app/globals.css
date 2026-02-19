@@ -5,27 +5,25 @@
 /* ───────────────────────────────────────────────────────────── */
 :root {
   /* Brand hex palette (for direct non-Tailwind usage) */
-  --olivea-cream:#e7eae1;
-  --olivea-shell:#e7eae1;
-  --olivea-clay:#a3b09d;
-  --olivea-olive:#5e7658;
-  --olivea-ink:#5e7658;
-  --olivea-white:#f1f1f1;
-  --olivea-soil:#5e7658;
-  --olivea-mist:#e7eae1;
-  --olivea-sand:#dcd5c3;
-  --olivea-sage:#5e7658;
+  --olivea-cream: #e7eae1;
+  --olivea-shell: #e7eae1;
+  --olivea-clay: #a3b09d;
+  --olivea-olive: #5e7658;
+  --olivea-ink: #5e7658;
+  --olivea-white: #f1f1f1;
+  --olivea-soil: #5e7658;
+  --olivea-mist: #e7eae1;
+  --olivea-sand: #dcd5c3;
+  --olivea-sage: #5e7658;
 
-  --font-serif:"Cormorant Garamond", Georgia, serif;
-  --font-sans:"Inter", system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
 
-  --line-height-body:1.6;
-  --letter-spacing-nav:0.05em;
-  --radius:0.625rem;
+  --line-height-body: 1.6;
+  --letter-spacing-nav: 0.05em;
+  --radius: 0.625rem;
 
-  /* Tailwind HSL tokens: numeric HSL triplets (no hex)       */
-  /* #e7eae1 ≈ hsl(80, 18%, 90%)  | #5e7658 ≈ hsl(108, 15%, 40%) */
-
+  /* Tailwind HSL tokens: numeric HSL triplets (no hex) */
   --background: 80 18% 90%;
   --foreground: 108 15% 40%;
 
@@ -47,9 +45,15 @@
   --accent: 108 15% 40%;
   --accent-foreground: 0 0% 100%;
 
-  --border: 50 16% 86%; /* ~#e5e3dc */
+  --border: 50 16% 86%;
   --input: 50 16% 86%;
-  --ring: 0 0% 80%;     /* ~#ccc */
+  --ring: 0 0% 80%;
+
+  /* ✅ viewport fallback for browsers with broken 100vh behavior */
+  --app-vh: 1vh;
+
+  /* Journal scaling */
+  --journal-font-scale: 1;
 }
 
 .dark {
@@ -66,9 +70,13 @@
   }
 
   /* === HIDE SCROLLBARS (all browsers) === */
-  html, body, #__next, *[data-scroll], .no-scrollbar {
-    scrollbar-width: none !important;       /* Firefox */
-    -ms-overflow-style: none !important;    /* IE/Edge legacy */
+  html,
+  body,
+  #__next,
+  *[data-scroll],
+  .no-scrollbar {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE/Edge legacy */
   }
 
   html::-webkit-scrollbar,
@@ -79,11 +87,12 @@
     width: 0 !important;
     height: 0 !important;
     background: transparent !important;
-    display: none !important;               /* WebKit */
+    display: none !important; /* WebKit */
   }
 
   /* Root scroll config */
-  html, body {
+  html,
+  body {
     min-height: 100%;
     height: auto;
     margin: 0;
@@ -104,6 +113,7 @@
     overscroll-behavior-y: none;
     overscroll-behavior-x: auto;
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
     @apply antialiased;
   }
 
@@ -124,32 +134,68 @@
 }
 
 /* ───────────────────────────────────────────────────────────── */
+/* VIEWPORT HEIGHT UTILITY                                      */
+/* Use .mk-fullh instead of h-screen / 100vh in critical wrappers */
+/* ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .mk-fullh {
+    min-height: calc(var(--app-vh) * 100);
+  }
+}
+
+@supports (min-height: 100dvh) {
+  @layer utilities {
+    .mk-fullh {
+      min-height: 100dvh;
+    }
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
 /* LOADER KEYFRAMES                                             */
 /* ───────────────────────────────────────────────────────────── */
-@keyframes olivea-loader-bar { from { width: 0% } to { width: 100% } }
-@keyframes olivea-loader-vert { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+@keyframes olivea-loader-bar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+@keyframes olivea-loader-vert {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
 @keyframes olivea-soft-glow {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 0.65; }
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.65;
+  }
 }
 .soft-glow {
   animation: olivea-soft-glow 6s ease-in-out infinite;
 }
 
-
-
 @layer utilities {
   .loader-bar {
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     height: 100%;
     border-radius: inherit;
-    animation: olivea-loader-bar var(--bar-duration,3.5s) linear forwards;
+    animation: olivea-loader-bar var(--bar-duration, 3.5s) linear forwards;
   }
 
   .loader-vert {
     transform-origin: bottom center;
-    animation: olivea-loader-vert var(--bar-duration,4s) linear forwards;
+    animation: olivea-loader-vert var(--bar-duration, 4s) linear forwards;
   }
 
   /* Allow scroll override if a wrapper locks it */
@@ -162,13 +208,7 @@
     will-change: transform;
   }
 
-  /* ───────────────────────────────────────────── */
-  /* TEXT COLOR SAFETY NET                        */
-  /* Any leftover Tailwind text-* colors        */
-  /* (black, gray, neutral, slate, zinc, muted) */
-  /* will inherit the Olivea foreground         */
-  /* ───────────────────────────────────────────── */
-
+  /* TEXT COLOR SAFETY NET */
   [class*="text-black"],
   [class*="text-gray-"],
   [class*="text-neutral-"],
@@ -199,13 +239,19 @@
 }
 
 @supports not (height: 100dvh) {
-  .fixed-lcp { height: 100vh; }
+  .fixed-lcp {
+    height: 100vh;
+  }
 }
 
-body.lcp-demote .fixed-lcp { opacity: 0.001; }
+body.lcp-demote .fixed-lcp {
+  opacity: 0.001;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .fixed-lcp { transition: none; }
+  .fixed-lcp {
+    transition: none;
+  }
 }
 
 .no-js .fixed-lcp {
@@ -224,44 +270,40 @@ body.lcp-demote .fixed-lcp { opacity: 0.001; }
 
 /* ───────────────────────────────────────────────────────────── */
 /* OPTIONAL ACCESSIBILITY DETAIL                                */
+/* Only show minimal scrollbar hint when keyboard navigation is happening */
 /* ───────────────────────────────────────────────────────────── */
-/* If user starts tabbing, show a minimal scrollbar hint */
-:focus-within {
+html:focus-within {
   scrollbar-width: thin;
 }
-:focus-within::-webkit-scrollbar {
+html:focus-within::-webkit-scrollbar {
   width: 6px !important;
   height: 6px !important;
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* JOURNAL TYPOGRAPHY SCALING                                    */
-/* Controlled by --journal-font-scale                            */
+/* JOURNAL TYPOGRAPHY SCALING                                   */
 /* ───────────────────────────────────────────────────────────── */
-
-:root {
-  --journal-font-scale: 1;
-}
-
-/* Scale the typography container itself */
 .prose {
   font-size: calc(1rem * var(--journal-font-scale));
 }
-
-/* Keep headings proportional (optional but recommended) */
-.prose h1 { font-size: calc(2.25em * var(--journal-font-scale)); }
-.prose h2 { font-size: calc(1.75em * var(--journal-font-scale)); }
-.prose h3 { font-size: calc(1.4em * var(--journal-font-scale)); }
-.prose h4 { font-size: calc(1.15em * var(--journal-font-scale)); }
-
-/* Ensure paragraphs & lists follow */
+.prose h1 {
+  font-size: calc(2.25em * var(--journal-font-scale));
+}
+.prose h2 {
+  font-size: calc(1.75em * var(--journal-font-scale));
+}
+.prose h3 {
+  font-size: calc(1.4em * var(--journal-font-scale));
+}
+.prose h4 {
+  font-size: calc(1.15em * var(--journal-font-scale));
+}
 .prose p,
 .prose li,
 .prose blockquote {
   font-size: inherit;
   line-height: calc(var(--line-height-body) * 1em);
 }
-/* If any MDX paragraphs have hardcoded text-[..] sizes, let prose scaling win */
 .prose p[class*="text-["],
 .prose li[class*="text-["] {
   font-size: inherit !important;
@@ -272,5 +314,3 @@ body.lcp-demote .fixed-lcp { opacity: 0.001; }
 .prose h4[class*="text-"] {
   font-size: inherit !important;
 }
-
-

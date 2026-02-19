@@ -47,7 +47,7 @@ export default function SectionObserver({ sections }: SectionObserverProps) {
     <>
       <div
         ref={containerRef}
-        className="scroll-container min-h-screen overflow-y-auto pb-30 md:pb-0"
+        className="scroll-container mk-fullh overflow-y-auto pb-30 md:pb-0"
         style={{
           height: "100vh",
           scrollBehavior: "smooth",

@@ -16,7 +16,8 @@ import {
   useSharedTransition,
   type SectionKey,
 } from "@/contexts/SharedTransitionContext";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
 
 import HeroCasaLogo from "@/assets/herocasa.svg";
 import HeroCafeLogo from "@/assets/herocafe.svg";
@@ -45,7 +46,6 @@ function getDurations(isPhone: boolean) {
 const NAV_BUFFER_MS = 60;
 
 // ✅ Failsafe so scroll can’t be trapped on weird devices/transitions.
-// (Long enough to not interrupt normal animations.)
 const FAILSAFE_MS = 9000;
 
 // Desktop: match the desktop hero frame
@@ -196,17 +196,19 @@ function Overlay({
     return saveData || (dm !== undefined && dm < 3);
   }, [isPhone]);
 
-  // lock scroll & overscroll during the transition
+  // ✅ lock scroll & overscroll during the transition (FIXED: no "unlock()" function)
   useEffect(() => {
     const rootStyle = document.documentElement.style;
 
-    const unlock = lockBodyScroll();
+    setModalOpen(true);
+    lockBodyScroll();
 
     const prevOB = rootStyle.getPropertyValue("overscroll-behavior");
     rootStyle.setProperty("overscroll-behavior", "none");
 
     return () => {
-      unlock();
+      unlockBodyScroll();
+      setModalOpen(false);
 
       if (prevOB) rootStyle.setProperty("overscroll-behavior", prevOB);
       else rootStyle.removeProperty("overscroll-behavior");
@@ -216,7 +218,6 @@ function Overlay({
   // ✅ HARD FAILSAFE (prevents “stuck overlay => stuck scroll” on some Androids/PCs)
   useEffect(() => {
     const t = window.setTimeout(() => {
-      // if anything went sideways, force completion
       onFullyDone();
     }, FAILSAFE_MS);
     return () => window.clearTimeout(t);
@@ -272,8 +273,6 @@ function Overlay({
   });
 
   // Tap-blocking:
-  // - We only block during the risky part (enter + just-covered)
-  // - During exit / after, we stop intercepting so scroll can’t be trapped
   const shouldBlockNow = phase === "enter" || phase === "covered";
   const [blockTaps, setBlockTaps] = useState(true);
 
@@ -415,7 +414,6 @@ function Overlay({
   );
 
   const sheenOpacity = lowEndMobile ? 0 : isPhone ? 0.12 : 0.22;
-
   const resolvedClipPath = !isPhone && !reduce ? clipPath : undefined;
 
   return (
@@ -439,8 +437,6 @@ function Overlay({
         WebkitBackfaceVisibility: "hidden",
         isolation: "isolate",
         contain: "paint",
-
-        // ✅ Only intercept when necessary
         pointerEvents: blockTaps ? "auto" : "none",
         touchAction: blockTaps ? "none" : "auto",
       }}
@@ -448,7 +444,6 @@ function Overlay({
         if (blockTaps) e.preventDefault();
       }}
     >
-      {/* sheen (micro-parallax) */}
       {!lowEndMobile && (
         <motion.div
           aria-hidden
@@ -466,7 +461,6 @@ function Overlay({
         />
       )}
 
-      {/* logo (micro-lag) */}
       <motion.div
         animate={logoCtrls}
         style={{
@@ -482,7 +476,6 @@ function Overlay({
         <Logo width={220} className="h-auto" />
       </motion.div>
 
-      {/* subtle texture */}
       <div
         aria-hidden
         style={{

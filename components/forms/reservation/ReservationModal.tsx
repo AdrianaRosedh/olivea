@@ -22,7 +22,8 @@ import dynamic from "next/dynamic";
 import OliveaLogo from "@/assets/oliveaFTT1.svg";
 import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
 
 // Client-only widgets (already memoized)
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), {
@@ -87,11 +88,17 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // ── Body scroll lock
+  // ── Body scroll lock + global modal flag (CRITICAL)
   useEffect(() => {
-    if (!open) return;
-    const unlock = lockBodyScroll();
-    return unlock;
+    if (!isOpen) return;
+
+    setModalOpen(true);
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
   }, [isOpen]);
 
   // ── Full-screen overlays (mobile only)
@@ -136,7 +143,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     // As soon as modal is open, always mount HOTEL immediately
     setMounted((m) => ({
       restaurant: m.restaurant || reservationType === "restaurant",
-      hotel: true, // always mount hotel when modal is open
+      hotel: true,
       cafe: m.cafe || reservationType === "cafe",
     }));
 
@@ -162,7 +169,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     }
 
     if (isMobile && reservationType === "restaurant") {
-      // matches “tap restaurant tab => open immediately”
       openRestaurantOverlay();
     }
   }, [isOpen, isMobile, reservationType, openRestaurantOverlay]);
@@ -175,8 +181,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       if (!isMobile) return;
 
       if (id === "hotel") setShowHotelOverlay(true);
-
-      // IMPORTANT: even if already on restaurant, opening should always work
       if (id === "restaurant") openRestaurantOverlay();
     },
     [isMobile, setReservationType, openRestaurantOverlay]
@@ -238,7 +242,10 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         className={`fixed inset-0 z-1300 flex ${
           isMobile ? "items-end justify-center" : "items-center justify-center p-4"
         }`}
-        style={{ willChange: "transform, opacity", contain: "layout paint style" }}
+        style={{
+          willChange: "transform, opacity",
+          contain: "layout paint style",
+        }}
         variants={panelVariants}
         initial="hidden"
         animate={isOpen ? "visible" : "exit"}
@@ -349,7 +356,8 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                             Gestiona tu reserva de Casa Olivea
                           </p>
                           <p className="text-xs text-(--olivea-ink)/70 mb-3">
-                            Toca para abrir el motor seguro de Cloudbeds en pantalla completa.
+                            Toca para abrir el motor seguro de Cloudbeds en
+                            pantalla completa.
                           </p>
                           <span className="text-xs font-semibold underline underline-offset-4">
                             Abrir en pantalla completa
@@ -395,7 +403,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   </div>
                 </>
               ) : (
-                // ✅ Mobile: show a clickable card (same UX pattern as Hotel) so you can reopen anytime
                 <div className="flex-1 min-h-0 flex flex-col">
                   <div className="px-4 py-3 bg-(--olivea-cream) shrink-0">
                     <span
@@ -495,9 +502,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         </div>
       )}
 
-      {/* MOBILE FULL-SCREEN OPENTABLE SHEET
-          NOTE: mount iframe ONLY when open, and remount each open via key={otInstance}
-      */}
+      {/* MOBILE FULL-SCREEN OPENTABLE SHEET */}
       <AnimatePresence>
         {isMobile && showRestaurantOverlay && (
           <motion.div
@@ -540,7 +545,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               </button>
             </div>
 
-            {/* Do NOT make parent scrollable; let iframe own it */}
             <div className="w-full flex-1 min-h-0 overflow-hidden">
               <div key={otInstance} className="w-full h-full">
                 <OpentableWidget />

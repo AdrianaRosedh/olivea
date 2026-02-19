@@ -27,7 +27,8 @@ import { useRouter, usePathname } from "next/navigation";
 import TeamDockLeft, { type TeamCategory } from "./TeamDockLeft";
 import TeamMobileNav from "./TeamMobileNav";
 import { NavigationProvider } from "@/contexts/NavigationContext";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
 
 type Lang = "es" | "en";
 
@@ -317,7 +318,10 @@ function AutoSlideGalleryHorizontalVariableWidth({
     >
       <div className="relative overflow-hidden rounded-xl">
         <div className="relative" style={{ height: cardH + 26 }}>
-          <motion.div className="absolute inset-0 flex items-center" style={{ x }}>
+          <motion.div
+            className="absolute inset-0 flex items-center"
+            style={{ x }}
+          >
             <div className="flex items-center" style={{ gap }}>
               {items.map((src, idx) => {
                 const w = Math.max(
@@ -440,7 +444,7 @@ export default function TeamClient({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const isLg = useIsLg(); // ✅ ensures we don't render both grids
+  const isLg = useIsLg();
 
   const resolvedLang: Lang =
     pathname?.split("/")[1]?.toLowerCase().startsWith("es") ? "es" : "en";
@@ -454,7 +458,6 @@ export default function TeamClient({
 
   const [category, setCategory] = useState<Category>("all");
 
-  // Desktop grouping stays
   const featured = useMemo(() => leadersSorted.slice(0, 3), [leadersSorted]);
   const featuredIds = useMemo(
     () => new Set(featured.map((x) => x.id)),
@@ -469,7 +472,6 @@ export default function TeamClient({
 
   const dockCount = featured.length + restVisible.length;
 
-  // ✅ Mobile nav list should match what exists in DOM on mobile
   const mobileLeaders = useMemo(() => {
     return leadersSorted.filter((l) => matchesFilter(l, category));
   }, [leadersSorted, category]);
@@ -482,8 +484,8 @@ export default function TeamClient({
       active?.gallery?.length
         ? active.gallery
         : active?.avatar
-          ? [active.avatar]
-          : ["/images/team/persona.jpg"];
+        ? [active.avatar]
+        : ["/images/team/persona.jpg"];
 
     const first = base[0] ?? "/images/team/persona.jpg";
     if (base.length >= 3) return base;
@@ -496,10 +498,17 @@ export default function TeamClient({
   const [portalReady, setPortalReady] = useState(false);
   useEffect(() => setPortalReady(true), []);
 
+  // ✅ FIX: lockBodyScroll() returns void; use the proper lock/unlock pair + modal flag
   useEffect(() => {
     if (!isOpen) return;
-    const unlock = lockBodyScroll();
-    return () => unlock();
+
+    setModalOpen(true);
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
   }, [isOpen]);
 
   const [present, setPresent] = useState(false);
@@ -542,7 +551,6 @@ export default function TeamClient({
           count={dockCount}
         />
 
-        {/* ✅ Team MobileSectionNav */}
         <TeamMobileNav lang={uiLang} leaders={mobileLeaders} />
 
         <section className="mt-0 sm:mt-2">
@@ -561,9 +569,7 @@ export default function TeamClient({
                     (lang === "es" ? "Líderes de Olivea" : "Leaders of Olivea")}
                 </h1>
 
-                {/* While breakpoint is unknown (first paint), don't render either grid → avoids duplicate ids */}
                 {isLg === null ? null : isLg ? (
-                  /* ========================= DESKTOP GRID (only rendered on lg+) ========================= */
                   <div>
                     <div className="mt-6 sm:mt-10">
                       <div className="grid grid-cols-12 gap-6">
@@ -628,7 +634,6 @@ export default function TeamClient({
                     </div>
                   </div>
                 ) : (
-                  /* ========================= MOBILE GRID (only rendered below lg) ========================= */
                   <div className="mt-4 grid grid-cols-1 gap-6 pb-28">
                     {mobileLeaders.map((l, idx) => (
                       <motion.button
@@ -767,7 +772,6 @@ export default function TeamClient({
                             </span>
                           </div>
 
-                          {/* ✅ name click goes to Linktree */}
                           <button
                             type="button"
                             onClick={goToProfile}
@@ -785,7 +789,6 @@ export default function TeamClient({
                             {t(active.role)} · {t(active.org)}
                           </div>
 
-                          {/* story: real if present, otherwise dummy so modal doesn't feel empty */}
                           <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
                             {(() => {
                               const bio = (t(active.bio) || "").trim();
@@ -795,7 +798,6 @@ export default function TeamClient({
                             })() || bioFallback}
                           </p>
 
-                          {/* ✅ ONLY BUTTON: go to Linktree/profile page */}
                           <div className="mt-7">
                             <Link
                               href={`/${lang}/team/${active.id}`}
@@ -808,7 +810,9 @@ export default function TeamClient({
                                 "shadow-[0_18px_44px_-22px_rgba(0,0,0,0.35)]"
                               )}
                             >
-                              {lang === "es" ? "Ver perfil completo" : "View full profile"}
+                              {lang === "es"
+                                ? "Ver perfil completo"
+                                : "View full profile"}
                               <ArrowUpRight
                                 size={16}
                                 className="opacity-90"
@@ -817,7 +821,6 @@ export default function TeamClient({
                             </Link>
                           </div>
 
-                          {/* tiny hint (optional, keeps it feeling intentional) */}
                           <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/45">
                             {lang === "es"
                               ? "El perfil completo vive en el Linktree."
