@@ -12,7 +12,9 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Identity, ItemKind, Lang, PressItem } from "./pressTypes";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
+
 
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -327,9 +329,16 @@ export default function PressDockLeft({
   // ✅ lock body scroll when mobile sheet open
   useEffect(() => {
     if (!sheetOpen) return;
-    const unlock = lockBodyScroll();
-    return unlock;
+    
+    setModalOpen(true);
+    lockBodyScroll();
+    
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
   }, [sheetOpen]);
+
 
   /* =========================
      MOBILE UI (md:hidden) — MATCH TeamDockLeft colors EXACTLY

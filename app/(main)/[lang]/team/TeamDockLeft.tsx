@@ -12,7 +12,8 @@ import {
 } from "framer-motion";
 import { SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
 
 export type TeamCategory = "all" | "hotel" | "restaurant" | "cafe";
 type Lang = "es" | "en";
@@ -24,7 +25,6 @@ const dockV: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    // ✅ match PressDockLeft delay
     transition: { duration: 0.7, ease: EASE, delay: 0.35 },
   },
 };
@@ -62,7 +62,6 @@ export default function TeamDockLeft({
     []
   );
 
-  // Desktop vertical buttons (larger)
   const vItemBase = cn(
     "w-full text-left",
     "rounded-2xl px-4 py-3",
@@ -102,10 +101,8 @@ export default function TeamDockLeft({
     const prev = lastY.current;
     lastY.current = y;
 
-    // don't hide/show while sheet is open
     if (sheetOpen) return;
 
-    // near top: always show
     if (y < 80) {
       if (hiddenRef.current) {
         hiddenRef.current = false;
@@ -135,12 +132,17 @@ export default function TeamDockLeft({
     }
   });
 
-  // ✅ FIX: lock body scroll while sheet open
-  // (was incorrectly checking `open` instead of `sheetOpen`)
+  // ✅ FIXED: lock/unlock contract + modal flag
   useEffect(() => {
     if (!sheetOpen) return;
-    const unlock = lockBodyScroll();
-    return unlock;
+
+    setModalOpen(true);
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
   }, [sheetOpen]);
 
   const TOP_OFFSET_CLASS = "top-14";
@@ -161,7 +163,6 @@ export default function TeamDockLeft({
 
   const mobileBar = (
     <>
-      {/* spacer */}
       <div className={cn("md:hidden", BAR_HEIGHT_SPACER)} />
 
       <motion.div
@@ -282,7 +283,9 @@ export default function TeamDockLeft({
                           setCategory(c);
                           setSheetOpen(false);
                         }}
-                        className={category === c ? chipActiveMobile : chipBaseMobile}
+                        className={
+                          category === c ? chipActiveMobile : chipBaseMobile
+                        }
                       >
                         {label(c)}
                       </button>

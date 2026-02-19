@@ -17,7 +17,8 @@ import {
   type Transition,
 } from "framer-motion";
 import { X } from "lucide-react";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
 
 /** Idle scheduler (typed) */
 type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
@@ -142,13 +143,18 @@ export default function Farmpop({
     return () => window.removeEventListener(autoOpenEvent, handler);
   }, [autoOpenEvent, openDelayMs]);
 
-  // Lock body scroll while open
+  // ✅ Lock body scroll while open (FIXED)
   useEffect(() => {
     if (!open) return;
-    const unlock = lockBodyScroll();
-    return unlock;
+
+    setModalOpen(true);
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
   }, [open]);
-  
 
   // Pre-mount all iframes once opened first time — idle time
   useEffect(() => {
@@ -256,7 +262,9 @@ export default function Farmpop({
 
   const tabGlyph = (t: MenuTab): ReactNode => {
     if (t.icon) return t.icon;
-    if (t.emoji) return <span className="text-[16px] leading-none">{t.emoji}</span>;
+    if (t.emoji) return (
+      <span className="text-[16px] leading-none">{t.emoji}</span>
+    );
     const map: Record<string, string> = {
       menu: "🍽️",
       licores: "🥃",
@@ -322,12 +330,10 @@ export default function Farmpop({
 
   const headingId = "farmpop-title";
 
-  // ✅ Build modal once, then portal it to body
   const modal = (
     <AnimatePresence mode="wait" initial={false}>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             className={`fixed inset-0 z-19990 ${
               isMobile ? "bg-black/40 backdrop-blur-sm" : "bg-black/40"
@@ -341,7 +347,6 @@ export default function Farmpop({
             aria-hidden
           />
 
-          {/* Panel container */}
           <motion.div
             className={`fixed inset-0 z-20000 flex ${
               isMobile
@@ -357,7 +362,6 @@ export default function Farmpop({
             aria-modal="true"
             aria-labelledby={headingId}
           >
-            {/* Panel */}
             <motion.div
               className={[
                 isMobile
@@ -377,7 +381,6 @@ export default function Farmpop({
                 exit="exit"
                 transition={contentTransition}
               >
-                {/* Desktop header */}
                 {!isMobile && (
                   <div className="relative flex items-center px-6 py-4 shrink-0 border-b border-black/10 bg-(--olivea-cream)">
                     <h2
@@ -401,9 +404,7 @@ export default function Farmpop({
                   </div>
                 )}
 
-                {/* CONTENT */}
                 <div className="flex-1 min-h-0 flex">
-                  {/* Desktop left rail */}
                   {!isMobile && tabList.length >= 2 && (
                     <aside
                       className="hidden md:flex flex-col shrink-0 w-65 bg-(--olivea-cream) border-r border-black/10 px-4 py-4 gap-3"
@@ -417,7 +418,6 @@ export default function Farmpop({
                     </aside>
                   )}
 
-                  {/* Right: keep-alive panes with wrapper cross-fade */}
                   <div
                     className="relative flex-1 min-h-0 bg-(--olivea-cream)"
                     style={{
@@ -450,7 +450,9 @@ export default function Farmpop({
                             key={t.id}
                             className="absolute inset-0"
                             style={wrapperStyle}
-                            onTransitionEnd={isPrev ? handleFadeOutEnd : undefined}
+                            onTransitionEnd={
+                              isPrev ? handleFadeOutEnd : undefined
+                            }
                             aria-hidden={!isActive}
                           >
                             <iframe
@@ -472,7 +474,6 @@ export default function Farmpop({
                         );
                       })}
 
-                    {/* First open fallback before preloaded */}
                     {!preloaded && tabList.length > 0 && (
                       <div className="absolute inset-0" style={{ opacity: 1 }}>
                         <iframe
@@ -497,7 +498,6 @@ export default function Farmpop({
                   </div>
                 </div>
 
-                {/* MOBILE bottom bar */}
                 {isMobile && tabList.length >= 2 && (
                   <div
                     className="relative flex items-center gap-2 px-2 py-2 shrink-0 cursor-grab active:cursor-grabbing border-t border-black/10 bg-white/45"
@@ -546,7 +546,6 @@ export default function Farmpop({
 
   return (
     <>
-      {/* Trigger */}
       {trigger ? (
         <span onClick={openPopup}>{trigger}</span>
       ) : (
@@ -563,7 +562,6 @@ export default function Farmpop({
         </button>
       )}
 
-      {/* ✅ Portal ensures it overlays navbar regardless of stacking contexts */}
       {mounted && createPortal(modal, document.body)}
     </>
   );

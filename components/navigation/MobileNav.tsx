@@ -22,7 +22,12 @@ import {
   animate,
   type PanInfo,
 } from "framer-motion";
-import { Calendar, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Calendar,
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = { isDrawerOpen?: boolean };
@@ -33,13 +38,12 @@ const SPRING = { stiffness: 560, damping: 48, mass: 0.8 } as const;
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* ───────────────── Slimmer geometry ───────────────── */
-const ROW = 36; // slimmer
+const ROW = 36;
 const GAP = 8;
 const PAD = 7;
 const TEXT_PAD_X = 10;
 const PILL_GAP = 8;
 
-/* “give” away from edge so it feels draggable but never vanishes */
 const MAX_AWAY_COLLAPSED = 28;
 const MAX_AWAY_EXPANDED = 40;
 
@@ -73,16 +77,16 @@ function getHeaderH(): number {
   return Number.isFinite(n) && n > 0 ? n : 64;
 }
 
+function getViewportH(): number {
+  if (typeof window === "undefined") return 800;
+  return window.visualViewport?.height ?? window.innerHeight;
+}
+
 function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
-/**
- * Dock height is basically constant (expanding only changes WIDTH),
- * so keep this param-less to avoid TS “declared but never read”.
- */
 function approxDockH(): number {
-  // handle + 2 actions + toggle, plus padding/gaps
   const rows = 4 * ROW;
   const gaps = 3 * GAP;
   const pad = 2 * PAD;
@@ -94,7 +98,8 @@ function clampDockY(y: number): number {
   const padTop = 12 + getHeaderH();
   const padBottom = 12 + getMobileNavH();
   const h = approxDockH();
-  const minY = -(window.innerHeight - h - padBottom);
+  const vh = getViewportH();
+  const minY = -(vh - h - padBottom);
   const maxY = padTop;
   return clamp(y, minY, maxY);
 }
@@ -203,7 +208,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
       pathname.includes("/diario") ||
       pathname.includes("/posts"));
 
-  /* measured label widths */
   const [wReserve, setWReserve] = useState(64);
   const [wChat, setWChat] = useState(34);
 
@@ -215,7 +219,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
   const sideRight = pos.side === "right";
 
-  // ✅ Hide action dock while MobileSectionNav outline is open
   const [outlineOpen, setOutlineOpen] = useState(false);
 
   useEffect(() => {
@@ -231,7 +234,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     };
   }, []);
 
-  /* ───────────────── chat availability ───────────────── */
   useEffect(() => {
     const updateChat = () => {
       const minutes = getTijuanaMinutesNow();
@@ -242,7 +244,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     return () => window.clearInterval(id);
   }, []);
 
-  /* ───────────────── restore pos ───────────────── */
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v17");
@@ -261,7 +262,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ───────────────── reset on route change ───────────────── */
   useEffect(() => {
     setVisible(false);
     setExpanded(false);
@@ -270,7 +270,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  /* ───────────────── visibility based on scroll ───────────────── */
   useEffect(() => {
     const threshold = isContentHeavy ? 140 : 110;
     const onScroll = () => {
@@ -282,7 +281,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isContentHeavy, isDragging]);
 
-  /* ───────────────── constraints (prevents “disappearing”) ───────────────── */
   const [dragConstraints, setDragConstraints] = useState({
     top: -500,
     bottom: 100,
@@ -297,7 +295,8 @@ export function MobileNav({ isDrawerOpen }: Props) {
     const padBottom = 12 + getMobileNavH();
     const h = approxDockH();
 
-    const top = -(window.innerHeight - h - padBottom);
+    const vh = getViewportH();
+    const top = -(vh - h - padBottom);
     const bottom = padTop;
 
     const maxAway = expanded ? MAX_AWAY_EXPANDED : MAX_AWAY_COLLAPSED;
@@ -316,9 +315,13 @@ export function MobileNav({ isDrawerOpen }: Props) {
     recomputeConstraints();
     window.addEventListener("resize", recomputeConstraints);
     window.addEventListener("orientationchange", recomputeConstraints);
+    window.visualViewport?.addEventListener("resize", recomputeConstraints);
+    window.visualViewport?.addEventListener("scroll", recomputeConstraints);
     return () => {
       window.removeEventListener("resize", recomputeConstraints);
       window.removeEventListener("orientationchange", recomputeConstraints);
+      window.visualViewport?.removeEventListener("resize", recomputeConstraints);
+      window.visualViewport?.removeEventListener("scroll", recomputeConstraints);
     };
   }, [visible, recomputeConstraints]);
 
@@ -334,32 +337,25 @@ export function MobileNav({ isDrawerOpen }: Props) {
     openReservationModal(reserveTab);
   }, [expanded, lang, openReservationModal, reserveTab]);
 
-  // ✅ NEW: allow ANY component (hero, cards, etc) to open reservations on mobile
   useEffect(() => {
     const handler = () => {
-      // if dock is intentionally not present, ignore
       if (isDrawerOpen || outlineOpen) return;
-
-      // show the dock (so it feels intentional) then open
       setVisible(true);
-
-      // avoid opening mid-drag
       if (isDragging) return;
-
       onReserve();
     };
 
-    const prewarm = () => {
-      // if you later add "warm mount" logic, this is where it goes.
-      // (keeping for parity with desktop + hover intent)
-    };
+    const prewarm = () => {};
 
     window.addEventListener("olivea:reserve", handler as EventListener);
     window.addEventListener("olivea:reserve-intent", prewarm as EventListener);
 
     return () => {
       window.removeEventListener("olivea:reserve", handler as EventListener);
-      window.removeEventListener("olivea:reserve-intent", prewarm as EventListener);
+      window.removeEventListener(
+        "olivea:reserve-intent",
+        prewarm as EventListener
+      );
     };
   }, [isDrawerOpen, outlineOpen, isDragging, onReserve]);
 
@@ -587,7 +583,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
                   )}
                   style={{ gap: GAP }}
                 >
-                  {/* TOP = Toggle (open/close) */}
                   <button
                     type="button"
                     onClick={() => {
@@ -621,7 +616,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
                     showDot
                   />
 
-                  {/* BOTTOM = Drag handle */}
                   <button
                     type="button"
                     aria-label={labels.move}
