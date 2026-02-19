@@ -13,7 +13,8 @@ import type { Lang } from "@/app/(main)/[lang]/dictionaries";
 import ArticleTOC, { type TocItem } from "@/components/journal/ArticleTOC";
 import { Share2, Link2, Plus, Minus, List, X } from "lucide-react";
 import { shortPathForArticle } from "@/lib/journal/shortcode";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -203,14 +204,19 @@ export default function ArticleDock({
   const [tocPanelOpen, setTocPanelOpen] = useState(false);
 
   // ✅ One ref-counted body lock for ANY mobile sheet open
-  // (prevents overlay A unlocking overlay B, and fixes old-mobile "stuck unscrollable" cases)
   useEffect(() => {
     const anySheetOpen = shareOpen || tocSheetOpen;
     if (!anySheetOpen) return;
-
-    const unlock = lockBodyScroll();
-    return unlock;
+  
+    setModalOpen(true);
+    lockBodyScroll();
+  
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
   }, [shareOpen, tocSheetOpen]);
+  
 
   /* =========================
      mobile bar hide/show

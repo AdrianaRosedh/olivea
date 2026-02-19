@@ -20,7 +20,9 @@ import {
   BookOpen,
   Tag as TagIcon,
 } from "lucide-react";
-import { lockBodyScroll } from "@/components/ui/scrollLock";
+import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
+
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -115,10 +117,16 @@ export default function JournalFilterDockMobile({
 
   useEffect(() => {
     if (!sheetOpen) return;
-    const unlock = lockBodyScroll();
-    return unlock;
+  
+    setModalOpen(true);
+    lockBodyScroll();
+  
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
   }, [sheetOpen]);
-
+  
   /* MOBILE BAR hide/show */
   const { scrollY } = useScroll();
   const lastY = useRef<number>(0);
