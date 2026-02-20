@@ -1,4 +1,5 @@
 // components/ui/scrollLock.ts
+
 let lockCount = 0;
 
 // saved styles/state for restore
@@ -7,6 +8,8 @@ let prevPosition: string | null = null;
 let prevTop: string | null = null;
 let prevWidth: string | null = null;
 let prevPaddingRight: string | null = null;
+
+let prevHtmlOverflow: string | null = null;
 
 let scrollYAtLock = 0;
 let hasSafetyListeners = false;
@@ -29,6 +32,7 @@ function setGlobalLockedFlag(on: boolean) {
 
 function applyLock() {
   const body = document.body;
+  const html = document.documentElement;
 
   scrollYAtLock = window.scrollY || window.pageYOffset || 0;
 
@@ -38,19 +42,22 @@ function applyLock() {
   prevWidth = body.style.width;
   prevPaddingRight = body.style.paddingRight;
 
+  prevHtmlOverflow = html.style.overflow;
+
   // prevent layout shift when scrollbar disappears (desktop)
   const sbw = getScrollbarWidth();
   if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
-  // ✅ Android-safe: avoid body position:fixed (some Android builds get “stuck”)
+  // ✅ lock html as the base lock (more stable cross-device)
+  html.style.overflow = "hidden";
+
+  // ✅ Android-safe: avoid body position:fixed (can “freeze” scroll on some builds)
   if (isAndroid()) {
     body.style.overflow = "hidden";
-    // keep existing positioning intact
     body.style.position = prevPosition ?? "";
     body.style.top = prevTop ?? "";
     body.style.width = prevWidth ?? "";
   } else {
-    // iOS/desktop: fixed-body lock prevents background scroll reliably
     body.style.overflow = "hidden";
     body.style.position = "fixed";
     body.style.top = `-${scrollYAtLock}px`;
@@ -62,6 +69,7 @@ function applyLock() {
 
 function releaseLock() {
   const body = document.body;
+  const html = document.documentElement;
 
   body.style.overflow = prevOverflow ?? "";
   body.style.position = prevPosition ?? "";
@@ -69,7 +77,8 @@ function releaseLock() {
   body.style.width = prevWidth ?? "";
   body.style.paddingRight = prevPaddingRight ?? "";
 
-  // restore scroll position (only needed when we used fixed-body lock)
+  html.style.overflow = prevHtmlOverflow ?? "";
+
   if (!isAndroid()) {
     window.scrollTo(0, scrollYAtLock);
   }

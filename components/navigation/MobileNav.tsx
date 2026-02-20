@@ -265,6 +265,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
   useEffect(() => {
     setVisible(false);
     setExpanded(false);
+    setIsDragging(false);
     mvX.set(0);
     mvY.set(pos.y);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -272,10 +273,16 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
   useEffect(() => {
     const threshold = isContentHeavy ? 140 : 110;
+
     const onScroll = () => {
       if (isDragging) return;
+
+      // ✅ don't fight scroll-lock transitions (reduces “glitchy” behavior on Android)
+      if (document.documentElement.dataset.scrollLocked === "1") return;
+
       setVisible((window.scrollY || 0) > threshold);
     };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -371,7 +378,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     sessionStorage.setItem("olivea_chat_intent", "1");
     document.body.classList.add("olivea-chat-open");
     document.getElementById("chatbot-toggle")?.click();
-    document.body.classList.add("olivea-chat-open");
   }, [chatAvailable, expanded, lang]);
 
   const onDragStart = useCallback(() => {
@@ -402,6 +408,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
     [mvX, mvY]
   );
 
+  // ✅ handle-only drag; keep touchAction:none only here
   const handleStyle = { touchAction: "none" } satisfies CSSProperties;
 
   if (isDrawerOpen || outlineOpen) return null;
@@ -558,12 +565,16 @@ export function MobileNav({ isDrawerOpen }: Props) {
               drag
               dragControls={dragControls}
               dragListener={false}
+              dragDirectionLock
               dragMomentum={false}
+              dragPropagation={false}
               dragElastic={0.06}
               dragConstraints={dragConstraints}
-              style={{ x: sx, y: sy, touchAction: "none" }}
+              style={{ x: sx, y: sy, touchAction: "pan-y" }}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
+              // extra safety: if the pointer is canceled (Android does this sometimes), stop “dragging” state
+              onPointerCancel={() => setIsDragging(false)}
               aria-label="Quick actions"
             >
               <motion.div
@@ -620,14 +631,21 @@ export function MobileNav({ isDrawerOpen }: Props) {
                     type="button"
                     aria-label={labels.move}
                     style={handleStyle}
-                    onPointerDown={(e) => dragControls.start(e)}
+                    onPointerDown={(e) => {
+                      // ✅ prevents “scroll gesture” confusion on some Androids
+                      e.preventDefault();
+                      dragControls.start(e);
+                    }}
                     className={cn(
                       "w-9 h-9 rounded-[18px]",
                       "inline-flex items-center justify-center",
                       "active:bg-white/10 transition-colors"
                     )}
                   >
-                    <span className="grid grid-cols-3 gap-0.75" aria-hidden="true">
+                    <span
+                      className="grid grid-cols-3 gap-0.75"
+                      aria-hidden="true"
+                    >
                       {Array.from({ length: 9 }).map((_, i) => (
                         <span
                           key={i}
