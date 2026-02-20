@@ -103,23 +103,26 @@ const nextConfig = {
   },
 
   poweredByHeader: false,
-
   typescript: { ignoreBuildErrors: false },
 
   async headers() {
     const immutable = [
-      {
-        key: "Cache-Control",
-        value: "public, max-age=31536000, immutable",
-      },
+      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
     ];
+
     return [
       { source: "/images/:path*", headers: immutable },
       { source: "/videos/:path*", headers: immutable },
       { source: "/fonts/:path*", headers: immutable },
       { source: "/icons/:path*", headers: immutable },
       { source: "/_next/static/:path*", headers: immutable },
-      { source: "/_next/image", headers: immutable },
+
+      /**
+       * IMPORTANT:
+       * Do NOT mark /_next/image as immutable.
+       * It serves many variants (w/q/etc). Let Next/Vercel manage caching correctly.
+       */
+
       {
         source: "/:path*",
         headers: [{ key: "Timing-Allow-Origin", value: "*" }],
