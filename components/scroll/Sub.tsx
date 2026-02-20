@@ -19,16 +19,19 @@ export default function Sub({
   children,
   preset = "up",
   delay = 0,
-  minH = 120,           // ⬅️ lower default (was 180)
+  minH = 120,
   className = "",
 }: Props) {
   return (
     <Reveal preset={preset} delay={delay} className={cn("snap-center", className)}>
-      {/* the content block IS the subsection and carries the id */}
       <div
         id={id}
-        className="subsection leading-relaxed text-black/75 md:text-lg"
-        style={minH ? { minHeight: minH } : undefined}  // ⬅️ if 0, no min-height
+        className={cn(
+          "subsection leading-relaxed md:text-lg",
+          // ✅ Olivea default text
+          "text-(--olivea-olive)"
+        )}
+        style={minH ? { minHeight: minH } : undefined}
       >
         {children}
       </div>

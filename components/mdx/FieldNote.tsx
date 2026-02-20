@@ -12,7 +12,7 @@ export default function FieldNote({
   return (
     <aside
       className={cn(
-        "w-[min(760px,92vw)] mx-auto my-8 rounded-2xl bg-[#e7eae1]/80 ring-1 ring-black/10 p-4 md:p-5 text-sm text-black/70",
+        "w-[min(760px,92vw)] mx-auto my-8 rounded-2xl bg-[#e7eae1]/80 ring-1 ring-black/10 p-4 md:p-5 text-sm text-(--olivea-olive)/70",
         className
       )}
     >
