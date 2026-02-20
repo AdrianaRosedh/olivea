@@ -3,18 +3,22 @@
 
 import { useEffect } from "react";
 
-function computeVhPx() {
+function computeVhPxRounded() {
   const h = window.visualViewport?.height ?? window.innerHeight;
-  return h * 0.01;
+  // round to 0.1px to avoid tiny oscillations causing style writes
+  return Math.round(h * 0.01 * 10) / 10;
 }
 
 export default function VhSetter() {
   useEffect(() => {
     let raf = 0;
+    let last = NaN;
 
     const apply = () => {
       raf = 0;
-      const vh = computeVhPx();
+      const vh = computeVhPxRounded();
+      if (vh === last) return;
+      last = vh;
       document.documentElement.style.setProperty("--app-vh", `${vh}px`);
     };
 
@@ -23,14 +27,11 @@ export default function VhSetter() {
       raf = window.requestAnimationFrame(apply);
     };
 
-    // run once immediately
     apply();
 
-    // viewport changes (address bar show/hide, keyboard, etc.)
     window.visualViewport?.addEventListener("resize", schedule);
     window.visualViewport?.addEventListener("scroll", schedule);
 
-    // fallback signals
     window.addEventListener("resize", schedule);
     window.addEventListener("orientationchange", schedule);
     window.addEventListener("pageshow", schedule);
