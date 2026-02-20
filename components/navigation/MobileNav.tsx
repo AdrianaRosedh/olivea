@@ -219,6 +219,28 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
   const sideRight = pos.side === "right";
 
+  // ✅ reduce expensive blur on coarse pointers (Android)
+  const [coarsePointer, setCoarsePointer] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia?.("(pointer: coarse)");
+    if (!mql) return;
+
+    const apply = () => setCoarsePointer(!!mql.matches);
+    apply();
+
+    // Safari uses addListener/removeListener
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyMql: any = mql;
+    if (anyMql.addEventListener) anyMql.addEventListener("change", apply);
+    else anyMql.addListener?.(apply);
+
+    return () => {
+      if (anyMql.removeEventListener) anyMql.removeEventListener("change", apply);
+      else anyMql.removeListener?.(apply);
+    };
+  }, []);
+
   const [outlineOpen, setOutlineOpen] = useState(false);
 
   useEffect(() => {
@@ -271,21 +293,37 @@ export function MobileNav({ isDrawerOpen }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  // ✅ RAF-throttled scroll watcher (biggest scroll-lag win)
   useEffect(() => {
     const threshold = isContentHeavy ? 140 : 110;
 
-    const onScroll = () => {
-      if (isDragging) return;
+    let raf = 0;
+    let lastVisible = false;
 
-      // ✅ don't fight scroll-lock transitions (reduces “glitchy” behavior on Android)
+    const compute = () => {
+      raf = 0;
+      if (isDragging) return;
       if (document.documentElement.dataset.scrollLocked === "1") return;
 
-      setVisible((window.scrollY || 0) > threshold);
+      const next = (window.scrollY || 0) > threshold;
+      if (next !== lastVisible) {
+        lastVisible = next;
+        setVisible(next);
+      }
     };
 
-    onScroll();
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(compute);
+    };
+
+    compute();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, [isContentHeavy, isDragging]);
 
   const [dragConstraints, setDragConstraints] = useState({
@@ -408,7 +446,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
     [mvX, mvY]
   );
 
-  // ✅ handle-only drag; keep touchAction:none only here
   const handleStyle = { touchAction: "none" } satisfies CSSProperties;
 
   if (isDrawerOpen || outlineOpen) return null;
@@ -558,7 +595,10 @@ export function MobileNav({ isDrawerOpen }: Props) {
               className={cn(
                 "pointer-events-auto select-none",
                 "rounded-[20px] overflow-hidden",
-                "bg-white/8 backdrop-blur-xl",
+                // ✅ cheaper on Android: less blur + slightly stronger background
+                coarsePointer
+                  ? "bg-white/16 backdrop-blur-md"
+                  : "bg-white/8 backdrop-blur-xl",
                 "ring-1 ring-white/14",
                 "shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
               )}
@@ -573,7 +613,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
               style={{ x: sx, y: sy, touchAction: "pan-y" }}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
-              // extra safety: if the pointer is canceled (Android does this sometimes), stop “dragging” state
               onPointerCancel={() => setIsDragging(false)}
               aria-label="Quick actions"
             >
@@ -632,7 +671,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
                     aria-label={labels.move}
                     style={handleStyle}
                     onPointerDown={(e) => {
-                      // ✅ prevents “scroll gesture” confusion on some Androids
                       e.preventDefault();
                       dragControls.start(e);
                     }}
