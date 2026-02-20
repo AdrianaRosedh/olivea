@@ -7,7 +7,7 @@ export default function FAQItem({ q, children }: { q: string; children: React.Re
     <div className="mb-6 border-b border-black/10 pb-4">
       <button
         onClick={() => setOpen(!open)}
-        className="text-left w-full text-lg font-medium text-black"
+        className="text-left w-full text-lg font-medium text-(--olivea-olive)"
       >
         {q}
       </button>

@@ -60,7 +60,25 @@
     outline-color: hsl(var(--ring));
   }
 
-  html,
+  /* ✅ Global default text color */
+  html {
+    min-height: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    color: var(--olivea-olive);
+
+    /* ✅ restore native scroll physics */
+    overscroll-behavior: auto;
+    scroll-behavior: auto;
+
+    -webkit-text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
   body {
     min-height: 100%;
     height: auto;
@@ -69,24 +87,16 @@
     overflow-x: hidden;
     overflow-y: auto;
 
-    /* ✅ IMPORTANT: restore native scroll physics */
-    overscroll-behavior: auto;
-    scroll-behavior: auto;
+    background-color: hsl(var(--background));
+    color: inherit; /* ✅ DO NOT override olive here */
 
-    -webkit-text-size-adjust: 100%;
-    -webkit-overflow-scrolling: touch; /* iOS + some Android smoothing */
+    font-family: var(--font-sans);
+    line-height: var(--line-height-body);
+    @apply antialiased;
   }
 
   #__next {
     min-height: 100%;
-  }
-
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: var(--font-sans);
-    line-height: var(--line-height-body);
-    @apply antialiased;
   }
 
   section[id] {
@@ -102,6 +112,11 @@
 
   video {
     color-scheme: only light;
+  }
+
+  /* ✅ HARD OVERRIDE: kill any lingering Tailwind `text-black*` usages across content */
+  :where([class*="text-black"]) {
+    color: var(--olivea-olive) !important;
   }
 }
 
@@ -126,18 +141,31 @@
 /* LOADER KEYFRAMES                                              */
 /* ───────────────────────────────────────────────────────────── */
 @keyframes olivea-loader-bar {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @keyframes olivea-loader-vert {
-  from { transform: scaleY(0); }
-  to { transform: scaleY(1); }
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
 }
 
 @keyframes olivea-soft-glow {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 0.65; }
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.65;
+  }
 }
 
 .soft-glow {
@@ -220,10 +248,18 @@ body.lcp-demote .fixed-lcp {
   font-size: calc(1rem * var(--journal-font-scale));
 }
 
-.prose h1 { font-size: calc(2.25em * var(--journal-font-scale)); }
-.prose h2 { font-size: calc(1.75em * var(--journal-font-scale)); }
-.prose h3 { font-size: calc(1.4em * var(--journal-font-scale)); }
-.prose h4 { font-size: calc(1.15em * var(--journal-font-scale)); }
+.prose h1 {
+  font-size: calc(2.25em * var(--journal-font-scale));
+}
+.prose h2 {
+  font-size: calc(1.75em * var(--journal-font-scale));
+}
+.prose h3 {
+  font-size: calc(1.4em * var(--journal-font-scale));
+}
+.prose h4 {
+  font-size: calc(1.15em * var(--journal-font-scale));
+}
 
 .prose p,
 .prose li,
