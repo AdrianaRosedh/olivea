@@ -251,7 +251,7 @@ export default function HomeClient() {
             {/* MOBILE: paint hero image immediately; demote overlay when decoded */}
             {isMobile && !showVideo && (
               <Image
-                src={`/images/hero-mobile.avif?v=${HERO_VIDEO_VERSION}`}
+                src="/images/hero.avif"
                 alt={isES ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience"}
                 fill
                 priority
@@ -281,7 +281,7 @@ export default function HomeClient() {
                 autoPlay
                 loop
                 preload="metadata"
-                poster={`/images/hero-mobile.avif?v=${HERO_VIDEO_VERSION}`}
+                poster="/images/hero-mobile.avif"
                 aria-hidden
                 tabIndex={-1}
                 disablePictureInPicture
@@ -305,7 +305,7 @@ export default function HomeClient() {
             {!isMobile && (
               <>
                 <Image
-                  src={`/images/hero.avif?v=${HERO_VIDEO_VERSION}`}
+                  src="/images/hero.avif"
                   alt={isES ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience"}
                   fill
                   priority
@@ -329,7 +329,7 @@ export default function HomeClient() {
                   loop
                   autoPlay
                   preload="metadata"
-                  poster={`/images/hero.avif?v=${HERO_VIDEO_VERSION}`}
+                  poster="/images/hero-mobile.avif"
                   aria-hidden
                   tabIndex={-1}
                 >
