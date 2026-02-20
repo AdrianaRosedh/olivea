@@ -1,7 +1,7 @@
 // components/layout/LayoutShell.tsx
 "use client";
 
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -38,9 +38,8 @@ const Footer = dynamic(() => import("@/components/layout/Footer"), {
 });
 
 /**
- * ✅ IMPORTANT perf win:
  * DockLeft is client-only (needs IO / framer / optional gsap), so it can't SSR easily.
- * But rendering a skeleton immediately prevents “empty then pop-in”.
+ * Skeleton prevents “empty then pop-in”.
  */
 const DockLeft = dynamic(() => import("@/components/navigation/DockLeft"), {
   ssr: false,
@@ -69,45 +68,33 @@ const DockRight = dynamic(() => import("@/components/navigation/DockRight"), {
   loading: () => null,
 });
 
-const DesktopChatButton = dynamic(
-  () => import("@/components/ui/DesktopChatButton"),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
+const DesktopChatButton = dynamic(() => import("@/components/ui/DesktopChatButton"), {
+  ssr: false,
+  loading: () => null,
+});
 
 // Chat: only load when wantsChat = true
-const WhistleToggleMount = dynamic(
-  () => import("@/components/chat/WhistleToggleMount"),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-const LoadWhistleClient = dynamic(
-  () => import("@/components/chat/LoadWhistleClient"),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-const ChatCloseOverlay = dynamic(
-  () => import("@/components/chat/ChatCloseOverlay"),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
+const WhistleToggleMount = dynamic(() => import("@/components/chat/WhistleToggleMount"), {
+  ssr: false,
+  loading: () => null,
+});
+const LoadWhistleClient = dynamic(() => import("@/components/chat/LoadWhistleClient"), {
+  ssr: false,
+  loading: () => null,
+});
+const ChatCloseOverlay = dynamic(() => import("@/components/chat/ChatCloseOverlay"), {
+  ssr: false,
+  loading: () => null,
+});
 
 /* =========================
    DockRight icons (desktop-only)
    ========================= */
-// DockRight icons are desktop-only. Keep lucide out of the mobile bundle.
 const IconFallback = ({ size = 22 }: { size?: number }) => (
   <span style={{ width: size, height: size, display: "inline-block" }} aria-hidden />
 );
 
+// DockRight icons are desktop-only. Keep lucide out of the mobile bundle.
 const AwardIcon = dynamic(() => import("lucide-react").then((m) => m.Award), {
   ssr: false,
   loading: () => <IconFallback />,
@@ -128,8 +115,6 @@ const MapIcon = dynamic(() => import("lucide-react").then((m) => m.Map), {
   ssr: false,
   loading: () => <IconFallback />,
 });
-
-/* ========================= */
 
 interface LayoutShellProps {
   lang: Lang;
@@ -206,15 +191,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-  /**
-   * ✅ IMPORTANT correctness + perf:
-   * Your site uses Spanish at `/` and English at `/en`.
-   * So "language from URL" should be:
-   * - startsWith("/en") => en
-   * - else => es
-   *
-   * This prevents wrong "home" detection and avoids loading the wrong layout paths.
-   */
+  // Spanish at `/`, English at `/en`
   const pathLang: Lang = pathname?.startsWith("/en") ? "en" : "es";
 
   const { section } = getActiveSection(pathname);
@@ -228,14 +205,20 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const allowHeroBreakout = !!section || isJournal;
 
   /**
-   * ✅ Prefetch desktop-only chunks earlier (big perceived speed win)
-   * Your previous requestIdleCallback strategy is “nice”, but it causes visible late pop-in
-   * on slower connections/devices. This prefetch happens almost immediately after mount.
+   * PERF:
+   * Prefetch desktop-only chunks WITHOUT competing with LCP.
+   * Strategy: run on first user intent OR on idle (whichever comes first).
    */
+
+  const didPrefetchRef = useRef(false);
   useEffect(() => {
     if (isMobile) return;
+    if (didPrefetchRef.current) return;
 
     const prefetch = () => {
+      if (didPrefetchRef.current) return;
+      didPrefetchRef.current = true;
+
       void import("@/components/layout/Footer");
       void import("@/components/navigation/DockRight");
       void import("@/components/navigation/DockLeft");
@@ -243,8 +226,43 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       void import("lucide-react");
     };
 
-    const t = window.setTimeout(prefetch, 1);
-    return () => window.clearTimeout(t);
+    const onIntent = () => prefetch();
+
+    // First user intent (doesn't compete with LCP)
+    window.addEventListener("pointerdown", onIntent, { passive: true, once: true });
+    window.addEventListener("keydown", onIntent, { passive: true, once: true });
+    window.addEventListener("wheel", onIntent, { passive: true, once: true });
+    window.addEventListener("touchstart", onIntent, { passive: true, once: true });
+
+    // Typed requestIdleCallback / cancelIdleCallback shim (no `any`)
+    type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
+    type IdleRequestCallback = (deadline: IdleDeadline) => void;
+    type IdleRequestOptions = { timeout?: number };
+    type IdleHandle = number;
+
+    const idle = window as unknown as {
+      requestIdleCallback?: (cb: IdleRequestCallback, opts?: IdleRequestOptions) => IdleHandle;
+      cancelIdleCallback?: (handle: IdleHandle) => void;
+    };
+
+    let idleId: IdleHandle | null = null;
+    let timeoutId: number | null = null;
+
+    if (idle.requestIdleCallback) {
+      idleId = idle.requestIdleCallback(() => prefetch(), { timeout: 1800 });
+    } else {
+      timeoutId = window.setTimeout(prefetch, 1200);
+    }
+
+    return () => {
+      window.removeEventListener("pointerdown", onIntent);
+      window.removeEventListener("keydown", onIntent);
+      window.removeEventListener("wheel", onIntent);
+      window.removeEventListener("touchstart", onIntent);
+
+      if (idleId !== null) idle.cancelIdleCallback?.(idleId);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+    };
   }, [isMobile]);
 
   // Lenis → CSS var (desktop only)
@@ -308,8 +326,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   }, [sectionData]);
 
   const mobilePageTitle = useMemo(() => {
-    if (identity === "farmtotable")
-      return { es: "Olivea Farm To Table", en: "Olivea Farm To Table" };
+    if (identity === "farmtotable") return { es: "Olivea Farm To Table", en: "Olivea Farm To Table" };
     if (identity === "casa") return { es: "Casa Olivea", en: "Casa Olivea" };
     if (identity === "cafe") return { es: "Olivea Café", en: "Olivea Café" };
     return { es: "Secciones", en: "Sections" };
@@ -321,36 +338,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       if (isMobile) return [];
 
       return [
-        {
-          id: "press",
-          href: `/${pathLang}/press`,
-          label: dictionary.press.title,
-          icon: <AwardIcon />,
-        },
-        {
-          id: "sustainability",
-          href: `/${pathLang}/sustainability`,
-          label: dictionary.sustainability.title,
-          icon: <LeafIcon />,
-        },
-        {
-          id: "journal",
-          href: `/${pathLang}/journal`,
-          label: dictionary.journal.title,
-          icon: <BookOpenIcon />,
-        },
-        {
-          id: "team",
-          href: `/${pathLang}/team`,
-          label: dictionary.team.title,
-          icon: <UsersIcon />,
-        },
-        {
-          id: "contact",
-          href: `/${pathLang}/contact`,
-          label: dictionary.contact.title,
-          icon: <MapIcon />,
-        },
+        { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title, icon: <AwardIcon /> },
+        { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <LeafIcon /> },
+        { id: "journal", href: `/${pathLang}/journal`, label: dictionary.journal.title, icon: <BookOpenIcon /> },
+        { id: "team", href: `/${pathLang}/team`, label: dictionary.team.title, icon: <UsersIcon /> },
+        { id: "contact", href: `/${pathLang}/contact`, label: dictionary.contact.title, icon: <MapIcon /> },
       ];
     },
     [isMobile, pathLang, dictionary]
@@ -360,41 +352,22 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
   return (
     <>
-      {/* NAVBAR (KEEP THIS EXACT PATTERN) */}
+      {/* NAVBAR */}
       {!isHome && (
         <ClientOnly>
-          {isMobile ? (
-            <MobileNavbar dictionary={dictionary} />
-          ) : (
-            <DesktopNavbar lang={lang} dictionary={dictionary} />
-          )}
+          {isMobile ? <MobileNavbar dictionary={dictionary} /> : <DesktopNavbar lang={lang} dictionary={dictionary} />}
         </ClientOnly>
       )}
 
-      {/* ✅ Always-present crawlable primary nav (no visual impact) */}
+      {/* Crawlable primary nav (no visual impact) */}
       {!isHome && (
-        <nav
-          aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"}
-          className="sr-only"
-        >
+        <nav aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"} className="sr-only">
           <ul>
-            <li>
-              <a href={`/${pathLang}/farmtotable`}>Olivea Farm To Table</a>
-            </li>
-            <li>
-              <a href={`/${pathLang}/casa`}>Casa Olivea</a>
-            </li>
-            <li>
-              <a href={`/${pathLang}/cafe`}>Olivea Café</a>
-            </li>
-            <li>
-              <a href={`/${pathLang}/sustainability`}>
-                {pathLang === "en" ? "Sustainability" : "Sostenibilidad"}
-              </a>
-            </li>
-            <li>
-              <a href={`/${pathLang}/journal`}>{pathLang === "en" ? "Journal" : "Bitácora"}</a>
-            </li>
+            <li><a href={`/${pathLang}/farmtotable`}>Olivea Farm To Table</a></li>
+            <li><a href={`/${pathLang}/casa`}>Casa Olivea</a></li>
+            <li><a href={`/${pathLang}/cafe`}>Olivea Café</a></li>
+            <li><a href={`/${pathLang}/sustainability`}>{pathLang === "en" ? "Sustainability" : "Sostenibilidad"}</a></li>
+            <li><a href={`/${pathLang}/journal`}>{pathLang === "en" ? "Journal" : "Bitácora"}</a></li>
           </ul>
         </nav>
       )}
@@ -415,10 +388,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         </SubtleContentFade>
       </main>
 
-      {/* FOOTER (YES) */}
+      {/* FOOTER */}
       {!isHome && !isMobile && <Footer dict={dictionary} />}
 
-      {/* DESKTOP DOCKS (YES) */}
+      {/* DESKTOP DOCKS */}
       {!isHome && !isMobile && (
         <>
           {identity && <DockLeft identity={identity} sectionsOverride={sectionsOverride ?? []} />}
@@ -426,7 +399,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         </>
       )}
 
-      {/* MOBILE BOTTOM NAV (unchanged) */}
+      {/* MOBILE BOTTOM NAV */}
       {!isHome && isMobile && mobileNavItems.length > 0 && (
         <ClientOnly>
           <div className="relative z-300 lg:hidden">
@@ -440,7 +413,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
-      {/* CHAT (unchanged) */}
+      {/* CHAT */}
       {wantsChat && (
         <ClientOnly>
           <WhistleToggleMount />
@@ -449,7 +422,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         </ClientOnly>
       )}
 
-      {/* Desktop chat trigger (KEEP THIS) */}
+      {/* Desktop chat trigger */}
       {!isHome && !isMobile && (
         <ClientOnly>
           <DesktopChatButton lang={pathLang} />
