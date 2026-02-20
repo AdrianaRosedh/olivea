@@ -14,7 +14,7 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">
+          <h2 className="text-2xl md:text-4xl font-semibold text-oliveaText">
             Habitaciones
           </h2>
         </Reveal>
@@ -25,7 +25,7 @@ export default function Page() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2 }}
         viewport={{ once: true }}
-        className="text-lg text-gray-800 leading-relaxed max-w-[720px] space-y-5"
+        className="text-lg text-oliveaText/80 leading-relaxed max-w-[720px] space-y-5"
       >
         <p>
           Somos la extensión cálida de tu hogar en el valle. Catorce habitaciones
@@ -39,7 +39,6 @@ export default function Page() {
         </p>
       </motion.div>
 
-      {/* Scroll-grow image band — same interaction language as Farm & English Casa */}
       <ScrollGrowImageBand
         src="/images/casa/room.jpg"
         alt="Habitación iluminada y ordenada"
@@ -59,7 +58,7 @@ export default function Page() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1, delay: 0.4 }}
         viewport={{ once: true }}
-        className="text-base text-gray-700 leading-snug max-w-[700px] mt-6"
+        className="text-base text-oliveaText/80 leading-snug max-w-[700px] mt-6"
         id="luz"
       >
         <p>

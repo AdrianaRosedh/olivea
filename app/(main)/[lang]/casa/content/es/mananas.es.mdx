@@ -12,7 +12,7 @@ export default function Page() {
       variant="top"
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
-      title={null} // ✅ remove top title
+      title={null}
     >
       {/* Imagen principal */}
       <motion.div
@@ -35,13 +35,13 @@ export default function Page() {
 
       {/* Título debajo de la imagen */}
       <Reveal preset="up">
-        <h2 className="text-2xl md:text-4xl font-semibold mb-8">
+        <h2 className="text-2xl md:text-4xl font-semibold mb-8 text-oliveaText">
           Mañanas en Olivea
         </h2>
       </Reveal>
 
       {/* Texto en columnas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-800 leading-relaxed">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-oliveaText leading-relaxed">
         {/* Desayuno */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -50,14 +50,18 @@ export default function Page() {
           viewport={{ once: true }}
           id="desayuno"
         >
-          <p className="text-lg font-medium text-gray-600 mb-2">Desayuno</p>
-          <p>
+          <p className="text-lg font-medium text-oliveaText/80 mb-2">
+            Desayuno
+          </p>
+
+          <p className="text-oliveaText/80">
             Los huéspedes del hotel comienzan el día con un desayuno continental
             diseñado por la cocina de Olivea. Pan hecho en casa, vegetales
             de nuestro huerto y una selección de acompañamientos locales y preparados
             internamente — servido de forma simple, fresca y equilibrada.
           </p>
-          <p className="mt-3 text-sm text-gray-600">
+
+          <p className="mt-3 text-sm text-oliveaText/70">
             El café incluido en el desayuno es americano o té.
           </p>
         </motion.div>
@@ -70,10 +74,11 @@ export default function Page() {
           viewport={{ once: true }}
           id="cafe"
         >
-          <p className="text-lg font-medium text-gray-600 mb-2">
+          <p className="text-lg font-medium text-oliveaText/80 mb-2">
             Café & Olivea Café
           </p>
-          <p>
+
+          <p className="text-oliveaText/80">
             Para quienes buscan una mañana más amplia — o un desayuno más
             expresivo — Olivea Café ofrece un menú extendido y una selección
             completa de bebidas de café. Bebidas con espresso, preparaciones

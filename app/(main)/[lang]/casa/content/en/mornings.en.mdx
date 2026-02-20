@@ -12,7 +12,7 @@ export default function Page() {
       variant="top"
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
-      title={null}   
+      title={null}
     >
       {/* Hero Image */}
       <motion.div
@@ -35,13 +35,13 @@ export default function Page() {
 
       {/* Title UNDER image */}
       <Reveal preset="up">
-        <h2 className="text-2xl md:text-4xl font-semibold mb-8">
+        <h2 className="text-2xl md:text-4xl font-semibold mb-8 text-oliveaText">
           Mornings at Olivea
         </h2>
       </Reveal>
 
       {/* Text Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-800 leading-relaxed">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-oliveaText leading-relaxed">
         {/* Breakfast */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -50,16 +50,18 @@ export default function Page() {
           viewport={{ once: true }}
           id="breakfast"
         >
-          <p className="text-lg font-medium text-gray-600 mb-2">
+          <p className="text-lg font-medium text-oliveaText/80 mb-2">
             Breakfast
           </p>
-          <p>
+
+          <p className="text-oliveaText/80">
             Hotel guests begin the day with a thoughtfully designed continental
-            breakfast, created by the Olivea kitchen. House-made bread, vegetables 
+            breakfast, created by the Olivea kitchen. House-made bread, vegetables
             from our garden, and a selection of local and in-house preparations are served
             simply — fresh, balanced, and rooted in the garden.
           </p>
-          <p className="mt-3 text-sm text-gray-600">
+
+          <p className="mt-3 text-sm text-oliveaText/70">
             Coffee service included with breakfast consists of an americano or tea.
           </p>
         </motion.div>
@@ -72,10 +74,11 @@ export default function Page() {
           viewport={{ once: true }}
           id="cafe"
         >
-          <p className="text-lg font-medium text-gray-600 mb-2">
+          <p className="text-lg font-medium text-oliveaText/80 mb-2">
             Coffee & Olivea Café
           </p>
-          <p>
+
+          <p className="text-oliveaText/80">
             For guests seeking a broader or more expressive morning experience,
             Olivea Café offers an expanded breakfast menu alongside a full
             selection of crafted coffee drinks. Espresso-based beverages,

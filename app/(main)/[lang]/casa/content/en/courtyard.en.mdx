@@ -14,47 +14,43 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          {/* Mobile title */}
-          <h2 className="text-2xl md:text-4xl font-semibold md:hidden">
+          <h2 className="text-2xl md:text-4xl font-semibold md:hidden text-oliveaText">
             Spaces to Breathe
           </h2>
         </Reveal>
       }
     >
       <div className="flex flex-col md:flex-row gap-10 md:items-center">
-        {/* Text LEFT */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="w-full md:w-1/2 text-gray-800 space-y-5"
+          className="w-full md:w-1/2 text-oliveaText space-y-5"
         >
-          {/* Desktop title */}
           <Reveal preset="up">
-            <h2 className="hidden md:block text-3xl lg:text-4xl font-semibold mb-6">
+            <h2 className="hidden md:block text-3xl lg:text-4xl font-semibold mb-6 text-oliveaText">
               Spaces to Breathe
             </h2>
           </Reveal>
 
-          <p className="text-lg">
+          <p className="text-lg text-oliveaText/80">
             Inspired by nature, the courtyard opens at the heart of the property.
             Two long corridors connect your room to open air and rhythm.
           </p>
 
-          <p className="text-base text-gray-700 leading-snug">
+          <p className="text-base text-oliveaText/80 leading-snug">
             A sense of calm lives in the courtyard — gravel paths, aromatic plants, and a
             sunlit pool that follows the rhythm of the seasons. Light filters naturally.
             Sound settles softly.
           </p>
-          
-          <p className="text-base text-gray-700 leading-snug">
+
+          <p className="text-base text-oliveaText/80 leading-snug">
             From morning to evening, the courtyard holds a steady presence — inviting you
             to step outside or simply pause and observe.
           </p>
         </motion.div>
 
-        {/* Image RIGHT */}
         <motion.div
           initial={{ opacity: 0, x: 60 }}
           whileInView={{ opacity: 1, x: 0 }}

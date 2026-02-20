@@ -26,11 +26,7 @@ export default function Sub({
     <Reveal preset={preset} delay={delay} className={cn("snap-center", className)}>
       <div
         id={id}
-        className={cn(
-          "subsection leading-relaxed md:text-lg",
-          // ✅ Olivea default text
-          "text-(--olivea-olive)"
-        )}
+        className={cn("subsection leading-relaxed md:text-lg text-oliveaText")}
         style={minH ? { minHeight: minH } : undefined}
       >
         {children}

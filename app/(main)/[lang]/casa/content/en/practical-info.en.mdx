@@ -36,7 +36,7 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold text-[color:var(--olivea-olive)]">
+          <h2 className="text-2xl md:text-4xl font-semibold text-oliveaText">
             Stay Info
           </h2>
         </Reveal>
@@ -51,12 +51,22 @@ export default function Page() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: i * 0.1 }}
             viewport={{ once: true }}
-            className="bg-white/10 backdrop-blur-md rounded-2xl border border-black/10 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+            className="
+              bg-white/10 backdrop-blur-md
+              rounded-2xl
+              border border-black/10
+              p-6
+              shadow-[0_8px_24px_rgba(0,0,0,0.06)]
+              text-oliveaText
+            "
           >
-            <p className="text-sm font-medium tracking-wide uppercase mb-1 text-[color:hsl(var(--muted-foreground))]">
+            {/* TITLE */}
+            <p className="text-sm font-semibold tracking-wide uppercase mb-2 text-oliveaText">
               {item.title}
             </p>
-            <p className="text-[1.05rem] leading-relaxed text-[color:var(--olivea-olive)]">
+
+            {/* BODY */}
+            <p className="text-[1.05rem] leading-relaxed text-oliveaText/80">
               {item.body}
             </p>
           </motion.div>
