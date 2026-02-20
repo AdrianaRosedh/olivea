@@ -1,9 +1,15 @@
+// components/mdx/CardParallax.tsx
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Image, { type ImageProps } from "next/image";
 
 type StyleVars = React.CSSProperties & Record<string, string | number | undefined>;
+
+function isCoarsePointer(): boolean {
+  if (typeof window === "undefined") return false;
+  return !!window.matchMedia?.("(pointer: coarse)").matches;
+}
 
 export default function CardParallax({
   src,
@@ -21,6 +27,13 @@ export default function CardParallax({
   placeholder = "empty",
   blurDataURL,
   priority = false,
+
+  /**
+   * ✅ NEW:
+   * By default, disable parallax on coarse pointers (Android/iOS) for smooth scrolling.
+   * You can override if you really want it.
+   */
+  parallaxOnCoarsePointer = false,
 }: {
   src: string;
   alt: string;
@@ -38,30 +51,36 @@ export default function CardParallax({
   placeholder?: "blur" | "empty";
   blurDataURL?: string;
   priority?: boolean;
+
+  parallaxOnCoarsePointer?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
+  const shouldEnableParallax =
+    ready &&
+    speed !== 0 &&
+    !prefersReducedMotion() &&
+    (!isCoarsePointer() || parallaxOnCoarsePointer);
+
+  function prefersReducedMotion(): boolean {
+    if (typeof window === "undefined") return false;
+    return !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  }
+
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
 
-    if (!ready) {
+    // Always reset transform while not ready / disabled
+    if (!shouldEnableParallax) {
       el.style.transform = "translateY(0px)";
       return;
     }
 
-    const prefersReduced =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-    if (prefersReduced || speed === 0) {
-      el.style.transform = "";
-      return;
-    }
-
     let raf = 0;
+
     const update = () => {
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight || 1;
@@ -87,16 +106,20 @@ export default function CardParallax({
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [speed, ready]);
+  }, [speed, shouldEnableParallax]);
 
   if (failed) return null;
 
   const surfaceStyle: StyleVars = {};
   let surfaceBaseClass = "relative w-full";
 
+  // ✅ IMPORTANT: if caller provides surfaceClassName (like "h-full w-full"),
+  // we assume the parent controls sizing. Do NOT apply hVh heights.
+  const callerControlsSizing = !!surfaceClassName;
+
   if (aspect) {
     surfaceStyle.aspectRatio = aspect;
-  } else {
+  } else if (!callerControlsSizing) {
     if (hVh?.mobile) surfaceStyle.height = `${hVh.mobile}vh`;
     if (hVh?.md) surfaceStyle["--card-md-h"] = `${hVh.md}vh`;
     if (hVh?.lg) surfaceStyle["--card-lg-h"] = `${hVh.lg}vh`;
@@ -104,8 +127,6 @@ export default function CardParallax({
   }
 
   const effectivePlaceholder: "blur" | "empty" = blurDataURL ? "blur" : placeholder;
-
-  // Let Next manage priority images (preload + eager). Only set loading for non-priority.
   const effectiveLoading: ImageProps["loading"] = priority ? undefined : loading;
 
   return (
@@ -115,7 +136,7 @@ export default function CardParallax({
     >
       <div
         ref={wrapRef}
-        className={["absolute -inset-px will-change-transform", className] // ✅ fixed
+        className={["absolute -inset-px will-change-transform", className]
           .filter(Boolean)
           .join(" ")}
         style={{ borderRadius: "inherit" }}
@@ -132,7 +153,7 @@ export default function CardParallax({
           placeholder={effectivePlaceholder}
           blurDataURL={blurDataURL}
           onLoadingComplete={(img) => {
-            // ✅ Unlock parallax after decode (more stable on slow devices)
+            // Unlock parallax after decode (more stable on slow devices)
             if (img?.decode) {
               img.decode().catch(() => {}).finally(() => setReady(true));
             } else {

@@ -37,9 +37,31 @@ const Footer = dynamic(() => import("@/components/layout/Footer"), {
   loading: () => null,
 });
 
+/**
+ * ✅ IMPORTANT perf win:
+ * DockLeft is client-only (needs IO / framer / optional gsap), so it can't SSR easily.
+ * But rendering a skeleton immediately prevents “empty then pop-in”.
+ */
 const DockLeft = dynamic(() => import("@/components/navigation/DockLeft"), {
   ssr: false,
-  loading: () => null,
+  loading: () => (
+    <div
+      className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40 pointer-events-none"
+      aria-hidden="true"
+    >
+      <div className="w-55">
+        <div className="h-3 w-28 rounded bg-black/5 mb-6" />
+        <div className="flex flex-col gap-5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4">
+              <div className="h-3 w-10 rounded bg-black/5" />
+              <div className="h-5 w-36 rounded bg-black/5" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  ),
 });
 
 const DockRight = dynamic(() => import("@/components/navigation/DockRight"), {
@@ -47,24 +69,36 @@ const DockRight = dynamic(() => import("@/components/navigation/DockRight"), {
   loading: () => null,
 });
 
-const DesktopChatButton = dynamic(() => import("@/components/ui/DesktopChatButton"), {
-  ssr: false,
-  loading: () => null,
-});
+const DesktopChatButton = dynamic(
+  () => import("@/components/ui/DesktopChatButton"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
 
 // Chat: only load when wantsChat = true
-const WhistleToggleMount = dynamic(() => import("@/components/chat/WhistleToggleMount"), {
-  ssr: false,
-  loading: () => null,
-});
-const LoadWhistleClient = dynamic(() => import("@/components/chat/LoadWhistleClient"), {
-  ssr: false,
-  loading: () => null,
-});
-const ChatCloseOverlay = dynamic(() => import("@/components/chat/ChatCloseOverlay"), {
-  ssr: false,
-  loading: () => null,
-});
+const WhistleToggleMount = dynamic(
+  () => import("@/components/chat/WhistleToggleMount"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
+const LoadWhistleClient = dynamic(
+  () => import("@/components/chat/LoadWhistleClient"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
+const ChatCloseOverlay = dynamic(
+  () => import("@/components/chat/ChatCloseOverlay"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
 
 /* =========================
    DockRight icons (desktop-only)
@@ -104,7 +138,11 @@ interface LayoutShellProps {
 }
 
 type Identity = "casa" | "farmtotable" | "cafe";
-type Override = Array<{ id: string; label: string; subs?: Array<{ id: string; label: string }> }>;
+type Override = Array<{
+  id: string;
+  label: string;
+  subs?: Array<{ id: string; label: string }>;
+}>;
 type DockItem = { id: string; href: string; label: string; icon: React.ReactNode };
 
 type StyleVars = React.CSSProperties & {
@@ -168,17 +206,32 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-  // URL-derived language
-  const pathLang: Lang = pathname === "/es" || pathname.startsWith("/es/") ? "es" : "en";
+  /**
+   * ✅ IMPORTANT correctness + perf:
+   * Your site uses Spanish at `/` and English at `/en`.
+   * So "language from URL" should be:
+   * - startsWith("/en") => en
+   * - else => es
+   *
+   * This prevents wrong "home" detection and avoids loading the wrong layout paths.
+   */
+  const pathLang: Lang = pathname?.startsWith("/en") ? "en" : "es";
 
   const { section } = getActiveSection(pathname);
   const identity: Identity | null = (section?.id as Identity) ?? null;
 
-  const isHome = pathname === `/${pathLang}`;
-  const isJournal = pathname?.includes("/journal");
+  const isHome = pathname === "/" || pathname === "/en";
+  const isJournal =
+    pathname?.includes("/journal") ||
+    pathname?.includes("/diario") ||
+    pathname?.includes("/posts");
   const allowHeroBreakout = !!section || isJournal;
 
-  // ✅ HYBRID: prefetch desktop-only chunks on desktop to reduce “late pop-in”
+  /**
+   * ✅ Prefetch desktop-only chunks earlier (big perceived speed win)
+   * Your previous requestIdleCallback strategy is “nice”, but it causes visible late pop-in
+   * on slower connections/devices. This prefetch happens almost immediately after mount.
+   */
   useEffect(() => {
     if (isMobile) return;
 
@@ -190,15 +243,8 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       void import("lucide-react");
     };
 
-    const ric = (globalThis as typeof globalThis & {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
-    }).requestIdleCallback;
-
-    if (ric) {
-      ric(prefetch, { timeout: 800 });
-    } else {
-      setTimeout(prefetch, 60);
-    }
+    const t = window.setTimeout(prefetch, 1);
+    return () => window.clearTimeout(t);
   }, [isMobile]);
 
   // Lenis → CSS var (desktop only)
@@ -262,7 +308,8 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   }, [sectionData]);
 
   const mobilePageTitle = useMemo(() => {
-    if (identity === "farmtotable") return { es: "Olivea Farm To Table", en: "Olivea Farm To Table" };
+    if (identity === "farmtotable")
+      return { es: "Olivea Farm To Table", en: "Olivea Farm To Table" };
     if (identity === "casa") return { es: "Casa Olivea", en: "Casa Olivea" };
     if (identity === "cafe") return { es: "Olivea Café", en: "Olivea Café" };
     return { es: "Secciones", en: "Sections" };
@@ -274,11 +321,36 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       if (isMobile) return [];
 
       return [
-        { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title, icon: <AwardIcon /> },
-        { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <LeafIcon /> },
-        { id: "journal", href: `/${pathLang}/journal`, label: dictionary.journal.title, icon: <BookOpenIcon /> },
-        { id: "team", href: `/${pathLang}/team`, label: dictionary.team.title, icon: <UsersIcon /> },
-        { id: "contact", href: `/${pathLang}/contact`, label: dictionary.contact.title, icon: <MapIcon /> },
+        {
+          id: "press",
+          href: `/${pathLang}/press`,
+          label: dictionary.press.title,
+          icon: <AwardIcon />,
+        },
+        {
+          id: "sustainability",
+          href: `/${pathLang}/sustainability`,
+          label: dictionary.sustainability.title,
+          icon: <LeafIcon />,
+        },
+        {
+          id: "journal",
+          href: `/${pathLang}/journal`,
+          label: dictionary.journal.title,
+          icon: <BookOpenIcon />,
+        },
+        {
+          id: "team",
+          href: `/${pathLang}/team`,
+          label: dictionary.team.title,
+          icon: <UsersIcon />,
+        },
+        {
+          id: "contact",
+          href: `/${pathLang}/contact`,
+          label: dictionary.contact.title,
+          icon: <MapIcon />,
+        },
       ];
     },
     [isMobile, pathLang, dictionary]
@@ -291,19 +363,38 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       {/* NAVBAR (KEEP THIS EXACT PATTERN) */}
       {!isHome && (
         <ClientOnly>
-          {isMobile ? <MobileNavbar dictionary={dictionary} /> : <DesktopNavbar lang={lang} dictionary={dictionary} />}
+          {isMobile ? (
+            <MobileNavbar dictionary={dictionary} />
+          ) : (
+            <DesktopNavbar lang={lang} dictionary={dictionary} />
+          )}
         </ClientOnly>
       )}
 
       {/* ✅ Always-present crawlable primary nav (no visual impact) */}
       {!isHome && (
-        <nav aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"} className="sr-only">
+        <nav
+          aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"}
+          className="sr-only"
+        >
           <ul>
-            <li><a href={`/${pathLang}/farmtotable`}>Olivea Farm To Table</a></li>
-            <li><a href={`/${pathLang}/casa`}>Casa Olivea</a></li>
-            <li><a href={`/${pathLang}/cafe`}>Olivea Café</a></li>
-            <li><a href={`/${pathLang}/sustainability`}>{pathLang === "en" ? "Sustainability" : "Sostenibilidad"}</a></li>
-            <li><a href={`/${pathLang}/journal`}>{pathLang === "en" ? "Journal" : "Bitácora"}</a></li>
+            <li>
+              <a href={`/${pathLang}/farmtotable`}>Olivea Farm To Table</a>
+            </li>
+            <li>
+              <a href={`/${pathLang}/casa`}>Casa Olivea</a>
+            </li>
+            <li>
+              <a href={`/${pathLang}/cafe`}>Olivea Café</a>
+            </li>
+            <li>
+              <a href={`/${pathLang}/sustainability`}>
+                {pathLang === "en" ? "Sustainability" : "Sostenibilidad"}
+              </a>
+            </li>
+            <li>
+              <a href={`/${pathLang}/journal`}>{pathLang === "en" ? "Journal" : "Bitácora"}</a>
+            </li>
           </ul>
         </nav>
       )}

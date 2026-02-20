@@ -23,8 +23,6 @@ export type NavOverride = Array<{
 interface DockLeftProps {
   identity: Identity;
   sectionsOverride: NavOverride;
-
-  /** Optional: lets DockLeft render “Capítulos/Chapters” like PhilosophyDockLeft */
   lang?: Lang;
 }
 
@@ -38,7 +36,7 @@ const SWAP_Y = 26;
 /** Active detection “center band” */
 const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
 
-/* ── GSAP dynamic loader (cached, no `any`) ───────────────────────── */
+/* ── GSAP dynamic loader (cached) ────────────────────────────────── */
 type GsapCore = {
   to: (target: unknown, vars: Record<string, unknown>) => unknown;
   registerPlugin: (...plugins: unknown[]) => void;
@@ -50,11 +48,9 @@ type DefaultExport<T> = { default: T };
 let _gsapPromise: Promise<GsapCore> | null = null;
 
 function pickGsap(mod: typeof import("gsap")): GsapCore {
-  // Common modern shape: { gsap }
   if ("gsap" in mod && typeof mod.gsap === "object" && mod.gsap) {
     return mod.gsap as unknown as GsapCore;
   }
-  // Sometimes default export
   if ("default" in mod) {
     return (mod as DefaultExport<unknown>).default as unknown as GsapCore;
   }
@@ -84,12 +80,12 @@ async function getGsap(): Promise<GsapCore> {
   return _gsapPromise;
 }
 
-function isDesktop(): boolean {
+function isDesktopOnce(): boolean {
   if (typeof window === "undefined") return false;
-  return window.matchMedia("(min-width: 768px)").matches; // Tailwind md
+  return window.matchMedia("(min-width: 768px)").matches;
 }
 
-function prefersReducedMotion(): boolean {
+function prefersReducedMotionOnce(): boolean {
   if (typeof window === "undefined") return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -129,6 +125,7 @@ function getScrollableAncestor(el: Element): Window | Element {
   while (node && node !== document.body && !isScrollable(node)) {
     node = node.parentElement;
   }
+
   return node && node !== document.body && node !== document.documentElement
     ? node
     : window;
@@ -153,10 +150,13 @@ function nativeScrollToElement(
   const sRect = sEl.getBoundingClientRect();
   const current = (sEl as HTMLElement).scrollTop;
   const target = Math.max(0, current + (rect.top - sRect.top) - offsetY);
-  (sEl as HTMLElement).scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
+  (sEl as HTMLElement).scrollTo({
+    top: target,
+    behavior: smooth ? "smooth" : "auto",
+  });
 }
 
-/* ── Motion easings / variants (Philosophy look) ─────────────────── */
+/* ── Motion easings / variants ───────────────────────────────────── */
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const EASE_IN_OUT: [number, number, number, number] = [0.4, 0, 0.2, 1];
 const EASE_IN: [number, number, number, number] = [0.12, 0, 0.39, 0];
@@ -166,7 +166,7 @@ const dockV: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: EASE_OUT, delay: 0.25 },
+    transition: { duration: 0.35, ease: EASE_OUT, delay: 0 },
   },
 };
 
@@ -214,6 +214,15 @@ export default function DockLeft({
 }: DockLeftProps) {
   const reduce = useReducedMotion();
 
+  // Compute once; these don’t need to re-evaluate repeatedly during scroll
+  const desktopRef = useRef<boolean>(false);
+  const prmRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    desktopRef.current = isDesktopOnce();
+    prmRef.current = prefersReducedMotionOnce();
+  }, []);
+
   const items = useMemo(
     () =>
       sectionsOverride.map((s, i) => ({
@@ -232,14 +241,25 @@ export default function DockLeft({
 
   const subToParent = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const s of sectionsOverride)
+    for (const s of sectionsOverride) {
       (s.subs ?? []).forEach((sub) => (map[sub.id] = s.id));
+    }
     return map;
   }, [sectionsOverride]);
 
   const [activeSection, setActiveSection] = useState(items[0]?.id || "");
   const [activeSub, setActiveSub] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // Keep active section valid when sectionsOverride changes
+  useEffect(() => {
+    if (!items.length) return;
+    if (!activeSection || !items.some((x) => x.id === activeSection)) {
+      setActiveSection(items[0].id);
+      setActiveSub(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   const unlockTimer = useRef<number | null>(null);
   const safetyTimer = useRef<number | null>(null);
@@ -251,10 +271,6 @@ export default function DockLeft({
     safetyTimer.current = null;
   }, []);
 
-  /* Smooth scroll:
-     - Desktop: uses GSAP (loaded lazily on first use)
-     - Mobile/Reduced: native scroll fallback (zero GSAP download)
-  */
   const scrollToSection = useCallback(
     async (id: string) => {
       const el =
@@ -272,14 +288,16 @@ export default function DockLeft({
       );
 
       const scroller = getScrollableAncestor(el);
-      const shouldUseNative = !isDesktop() || reduce || prefersReducedMotion();
+
+      const shouldUseNative =
+        !desktopRef.current || reduce || prmRef.current;
 
       if (shouldUseNative) {
         nativeScrollToElement(
           scroller,
           el,
           TOP_OFFSET_PX,
-          /* smooth */ !reduce && !prefersReducedMotion()
+          /* smooth */ !reduce && !prmRef.current
         );
 
         if (window.location.hash.slice(1) !== id) {
@@ -294,7 +312,6 @@ export default function DockLeft({
       }
 
       const gsap = await getGsap();
-
       gsap.killTweensOf(scroller);
 
       const vars: Record<string, unknown> = {
@@ -310,10 +327,14 @@ export default function DockLeft({
               : (scroller as HTMLElement).scrollTop;
 
           if (Math.abs(currentY - targetY) > 10) {
-            if (scroller === window)
+            if (scroller === window) {
               window.scrollTo({ top: targetY, behavior: "auto" });
-            else
-              (scroller as HTMLElement).scrollTo({ top: targetY, behavior: "auto" });
+            } else {
+              (scroller as HTMLElement).scrollTo({
+                top: targetY,
+                behavior: "auto",
+              });
+            }
           }
 
           setSnapDisabled(false);
@@ -358,50 +379,75 @@ export default function DockLeft({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* Active detection: IntersectionObserver */
+  /* Active detection: IntersectionObserver (optimized + RAF batched) */
   useEffect(() => {
     if (items.length === 0) return;
 
-    const observed: Array<{ el: HTMLElement; id: string; kind: "main" | "sub" }> =
-      [];
+    const elMeta = new Map<Element, { id: string; kind: "main" | "sub" }>();
 
+    // main items
     for (const it of items) {
       const el =
         document.querySelector<HTMLElement>(`.main-section#${it.id}`) ||
         document.getElementById(it.id);
-      if (el) observed.push({ el, id: it.id, kind: "main" });
+      if (el) elMeta.set(el, { id: it.id, kind: "main" });
     }
 
+    // subs
     for (const subId of Object.keys(subToParent)) {
       const el =
         document.querySelector<HTMLElement>(`.subsection#${subId}`) ||
         document.getElementById(subId);
-      if (el) observed.push({ el, id: subId, kind: "sub" });
+      if (el) elMeta.set(el, { id: subId, kind: "sub" });
     }
 
-    if (observed.length === 0) return;
+    if (elMeta.size === 0) return;
+
+    let raf = 0;
+    let pending: { id: string; kind: "main" | "sub" } | null = null;
+
+    const flush = () => {
+      raf = 0;
+      if (!pending) return;
+
+      const { id, kind } = pending;
+      pending = null;
+
+      if (kind === "sub") {
+        setActiveSub(id);
+        setActiveSection(subToParent[id]);
+      } else {
+        setActiveSub(null);
+        setActiveSection(id);
+      }
+    };
+
+    const schedule = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(flush);
+    };
 
     const io = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort(
-            (a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0)
-          );
+        // pick the single “most visible” entry without sorting
+        let best: IntersectionObserverEntry | null = null;
+        let bestRatio = 0;
 
-        if (visible.length === 0) return;
-
-        const target = visible[0].target as HTMLElement;
-        const match = observed.find((x) => x.el === target);
-        if (!match) return;
-
-        if (match.kind === "sub") {
-          setActiveSub(match.id);
-          setActiveSection(subToParent[match.id]);
-        } else {
-          setActiveSub(null);
-          setActiveSection(match.id);
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const r = e.intersectionRatio ?? 0;
+          if (!best || r > bestRatio) {
+            best = e;
+            bestRatio = r;
+          }
         }
+
+        if (!best) return;
+        const meta = elMeta.get(best.target);
+        if (!meta) return;
+
+        pending = meta;
+        schedule();
       },
       {
         root: null,
@@ -410,8 +456,12 @@ export default function DockLeft({
       }
     );
 
-    observed.forEach((x) => io.observe(x.el));
-    return () => io.disconnect();
+    for (const el of elMeta.keys()) io.observe(el);
+
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      io.disconnect();
+    };
   }, [items, subToParent]);
 
   useEffect(() => {
@@ -454,7 +504,10 @@ export default function DockLeft({
               : "text-(--olivea-olive) opacity-75 hover:opacity-100 hover:text-(--olivea-olive)";
 
             return (
-              <div key={item.id} className={cn("flex flex-col", isActive ? "mb-4" : "mb-0")}>
+              <div
+                key={item.id}
+                className={cn("flex flex-col", isActive ? "mb-4" : "mb-0")}
+              >
                 <a
                   href={`#${item.id}`}
                   onClick={(e) => handleSmoothScroll(e, item.id)}
@@ -478,13 +531,16 @@ export default function DockLeft({
                         initial={{ opacity: 0, scaleY: 0.7 }}
                         animate={{ opacity: 1, scaleY: 1 }}
                         exit={{ opacity: 0, scaleY: 0.7 }}
-                        transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
+                        transition={{
+                          duration: reduce ? 0 : 0.18,
+                          ease: EASE_OUT,
+                        }}
                         className="absolute left-4.5 top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-olive)/35 origin-center"
                       />
                     )}
                   </AnimatePresence>
 
-                  {/* numbers (Philosophy sizing) */}
+                  {/* numbers */}
                   <span
                     className={cn(
                       "w-10 tabular-nums text-[12px] tracking-[0.28em] font-semibold",
@@ -494,7 +550,7 @@ export default function DockLeft({
                     {item.number}
                   </span>
 
-                  {/* label swap (Philosophy sizing + serif) */}
+                  {/* label swap */}
                   <div className="relative h-8 overflow-hidden min-w-55">
                     <motion.div
                       className="block text-[18px] font-semibold whitespace-nowrap"
@@ -503,7 +559,10 @@ export default function DockLeft({
                       animate={
                         reduce
                           ? { y: 0, opacity: 1 }
-                          : { y: isSwapping ? -SWAP_Y : 0, opacity: isSwapping ? 0 : 1 }
+                          : {
+                              y: isSwapping ? -SWAP_Y : 0,
+                              opacity: isSwapping ? 0 : 1,
+                            }
                       }
                       transition={{
                         y: { type: "spring", stiffness: 220, damping: 22 },
@@ -520,7 +579,10 @@ export default function DockLeft({
                       animate={
                         reduce
                           ? { y: 0, opacity: 1 }
-                          : { y: isSwapping ? 0 : SWAP_Y, opacity: isSwapping ? 1 : 0 }
+                          : {
+                              y: isSwapping ? 0 : SWAP_Y,
+                              opacity: isSwapping ? 1 : 0,
+                            }
                       }
                       transition={{
                         y: { type: "spring", stiffness: 220, damping: 22 },
@@ -538,12 +600,15 @@ export default function DockLeft({
                         scaleX: isIntent ? 1 : 0,
                         opacity: isIntent ? 1 : 0,
                       }}
-                      transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
+                      transition={{
+                        duration: reduce ? 0 : 0.18,
+                        ease: EASE_OUT,
+                      }}
                     />
                   </div>
                 </a>
 
-                {/* Sub-sections (kept, but typography already calm) */}
+                {/* Sub-sections */}
                 <AnimatePresence initial={false}>
                   {isActive && subsForSection(item.id).length > 0 && (
                     <motion.div
@@ -581,7 +646,9 @@ export default function DockLeft({
                                 <span
                                   className={cn(
                                     "absolute -left-3 top-[0.62em] h-1 w-2 rounded-full",
-                                    isSubActive ? "bg-(--olivea-olive)/40" : "bg-transparent"
+                                    isSubActive
+                                      ? "bg-(--olivea-olive)/40"
+                                      : "bg-transparent"
                                   )}
                                 />
                                 {sub.label}
