@@ -11,7 +11,10 @@ type RevealSentencesProps = {
 };
 
 function splitSentences(s: string): string[] {
-  return s.trim().split(/(?<=[.!?])\s+/g).filter(Boolean);
+  return s
+    .trim()
+    .split(/(?<=[.!?])\s+/g)
+    .filter(Boolean);
 }
 
 export default function RevealSentences({
@@ -27,7 +30,7 @@ export default function RevealSentences({
     <div className={className}>
       {parts.map((t, i) => (
         <Reveal key={i} preset={preset} delay={start + i * each} distance={22}>
-          <p className="leading-relaxed md:text-lg text-(--olivea-olive)">{t}</p>
+          <p className="leading-relaxed md:text-lg text-oliveaText">{t}</p>
         </Reveal>
       ))}
     </div>

@@ -88,7 +88,7 @@
     overflow-y: auto;
 
     background-color: hsl(var(--background));
-    color: inherit; /* ✅ DO NOT override olive here */
+    color: inherit; /* ✅ inherit from html (olive) */
 
     font-family: var(--font-sans);
     line-height: var(--line-height-body);
@@ -114,9 +114,22 @@
     color-scheme: only light;
   }
 
-  /* ✅ HARD OVERRIDE: kill any lingering Tailwind `text-black*` usages across content */
-  :where([class*="text-black"]) {
-    color: var(--olivea-olive) !important;
+  /* ✅ Make all MDX/Typography (prose) default to Olivea ink */
+  .prose {
+    color: var(--olivea-olive);
+
+    /* Tailwind Typography CSS variables */
+    --tw-prose-body: var(--olivea-olive);
+    --tw-prose-headings: var(--olivea-olive);
+    --tw-prose-links: var(--olivea-olive);
+    --tw-prose-bold: var(--olivea-olive);
+    --tw-prose-quotes: var(--olivea-olive);
+    --tw-prose-bullets: var(--olivea-olive);
+    --tw-prose-counters: var(--olivea-olive);
+
+    /* subtle lines/captions */
+    --tw-prose-hr: color-mix(in srgb, var(--olivea-olive) 18%, transparent);
+    --tw-prose-captions: color-mix(in srgb, var(--olivea-olive) 70%, transparent);
   }
 }
 

@@ -1,4 +1,3 @@
-// app/(main)/[lang]/casa/content/es/diseno.es.mdx
 "use client";
 
 import StickyBlock from "@/components/scroll/StickyBlock";
@@ -17,29 +16,23 @@ export default function Page() {
       title={
         <div className="md:hidden">
           <Reveal preset="up">
-            <h2 className="text-2xl md:text-4xl font-semibold">
+            <h2 className="text-2xl md:text-4xl font-semibold text-oliveaText">
               Diseño que se Siente
             </h2>
           </Reveal>
 
-          <p className="mt-2 text-sm italic text-gray-500">
+          <p className="mt-2 text-sm italic text-oliveaText/70">
             Diseño concebido por Ange Joy, fundadora de Olivea.
           </p>
         </div>
       }
     >
       <div className="flex flex-col md:flex-row gap-10 items-center">
-        {/* Imagen IZQUIERDA — ScrollDrift (reveal + drift) */}   
-        <ScrollDrift
-          fromX={-48}
-          toX={22}
-          reveal
-          className="w-full md:w-1/2"
-        >
+        <ScrollDrift fromX={-48} toX={22} reveal className="w-full md:w-1/2">
           <div className="w-full h-[50vh] relative rounded-[28px] overflow-hidden ring-1 ring-black/10 shadow-xl">
             <Image
               src="/images/casa/InteriorRooms1.jpg"
-              alt="Design textures: clay, cotton, light"
+              alt="Texturas del diseño: barro, algodón y luz natural"
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 500px"
@@ -48,39 +41,37 @@ export default function Page() {
             />
           </div>
         </ScrollDrift>
-        
-        {/* Texto DERECHA */}
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.18 }}
           viewport={{ once: true }}
-          className="w-full md:w-1/2 text-gray-800 space-y-5"
+          className="w-full md:w-1/2 text-oliveaText space-y-5"
         >
-          {/* Desktop title + byline */}
           <Reveal preset="up">
-            <h2 className="hidden md:block text-3xl lg:text-4xl font-semibold mb-2">
+            <h2 className="hidden md:block text-3xl lg:text-4xl font-semibold mb-2 text-oliveaText">
               Diseño que se Siente
             </h2>
           </Reveal>
 
-          <p className="hidden md:block text-sm italic text-gray-500 mb-4">
+          <p className="hidden md:block text-sm italic text-oliveaText/70 mb-4">
             Diseño concebido por Ange Joy, fundadora de Olivea.
           </p>
 
-          <p className="text-lg" id="iluminacion">
+          <p className="text-lg text-oliveaText/80" id="iluminacion">
             La luz guía nuestra arquitectura. Por la mañana es suave e indirecta.
             Por la tarde, cálida y envolvente. Cada superficie evita el
             deslumbramiento y favorece la calma.
           </p>
 
-          <p className="text-base text-gray-700 leading-snug" id="materiales">
+          <p className="text-base text-oliveaText/80 leading-snug" id="materiales">
             Usamos piedra, madera, algodón y barro — materiales honestos que
             envejecen con belleza y transmiten calidez. Nada busca llamar la
             atención. Todo invita a tocar.
           </p>
 
-          <p className="text-base text-gray-700 leading-snug" id="sostenibilidad">
+          <p className="text-base text-oliveaText/80 leading-snug" id="sostenibilidad">
             Agua en vidrio. Amenidades rellenables. Energía solar. La
             sostenibilidad está integrada — sin necesidad de anunciarla.
           </p>

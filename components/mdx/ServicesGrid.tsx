@@ -116,7 +116,6 @@ function ServiceCard({
   // Sheen overlay intensity
   const sheenRaw = useTransform(pulse, [0, 1, 0], [0, 1, 0], { clamp: true });
 
-  // ✅ Move this hook OUT of JSX (fixes conditional hook lint)
   const shadowRaw = useTransform(sheenRaw, [0, 1], [0, 0.55], { clamp: true });
 
   // Springs (smooth in scroll/snap containers)
@@ -153,6 +152,7 @@ function ServiceCard({
         scroll-mt-30
         overflow-hidden
         will-change-transform
+        text-oliveaText
       "
       aria-label={item.title}
       data-index={index}
@@ -182,11 +182,11 @@ function ServiceCard({
         />
       )}
 
-      <h3 className="font-semibold text-sm italic text-gray-700 mb-2 relative">
+      <h3 className="font-semibold text-sm italic text-oliveaMuted mb-2 relative">
         {item.title}
       </h3>
 
-      <p className="text-sm text-gray-800 leading-relaxed relative">
+      <p className="text-sm text-oliveaText leading-relaxed relative">
         {item.text}
       </p>
 

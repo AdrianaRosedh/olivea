@@ -14,50 +14,45 @@ export default function Page() {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          {/* Mobile title */}
-          <h2 className="text-2xl md:text-4xl font-semibold md:hidden">Patio</h2>
+          <h2 className="text-2xl md:text-4xl font-semibold md:hidden text-oliveaText">
+            Patio
+          </h2>
         </Reveal>
       }
     >
       <div className="flex flex-col md:flex-row gap-10 md:items-center">
-        {/* Text LEFT */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="w-full md:w-1/2 text-gray-800 space-y-5"
+          className="w-full md:w-1/2 text-oliveaText space-y-5"
         >
-          {/* Desktop title */}
           <Reveal preset="up">
-            <h2 className="hidden md:block text-3xl lg:text-4xl font-semibold mb-6">
+            <h2 className="hidden md:block text-3xl lg:text-4xl font-semibold mb-6 text-oliveaText">
               Patio
             </h2>
           </Reveal>
 
-          <p className="text-lg" id="memoria">
+          <p className="text-lg text-oliveaText/80" id="memoria">
             Como en la naturaleza, nuestro patio central evoca memorias:
             corredores largos que abrazan un espacio de paz donde cada paso
             apacigua.
           </p>
 
-          <p
-            className="text-base text-gray-700 leading-snug"
-            id="estetica_equilibrio"
-          >
+          <p className="text-base text-oliveaText/80 leading-snug" id="estetica_equilibrio">
             Plantas aromáticas, grava impecable y al centro una piscina serena.
             Un cuadro estético y equilibrado que te recarga de energía a cualquier
             hora del día.
           </p>
- 
-          <p className="text-base text-gray-700 leading-snug" id="serenidad_clima">
+
+          <p className="text-base text-oliveaText/80 leading-snug" id="serenidad_clima">
             Es un refugio al aire libre donde el clima y la naturaleza regalan
             serenidad. Bajo el sol o las estrellas, el patio cobija con su
             tranquilidad en cada estación.
           </p>
         </motion.div>
 
-        {/* Image RIGHT */}
         <motion.div
           initial={{ opacity: 0, x: 60 }}
           whileInView={{ opacity: 1, x: 0 }}
