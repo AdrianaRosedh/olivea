@@ -1,3 +1,4 @@
+// components/navigation/MenuToggle.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -20,8 +21,6 @@ type MenuToggleProps = {
   toggle: () => void;
   isOpen: boolean;
   className?: string;
-
-  /** NEW: allow parent to measure this button */
   buttonRef?: Ref<HTMLButtonElement>;
 };
 
@@ -46,33 +45,42 @@ export default function MenuToggle({
         className
       )}
       style={{
-        zIndex: 1001, // Ensure this sits above the drawer
+        zIndex: 1001,
         position: "relative",
         pointerEvents: "auto",
       }}
     >
       <svg width="28" height="28" viewBox="0 0 23 23" aria-hidden="true">
         <Path
+          // ✅ fallback d so it’s never undefined
+          d="M 2 2.5 L 20 2.5"
           variants={{
             closed: { d: "M 2 2.5 L 20 2.5" },
             open: { d: "M 3 16.5 L 17 2.5" },
           }}
+          initial={false}
           animate={isOpen ? "open" : "closed"}
         />
+
         <Path
           d="M 2 9.423 L 20 9.423"
           variants={{
             closed: { opacity: 1 },
             open: { opacity: 0 },
           }}
+          initial={false}
           animate={isOpen ? "open" : "closed"}
           transition={{ duration: 0.1 }}
         />
+
         <Path
+          // ✅ fallback d so it’s never undefined
+          d="M 2 16.346 L 20 16.346"
           variants={{
             closed: { d: "M 2 16.346 L 20 16.346" },
             open: { d: "M 3 2.5 L 17 16.346" },
           }}
+          initial={false}
           animate={isOpen ? "open" : "closed"}
         />
       </svg>
