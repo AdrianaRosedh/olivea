@@ -25,16 +25,15 @@
   [data-scope="main"] p,
   [data-scope="main"] li,
   [data-scope="main"] blockquote {
-    font-size: 1rem;                 /* mobile & tablet base */
+    font-size: 1rem;
     line-height: 1.6;
     font-family: var(--font-lora), serif;
     font-weight: 400;
-    letter-spacing: 0.15px;          /* subtle, modern */
+    letter-spacing: 0.15px;
   }
 
-  /* Lead / intro paragraph for highlighted lines */
   [data-scope="main"] .lead {
-    font-size: 1.125rem;             /* ~18px on mobile */
+    font-size: 1.125rem;
     line-height: 1.65;
     font-family: var(--font-lora), serif;
     font-weight: 400;
@@ -135,7 +134,6 @@
 }
 
 /* ── Dock metrics & hero breakout (desktop) ─────────────────── */
-/* Variables local to the (main) tree; inherited by children */
 [data-scope="main"] {
   --dock-left: 240px;
   --dock-right: 96px;
@@ -148,7 +146,6 @@
   }
 }
 
-/* When a page sets data-hero-breakout="true" on <main>, restore the old width/margins */
 @media (min-width: 768px) {
   [data-scope="main"] main[data-hero-breakout="true"] section#hero {
     max-width: none !important;
@@ -179,16 +176,16 @@
   }
 }
 
-/* Desktop typography upscale for modern feel */
+/* Desktop typography upscale */
 @media (min-width: 1024px) {
   [data-scope="main"] p,
   [data-scope="main"] li,
   [data-scope="main"] blockquote {
-    font-size: 1.25rem;    /* ~20px — modern, luxurious */
+    font-size: 1.25rem;
   }
 
   [data-scope="main"] .lead {
-    font-size: 1.375rem;   /* ~22px — clear hierarchy above body */
+    font-size: 1.375rem;
     line-height: 1.7;
   }
 }
@@ -196,7 +193,7 @@
 /* ── Optional (main) helpers ────────────────────────────────── */
 @layer utilities {
   [data-scope="main"] .section-center {
-    min-height: 100vh;
+    min-height: calc(var(--app-vh) * 100);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -204,5 +201,14 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     scroll-margin-top: 120px;
+  }
+}
+
+/* Prefer dvh when supported */
+@supports (min-height: 100dvh) {
+  @layer utilities {
+    [data-scope="main"] .section-center {
+      min-height: 100dvh;
+    }
   }
 }

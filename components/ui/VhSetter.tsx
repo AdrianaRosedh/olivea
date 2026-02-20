@@ -3,28 +3,47 @@
 
 import { useEffect } from "react";
 
-function setVhVar() {
-  const vh = (window.visualViewport?.height ?? window.innerHeight) * 0.01;
-  document.documentElement.style.setProperty("--app-vh", `${vh}px`);
+function computeVhPx() {
+  const h = window.visualViewport?.height ?? window.innerHeight;
+  return h * 0.01;
 }
 
 export default function VhSetter() {
   useEffect(() => {
-    setVhVar();
+    let raf = 0;
 
-    const onResize = () => setVhVar();
+    const apply = () => {
+      raf = 0;
+      const vh = computeVhPx();
+      document.documentElement.style.setProperty("--app-vh", `${vh}px`);
+    };
 
-    window.visualViewport?.addEventListener("resize", onResize);
-    window.visualViewport?.addEventListener("scroll", onResize);
+    const schedule = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(apply);
+    };
 
-    window.addEventListener("resize", onResize, { passive: true });
-    window.addEventListener("orientationchange", onResize, { passive: true });
+    // run once immediately
+    apply();
+
+    // viewport changes (address bar show/hide, keyboard, etc.)
+    window.visualViewport?.addEventListener("resize", schedule);
+    window.visualViewport?.addEventListener("scroll", schedule);
+
+    // fallback signals
+    window.addEventListener("resize", schedule);
+    window.addEventListener("orientationchange", schedule);
+    window.addEventListener("pageshow", schedule);
 
     return () => {
-      window.visualViewport?.removeEventListener("resize", onResize);
-      window.visualViewport?.removeEventListener("scroll", onResize);
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("orientationchange", onResize);
+      if (raf) window.cancelAnimationFrame(raf);
+
+      window.visualViewport?.removeEventListener("resize", schedule);
+      window.visualViewport?.removeEventListener("scroll", schedule);
+
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("orientationchange", schedule);
+      window.removeEventListener("pageshow", schedule);
     };
   }, []);
 
