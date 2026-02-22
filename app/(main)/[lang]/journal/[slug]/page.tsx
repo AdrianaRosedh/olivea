@@ -1,3 +1,4 @@
+// app/(main)/[lang]/journal/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -285,21 +286,24 @@ export default async function JournalPostPage({
               className={[
                 "prose prose-neutral dark:prose-invert",
                 "max-w-none",
-              
+
                 /* Paragraph rhythm */
                 "prose-p:my-5",
                 "prose-p:leading-[1.85]",
                 "prose-p:text-(--olivea-clay)",
-              
+
                 /* ---------------- INLINE IMAGE SYSTEM ---------------- */
-              
-                /* Base figure box (square, small) */
+
+                /**
+                 * Default figure style (small square “inline” images):
+                 * Use <figure className="float-left"> / <figure className="float-right">
+                 */
                 "[&_figure]:relative",
                 "[&_figure]:w-60",
                 "[&_figure]:h-60",
                 "[&_figure]:overflow-hidden",
                 "[&_figure]:rounded-2xl",
-              
+
                 /* Mobile spacing */
                 "[&_figure]:mt-6",
                 "[&_figure]:mb-6",
@@ -308,13 +312,12 @@ export default async function JournalPostPage({
                 "md:[&_figure]:mt-12",
                 "md:[&_figure]:mb-12",
 
-              
                 /* Image fills square */
                 "[&_figure_img]:w-full",
                 "[&_figure_img]:h-full",
                 "[&_figure_img]:object-cover",
-              
-                /* Scroll reveal animation */
+
+                /* Scroll reveal animation (InlineImageReveal toggles .is-visible) */
                 "[&_figure]:opacity-0",
                 "[&_figure]:translate-y-4",
                 "[&_figure]:transition-all",
@@ -322,28 +325,56 @@ export default async function JournalPostPage({
                 "[&_figure]:ease-out",
                 "[&_figure.is-visible]:opacity-100",
                 "[&_figure.is-visible]:translate-y-0",
-              
+
                 /* ---------------- DESKTOP WRAP ---------------- */
                 "md:[&_figure.float-left]:float-left",
                 "md:[&_figure.float-left]:mr-6",
-              
+
                 "md:[&_figure.float-right]:float-right",
                 "md:[&_figure.float-right]:ml-6",
-              
+
                 /* ---------------- MOBILE BEHAVIOR ---------------- */
                 "[&_figure]:float-none",
                 "[&_figure]:mx-auto",
                 "[&_figure]:clear-both",
-              
+
+                /* ---------------- WIDE EDITORIAL FIGURE (PDF-style) ----------------
+                 * Use: <figure className="j-wide"><img ... /></figure>
+                 * This overrides the default square figure sizing.
+                 */
+                "[&_figure.j-wide]:w-full",
+                "[&_figure.j-wide]:h-auto",
+                "[&_figure.j-wide]:max-w-none",
+                "[&_figure.j-wide]:rounded-3xl",
+                "[&_figure.j-wide]:overflow-hidden",
+
+                /* Ensure wide figures don't float (even if a float class is accidentally added) */
+                "md:[&_figure.j-wide]:float-none",
+                "md:[&_figure.j-wide]:mr-0",
+                "md:[&_figure.j-wide]:ml-0",
+
+                /* Make wide images keep natural aspect */
+                "[&_figure.j-wide_img]:h-auto",
+                "[&_figure.j-wide_img]:object-cover",
+
+                /* Optional captions if you add <figcaption> */
+                "[&_figcaption]:mt-3",
+                "[&_figcaption]:text-[12px]",
+                "[&_figcaption]:tracking-wide",
+                "[&_figcaption]:text-(--olivea-olive)",
+                "[&_figcaption]:opacity-70",
+
                 /* Links */
                 "prose-a:text-(--olivea-olive)",
-                "prose-a:underline prose-a:underline-offset-4",
+                "prose-a:underline",
+                "prose-a:underline-offset-4",
               ].join(" ")}
             >
               {post.content}
             </article>
-            
-            
+
+            {/* Keep carousel support (optional via frontmatter.gallery).
+                If you stop using gallery entirely, you can remove this. */}
             {gallery.length > 0 && <PhotoCarousel images={gallery} />}
 
             {/* JSON-LD */}
