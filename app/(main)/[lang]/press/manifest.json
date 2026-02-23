@@ -4,10 +4,10 @@
   "contactEmail": "pr@casaolivea.com",
 
   "downloads": {
-    "fullKit": "/press/Olivea-PressKit.zip",
-    "logos": "/press/Olivea-Logos.zip",
-    "photos": "/press/Olivea-Photos.zip",
-    "factsheet": "/press/Olivea-FactSheet.pdf"
+    "fullKit": "/images/press/Olivea-PressKit.zip",
+    "logos": "/images/press/Olivea-Logos.zip",
+    "photos": "/images/press/Olivea-Photos.zip",
+    "factsheet": "/images/press/Olivea-FactSheet.pdf"
   },
 
   "copy": {
