@@ -1,36 +1,36 @@
 {
   "enabled": true,
 
-  "id": "popup-2026-01-25-daniel-nates-territorio",
+  "id": "popup-2026-02-22-el-mar-tambien-nuestro-jardin",
   "kind": "journal",
-  "priority": 100,
+  "priority": 110,
 
   "translations": {
     "es": {
       "badge": "Nuevo en el Journal",
-      "title": "Cocinar el territorio de Baja California",
-      "excerpt": "Un nuevo ensayo de nuestro chef ejecutivo, Daniel Nates, sobre huerto, mar y cocina como expresión del territorio.",
-      "href": "/es/journal/2026-01-25-cooking-the-territory-of-baja-california"
+      "title": "El Mar También es Nuestro Jardín",
+      "excerpt": "A diez minutos del restaurante comienza el origen. Visitar a nuestros productores del mar reafirma nuestra coherencia: territorio, investigación y responsabilidad.",
+      "href": "/es/journal/2026-02-22-el-mar-tambien-nuestro-jardin"
     },
     "en": {
       "badge": "New in the Journal",
-      "title": "Cooking the Territory of Baja California",
-      "excerpt": "A new essay by our Executive Chef, Daniel Nates, on garden, sea, and cooking as an expression of place.",
-      "href": "/en/journal/2026-01-25-cooking-the-territory-of-baja-california"
+      "title": "The Sea Is Also Our Garden",
+      "excerpt": "Ten minutes from the restaurant, origin begins. Visiting our local seafood producers reinforces our commitment to territory, research, and coherence.",
+      "href": "/en/journal/2026-02-22-el-mar-tambien-nuestro-jardin"
     }
   },
 
   "media": {
-    "coverSrc": "/images/journal/modern-garden-rooted-hospitality.avif",
+    "coverSrc": "/images/journal/ElMarTambienEsNuestroJardin/cover.jpg",
     "coverAlt": {
-      "es": "El huerto de Olivea en Baja California",
-      "en": "The Olivea garden in Baja California"
+      "es": "Producto del Pacífico durante la visita a productores locales",
+      "en": "Fresh Pacific product during our visit to local seafood producers"
     }
   },
 
   "rules": {
-    "startsAt": "2026-01-25T00:00:00-08:00",
-    "endsAt": "2026-02-25T23:59:59-08:00",
+    "startsAt": "2026-02-22T00:00:00-08:00",
+    "endsAt": "2026-03-22T23:59:59-08:00",
 
     "includePaths": ["/*"],
 
