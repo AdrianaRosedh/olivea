@@ -1,0 +1,138 @@
+{
+  "version": "2026.03",
+  "updatedAt": "2026-03-01",
+  "contactEmail": "pr@casaolivea.com",
+
+  "downloads": {
+    "fullKit": "/press/Olivea-PressKit.zip",
+    "logos": "/press/Olivea-Logos.zip",
+    "photos": "/press/Olivea-Photos.zip",
+    "factsheet": "/press/Olivea-FactSheet.pdf"
+  },
+
+  "copy": {
+    "es": {
+      "headline": "Sala de Prensa",
+      "subhead": "Recursos oficiales: logos, fact sheet y fotografías descargables.",
+      "usageTitle": "Uso editorial",
+      "usageBody": "Material disponible para uso editorial en cobertura de Olivea. Crédito requerido cuando aplique. Para usos comerciales, contáctanos.",
+      "boilerplate30": "Olivea es un ecosistema gastronómico y de hospitalidad arraigado al huerto en Valle de Guadalupe.",
+      "boilerplate80": "Olivea integra Olivea Farm To Table, Casa Olivea y Olivea Café en una experiencia 360° arraigada al huerto, el territorio y la sustentabilidad."
+    },
+    "en": {
+      "headline": "Press Room",
+      "subhead": "Official logos, fact sheet, and downloadable photography.",
+      "usageTitle": "Editorial use",
+      "usageBody": "Assets provided for editorial coverage of Olivea. Credit required where applicable. For commercial usage, please contact us.",
+      "boilerplate30": "Olivea is a garden-rooted hospitality and culinary ecosystem in Valle de Guadalupe.",
+      "boilerplate80": "Olivea integrates Olivea Farm To Table, Casa Olivea, and Olivea Café into a 360° experience shaped by terroir, technique, and sustainability."
+    }
+  },
+
+  "media": [
+      {
+        "id": "hotel-bed-01",
+        "category": "hotel",
+        "title": { "es": "Casa Olivea — Bed", "en": "Casa Olivea — Bed" },
+        "web": "/images/press/media/web/bed.jpg",
+        "hires": "/images/press/media/hires/bed.jpeg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "cafe-01",
+        "category": "cafe",
+        "title": { "es": "Olivea Café", "en": "Olivea Café" },
+        "web": "/images/press/media/web/cafe.jpg",
+        "hires": "/images/press/media/hires/Cafe.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-cama-01",
+        "category": "hotel",
+        "title": { "es": "Casa Olivea — Cama", "en": "Casa Olivea — Bed" },
+        "web": "/images/press/media/web/cama.jpg",
+        "hires": "/images/press/media/hires/Cama.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "people-chef-daniel-nates-01",
+        "category": "people",
+        "title": { "es": "Chef Daniel Nates", "en": "Chef Daniel Nates" },
+        "web": "/images/press/media/web/chefdanielnates.jpg",
+        "hires": "/images/press/media/hires/ChefDanielNates.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-habitacion-01",
+        "category": "hotel",
+        "title": { "es": "Casa Olivea — Habitación", "en": "Casa Olivea — Room" },
+        "web": "/images/press/media/web/habitacion.jpg",
+        "hires": "/images/press/media/hires/Habitacion.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "garden-huertitos-01",
+        "category": "garden",
+        "title": { "es": "Huerto — Huertitos", "en": "Garden — Beds" },
+        "web": "/images/press/media/web/huertitos.jpg",
+        "hires": "/images/press/media/hires/Huertitos.png",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "people-leaderes-trio-01",
+        "category": "people",
+        "title": { "es": "Equipo — Líderes", "en": "Team — Leaders" },
+        "web": "/images/press/media/web/leaderestrio.jpg",
+        "hires": "/images/press/media/hires/LeaderesTrio.png",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-lounge-01",
+        "category": "hotel",
+        "title": { "es": "Casa Olivea — Lounge", "en": "Casa Olivea — Lounge" },
+        "web": "/images/press/media/web/lounge.jpg",
+        "hires": "/images/press/media/hires/Lounge.png",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "people-ange-adriana-01",
+        "category": "people",
+        "title": { "es": "Ange & Adriana", "en": "Ange & Adriana" },
+        "web": "/images/press/media/web/olivea-ange-adriana.jpg",
+        "hires": "/images/press/media/hires/olivea-Ange-Adriana.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "architecture-firepit-01",
+        "category": "architecture",
+        "title": { "es": "Firepit", "en": "Firepit" },
+        "web": "/images/press/media/web/olivea-firepit.jpg",
+        "hires": "/images/press/media/hires/olivea-firepit.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "food-plato-choro-01",
+        "category": "food",
+        "title": { "es": "Plato — Choro", "en": "Dish — Choro" },
+        "web": "/images/press/media/web/platochoro.jpg",
+        "hires": "/images/press/media/hires/PlatoChoro.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "food-plato-olivea-02",
+        "category": "food",
+        "title": { "es": "Plato — Olivea 02", "en": "Dish — Olivea 02" },
+        "web": "/images/press/media/web/platoolivea-02.jpg",
+        "hires": "/images/press/media/hires/PlatoOlivea-02.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "food-plato-olivea-01",
+        "category": "food",
+        "title": { "es": "Plato — Olivea 01", "en": "Dish — Olivea 01" },
+        "web": "/images/press/media/web/platoolivea.jpg",
+        "hires": "/images/press/media/hires/PlatoOlivea.jpg",
+        "credit": "Technicolor | Creative Studio"
+      }
+    ]
+}

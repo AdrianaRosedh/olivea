@@ -15,7 +15,7 @@ export type PressItem = {
   kind: "award" | "mention";
   id: string;
 
-  // ✅ required: normalized ISO date string YYYY-MM-DD
+  // required: normalized ISO date string YYYY-MM-DD
   publishedAt: string;
 
   issuer: string;
@@ -26,12 +26,64 @@ export type PressItem = {
   links: PressLink[];
   blurb: string;
 
-  // ✅ optional: for press mentions (thumbnails)
+  // optional: for press mentions (thumbnails)
   cover?: PressCover;
 
   /**
-   * ✅ optional: pin a *single* award to always appear as "Featured"
+   * optional: pin a *single* award to always appear as "Featured"
    * (ignored for mentions automatically)
    */
   starred?: boolean;
+};
+
+/* =========================
+   PRESS KIT MANIFEST TYPES
+   ========================= */
+
+export type PressMediaCategory =
+  | "hero"
+  | "garden"
+  | "restaurant"
+  | "hotel"
+  | "cafe"
+  | "food"
+  | "people"
+  | "architecture"
+  | "other";
+
+export type PressMediaItem = {
+  id: string;
+  category: PressMediaCategory;
+  title: Record<Lang, string>;
+  web: string; // site path, e.g. "/images/press/media/web/cafe.jpg"
+  hires?: string; // site path, e.g. "/images/press/media/hires/Cafe.jpg"
+  credit?: string;
+  caption?: Record<Lang, string>;
+};
+
+export type PressManifest = {
+  version: string; // e.g. "2026.03"
+  updatedAt: string; // YYYY-MM-DD
+  contactEmail: string;
+
+  downloads: {
+    fullKit: string;
+    logos: string;
+    photos: string;
+    factsheet: string;
+  };
+
+  copy: Record<
+    Lang,
+    {
+      headline: string;
+      subhead: string;
+      usageTitle: string;
+      usageBody: string;
+      boilerplate30: string;
+      boilerplate80: string;
+    }
+  >;
+
+  media: PressMediaItem[];
 };

@@ -6,8 +6,7 @@ import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import PressDockLeft from "./PressDockLeft";
-import type { Identity, ItemKind, Lang, PressItem } from "./pressTypes";
-import { PR_EMAIL, PRESS_ASSETS } from "./pressData";
+import type { Identity, ItemKind, Lang, PressItem, PressManifest } from "./pressTypes";
 
 import YearTabs from "./components/YearTabs";
 import ItemCard from "./components/ItemCard";
@@ -16,8 +15,10 @@ import { usePressFilters } from "./hooks/usePressFilters";
 import { usePressSections } from "./hooks/usePressSections";
 import { tt } from "./lib/pressText";
 
+import PressKitHero from "./PressKitHero";
+import PressMediaGallery from "./PressMediaGallery";
+
 /* ---------------- motion ---------------- */
-// Section-level stagger (Awards grid / Mentions stack)
 const sectionStaggerV: Variants = {
   hidden: {},
   show: {
@@ -28,7 +29,6 @@ const sectionStaggerV: Variants = {
   },
 };
 
-// Keep for “Featured” (scroll-based reveal looks nice)
 const CARD_VIEWPORT = {
   once: true,
   amount: 0.22,
@@ -38,9 +38,11 @@ const CARD_VIEWPORT = {
 export default function PressClient({
   lang,
   items,
+  manifest,
 }: {
   lang: Lang;
   items: PressItem[];
+  manifest: PressManifest;
 }) {
   const [q, setQ] = useState("");
   const [kind, setKind] = useState<ItemKind>("all");
@@ -64,7 +66,7 @@ export default function PressClient({
 
   const count = filteredBase.length;
 
-  // Match Team geometry: FULL_BLEED + PAGE_PAD + RAIL
+  // Layout geometry
   const FULL_BLEED =
     "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
   const PAGE_PAD = "px-6 sm:px-10 md:px-12 lg:px-12";
@@ -97,7 +99,7 @@ export default function PressClient({
                 "pr-2 sm:pr-0"
               )}
             >
-              {/* Featured */}
+              {/* Featured / Most recent */}
               <div className="mt-6 sm:mt-10">
                 <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-75">
                   {tt(lang, "Más reciente", "Most recent")}
@@ -138,7 +140,6 @@ export default function PressClient({
                   />
                 </div>
 
-                {/* ✅ DEV-ONLY DEBUG PANEL (safe + typed) */}
                 {process.env.NODE_ENV === "development" ? (
                   <div className="mt-3 rounded-2xl bg-white/35 ring-1 ring-(--olivea-olive)/14 px-4 py-3 text-[12px] text-(--olivea-olive)">
                     <div className="font-medium">DEBUG (awardsAll)</div>
@@ -155,10 +156,6 @@ export default function PressClient({
                   </div>
                 ) : null}
 
-                {/* ✅ Best practice for tab-swapped lists:
-                    - Remount on year change (key)
-                    - Use animate="show" (not whileInView) so items never get stuck invisible
-                */}
                 <motion.div
                   key={`awards-${awardsYearTab}`}
                   className="mt-6 sm:mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-10"
@@ -203,88 +200,9 @@ export default function PressClient({
                 </motion.div>
               </section>
 
-              {/* Presskit */}
-              <section id="presskit" className="mt-14 sm:mt-16">
-                <div className="rounded-3xl border border-(--olivea-olive)/12 bg-white/50 shadow-[0_16px_40px_rgba(40,60,35,0.10)] overflow-hidden">
-                  <div className="p-7 sm:p-10">
-                    <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-75">
-                      {tt(lang, "Recursos", "Assets")}
-                    </div>
-
-                    <h2
-                      className="mt-2 text-[26px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
-                      style={{ fontFamily: "var(--font-serif)" }}
-                    >
-                      Press Kit
-                    </h2>
-
-                    <p className="mt-3 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-clay) opacity-95 max-w-[78ch]">
-                      {tt(
-                        lang,
-                        "Descarga logos, fotografías, fact sheet y materiales oficiales en un solo lugar.",
-                        "Download logos, photography, fact sheet, and official materials in one place."
-                      )}
-                    </p>
-
-                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                      <a
-                        href={PRESS_ASSETS.presskit.href}
-                        download
-                        className={cn(
-                          "inline-flex items-center justify-center gap-2",
-                          "rounded-2xl px-5 py-3",
-                          "bg-(--olivea-olive) text-(--olivea-cream)",
-                          "ring-1 ring-black/10 transition hover:brightness-[1.03]"
-                        )}
-                      >
-                        <span className="text-sm font-medium">
-                          {tt(lang, "Descargar Press Kit", "Download Press Kit")}
-                        </span>
-                        <span className="opacity-90">↗</span>
-                      </a>
-
-                      <a
-                        href={PRESS_ASSETS.logos.href}
-                        download
-                        className={cn(
-                          "inline-flex items-center justify-center",
-                          "rounded-2xl px-5 py-3",
-                          "bg-white/30 ring-1 ring-(--olivea-olive)/14",
-                          "text-(--olivea-olive) hover:bg-white/40 transition"
-                        )}
-                      >
-                        {tt(lang, "Logos", "Logos")}
-                      </a>
-
-                      <a
-                        href={PRESS_ASSETS.photos.href}
-                        download
-                        className={cn(
-                          "inline-flex items-center justify-center",
-                          "rounded-2xl px-5 py-3",
-                          "bg-white/30 ring-1 ring-(--olivea-olive)/14",
-                          "text-(--olivea-olive) hover:bg-white/40 transition"
-                        )}
-                      >
-                        {tt(lang, "Fotos", "Photos")}
-                      </a>
-
-                      <a
-                        href={PRESS_ASSETS.factsheet.href}
-                        download
-                        className={cn(
-                          "inline-flex items-center justify-center",
-                          "rounded-2xl px-5 py-3",
-                          "bg-white/30 ring-1 ring-(--olivea-olive)/14",
-                          "text-(--olivea-olive) hover:bg-white/40 transition"
-                        )}
-                      >
-                        Fact Sheet
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </section>
+              {/* ✅ Press Kit + Media Library moved to bottom */}
+              <PressKitHero lang={lang} manifest={manifest} />
+              <PressMediaGallery lang={lang} manifest={manifest} />
 
               {/* Contact */}
               <section id="contact" className="mt-12 sm:mt-14">
@@ -310,7 +228,7 @@ export default function PressClient({
 
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <a
-                      href={`mailto:${PR_EMAIL}`}
+                      href={`mailto:${manifest.contactEmail}`}
                       className={cn(
                         "inline-flex items-center justify-center gap-2",
                         "rounded-2xl px-5 py-3",
@@ -318,7 +236,7 @@ export default function PressClient({
                         "ring-1 ring-black/10 transition hover:brightness-[1.03]"
                       )}
                     >
-                      <span className="text-sm font-medium">{PR_EMAIL}</span>
+                      <span className="text-sm font-medium">{manifest.contactEmail}</span>
                       <span className="opacity-90">↗</span>
                     </a>
 

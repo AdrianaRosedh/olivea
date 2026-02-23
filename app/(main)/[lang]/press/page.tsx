@@ -1,7 +1,7 @@
 // app/(main)/[lang]/press/page.tsx
 import type { Metadata } from "next";
 import PressClient from "./PressClient";
-import { loadPressItems } from "./load";
+import { loadPressItems, loadPressManifest } from "./load";
 import type { Lang } from "./pressTypes";
 
 export async function generateMetadata({
@@ -28,7 +28,9 @@ export default async function PressPage({
 }) {
   const p = await params;
   const lang: Lang = p.lang === "en" ? "en" : "es";
-  const items = loadPressItems(lang);
 
-  return <PressClient lang={lang} items={items} />;
+  const items = loadPressItems(lang);
+  const manifest = loadPressManifest();
+
+  return <PressClient lang={lang} items={items} manifest={manifest} />;
 }
