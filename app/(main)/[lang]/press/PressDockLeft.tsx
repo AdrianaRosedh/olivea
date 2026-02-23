@@ -614,10 +614,12 @@ export default function PressDockLeft({
                       >
                         <div className="flex items-center gap-2 text-(--olivea-olive)">
                           <FolderArchive className="h-4 w-4 opacity-80" />
-                          <span className="text-[13px] font-medium">Press Kit</span>
+                          <span className="text-[13px] font-medium">
+                            {tt(lang, "Press Kit y Media", "Press Kit & Media")}
+                          </span>
                         </div>
                         <div className="mt-1 text-[12px] text-(--olivea-clay) opacity-75">
-                          {tt(lang, "Recursos", "Assets")}
+                          {tt(lang, "Descargas y biblioteca", "Downloads & library")}
                         </div>
                       </button>
 
@@ -805,9 +807,28 @@ export default function PressDockLeft({
               <a href="#mentions" className={subtleLink} onClick={(e) => onNav(e, "mentions")}>
                 {tt(lang, "Menciones en prensa", "Press mentions")}
               </a>
-              <a href="#presskit" className={subtleLink} onClick={(e) => onNav(e, "presskit")}>
-                Press Kit
-              </a>
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={(e) => onNav(e as unknown as React.MouseEvent, "presskit")}
+                  className={cn(
+                    "rounded-2xl px-4 py-3 text-left",
+                    "bg-(--olivea-olive) text-(--olivea-cream)",
+                    "ring-1 ring-black/10",
+                    "shadow-[0_8px_22px_rgba(40,60,35,0.18)]",
+                    "hover:brightness-[1.03] transition"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-medium">
+                      {tt(lang, "Press Kit y Media", "Press Kit & Media")}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-[12px] opacity-80">
+                    {tt(lang, "Descargas oficiales", "Official downloads")}
+                  </div>
+                </button>
+              </div>
               <a href="#contact" className={subtleLink} onClick={(e) => onNav(e, "contact")}>
                 {tt(lang, "Contacto", "Contact")}
               </a>
