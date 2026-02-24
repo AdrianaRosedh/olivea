@@ -84,8 +84,34 @@ export const TEAM: LeaderProfile[] = [
     tile: "hero",
     priority: 1,
     links: [
-      { label: { es: "Reservar en Olivea", en: "Reserve at Olivea" }, href: "/reservar", highlight: true },
-      { label: { es: "Instagram Olivea", en: "Olivea Instagram" }, href: "https://www.instagram.com/oliveafarmtotable", icon: "instagram" },
+      {
+        href: "https://oliveafarmtotable.com",
+          label: {
+            es: "Olivea · La Experiencia",
+            en: "Olivea · The Experience",
+          },
+          highlight: true,
+      },
+      {
+        label: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
+        href: "https://oliveafarmtotable.com/farmtotable",
+      },
+      {
+        label: { es: "Casa Olivea", en: "Casa Olivea" },
+        href: "https://oliveafarmtotable.com/casa",
+      },
+      {
+        label: { es: "Olivea Café", en: "Olivea Cafe" },
+        href: "https://oliveafarmtotable.com/cafe",
+      },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+      { label: { es: "Instagram", en: "Instagram" }, href: "https://www.instagram.com/inventing_ange" },
     ],
   },
 
@@ -119,7 +145,7 @@ export const TEAM: LeaderProfile[] = [
       // 🔹 Primary
       {
         label: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
-        href: "https://oliveafarmtotable.com",
+        href: "https://oliveafarmtotable.com/farmtotable",
         highlight: true,
       },
 
@@ -140,6 +166,21 @@ export const TEAM: LeaderProfile[] = [
       {
         label: { es: "Instagram", en: "Instagram" },
         href: "https://www.instagram.com/danielnatesv",
+      },
+
+      {
+        href: "oliveafarmtotable.com/journal/author/danielnates",
+          label: {
+            es: "Mis Entradas al Diario de Olivea",
+            en: "My Journal Entries for Olivea",
+          },
+      },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
       },
     ],
   },
@@ -177,14 +218,27 @@ export const TEAM: LeaderProfile[] = [
         highlight: true,
       },
       {
-    href: "https://oliveafarmtotable.com",
-      label: {
-        es: "Olivea · La Experiencia",
-        en: "Olivea · The Experience",
+        href: "https://oliveafarmtotable.com",
+          label: {
+            es: "Olivea · La Experiencia",
+            en: "Olivea · The Experience",
+          },
+          highlight: true,
       },
-      highlight: true,
-    },
-      // Social
+      {
+        href: "oliveafarmtotable.com/journal/author/adrianarose",
+          label: {
+            es: "Mis Entradas al Diario de Olivea",
+            en: "My Journal Entries for Olivea",
+          },
+      },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
       {
         href: "https://www.linkedin.com/in/adrianarosediaz/",
         label: {
@@ -210,9 +264,137 @@ export const TEAM: LeaderProfile[] = [
   },
 
   {
+    id: "onan",
+    name: "Onan Mendoza",
+    role: { es: "Sous Chef", en: "Sous Chef" },
+    org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
+    tag: { es: "Cocina", en: "Kitchen" },
+    bio: {
+      es: "Ejecución diaria, consistencia y mejora continua.",
+      en: "Daily execution, consistency, and continuous improvement.",
+    },
+    avatar: "/images/team/persona.jpg",
+    tile: "md",
+    priority: 4,
+    links: [
+      { href: "https://oliveafarmtotable.com/farmtotable",
+        label: {
+          es: "Olivea Farm To Table",
+          en: "Olivea Farm To Tablee",
+        },
+        highlight: true,
+       },
+      {
+        href: "https://www.instagram.com/onanmendoza",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+    ],
+  },
+
+  {
+    id: "luis",
+    name: "Luis Ruiz",
+    role: { es: "Encargado de I+D", en: "Head of R&D" },
+    org: { es: "Olivea", en: "Olivea" },
+    tag: { es: "I+D", en: "R&D" },
+    bio: {
+      es: "Investigación culinaria, eficiencia y reducción de desperdicio.",
+      en: "Culinary research, efficiency, and waste reduction.",
+    },
+    avatar: "/images/team/persona.jpg",
+    tile: "md",
+    priority: 5,
+    links: [
+      { href: "https://oliveafarmtotable.com/farmtotable",
+        label: {
+          es: "Olivea Farm To Table",
+          en: "Olivea Farm To Tablee",
+        },
+        highlight: true,
+       },
+      {
+        href: "https://www.instagram.com/luisruiz971401",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
+      {
+        href: "https://www.instagram.com/koji.more.anything",
+        label: {
+          es: "Koji + anything",
+          en: "Koji + anything",
+        },
+      },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+    ],
+  },
+
+  {
+    id: "jesus",
+    name: "Jesús Zazueta",
+    role: { es: "Supervisor de Patisserie", en: "Head of Patisserie" },
+    org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
+    tag: { es: "Pastelería", en: "Patisserie" },
+    bio: {
+      es: "Postres con precisión y elegancia.",
+      en: "Desserts with precision and elegance.",
+    },
+    avatar: "/images/team/persona.jpg",
+    tile: "md",
+    priority: 6,
+    links: [
+      { href: "https://oliveafarmtotable.com/farmtotable",
+        label: {
+          es: "Olivea Farm To Table",
+          en: "Olivea Farm To Tablee",
+        },
+        highlight: true,
+       },
+      {
+        href: "https://www.instagram.com/jesuszazuettas",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
+      {
+        href: "https://www.instagram.com/pandelvalle",
+        label: {
+          es: "Pan del Valle",
+          en: "Pan del Valle",
+        },
+      },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+    ],
+  },
+
+  {
     id: "cristina",
     name: "Cristina",
-    role: { es: "Encargada de. RRHH", en: "Head of HR" },
+    role: { es: "Encargada de RRHH", en: "Head of HR" },
     org: { es: "Olivea", en: "Olivea" },
     tag: { es: "People", en: "People" },
     bio: {
@@ -221,9 +403,31 @@ export const TEAM: LeaderProfile[] = [
     },
     avatar: "/images/team/persona.jpg",
     tile: "md",
-    priority: 9,
+    priority: 7,
     links: [
-      { label: { es: "Trabaja con nosotros", en: "Careers" }, href: "/careers", highlight: true },
+    {
+        href: "https://oliveafarmtotable.com",
+          label: {
+            es: "Olivea · La Experiencia",
+            en: "Olivea · The Experience",
+          },
+          highlight: true,
+    },
+    {
+        href: "https://oliveafarmtotable.com/carreras",
+          label: {
+            es: "Carreras Olivea",
+            en: "Olivea Careers",
+          },
+          highlight: true,
+    },
+    {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
     ],
   },
 
@@ -239,45 +443,30 @@ export const TEAM: LeaderProfile[] = [
     },
     avatar: "/images/team/persona.jpg",
     tile: "md",
-    priority: 10,
+    priority: 8,
     links: [
-      { label: { es: "Reservar habitación", en: "Book a Room" }, href: "/casa", icon: "hotel", highlight: true },
-    ],
-  },
-
-  {
-    id: "onan",
-    name: "Onan",
-    role: { es: "Sous Chef", en: "Sous Chef" },
-    org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
-    tag: { es: "Cocina", en: "Kitchen" },
-    bio: {
-      es: "Ejecución diaria, consistencia y mejora continua.",
-      en: "Daily execution, consistency, and continuous improvement.",
-    },
-    avatar: "/images/team/persona.jpg",
-    tile: "md",
-    priority: 13,
-    links: [
-      { label: { es: "Reservar mesa", en: "Reserve a Table" }, href: "/reservar", highlight: true },
-    ],
-  },
-
-  {
-    id: "luis",
-    name: "Luis",
-    role: { es: "Encargado de I+D", en: "Head of R&D" },
-    org: { es: "Olivea", en: "Olivea" },
-    tag: { es: "I+D", en: "R&D" },
-    bio: {
-      es: "Investigación culinaria, eficiencia y reducción de desperdicio.",
-      en: "Culinary research, efficiency, and waste reduction.",
-    },
-    avatar: "/images/team/persona.jpg",
-    tile: "md",
-    priority: 14,
-    links: [
-      { label: { es: "Investigación Olivea", en: "Olivea Research" }, href: "/journal", highlight: true },
+      {
+        href: "https://oliveafarmtotable.com/casa",
+          label: {
+            es: "Casa Olivea",
+            en: "Casa Olivea",
+          },
+          highlight: true,
+      },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+      {
+        href: "https://www.instagram.com/leoconcer99",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
     ],
   },
 
@@ -293,9 +482,29 @@ export const TEAM: LeaderProfile[] = [
     },
     avatar: "/images/team/persona.jpg",
     tile: "md",
-    priority: 15,
+    priority: 9,
     links: [
-      { label: { es: "La Experiencia", en: "The Experience" }, href: "/restaurant", highlight: true },
+      { href: "https://oliveafarmtotable.com/farmtotable",
+        label: {
+          es: "Olivea Farm To Table",
+          en: "Olivea Farm To Tablee",
+        },
+        highlight: true,
+       },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+      {
+        href: "https://www.instagram.com/elcortesdelosgalindo",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
     ],
   },
 
@@ -311,29 +520,32 @@ export const TEAM: LeaderProfile[] = [
     },
     avatar: "/images/team/persona.jpg",
     tile: "md",
-    priority: 16,
+    priority: 10,
     links: [
-      { label: { es: "Reservar mesa", en: "Reserve a Table" }, href: "/reservar" },
+      { href: "https://oliveafarmtotable.com/farmtotable",
+        label: {
+          es: "Olivea Farm To Table",
+          en: "Olivea Farm To Tablee",
+        },
+        highlight: true,
+       },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+      {
+        href: "https://www.instagram.com/jahuvalenz7",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
     ],
   },
 
-  {
-    id: "jesus",
-    name: "Jesús",
-    role: { es: "Supervisor de Patisserie", en: "Head of Patisserie" },
-    org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
-    tag: { es: "Pastelería", en: "Patisserie" },
-    bio: {
-      es: "Postres con precisión y elegancia.",
-      en: "Desserts with precision and elegance.",
-    },
-    avatar: "/images/team/persona.jpg",
-    tile: "md",
-    priority: 17,
-    links: [
-      { label: { es: "Menú", en: "Menu" }, href: "/restaurant" },
-    ],
-  },
   {
     id: "fran",
     name: "Fran",
@@ -346,9 +558,29 @@ export const TEAM: LeaderProfile[] = [
     },
     avatar: "/images/team/persona.jpg",
     tile: "md",
-    priority: 17,
+    priority: 11,
     links: [
-      { label: { es: "Menú", en: "Menu" }, href: "/restaurant" },
+      { href: "https://oliveafarmtotable.com/farmtotable",
+        label: {
+          es: "Olivea Farm To Table",
+          en: "Olivea Farm To Tablee",
+        },
+        highlight: true,
+       },
+      {
+        href: "https://oliveafarmtotable.com/journal",
+          label: {
+            es: "Cuaderno de Olivea",
+            en: "Olivea's Journal",
+          },
+      },
+      {
+        href: "https://www.instagram.com/franrojoo",
+        label: {
+          es: "Instagram",
+          en: "Instagram",
+        },
+      },
     ],
   },
 ];

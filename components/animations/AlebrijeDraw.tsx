@@ -1,15 +1,19 @@
 // components/animations/AlebrijeDraw.tsx
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
-import Alebrije1 from "@/assets/alebrije-1.svg";
 
 interface Props {
-  size?: number;             // px
-  strokeDuration?: number;   // seconds (2.4–3.2 calm)
+  size?: number; // px
+  strokeDuration?: number; // seconds (2.4–3.2 calm)
   microStaggerEach?: number; // 0 or ~0.001–0.002 for whisper cascade
   onComplete?: () => void;
+  /**
+   * Public SVG path to load and animate.
+   * Defaults to your brand asset.
+   */
+  src?: string;
 }
 
 /**
@@ -19,18 +23,50 @@ interface Props {
  * - fade-in stroke + constant-speed draw
  * - reduced-motion aware
  * - fallback if WAAPI isn't available on SVGElement
+ *
+ * NOTE: SVG is loaded from /public via fetch() and injected as inline markup
+ * so paths are available for animation (cannot animate <img>/<Image> SVG contents).
  */
 export default function AlebrijeDraw({
   size = 1000,
   strokeDuration = 2.8,
   microStaggerEach = 0,
   onComplete,
+  src = "/brand/alebrije-1.svg",
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
 
+  const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
+
   // Cache lengths per instance
   const lengthsRef = useRef<WeakMap<SVGPathElement, number>>(new WeakMap());
+
+  // Load SVG from public
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch(src, { cache: "force-cache" });
+        if (!res.ok) throw new Error(`Failed to load SVG: ${src} (${res.status})`);
+        const text = await res.text();
+        if (!cancelled) setSvgMarkup(text);
+      } catch {
+        // If fetch fails, just avoid crashing.
+        // You can optionally console.error in dev.
+        if (!cancelled) setSvgMarkup(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -40,6 +76,7 @@ export default function AlebrijeDraw({
     // Reduced motion: just show
     if (reduceMotion) {
       svg.style.visibility = "visible";
+      onComplete?.();
       return;
     }
 
@@ -66,6 +103,7 @@ export default function AlebrijeDraw({
       const rawPaths = Array.from(svg.querySelectorAll<SVGPathElement>("path"));
       if (!rawPaths.length) {
         svg.style.visibility = "visible";
+        onComplete?.();
         return;
       }
 
@@ -82,6 +120,7 @@ export default function AlebrijeDraw({
 
       if (!paths.length) {
         svg.style.visibility = "visible";
+        onComplete?.();
         return;
       }
 
@@ -177,7 +216,7 @@ export default function AlebrijeDraw({
       if (raf2) cancelAnimationFrame(raf2);
       cleanup();
     };
-  }, [strokeDuration, microStaggerEach, onComplete, reduceMotion]);
+  }, [strokeDuration, microStaggerEach, onComplete, reduceMotion, svgMarkup]);
 
   return (
     <div
@@ -185,7 +224,15 @@ export default function AlebrijeDraw({
       style={{ width: size, height: size, contain: "paint" }}
       className="flex items-center justify-center"
     >
-      <Alebrije1 className="w-full h-full" style={{ visibility: "hidden" }} />
+      {/* Inline SVG markup so paths can be animated */}
+      {svgMarkup ? (
+        <div
+          className="w-full h-full"
+          style={{ visibility: "hidden" }}
+          // controlled asset (your own SVG), used intentionally for animation
+          dangerouslySetInnerHTML={{ __html: svgMarkup }}
+        />
+      ) : null}
     </div>
   );
 }

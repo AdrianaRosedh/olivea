@@ -18,18 +18,12 @@ import {
 } from "@/contexts/SharedTransitionContext";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
+import Image from "next/image";
 
-import HeroCasaLogo from "@/assets/herocasa.svg";
-import HeroCafeLogo from "@/assets/herocafe.svg";
-import HeroFarmLogo from "@/assets/herofarm.svg";
-
-const LogoMap: Record<
-  SectionKey,
-  React.ComponentType<React.SVGProps<SVGSVGElement>>
-> = {
-  casa: HeroCasaLogo,
-  cafe: HeroCafeLogo,
-  farmtotable: HeroFarmLogo,
+const LogoSrcMap: Record<SectionKey, string> = {
+  casa: "/brand/herocasa.svg",
+  cafe: "/brand/herocafe.svg",
+  farmtotable: "/brand/herofarm.svg",
 };
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -153,11 +147,11 @@ export default function SharedVideoTransition() {
   };
 
   if (!mounted || !sectionKey || !targetHref) return null;
-  const Logo = LogoMap[sectionKey];
+  const logoSrc = LogoSrcMap[sectionKey];
 
   return createPortal(
     <Overlay
-      Logo={Logo}
+      logoSrc={logoSrc}
       targetHref={targetHref}
       phase={phase}
       setPhase={setPhase}
@@ -168,13 +162,13 @@ export default function SharedVideoTransition() {
 }
 
 function Overlay({
-  Logo,
+  logoSrc,
   targetHref,
   phase,
   setPhase,
   onFullyDone,
 }: {
-  Logo: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  logoSrc: string;
   targetHref: string;
   phase: Phase;
   setPhase: (p: Exclude<Phase, "idle">) => void;
@@ -473,7 +467,16 @@ function Overlay({
           y: logoY,
         }}
       >
-        <Logo width={220} className="h-auto" />
+        <div className="relative w-24 h-24 md:w-32 md:h-32">
+          <Image
+            src={logoSrc}
+            alt=""
+            fill
+            className="object-contain"
+            sizes="128px"
+            priority={false}
+          />
+        </div>
       </motion.div>
 
       <div

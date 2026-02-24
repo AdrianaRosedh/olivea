@@ -13,7 +13,7 @@ import { usePathname } from "next/navigation";
 import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
-import OliveaFTTLogo from "@/assets/OliveaFTTIcon.svg";
+import Image from "next/image";
 import MenuToggle from "./MenuToggle";
 import { cn } from "@/lib/utils";
 
@@ -250,9 +250,16 @@ export default function AdaptiveNavbar({
       <div className={cn("transition-all duration-200 ease-out", pillClass)}>
         <div className="flex items-center justify-between px-4 h-16">
           <Link href="/" aria-label="Home" onClick={() => clearTransition()}>
-            <OliveaFTTLogo
-              className={cn("h-10 w-auto transition-colors duration-150", logoTone)}
-            />
+            <div className={cn("relative h-10 w-10", logoTone)}>
+              <Image
+                src="/brand/OliveaFTTIcon.svg"
+                alt="Olivea"
+                fill
+                className="object-contain"
+                sizes="40px"
+                priority={false}
+              />
+            </div>
           </Link>
 
           <MenuToggle

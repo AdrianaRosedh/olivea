@@ -1,6 +1,7 @@
 // components/ui/InlineEntranceCard.tsx
 "use client";
 
+import Image from "next/image";
 import {
   useState,
   useEffect,
@@ -115,8 +116,20 @@ export interface InlineEntranceCardProps {
   href: string;
   sectionKey: SectionKey;
   description?: string;
-  videoSrc?: never;
+
+  /**
+   * Legacy SVGR support (optional).
+   * You can still pass a React SVG component.
+   */
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
+
+  /**
+   * New: public/ asset (recommended)
+   * Example: "/brand/alebrije-2.svg"
+   */
+  logoSrc?: string;
+  logoAlt?: string;
+
   className?: string;
   onActivate?: () => void;
 }
@@ -132,6 +145,8 @@ export default function InlineEntranceCard({
   sectionKey,
   description = "Click Me",
   Logo,
+  logoSrc,
+  logoAlt,
   className = "",
   onActivate = () => {},
 }: InlineEntranceCardProps) {
@@ -144,7 +159,7 @@ export default function InlineEntranceCard({
   const [isMobile, setIsMobile] = useState(false);
   const [desktopScale, setDesktopScale] = useState(1.3);
 
-  // ✅ Mobile detection via matchMedia (no heavy resize churn)
+  // Mobile detection via matchMedia
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -153,7 +168,6 @@ export default function InlineEntranceCard({
     const applyMobile = () => setIsMobile(mq.matches);
     applyMobile();
 
-    // Prefer modern API, fallback for older Safari
     if (typeof mq.addEventListener === "function") {
       mq.addEventListener("change", applyMobile);
       return () => mq.removeEventListener("change", applyMobile);
@@ -167,7 +181,7 @@ export default function InlineEntranceCard({
     return;
   }, []);
 
-  // ✅ Desktop scale recalculation (only needs resize, RAF-throttled)
+  // Desktop scale recalculation
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -180,7 +194,6 @@ export default function InlineEntranceCard({
       });
     };
 
-    // init
     const w0 = window.innerWidth;
     if (w0 >= 768) setDesktopScale(computeDesktopScale(w0));
 
@@ -198,7 +211,6 @@ export default function InlineEntranceCard({
   const rafRef = useRef<number | null>(null);
   const hoverTO = useRef<number | null>(null);
 
-  // ✅ cleanup for timers/raf
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -207,9 +219,11 @@ export default function InlineEntranceCard({
   }, []);
 
   const isInView = useInViewOnce(cardRef);
+
   const lastSeg = href.replace(/\/+$/, "").split("/").pop() || "";
   const slug = lastSeg || sectionKey;
 
+  // derive video name from href segment (existing behavior)
   const videoBase = slug;
   const base = !isMobile && videoBase ? `${videoBase}-HD` : "";
 
@@ -258,7 +272,7 @@ export default function InlineEntranceCard({
 
   const handlePointerEnter = handleMouseEnter;
 
-  // ✅ Idle preload (deduped)
+  // Idle preload (deduped)
   useEffect(() => {
     if (reduceMotion) return;
     if (isMobile || !isInView || !srcA) return;
@@ -279,7 +293,7 @@ export default function InlineEntranceCard({
     return cancel;
   }, [isMobile, isInView, srcA, reduceMotion]);
 
-  // ✅ hover play/pause behavior
+  // hover play/pause behavior
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid || !isInView || isMobile || reduceMotion) return;
@@ -292,7 +306,7 @@ export default function InlineEntranceCard({
     }
   }, [isHovered, isMobile, isInView, attachSources, reduceMotion]);
 
-  // ✅ Safari/autoplay reliability: retry play on first gesture while hovered
+  // Safari/autoplay reliability: retry play on first gesture while hovered
   useEffect(() => {
     if (isMobile || reduceMotion) return;
     if (!isHovered) return;
@@ -350,7 +364,7 @@ export default function InlineEntranceCard({
     node.style.transition = "transform 0.5s ease";
   };
 
-  // ✅ ensure rect cache doesn't go stale (scroll changes rect too)
+  // ensure rect cache doesn't go stale
   useEffect(() => {
     const clear = () => (rectRef.current = null);
     window.addEventListener("resize", clear, { passive: true });
@@ -411,6 +425,8 @@ export default function InlineEntranceCard({
   const topHeight = isMobile ? 0 : TOP_DESKTOP;
   const bottomHeight = isMobile ? BASE.MOBILE_COLLAPSED : CARD_HEIGHT - TOP_DESKTOP;
 
+  const hasLogo = !!Logo || !!logoSrc;
+
   return (
     <div
       className={`relative ${className}`}
@@ -456,7 +472,6 @@ export default function InlineEntranceCard({
           >
             <div
               style={{
-                // 🔁 transparent container (no cream fill over video)
                 border: "4px solid #e7eae1",
                 borderRadius: 24,
                 overflow: "hidden",
@@ -475,7 +490,7 @@ export default function InlineEntranceCard({
                   transition: `height ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                 }}
               >
-                {!isMobile && (
+                {!isMobile && !reduceMotion && (
                   <video
                     ref={videoRef}
                     muted
@@ -508,11 +523,8 @@ export default function InlineEntranceCard({
                 }}
                 transition={{ duration: HOVER_DUR, ease: HOVER_EASE_ARRAY }}
                 style={{
-                  background: "#e7eae1", // cream ONLY here
-                  padding: `${Math.max(8, 10 * scale)}px ${Math.max(
-                    12,
-                    16 * scale
-                  )}px`,
+                  background: "#e7eae1",
+                  padding: `${Math.max(8, 10 * scale)}px ${Math.max(12, 16 * scale)}px`,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -583,8 +595,8 @@ export default function InlineEntranceCard({
             </motion.div>
           )}
 
-          {/* Logo (fluid circle) */}
-          {Logo && (
+          {/* Logo circle */}
+          {hasLogo && (
             <div
               style={{
                 position: "absolute",
@@ -601,7 +613,18 @@ export default function InlineEntranceCard({
                 transition: `top ${HOVER_DUR}s ${HOVER_EASE_CSS}, width ${HOVER_DUR}s ${HOVER_EASE_CSS}, height ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
               }}
             >
-              <Logo width="100%" height="100%" />
+              {Logo ? (
+                <Logo width="100%" height="100%" />
+              ) : (
+                <Image
+                  src={logoSrc as string}
+                  alt={logoAlt ?? title}
+                  fill
+                  sizes="96px"
+                  className="object-contain"
+                  priority={false}
+                />
+              )}
             </div>
           )}
         </motion.div>
