@@ -115,7 +115,7 @@ function computeMode(): Mode {
 
   // ✅ small desktop should use compact rail (your request)
   const smallDesktop = window.matchMedia(
-    "(min-width: 1025px) and (max-width: 1180px)"
+    "(min-width: 1025px) and (max-width: 1280px)"
   ).matches;
   if (smallDesktop) return "compact";
 
