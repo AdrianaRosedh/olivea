@@ -160,7 +160,7 @@ export default function HomeClient() {
 
   const overlayBg = "var(--olivea-olive)";
 
-  // helper for mobile gap calc (avoids SSR window access)
+  // keep your existing mobile spacing logic (but no "tablet-as-mobile" surprises)
   const vhPx =
     typeof window !== "undefined"
       ? (window.visualViewport?.height ?? window.innerHeight) / 100
@@ -249,15 +249,20 @@ export default function HomeClient() {
 
         {/* Main */}
         <main
-          className="fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center bg-(--olivea-cream) transition-opacity duration-300 not-italic"
+          className="
+            fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center
+            bg-(--olivea-cream) transition-opacity duration-300 not-italic
+            p-3 md:p-6
+          "
           style={{ opacity: revealMain ? 1 : 0 }}
         >
+          {/* ✅ Frame fills the padded area exactly */}
           <div
             ref={heroBoxRef}
-            className="relative overflow-hidden shadow-xl mt-1 md:mt-0 bg-(--olivea-olive) not-italic"
+            className="relative overflow-hidden shadow-xl mt-0 bg-(--olivea-olive) not-italic"
             style={{
-              width: "98vw",
-              height: isMobile ? `${HERO.vh}vh` : "98vh",
+              width: "100%",
+              height: isMobile ? `${HERO.vh}vh` : "100%",
               borderRadius: "1.5rem",
               marginBottom: isMobile ? -HERO.overlapPx : 0,
             }}
@@ -272,7 +277,7 @@ export default function HomeClient() {
                 fetchPriority="high"
                 decoding="async"
                 loading="eager"
-                sizes="98vw"
+                sizes="100vw"
                 quality={60}
                 placeholder="blur"
                 blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
@@ -329,7 +334,7 @@ export default function HomeClient() {
                   fetchPriority="high"
                   decoding="async"
                   loading="eager"
-                  sizes="98vw"
+                  sizes="100vw"
                   quality={70}
                   placeholder="blur"
                   blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
@@ -454,7 +459,8 @@ export default function HomeClient() {
               backdrop-blur-sm
             "
           >
-            <ReservationButton />
+            {/* ✅ Force full-width mobile button always inside this bar */}
+            <ReservationButton forceMobile className="w-full" />
           </div>
 
           {/* Desktop flow */}
@@ -483,7 +489,8 @@ export default function HomeClient() {
               aria-label={isES ? "Navegación principal" : "Primary navigation"}
               className="mt-6 lg:mt-8 pointer-events-auto"
             >
-              <ul className="flex gap-6">
+              {/* ✅ Keep INLINE on desktop */}
+              <ul className="flex gap-8 xl:gap-12 2xl:gap-16 justify-center">
                 {sections.map((sec) => (
                   <li key={sec.href}>
                     <InlineEntranceCard
