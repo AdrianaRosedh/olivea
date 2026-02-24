@@ -13,7 +13,6 @@ import { usePathname } from "next/navigation";
 import { useBackgroundColorDetection } from "@/hooks/useBackgroundColorDetection";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
-import Image from "next/image";
 import MenuToggle from "./MenuToggle";
 import { cn } from "@/lib/utils";
 
@@ -218,23 +217,25 @@ export default function AdaptiveNavbar({
 
   const darkForTone = freezeTone ? lastStableDarkRef.current : isDark;
   const baseTone = darkForTone ? "text-[#e7eae1]" : "text-(--olivea-olive)";
-
-  const logoTone = isDrawerOpen ? "text-white" : baseTone;
   const iconTone = isDrawerOpen || iconCloseHold ? "text-white" : baseTone;
 
   const showBg = scrolled && !isDrawerOpen;
 
-  // Outer stays full-width and always transparent
-  // Inner becomes the rounded “glass pill” when showBg is true
   const pillClass = showBg
     ? cn(
-        "mx-3 mt-2", // space from edges + a little down from top
+        "mx-3 mt-2",
         "rounded-2xl",
         "bg-(--olivea-cream)/72 backdrop-blur-md",
         "ring-1 ring-(--olivea-olive)/14",
         "shadow-[0_10px_30px_rgba(18,24,16,0.10)]"
       )
     : cn("mx-0 mt-0 bg-transparent");
+
+  const logoColor = isDrawerOpen
+    ? "#ffffff"
+    : darkForTone
+      ? "#e7eae1"
+      : "var(--olivea-olive)";
 
   return (
     <div
@@ -246,20 +247,26 @@ export default function AdaptiveNavbar({
       )}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      {/* Rounded background only when scrolled */}
       <div className={cn("transition-all duration-200 ease-out", pillClass)}>
         <div className="flex items-center justify-between px-4 h-16">
           <Link href="/" aria-label="Home" onClick={() => clearTransition()}>
-            <div className={cn("relative h-10 w-10", logoTone)}>
-              <Image
-                src="/brand/OliveaFTTIcon.svg"
-                alt="Olivea"
-                fill
-                className="object-contain"
-                sizes="40px"
-                priority={false}
-              />
-            </div>
+            {/* SVG mask so tone works (no black currentColor issue) */}
+            <span className="sr-only">Olivea</span>
+            <div
+              aria-hidden="true"
+              className="h-10 w-10"
+              style={{
+                backgroundColor: logoColor,
+                WebkitMaskImage: "url(/brand/OliveaFTTIcon.svg)",
+                maskImage: "url(/brand/OliveaFTTIcon.svg)",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+              }}
+            />
           </Link>
 
           <MenuToggle

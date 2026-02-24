@@ -56,7 +56,7 @@ function buildCsp({
   const frameAncestors = allowEmbeddingSelf ? " 'self'" : " 'none'";
 
   const cloudbedsConnectExtra = allowCloudbedsPage
-    ? " https://clientstream.launchdarkly.com https://events.launchdarkly.com https://tile.openstreetmap.org"
+    ? " https://clientstream.launchdarkly.com https://events.launchdarkly.com https://app.launchdarkly.com https://api.cloudbeds.com https://tile.openstreetmap.org"
     : "";
 
   const cloudbedsImgExtra = allowCloudbedsPage
@@ -86,8 +86,9 @@ function buildCsp({
     `frame-ancestors${frameAncestors}`,
     "form-action 'self'",
 
-    `connect-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
-    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://www.googletagmanager.com https://www.google-analytics.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
+    `connect-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
+
+    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
 
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 
@@ -97,7 +98,7 @@ function buildCsp({
 
     "font-src 'self' data: https://fonts.gstatic.com",
 
-    `frame-src 'self' https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com${locatorFrameExtra}`,
+    `frame-src 'self' https://challenges.cloudflare.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com${locatorFrameExtra}`,
 
     "manifest-src 'self'",
     "worker-src 'self' blob:",
