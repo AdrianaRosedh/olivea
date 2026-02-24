@@ -4,8 +4,7 @@
 import { useCallback, useEffect, useRef, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-import OliveaFTTLogo from "@/assets/alebrije-1-Green.svg";
+import Image from "next/image";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { useReservation } from "@/contexts/ReservationContext";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
@@ -307,10 +306,19 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
           }}
           className="absolute left-4 md:left-8 lg:left-12 md:top-6 lg:top-6 inline-flex items-center"
         >
-          <OliveaFTTLogo
-            className="h-14 md:h-22 lg:h-40 w-auto transition-all duration-300"
+          <div
+            className="relative h-14 md:h-22 lg:h-40 w-24 md:w-32 lg:w-44 transition-all duration-300"
             style={{ maxHeight: "16rem" }}
+          >
+          <Image
+            src="/brand/alebrije-1-Green.svg"
+            alt="Olivea Farm To Table"
+            fill
+            className="object-contain"
+            sizes="180px"
+            priority={false}
           />
+        </div>
         </Link>
 
         {/* Center: 3 buttons */}

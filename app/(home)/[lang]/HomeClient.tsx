@@ -16,10 +16,6 @@ import { usePathname } from "next/navigation";
 import { cormHero } from "@/app/fonts";
 import ReservationButton from "@components/ui/ReservationButton";
 import InlineEntranceCard from "@components/ui/InlineEntranceCard";
-import OliveaLogo from "@/assets/alebrije-1.svg";
-import CasaLogo from "@/assets/alebrije-2.svg";
-import FarmLogo from "@/assets/alebrije-1-Green.svg";
-import CafeLogo from "@/assets/alebrije-3.svg";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useIntroAnimation } from "@/hooks/useIntroAnimation";
 import { useMorphSequence } from "@/hooks/useMorphSequence";
@@ -56,7 +52,7 @@ type SectionDef = {
   href: string;
   title: string;
   description: string;
-  Logo: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  logoSrc: string;
   sectionKey: SectionKey;
 };
 
@@ -138,21 +134,21 @@ export default function HomeClient() {
         href: `${basePath}/casa`,
         title: "Casa Olivea",
         description: descriptions.casa,
-        Logo: CasaLogo,
+        logoSrc: "/brand/alebrije-2.svg",
         sectionKey: "casa",
       },
       {
         href: `${basePath}/farmtotable`,
         title: "Olivea Farm To Table",
         description: descriptions.farm,
-        Logo: FarmLogo,
+        logoSrc: "/brand/alebrije-1-Green.svg",
         sectionKey: "farmtotable",
       },
       {
         href: `${basePath}/cafe`,
         title: "Olivea Café",
         description: descriptions.cafe,
-        Logo: CafeLogo,
+        logoSrc: "/brand/alebrije-3.svg",
         sectionKey: "cafe",
       },
     ];
@@ -184,7 +180,14 @@ export default function HomeClient() {
             <m.div
               key="logo-splash"
               className="fixed z-50 not-italic"
-              initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
+              initial={{
+                top: "50%",
+                left: "50%",
+                x: "-50%",
+                y: "-50%",
+                scale: 1,
+                opacity: 1,
+              }}
               animate={logoControls}
               style={{ width: 240, height: 240, transformOrigin: "center" }}
             >
@@ -202,12 +205,22 @@ export default function HomeClient() {
               key="overlay"
               className="fixed inset-0 z-40 not-italic"
               initial={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: TIMING.crossfadeSec, ease: [0.19, 1, 0.22, 1] } }}
+              exit={{
+                opacity: 0,
+                transition: {
+                  duration: TIMING.crossfadeSec,
+                  ease: [0.19, 1, 0.22, 1],
+                },
+              }}
               style={overlayGone ? { pointerEvents: "none" } : undefined}
             >
               <m.div
                 className="absolute inset-0 not-italic"
-                style={{ background: overlayBg, clipPath: "inset(0px 0px 0px 0px round 0px)", contain: "layout" }}
+                style={{
+                  background: overlayBg,
+                  clipPath: "inset(0px 0px 0px 0px round 0px)",
+                  contain: "layout",
+                }}
                 animate={overlayControls}
               >
                 <m.div
@@ -225,6 +238,7 @@ export default function HomeClient() {
                       <div className="absolute bottom-0 left-0 w-full h-full bg-[#e7eae1] rounded-full loader-vert" />
                     </div>
                   </div>
+
                   {/* Desktop percent bar */}
                   <IntroBarFixed />
                 </m.div>
@@ -266,7 +280,8 @@ export default function HomeClient() {
                 onLoadingComplete={() => {
                   setHeroDecoded(true);
                   setOverlayGone?.(true);
-                  if (typeof document !== "undefined") document.body.classList.add("lcp-demote");
+                  if (typeof document !== "undefined")
+                    document.body.classList.add("lcp-demote");
                 }}
               />
             )}
@@ -287,7 +302,9 @@ export default function HomeClient() {
                 disablePictureInPicture
                 controls={false}
                 onLoadedData={() => {
-                  try { mobileVideoRef.current?.play(); } catch {}
+                  try {
+                    mobileVideoRef.current?.play();
+                  } catch {}
                 }}
               >
                 <source
@@ -318,7 +335,8 @@ export default function HomeClient() {
                   blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
                   className="object-cover"
                   onLoadingComplete={() => {
-                    if (typeof document !== "undefined") document.body.classList.add("lcp-demote");
+                    if (typeof document !== "undefined")
+                      document.body.classList.add("lcp-demote");
                   }}
                 />
                 <video
@@ -341,7 +359,6 @@ export default function HomeClient() {
                     src={`/videos/homepage-HD.mp4?v=${HERO_VIDEO_VERSION}`}
                     type="video/mp4"
                   />
-
                 </video>
               </>
             )}
@@ -365,7 +382,10 @@ export default function HomeClient() {
           </div>
 
           {/* Hidden plain nav links (no visual impact, improves crawl clarity) */}
-          <nav aria-label={isES ? "Navegación principal" : "Primary navigation"} className="sr-only">
+          <nav
+            aria-label={isES ? "Navegación principal" : "Primary navigation"}
+            className="sr-only"
+          >
             <ul>
               {sections.map((sec) => (
                 <li key={sec.href}>
@@ -395,7 +415,11 @@ export default function HomeClient() {
                         viewport={{ once: true, amount: 0.2 }}
                         style={
                           index === 0
-                            ? { marginTop: isMobile ? -HERO.overlapPx : 0, position: "relative", zIndex: 20 }
+                            ? {
+                                marginTop: isMobile ? -HERO.overlapPx : 0,
+                                position: "relative",
+                                zIndex: 20,
+                              }
                             : undefined
                         }
                       >
@@ -404,9 +428,12 @@ export default function HomeClient() {
                           href={sec.href}
                           sectionKey={sec.sectionKey}
                           description={sec.description}
-                          Logo={sec.Logo}
+                          logoSrc={sec.logoSrc}
+                          logoAlt={sec.title}
                           className={index === 0 ? "relative z-30" : ""}
-                          onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                          onActivate={() =>
+                            sessionStorage.setItem("fromHomePage", "true")
+                          }
                         />
                       </m.div>
                     </LazyShow>
@@ -436,7 +463,14 @@ export default function HomeClient() {
               ref={logoTargetRef}
               className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 pointer-events-none"
             >
-              <OliveaLogo className="w-full h-full" />
+              <Image
+                src="/brand/alebrije-1.svg"
+                alt="Olivea"
+                fill
+                sizes="(min-width: 1024px) 224px, (min-width: 768px) 192px, 144px"
+                className="object-contain"
+                priority={false}
+              />
             </div>
 
             <span
@@ -457,8 +491,11 @@ export default function HomeClient() {
                       href={sec.href}
                       sectionKey={sec.sectionKey}
                       description={sec.description}
-                      Logo={sec.Logo}
-                      onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                      logoSrc={sec.logoSrc}
+                      logoAlt={sec.title}
+                      onActivate={() =>
+                        sessionStorage.setItem("fromHomePage", "true")
+                      }
                     />
                   </li>
                 ))}

@@ -19,11 +19,10 @@ import {
   type ReservationType,
 } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
-import OliveaLogo from "@/assets/oliveaFTT1.svg";
-import OliveaCafe from "@/assets/oliveaCafe.svg";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
+import Image from "next/image";
 
 // Client-only widgets (already memoized)
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), {
@@ -384,7 +383,16 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               {!isMobile ? (
                 <>
                   <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
-                    <OliveaLogo className="h-11.25 md:h-16.25" />
+                    <div className="relative h-11 md:h-16 w-16 md:w-24">
+                      <Image
+                        src="/brand/oliveaFTT1.svg"
+                        alt="Olivea Farm To Table"
+                        fill
+                        className="object-contain"
+                        sizes="96px"
+                        priority={false}
+                      />
+                    </div>
                     <span
                       className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
                       style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
@@ -447,7 +455,16 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               {!isMobile && (
                 <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
-                  <OliveaCafe className="h-11.25 md:h-16.25" />
+                  <div className="relative h-11 md:h-16 w-16 md:w-24">
+                    <Image
+                      src="/brand/oliveaCafe.svg"
+                      alt="Olivea Café"
+                      fill
+                      className="object-contain"
+                      sizes="96px"
+                      priority={false}
+                    />
+                  </div>
                   <span
                     className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
                     style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
