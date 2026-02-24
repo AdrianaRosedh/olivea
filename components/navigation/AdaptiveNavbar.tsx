@@ -24,6 +24,13 @@ export type Props = {
   onToggleDrawer: () => void;
   className?: string;
   onDrawerOriginChange?: (origin: DrawerOrigin) => void;
+
+  /**
+   * ✅ NEW:
+   * Force-enable the AdaptiveNavbar even when viewport >= 768px.
+   * Use this when LayoutShell decides "mobile-like" by container width.
+   */
+  enabled?: boolean;
 };
 
 const SCROLL_BG_START = 14; // px before navbar gains background (tweak 8–28)
@@ -34,9 +41,15 @@ export default function AdaptiveNavbar({
   onToggleDrawer,
   className,
   onDrawerOriginChange,
+  enabled,
 }: Props) {
-  const isMobile = useIsMobile();
   const pathname = usePathname();
+
+  // default behavior = true mobile only
+  const isMobileViewport = useIsMobile();
+
+  // ✅ final gate: either forced by container breakpoint OR true mobile viewport
+  const isMobileLike = enabled ?? isMobileViewport;
 
   const isJournal =
     pathname?.includes("/journal") ||
@@ -56,7 +69,7 @@ export default function AdaptiveNavbar({
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobileLike) return;
 
     let raf = 0;
     const onScroll = () => {
@@ -77,7 +90,7 @@ export default function AdaptiveNavbar({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [isMobile, pathname]);
+  }, [isMobileLike, pathname]);
 
   /* ---------------- robust refresh ---------------- */
   const refreshNow = useCallback(() => {
@@ -100,7 +113,7 @@ export default function AdaptiveNavbar({
   }, [isDark, freezeTone]);
 
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobileLike) return;
 
     const onDrawerExit = () => {
       setFreezeTone(true);
@@ -121,25 +134,25 @@ export default function AdaptiveNavbar({
         freezeTimerRef.current = null;
       }
     };
-  }, [isMobile, refreshNow]);
+  }, [isMobileLike, refreshNow]);
 
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobileLike) return;
     if (!isDrawerOpen) {
       refreshNow();
       const t = window.setTimeout(() => refreshNow(), 140);
       return () => window.clearTimeout(t);
     }
-  }, [isDrawerOpen, isMobile, refreshNow]);
+  }, [isDrawerOpen, isMobileLike, refreshNow]);
 
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobileLike) return;
     refreshNow();
-  }, [lang, pathname, isMobile, refreshNow]);
+  }, [lang, pathname, isMobileLike, refreshNow]);
 
   /* ---------------- measure MenuToggle center ---------------- */
   useLayoutEffect(() => {
-    if (!isMobile) return;
+    if (!isMobileLike) return;
 
     const measure = () => {
       const el = menuBtnRef.current;
@@ -165,10 +178,10 @@ export default function AdaptiveNavbar({
       if (ro) ro.disconnect();
       else window.removeEventListener("resize", measure);
     };
-  }, [isMobile, onDrawerOriginChange]);
+  }, [isMobileLike, onDrawerOriginChange]);
 
   useEffect(() => {
-    if (!isMobile || !isDrawerOpen) return;
+    if (!isMobileLike || !isDrawerOpen) return;
     const t = window.setTimeout(() => {
       const el = menuBtnRef.current;
       if (!el) return;
@@ -179,7 +192,7 @@ export default function AdaptiveNavbar({
       });
     }, 0);
     return () => window.clearTimeout(t);
-  }, [isDrawerOpen, isMobile, onDrawerOriginChange]);
+  }, [isDrawerOpen, isMobileLike, onDrawerOriginChange]);
 
   /* ---------------- icon close-hold ---------------- */
   const [iconCloseHold, setIconCloseHold] = useState(false);
@@ -187,7 +200,7 @@ export default function AdaptiveNavbar({
   const ICON_CLOSE_HOLD_MS = 220;
 
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobileLike) return;
 
     if (isDrawerOpen) {
       setIconCloseHold(false);
@@ -211,9 +224,10 @@ export default function AdaptiveNavbar({
         closeHoldTimer.current = null;
       }
     };
-  }, [isDrawerOpen, isMobile]);
+  }, [isDrawerOpen, isMobileLike]);
 
-  if (!isMobile) return null;
+  // ✅ the actual render gate
+  if (!isMobileLike) return null;
 
   const darkForTone = freezeTone ? lastStableDarkRef.current : isDark;
   const baseTone = darkForTone ? "text-[#e7eae1]" : "text-(--olivea-olive)";
@@ -250,7 +264,6 @@ export default function AdaptiveNavbar({
       <div className={cn("transition-all duration-200 ease-out", pillClass)}>
         <div className="flex items-center justify-between px-4 h-16">
           <Link href="/" aria-label="Home" onClick={() => clearTransition()}>
-            {/* SVG mask so tone works (no black currentColor issue) */}
             <span className="sr-only">Olivea</span>
             <div
               aria-hidden="true"

@@ -49,6 +49,72 @@
 
   --app-vh: 1vh;
   --journal-font-scale: 1;
+
+  /* ───────────────────────────────────────────────────────────── */
+  /* FLUID LAYOUT SYSTEM (dynamic for iPad + split view + ultrawide) */
+  /* ───────────────────────────────────────────────────────────── */
+
+  --gutter: clamp(14px, 2.2vw, 34px);
+
+  --header-h: clamp(64px, 6.5vh, 112px);
+  --mobile-nav-h: 84px;
+
+  --tap: clamp(44px, 4.8vh, 56px);
+
+  --dock-left-compact: 64px;
+  --dock-left-expanded: 220px;
+  --dock-left: clamp(var(--dock-left-compact), 14vw, var(--dock-left-expanded));
+
+  --dock-right: clamp(0px, 6vw, 96px);
+  --dock-gap: clamp(12px, 1.8vw, 22px);
+
+  --content-max: 1200px;
+
+  --content-w: min(
+    var(--content-max),
+    calc(
+      100vw
+      - (var(--gutter) * 2)
+      - var(--dock-left)
+      - var(--dock-right)
+      - (var(--dock-gap) * 2)
+    )
+  );
+
+  --radius-lg: clamp(14px, 1.2vw, 22px);
+}
+
+/* Touch devices (iPad): bigger tap targets + slightly smaller expanded rail */
+@media (pointer: coarse) {
+  :root {
+    --tap: clamp(48px, 5.2vh, 64px);
+    --dock-left-expanded: 200px;
+    --dock-left: clamp(56px, 12vw, var(--dock-left-expanded));
+  }
+}
+
+/* Tablet band: hide DockRight by default, keep content generous */
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root {
+    --dock-right: 0px;
+    --content-max: 980px;
+  }
+}
+
+/* Tablet portrait: treat as mobile+ (no docks) */
+@media (max-width: 900px) and (orientation: portrait) {
+  :root {
+    --dock-left: 0px;
+    --dock-right: 0px;
+    --content-max: 860px;
+  }
+}
+
+/* Very wide screens */
+@media (min-width: 1440px) {
+  :root {
+    --content-max: 1280px;
+  }
 }
 
 /* ───────────────────────────────────────────────────────────── */
@@ -60,7 +126,6 @@
     outline-color: hsl(var(--ring));
   }
 
-  /* ✅ Global default text color */
   html {
     min-height: 100%;
     height: auto;
@@ -71,7 +136,6 @@
 
     color: var(--olivea-olive);
 
-    /* ✅ restore native scroll physics */
     overscroll-behavior: auto;
     scroll-behavior: auto;
 
@@ -88,7 +152,7 @@
     overflow-y: auto;
 
     background-color: hsl(var(--background));
-    color: inherit; /* ✅ inherit from html (olive) */
+    color: inherit;
 
     font-family: var(--font-sans);
     line-height: var(--line-height-body);
@@ -114,11 +178,9 @@
     color-scheme: only light;
   }
 
-  /* ✅ Make all MDX/Typography (prose) default to Olivea ink */
   .prose {
     color: var(--olivea-olive);
 
-    /* Tailwind Typography CSS variables */
     --tw-prose-body: var(--olivea-olive);
     --tw-prose-headings: var(--olivea-olive);
     --tw-prose-links: var(--olivea-olive);
@@ -127,9 +189,46 @@
     --tw-prose-bullets: var(--olivea-olive);
     --tw-prose-counters: var(--olivea-olive);
 
-    /* subtle lines/captions */
     --tw-prose-hr: color-mix(in srgb, var(--olivea-olive) 18%, transparent);
     --tw-prose-captions: color-mix(in srgb, var(--olivea-olive) 70%, transparent);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* HERO PILL: fixes iPad “dead left space”                       */
+/* ───────────────────────────────────────────────────────────── */
+.hero-pill {
+  width: min(
+    1600px,
+    calc(
+      100vw
+      - (var(--gutter) * 2)
+      - var(--dock-left)
+      - var(--dock-right)
+      - (var(--dock-gap) * 2)
+    )
+  );
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hero-pill {
+    width: min(
+      1200px,
+      calc(
+        100vw
+        - (var(--gutter) * 2)
+        - var(--dock-left)
+        - (var(--dock-gap) * 2)
+      )
+    );
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .hero-pill {
+    width: calc(100vw - (var(--gutter) * 2));
   }
 }
 
@@ -154,31 +253,18 @@
 /* LOADER KEYFRAMES                                              */
 /* ───────────────────────────────────────────────────────────── */
 @keyframes olivea-loader-bar {
-  from {
-    width: 0%;
-  }
-  to {
-    width: 100%;
-  }
+  from { width: 0%; }
+  to { width: 100%; }
 }
 
 @keyframes olivea-loader-vert {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
 }
 
 @keyframes olivea-soft-glow {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.65;
-  }
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.65; }
 }
 
 .soft-glow {
@@ -204,9 +290,13 @@
     overflow-y: auto !important;
   }
 
+  /* keep translateZ helper, but do NOT force will-change everywhere */
   .gpu-smooth {
     transform: translateZ(0);
     backface-visibility: hidden;
+  }
+
+  .gpu-willchange {
     will-change: transform;
   }
 }
@@ -261,18 +351,10 @@ body.lcp-demote .fixed-lcp {
   font-size: calc(1rem * var(--journal-font-scale));
 }
 
-.prose h1 {
-  font-size: calc(2.25em * var(--journal-font-scale));
-}
-.prose h2 {
-  font-size: calc(1.75em * var(--journal-font-scale));
-}
-.prose h3 {
-  font-size: calc(1.4em * var(--journal-font-scale));
-}
-.prose h4 {
-  font-size: calc(1.15em * var(--journal-font-scale));
-}
+.prose h1 { font-size: calc(2.25em * var(--journal-font-scale)); }
+.prose h2 { font-size: calc(1.75em * var(--journal-font-scale)); }
+.prose h3 { font-size: calc(1.4em * var(--journal-font-scale)); }
+.prose h4 { font-size: calc(1.15em * var(--journal-font-scale)); }
 
 .prose p,
 .prose li,
