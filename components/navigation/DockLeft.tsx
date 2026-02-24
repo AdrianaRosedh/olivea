@@ -29,12 +29,10 @@ interface DockLeftProps {
 /* ── Constants ───────────────────────────────────────────────────── */
 const TOP_OFFSET_PX = 120;
 const MANUAL_MS = 900;
-
-/** Must be constant for clean up/down swap */
 const SWAP_Y = 26;
-
-/** Active detection “center band” */
 const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
+
+type Mode = "hidden" | "compact" | "expanded";
 
 /* ── GSAP dynamic loader (cached) ────────────────────────────────── */
 type GsapCore = {
@@ -80,9 +78,9 @@ async function getGsap(): Promise<GsapCore> {
   return _gsapPromise;
 }
 
-function isDesktopOnce(): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(min-width: 768px)").matches;
+/* ── Helpers ─────────────────────────────────────────────────────── */
+function tt(lang: Lang, es: string, en: string) {
+  return lang === "es" ? es : en;
 }
 
 function prefersReducedMotionOnce(): boolean {
@@ -90,9 +88,41 @@ function prefersReducedMotionOnce(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/* ── Helpers ─────────────────────────────────────────────────────── */
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
+function isCoarsePointerOnce(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+
+/**
+ * ✅ Mode rules:
+ * - tablet portrait: hidden (mobile-like UI handles nav)
+ * - tablet: compact
+ * - small desktop (1025–1180): compact (fixes your screenshot)
+ * - larger desktop: expanded
+ */
+function computeMode(): Mode {
+  if (typeof window === "undefined") return "hidden";
+
+  const portraitTablet = window.matchMedia(
+    "(max-width: 900px) and (orientation: portrait)"
+  ).matches;
+  if (portraitTablet) return "hidden";
+
+  const tabletBand = window.matchMedia(
+    "(min-width: 768px) and (max-width: 1024px)"
+  ).matches;
+  if (tabletBand) return "compact";
+
+  // ✅ small desktop should use compact rail (your request)
+  const smallDesktop = window.matchMedia(
+    "(min-width: 1025px) and (max-width: 1180px)"
+  ).matches;
+  if (smallDesktop) return "compact";
+
+  const desktop = window.matchMedia("(min-width: 1025px)").matches;
+  if (desktop) return "expanded";
+
+  return window.matchMedia("(min-width: 768px)").matches ? "compact" : "hidden";
 }
 
 function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
@@ -131,7 +161,6 @@ function getScrollableAncestor(el: Element): Window | Element {
     : window;
 }
 
-/** Mobile-safe native scroll fallback (no GSAP download) */
 function nativeScrollToElement(
   scroller: Window | Element,
   el: HTMLElement,
@@ -163,11 +192,7 @@ const EASE_IN: [number, number, number, number] = [0.12, 0, 0.39, 0];
 
 const dockV: Variants = {
   hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: EASE_OUT, delay: 0 },
-  },
+  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE_OUT } },
 };
 
 const subContainerVariants: Variants = {
@@ -195,37 +220,105 @@ const subContainerVariants: Variants = {
 };
 
 const subItemVariants: Variants = {
-  open: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.22, ease: EASE_OUT },
-  },
-  collapsed: {
-    opacity: 0,
-    y: -8,
-    transition: { duration: 0.14, ease: EASE_IN },
-  },
+  open: { opacity: 1, y: 0, transition: { duration: 0.22, ease: EASE_OUT } },
+  collapsed: { opacity: 0, y: -8, transition: { duration: 0.14, ease: EASE_IN } },
 };
 
+/* ── Visual positioning: keep dock near content on ultrawide ────── */
+function getDockLeftX(mode: Mode) {
+  const dockW =
+    mode === "compact" ? "var(--dock-left-compact)" : "var(--dock-left-expanded)";
+
+  return `max(
+    calc(var(--gutter) + env(safe-area-inset-left)),
+    calc((100vw - var(--content-max)) / 2 - var(--dock-gap) - ${dockW})
+  )`;
+}
+
+/* ── Skeleton shown immediately while sections load ─────────────── */
+function DockSkeleton({ lang, mode }: { lang: Lang; mode: Mode }) {
+  const left = getDockLeftX(mode);
+
+  if (mode === "compact") {
+    return (
+      <nav
+        className="fixed z-40 pointer-events-none"
+        style={{
+          left,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "var(--dock-left-compact)",
+        }}
+        aria-hidden="true"
+      >
+        <div className="rounded-lg border border-(--olivea-olive)/12 bg-(--olivea-cream)/70 backdrop-blur-md shadow-[0_18px_54px_-30px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="px-2 pt-3 pb-2 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) opacity-35 text-center">
+            {tt(lang, "Cap.", "Ch.")}
+          </div>
+          <div className="flex flex-col gap-2 p-2 pt-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="min-h-(--tap) rounded-xl bg-black/5" />
+            ))}
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  return (
+    <nav
+      className="hidden md:flex fixed z-40 pointer-events-none"
+      style={{ left, top: "50%", transform: "translateY(-50%)" }}
+      aria-hidden="true"
+    >
+      <div className="relative">
+        <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-35">
+          {tt(lang, "Capítulos", "Chapters")}
+        </div>
+        <div className="w-55">
+          <div className="flex flex-col gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="h-3 w-10 rounded bg-black/5" />
+                <div className="h-5 w-36 rounded bg-black/5" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 /* ── Component ───────────────────────────────────────────────────── */
-export default function DockLeft({
-  sectionsOverride,
-  lang = "es",
-}: DockLeftProps) {
+export default function DockLeft({ sectionsOverride, lang = "es" }: DockLeftProps) {
   const reduce = useReducedMotion();
 
-  // Compute once; these don’t need to re-evaluate repeatedly during scroll
-  const desktopRef = useRef<boolean>(false);
-  const prmRef = useRef<boolean>(false);
+  // hooks unconditionally
+  const [mode, setMode] = useState<Mode>("hidden");
+  const prmRef = useRef(false);
+  const coarseRef = useRef(false);
 
   useEffect(() => {
-    desktopRef.current = isDesktopOnce();
-    prmRef.current = prefersReducedMotionOnce();
+    const update = () => {
+      setMode(computeMode());
+      prmRef.current = prefersReducedMotionOnce();
+      coarseRef.current = isCoarsePointerOnce();
+    };
+
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("orientationchange", update, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+    };
   }, []);
 
   const items = useMemo(
     () =>
-      sectionsOverride.map((s, i) => ({
+      (sectionsOverride ?? []).map((s, i) => ({
         id: s.id,
         label: s.label,
         number: String(i + 1).padStart(2, "0"),
@@ -235,13 +328,13 @@ export default function DockLeft({
 
   const subsForSection = useCallback(
     (sectionId: string) =>
-      sectionsOverride.find((s) => s.id === sectionId)?.subs ?? [],
+      (sectionsOverride ?? []).find((s) => s.id === sectionId)?.subs ?? [],
     [sectionsOverride]
   );
 
   const subToParent = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const s of sectionsOverride) {
+    for (const s of sectionsOverride ?? []) {
       (s.subs ?? []).forEach((sub) => (map[sub.id] = s.id));
     }
     return map;
@@ -251,7 +344,6 @@ export default function DockLeft({
   const [activeSub, setActiveSub] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  // Keep active section valid when sectionsOverride changes
   useEffect(() => {
     if (!items.length) return;
     if (!activeSection || !items.some((x) => x.id === activeSection)) {
@@ -282,39 +374,26 @@ export default function DockLeft({
 
       clearTimers();
       setSnapDisabled(true);
-      unlockTimer.current = window.setTimeout(
-        () => setSnapDisabled(false),
-        MANUAL_MS
-      );
+      unlockTimer.current = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS);
 
       const scroller = getScrollableAncestor(el);
-
-      const shouldUseNative =
-        !desktopRef.current || reduce || prmRef.current;
+      const shouldUseNative = mode !== "expanded" || reduce || prmRef.current;
 
       if (shouldUseNative) {
-        nativeScrollToElement(
-          scroller,
-          el,
-          TOP_OFFSET_PX,
-          /* smooth */ !reduce && !prmRef.current
-        );
+        nativeScrollToElement(scroller, el, TOP_OFFSET_PX, !reduce && !prmRef.current);
 
         if (window.location.hash.slice(1) !== id) {
           window.history.replaceState(null, "", `#${id}`);
         }
 
-        safetyTimer.current = window.setTimeout(
-          () => setSnapDisabled(false),
-          MANUAL_MS + 250
-        );
+        safetyTimer.current = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS + 250);
         return;
       }
 
       const gsap = await getGsap();
       gsap.killTweensOf(scroller);
 
-      const vars: Record<string, unknown> = {
+      gsap.to(scroller, {
         duration: reduce ? 0 : 0.95,
         ease: "power3.out",
         overwrite: "auto",
@@ -322,37 +401,24 @@ export default function DockLeft({
         onComplete: () => {
           const targetY = clampToMaxScroll(centerYFor(el));
           const currentY =
-            scroller === window
-              ? window.scrollY
-              : (scroller as HTMLElement).scrollTop;
+            scroller === window ? window.scrollY : (scroller as HTMLElement).scrollTop;
 
           if (Math.abs(currentY - targetY) > 10) {
-            if (scroller === window) {
-              window.scrollTo({ top: targetY, behavior: "auto" });
-            } else {
-              (scroller as HTMLElement).scrollTo({
-                top: targetY,
-                behavior: "auto",
-              });
-            }
+            if (scroller === window) window.scrollTo({ top: targetY, behavior: "auto" });
+            else (scroller as HTMLElement).scrollTo({ top: targetY, behavior: "auto" });
           }
 
           setSnapDisabled(false);
         },
-      };
-
-      gsap.to(scroller, vars);
+      });
 
       if (window.location.hash.slice(1) !== id) {
         window.history.replaceState(null, "", `#${id}`);
       }
 
-      safetyTimer.current = window.setTimeout(
-        () => setSnapDisabled(false),
-        MANUAL_MS + 250
-      );
+      safetyTimer.current = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS + 250);
     },
-    [clearTimers, reduce]
+    [clearTimers, mode, reduce]
   );
 
   const handleSmoothScroll = useCallback(
@@ -363,7 +429,7 @@ export default function DockLeft({
     [scrollToSection]
   );
 
-  /* Deep link on mount */
+  // deep link on mount
   useEffect(() => {
     const hash = window.location.hash.slice(1);
     if (!hash) return;
@@ -379,13 +445,12 @@ export default function DockLeft({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* Active detection: IntersectionObserver (optimized + RAF batched) */
+  // active detection
   useEffect(() => {
     if (items.length === 0) return;
 
     const elMeta = new Map<Element, { id: string; kind: "main" | "sub" }>();
 
-    // main items
     for (const it of items) {
       const el =
         document.querySelector<HTMLElement>(`.main-section#${it.id}`) ||
@@ -393,7 +458,6 @@ export default function DockLeft({
       if (el) elMeta.set(el, { id: it.id, kind: "main" });
     }
 
-    // subs
     for (const subId of Object.keys(subToParent)) {
       const el =
         document.querySelector<HTMLElement>(`.subsection#${subId}`) ||
@@ -429,7 +493,6 @@ export default function DockLeft({
 
     const io = new IntersectionObserver(
       (entries) => {
-        // pick the single “most visible” entry without sorting
         let best: IntersectionObserverEntry | null = null;
         let bestRatio = 0;
 
@@ -449,11 +512,7 @@ export default function DockLeft({
         pending = meta;
         schedule();
       },
-      {
-        root: null,
-        rootMargin: IO_ROOT_MARGIN,
-        threshold: [0, 0.2, 0.4, 0.6, 0.8, 1],
-      }
+      { root: null, rootMargin: IO_ROOT_MARGIN, threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
     );
 
     for (const el of elMeta.keys()) io.observe(el);
@@ -471,23 +530,130 @@ export default function DockLeft({
     };
   }, [clearTimers]);
 
-  if (items.length === 0) return null;
+  // render decisions AFTER hooks
+  if (mode === "hidden") return null;
+
+  if (items.length === 0) {
+    return <DockSkeleton lang={lang} mode={mode} />;
+  }
+
+  /* ───────────────────────────────────────────────────────────── */
+  /* COMPACT (tablet + small desktop) — Olivea aligned + label pill */
+  /* ───────────────────────────────────────────────────────────── */
+  if (mode === "compact") {
+    const left = getDockLeftX("compact");
+
+    return (
+      <nav
+        className="fixed z-40 pointer-events-auto"
+        style={{
+          left,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "var(--dock-left-compact)",
+        }}
+        aria-label={tt(lang, "Capítulos", "Chapters")}
+      >
+        <motion.div
+          variants={dockV}
+          initial="hidden"
+          animate="show"
+          className="rounded-lg border border-(--olivea-olive)/12 bg-(--olivea-cream)/70 backdrop-blur-md shadow-[0_18px_54px_-30px_rgba(0,0,0,0.35)] overflow-visible"
+        >
+          <div className="px-2 pt-3 pb-2 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) opacity-55 text-center">
+            {tt(lang, "Cap.", "Ch.")}
+          </div>
+
+          <ul className="flex flex-col gap-1 p-2 pt-1">
+            {items.map((item) => {
+              const isActive = item.id === activeSection;
+
+              return (
+                <li key={item.id} className="relative">
+                  <a
+                    href={`#${item.id}`}
+                    onClick={(e) => handleSmoothScroll(e, item.id)}
+                    onFocus={() => setHoveredId(item.id)}
+                    onBlur={() => setHoveredId(null)}
+                    className={cn(
+                      "relative flex items-center justify-center rounded-xl outline-none transition",
+                      "min-h-(--tap)",
+                      "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/25",
+                      "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-cream)",
+                      isActive ? "bg-(--olivea-olive)/10" : "hover:bg-(--olivea-olive)/6"
+                    )}
+                    aria-current={isActive ? "page" : undefined}
+                    aria-label={item.label}
+                    title={item.label}
+                  >
+                    <span
+                      className={cn(
+                        "tabular-nums text-[12px] tracking-[0.22em] font-semibold",
+                        isActive ? "text-(--olivea-olive) opacity-90" : "text-(--olivea-olive) opacity-70"
+                      )}
+                      style={{ fontFamily: "var(--font-serif)" }}
+                    >
+                      {item.number}
+                    </span>
+
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "absolute bottom-2 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full",
+                        isActive ? "bg-(--olivea-olive)/45" : "bg-transparent"
+                      )}
+                    />
+                  </a>
+
+                  {/* ✅ Active label pill (Olivea-aligned) */}
+                  <AnimatePresence initial={false}>
+                    {(isActive || hoveredId === item.id) && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -6, scale: 0.98 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: -6, scale: 0.98 }}
+                        transition={{ duration: 0.18, ease: EASE_OUT }}
+                        className="
+                          pointer-events-none
+                          absolute left-full ml-3 top-1/2 -translate-y-1/2
+                          px-4 py-2 rounded-full
+                          border border-(--olivea-olive)/12
+                          bg-(--olivea-cream)/85 backdrop-blur-md
+                          shadow-[0_14px_40px_-24px_rgba(0,0,0,0.45)]
+                          text-[12px] font-semibold tracking-[0.08em] uppercase
+                          text-(--olivea-olive) whitespace-nowrap
+                        "
+                        style={{ fontFamily: "var(--font-serif)" }}
+                        aria-hidden="true"
+                      >
+                        {item.label}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </li>
+              );
+            })}
+          </ul>
+        </motion.div>
+      </nav>
+    );
+  }
+
+  /* ───────────────────────────────────────────────────────────── */
+  /* EXPANDED (desktop)                                           */
+  /* ───────────────────────────────────────────────────────────── */
+  const left = getDockLeftX("expanded");
+  const hoverEnabled = !reduce && !coarseRef.current;
 
   return (
     <nav
-      className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 pointer-events-auto"
+      className="hidden md:flex fixed z-40 pointer-events-auto"
+      style={{ left, top: "50%", transform: "translateY(-50%)" }}
       aria-label={tt(lang, "Capítulos", "Chapters")}
     >
-      <motion.div
-        variants={dockV}
-        initial={reduce ? false : "hidden"}
-        animate="show"
-        className="relative"
-      >
-        {/* rail */}
+      <motion.div variants={dockV} initial="hidden" animate="show" className="relative">
         <div className="absolute left-4.5 top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/12 to-transparent" />
 
-        {/* header */}
         <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-55">
           {tt(lang, "Capítulos", "Chapters")}
         </div>
@@ -497,22 +663,19 @@ export default function DockLeft({
             const isActive = item.id === activeSection;
             const isHovered = item.id === hoveredId;
             const isIntent = isActive || isHovered;
-            const isSwapping = isHovered && !reduce;
+            const isSwapping = hoverEnabled && isHovered;
 
             const textClass = isActive
               ? "text-(--olivea-olive) font-black"
               : "text-(--olivea-olive) opacity-75 hover:opacity-100 hover:text-(--olivea-olive)";
 
             return (
-              <div
-                key={item.id}
-                className={cn("flex flex-col", isActive ? "mb-4" : "mb-0")}
-              >
+              <div key={item.id} className={cn("flex flex-col", isActive ? "mb-4" : "mb-0")}>
                 <a
                   href={`#${item.id}`}
                   onClick={(e) => handleSmoothScroll(e, item.id)}
-                  onMouseEnter={() => setHoveredId(item.id)}
-                  onMouseLeave={() => setHoveredId(null)}
+                  onMouseEnter={hoverEnabled ? () => setHoveredId(item.id) : undefined}
+                  onMouseLeave={hoverEnabled ? () => setHoveredId(null) : undefined}
                   onFocus={() => setHoveredId(item.id)}
                   onBlur={() => setHoveredId(null)}
                   className={cn(
@@ -523,7 +686,6 @@ export default function DockLeft({
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  {/* active stem */}
                   <AnimatePresence initial={false}>
                     {isActive && (
                       <motion.span
@@ -531,16 +693,12 @@ export default function DockLeft({
                         initial={{ opacity: 0, scaleY: 0.7 }}
                         animate={{ opacity: 1, scaleY: 1 }}
                         exit={{ opacity: 0, scaleY: 0.7 }}
-                        transition={{
-                          duration: reduce ? 0 : 0.18,
-                          ease: EASE_OUT,
-                        }}
+                        transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
                         className="absolute left-4.5 top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-olive)/35 origin-center"
                       />
                     )}
                   </AnimatePresence>
 
-                  {/* numbers */}
                   <span
                     className={cn(
                       "w-10 tabular-nums text-[12px] tracking-[0.28em] font-semibold",
@@ -550,7 +708,6 @@ export default function DockLeft({
                     {item.number}
                   </span>
 
-                  {/* label swap */}
                   <div className="relative h-8 overflow-hidden min-w-55">
                     <motion.div
                       className="block text-[18px] font-semibold whitespace-nowrap"
@@ -559,10 +716,7 @@ export default function DockLeft({
                       animate={
                         reduce
                           ? { y: 0, opacity: 1 }
-                          : {
-                              y: isSwapping ? -SWAP_Y : 0,
-                              opacity: isSwapping ? 0 : 1,
-                            }
+                          : { y: isSwapping ? -SWAP_Y : 0, opacity: isSwapping ? 0 : 1 }
                       }
                       transition={{
                         y: { type: "spring", stiffness: 220, damping: 22 },
@@ -579,10 +733,7 @@ export default function DockLeft({
                       animate={
                         reduce
                           ? { y: 0, opacity: 1 }
-                          : {
-                              y: isSwapping ? 0 : SWAP_Y,
-                              opacity: isSwapping ? 1 : 0,
-                            }
+                          : { y: isSwapping ? 0 : SWAP_Y, opacity: isSwapping ? 1 : 0 }
                       }
                       transition={{
                         y: { type: "spring", stiffness: 220, damping: 22 },
@@ -596,19 +747,12 @@ export default function DockLeft({
                       aria-hidden="true"
                       className="absolute left-0 right-6 -bottom-2 h-px bg-(--olivea-olive)/14 origin-left"
                       initial={false}
-                      animate={{
-                        scaleX: isIntent ? 1 : 0,
-                        opacity: isIntent ? 1 : 0,
-                      }}
-                      transition={{
-                        duration: reduce ? 0 : 0.18,
-                        ease: EASE_OUT,
-                      }}
+                      animate={{ scaleX: isIntent ? 1 : 0, opacity: isIntent ? 1 : 0 }}
+                      transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
                     />
                   </div>
                 </a>
 
-                {/* Sub-sections */}
                 <AnimatePresence initial={false}>
                   {isActive && subsForSection(item.id).length > 0 && (
                     <motion.div
@@ -621,7 +765,6 @@ export default function DockLeft({
                     >
                       <div className="relative pl-4">
                         <div className="absolute left-0 top-2 bottom-2 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/10 to-transparent" />
-
                         <div className="flex flex-col gap-3">
                           {subsForSection(item.id).map((sub) => {
                             const isSubActive = sub.id === activeSub;
@@ -646,9 +789,7 @@ export default function DockLeft({
                                 <span
                                   className={cn(
                                     "absolute -left-3 top-[0.62em] h-1 w-2 rounded-full",
-                                    isSubActive
-                                      ? "bg-(--olivea-olive)/40"
-                                      : "bg-transparent"
+                                    isSubActive ? "bg-(--olivea-olive)/40" : "bg-transparent"
                                   )}
                                 />
                                 {sub.label}

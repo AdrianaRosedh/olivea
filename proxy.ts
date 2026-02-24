@@ -86,9 +86,9 @@ function buildCsp({
     `frame-ancestors${frameAncestors}`,
     "form-action 'self'",
 
-    `connect-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
+    `connect-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://connect.facebook.net https://*.canva.com${cloudbedsConnectExtra}${locatorConnectExtra}`,
 
-    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx${locatorScriptExtra}`,
+    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval}${wasmUnsafeEval} https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://connect.facebook.net https://www.opentable.com.mx${locatorScriptExtra}`,
 
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
 

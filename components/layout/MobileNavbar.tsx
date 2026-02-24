@@ -1,6 +1,7 @@
+// components/layout/MobileNavbar.tsx
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import AdaptiveNavbar from "@/components/navigation/AdaptiveNavbar";
@@ -10,18 +11,30 @@ import { useReservation } from "@/contexts/ReservationContext";
 import { reserveDefault } from "@/lib/sections";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
-export default function MobileNavbar({ dictionary }: { dictionary: AppDictionary }) {
+type DrawerOrigin = { x: number; y: number };
+
+export default function MobileNavbar({
+  dictionary,
+  /**
+   * ✅ Force-enable AdaptiveNavbar even when viewport >= 768px
+   * (used for iPad portrait + split view when LayoutShell decides “mobile-like”)
+   */
+  enabled = true,
+}: {
+  dictionary: AppDictionary;
+  enabled?: boolean;
+}) {
   const pathname = usePathname() ?? "/es";
   const { openReservationModal } = useReservation();
 
   // derive lang from URL
-  const firstSeg = pathname.split("/")[1];
-  const lang: "en" | "es" = firstSeg === "en" ? "en" : "es";
+  const lang: "en" | "es" = useMemo(() => {
+    const firstSeg = pathname.split("/")[1];
+    return firstSeg === "en" ? "en" : "es";
+  }, [pathname]);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerOrigin, setDrawerOrigin] = useState<{ x: number; y: number } | undefined>(
-    undefined
-  );
+  const [drawerOrigin, setDrawerOrigin] = useState<DrawerOrigin | undefined>(undefined);
 
   const toggleDrawer = useCallback(() => {
     navigator.vibrate?.(10);
@@ -38,11 +51,15 @@ export default function MobileNavbar({ dictionary }: { dictionary: AppDictionary
     openReservationModal(map[id]);
   }, [openReservationModal, pathname]);
 
-  // Preserve your desktop-only reserve event behavior if you need it,
-  // but for mobile this usually stays off.
+  // Close drawer on navigation change (prevents stale open drawer)
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  // Preserve desktop-only reserve event behavior (as you had it)
   useEffect(() => {
     const onReserve = () => {
-      // if you ever want to allow, remove this media check
+      // if you ever want to allow on mobile-like too, remove this media check
       if (window.matchMedia("(min-width: 768px)").matches) handleReserve();
     };
     window.addEventListener("olivea:reserve", onReserve);
@@ -56,6 +73,7 @@ export default function MobileNavbar({ dictionary }: { dictionary: AppDictionary
         isDrawerOpen={drawerOpen}
         onToggleDrawer={toggleDrawer}
         onDrawerOriginChange={setDrawerOrigin}
+        enabled={enabled}
       />
 
       <MobileDrawer

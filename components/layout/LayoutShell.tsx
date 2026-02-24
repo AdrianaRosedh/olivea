@@ -13,39 +13,38 @@ import { useLenis } from "@/components/providers/ScrollProvider";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import { getActiveSection } from "@/lib/sections";
 import SubtleContentFade from "@/components/transitions/SubtleContentFade";
-import { DOCK, DOCK_COMPUTED } from "@/lib/ui/tokens";
 
+import { useContainerMobileLike } from "@/hooks/useContainerBreakpoint";
 import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
 /* =========================
    Navbar split
    ========================= */
-// Keep desktop navbar static for best desktop feel
 import DesktopNavbar from "@/components/layout/Navbar";
 
-// Mobile navbar loads only on mobile
 const MobileNavbar = dynamic(() => import("@/components/layout/MobileNavbar"), {
   ssr: false,
   loading: () => null,
 });
 
 /* =========================
-   Desktop-only: dynamic imports
+   Desktop-only
    ========================= */
 const Footer = dynamic(() => import("@/components/layout/Footer"), {
   ssr: false,
   loading: () => null,
 });
 
-/**
- * DockLeft is client-only (needs IO / framer / optional gsap), so it can't SSR easily.
- * Skeleton prevents “empty then pop-in”.
- */
 const DockLeft = dynamic(() => import("@/components/navigation/DockLeft"), {
   ssr: false,
   loading: () => (
     <div
-      className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40 pointer-events-none"
+      className="hidden md:block fixed z-40 pointer-events-none"
+      style={{
+        left: "calc(var(--gutter) + env(safe-area-inset-left))",
+        top: "50%",
+        transform: "translateY(-50%)",
+      }}
       aria-hidden="true"
     >
       <div className="w-55">
@@ -73,19 +72,21 @@ const DesktopChatButton = dynamic(() => import("@/components/ui/DesktopChatButto
   loading: () => null,
 });
 
-// Chat: only load when wantsChat = true
-const WhistleToggleMount = dynamic(() => import("@/components/chat/WhistleToggleMount"), {
-  ssr: false,
-  loading: () => null,
-});
-const LoadWhistleClient = dynamic(() => import("@/components/chat/LoadWhistleClient"), {
-  ssr: false,
-  loading: () => null,
-});
-const ChatCloseOverlay = dynamic(() => import("@/components/chat/ChatCloseOverlay"), {
-  ssr: false,
-  loading: () => null,
-});
+/* =========================
+   Chat
+   ========================= */
+const WhistleToggleMount = dynamic(
+  () => import("@/components/chat/WhistleToggleMount"),
+  { ssr: false, loading: () => null }
+);
+const LoadWhistleClient = dynamic(
+  () => import("@/components/chat/LoadWhistleClient"),
+  { ssr: false, loading: () => null }
+);
+const ChatCloseOverlay = dynamic(
+  () => import("@/components/chat/ChatCloseOverlay"),
+  { ssr: false, loading: () => null }
+);
 
 /* =========================
    DockRight icons (desktop-only)
@@ -94,7 +95,6 @@ const IconFallback = ({ size = 22 }: { size?: number }) => (
   <span style={{ width: size, height: size, display: "inline-block" }} aria-hidden />
 );
 
-// DockRight icons are desktop-only. Keep lucide out of the mobile bundle.
 const AwardIcon = dynamic(() => import("lucide-react").then((m) => m.Award), {
   ssr: false,
   loading: () => <IconFallback />,
@@ -123,21 +123,20 @@ interface LayoutShellProps {
 }
 
 type Identity = "casa" | "farmtotable" | "cafe";
+
 type Override = Array<{
   id: string;
   label: string;
   subs?: Array<{ id: string; label: string }>;
 }>;
+
 type DockItem = { id: string; href: string; label: string; icon: React.ReactNode };
 
-type StyleVars = React.CSSProperties & {
-  ["--dock-gutter"]?: string;
-  ["--dock-left"]?: string;
-  ["--dock-right"]?: string;
-  ["--mobile-nav-h"]?: string;
-};
-
-type SectionShape = Array<{ id: string; title: string; subs?: Array<{ id: string; title: string }> }>;
+type SectionShape = Array<{
+  id: string;
+  title: string;
+  subs?: Array<{ id: string; title: string }>;
+}>;
 
 const mapSections = (arr: SectionShape): Override =>
   arr.map((s) => ({
@@ -157,29 +156,26 @@ async function loadSections(identity: Identity, lang: Lang): Promise<SectionShap
   let data: SectionShape;
 
   if (identity === "farmtotable") {
-    if (lang === "es") {
-      const mod = await import("@/app/(main)/[lang]/farmtotable/sections.es");
-      data = mod.SECTIONS_ES as SectionShape;
-    } else {
-      const mod = await import("@/app/(main)/[lang]/farmtotable/sections.en");
-      data = mod.SECTIONS_EN as SectionShape;
-    }
+    data =
+      lang === "es"
+        ? ((await import("@/app/(main)/[lang]/farmtotable/sections.es"))
+            .SECTIONS_ES as SectionShape)
+        : ((await import("@/app/(main)/[lang]/farmtotable/sections.en"))
+            .SECTIONS_EN as SectionShape);
   } else if (identity === "casa") {
-    if (lang === "es") {
-      const mod = await import("@/app/(main)/[lang]/casa/sections.es");
-      data = mod.SECTIONS_CASA_ES as SectionShape;
-    } else {
-      const mod = await import("@/app/(main)/[lang]/casa/sections.en");
-      data = mod.SECTIONS_CASA_EN as SectionShape;
-    }
+    data =
+      lang === "es"
+        ? ((await import("@/app/(main)/[lang]/casa/sections.es"))
+            .SECTIONS_CASA_ES as SectionShape)
+        : ((await import("@/app/(main)/[lang]/casa/sections.en"))
+            .SECTIONS_CASA_EN as SectionShape);
   } else {
-    if (lang === "es") {
-      const mod = await import("@/app/(main)/[lang]/cafe/sections.es");
-      data = mod.SECTIONS_CAFE_ES as SectionShape;
-    } else {
-      const mod = await import("@/app/(main)/[lang]/cafe/sections.en");
-      data = mod.SECTIONS_CAFE_EN as SectionShape;
-    }
+    data =
+      lang === "es"
+        ? ((await import("@/app/(main)/[lang]/cafe/sections.es"))
+            .SECTIONS_CAFE_ES as SectionShape)
+        : ((await import("@/app/(main)/[lang]/cafe/sections.en"))
+            .SECTIONS_CAFE_EN as SectionShape);
   }
 
   _sectionsCache.set(key, data);
@@ -189,7 +185,15 @@ async function loadSections(identity: Identity, lang: Lang): Promise<SectionShap
 function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
   const lenis = useLenis();
   const pathname = usePathname();
+
+  // existing mobile detection (likely viewport-based)
   const isMobile = useIsMobile();
+
+  // ✅ container-width based mobile-like (iPad portrait + split-view)
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  const isContainerNarrow = useContainerMobileLike(shellRef, 960);
+
+  const isMobileLike = isMobile || isContainerNarrow;
 
   // Spanish at `/`, English at `/en`
   const pathLang: Lang = pathname?.startsWith("/en") ? "en" : "es";
@@ -202,17 +206,15 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
     pathname?.includes("/journal") ||
     pathname?.includes("/diario") ||
     pathname?.includes("/posts");
+
   const allowHeroBreakout = !!section || isJournal;
 
   /**
-   * PERF:
-   * Prefetch desktop-only chunks WITHOUT competing with LCP.
-   * Strategy: run on first user intent OR on idle (whichever comes first).
+   * PERF: prefetch desktop-only chunks only when NOT mobile-like
    */
-
   const didPrefetchRef = useRef(false);
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobileLike) return;
     if (didPrefetchRef.current) return;
 
     const prefetch = () => {
@@ -228,13 +230,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
     const onIntent = () => prefetch();
 
-    // First user intent (doesn't compete with LCP)
     window.addEventListener("pointerdown", onIntent, { passive: true, once: true });
     window.addEventListener("keydown", onIntent, { passive: true, once: true });
     window.addEventListener("wheel", onIntent, { passive: true, once: true });
     window.addEventListener("touchstart", onIntent, { passive: true, once: true });
 
-    // Typed requestIdleCallback / cancelIdleCallback shim (no `any`)
     type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
     type IdleRequestCallback = (deadline: IdleDeadline) => void;
     type IdleRequestOptions = { timeout?: number };
@@ -263,11 +263,11 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       if (idleId !== null) idle.cancelIdleCallback?.(idleId);
       if (timeoutId !== null) window.clearTimeout(timeoutId);
     };
-  }, [isMobile]);
+  }, [isMobileLike]);
 
   // Lenis → CSS var (desktop only)
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobileLike) return;
     if (!lenis) return;
 
     const onScroll = ({ scroll }: { scroll: number }) => {
@@ -276,19 +276,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
     lenis.on("scroll", onScroll);
     return () => lenis.off("scroll", onScroll);
-  }, [lenis, isMobile]);
-
-  const mainStyle = (isMobile
-    ? {
-        paddingLeft: "max(16px, env(safe-area-inset-left))",
-        paddingRight: "max(16px, env(safe-area-inset-right))",
-        "--mobile-nav-h": `${84}px`,
-      }
-    : {
-        "--dock-gutter": `${DOCK_COMPUTED.guttersPx}px`,
-        "--dock-left": `${DOCK.leftPx + DOCK.gapPx}px`,
-        "--dock-right": `${DOCK.rightPx + DOCK.gapPx}px`,
-      }) satisfies StyleVars;
+  }, [lenis, isMobileLike]);
 
   // Load only the active identity sections (lazy)
   const [sectionData, setSectionData] = useState<SectionShape | null>(null);
@@ -332,11 +320,9 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
     return { es: "Secciones", en: "Sections" };
   }, [identity]);
 
-  // DockRight items only for desktop
   const dockRightItems = useMemo<DockItem[]>(
     () => {
-      if (isMobile) return [];
-
+      if (isMobileLike) return [];
       return [
         { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title, icon: <AwardIcon /> },
         { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <LeafIcon /> },
@@ -345,23 +331,30 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         { id: "contact", href: `/${pathLang}/contact`, label: dictionary.contact.title, icon: <MapIcon /> },
       ];
     },
-    [isMobile, pathLang, dictionary]
+    [isMobileLike, pathLang, dictionary]
   );
 
   const wantsChat = !isHome && !!section;
 
   return (
-    <>
+    <div ref={shellRef} className="w-full">
       {/* NAVBAR */}
       {!isHome && (
         <ClientOnly>
-          {isMobile ? <MobileNavbar dictionary={dictionary} /> : <DesktopNavbar lang={lang} dictionary={dictionary} />}
+          {isMobileLike ? (
+            <MobileNavbar dictionary={dictionary} />
+          ) : (
+            <DesktopNavbar lang={lang} dictionary={dictionary} />
+          )}
         </ClientOnly>
       )}
 
-      {/* Crawlable primary nav (no visual impact) */}
+      {/* Crawlable primary nav */}
       {!isHome && (
-        <nav aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"} className="sr-only">
+        <nav
+          aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"}
+          className="sr-only"
+        >
           <ul>
             <li><a href={`/${pathLang}/farmtotable`}>Olivea Farm To Table</a></li>
             <li><a href={`/${pathLang}/casa`}>Casa Olivea</a></li>
@@ -372,35 +365,41 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         </nav>
       )}
 
+      {/* MAIN */}
       <main
         data-hero-breakout={allowHeroBreakout ? "true" : "false"}
         className={
           isHome
             ? "p-0 m-0 overflow-hidden"
             : isJournal
-              ? "w-full pt-16 md:pt-28 pb-20 md:px-0"
-              : "mx-auto w-full max-w-275 pt-16 md:pt-28 md:px-8 pb-20"
+              ? "w-full pt-16 md:pt-28 pb-20"
+              : "w-full pt-16 md:pt-28 pb-20"
         }
-        style={mainStyle}
+        style={{
+          paddingLeft: "max(var(--gutter), env(safe-area-inset-left))",
+          paddingRight: "max(var(--gutter), env(safe-area-inset-right))",
+        }}
       >
         <SubtleContentFade duration={0.65}>
-          {allowHeroBreakout ? <NavigationProvider>{children}</NavigationProvider> : children}
+          <div className={isHome ? "" : "mx-auto"} style={{ width: isHome ? undefined : "var(--content-w)" }}>
+            {allowHeroBreakout ? <NavigationProvider>{children}</NavigationProvider> : children}
+          </div>
         </SubtleContentFade>
       </main>
 
       {/* FOOTER */}
-      {!isHome && !isMobile && <Footer dict={dictionary} />}
+      {!isHome && !isMobileLike && <Footer dict={dictionary} />}
 
-      {/* DESKTOP DOCKS */}
-      {!isHome && !isMobile && (
+      {/* DOCKS */}
+      {!isHome && !isMobileLike && (
         <>
           {identity && <DockLeft identity={identity} sectionsOverride={sectionsOverride ?? []} />}
           <DockRight items={dockRightItems} />
         </>
       )}
 
-      {/* MOBILE BOTTOM NAV */}
-      {!isHome && isMobile && mobileNavItems.length > 0 && (
+      {/* MOBILE-LIKE NAV (includes iPad portrait + split view) */}
+      {!isHome && isMobileLike && mobileNavItems.length > 0 && (
         <ClientOnly>
           <div className="relative z-300 lg:hidden">
             <MobileSectionNav
@@ -423,12 +422,12 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       )}
 
       {/* Desktop chat trigger */}
-      {!isHome && !isMobile && (
+      {!isHome && !isMobileLike && (
         <ClientOnly>
           <DesktopChatButton lang={pathLang} />
         </ClientOnly>
       )}
-    </>
+    </div>
   );
 }
 
