@@ -227,7 +227,14 @@ export default function PhilosophyClient({
       <section className={FULL_BLEED}>
         <div className={PAGE_PAD}>
           <div
-            className={cn(`${RAIL} mx-auto`, "md:ml-80", "md:mr-(--dock-right)")}
+            className={cn(
+              `${RAIL} mx-auto`,
+              "md:mr-(--dock-right)",
+              // 👇 only reserve a little space for the compact button at lg
+              "lg:ml-16",
+              // 👇 reserve full space for the full dock at xl+
+              "xl:ml-86"
+            )}
           >
             {/* Background spotlight */}
             <motion.div

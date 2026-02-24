@@ -1,7 +1,13 @@
+// app/(main)/[lang]/sustainability/PhilosophyDockLeft.tsx
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence, type Variants, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  type Variants,
+  useReducedMotion,
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 
@@ -14,15 +20,70 @@ const MANUAL_MS = 900;
 const SWAP_Y = 26;
 const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
 
+type Mode = "hidden" | "compact" | "expanded";
+
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const dockV: Variants = {
   hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT, delay: 0.25 } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE_OUT } },
 };
 
 function tt(lang: Lang, es: string, en: string) {
   return lang === "es" ? es : en;
+}
+
+function prefersReducedMotionOnce(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function isCoarsePointerOnce(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+
+/**
+ * Same mode rules as DockLeft.
+ */
+function computeMode(): Mode {
+  if (typeof window === "undefined") return "hidden";
+
+  const portraitTablet = window.matchMedia(
+    "(max-width: 900px) and (orientation: portrait)"
+  ).matches;
+  if (portraitTablet) return "hidden";
+
+  const tabletBand = window.matchMedia(
+    "(min-width: 768px) and (max-width: 1024px)"
+  ).matches;
+  if (tabletBand) return "compact";
+
+  const smallDesktop = window.matchMedia(
+    "(min-width: 1025px) and (max-width: 1280px)"
+  ).matches;
+  
+  if (smallDesktop) return "compact";
+
+  const desktop = window.matchMedia("(min-width: 1025px)").matches;
+  if (desktop) return "expanded";
+
+  return window.matchMedia("(min-width: 768px)").matches ? "compact" : "hidden";
+}
+
+/**
+ * Keep dock near content on ultrawide — same math as DockLeft.
+ */
+function getDockLeftX(mode: Mode) {
+  const dockW =
+    mode === "compact"
+      ? "var(--dock-left-compact)"
+      : "var(--dock-left-expanded)";
+
+  return `max(
+    calc(var(--gutter) + env(safe-area-inset-left)),
+    calc((100vw - var(--content-max)) / 2 - var(--dock-gap) - ${dockW})
+  )`;
 }
 
 function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
@@ -36,12 +97,21 @@ function centerYFor(el: HTMLElement, topOffset = TOP_OFFSET_PX) {
 }
 
 function clampToMaxScroll(y: number) {
-  const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const maxY = Math.max(
+    0,
+    document.documentElement.scrollHeight - window.innerHeight
+  );
   return Math.min(Math.max(0, y), maxY);
 }
 
 function setSnapDisabled(disabled: boolean) {
   document.documentElement.classList.toggle("snap-disable", disabled);
+}
+
+function nativeScrollToElement(el: HTMLElement, offsetY: number, smooth: boolean) {
+  const rect = el.getBoundingClientRect();
+  const y = clampToMaxScroll(window.scrollY + rect.top - offsetY);
+  window.scrollTo({ top: y, behavior: smooth ? "smooth" : "auto" });
 }
 
 export default function PhilosophyDockLeft({
@@ -53,19 +123,47 @@ export default function PhilosophyDockLeft({
 }) {
   const reduce = useReducedMotion();
 
+  // match DockLeft behavior (mode + environment flags)
+  const [mode, setMode] = useState<Mode>("hidden");
+  const prmRef = useRef(false);
+  const coarseRef = useRef(false);
+
+  useEffect(() => {
+    const update = () => {
+      setMode(computeMode());
+      prmRef.current = prefersReducedMotionOnce();
+      coarseRef.current = isCoarsePointerOnce();
+    };
+
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("orientationchange", update, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+    };
+  }, []);
+
   const items = useMemo(
     () =>
       sections.map((s, i) => ({
-        id: s.id, // union type, but we'll store active as string for DOM safety
+        id: s.id,
         label: s.title,
         number: String(i + 1).padStart(2, "0"),
       })),
     [sections]
   );
 
-  // ✅ keep state as string (IO returns string ids)
   const [active, setActive] = useState<string>(items[0]?.id ?? "");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // keep active valid
+  useEffect(() => {
+    if (!items.length) return;
+    if (!active || !items.some((x) => x.id === active)) setActive(items[0].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   const unlockTimer = useRef<number | null>(null);
   const safetyTimer = useRef<number | null>(null);
@@ -84,11 +182,32 @@ export default function PhilosophyDockLeft({
 
       clearTimers();
       setSnapDisabled(true);
-      unlockTimer.current = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS);
+      unlockTimer.current = window.setTimeout(
+        () => setSnapDisabled(false),
+        MANUAL_MS
+      );
 
+      // ✅ Like DockLeft: compact + reduced motion => native scroll
+      const shouldUseNative = mode !== "expanded" || reduce || prmRef.current;
+
+      if (shouldUseNative) {
+        nativeScrollToElement(el, TOP_OFFSET_PX, !reduce && !prmRef.current);
+
+        if (window.location.hash.slice(1) !== id) {
+          window.history.replaceState(null, "", `#${id}`);
+        }
+
+        safetyTimer.current = window.setTimeout(
+          () => setSnapDisabled(false),
+          MANUAL_MS + 250
+        );
+        return;
+      }
+
+      // Expanded + fine pointer: GSAP smooth + re-center
       gsap.killTweensOf(window);
       gsap.to(window, {
-        duration: reduce ? 0 : 0.95,
+        duration: 0.95,
         ease: "power3.out",
         overwrite: "auto",
         scrollTo: { y: el, offsetY: TOP_OFFSET_PX, autoKill: false },
@@ -104,9 +223,12 @@ export default function PhilosophyDockLeft({
       if (window.location.hash.slice(1) !== id) {
         window.history.replaceState(null, "", `#${id}`);
       }
-      safetyTimer.current = window.setTimeout(() => setSnapDisabled(false), MANUAL_MS + 250);
+      safetyTimer.current = window.setTimeout(
+        () => setSnapDisabled(false),
+        MANUAL_MS + 250
+      );
     },
-    [clearTimers, reduce]
+    [clearTimers, mode, reduce]
   );
 
   const onClick = useCallback(
@@ -148,7 +270,10 @@ export default function PhilosophyDockLeft({
       (entries) => {
         const visible = entries
           .filter((e) => e.isIntersecting)
-          .sort((a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0));
+          .sort(
+            (a, b) =>
+              (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0)
+          );
         if (!visible.length) return;
 
         const target = visible[0].target as HTMLElement;
@@ -157,7 +282,11 @@ export default function PhilosophyDockLeft({
 
         setActive(match.id);
       },
-      { root: null, rootMargin: IO_ROOT_MARGIN, threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+      {
+        root: null,
+        rootMargin: IO_ROOT_MARGIN,
+        threshold: [0, 0.2, 0.4, 0.6, 0.8, 1],
+      }
     );
 
     observed.forEach((x) => io.observe(x.el));
@@ -171,14 +300,133 @@ export default function PhilosophyDockLeft({
     };
   }, [clearTimers]);
 
+  // render decisions AFTER hooks
+  if (mode === "hidden") return null;
   if (!items.length) return null;
+
+  /* ───────────────────────────────────────────────────────────── */
+  /* COMPACT (tablet + small desktop)                              */
+  /* ───────────────────────────────────────────────────────────── */
+  if (mode === "compact") {
+    const left = getDockLeftX("compact");
+
+    return (
+      <nav
+        className="fixed z-40 pointer-events-auto"
+        style={{
+          left,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "var(--dock-left-compact)",
+        }}
+        aria-label={tt(lang, "Capítulos", "Chapters")}
+      >
+        <motion.div
+          variants={dockV}
+          initial="hidden"
+          animate="show"
+          className="rounded-lg border border-(--olivea-olive)/12 bg-(--olivea-cream)/70 backdrop-blur-md shadow-[0_18px_54px_-30px_rgba(0,0,0,0.35)] overflow-visible"
+        >
+          <div className="px-2 pt-3 pb-2 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) opacity-55 text-center">
+            {tt(lang, "Cap.", "Ch.")}
+          </div>
+
+          <ul className="flex flex-col gap-1 p-2 pt-1">
+            {items.map((item) => {
+              const isActive = item.id === active;
+              const isIntent = isActive || hoveredId === item.id;
+
+              return (
+                <li key={item.id} className="relative">
+                  <a
+                    href={`#${item.id}`}
+                    onClick={(e) => onClick(e, item.id)}
+                    onMouseEnter={() => setHoveredId(item.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    onFocus={() => setHoveredId(item.id)}
+                    onBlur={() => setHoveredId(null)}
+                    className={cn(
+                      "relative flex items-center justify-center rounded-xl outline-none transition",
+                      "min-h-(--tap)",
+                      "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/25",
+                      "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-cream)",
+                      isActive
+                        ? "bg-(--olivea-olive)/10"
+                        : "hover:bg-(--olivea-olive)/6"
+                    )}
+                    aria-current={isActive ? "page" : undefined}
+                    aria-label={item.label}
+                    title={item.label}
+                  >
+                    <span
+                      className={cn(
+                        "tabular-nums text-[12px] tracking-[0.22em] font-semibold",
+                        isActive
+                          ? "text-(--olivea-olive) opacity-90"
+                          : "text-(--olivea-olive) opacity-70"
+                      )}
+                      style={{ fontFamily: "var(--font-serif)" }}
+                    >
+                      {item.number}
+                    </span>
+
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "absolute bottom-2 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full",
+                        isActive
+                          ? "bg-(--olivea-olive)/45"
+                          : "bg-transparent"
+                      )}
+                    />
+                  </a>
+
+                  <AnimatePresence initial={false}>
+                    {isIntent && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -6, scale: 0.98 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: -6, scale: 0.98 }}
+                        transition={{ duration: 0.18, ease: EASE_OUT }}
+                        className="
+                          pointer-events-none
+                          absolute left-full ml-3 top-1/2 -translate-y-1/2
+                          px-4 py-2 rounded-full
+                          border border-(--olivea-olive)/12
+                          bg-(--olivea-cream)/85 backdrop-blur-md
+                          shadow-[0_14px_40px_-24px_rgba(0,0,0,0.45)]
+                          text-[12px] font-semibold tracking-[0.08em] uppercase
+                          text-(--olivea-olive) whitespace-nowrap
+                        "
+                        style={{ fontFamily: "var(--font-serif)" }}
+                        aria-hidden="true"
+                      >
+                        {item.label}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </li>
+              );
+            })}
+          </ul>
+        </motion.div>
+      </nav>
+    );
+  }
+
+  /* ───────────────────────────────────────────────────────────── */
+  /* EXPANDED (desktop)                                            */
+  /* ───────────────────────────────────────────────────────────── */
+  const left = getDockLeftX("expanded");
+  const hoverEnabled = !reduce && !coarseRef.current;
 
   return (
     <nav
-      className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 pointer-events-auto"
+      className="hidden md:flex fixed z-40 pointer-events-auto"
+      style={{ left, top: "50%", transform: "translateY(-50%)" }}
       aria-label={tt(lang, "Capítulos", "Chapters")}
     >
-      <motion.div variants={dockV} initial={reduce ? false : "hidden"} animate="show" className="relative">
+      <motion.div variants={dockV} initial="hidden" animate="show" className="relative">
         <div className="absolute left-4.5 top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/12 to-transparent" />
 
         <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-55">
@@ -189,7 +437,8 @@ export default function PhilosophyDockLeft({
           {items.map((item) => {
             const isActive = item.id === active;
             const isHovered = item.id === hoveredId;
-            const isSwapping = isHovered && !reduce;
+            const isIntent = isActive || isHovered;
+            const isSwapping = hoverEnabled && isHovered;
 
             const textClass = isActive
               ? "text-(--olivea-olive) font-black"
@@ -200,8 +449,8 @@ export default function PhilosophyDockLeft({
                 key={item.id}
                 href={`#${item.id}`}
                 onClick={(e) => onClick(e, item.id)}
-                onMouseEnter={() => setHoveredId(item.id)}
-                onMouseLeave={() => setHoveredId(null)}
+                onMouseEnter={hoverEnabled ? () => setHoveredId(item.id) : undefined}
+                onMouseLeave={hoverEnabled ? () => setHoveredId(null) : undefined}
                 onFocus={() => setHoveredId(item.id)}
                 onBlur={() => setHoveredId(null)}
                 className={cn(
@@ -238,7 +487,11 @@ export default function PhilosophyDockLeft({
                   <motion.div
                     className="block text-[18px] font-semibold whitespace-nowrap"
                     initial={false}
-                    animate={reduce ? { y: 0, opacity: 1 } : { y: isSwapping ? -SWAP_Y : 0, opacity: isSwapping ? 0 : 1 }}
+                    animate={
+                      reduce
+                        ? { y: 0, opacity: 1 }
+                        : { y: isSwapping ? -SWAP_Y : 0, opacity: isSwapping ? 0 : 1 }
+                    }
                     transition={{
                       y: { type: "spring", stiffness: 220, damping: 22 },
                       opacity: { duration: 0.18 },
@@ -251,7 +504,11 @@ export default function PhilosophyDockLeft({
                   <motion.div
                     className="block text-[18px] font-semibold absolute top-0 left-0 whitespace-nowrap"
                     initial={reduce ? false : { y: SWAP_Y, opacity: 0 }}
-                    animate={reduce ? { y: 0, opacity: 1 } : { y: isSwapping ? 0 : SWAP_Y, opacity: isSwapping ? 1 : 0 }}
+                    animate={
+                      reduce
+                        ? { y: 0, opacity: 1 }
+                        : { y: isSwapping ? 0 : SWAP_Y, opacity: isSwapping ? 1 : 0 }
+                    }
                     transition={{
                       y: { type: "spring", stiffness: 220, damping: 22 },
                       opacity: { duration: 0.18 },
@@ -266,8 +523,8 @@ export default function PhilosophyDockLeft({
                     className="absolute left-0 right-6 -bottom-2 h-px bg-(--olivea-olive)/14 origin-left"
                     initial={false}
                     animate={{
-                      scaleX: isActive || isHovered ? 1 : 0,
-                      opacity: isActive || isHovered ? 1 : 0,
+                      scaleX: isIntent ? 1 : 0,
+                      opacity: isIntent ? 1 : 0,
                     }}
                     transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
                   />
