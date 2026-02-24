@@ -5,14 +5,18 @@ import { usePathname } from "next/navigation";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { Button } from "@/components/ui/button";
 import { useReservation } from "@/contexts/ReservationContext";
-import { corm } from "@/app/fonts"; 
+import { corm } from "@/app/fonts";
 import { cn } from "@/lib/utils";
 
 interface ReservationButtonProps {
   className?: string;
+  forceMobile?: boolean;
 }
 
-export default function ReservationButton({ className = "" }: ReservationButtonProps) {
+export default function ReservationButton({
+  className = "",
+  forceMobile = false,
+}: ReservationButtonProps) {
   const { openReservationModal } = useReservation();
   const pathname = usePathname();
   const isES = pathname?.startsWith("/es");
@@ -30,10 +34,13 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
     "text-[clamp(1.05rem,1.35vw,1.45rem)]"
   );
 
+  const showMobile = forceMobile; // overrides breakpoint logic when needed
+  const showDesktop = !forceMobile;
+
   return (
     <>
-      {/* Mobile Button */}
-      <div className={cn("md:hidden w-full px-4 pt-4", className)}>
+      {/* Mobile / Full-width Button */}
+      <div className={cn(showMobile ? "block w-full" : "md:hidden w-full", className)}>
         <Button
           onClick={handleClick}
           size="lg"
@@ -48,16 +55,18 @@ export default function ReservationButton({ className = "" }: ReservationButtonP
       </div>
 
       {/* Desktop Magnetic Button */}
-      <div className={cn("hidden md:block", className)}>
-        <MagneticButton
-          onClick={handleClick}
-          className="px-6 py-3 text-white bg-(--olivea-olive) hover:bg-(--olivea-clay) rounded-md transition-colors"
-          textClassName={labelClasses}
-          ariaLabel={isES ? "Reservar" : "Reserve"}
-        >
-          {label}
-        </MagneticButton>
-      </div>
+      {showDesktop && (
+        <div className={cn("hidden md:block", className)}>
+          <MagneticButton
+            onClick={handleClick}
+            className="px-6 py-3 text-white bg-(--olivea-olive) hover:bg-(--olivea-clay) rounded-md transition-colors"
+            textClassName={labelClasses}
+            ariaLabel={isES ? "Reservar" : "Reserve"}
+          >
+            {label}
+          </MagneticButton>
+        </div>
+      )}
     </>
   );
 }

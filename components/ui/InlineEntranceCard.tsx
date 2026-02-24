@@ -12,10 +12,7 @@ import {
   type RefObject,
 } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import {
-  useSharedTransition,
-  type SectionKey,
-} from "@/contexts/SharedTransitionContext";
+import { useSharedTransition, type SectionKey } from "@/contexts/SharedTransitionContext";
 
 /* ========= codec probe (client-only, cached) ========= */
 let PREFERS_WEBM: boolean | null = null;
@@ -88,18 +85,7 @@ function useInViewOnce<T extends Element>(ref: RefObject<T | null>) {
   return inView;
 }
 
-/* ========= helpers / constants ========= */
-function computeDesktopScale(viewW: number) {
-  const WIDTH_MIN = 820,
-    WIDTH_MAX = 1440,
-    MIN_SCALE = 1.0,
-    MAX_SCALE = 1.3;
-  if (viewW >= WIDTH_MAX) return MAX_SCALE;
-  if (viewW <= WIDTH_MIN) return MIN_SCALE;
-  const t = (viewW - WIDTH_MIN) / (WIDTH_MAX - WIDTH_MIN);
-  return MIN_SCALE + t * (MAX_SCALE - MIN_SCALE);
-}
-
+/* ========= constants ========= */
 const HOVER_DUR = 0.4;
 const HOVER_EASE_CSS = "cubic-bezier(0.22,1,0.36,1)";
 const HOVER_EASE_ARRAY = [0.22, 1, 0.36, 1] as const;
@@ -117,21 +103,19 @@ export interface InlineEntranceCardProps {
   sectionKey: SectionKey;
   description?: string;
 
-  /**
-   * Legacy SVGR support (optional).
-   * You can still pass a React SVG component.
-   */
   Logo?: ComponentType<SVGProps<SVGSVGElement>>;
-
-  /**
-   * New: public/ asset (recommended)
-   * Example: "/brand/alebrije-2.svg"
-   */
   logoSrc?: string;
   logoAlt?: string;
 
   className?: string;
   onActivate?: () => void;
+
+  /**
+   * NEW:
+   * When true, desktop widths become fluid using clamp()
+   * (prevents overflow on in-between widths like 768–1100)
+   */
+  fluidDesktop?: boolean;
 }
 
 type MQLCompat = MediaQueryList & {
@@ -149,6 +133,7 @@ export default function InlineEntranceCard({
   logoAlt,
   className = "",
   onActivate = () => {},
+  fluidDesktop = false,
 }: InlineEntranceCardProps) {
   const { startTransition } = useSharedTransition();
   const reduceMotion = useReducedMotion();
@@ -157,13 +142,12 @@ export default function InlineEntranceCard({
   const ctaText = isES ? "Haz Click" : "Click Me";
 
   const [isMobile, setIsMobile] = useState(false);
-  const [desktopScale, setDesktopScale] = useState(1.3);
 
   // Mobile detection via matchMedia
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const mq = window.matchMedia("(max-width: 767px)") as MQLCompat;
+    const mq = window.matchMedia("(max-width: 1023px)") as MQLCompat; // treat tablet as non-desktop for card internals
 
     const applyMobile = () => setIsMobile(mq.matches);
     applyMobile();
@@ -179,29 +163,6 @@ export default function InlineEntranceCard({
     }
 
     return;
-  }, []);
-
-  // Desktop scale recalculation
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    let raf = 0;
-    const onResize = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const w = window.innerWidth;
-        if (w >= 768) setDesktopScale(computeDesktopScale(w));
-      });
-    };
-
-    const w0 = window.innerWidth;
-    if (w0 >= 768) setDesktopScale(computeDesktopScale(w0));
-
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-    };
   }, []);
 
   const [isHovered, setIsHovered] = useState(false);
@@ -404,7 +365,7 @@ export default function InlineEntranceCard({
     [href, sectionKey, onActivate, startTransition]
   );
 
-  // dimensions
+  // dimensions (kept — but desktop wrapper can be fluid now)
   const BASE = {
     CARD_W: 256,
     CARD_H: 210,
@@ -414,7 +375,20 @@ export default function InlineEntranceCard({
     MOBILE_COLLAPSED: 96,
   };
 
+  // 🔥 Responsive desktop scaling
+  let desktopScale = 1;
+  
+  if (typeof window !== "undefined") {
+    const w = window.innerWidth;
+  
+    if (w >= 1600) desktopScale = 1.45;
+    else if (w >= 1400) desktopScale = 1.3;
+    else if (w >= 1200) desktopScale = 1.15;
+    else desktopScale = 1;
+  }
+  
   const scale = isMobile ? 1 : desktopScale;
+  
   const CARD_WIDTH = BASE.CARD_W * scale;
   const CARD_HEIGHT = BASE.CARD_H * scale;
   const TOP_DESKTOP = BASE.TOP_H * scale;
@@ -431,7 +405,12 @@ export default function InlineEntranceCard({
     <div
       className={`relative ${className}`}
       style={{
-        width: isMobile ? "100%" : Math.round(CARD_WIDTH),
+        // ✅ KEY FIX: fluid desktop widths prevent overflow on mid screens
+        width: isMobile
+          ? "100%"
+          : fluidDesktop
+          ? "clamp(240px, 22vw, 360px)"
+          : Math.round(CARD_WIDTH),
         overflow: "visible",
       }}
       onMouseEnter={handleMouseEnter}
@@ -451,9 +430,7 @@ export default function InlineEntranceCard({
       >
         <motion.div
           whileTap={{ scale: 0.97 }}
-          className={`relative overflow-visible cursor-pointer ${
-            isMobile ? "drop-shadow-lg" : ""
-          }`}
+          className={`relative overflow-visible cursor-pointer ${isMobile ? "drop-shadow-lg" : ""}`}
           onPointerEnter={handlePointerEnter}
         >
           <div
@@ -524,7 +501,7 @@ export default function InlineEntranceCard({
                 transition={{ duration: HOVER_DUR, ease: HOVER_EASE_ARRAY }}
                 style={{
                   background: "#e7eae1",
-                  padding: `${Math.max(8, 10 * scale)}px ${Math.max(12, 16 * scale)}px`,
+                  padding: isMobile ? "10px 16px" : "12px 18px",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -539,11 +516,9 @@ export default function InlineEntranceCard({
                     margin: 1,
                     zIndex: 2,
                     fontFamily: "var(--font-serif)",
-                    fontSize: isMobile ? 28 : Math.round(22 * scale),
+                    fontSize: isMobile ? 28 : 22,
                     fontWeight: 600,
-                    marginTop: isHovered
-                      ? Math.round(20 * scale)
-                      : Math.round(28 * scale),
+                    marginTop: isHovered ? 20 : 28,
                     transition: `margin-top ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                   }}
                   className="not-italic"
@@ -555,10 +530,10 @@ export default function InlineEntranceCard({
                   <p
                     id={`${slug}-desc`}
                     style={{
-                      marginTop: Math.round(6 * scale),
+                      marginTop: 6,
                       textAlign: "center",
-                      fontSize: Math.max(14, Math.round(16 * Math.min(1, scale))),
-                      maxWidth: Math.round(224 * scale),
+                      fontSize: 16,
+                      maxWidth: 320,
                       opacity: isHovered ? 1 : 0,
                       transition: `opacity ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                     }}
@@ -580,16 +555,13 @@ export default function InlineEntranceCard({
                 isSafari ? "bg-white/40" : "bg-white/30 backdrop-blur-sm"
               }`}
               style={{
-                height: Math.max(48, Math.round(64 * scale)),
+                height: 64,
                 borderBottomLeftRadius: 24,
                 borderBottomRightRadius: 24,
                 zIndex: -1,
               }}
             >
-              <span
-                style={{ fontFamily: "var(--font-serif)", color: "#000000" }}
-                className="font-semibold"
-              >
+              <span style={{ fontFamily: "var(--font-serif)", color: "#000000" }} className="font-semibold">
                 {ctaText}
               </span>
             </motion.div>
