@@ -70,16 +70,17 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "OLIVEA · La Experiencia", en: "OLIVEA · The Experience" },
     tag: { es: "Fundación", en: "Founding" },
     bio: {
-      es: "Co-crea la visión integral de Olivea: diseño, sensibilidad y coherencia estética en toda la experiencia.",
-      en: "Co-shapes Olivea’s holistic vision: design, sensibility, and visual cohesion across the full experience.",
+      es: "Fundadora, diseñadora y la presencia que da vida a la experiencia. Ange es el alma detrás de Olivea: su sensibilidad estética, su energía dinámica y su profunda pasión por el huerto impulsan cada detalle. Como anfitriona natural, sostiene el espíritu de bienvenida que hace que cada persona se sienta en casa. Desde el diseño de los espacios hasta la atmósfera que se respira, su visión y su corazón habitan en cada rincón de Olivea.",
+      en: "Founder, Designer, and the Presence Behind the Experience. Ange is the soul of Olivea: her aesthetic sensibility, dynamic energy, and deep passion for the garden shape every detail. A natural host, she carries the spirit of welcome that makes every guest feel at home. From the design of each space to the atmosphere you feel upon arrival, her vision and heart live within every corner of Olivea."
     },
-    avatar: "/images/team/ange.jpg",
+    avatar: "/images/team/ange.avif",
     gallery: [
-      "/images/team/ange.jpg",
-      "/images/team/ange/persona.jpg",
-      "/images/team/ange/persona.jpg",
-      "/images/team/ange/persona.jpg",
-      "/images/team/ange/persona.jpg",
+      "/images/team/ange.avif",
+      "/images/team/ange/01.avif",
+      "/images/team/ange/02.avif",
+      "/images/team/ange/03.avif",
+      "/images/team/ange/04.avif",
+      "/images/team/ange/05.avif"
     ],
     tile: "hero",
     priority: 1,
@@ -194,16 +195,17 @@ export const TEAM: LeaderProfile[] = [
     },
     org: { es: "OLIVEA · La Experencia", en: "OLIVEA · The Experience" },
     bio: {
-      es: "Lidera la visión estratégica, tecnológica y de experiencia de Olivea. Fundadora de Roseiies, una plataforma de inteligencia aplicada para hospitalidad y experiencias.",
-      en: "Leads the strategic, technological, and experiential vision of Olivea. Founder of Roseiies, an intelligence-driven platform for hospitality and experiential brands.",
+      es: "CEO de Olivea y fundadora de Roseiies. Adriana conecta visión y estructura para dar forma a una hospitalidad que piensa, mide y evoluciona. Su trabajo integra tecnología, experiencia y territorio para construir sistemas coherentes que sostienen lo humano. Cree en una hospitalidad más inteligente, más consciente y diseñada para el largo plazo.",
+      en: "CEO of Olivea and founder of Roseiies. Adriana connects vision and structure to shape a form of hospitality that thinks, measures, and evolves. Her work integrates technology, experience, and place to build coherent systems that support what is human. She believes in a more intelligent, conscious, and long-term approach to hospitality."
     },
-    avatar: "/images/team/adriana.jpg",
+    avatar: "/images/team/adriana.avif",
     gallery: [
-      "/images/team/adriana.jpg",
-      "/images/team/adriana/persona.jpg",
-      "/images/team/adriana/persona.jpg",
-      "/images/team/adriana/persona.jpg",
-      "/images/team/adriana/persona.jpg",
+      "/images/team/adriana.avif",
+      "/images/team/adriana/01.avif",
+      "/images/team/adriana/02.avif",
+      "/images/team/adriana/03.avif",
+      "/images/team/adriana/04.avif",
+      "/images/team/adriana/05.avif"
     ],
     tile: "hero",
     priority: 3,
