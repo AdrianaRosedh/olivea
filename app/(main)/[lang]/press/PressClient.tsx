@@ -94,7 +94,8 @@ export default function PressClient({
             <div
               className={cn(
                 `${RAIL} mx-auto`,
-                "md:ml-80 xl:ml-85",
+                "md:ml-(--press-dock-left,20rem)",
+                "transition-[margin-left] duration-300 ease-out",
                 "md:mr-(--dock-right)",
                 "pr-2 sm:pr-0"
               )}

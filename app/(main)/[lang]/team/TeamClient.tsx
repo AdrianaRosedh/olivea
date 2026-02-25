@@ -619,13 +619,14 @@ export default function TeamClient({
          <div className={FULL_BLEED}>
            <div className={PAGE_PAD}>
              <div
-               className={cn(
-                 `${RAIL} mx-auto`,
-                 "md:ml-80 xl:ml-85",
-                 "md:mr-(--dock-right)",
-                 "pr-2 sm:pr-0"
-               )}
-             >
+              className={cn(
+                `${RAIL} mx-auto`,
+                "md:ml-(--team-dock-left)",
+                "md:mr-(--dock-right)",
+                "pr-2 sm:pr-0",
+                "transition-[margin-left] duration-300 ease-out"
+              )}
+            >
                <h1 className="sr-only">
                  {team.leadersTitle ??
                    (lang === "es" ? "Equipo de Olivea" : "Team of Olivea")}

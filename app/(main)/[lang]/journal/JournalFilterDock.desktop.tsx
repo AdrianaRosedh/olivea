@@ -592,7 +592,6 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                   "absolute left-14 top-0",
                   "w-90 max-w-[calc(100vw-120px)]",
                   "rounded-3xl",
-                  // ✅ more opaque, less blur = readable over photos
                   "bg-white/72 ring-1 ring-(--olivea-olive)/18 backdrop-blur-[10px]",
                   "shadow-[0_22px_55px_rgba(40,60,35,0.20)]"
                 )}
@@ -641,14 +640,12 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
           <div className="relative pl-5">
             <div className="absolute left-2 top-1 bottom-1 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/18 to-transparent" />
 
-            {/* ✅ No scroll container when collapsed to avoid random scrollbar */}
             <div
               className={cn(
                 collapsed ? "overflow-visible" : "max-h-[calc(100vh-240px)] overflow-auto",
                 "pr-2"
               )}
             >
-              {/* Single pill header (ONLY ONCE) */}
               <div className="flex items-center justify-between">
                 <button
                   type="button"
@@ -680,7 +677,6 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                 </button>
               </div>
 
-              {/* Panel below */}
               <FiltersPanel showCollapsePanel />
             </div>
           </div>
