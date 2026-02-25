@@ -1,98 +1,166 @@
-// scripts/convert-images.mjs
+// scripts/convert-missing-formats.mjs
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 
 const IMAGES_DIR = path.resolve("public/images");
-const SUPPORTED_EXT = [".jpg", ".jpeg"];
+const SOURCE_EXT = new Set([".jpg", ".jpeg", ".png"]);
 
-// Tune these:
-const MAX_EDGE = 2400;          // long edge max (safe + high quality)
+// optional: ignore folders under public/images (relative to IMAGES_DIR)
+const IGNORE_DIRS = new Set([
+  // "icons",
+  // "favicons",
+]);
+
+// Tune
+const MAX_EDGE = 2400;
 const WEBP_QUALITY = 82;
 const AVIF_QUALITY = 60;
+
+// Default: do NOT overwrite originals
+const OVERWRITE_ORIGINALS = false;
 const JPEG_QUALITY = 82;
 
-// If you want to ALSO overwrite the original JPGs with resized versions,
-// set to true (recommended given your 70–87MB files).
-const OVERWRITE_JPEG_WITH_RESIZED = true;
+const DRY_RUN = process.env.DRY_RUN === "true";
 
-async function walk(dir) {
+function normalizeRel(p) {
+  return p.split(path.sep).join("/");
+}
+
+function isIgnored(relToImagesDir) {
+  for (const d of IGNORE_DIRS) {
+    const dir = d.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+    if (relToImagesDir === dir || relToImagesDir.startsWith(dir + "/")) return true;
+  }
+  return false;
+}
+
+function basePath(fullPath) {
+  const ext = path.extname(fullPath);
+  return fullPath.slice(0, -ext.length);
+}
+
+async function walk(dir, onFile) {
   const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-
     if (entry.isDirectory()) {
-      await walk(fullPath);
-      continue;
+      const relDir = normalizeRel(path.relative(IMAGES_DIR, fullPath));
+      if (isIgnored(relDir)) continue;
+      await walk(fullPath, onFile);
+    } else {
+      await onFile(fullPath);
+    }
+  }
+}
+
+async function main() {
+  if (!fs.existsSync(IMAGES_DIR)) {
+    console.error(`❌ IMAGES_DIR not found: ${IMAGES_DIR}`);
+    process.exit(1);
+  }
+
+  let scanned = 0;
+  let skipped = 0;
+  let createdWebp = 0;
+  let createdAvif = 0;
+  let failed = 0;
+
+  const planned = [];
+
+  await walk(IMAGES_DIR, async (fullPath) => {
+    const ext = path.extname(fullPath).toLowerCase();
+    if (!SOURCE_EXT.has(ext)) return;
+
+    const rel = normalizeRel(path.relative(IMAGES_DIR, fullPath));
+    if (isIgnored(rel)) return;
+
+    scanned++;
+
+    const base = basePath(fullPath);
+    const webpPath = `${base}.webp`;
+    const avifPath = `${base}.avif`;
+
+    const hasWebp = fs.existsSync(webpPath);
+    const hasAvif = fs.existsSync(avifPath);
+
+    if (hasWebp && hasAvif) {
+      skipped++;
+      return;
     }
 
-    const ext = path.extname(entry.name).toLowerCase();
-    if (!SUPPORTED_EXT.includes(ext)) continue;
+    planned.push({ fullPath, rel, ext, webpPath, avifPath, hasWebp, hasAvif });
+  });
 
-    const base = fullPath.slice(0, -ext.length);
-    const avifPath = `${base}.avif`;
-    const webpPath = `${base}.webp`;
+  if (!planned.length) {
+    console.log("ℹ️ No images missing formats. Nothing to do.");
+    console.log(`Scanned: ${scanned}, Skipped: ${skipped}`);
+    return;
+  }
 
-    const rel = path.relative(IMAGES_DIR, fullPath);
+  console.log(`🔎 Found ${planned.length} image(s) missing .webp/.avif`);
+  if (DRY_RUN) {
+    for (const p of planned) {
+      const todo = [
+        !p.hasWebp ? "webp" : null,
+        !p.hasAvif ? "avif" : null,
+      ].filter(Boolean);
+      console.log(`- ${p.rel} → ${todo.join(" + ")}`);
+    }
+    console.log("\n🧪 DRY_RUN=true: no files written.");
+    return;
+  }
+
+  for (const p of planned) {
+    console.log(`🖼  ${p.rel}`);
 
     try {
-      const hasAvif = fs.existsSync(avifPath);
-      const hasWebp = fs.existsSync(webpPath);
+      const src = sharp(p.fullPath, { failOnError: false });
 
-      // We still might want to overwrite-resize the jpeg even if formats exist
-      if (hasAvif && hasWebp && !OVERWRITE_JPEG_WITH_RESIZED) continue;
-
-      console.log(`🖼  Processing: ${rel}`);
-
-      // Read metadata (to log size / sanity)
-      const img = sharp(fullPath, { failOnError: false });
-      const meta = await img.metadata();
-
-      // Resize *before* encoding to avoid WebP/AVIF limits
-      const resized = img.resize({
+      const resized = src.resize({
         width: MAX_EDGE,
         height: MAX_EDGE,
         fit: "inside",
         withoutEnlargement: true,
       });
 
-      // Optionally overwrite the original JPG with a resized/compressed JPG
-      if (OVERWRITE_JPEG_WITH_RESIZED) {
-        // Write to temp first, then replace (safer)
-        const tmpJpg = `${base}.__tmp${ext}`;
-        await resized
-          .clone()
-          .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
-          .toFile(tmpJpg);
-
-        await fs.promises.rename(tmpJpg, fullPath);
-        console.log(`   → resized original (${meta.width}x${meta.height} → max ${MAX_EDGE}px)`);
+      if (OVERWRITE_ORIGINALS && (p.ext === ".jpg" || p.ext === ".jpeg")) {
+        const tmp = `${basePath(p.fullPath)}.__tmp${p.ext}`;
+        await resized.clone().jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toFile(tmp);
+        await fs.promises.rename(tmp, p.fullPath);
       }
 
-      // Re-open after overwrite (so conversions are based on the resized jpeg)
-      const imageForFormats = sharp(fullPath, { failOnError: false });
+      const sourceForFormats = OVERWRITE_ORIGINALS
+        ? sharp(p.fullPath, { failOnError: false })
+        : resized;
 
-      if (!hasWebp) {
-        await imageForFormats.clone().webp({ quality: WEBP_QUALITY }).toFile(webpPath);
-        console.log(`   → created ${path.basename(webpPath)}`);
+      if (!p.hasWebp) {
+        await sourceForFormats.clone().webp({ quality: WEBP_QUALITY }).toFile(p.webpPath);
+        createdWebp++;
+        console.log(`   → + ${path.basename(p.webpPath)}`);
       }
 
-      if (!hasAvif) {
-        await imageForFormats.clone().avif({ quality: AVIF_QUALITY }).toFile(avifPath);
-        console.log(`   → created ${path.basename(avifPath)}`);
+      if (!p.hasAvif) {
+        await sourceForFormats.clone().avif({ quality: AVIF_QUALITY }).toFile(p.avifPath);
+        createdAvif++;
+        console.log(`   → + ${path.basename(p.avifPath)}`);
       }
     } catch (err) {
-      console.error(`❌ Failed: ${rel}`);
+      failed++;
+      console.error(`❌ Failed: ${p.rel}`);
       console.error(err);
-      // keep going
     }
   }
+
+  console.log("\n— Summary —");
+  console.log(`Scanned:   ${scanned}`);
+  console.log(`Skipped:   ${skipped} (already had .webp + .avif)`);
+  console.log(`Created:   ${createdWebp} webp, ${createdAvif} avif`);
+  console.log(`Failed:    ${failed}`);
+  console.log("\n✅ Done.");
 }
 
-walk(IMAGES_DIR)
-  .then(() => console.log("\n✅ Image conversion complete."))
-  .catch((err) => {
-    console.error("❌ Fatal error during conversion:", err);
-    process.exit(1);
-  });
+main().catch((err) => {
+  console.error("❌ Fatal:", err);
+  process.exit(1);
+});

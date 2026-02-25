@@ -15,7 +15,7 @@
     "start:local": "cross-env HOST=olivea-localhost PORT=3000 next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true next build --webpack",
-    "make:lcp": "node scripts/make-lcp-mobile.mjs",
+    "images:formats": "node scripts/convert-missing-formats.mjs",
     "press:web": "node scripts/press-web.mjs"
   },
   "browserslist": {
