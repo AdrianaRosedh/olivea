@@ -400,72 +400,71 @@ function AutoSlideGalleryHorizontalVariableWidth({
 }
 
 function LeaderCard({
- l,
- roleText,
- onOpen,
- sizes,
- className,
- imageMode = "contain",
- motionProps,
+  l,
+  roleText,
+  onOpen,
+  sizes,
+  className,
+  imageMode = "cover", // ✅ change default from "contain" to "cover"
+  motionProps,
 }: {
- l: Leader;
- roleText: string;
- onOpen: () => void;
- sizes: string;
- className: string;
- imageMode?: "contain" | "cover";
- motionProps?: {
-   variants?: Variants;
-   initial?: "hidden" | "show";
-   whileInView?: "hidden" | "show";
-   viewport?: { once?: boolean; amount?: number; margin?: string };
-   custom?: number;
- };
+  l: Leader;
+  roleText: string;
+  onOpen: () => void;
+  sizes: string;
+  className: string;
+  imageMode?: "contain" | "cover";
+  motionProps?: {
+    variants?: Variants;
+    initial?: "hidden" | "show";
+    whileInView?: "hidden" | "show";
+    viewport?: { once?: boolean; amount?: number; margin?: string };
+    custom?: number;
+  };
 }) {
- return (
-   <motion.button
-     type="button"
-     onClick={onOpen}
-     className={cn(
-       "group relative overflow-hidden rounded-3xl ring-1 ring-black/10",
-       className
-     )}
-     whileHover={{ y: -2, scale: 1.01 }}
-     whileTap={{ scale: 0.995 }}
-     transition={{ duration: 0.25, ease: EASE }}
-     style={{ willChange: "transform, opacity" }}
-     {...motionProps}
-   >
-     <div className="absolute inset-0 bg-white/35" />
-     <div className="absolute inset-0">
-       <Image
-         src={l.avatar ?? "/images/team/persona.jpg"}
-         alt={l.name}
-         fill
-         sizes={sizes}
-         className={cn(
-           imageMode === "cover"
-             ? "object-cover object-center"
-             : "object-contain object-bottom"
-         )}
-       />
-     </div>
+  return (
+    <motion.button
+      type="button"
+      onClick={onOpen}
+      className={cn(
+        "group relative overflow-hidden rounded-3xl ring-1 ring-black/10",
+        className
+      )}
+      whileHover={{ y: -2, scale: 1.01 }}
+      whileTap={{ scale: 0.995 }}
+      transition={{ duration: 0.25, ease: EASE }}
+      style={{ willChange: "transform, opacity" }}
+      {...motionProps}
+    >
+      <div className="absolute inset-0 bg-white/35" />
 
+      <div className="absolute inset-0">
+        <Image
+          src={l.avatar ?? "/images/team/persona.jpg"}
+          alt={l.name}
+          fill
+          sizes={sizes}
+          className={cn(
+            imageMode === "cover"
+              ? "object-cover object-center scale-[1.02]" // ✅ fills + tiny scale avoids edge gaps
+              : "object-contain object-center"
+          )}
+        />
+      </div>
 
-     <div className="absolute left-5 bottom-4">
-       <div className="inline-flex items-center rounded-full bg-white/85 backdrop-blur px-2 py-1 ring-1 ring-black/10">
-         <span className="inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-xs font-medium px-3 py-1">
-           {l.name}
-         </span>
-         <span className="ml-2 mr-2 text-xs text-(--olivea-ink)/70 whitespace-nowrap">
-           {roleText}
-         </span>
-       </div>
-     </div>
-   </motion.button>
- );
+      <div className="absolute left-5 bottom-4">
+        <div className="inline-flex items-center rounded-full bg-white/85 backdrop-blur px-2 py-1 ring-1 ring-black/10">
+          <span className="inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-xs font-medium px-3 py-1">
+            {l.name}
+          </span>
+          <span className="ml-2 mr-2 text-xs text-(--olivea-ink)/70 whitespace-nowrap">
+            {roleText}
+          </span>
+        </div>
+      </div>
+    </motion.button>
+  );
 }
-
 
 /* ---------------- page ---------------- */
 export default function TeamClient({
@@ -689,7 +688,7 @@ export default function TeamClient({
                              onOpen={() => setOpenId(l.id)}
                              sizes="(max-width: 1200px) 25vw, 360px"
                              className="w-full h-full"
-                             imageMode="contain"
+                             imageMode="cover"
                              motionProps={{
                                variants: cardInV,
                                initial: "hidden",
@@ -723,7 +722,7 @@ export default function TeamClient({
                              onOpen={() => setOpenId(l.id)}
                              sizes="(max-width: 1200px) 25vw, 360px"
                              className="w-full h-full"
-                             imageMode="contain"
+                             imageMode="cover"
                              motionProps={{
                                variants: cardInV,
                                initial: "hidden",
