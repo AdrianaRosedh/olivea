@@ -31,30 +31,6 @@
 
   "media": [
       {
-        "id": "hotel-bed-01",
-        "category": "hotel",
-        "title": { "es": "Casa Olivea — Bed", "en": "Casa Olivea — Bed" },
-        "web": "/images/press/media/web/bed.jpg",
-        "hires": "/images/press/media/hires/bed.jpeg",
-        "credit": "Technicolor | Creative Studio"
-      },
-      {
-        "id": "cafe-01",
-        "category": "cafe",
-        "title": { "es": "Olivea Café", "en": "Olivea Café" },
-        "web": "/images/press/media/web/cafe.jpg",
-        "hires": "/images/press/media/hires/Cafe.jpg",
-        "credit": "Technicolor | Creative Studio"
-      },
-      {
-        "id": "hotel-cama-01",
-        "category": "hotel",
-        "title": { "es": "Casa Olivea — Cama", "en": "Casa Olivea — Bed" },
-        "web": "/images/press/media/web/cama.jpg",
-        "hires": "/images/press/media/hires/Cama.jpg",
-        "credit": "Technicolor | Creative Studio"
-      },
-      {
         "id": "people-chef-daniel-nates-01",
         "category": "people",
         "title": { "es": "Chef Daniel Nates", "en": "Chef Daniel Nates" },
@@ -84,6 +60,30 @@
         "title": { "es": "Equipo — Líderes", "en": "Team — Leaders" },
         "web": "/images/press/media/web/leaderestrio.jpg",
         "hires": "/images/press/media/hires/LeaderesTrio.png",
+        "credit": "Technicolor | Creative Studio"
+      },
+            {
+        "id": "hotel-bed-01",
+        "category": "hotel",
+        "title": { "es": "Casa Olivea — Bed", "en": "Casa Olivea — Bed" },
+        "web": "/images/press/media/web/bed.jpg",
+        "hires": "/images/press/media/hires/bed.jpeg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "cafe-01",
+        "category": "cafe",
+        "title": { "es": "Olivea Café", "en": "Olivea Café" },
+        "web": "/images/press/media/web/cafe.jpg",
+        "hires": "/images/press/media/hires/Cafe.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-cama-01",
+        "category": "hotel",
+        "title": { "es": "Casa Olivea — Cama", "en": "Casa Olivea — Bed" },
+        "web": "/images/press/media/web/cama.jpg",
+        "hires": "/images/press/media/hires/Cama.jpg",
         "credit": "Technicolor | Creative Studio"
       },
       {

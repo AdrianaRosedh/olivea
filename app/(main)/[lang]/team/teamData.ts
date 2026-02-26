@@ -275,7 +275,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Ejecución diaria, consistencia y mejora continua.",
       en: "Daily execution, consistency, and continuous improvement.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/onan.avif",
+    gallery: [
+      "/images/team/onan.avif",
+      "/images/team/onan/persona.avif",
+      "/images/team/onan/persona.avif",
+      "/images/team/onan/persona.avif",
+      "/images/team/onan/persona.avif",
+      "/images/team/onan/persona.avif"
+    ],
     tile: "md",
     priority: 4,
     links: [
@@ -313,7 +321,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Investigación culinaria, eficiencia y reducción de desperdicio.",
       en: "Culinary research, efficiency, and waste reduction.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/luis.avif",
+    gallery: [
+      "/images/team/luis.avif",
+      "/images/team/luis/persona.avif",
+      "/images/team/luis/persona.avif",
+      "/images/team/luis/persona.avif",
+      "/images/team/luis/persona.avif",
+      "/images/team/luis/persona.avif"
+    ],
     tile: "md",
     priority: 5,
     links: [
@@ -358,7 +374,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Postres con precisión y elegancia.",
       en: "Desserts with precision and elegance.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/jesus.avif",
+    gallery: [
+      "/images/team/jesus.avif",
+      "/images/team/jesus/persona.avif",
+      "/images/team/jesus/persona.avif",
+      "/images/team/jesus/persona.avif",
+      "/images/team/jesus/persona.avif",
+      "/images/team/jesus/persona.avif"
+    ],
     tile: "md",
     priority: 6,
     links: [
@@ -403,7 +427,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Cultura, estructura y crecimiento del equipo.",
       en: "Culture, structure, and team growth.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/cristina.avif",
+    gallery: [
+      "/images/team/cristina.avif",
+      "/images/team/cristina/persona.avif",
+      "/images/team/cristina/persona.avif",
+      "/images/team/cristina/persona.avif",
+      "/images/team/cristina/persona.avif",
+      "/images/team/cristina/persona.avif"
+    ],
     tile: "md",
     priority: 7,
     links: [
@@ -443,7 +475,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Responsable de la operación hotelera y consistencia de servicio.",
       en: "Oversees hotel operations and service consistency.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/leonardo.avif",
+    gallery: [
+      "/images/team/leonardo.avif",
+      "/images/team/leonardo/persona.avif",
+      "/images/team/leonardo/persona.avif",
+      "/images/team/leonardo/persona.avif",
+      "/images/team/leonardo/persona.avif",
+      "/images/team/leonardo/persona.avif"
+    ],
     tile: "md",
     priority: 8,
     links: [
@@ -482,7 +522,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Hospitalidad coreografiada y estándares de servicio.",
       en: "Choreographed hospitality and service standards.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/franklin.avif",
+    gallery: [
+      "/images/team/franklin.avif",
+      "/images/team/franklin/persona.avif",
+      "/images/team/franklin/persona.avif",
+      "/images/team/franklin/persona.avif",
+      "/images/team/franklin/persona.avif",
+      "/images/team/franklin/persona.avif"
+    ],
     tile: "md",
     priority: 9,
     links: [
@@ -520,7 +568,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Coordinación del equipo y precisión en la experiencia.",
       en: "Team coordination and precision in guest experience.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/jahudiel.avif",
+    gallery: [
+      "/images/team/jahudiel.avif",
+      "/images/team/jahudiel/persona.avif",
+      "/images/team/jahudiel/persona.avif",
+      "/images/team/jahudiel/persona.avif",
+      "/images/team/jahudiel/persona.avif",
+      "/images/team/jahudiel/persona.avif"
+    ],
     tile: "md",
     priority: 10,
     links: [
@@ -558,7 +614,15 @@ export const TEAM: LeaderProfile[] = [
       es: "Coordina las operaciones diarias, compras y procesos administrativos para asegurar el buen funcionamiento de Olivea.",
       en: "Oversees daily operations, purchasing, and administrative processes to keep Olivea running smoothly.",
     },
-    avatar: "/images/team/persona.jpg",
+    avatar: "/images/team/fran.avif",
+    gallery: [
+      "/images/team/fran.avif",
+      "/images/team/fran/persona.avif",
+      "/images/team/fran/persona.avif",
+      "/images/team/fran/persona.avif",
+      "/images/team/fran/persona.avif",
+      "/images/team/fran/persona.avif"
+    ],
     tile: "md",
     priority: 11,
     links: [
