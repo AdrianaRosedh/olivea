@@ -1,31 +1,28 @@
 // app/(main)/[lang]/team/TeamClient.tsx
 "use client";
 
-
 import {
- useMemo,
- useState,
- useEffect,
- useRef,
- type SyntheticEvent,
+  useMemo,
+  useState,
+  useEffect,
+  useRef,
+  type SyntheticEvent,
 } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
- AnimatePresence,
- motion,
- useAnimationFrame,
- useMotionValue,
- type Variants,
+  AnimatePresence,
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  type Variants,
 } from "framer-motion";
 import { X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-
 import { TEAM, type LeaderProfile } from "./teamData";
 import { useRouter, usePathname } from "next/navigation";
-
 
 import TeamDockLeft, { type TeamCategory } from "./TeamDockLeft";
 import TeamMobileNav from "./TeamMobileNav";
@@ -33,244 +30,227 @@ import { NavigationProvider } from "@/contexts/NavigationContext";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 
-
 type Lang = "es" | "en";
 
-
 export type TeamDict = {
- title: string;
- description: string;
- body?: string | string[];
- leadersTitle?: string;
- leadersHint?: string;
+  title: string;
+  description: string;
+  body?: string | string[];
+  leadersTitle?: string;
+  leadersHint?: string;
 };
-
 
 type Leader = LeaderProfile;
 type Category = TeamCategory;
 
-
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
 
 /* ---------------- scroll-in animations ---------------- */
 const cardInV: Variants = {
- hidden: { opacity: 0, y: 26 },
- show: (i: number) => ({
-   opacity: 1,
-   y: 0,
-   transition: {
-     duration: 0.9,
-     ease: EASE,
-     delay: Math.min(0.9, i * 0.1),
-   },
- }),
+  hidden: { opacity: 0, y: 26 },
+  show: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.9,
+      ease: EASE,
+      delay: Math.min(0.9, i * 0.1),
+    },
+  }),
 };
 
-
-function leaderCategoryFromOrg(
- org?: { es: string; en: string }
-): Category | "experience" {
- const raw = (org?.en || org?.es || "").toLowerCase();
- if (!raw) return "experience";
- if (raw.includes("casa olivea")) return "hotel";
- if (raw.includes("farm to table")) return "restaurant";
- if (raw.includes("olivea café") || raw.includes("olivea cafe")) return "cafe";
- if (raw.includes("the experience")) return "experience";
- return "experience";
+/**
+ * Legacy heuristic: infer category from org string.
+ * We keep this as a fallback for any profiles that don't define showIn / alwaysShow.
+ */
+function leaderCategoryFromOrg(org?: { es: string; en: string }): Category | "experience" {
+  const raw = (org?.en || org?.es || "").toLowerCase();
+  if (!raw) return "experience";
+  if (raw.includes("casa olivea")) return "hotel";
+  if (raw.includes("farm to table")) return "restaurant";
+  if (raw.includes("olivea café") || raw.includes("olivea cafe")) return "cafe";
+  if (raw.includes("the experience")) return "experience";
+  return "experience";
 }
 
-
+/**
+ * ✅ New behavior:
+ * - alwaysShow === true => appears in every filter (hotel/restaurant/cafe)
+ * - showIn defined => appears only in those filters
+ * - fallback => old org-based logic
+ */
 function matchesFilter(leader: Leader, filter: Category): boolean {
- if (filter === "all") return true;
- const cat = leaderCategoryFromOrg(leader.org);
- // ✅ Keep leaders visible in every filter (experience + that category)
- return cat === filter || cat === "experience";
-}
+  if (filter === "all") return true;
 
+  if (leader.alwaysShow) return true;
+  if (leader.showIn?.length) return leader.showIn.includes(filter);
+
+  const cat = leaderCategoryFromOrg(leader.org);
+  return cat === filter || cat === "experience";
+}
 
 /* ---------------- breakpoint (prevents duplicate DOM ids) ---------------- */
 function useIsLg(): boolean | null {
- const [isLg, setIsLg] = useState<boolean | null>(null);
+  const [isLg, setIsLg] = useState<boolean | null>(null);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => setIsLg(mq.matches);
+    onChange();
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
 
- useEffect(() => {
-   const mq = window.matchMedia("(min-width: 1024px)");
-   const onChange = () => setIsLg(mq.matches);
-   onChange();
-   mq.addEventListener?.("change", onChange);
-   return () => mq.removeEventListener?.("change", onChange);
- }, []);
-
-
- return isLg;
+  return isLg;
 }
-
 
 /* ---------------- modal helpers: dummy story ---------------- */
-
-
 function getModalDummy(lang: Lang, name: string) {
- const es = [
-   `Este perfil está en construcción — pero el diseño ya es el final.`,
-   `Aquí irá una historia breve sobre ${name}: su rol, su enfoque, y cómo se conecta con el huerto.`,
-   `Agrega un detalle humano (origen, filosofía, método) + una nota concreta (por ejemplo, un ingrediente favorito de temporada).`,
-   `También puedes incluir responsabilidades clave, logros y una mini “firma” personal.`,
- ].join(" ");
+  const es = [
+    `Este perfil está en construcción — pero el diseño ya es el final.`,
+    `Aquí irá una historia breve sobre ${name}: su rol, su enfoque, y cómo se conecta con el huerto.`,
+    `Agrega un detalle humano (origen, filosofía, método) + una nota concreta (por ejemplo, un ingrediente favorito de temporada).`,
+    `También puedes incluir responsabilidades clave, logros y una mini “firma” personal.`,
+  ].join(" ");
 
+  const en = [
+    `This profile is being built — but the layout is already in its final style.`,
+    `This is where a short story about ${name} will live: their role, their focus, and how it connects back to the garden.`,
+    `Add a human detail (origin, philosophy, method) plus one concrete touch (e.g. a favorite seasonal ingredient).`,
+    `You can also include key responsibilities, milestones, and a small personal signature.`,
+  ].join(" ");
 
- const en = [
-   `This profile is being built — but the layout is already in its final style.`,
-   `This is where a short story about ${name} will live: their role, their focus, and how it connects back to the garden.`,
-   `Add a human detail (origin, philosophy, method) plus one concrete touch (e.g. a favorite seasonal ingredient).`,
-   `You can also include key responsibilities, milestones, and a small personal signature.`,
- ].join(" ");
-
-
- return lang === "es" ? es : en;
+  return lang === "es" ? es : en;
 }
-
 
 /** Desktop vertical autoplay gallery (variable height per image) */
 function AutoSlideGalleryVerticalVariableHeight({
- images,
- width = 252,
- gap = 14,
- speed = 44,
- minH = 120,
- maxH = 260,
+  images,
+  width = 252,
+  gap = 14,
+  speed = 44,
+  minH = 120,
+  maxH = 260,
 }: {
- images: string[];
- width?: number;
- gap?: number;
- speed?: number;
- minH?: number;
- maxH?: number;
+  images: string[];
+  width?: number;
+  gap?: number;
+  speed?: number;
+  minH?: number;
+  maxH?: number;
 }) {
- const safe = useMemo(
-   () => (images.length ? images : ["/images/team/persona.jpg"]),
-   [images]
- );
- const items = [...safe, ...safe];
+  const safe = useMemo(
+    () => (images.length ? images : ["/images/team/persona.jpg"]),
+    [images]
+  );
+  const items = [...safe, ...safe];
 
+  const y = useMotionValue(0);
+  const [hovered, setHovered] = useState(false);
+  const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
+  const [ratios, setRatios] = useState<Record<string, number>>({});
 
- const y = useMotionValue(0);
- const [hovered, setHovered] = useState(false);
- const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
- const [ratios, setRatios] = useState<Record<string, number>>({});
+  const [pausedUntil, setPausedUntil] = useState(0);
+  const pause = (ms = 4500) => setPausedUntil(Date.now() + ms);
 
+  const getH = (src: string) => {
+    const r = ratios[src] ?? 1;
+    const h = Math.round(width / r);
+    return Math.max(minH, Math.min(maxH, h));
+  };
 
- const [pausedUntil, setPausedUntil] = useState(0);
- const pause = (ms = 4500) => setPausedUntil(Date.now() + ms);
+  const loopLen = useMemo(() => {
+    return safe.reduce((acc, src) => {
+      const r = ratios[src] ?? 1;
+      const h = Math.round(width / r);
+      const clampedH = Math.max(minH, Math.min(maxH, h));
+      return acc + clampedH + gap;
+    }, 0);
+  }, [safe, ratios, width, gap, minH, maxH]);
 
+  useAnimationFrame((_t, delta) => {
+    if (hovered) return;
+    if (focusedIdx !== null) return;
+    if (safe.length <= 1) return;
+    if (Date.now() < pausedUntil) return;
 
- const getH = (src: string) => {
-   const r = ratios[src] ?? 1;
-   const h = Math.round(width / r);
-   return Math.max(minH, Math.min(maxH, h));
- };
+    const dy = (speed * delta) / 1000;
+    let next = y.get() - dy;
+    if (Math.abs(next) >= loopLen) next = 0;
+    y.set(next);
+  });
 
+  const onImgLoad =
+    (src: string) => (e: SyntheticEvent<HTMLImageElement>) => {
+      const img = e.currentTarget;
+      const r =
+        img.naturalWidth && img.naturalHeight
+          ? img.naturalWidth / img.naturalHeight
+          : 1;
 
- const loopLen = useMemo(() => {
-   return safe.reduce((acc, src) => {
-     const r = ratios[src] ?? 1;
-     const h = Math.round(width / r);
-     const clampedH = Math.max(minH, Math.min(maxH, h));
-     return acc + clampedH + gap;
-   }, 0);
- }, [safe, ratios, width, gap, minH, maxH]);
+      setRatios((prev) => {
+        const prevR = prev[src];
+        if (prevR && Math.abs(prevR - r) < 0.01) return prev;
+        return { ...prev, [src]: r };
+      });
+    };
 
+  useEffect(() => {
+    y.set(0);
+  }, [loopLen, y]);
 
- useAnimationFrame((_t, delta) => {
-   if (hovered) return;
-   if (focusedIdx !== null) return;
-   if (safe.length <= 1) return;
-   if (Date.now() < pausedUntil) return;
+  return (
+    <div
+      className="relative h-full"
+      style={{ width }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onPointerDown={() => pause()}
+      onWheelCapture={() => pause(3000)}
+    >
+      <div className="relative h-full overflow-hidden">
+        <motion.div style={{ y }} className="absolute inset-0">
+          <div className="flex flex-col" style={{ gap }}>
+            {items.map((src, idx) => {
+              const h = getH(src);
+              const isFocused = focusedIdx === idx;
 
-
-   const dy = (speed * delta) / 1000;
-   let next = y.get() - dy;
-   if (Math.abs(next) >= loopLen) next = 0;
-   y.set(next);
- });
-
-
- const onImgLoad =
-   (src: string) => (e: SyntheticEvent<HTMLImageElement>) => {
-     const img = e.currentTarget;
-     const r =
-       img.naturalWidth && img.naturalHeight
-         ? img.naturalWidth / img.naturalHeight
-         : 1;
-
-
-     setRatios((prev) => {
-       const prevR = prev[src];
-       if (prevR && Math.abs(prevR - r) < 0.01) return prev;
-       return { ...prev, [src]: r };
-     });
-   };
-
-
- useEffect(() => {
-   y.set(0);
- }, [loopLen, y]);
-
-
- return (
-   <div
-     className="relative h-full"
-     style={{ width }}
-     onMouseEnter={() => setHovered(true)}
-     onMouseLeave={() => setHovered(false)}
-     onPointerDown={() => pause()}
-     onWheelCapture={() => pause(3000)}
-   >
-     <div className="relative h-full overflow-hidden">
-       <motion.div style={{ y }} className="absolute inset-0">
-         <div className="flex flex-col" style={{ gap }}>
-           {items.map((src, idx) => {
-             const h = getH(src);
-             const isFocused = focusedIdx === idx;
-
-
-             return (
-               <motion.button
-                 key={`${src}-${idx}`}
-                 type="button"
-                 onClick={() => {
-                   pause();
-                   setFocusedIdx(isFocused ? null : idx);
-                 }}
-                 className="relative overflow-hidden rounded-2xl bg-white/35 ring-1 ring-black/10"
-                 style={{ width, height: h }}
-                 whileHover={{ scale: 1.02 }}
-                 animate={{
-                   scale: isFocused ? 1.06 : 1,
-                   zIndex: isFocused ? 30 : 1,
-                 }}
-                 transition={{ duration: 0.32, ease: EASE }}
-               >
-                 <div className="absolute inset-0">
-                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                   <img
-                     src={src}
-                     alt=""
-                     className="h-full w-full object-cover object-center"
-                     onLoad={onImgLoad(src)}
-                     draggable={false}
-                   />
-                 </div>
-               </motion.button>
-             );
-           })}
-         </div>
-       </motion.div>
-     </div>
-   </div>
- );
+              return (
+                <motion.button
+                  key={`${src}-${idx}`}
+                  type="button"
+                  onClick={() => {
+                    pause();
+                    setFocusedIdx(isFocused ? null : idx);
+                  }}
+                  className="relative overflow-hidden rounded-2xl bg-white/35 ring-1 ring-black/10"
+                  style={{ width, height: h }}
+                  whileHover={{ scale: 1.02 }}
+                  animate={{
+                    scale: isFocused ? 1.06 : 1,
+                    zIndex: isFocused ? 30 : 1,
+                  }}
+                  transition={{ duration: 0.32, ease: EASE }}
+                >
+                  <div className="absolute inset-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={src}
+                      alt=""
+                      className="h-full w-full object-cover object-center"
+                      onLoad={onImgLoad(src)}
+                      draggable={false}
+                    />
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
 }
-
 
 /** Mobile horizontal autoplay gallery (variable width per image) */
 function AutoSlideGalleryHorizontalVariableWidth({
@@ -293,14 +273,12 @@ function AutoSlideGalleryHorizontalVariableWidth({
     [images]
   );
 
-  // duplicate so we can loop seamlessly
   const items = useMemo(() => [...safe, ...safe], [safe]);
 
   const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
   const [ratios, setRatios] = useState<Record<string, number>>({});
 
   const loopLen = useMemo(() => {
-    // length of ONE sequence (safe), not duplicated
     return safe.reduce((acc, src) => {
       const r = ratios[src] ?? 0.75;
       const w = Math.round(cardH * r);
@@ -309,7 +287,6 @@ function AutoSlideGalleryHorizontalVariableWidth({
     }, 0);
   }, [safe, ratios, cardH, gap, minW, maxW]);
 
-  // duration so that px/sec feels consistent
   const duration = useMemo(() => {
     if (loopLen <= 0) return 9999;
     return loopLen / Math.max(1, speed);
@@ -335,11 +312,9 @@ function AutoSlideGalleryHorizontalVariableWidth({
       <div className="relative overflow-hidden rounded-xl">
         <div className="relative" style={{ height: cardH + 26 }}>
           <motion.div
-            // key forces a clean restart when widths/ratios resolve
             key={`loop-${loopLen}-${focusedIdx ?? "run"}`}
             className="absolute inset-0 flex items-center"
             style={{ willChange: "transform" }}
-            // ✅ compositor-friendly infinite loop
             animate={
               focusedIdx !== null || safe.length <= 1 || loopLen <= 0
                 ? { x: 0 }
@@ -405,7 +380,7 @@ function LeaderCard({
   onOpen,
   sizes,
   className,
-  imageMode = "cover", // ✅ change default from "contain" to "cover"
+  imageMode = "cover",
   motionProps,
 }: {
   l: Leader;
@@ -446,7 +421,7 @@ function LeaderCard({
           sizes={sizes}
           className={cn(
             imageMode === "cover"
-              ? "object-cover object-center scale-[1.02]" // ✅ fills + tiny scale avoids edge gaps
+              ? "object-cover object-center scale-[1.02]"
               : "object-contain object-center"
           )}
         />
@@ -468,478 +443,447 @@ function LeaderCard({
 
 /* ---------------- page ---------------- */
 export default function TeamClient({
- lang,
- team,
+  lang,
+  team,
 }: {
- lang: Lang;
- team: TeamDict;
+  lang: Lang;
+  team: TeamDict;
 }) {
- const router = useRouter();
- const pathname = usePathname();
- const isLg = useIsLg();
+  const router = useRouter();
+  const pathname = usePathname();
+  const isLg = useIsLg();
 
+  const resolvedLang: Lang =
+    pathname?.split("/")[1]?.toLowerCase().startsWith("es") ? "es" : "en";
+  const uiLang: Lang = lang === "es" || lang === "en" ? lang : resolvedLang;
 
- const resolvedLang: Lang =
-   pathname?.split("/")[1]?.toLowerCase().startsWith("es") ? "es" : "en";
- const uiLang: Lang = lang === "es" || lang === "en" ? lang : resolvedLang;
+  const t = (x?: { es: string; en: string }) => (x ? x[uiLang] : "");
 
+  const leadersSorted = useMemo(() => {
+    return [...TEAM].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
+  }, []);
 
- const t = (x?: { es: string; en: string }) => (x ? x[uiLang] : "");
+  const [category, setCategory] = useState<Category>("all");
 
+  const featured = useMemo(() => leadersSorted.slice(0, 3), [leadersSorted]);
+  const featuredIds = useMemo(
+    () => new Set(featured.map((x) => x.id)),
+    [featured]
+  );
 
- const leadersSorted = useMemo(() => {
-   return [...TEAM].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
- }, []);
+  const restVisible = useMemo(() => {
+    return leadersSorted
+      .filter((l) => !featuredIds.has(l.id))
+      .filter((l) => matchesFilter(l, category));
+  }, [leadersSorted, featuredIds, category]);
 
+  const row2 = useMemo(() => restVisible.slice(0, 4), [restVisible]);
+  const restAfterRow2 = useMemo(() => restVisible.slice(4), [restVisible]);
 
- const [category, setCategory] = useState<Category>("all");
+  const dockCount = featured.length + restVisible.length;
 
+  const mobileLeaders = useMemo(() => {
+    return leadersSorted.filter((l) => matchesFilter(l, category));
+  }, [leadersSorted, category]);
 
- const featured = useMemo(() => leadersSorted.slice(0, 3), [leadersSorted]);
- const featuredIds = useMemo(
-   () => new Set(featured.map((x) => x.id)),
-   [featured]
- );
+  const [openId, setOpenId] = useState<string | null>(null);
+  const active = leadersSorted.find((l) => l.id === openId) ?? null;
 
+  const modalImages = useMemo(() => {
+    const base =
+      active?.gallery?.length
+        ? active.gallery
+        : active?.avatar
+          ? [active.avatar]
+          : ["/images/team/persona.jpg"];
 
- const restVisible = useMemo(() => {
-   return leadersSorted
-     .filter((l) => !featuredIds.has(l.id))
-     .filter((l) => matchesFilter(l, category));
- }, [leadersSorted, featuredIds, category]);
+    const first = base[0] ?? "/images/team/persona.jpg";
+    if (base.length >= 3) return base;
+    if (base.length === 2) return [base[0], base[1], `${base[0]}?dup=1`];
+    return [first, `${first}?dup=1`, `${first}?dup=2`];
+  }, [active]);
 
+  const isOpen = !!active;
 
- // ✅ Row 2 is always a clean row of 4 (then the rest continues)
- const row2 = useMemo(() => restVisible.slice(0, 4), [restVisible]);
- const restAfterRow2 = useMemo(() => restVisible.slice(4), [restVisible]);
+  const [portalReady, setPortalReady] = useState(false);
+  useEffect(() => setPortalReady(true), []);
 
+  useEffect(() => {
+    if (!isOpen) return;
 
- const dockCount = featured.length + restVisible.length;
+    setModalOpen(true);
+    lockBodyScroll();
 
+    return () => {
+      unlockBodyScroll();
+      setModalOpen(false);
+    };
+  }, [isOpen]);
 
- const mobileLeaders = useMemo(() => {
-   return leadersSorted.filter((l) => matchesFilter(l, category));
- }, [leadersSorted, category]);
+  const [present, setPresent] = useState(false);
+  useEffect(() => {
+    if (isOpen) setPresent(true);
+  }, [isOpen]);
 
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const close = () => setOpenId(null);
 
- const [openId, setOpenId] = useState<string | null>(null);
- const active = leadersSorted.find((l) => l.id === openId) ?? null;
+  const goToProfile = () => {
+    if (!active) return;
+    close();
+    router.push(`/${lang}/team/${active.id}`);
+  };
 
+  const bioFallback =
+    lang === "es"
+      ? "Historia en desarrollo — pronto."
+      : "Story in progress — coming soon.";
 
- const modalImages = useMemo(() => {
-   const base =
-     active?.gallery?.length
-       ? active.gallery
-       : active?.avatar
-         ? [active.avatar]
-         : ["/images/team/persona.jpg"];
+  const FULL_BLEED =
+    "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
+  const PAGE_PAD = "px-6 sm:px-10 md:px-12 lg:px-12";
+  const RAIL = "max-w-[1400px]";
 
+  const CARD_VIEWPORT = {
+    once: true,
+    amount: 0.22,
+    margin: "0px 0px -18% 0px",
+  } as const;
 
-   const first = base[0] ?? "/images/team/persona.jpg";
-   if (base.length >= 3) return base;
-   if (base.length === 2) return [base[0], base[1], `${base[0]}?dup=1`];
-   return [first, `${first}?dup=1`, `${first}?dup=2`];
- }, [active]);
+  return (
+    <NavigationProvider>
+      <main id="top" className="w-full pt-0 pb-36 sm:pb-24">
+        <TeamDockLeft
+          lang={lang}
+          category={category}
+          setCategory={setCategory}
+          count={dockCount}
+        />
 
+        <TeamMobileNav lang={uiLang} leaders={mobileLeaders} />
 
- const isOpen = !!active;
+        <section className="mt-0 sm:mt-2">
+          <div className={FULL_BLEED}>
+            <div className={PAGE_PAD}>
+              <div
+                className={cn(
+                  `${RAIL} mx-auto`,
+                  "md:ml-(--team-dock-left)",
+                  "md:mr-(--dock-right)",
+                  "pr-2 sm:pr-0",
+                  "transition-[margin-left] duration-300 ease-out"
+                )}
+              >
+                <h1 className="sr-only">
+                  {team.leadersTitle ??
+                    (lang === "es" ? "Equipo de Olivea" : "Team of Olivea")}
+                </h1>
 
+                {isLg === null ? null : isLg ? (
+                  <div>
+                    {/* Leaders (slightly larger) */}
+                    <div className="mt-6 sm:mt-10">
+                      <div className="grid grid-cols-12 gap-6">
+                        {featured.map((l, idx) => (
+                          <div
+                            key={l.id}
+                            id={l.id}
+                            className={cn(
+                              "main-section",
+                              "scroll-mt-[calc(var(--header-h,64px)+18px)]",
+                              "col-span-4 h-90 xl:h-96"
+                            )}
+                          >
+                            <LeaderCard
+                              l={l}
+                              roleText={t(l.role)}
+                              onOpen={() => setOpenId(l.id)}
+                              sizes="(max-width: 1200px) 33vw, 520px"
+                              className="w-full h-full"
+                              imageMode="cover"
+                              motionProps={{
+                                variants: cardInV,
+                                initial: "hidden",
+                                whileInView: "show",
+                                viewport: CARD_VIEWPORT,
+                                custom: idx,
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
- const [portalReady, setPortalReady] = useState(false);
- useEffect(() => setPortalReady(true), []);
+                    {/* Row 2: always a row of 4 */}
+                    {row2.length ? (
+                      <div className="mt-7 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
+                        {row2.map((l, idx) => (
+                          <div
+                            key={l.id}
+                            id={l.id}
+                            className={cn(
+                              "main-section",
+                              "scroll-mt-[calc(var(--header-h,64px)+18px)]",
+                              "col-span-3"
+                            )}
+                          >
+                            <LeaderCard
+                              l={l}
+                              roleText={t(l.role)}
+                              onOpen={() => setOpenId(l.id)}
+                              sizes="(max-width: 1200px) 25vw, 360px"
+                              className="w-full h-full"
+                              imageMode="cover"
+                              motionProps={{
+                                variants: cardInV,
+                                initial: "hidden",
+                                whileInView: "show",
+                                viewport: CARD_VIEWPORT,
+                                custom: idx,
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
 
+                    {/* Remaining: continues in rows of 4 */}
+                    {restAfterRow2.length ? (
+                      <div className="mt-6 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
+                        {restAfterRow2.map((l, idx) => (
+                          <div
+                            key={l.id}
+                            id={l.id}
+                            className={cn(
+                              "main-section",
+                              "scroll-mt-[calc(var(--header-h,64px)+18px)]",
+                              "col-span-3"
+                            )}
+                          >
+                            <LeaderCard
+                              l={l}
+                              roleText={t(l.role)}
+                              onOpen={() => setOpenId(l.id)}
+                              sizes="(max-width: 1200px) 25vw, 360px"
+                              className="w-full h-full"
+                              imageMode="cover"
+                              motionProps={{
+                                variants: cardInV,
+                                initial: "hidden",
+                                whileInView: "show",
+                                viewport: CARD_VIEWPORT,
+                                custom: idx % 4,
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  // Mobile
+                  <div className="mt-4 grid grid-cols-1 gap-6 pb-28">
+                    {mobileLeaders.map((l, idx) => (
+                      <motion.button
+                        key={l.id}
+                        id={l.id}
+                        type="button"
+                        onClick={() => setOpenId(l.id)}
+                        className={cn(
+                          "main-section",
+                          "scroll-mt-[calc(var(--header-h,64px)+18px)]",
+                          "group relative overflow-hidden rounded-3xl ring-1 ring-black/10 w-full h-85"
+                        )}
+                        whileTap={{ scale: 0.995 }}
+                        transition={{ duration: 0.2, ease: EASE }}
+                        variants={cardInV}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={CARD_VIEWPORT}
+                        custom={idx % 6}
+                      >
+                        <div className="absolute inset-0 bg-white/35" />
+                        <div className="absolute inset-0">
+                          <Image
+                            src={l.avatar ?? "/images/team/persona.jpg"}
+                            alt={l.name}
+                            fill
+                            sizes="100vw"
+                            className="object-cover object-center"
+                          />
+                        </div>
 
- useEffect(() => {
-   if (!isOpen) return;
+                        <div className="absolute left-4 right-4 bottom-4">
+                          <div className="flex items-stretch rounded-full bg-white/85 backdrop-blur ring-1 ring-black/10 overflow-hidden">
+                            <span className="shrink-0 inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-sm font-medium px-5 py-3 max-w-[46%]">
+                              <span className="block leading-none truncate whitespace-nowrap">
+                                {l.name}
+                              </span>
+                            </span>
+                            <span className="min-w-0 flex-1 px-4 py-2 text-sm text-(--olivea-ink)/70 text-left truncate">
+                              {t(l.role)}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
+        {/* MODAL */}
+        {portalReady &&
+          createPortal(
+            <AnimatePresence>
+              {(isOpen || present) && active && (
+                <>
+                  <motion.div
+                    className="fixed inset-0 bg-black/55 backdrop-blur-sm"
+                    style={{ zIndex: 99998 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: isOpen ? 1 : 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.28, ease: EASE }}
+                    onClick={close}
+                    aria-hidden
+                  />
 
-   setModalOpen(true);
-   lockBodyScroll();
+                  <motion.div
+                    className="fixed inset-0 flex items-center justify-center p-3 sm:p-4"
+                    style={{ zIndex: 99999 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{
+                      opacity: isOpen ? 1 : 0,
+                      scale: isOpen ? 1 : 0.98,
+                    }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                    onAnimationComplete={() => {
+                      if (!isOpen) setPresent(false);
+                    }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={active.name}
+                  >
+                    <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
+                      <div className="grid h-full grid-cols-1 lg:grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
+                        <div className="hidden lg:block row-span-2 pl-6 pr-3">
+                          <AutoSlideGalleryVerticalVariableHeight
+                            images={modalImages.slice(0, 12)}
+                            width={260}
+                          />
+                        </div>
 
+                        <div className="relative h-12 flex items-center justify-center">
+                          <span
+                            className="uppercase tracking-[0.25em] text-(--olivea-ink)/70"
+                            style={{
+                              fontFamily: "var(--font-serif)",
+                              fontSize: 18,
+                              fontWeight: 200,
+                            }}
+                          >
+                            {lang === "es" ? "Perfil" : "Profile"}
+                          </span>
 
-   return () => {
-     unlockBodyScroll();
-     setModalOpen(false);
-   };
- }, [isOpen]);
+                          <button
+                            ref={closeBtnRef}
+                            onClick={close}
+                            aria-label={lang === "es" ? "Cerrar" : "Close"}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                          >
+                            <X size={18} className="text-current" />
+                          </button>
+                        </div>
 
+                        <div
+                          className="px-6 py-8 overflow-auto lg:pl-10"
+                          onWheelCapture={(e) => e.stopPropagation()}
+                          style={{
+                            WebkitOverflowScrolling: "touch",
+                            overscrollBehavior: "contain",
+                          }}
+                        >
+                          <div className="lg:hidden mb-6">
+                            <AutoSlideGalleryHorizontalVariableWidth
+                              images={modalImages.slice(0, 12)}
+                            />
+                          </div>
 
- const [present, setPresent] = useState(false);
- useEffect(() => {
-   if (isOpen) setPresent(true);
- }, [isOpen]);
+                          <div className="mb-3">
+                            <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
+                              {t(active.tag) ||
+                                (lang === "es" ? "Equipo" : "Team")}
+                            </span>
+                          </div>
 
+                          <button
+                            type="button"
+                            onClick={goToProfile}
+                            className="text-left"
+                          >
+                            <h3
+                              className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
+                              style={{ fontFamily: "var(--font-serif)" }}
+                            >
+                              {active.name}
+                            </h3>
+                          </button>
 
- const closeBtnRef = useRef<HTMLButtonElement | null>(null);
- const close = () => setOpenId(null);
+                          <div className="mt-1 text-sm text-(--olivea-ink)/70">
+                            {t(active.role)} · {t(active.org)}
+                          </div>
 
+                          <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
+                            {(() => {
+                              const bio = (t(active.bio) || "").trim();
+                              if (!bio || bio.length < 28)
+                                return getModalDummy(lang, active.name);
+                              return bio;
+                            })() || bioFallback}
+                          </p>
 
- const goToProfile = () => {
-   if (!active) return;
-   close();
-   router.push(`/${lang}/team/${active.id}`);
- };
+                          <div className="mt-7">
+                            <Link
+                              href={`/${lang}/team/${active.id}`}
+                              onClick={() => close()}
+                              className={cn(
+                                "inline-flex w-full items-center justify-center gap-2",
+                                "rounded-2xl px-5 py-3 text-sm font-semibold",
+                                "bg-(--olivea-olive) text-(--olivea-cream)",
+                                "ring-1 ring-black/10 hover:opacity-95 transition",
+                                "shadow-[0_18px_44px_-22px_rgba(0,0,0,0.35)]"
+                              )}
+                            >
+                              {lang === "es"
+                                ? "Ver perfil completo"
+                                : "View full profile"}
+                              <ArrowUpRight
+                                size={16}
+                                className="opacity-90"
+                                aria-hidden="true"
+                              />
+                            </Link>
+                          </div>
 
-
- const bioFallback =
-   lang === "es"
-     ? "Historia en desarrollo — pronto."
-     : "Story in progress — coming soon.";
-
-
- const FULL_BLEED =
-   "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]";
- const PAGE_PAD = "px-6 sm:px-10 md:px-12 lg:px-12";
- const RAIL = "max-w-[1400px]";
-
-
- const CARD_VIEWPORT = {
-   once: true,
-   amount: 0.22,
-   margin: "0px 0px -18% 0px",
- } as const;
-
-
- return (
-   <NavigationProvider>
-     <main id="top" className="w-full pt-0 pb-36 sm:pb-24">
-       <TeamDockLeft
-         lang={lang}
-         category={category}
-         setCategory={setCategory}
-         count={dockCount}
-       />
-
-
-       <TeamMobileNav lang={uiLang} leaders={mobileLeaders} />
-
-
-       <section className="mt-0 sm:mt-2">
-         <div className={FULL_BLEED}>
-           <div className={PAGE_PAD}>
-             <div
-              className={cn(
-                `${RAIL} mx-auto`,
-                "md:ml-(--team-dock-left)",
-                "md:mr-(--dock-right)",
-                "pr-2 sm:pr-0",
-                "transition-[margin-left] duration-300 ease-out"
+                          <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/45">
+                            {lang === "es"
+                              ? "El perfil completo vive en el Link en bio."
+                              : "Full profile lives on the Link in bio."}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </>
               )}
-            >
-               <h1 className="sr-only">
-                 {team.leadersTitle ??
-                   (lang === "es" ? "Equipo de Olivea" : "Team of Olivea")}
-               </h1>
-
-
-               {isLg === null ? null : isLg ? (
-                 <div>
-                   {/* Leaders (slightly larger) */}
-                   <div className="mt-6 sm:mt-10">
-                     <div className="grid grid-cols-12 gap-6">
-                       {featured.map((l, idx) => (
-                         <div
-                           key={l.id}
-                           id={l.id}
-                           className={cn(
-                             "main-section",
-                             "scroll-mt-[calc(var(--header-h,64px)+18px)]",
-                             // ✅ slightly larger than before
-                             "col-span-4 h-90 xl:h-96"
-                           )}
-                         >
-                           <LeaderCard
-                             l={l}
-                             roleText={t(l.role)}
-                             onOpen={() => setOpenId(l.id)}
-                             sizes="(max-width: 1200px) 33vw, 520px"
-                             className="w-full h-full"
-                             imageMode="cover"
-                             motionProps={{
-                               variants: cardInV,
-                               initial: "hidden",
-                               whileInView: "show",
-                               viewport: CARD_VIEWPORT,
-                               custom: idx,
-                             }}
-                           />
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-
-
-                   {/* Row 2: always a row of 4 */}
-                   {row2.length ? (
-                     <div className="mt-7 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
-                       {row2.map((l, idx) => (
-                         <div
-                           key={l.id}
-                           id={l.id}
-                           className={cn(
-                             "main-section",
-                             "scroll-mt-[calc(var(--header-h,64px)+18px)]",
-                             "col-span-3"
-                           )}
-                         >
-                           <LeaderCard
-                             l={l}
-                             roleText={t(l.role)}
-                             onOpen={() => setOpenId(l.id)}
-                             sizes="(max-width: 1200px) 25vw, 360px"
-                             className="w-full h-full"
-                             imageMode="cover"
-                             motionProps={{
-                               variants: cardInV,
-                               initial: "hidden",
-                               whileInView: "show",
-                               viewport: CARD_VIEWPORT,
-                               custom: idx,
-                             }}
-                           />
-                         </div>
-                       ))}
-                     </div>
-                   ) : null}
-
-
-                   {/* Remaining: continues in rows of 4 */}
-                   {restAfterRow2.length ? (
-                     <div className="mt-6 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
-                       {restAfterRow2.map((l, idx) => (
-                         <div
-                           key={l.id}
-                           id={l.id}
-                           className={cn(
-                             "main-section",
-                             "scroll-mt-[calc(var(--header-h,64px)+18px)]",
-                             "col-span-3"
-                           )}
-                         >
-                           <LeaderCard
-                             l={l}
-                             roleText={t(l.role)}
-                             onOpen={() => setOpenId(l.id)}
-                             sizes="(max-width: 1200px) 25vw, 360px"
-                             className="w-full h-full"
-                             imageMode="cover"
-                             motionProps={{
-                               variants: cardInV,
-                               initial: "hidden",
-                               whileInView: "show",
-                               viewport: CARD_VIEWPORT,
-                               custom: idx % 4,
-                             }}
-                           />
-                         </div>
-                       ))}
-                     </div>
-                   ) : null}
-                 </div>
-               ) : (
-                 // Mobile: keep as you had it (scrollable list)
-                 <div className="mt-4 grid grid-cols-1 gap-6 pb-28">
-                   {mobileLeaders.map((l, idx) => (
-                     <motion.button
-                       key={l.id}
-                       id={l.id}
-                       type="button"
-                       onClick={() => setOpenId(l.id)}
-                       className={cn(
-                         "main-section",
-                         "scroll-mt-[calc(var(--header-h,64px)+18px)]",
-                         "group relative overflow-hidden rounded-3xl ring-1 ring-black/10 w-full h-85"
-                       )}
-                       whileTap={{ scale: 0.995 }}
-                       transition={{ duration: 0.2, ease: EASE }}
-                       variants={cardInV}
-                       initial="hidden"
-                       whileInView="show"
-                       viewport={CARD_VIEWPORT}
-                       custom={idx % 6}
-                     >
-                       <div className="absolute inset-0 bg-white/35" />
-                       <div className="absolute inset-0">
-                         <Image
-                           src={l.avatar ?? "/images/team/persona.jpg"}
-                           alt={l.name}
-                           fill
-                           sizes="100vw"
-                           className="object-cover object-center"
-                         />
-                       </div>
-
-
-                       <div className="absolute left-4 right-4 bottom-4">
-                         <div className="flex items-stretch rounded-full bg-white/85 backdrop-blur ring-1 ring-black/10 overflow-hidden">
-                           <span className="shrink-0 inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-sm font-medium px-5 py-3 max-w-[46%]">
-                             <span className="block leading-none truncate whitespace-nowrap">
-                               {l.name}
-                             </span>
-                           </span>
-                           <span className="min-w-0 flex-1 px-4 py-2 text-sm text-(--olivea-ink)/70 text-left truncate">
-                             {t(l.role)}
-                           </span>
-                         </div>
-                       </div>
-                     </motion.button>
-                   ))}
-                 </div>
-               )}
-             </div>
-           </div>
-         </div>
-       </section>
-
-
-       {/* MODAL */}
-       {portalReady &&
-         createPortal(
-           <AnimatePresence>
-             {(isOpen || present) && active && (
-               <>
-                 <motion.div
-                   className="fixed inset-0 bg-black/55 backdrop-blur-sm"
-                   style={{ zIndex: 99998 }}
-                   initial={{ opacity: 0 }}
-                   animate={{ opacity: isOpen ? 1 : 0 }}
-                   exit={{ opacity: 0 }}
-                   transition={{ duration: 0.28, ease: EASE }}
-                   onClick={close}
-                   aria-hidden
-                 />
-
-
-                 <motion.div
-                   className="fixed inset-0 flex items-center justify-center p-3 sm:p-4"
-                   style={{ zIndex: 99999 }}
-                   initial={{ opacity: 0, scale: 0.98 }}
-                   animate={{
-                     opacity: isOpen ? 1 : 0,
-                     scale: isOpen ? 1 : 0.98,
-                   }}
-                   exit={{ opacity: 0, scale: 0.98 }}
-                   transition={{ duration: 0.35, ease: EASE }}
-                   onAnimationComplete={() => {
-                     if (!isOpen) setPresent(false);
-                   }}
-                   role="dialog"
-                   aria-modal="true"
-                   aria-label={active.name}
-                 >
-                   <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
-                     <div className="grid h-full grid-cols-1 lg:grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
-                       <div className="hidden lg:block row-span-2 pl-6 pr-3">
-                         <AutoSlideGalleryVerticalVariableHeight
-                           images={modalImages.slice(0, 12)}
-                           width={260}
-                         />
-                       </div>
-
-
-                       <div className="relative h-12 flex items-center justify-center">
-                         <span
-                           className="uppercase tracking-[0.25em] text-(--olivea-ink)/70"
-                           style={{
-                             fontFamily: "var(--font-serif)",
-                             fontSize: 18,
-                             fontWeight: 200,
-                           }}
-                         >
-                           {lang === "es" ? "Perfil" : "Profile"}
-                         </span>
-
-
-                         <button
-                           ref={closeBtnRef}
-                           onClick={close}
-                           aria-label={lang === "es" ? "Cerrar" : "Close"}
-                           className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
-                         >
-                           <X size={18} className="text-current" />
-                         </button>
-                       </div>
-
-
-                       <div
-                         className="px-6 py-8 overflow-auto lg:pl-10"
-                         onWheelCapture={(e) => e.stopPropagation()}
-                         style={{
-                           WebkitOverflowScrolling: "touch",
-                           overscrollBehavior: "contain",
-                         }}
-                       >
-                         <div className="lg:hidden mb-6">
-                           <AutoSlideGalleryHorizontalVariableWidth
-                             images={modalImages.slice(0, 12)}
-                           />
-                         </div>
-
-
-                         <div className="mb-3">
-                           <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
-                             {t(active.tag) || (lang === "es" ? "Equipo" : "Team")}
-                           </span>
-                         </div>
-
-
-                         <button type="button" onClick={goToProfile} className="text-left">
-                           <h3
-                             className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
-                             style={{ fontFamily: "var(--font-serif)" }}
-                           >
-                             {active.name}
-                           </h3>
-                         </button>
-
-
-                         <div className="mt-1 text-sm text-(--olivea-ink)/70">
-                           {t(active.role)} · {t(active.org)}
-                         </div>
-
-
-                         <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
-                           {(() => {
-                             const bio = (t(active.bio) || "").trim();
-                             if (!bio || bio.length < 28) return getModalDummy(lang, active.name);
-                             return bio;
-                           })() || bioFallback}
-                         </p>
-
-
-                         <div className="mt-7">
-                           <Link
-                             href={`/${lang}/team/${active.id}`}
-                             onClick={() => close()}
-                             className={cn(
-                               "inline-flex w-full items-center justify-center gap-2",
-                               "rounded-2xl px-5 py-3 text-sm font-semibold",
-                               "bg-(--olivea-olive) text-(--olivea-cream)",
-                               "ring-1 ring-black/10 hover:opacity-95 transition",
-                               "shadow-[0_18px_44px_-22px_rgba(0,0,0,0.35)]"
-                             )}
-                           >
-                             {lang === "es" ? "Ver perfil completo" : "View full profile"}
-                             <ArrowUpRight size={16} className="opacity-90" aria-hidden="true" />
-                           </Link>
-                         </div>
-
-
-                         <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/45">
-                           {lang === "es"
-                             ? "El perfil completo vive en el Link en bio."
-                             : "Full profile lives on the Link in bio."}
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                 </motion.div>
-               </>
-             )}
-           </AnimatePresence>,
-           document.body
-         )}
-     </main>
-   </NavigationProvider>
- );
+            </AnimatePresence>,
+            document.body
+          )}
+      </main>
+    </NavigationProvider>
+  );
 }
