@@ -129,8 +129,8 @@ export const TEAM: LeaderProfile[] = [
     },
     tag: { es: "Cocina", en: "Culinary" },
     bio: {
-      es: "Lidera la cocina con un enfoque huerto-primero: técnica, estacionalidad y precisión.",
-      en: "Leads the kitchen with a garden-first philosophy: technique, seasonality, and precision.",
+      es: "Chef Ejecutivo de Olivea, Daniel dirige la visión gastronómica del ecosistema. Su cocina nace del huerto y del territorio de Baja California, con el Valle de Guadalupe como raíz y responsabilidad. Diseña cada menú en diálogo con los vinos regionales y construye platos alrededor de historias locales poderosas. Integra restaurante y café como distintas expresiones de una misma narrativa culinaria. Valiente e inquieto, cuestiona lo convencional y explora nuevas formas de contar el territorio a través del sabor.",
+      en: "Executive Chef of Olivea, Daniel directs the gastronomic vision of the ecosystem. His cuisine begins in the garden and is rooted in Baja California, with Valle de Guadalupe as both origin and responsibility. He designs each menu in dialogue with regional wines, building plates around powerful local stories. He integrates restaurant and café as different expressions of a single culinary narrative. Bold and restless, he challenges convention and searches for new ways to express the territory through flavor."
     },
     avatar: "/images/team/daniel.jpg",
      gallery: [
@@ -196,8 +196,8 @@ export const TEAM: LeaderProfile[] = [
     },
     org: { es: "OLIVEA · La Experencia", en: "OLIVEA · The Experience" },
     bio: {
-      es: "CEO de Olivea y fundadora de Roseiies. Adriana conecta visión y estructura para dar forma a una hospitalidad que piensa, mide y evoluciona. Su trabajo integra tecnología, experiencia y territorio para construir sistemas coherentes que sostienen lo humano. Cree en una hospitalidad más inteligente, más consciente y diseñada para el largo plazo.",
-      en: "CEO of Olivea and founder of Roseiies. Adriana connects vision and structure to shape a form of hospitality that thinks, measures, and evolves. Her work integrates technology, experience, and place to build coherent systems that support what is human. She believes in a more intelligent, conscious, and long-term approach to hospitality."
+      es: "CEO de Olivea y fundadora de Roseiies. Adriana es la arquitecta del ecosistema Olivea. Define la dirección estratégica de la marca, su evolución a largo plazo y la coherencia entre hotel, restaurante, café y territorio. Diseña la experiencia como un sistema vivo donde concepto, tecnología, estructura y sensibilidad estética convergen. Toma decisiones de alto nivel, traduce visión en dirección concreta y conecta cada expresión bajo una sola narrativa. Su enfoque integra inteligencia, territorio y humanidad para construir una hospitalidad diseñada para perdurar.",
+      en: "CEO of Olivea and founder of Roseiies. Adriana is the architect of the Olivea ecosystem. She defines the brand’s long-term direction and ensures coherence between hotel, restaurant, café, and territory. She designs the experience as a living system where concept, technology, structure, and aesthetic sensibility converge. Making high-level decisions, she translates vision into concrete direction and connects every expression under a single narrative. Her approach integrates intelligence, place, and humanity to build hospitality designed to endure."
     },
     avatar: "/images/team/adriana.jpg",
     gallery: [
@@ -273,8 +273,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Cocina", en: "Kitchen" },
     bio: {
-      es: "Ejecución diaria, consistencia y mejora continua.",
-      en: "Daily execution, consistency, and continuous improvement.",
+      es: "Sous Chef de Olivea Farm To Table, Onan es el eje operativo y humano de la cocina. Líder nato, equilibra energía y serenidad, unificando al equipo con una presencia firme y empática. Escucha, aprende y ejecuta con una precisión poco común, sosteniendo la consistencia diaria mientras impulsa la mejora continua. Sabe exigir sin fracturar y motivar sin imponer. Ambicioso y disciplinado, es el centro que mantiene unida la cocina.",
+      en: "Sous Chef of Olivea Farm To Table, Onan is the operational and human axis of the kitchen. A natural leader, he balances energy with calm, unifying the team through a steady and empathetic presence. He listens, learns, and executes with uncommon precision, sustaining daily consistency while driving continuous improvement. He knows how to demand excellence without creating friction and how to motivate without imposing. He is the center that holds the kitchen together."
     },
     avatar: "/images/team/onan.jpg",
     gallery: [
@@ -317,8 +317,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Olivea", en: "Olivea" },
     tag: { es: "I+D", en: "R&D" },
     bio: {
-      es: "Investigación culinaria, eficiencia y reducción de desperdicio.",
-      en: "Culinary research, efficiency, and waste reduction.",
+      es: "Encargado de Investigación y Desarrollo en Olivea, Luis es el motor científico del ecosistema. Lidera el Comité de Investigación, donde el equipo explora hallazgos del territorio, fermentaciones y nuevas técnicas para enriquecer la experiencia gastronómica. Su precisión y obsesión por el detalle sostienen los procesos invisibles que elevan cada plato. Protector del ciclo completo, cuida que el recorrido del huerto al restaurante, del café a la fermentación, de la conservación al compostaje, se mantenga coherente y responsable. Es guardián del desperdicio cero y arquitecto de la circularidad en Olivea.",
+      en: "Head of Research & Development at Olivea, Luis is the scientific engine of the ecosystem. He leads the Research Committee, where the team explores regional discoveries, fermentations, and new techniques to deepen the culinary experience. His precision and attention to detail sustain the invisible processes that elevate every dish. Guardian of the full cycle, he ensures the journey from garden to restaurant, from café to fermentation, from preservation to compost, remains coherent and responsible. He is protector of zero waste and architect of circularity within Olivea."
     },
     avatar: "/images/team/luis.jpg",
     gallery: [
@@ -369,8 +369,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Pastelería", en: "Patisserie" },
     bio: {
-      es: "Postres con precisión y elegancia.",
-      en: "Desserts with precision and elegance.",
+      es: "Supervisor de Patisserie en Olivea, Jesús lidera panadería y postres con disciplina, elegancia y una ambición creativa incansable. Es un líder por ejemplo: dinámico, enfocado y dispuesto al trabajo duro. También pieza clave en Olivea Café, piensa constantemente en cómo unificar restaurante y café como expresiones distintas de una misma visión. Le entusiasma el desafío de llevar el huerto a terrenos tradicionales, reinterpretando lo clásico desde el territorio. Su hambre por crear y aprender lo convierte en una fuerza expansiva dentro del ecosistema.",
+      en: "Head of Patisserie at Olivea, Jesús leads bread and desserts with discipline, elegance, and relentless creative ambition. A leader by example, he is dynamic, focused, and unafraid of hard work. Also a key figure in Olivea Café, he constantly thinks about unifying restaurant and café as different expressions of the same vision. He is energized by the challenge of bringing the garden into traditionally structured forms, reinterpreting the familiar through the territory. His hunger to create and learn makes him an expansive force within the ecosystem."
     },
     avatar: "/images/team/jesus.jpg",
     gallery: [
@@ -423,8 +423,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Olivea", en: "Olivea" },
     tag: { es: "People", en: "People" },
     bio: {
-      es: "Cultura, estructura y crecimiento del equipo.",
-      en: "Culture, structure, and team growth.",
+      es: "Encargada de Recursos Humanos en Olivea, Cristina es la guardiana del bienestar del equipo. Escucha con profundidad y crea un espacio donde cada persona puede sentirse segura para hablar, crecer y ser tomada en cuenta. Es el puente entre el equipo y la dirección, asegurando que las voces internas se transformen en acciones concretas. Observa dónde están las mentes y los corazones del equipo, permitiendo que Olivea crezca de manera sana y consciente. En una organización donde el equipo es familia, su trabajo sostiene la confianza, la estructura y el desarrollo humano.",
+      en: "Head of Human Resources at Olivea, Cristina is the guardian of the team’s well-being. A powerful listener, she creates a space where every person feels safe to speak, grow, and be taken seriously. She serves as the bridge between the team and leadership, ensuring that internal voices translate into meaningful action. She understands where people stand emotionally and professionally, allowing Olivea to grow in a healthy and conscious way. In an organization where the team is family, her work sustains trust, structure, and human development."
     },
     avatar: "/images/team/cristina.png",
     gallery: [
@@ -470,8 +470,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Casa Olivea", en: "Casa Olivea" },
     tag: { es: "Hotel", en: "Hotel" },
     bio: {
-      es: "Responsable de la operación hotelera y consistencia de servicio.",
-      en: "Oversees hotel operations and service consistency.",
+      es: "Supervisor de Casa Olivea, Leonardo cuida la operación diaria con responsabilidad, temple y una profunda vocación por su equipo. Escucha, protege y asume el liderazgo con firmeza y sensibilidad. Toma orgullo en su rol y en la consistencia del servicio, asegurando que cada huésped viva la experiencia con coherencia y calidez. Inquieto y ambicioso, siempre busca mejorar procesos, probar nuevas ideas y aprender de cada intento, sea éxito o error. Su impulso por crecer y evolucionar no solo lo mueve a él, sino que inspira a quienes lo rodean. Es guardián del estándar y promotor del crecimiento dentro de Casa Olivea.",
+      en: "Supervisor of Casa Olivea, Leonardo oversees daily operations with responsibility, composure, and a deep commitment to his team. He listens, protects, and leads with both firmness and care. Taking pride in his role and in service consistency, he ensures every guest experiences Olivea with coherence and warmth. Ambitious and forward-moving, he constantly seeks improvement, testing new ideas and learning from every outcome — whether success or failure. His drive for growth not only fuels him, but elevates those around him. He is both guardian of the standard and catalyst for evolution within Casa Olivea."
     },
     avatar: "/images/team/leonardo.png",
     gallery: [
@@ -516,8 +516,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Servicio", en: "Service" },
     bio: {
-      es: "Hospitalidad coreografiada y estándares de servicio.",
-      en: "Choreographed hospitality and service standards.",
+      es: "Maître D de Olivea Farm To Table, Franklin es el corazón del servicio. Líder de pasión y carácter, protege la cultura del equipo y eleva los estándares con orgullo contagioso. Transmite una energía que inspira compromiso, precisión y presencia en cada interacción. Exige pasión porque él mismo la encarna. Cuando los huéspedes llegan, sienten esa intensidad y la devuelven. Franklin siembra orgullo en el equipo, y ese orgullo florece en la experiencia. Es la chispa que convierte el servicio en algo memorable.",
+      en: "Maître D of Olivea Farm To Table, Franklin is the heart of service. A leader of passion and character, he protects the team’s culture and elevates standards with contagious pride. He transmits an energy that inspires commitment, precision, and presence in every interaction. He demands passion because he embodies it. When guests arrive, they feel that intensity and reflect it back. Franklin plants pride within the team, and that pride blossoms in the experience. He is the spark that turns service into something memorable."
     },
     avatar: "/images/team/franklin.jpg",
     gallery: [
@@ -561,8 +561,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Servicio", en: "Service" },
     bio: {
-      es: "Coordinación del equipo y precisión en la experiencia.",
-      en: "Team coordination and precision in guest experience.",
+      es: "Capitán en Olivea Farm To Table, Jahudiel es promotor orgulloso de la experiencia dentro y fuera del restaurante. Comparte con la comunidad lo que significa formar parte de Olivea y transmite esa energía al equipo. Hambre de crecimiento lo define: aprende constantemente, explora nuevas regiones y profundiza en el vino como sommelier en formación. Es pieza fundamental en la experiencia vinícola, protegiendo la coherencia de la carta y asegurando que cada botella cuente la historia correcta. Sabe lo que quiere y trabaja con disciplina para alcanzarlo, convirtiendo su ambición en evolución continua.",
+      en: "Captain at Olivea Farm To Table, Jahudiel is a proud ambassador of the experience both inside and beyond the restaurant. He shares what it means to be part of Olivea with the community and transmits that energy to the team. Growth defines him: he is constantly learning, exploring new wine regions, and deepening his knowledge as a sommelier in training. A fundamental part of the wine experience, he protects the integrity of the wine program and ensures every bottle communicates the right story. He knows what he wants and works with discipline to achieve it, turning ambition into continuous evolution."
     },
     avatar: "/images/team/jahudiel.png",
     gallery: [
@@ -607,8 +607,8 @@ export const TEAM: LeaderProfile[] = [
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
     tag: { es: "Operations", en: "Operaciones" },
     bio: {
-      es: "Coordina las operaciones diarias, compras y procesos administrativos para asegurar el buen funcionamiento de Olivea.",
-      en: "Oversees daily operations, purchasing, and administrative processes to keep Olivea running smoothly.",
+      es: "Coordinador de Operaciones en Olivea desde el primer día, Fran es la columna invisible que sostiene el ritmo diario. Es el principal responsable de compras y abastecimiento, protegiendo costos sin comprometer calidad. Se le puede ver por la mañana gestionando proveedores y por la noche apoyando donde haga falta — siempre dispuesto a decir sí cuando el equipo necesita más. Recoge fruta directamente de productores, asegura los ingredientes para cada servicio y cuida incluso los detalles del family meal. Su pasión por la gastronomía y su compromiso con la mejora continua lo convierten en una fuerza constante dentro del ecosistema. La pregunta con Fran no es qué hace, sino qué no hace.",
+      en: "Operations Coordinator at Olivea since day one, Fran is the invisible backbone of daily rhythm. He leads procurement and sourcing, protecting costs without compromising quality. You may see him in the morning managing suppliers and at night stepping in wherever needed — always the first to say yes when the team needs more. He personally collects fruit from producers, ensures every service has what it needs, and even safeguards the details of the family meal. His passion for gastronomy and commitment to constant improvement make him a steady force within the ecosystem. With Fran, the question isn’t what he does — it’s what doesn’t he do."
     },
     avatar: "/images/team/fran.jpg",
     gallery: [
