@@ -289,7 +289,7 @@ export const TEAM: LeaderProfile[] = [
       { href: "https://oliveafarmtotable.com/farmtotable",
         label: {
           es: "Olivea Farm To Table",
-          en: "Olivea Farm To Tablee",
+          en: "Olivea Farm To Table",
         },
         highlight: true,
        },
@@ -334,7 +334,7 @@ export const TEAM: LeaderProfile[] = [
       { href: "https://oliveafarmtotable.com/farmtotable",
         label: {
           es: "Olivea Farm To Table",
-          en: "Olivea Farm To Tablee",
+          en: "Olivea Farm To Table",
         },
         highlight: true,
        },
@@ -388,7 +388,7 @@ export const TEAM: LeaderProfile[] = [
       { href: "https://oliveafarmtotable.com/farmtotable",
         label: {
           es: "Olivea Farm To Table",
-          en: "Olivea Farm To Tablee",
+          en: "Olivea Farm To Table",
         },
         highlight: true,
        },
@@ -533,7 +533,7 @@ export const TEAM: LeaderProfile[] = [
       { href: "https://oliveafarmtotable.com/farmtotable",
         label: {
           es: "Olivea Farm To Table",
-          en: "Olivea Farm To Tablee",
+          en: "Olivea Farm To Table",
         },
         highlight: true,
        },
@@ -566,12 +566,9 @@ export const TEAM: LeaderProfile[] = [
     },
     avatar: "/images/team/jahudiel.png",
     gallery: [
-      "/images/team/jahudiel.avif",
-      "/images/team/jahudiel/persona.avif",
-      "/images/team/jahudiel/persona.avif",
-      "/images/team/jahudiel/persona.avif",
-      "/images/team/jahudiel/persona.avif",
-      "/images/team/jahudiel/persona.avif"
+      "/images/team/jahudiel.png",
+      "/images/team/jahudiel/01.jpg",
+      "/images/team/jahudiel/02.jpg",
     ],
     tile: "md",
     priority: 10,
@@ -579,7 +576,7 @@ export const TEAM: LeaderProfile[] = [
       { href: "https://oliveafarmtotable.com/farmtotable",
         label: {
           es: "Olivea Farm To Table",
-          en: "Olivea Farm To Tablee",
+          en: "Olivea Farm To Table",
         },
         highlight: true,
        },
@@ -624,7 +621,7 @@ export const TEAM: LeaderProfile[] = [
       { href: "https://oliveafarmtotable.com/farmtotable",
         label: {
           es: "Olivea Farm To Table",
-          en: "Olivea Farm To Tablee",
+          en: "Olivea Farm To Table",
         },
         highlight: true,
        },
