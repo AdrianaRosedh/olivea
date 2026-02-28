@@ -18,7 +18,7 @@ import {
   useMotionValue,
   type Variants,
 } from "framer-motion";
-import { X, ArrowUpRight } from "lucide-react";
+import { X, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { TEAM, type LeaderProfile } from "./teamData";
@@ -59,11 +59,10 @@ const cardInV: Variants = {
   }),
 };
 
-/**
- * Legacy heuristic: infer category from org string.
- * We keep this as a fallback for any profiles that don't define showIn / alwaysShow.
- */
-function leaderCategoryFromOrg(org?: { es: string; en: string }): Category | "experience" {
+/* ---------- category inference (fallback) ---------- */
+function leaderCategoryFromOrg(
+  org?: { es: string; en: string }
+): Category | "experience" {
   const raw = (org?.en || org?.es || "").toLowerCase();
   if (!raw) return "experience";
   if (raw.includes("casa olivea")) return "hotel";
@@ -74,7 +73,6 @@ function leaderCategoryFromOrg(org?: { es: string; en: string }): Category | "ex
 }
 
 /**
- * ✅ New behavior:
  * - alwaysShow === true => appears in every filter (hotel/restaurant/cafe)
  * - showIn defined => appears only in those filters
  * - fallback => old org-based logic
@@ -83,13 +81,16 @@ function matchesFilter(leader: Leader, filter: Category): boolean {
   if (filter === "all") return true;
 
   if (leader.alwaysShow) return true;
-  if (leader.showIn?.length) return leader.showIn.includes(filter);
+
+  if (leader.showIn && leader.showIn.length > 0) {
+    return leader.showIn.includes(filter);
+  }
 
   const cat = leaderCategoryFromOrg(leader.org);
   return cat === filter || cat === "experience";
 }
 
-/* ---------------- breakpoint (prevents duplicate DOM ids) ---------------- */
+/* ---------------- breakpoint ---------------- */
 function useIsLg(): boolean | null {
   const [isLg, setIsLg] = useState<boolean | null>(null);
 
@@ -104,7 +105,7 @@ function useIsLg(): boolean | null {
   return isLg;
 }
 
-/* ---------------- modal helpers: dummy story ---------------- */
+/* ---------------- modal helpers ---------------- */
 function getModalDummy(lang: Lang, name: string) {
   const es = [
     `Este perfil está en construcción — pero el diseño ya es el final.`,
@@ -123,7 +124,7 @@ function getModalDummy(lang: Lang, name: string) {
   return lang === "es" ? es : en;
 }
 
-/** Desktop vertical autoplay gallery (variable height per image) */
+/** Desktop vertical autoplay gallery (variable height per image) — ORIGINAL behavior */
 function AutoSlideGalleryVerticalVariableHeight({
   images,
   width = 252,
@@ -486,6 +487,11 @@ export default function TeamClient({
     return leadersSorted.filter((l) => matchesFilter(l, category));
   }, [leadersSorted, category]);
 
+  // ✅ For desktop modal left/right nav: use CURRENT FILTER set (feels correct)
+  const modalNavList = useMemo(() => {
+    return leadersSorted.filter((l) => matchesFilter(l, category));
+  }, [leadersSorted, category]);
+
   const [openId, setOpenId] = useState<string | null>(null);
   const active = leadersSorted.find((l) => l.id === openId) ?? null;
 
@@ -534,6 +540,53 @@ export default function TeamClient({
     router.push(`/${lang}/team/${active.id}`);
   };
 
+  // ✅ Desktop modal: Prev/Next PEOPLE
+  const gotoPrevProfile = () => {
+    if (!active) return;
+    if (modalNavList.length <= 1) return;
+
+    const idx = modalNavList.findIndex((x) => x.id === active.id);
+    if (idx < 0) return;
+    const prev = modalNavList[(idx - 1 + modalNavList.length) % modalNavList.length];
+    setOpenId(prev.id);
+  };
+
+  const gotoNextProfile = () => {
+    if (!active) return;
+    if (modalNavList.length <= 1) return;
+
+    const idx = modalNavList.findIndex((x) => x.id === active.id);
+    if (idx < 0) return;
+    const next = modalNavList[(idx + 1) % modalNavList.length];
+    setOpenId(next.id);
+  };
+
+  // keyboard navigation (desktop): left/right switches profiles
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+        return;
+      }
+      // only do arrow switching on desktop breakpoint
+      // (still safe if user hits keys on mobile; nothing breaks)
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        gotoPrevProfile();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        gotoNextProfile();
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, openId, modalNavList]);
+
   const bioFallback =
     lang === "es"
       ? "Historia en desarrollo — pronto."
@@ -581,7 +634,7 @@ export default function TeamClient({
 
                 {isLg === null ? null : isLg ? (
                   <div>
-                    {/* Leaders (slightly larger) */}
+                    {/* Leaders */}
                     <div className="mt-6 sm:mt-10">
                       <div className="grid grid-cols-12 gap-6">
                         {featured.map((l, idx) => (
@@ -614,7 +667,7 @@ export default function TeamClient({
                       </div>
                     </div>
 
-                    {/* Row 2: always a row of 4 */}
+                    {/* Row 2 */}
                     {row2.length ? (
                       <div className="mt-7 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
                         {row2.map((l, idx) => (
@@ -647,7 +700,7 @@ export default function TeamClient({
                       </div>
                     ) : null}
 
-                    {/* Remaining: continues in rows of 4 */}
+                    {/* Remaining */}
                     {restAfterRow2.length ? (
                       <div className="mt-6 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
                         {restAfterRow2.map((l, idx) => (
@@ -681,7 +734,7 @@ export default function TeamClient({
                     ) : null}
                   </div>
                 ) : (
-                  // Mobile
+                  // Mobile list
                   <div className="mt-4 grid grid-cols-1 gap-6 pb-28">
                     {mobileLeaders.map((l, idx) => (
                       <motion.button
@@ -768,111 +821,271 @@ export default function TeamClient({
                     aria-modal="true"
                     aria-label={active.name}
                   >
-                    <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
-                      <div className="grid h-full grid-cols-1 lg:grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
-                        <div className="hidden lg:block row-span-2 pl-6 pr-3">
-                          <AutoSlideGalleryVerticalVariableHeight
-                            images={modalImages.slice(0, 12)}
-                            width={260}
-                          />
-                        </div>
-
-                        <div className="relative h-12 flex items-center justify-center">
-                          <span
-                            className="uppercase tracking-[0.25em] text-(--olivea-ink)/70"
-                            style={{
-                              fontFamily: "var(--font-serif)",
-                              fontSize: 18,
-                              fontWeight: 200,
-                            }}
+                    {/* =========================
+                        DESKTOP: ORIGINAL SIZE + layout (restored)
+                        ========================= */}
+                    <div className="hidden lg:block relative">
+                      {/* Prev/Next PEOPLE controls (desktop only) */}
+                      {modalNavList.length > 1 ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={gotoPrevProfile}
+                            aria-label="Previous profile"
+                            title="Previous profile"
+                            className={cn(
+                              "absolute -left-14 top-1/2 -translate-y-1/2",
+                              "h-11 w-11 rounded-full",
+                              "bg-(--olivea-cream)/70 backdrop-blur",
+                              "ring-1 ring-(--olivea-olive)/18",
+                              "text-(--olivea-olive) hover:bg-white/60 transition"
+                            )}
                           >
-                            {lang === "es" ? "Perfil" : "Profile"}
-                          </span>
+                            <ChevronLeft className="h-5 w-5 mx-auto opacity-85" />
+                          </button>
 
                           <button
-                            ref={closeBtnRef}
-                            onClick={close}
-                            aria-label={lang === "es" ? "Cerrar" : "Close"}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                            type="button"
+                            onClick={gotoNextProfile}
+                            aria-label="Next profile"
+                            title="Next profile"
+                            className={cn(
+                              "absolute -right-14 top-1/2 -translate-y-1/2",
+                              "h-11 w-11 rounded-full",
+                              "bg-(--olivea-cream)/70 backdrop-blur",
+                              "ring-1 ring-(--olivea-olive)/18",
+                              "text-(--olivea-olive) hover:bg-white/60 transition"
+                            )}
                           >
-                            <X size={18} className="text-current" />
+                            <ChevronRight className="h-5 w-5 mx-auto opacity-85" />
                           </button>
-                        </div>
+                        </>
+                      ) : null}
 
-                        <div
-                          className="px-6 py-8 overflow-auto lg:pl-10"
-                          onWheelCapture={(e) => e.stopPropagation()}
-                          style={{
-                            WebkitOverflowScrolling: "touch",
-                            overscrollBehavior: "contain",
-                          }}
-                        >
-                          <div className="lg:hidden mb-6">
+                      <div className="bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 w-[min(96vw,1000px)] h-[78vh] rounded-2xl">
+                        <div className="grid h-full grid-cols-[260px_1fr] grid-rows-[48px_1fr]">
+                          <div className="row-span-2 pl-6 pr-3">
+                            <AutoSlideGalleryVerticalVariableHeight
+                              images={modalImages.slice(0, 12)}
+                              width={260}
+                            />
+                          </div>
+
+                          <div className="relative h-12 flex items-center justify-center">
+                            <span
+                              className="uppercase tracking-[0.25em] text-(--olivea-ink)/70"
+                              style={{
+                                fontFamily: "var(--font-serif)",
+                                fontSize: 18,
+                                fontWeight: 200,
+                              }}
+                            >
+                              {lang === "es" ? "Perfil" : "Profile"}
+                            </span>
+
+                            <button
+                              ref={closeBtnRef}
+                              onClick={close}
+                              aria-label={lang === "es" ? "Cerrar" : "Close"}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                            >
+                              <X size={18} className="text-current" />
+                            </button>
+                          </div>
+
+                          <div
+                            className="px-6 py-8 overflow-auto lg:pl-10"
+                            onWheelCapture={(e) => e.stopPropagation()}
+                            style={{
+                              WebkitOverflowScrolling: "touch",
+                              overscrollBehavior: "contain",
+                            }}
+                          >
+                            <div className="mb-3">
+                              <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
+                                {t(active.tag) ||
+                                  (lang === "es" ? "Equipo" : "Team")}
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={goToProfile}
+                              className="text-left"
+                            >
+                              <h3
+                                className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
+                                style={{ fontFamily: "var(--font-serif)" }}
+                              >
+                                {active.name}
+                              </h3>
+                            </button>
+
+                            <div className="mt-1 text-sm text-(--olivea-ink)/70">
+                              {t(active.role)} · {t(active.org)}
+                            </div>
+
+                            <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
+                              {(() => {
+                                const bio = (t(active.bio) || "").trim();
+                                if (!bio || bio.length < 28)
+                                  return getModalDummy(lang, active.name);
+                                return bio;
+                              })() || bioFallback}
+                            </p>
+
+                            <div className="mt-7">
+                              <Link
+                                href={`/${lang}/team/${active.id}`}
+                                onClick={() => close()}
+                                className={cn(
+                                  "inline-flex w-full items-center justify-center gap-2",
+                                  "rounded-2xl px-5 py-3 text-sm font-semibold",
+                                  "bg-(--olivea-olive) text-(--olivea-cream)",
+                                  "ring-1 ring-black/10 hover:opacity-95 transition",
+                                  "shadow-[0_18px_44px_-22px_rgba(0,0,0,0.35)]"
+                                )}
+                              >
+                                {lang === "es"
+                                  ? "Ver perfil completo"
+                                  : "View full profile"}
+                                <ArrowUpRight
+                                  size={16}
+                                  className="opacity-90"
+                                  aria-hidden="true"
+                                />
+                              </Link>
+                            </div>
+
+                            <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/45">
+                              {lang === "es"
+                                ? "El perfil completo vive en el Link en bio."
+                                : "Full profile lives on the Link in bio."}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* =========================
+                        MOBILE: full-height framed + images always visible,
+                        and ONLY bio scrolls (kept)
+                        ========================= */}
+                    <div className="lg:hidden w-full">
+                      <div
+                        className={cn(
+                          "bg-(--olivea-cream) overflow-hidden ring-1 ring-black/10 rounded-2xl",
+                          "w-[min(calc(100vw-24px),1000px)] h-[calc(100dvh-24px)]",
+                          "sm:w-[min(calc(100vw-32px),1000px)] sm:h-[calc(100dvh-32px)]"
+                        )}
+                      >
+                        <div className="flex h-full flex-col overflow-hidden">
+                          {/* header fixed */}
+                          <div className="relative h-14 flex items-center justify-center shrink-0">
+                            <span
+                              className="uppercase tracking-[0.25em] text-(--olivea-ink)/70"
+                              style={{
+                                fontFamily: "var(--font-serif)",
+                                fontSize: 18,
+                                fontWeight: 200,
+                              }}
+                            >
+                              {lang === "es" ? "Perfil" : "Profile"}
+                            </span>
+
+                            <button
+                              ref={closeBtnRef}
+                              onClick={close}
+                              aria-label={lang === "es" ? "Cerrar" : "Close"}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                            >
+                              <X size={18} className="text-current" />
+                            </button>
+                          </div>
+
+                          {/* gallery fixed */}
+                          <div className="px-5 pb-2 shrink-0">
                             <AutoSlideGalleryHorizontalVariableWidth
                               images={modalImages.slice(0, 12)}
                             />
                           </div>
 
-                          <div className="mb-3">
-                            <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
-                              {t(active.tag) ||
-                                (lang === "es" ? "Equipo" : "Team")}
-                            </span>
-                          </div>
+                          {/* content column */}
+                          <div className="px-6 pb-6 flex-1 overflow-hidden flex flex-col">
+                            <div className="mb-3 shrink-0">
+                              <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/70">
+                                {t(active.tag) ||
+                                  (lang === "es" ? "Equipo" : "Team")}
+                              </span>
+                            </div>
 
-                          <button
-                            type="button"
-                            onClick={goToProfile}
-                            className="text-left"
-                          >
-                            <h3
-                              className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
-                              style={{ fontFamily: "var(--font-serif)" }}
+                            <div className="shrink-0">
+                              <button
+                                type="button"
+                                onClick={goToProfile}
+                                className="text-left"
+                              >
+                                <h3
+                                  className="text-3xl font-semibold tracking-[-0.02em] text-(--olivea-ink) hover:opacity-90 transition"
+                                  style={{ fontFamily: "var(--font-serif)" }}
+                                >
+                                  {active.name}
+                                </h3>
+                              </button>
+
+                              <div className="mt-1 text-sm text-(--olivea-ink)/70">
+                                {t(active.role)} · {t(active.org)}
+                              </div>
+                            </div>
+
+                            {/* bio only scrolls */}
+                            <div
+                              className="mt-6 flex-1 overflow-auto pr-2"
+                              style={{
+                                WebkitOverflowScrolling: "touch",
+                                overscrollBehavior: "contain",
+                              }}
+                              onWheelCapture={(e) => e.stopPropagation()}
                             >
-                              {active.name}
-                            </h3>
-                          </button>
+                              <p className="text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
+                                {(() => {
+                                  const bio = (t(active.bio) || "").trim();
+                                  if (!bio || bio.length < 28)
+                                    return getModalDummy(lang, active.name);
+                                  return bio;
+                                })() || bioFallback}
+                              </p>
+                            </div>
 
-                          <div className="mt-1 text-sm text-(--olivea-ink)/70">
-                            {t(active.role)} · {t(active.org)}
-                          </div>
+                            {/* CTA fixed */}
+                            <div className="pt-6 shrink-0">
+                              <Link
+                                href={`/${lang}/team/${active.id}`}
+                                onClick={() => close()}
+                                className={cn(
+                                  "inline-flex w-full items-center justify-center gap-2",
+                                  "rounded-2xl px-5 py-3 text-sm font-semibold",
+                                  "bg-(--olivea-olive) text-(--olivea-cream)",
+                                  "ring-1 ring-black/10 hover:opacity-95 transition",
+                                  "shadow-[0_18px_44px_-22px_rgba(0,0,0,0.35)]"
+                                )}
+                              >
+                                {lang === "es"
+                                  ? "Ver perfil completo"
+                                  : "View full profile"}
+                                <ArrowUpRight
+                                  size={16}
+                                  className="opacity-90"
+                                  aria-hidden="true"
+                                />
+                              </Link>
 
-                          <p className="mt-6 text-base leading-relaxed text-(--olivea-ink)/80 max-w-xl">
-                            {(() => {
-                              const bio = (t(active.bio) || "").trim();
-                              if (!bio || bio.length < 28)
-                                return getModalDummy(lang, active.name);
-                              return bio;
-                            })() || bioFallback}
-                          </p>
-
-                          <div className="mt-7">
-                            <Link
-                              href={`/${lang}/team/${active.id}`}
-                              onClick={() => close()}
-                              className={cn(
-                                "inline-flex w-full items-center justify-center gap-2",
-                                "rounded-2xl px-5 py-3 text-sm font-semibold",
-                                "bg-(--olivea-olive) text-(--olivea-cream)",
-                                "ring-1 ring-black/10 hover:opacity-95 transition",
-                                "shadow-[0_18px_44px_-22px_rgba(0,0,0,0.35)]"
-                              )}
-                            >
-                              {lang === "es"
-                                ? "Ver perfil completo"
-                                : "View full profile"}
-                              <ArrowUpRight
-                                size={16}
-                                className="opacity-90"
-                                aria-hidden="true"
-                              />
-                            </Link>
-                          </div>
-
-                          <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/45">
-                            {lang === "es"
-                              ? "El perfil completo vive en el Link en bio."
-                              : "Full profile lives on the Link in bio."}
+                              <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/45">
+                                {lang === "es"
+                                  ? "El perfil completo vive en el Link en bio."
+                                  : "Full profile lives on the Link in bio."}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
