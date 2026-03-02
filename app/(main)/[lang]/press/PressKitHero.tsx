@@ -56,7 +56,8 @@ export default function PressKitHero({
             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
               <a
                 href={manifest.downloads.fullKit}
-                download
+                target="_blank"
+                rel="noopener noreferrer"
                 className={cn(
                   "inline-flex items-center justify-center gap-2",
                   "rounded-2xl px-5 py-3",
