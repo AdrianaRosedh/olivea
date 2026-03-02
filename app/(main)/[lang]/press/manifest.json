@@ -41,7 +41,7 @@
     {
       "id": "hotel-habitacion-01",
       "category": "hotel",
-      "title": { "es": "Casa Olivea — Habitación", "en": "Casa Olivea — Room" },
+      "title": { "es": "Habitación de Casa Olivea", "en": "Room in Casa Olivea" },
       "web": "/images/press/media/web/habitacion.jpg",
       "hires": "/images/press/media/hires/habitacion.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -49,7 +49,7 @@
     {
       "id": "garden-huertitos-01",
       "category": "garden",
-      "title": { "es": "Huerto — Huertitos", "en": "Garden — Beds" },
+      "title": { "es": "Huertitos", "en": "Garden Beds" },
       "web": "/images/press/media/web/huertitos.jpg",
       "hires": "/images/press/media/hires/huertitos.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -57,7 +57,7 @@
     {
       "id": "people-leaderes-trio-01",
       "category": "people",
-      "title": { "es": "Equipo — Líderes", "en": "Team — Leaders" },
+      "title": { "es": "Líderes", "en": "Leaders" },
       "web": "/images/press/media/web/leaderestrio.jpg",
       "hires": "/images/press/media/hires/leaderestrio.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -65,7 +65,7 @@
     {
       "id": "hotel-bed-01",
       "category": "hotel",
-      "title": { "es": "Casa Olivea — Bed", "en": "Casa Olivea — Bed" },
+      "title": { "es": "Cama de Casa Olivea", "en": "Bed in Casa Olivea" },
       "web": "/images/press/media/web/bed.jpg",
       "hires": "/images/press/media/hires/bed.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -81,7 +81,7 @@
     {
       "id": "hotel-cama-01",
       "category": "hotel",
-      "title": { "es": "Casa Olivea — Cama", "en": "Casa Olivea — Bed" },
+      "title": { "es": "Cama de Casa Olivea", "en": "Bed in Casa Olivea" },
       "web": "/images/press/media/web/cama.jpg",
       "hires": "/images/press/media/hires/cama.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -89,7 +89,7 @@
     {
       "id": "hotel-lounge-01",
       "category": "hotel",
-      "title": { "es": "Casa Olivea — Lounge", "en": "Casa Olivea — Lounge" },
+      "title": { "es": "Lounge de Olivea", "en": "Olivea's Lounge" },
       "web": "/images/press/media/web/lounge.jpg",
       "hires": "/images/press/media/hires/lounge.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -97,7 +97,7 @@
     {
       "id": "people-ange-adriana-01",
       "category": "people",
-      "title": { "es": "Ange & Adriana", "en": "Ange & Adriana" },
+      "title": { "es": "Ange & Adriana Rose", "en": "Ange & Adriana Rose" },
       "web": "/images/press/media/web/olivea-ange-adriana.jpg",
       "hires": "/images/press/media/hires/olivea-ange-adriana.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -113,23 +113,15 @@
     {
       "id": "food-plato-choro-01",
       "category": "food",
-      "title": { "es": "Plato — Choro", "en": "Dish — Choro" },
+      "title": { "es": "Plato de Choro", "en": "Mussel Plate" },
       "web": "/images/press/media/web/platochoro.jpg",
       "hires": "/images/press/media/hires/platochoro.jpg",
       "credit": "Technicolor | Creative Studio"
     },
     {
-      "id": "food-plato-olivea-02",
-      "category": "food",
-      "title": { "es": "Plato — Olivea 02", "en": "Dish — Olivea 02" },
-      "web": "/images/press/media/web/platoolivea-02.jpg",
-      "hires": "/images/press/media/hires/platoolivea-02.jpg",
-      "credit": "Technicolor | Creative Studio"
-    },
-    {
       "id": "food-plato-olivea-01",
       "category": "food",
-      "title": { "es": "Plato — Olivea 01", "en": "Dish — Olivea 01" },
+      "title": { "es": "Plato Olivea", "en": "Olivea's Dish" },
       "web": "/images/press/media/web/platoolivea.jpg",
       "hires": "/images/press/media/hires/platoolivea.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -138,71 +130,71 @@
     {
       "id": "architecture-background-01",
       "category": "architecture",
-      "title": { "es": "Olivea — Ambiente", "en": "Olivea — Atmosphere" },
+      "title": { "es": "Plato de Bacalao", "en": "Bacalao Plate" },
       "web": "/images/press/media/web/background.jpg",
       "hires": "/images/press/media/hires/background.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "food-bokchoi-01",
       "category": "food",
-      "title": { "es": "Ingrediente — Bok Choi", "en": "Ingredient — Bok Choi" },
+      "title": { "es": "Bok Choi", "en": "Bok Choi" },
       "web": "/images/press/media/web/bokchoi.jpg",
       "hires": "/images/press/media/hires/bokchoi.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "food-cangrejo-01",
       "category": "food",
-      "title": { "es": "Ingrediente — Cangrejo", "en": "Ingredient — Crab" },
+      "title": { "es": "Plato de Cangrejo", "en": "Crab Plate" },
       "web": "/images/press/media/web/cangrejo.jpg",
       "hires": "/images/press/media/hires/cangrejo.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "food-choro-01",
       "category": "food",
-      "title": { "es": "Ingrediente — Choro", "en": "Ingredient — Mussel" },
+      "title": { "es": "Plato Choro", "en": "Mussel Plate" },
       "web": "/images/press/media/web/choro.jpg",
       "hires": "/images/press/media/hires/choro.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "food-curry-01",
       "category": "food",
-      "title": { "es": "Plato — Curry", "en": "Dish — Curry" },
+      "title": { "es": "Curry de Kumquat", "en": "Kumquat Curry" },
       "web": "/images/press/media/web/curry.jpg",
       "hires": "/images/press/media/hires/curry.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "food-hongos-01",
       "category": "food",
-      "title": { "es": "Ingrediente — Hongos", "en": "Ingredient — Mushrooms" },
+      "title": { "es": "Plato de Hongos", "en": "Mushroom Plate" },
       "web": "/images/press/media/web/hongos.jpg",
       "hires": "/images/press/media/hires/hongos.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "food-olivea-01",
       "category": "food",
-      "title": { "es": "Plato — Olivea", "en": "Dish — Olivea" },
+      "title": { "es": "Plato de Olivea", "en": "Olivea's Plate" },
       "web": "/images/press/media/web/olivea.jpg",
       "hires": "/images/press/media/hires/olivea.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "food-olivea-02",
       "category": "food",
-      "title": { "es": "Plato — Olivea 02", "en": "Dish — Olivea 02" },
+      "title": { "es": "Plato de Olivea", "en": "Olivea's Plate" },
       "web": "/images/press/media/web/olivea2.jpg",
       "hires": "/images/press/media/hires/olivea2.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
     },
     {
       "id": "architecture-salon-01",
       "category": "architecture",
-      "title": { "es": "Espacio — Salón", "en": "Space — Salon" },
+      "title": { "es": "Salón de Olivea Farm To Table", "en": "Salon of Olivea Farm To Table" },
       "web": "/images/press/media/web/salon.jpg",
       "hires": "/images/press/media/hires/salon.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -210,7 +202,7 @@
     {
       "id": "architecture-salon-02",
       "category": "architecture",
-      "title": { "es": "Espacio — Salón 02", "en": "Space — Salon 02" },
+      "title": { "es": "Salón de Olivea Farm To Table", "en": "Salon of Olivea Farm To Table" },
       "web": "/images/press/media/web/salon2.jpg",
       "hires": "/images/press/media/hires/salon2.jpg",
       "credit": "Technicolor | Creative Studio"
@@ -218,10 +210,18 @@
     {
       "id": "food-tamal-01",
       "category": "food",
-      "title": { "es": "Plato — Tamal", "en": "Dish — Tamal" },
+      "title": { "es": "Plato de Tamal", "en": "Tamal Dish" },
       "web": "/images/press/media/web/tamal.jpg",
       "hires": "/images/press/media/hires/tamal.jpg",
-      "credit": "Technicolor | Creative Studio"
+      "credit": "Adriana Rose"
+    },
+    {
+      "id": "food-pollito-01",
+      "category": "food",
+      "title": { "es": "Pollito de Leche", "en": "Milk Chick" },
+      "web": "/images/press/media/web/pollito.jpg",
+      "hires": "/images/press/media/hires/pollito.jpg",
+      "credit": "Adriana Rose"
     }
   ]
 }
