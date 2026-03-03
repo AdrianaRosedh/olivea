@@ -94,10 +94,10 @@ export const TEAM: LeaderProfile[] = [
       es: "Fundadora, diseñadora y la presencia que da vida a la experiencia. Ange es el alma detrás de Olivea: su sensibilidad estética, su energía dinámica y su profunda pasión por el huerto impulsan cada detalle. Como anfitriona natural, sostiene el espíritu de bienvenida que hace que cada persona se sienta en casa. Desde el diseño de los espacios hasta la atmósfera que se respira, su visión y su corazón habitan en cada rincón de Olivea.",
       en: "Founder, Designer, and the Presence Behind the Experience. Ange is the soul of Olivea: her aesthetic sensibility, dynamic energy, and deep passion for the garden shape every detail. A natural host, she carries the spirit of welcome that makes every guest feel at home. From the design of each space to the atmosphere you feel upon arrival, her vision and heart live within every corner of Olivea.",
     },
-    avatar: "/images/team/ange.JPG",
-    gallery: [
-      "/images/team/ange.JPG",
-      "/images/team/ange/01.jpg",
+    avatar: "/images/team/angej.JPG",
+    gallery: [ 
+      "/images/team/angej.JPG",
+      "/images/team/ange/01a.jpg",
       "/images/team/ange/02.JPG",
       "/images/team/ange/03.jpg",
       "/images/team/ange/04.jpeg",
