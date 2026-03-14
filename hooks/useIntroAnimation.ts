@@ -4,49 +4,29 @@ import { useState, useRef, useEffect } from "react";
 import { useAnimation } from "framer-motion";
 import { TIMING, SPLASH } from "@/lib/introConstants";
 
-export function useIntroAnimation(isMobile: boolean) {
-  // motion controllers
-  const overlayControls = useAnimation();
-  const innerScaleControls = useAnimation();
-  const logoControls = useAnimation();
-  const logoBobControls = useAnimation();
+/* ── Sub-hook: Idle gate + internal-return detection ─────────────── */
 
-  // refs
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const heroBoxRef = useRef<HTMLDivElement>(null);
-  const logoTargetRef = useRef<HTMLDivElement>(null);
-
-  // state
+function useIntroGating() {
   const [allowLoader, setAllowLoader] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
-  const [revealMain, setRevealMain] = useState(false);
-  const [introStarted, setIntroStarted] = useState(true);
-  const [overlayGone, setOverlayGone] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
-  const [hideBase, setHideBase] = useState(false);
   const [internalReturn, setInternalReturn] = useState(false);
 
-  // idle gate for loader
+  // Idle gate: delay loader mount until browser is idle
   useEffect(() => {
-    let idle: number | null = null;
-    let to: ReturnType<typeof setTimeout> | null = null;
-    if ("requestIdleCallback" in window) {
-      idle = (window as any).requestIdleCallback(
-        () => setAllowLoader(true),
-        { timeout: 800 }
-      );
-    } else {
-      to = setTimeout(() => setAllowLoader(true), 300);
-    }
-    return () => {
-      if (idle !== null && "cancelIdleCallback" in window) {
-        (window as any).cancelIdleCallback(idle);
-      }
-      if (to) clearTimeout(to);
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
     };
+
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(() => setAllowLoader(true), { timeout: 800 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+
+    const t = setTimeout(() => setAllowLoader(true), 300);
+    return () => clearTimeout(t);
   }, []);
 
-  // internal-return detection
+  // Detect internal navigation vs fresh visit
   useEffect(() => {
     const viaLogo = sessionStorage.getItem("olivea:returning") === "1";
     if (viaLogo) {
@@ -66,48 +46,19 @@ export function useIntroAnimation(isMobile: boolean) {
     document.body.classList.remove("lcp-demote");
   }, []);
 
-  // bobbing (respect reduced motion)
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => {
-      if (mq.matches) {
-        logoBobControls.start({ y: 0, transition: { duration: 0 } });
-      } else {
-        logoBobControls.start({
-          y: [0, -6, 0],
-          transition: { duration: SPLASH.bobSec, repeat: Infinity, ease: "easeInOut" },
-        });
-      }
-    };
-    apply();
-    mq.addEventListener?.("change", apply);
-    mq.addListener?.(apply);
-    return () => {
-      mq.removeEventListener?.("change", apply);
-      mq.removeListener?.(apply);
-    };
-  }, [logoBobControls]);
+  return { allowLoader, internalReturn };
+}
 
-  // reveal main -> let hero paint as LCP
-  useEffect(() => {
-    setRevealMain(true);
-    requestAnimationFrame(() => {
-      document.dispatchEvent(new Event("olivea:bg-ready"));
-    });
-  }, []);
+/* ── Sub-hook: LCP gating → hideBase ─────────────────────────────── */
 
-  // handoff to video after reveal
-  useEffect(() => {
-    if (!revealMain) return;
-    queueMicrotask(() => setShowVideo(true));
-  }, [revealMain]);
+function useLcpGating(internalReturn: boolean, introStarted: boolean) {
+  const [hideBase, setHideBase] = useState(false);
 
-  // LCP gating and timers -> setHideBase(true)
   useEffect(() => {
-    let lcpSeen = false,
-      bgReady = false,
-      minHold = false,
-      done = false;
+    let lcpSeen = false;
+    let bgReady = false;
+    let minHold = false;
+    let done = false;
 
     const routeT0 = performance.now();
 
@@ -152,9 +103,8 @@ export function useIntroAnimation(isMobile: boolean) {
     let po: PerformanceObserver | null = null;
     const supportsLCP =
       "PerformanceObserver" in window &&
-      (PerformanceObserver as any).supportedEntryTypes?.includes(
-        "largest-contentful-paint"
-      );
+      (PerformanceObserver as unknown as { supportedEntryTypes?: string[] })
+        .supportedEntryTypes?.includes("largest-contentful-paint");
 
     const lcpBackupTimer = setTimeout(() => {
       if (!lcpSeen) {
@@ -191,7 +141,35 @@ export function useIntroAnimation(isMobile: boolean) {
     };
   }, [internalReturn, introStarted]);
 
-  // intro prep: wait a moment + metadata (or 500ms), signal bg-ready
+  return hideBase;
+}
+
+/* ── Sub-hook: Video playback + reveal sequencing ────────────────── */
+
+function useVideoPlayback(
+  isMobile: boolean,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
+  heroBoxRef: React.RefObject<HTMLDivElement | null>,
+  logoTargetRef: React.RefObject<HTMLDivElement | null>
+) {
+  const [revealMain, setRevealMain] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+
+  // Reveal main immediately → let hero paint as LCP
+  useEffect(() => {
+    setRevealMain(true);
+    requestAnimationFrame(() => {
+      document.dispatchEvent(new Event("olivea:bg-ready"));
+    });
+  }, []);
+
+  // Show video after reveal
+  useEffect(() => {
+    if (!revealMain) return;
+    queueMicrotask(() => setShowVideo(true));
+  }, [revealMain]);
+
+  // Intro prep: hold, wait for video metadata, then signal bg-ready
   useEffect(() => {
     let cancelled = false;
     document.body.classList.add("overflow-hidden");
@@ -228,9 +206,10 @@ export function useIntroAnimation(isMobile: boolean) {
       cancelled = true;
       document.body.classList.remove("overflow-hidden");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // desktop autoplay reliability
+  // Desktop autoplay reliability
   useEffect(() => {
     if (isMobile) return;
     const v = videoRef.current;
@@ -266,9 +245,9 @@ export function useIntroAnimation(isMobile: boolean) {
       document.removeEventListener("visibilitychange", onVisible);
       v.removeEventListener("loadeddata", onLoadedData);
     };
-  }, [isMobile, showVideo]);
+  }, [isMobile, showVideo, videoRef]);
 
-  // fallback signal
+  // Fallback bg-ready signal
   useEffect(() => {
     if (!revealMain) return;
     const id = requestAnimationFrame(() => {
@@ -276,6 +255,56 @@ export function useIntroAnimation(isMobile: boolean) {
     });
     return () => cancelAnimationFrame(id);
   }, [revealMain]);
+
+  return { revealMain, showVideo };
+}
+
+/* ── Main hook (public API unchanged) ────────────────────────────── */
+
+export function useIntroAnimation(isMobile: boolean) {
+  // Motion controllers
+  const overlayControls = useAnimation();
+  const innerScaleControls = useAnimation();
+  const logoControls = useAnimation();
+  const logoBobControls = useAnimation();
+
+  // Refs
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const heroBoxRef = useRef<HTMLDivElement>(null);
+  const logoTargetRef = useRef<HTMLDivElement>(null);
+
+  // State
+  const [showLoader, setShowLoader] = useState(true);
+  const [introStarted, setIntroStarted] = useState(true);
+  const [overlayGone, setOverlayGone] = useState(false);
+
+  // Sub-hooks
+  const { allowLoader, internalReturn } = useIntroGating();
+  const hideBase = useLcpGating(internalReturn, introStarted);
+  const { revealMain, showVideo } = useVideoPlayback(
+    isMobile,
+    videoRef,
+    heroBoxRef,
+    logoTargetRef
+  );
+
+  // Logo bobbing (respects reduced motion)
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => {
+      if (mq.matches) {
+        logoBobControls.start({ y: 0, transition: { duration: 0 } });
+      } else {
+        logoBobControls.start({
+          y: [0, -6, 0],
+          transition: { duration: SPLASH.bobSec, repeat: Infinity, ease: "easeInOut" },
+        });
+      }
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [logoBobControls]);
 
   return {
     videoRef,

@@ -22,37 +22,9 @@ const PUBLIC_URL = resolvePublicUrl();
 const { hostname: PUBLIC_HOSTNAME } = new URL(PUBLIC_URL);
 
 /* ────────────────────────────────────────────────────────────── */
-/* CSP (Turnstile + common analytics)                             */
+/* CSP — single source of truth lives in lib/csp.ts               */
 /* ────────────────────────────────────────────────────────────── */
-/**
- * Note:
- * - Turnstile requires scripts + iframe from challenges.cloudflare.com
- * - If you already set CSP at Cloudflare, update it there or remove one side
- * - You can tighten further later (nonces, remove unsafe-eval in prod, etc.)
- */
-const ContentSecurityPolicy = `
-  default-src 'self';
-  base-uri 'self';
-  object-src 'none';
-
-  script-src 'self' 'unsafe-inline' 'unsafe-eval'
-    https://challenges.cloudflare.com
-    https://www.googletagmanager.com
-    https://www.google-analytics.com;
-
-  frame-src 'self'
-    https://challenges.cloudflare.com;
-
-  connect-src 'self'
-    https://challenges.cloudflare.com
-    https://www.google-analytics.com
-    https://region1.google-analytics.com
-    https://stats.g.doubleclick.net;
-
-  img-src 'self' data: blob: https:;
-  style-src 'self' 'unsafe-inline';
-  font-src 'self' data: https:;
-`.replace(/\s{2,}/g, " ").trim();
+import { STATIC_CSP } from "./lib/csp.ts";
 
 /* ────────────────────────────────────────────────────────────── */
 /* 1) MDX loader                                                  */
@@ -161,7 +133,7 @@ const nextConfig = {
         source: "/:path*",
         headers: [
           { key: "Timing-Allow-Origin", value: "*" },
-          { key: "Content-Security-Policy", value: ContentSecurityPolicy },
+          { key: "Content-Security-Policy", value: STATIC_CSP },
         ],
       },
     ];
