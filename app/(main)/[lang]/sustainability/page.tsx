@@ -21,8 +21,8 @@ export async function generateMetadata({
   const title = lang === "es" ? "Filosofía | OLIVEA" : "Philosophy | OLIVEA";
   const description =
     lang === "es"
-      ? "La filosofía de Olivea: origen, identidad, eficiencia, innovación, gastronomía y comunidad."
-      : "Olivea’s philosophy: origins, identity, efficiency, innovation, gastronomy, and community.";
+      ? "La filosofía de Olivea en Valle de Guadalupe: origen, identidad, eficiencia, innovación, gastronomía y comunidad — del huerto a la mesa."
+      : "Olivea’s philosophy in Valle de Guadalupe: origins, identity, efficiency, innovation, gastronomy, and community — from garden to table.";
 
   const path = `/${lang}/sustainability`;
   const canonical = `${SITE_URL}${path}`;

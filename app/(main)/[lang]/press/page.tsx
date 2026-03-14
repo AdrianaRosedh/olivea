@@ -16,8 +16,8 @@ export async function generateMetadata({
     title: lang === "es" ? "Prensa | OLIVEA" : "Press | OLIVEA",
     description:
       lang === "es"
-        ? "Reconocimientos, menciones y recursos oficiales de prensa de Olivea."
-        : "Awards, press mentions, and official media resources for Olivea.",
+        ? "Reconocimientos, menciones en medios y recursos oficiales de prensa de Olivea — hotel boutique y restaurante en Valle de Guadalupe."
+        : "Awards, media coverage, and official press resources for Olivea — boutique hotel and farm-to-table restaurant in Valle de Guadalupe.",
   };
 }
 

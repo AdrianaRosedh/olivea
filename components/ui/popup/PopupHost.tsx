@@ -1,7 +1,7 @@
 // components/ui/popup/PopupHost.tsx
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -12,6 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 export type SitePopup =
   | {
@@ -90,6 +91,13 @@ export default function PopupHost() {
   const [popup, setPopup] = useState<SitePopup | null>(null);
   const [open, setOpen] = useState(false);
 
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const trapRef = useFocusTrap<HTMLDivElement>({
+    active: open,
+    onEscape: () => setOpen(false),
+    initialFocusRef: closeRef,
+  });
+
   // Fetch active popup (single file via /api/popup, rule-aware using path)
   useEffect(() => {
     let cancelled = false;
@@ -142,14 +150,8 @@ export default function PopupHost() {
 
     const cancel = scheduleAfterInteractive(() => setOpen(true));
 
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    window.addEventListener("keydown", onKey);
-
     return () => {
       cancel?.();
-      window.removeEventListener("keydown", onKey);
     };
   }, [popup, key, close, pathname]);
 
@@ -223,7 +225,7 @@ export default function PopupHost() {
             aria-label={popup.lang === "es" ? "Cerrar" : "Close"}
           />
 
-          <div className="fixed inset-0 z-9999 flex items-end md:items-center justify-center p-0 md:p-6">
+          <div ref={trapRef} className="fixed inset-0 z-9999 flex items-end md:items-center justify-center p-0 md:p-6">
             <motion.div
               variants={cardVariants}
               initial="hidden"
@@ -270,6 +272,7 @@ export default function PopupHost() {
 
                 {/* Close button (optically centered X) */}
                 <motion.button
+                  ref={closeRef}
                   variants={item}
                   type="button"
                   onClick={close}

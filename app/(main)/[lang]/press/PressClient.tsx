@@ -61,7 +61,6 @@ export default function PressClient({
     setMentionsYearTab,
     awardsShown,
     mentionsShown,
-    __debug,
   } = usePressSections(filteredBase);
 
   const count = filteredBase.length;
@@ -140,22 +139,6 @@ export default function PressClient({
                     onChange={setAwardsYearTab}
                   />
                 </div>
-
-                {process.env.NODE_ENV === "development" ? (
-                  <div className="mt-3 rounded-2xl bg-white/35 ring-1 ring-(--olivea-olive)/14 px-4 py-3 text-[12px] text-(--olivea-olive)">
-                    <div className="font-medium">DEBUG (awardsAll)</div>
-                    <div className="mt-2 font-mono whitespace-pre-wrap wrap-break-words">
-                      {(__debug?.awardsAll ?? [])
-                        .map(
-                          (x: PressItem) =>
-                            `${x.id} • ${x.publishedAt} • ${x.for} • pinned=${String(
-                              x.starred
-                            )}`
-                        )
-                        .join("\n")}
-                    </div>
-                  </div>
-                ) : null}
 
                 <motion.div
                   key={`awards-${awardsYearTab}`}

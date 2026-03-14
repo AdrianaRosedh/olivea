@@ -78,8 +78,12 @@ async function loadActiveBanner(): Promise<ActiveBannerFile | null> {
 
 /* ── Handler ─────────────────────────────────────────────────────── */
 
+const CACHE_HEADERS = {
+  "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+} as const;
+
 const nullBanner = () =>
-  NextResponse.json<{ banner: null }>({ banner: null }, { status: 200 });
+  NextResponse.json<{ banner: null }>({ banner: null }, { status: 200, headers: CACHE_HEADERS });
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -103,5 +107,5 @@ export async function GET(req: Request) {
     dismissible: active.dismissible ?? true,
   };
 
-  return NextResponse.json<{ banner: BannerPayload | null }>({ banner }, { status: 200 });
+  return NextResponse.json<{ banner: BannerPayload | null }>({ banner }, { status: 200, headers: CACHE_HEADERS });
 }

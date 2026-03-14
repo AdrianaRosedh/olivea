@@ -61,8 +61,8 @@ export async function generateMetadata({
   const description =
     jm.subtitle ??
     (lang === "es"
-      ? "Artículos, notas y decisiones del ecosistema Olivea."
-      : "Articles, field notes, and decisions from the Olivea ecosystem.");
+      ? "Artículos, notas de campo y decisiones del ecosistema Olivea en Valle de Guadalupe — huerto, cocina, hospitalidad y comunidad."
+      : "Articles, field notes, and decisions from the Olivea ecosystem in Valle de Guadalupe — garden, kitchen, hospitality, and community.");
 
   const path = `/${lang}/journal`;
   const canonical = `${SITE.baseUrl}${path}`;

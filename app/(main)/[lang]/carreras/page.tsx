@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const title = lang === "es" ? "Carreras | OLIVEA" : "Careers | OLIVEA";
   const description =
     lang === "es"
-      ? "Únete a Olivea: hospitalidad, técnica y huerto — un mismo ritmo. Aplicaciones abiertas."
-      : "Join Olivea: hospitality, technique, and garden — one rhythm. Open applications.";
+      ? "Únete al equipo de Olivea en Valle de Guadalupe — hospitalidad, cocina de autor, huerto y café. Envía tu aplicación y crece con nosotros."
+      : "Join the Olivea team in Valle de Guadalupe — hospitality, farm-to-table cuisine, garden, and café. Send your application and grow with us.";
 
   return { title, description };
 }

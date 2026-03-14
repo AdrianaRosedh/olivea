@@ -16,7 +16,7 @@ export const EVENTS = {
 /** Emit a typed CustomEvent */
 export function emitEvent<T = unknown>(eventName: string, detail?: T): void {
   if (typeof window === "undefined") return;
-  console.log(`[Navigation] Emitting event: ${eventName}`, detail);
+  if (process.env.NODE_ENV === "development") console.log(`[Navigation] Emitting event: ${eventName}`, detail);
   const event = new CustomEvent<T>(eventName, { detail });
   document.dispatchEvent(event);
 }
@@ -50,7 +50,7 @@ export function initNavigationEvents(): () => void {
   };
   window.addEventListener("popstate", onPopState);
 
-  console.log("[Navigation] Event system initialized");
+  if (process.env.NODE_ENV === "development") console.log("[Navigation] Event system initialized");
 
   return () => {
     observer.disconnect();

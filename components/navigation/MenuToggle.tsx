@@ -41,7 +41,7 @@ export default function MenuToggle({
       aria-label="Toggle menu"
       aria-expanded={isOpen}
       className={cn(
-        "p-3 rounded-full focus:outline-none focus:ring-0 focus:bg-transparent active:bg-transparent transition",
+        "p-3 rounded-full focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 focus-visible:ring-offset-2 active:bg-transparent transition focus-custom",
         className
       )}
       style={{

@@ -13,7 +13,9 @@ import {
   type Variants,
   type Transition,
   AnimatePresence,
+  useReducedMotion,
 } from "framer-motion";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import {
   useReservation,
   type ReservationType,
@@ -260,8 +262,17 @@ function MobileHotelSheet({
   visible: boolean;
   onClose: () => void;
 }) {
+  const trapRef = useFocusTrap<HTMLDivElement>({
+    active: visible,
+    onEscape: onClose,
+  });
+
   return (
     <div
+      ref={trapRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
       className={`fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col transition-opacity duration-300 ${
         visible
           ? "opacity-100 pointer-events-auto"
@@ -270,12 +281,12 @@ function MobileHotelSheet({
     >
       <div className="flex items-center px-4 py-3 bg-(--olivea-cream)">
         <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/80">
-          Casa Olivea — Reservaciones
+          {lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
         </span>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label={lang === "es" ? "Cerrar" : "Close"}
           className="ml-3 w-9 h-9 flex items-center justify-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) shadow-sm active:scale-95 transition-all"
         >
           <X size={20} strokeWidth={1.6} />
@@ -310,14 +321,24 @@ function MobileRestaurantSheet({
   otInstance: number;
   onClose: () => void;
 }) {
+  const trapRef = useFocusTrap<HTMLDivElement>({
+    active: visible,
+    onEscape: onClose,
+  });
+  const reduce = useReducedMotion();
+
   return (
     <AnimatePresence>
       {visible && (
         <motion.div
+          ref={trapRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={lang === "es" ? "Olivea Farm To Table — Reservaciones" : "Olivea Farm To Table — Reservations"}
           className="fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0, transition: { duration: 0.2, ease: EASE } }}
-          exit={{ opacity: 0, y: 16, transition: { duration: 0.18, ease: EASE } }}
+          initial={{ opacity: 0, y: reduce ? 0 : 16 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.2, ease: EASE } }}
+          exit={{ opacity: 0, y: reduce ? 0 : 16, transition: { duration: reduce ? 0 : 0.18, ease: EASE } }}
         >
           <div className="flex items-center px-4 py-3 bg-(--olivea-cream) shrink-0">
             <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/80">
@@ -363,6 +384,7 @@ interface ReservationModalProps {
 }
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
+  const reduce = useReducedMotion();
   const {
     isOpen,
     closeReservationModal,
@@ -454,26 +476,36 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   );
 
   // Transitions
-  const enterT: Transition = isMobile
-    ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }
-    : { duration: 0.42, ease: EASE, delay: 0.06 };
-  const exitT: Transition = isMobile
-    ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }
-    : { duration: 0.42, ease: EASE };
+  const enterT: Transition = reduce
+    ? { duration: 0 }
+    : isMobile
+      ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }
+      : { duration: 0.42, ease: EASE, delay: 0.06 };
+  const exitT: Transition = reduce
+    ? { duration: 0 }
+    : isMobile
+      ? { type: "spring", stiffness: 210, damping: 26, mass: 0.9 }
+      : { duration: 0.42, ease: EASE };
 
-  const panelVariants: Variants = isMobile
+  const panelVariants: Variants = reduce
     ? {
-        hidden: { y: "100%", opacity: 0 },
-        visible: { y: 0, opacity: 1, transition: enterT },
-        exit: { y: "100%", opacity: 0, transition: exitT },
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: enterT },
+        exit: { opacity: 0, transition: exitT },
       }
-    : {
-        hidden: { scale: 0.9, opacity: 0 },
-        visible: { scale: 1.0, opacity: 1, transition: enterT },
-        exit: { scale: 0.9, opacity: 0, transition: exitT },
-      };
+    : isMobile
+      ? {
+          hidden: { y: "100%", opacity: 0 },
+          visible: { y: 0, opacity: 1, transition: enterT },
+          exit: { y: "100%", opacity: 0, transition: exitT },
+        }
+      : {
+          hidden: { scale: 0.9, opacity: 0 },
+          visible: { scale: 1.0, opacity: 1, transition: enterT },
+          exit: { scale: 0.9, opacity: 0, transition: exitT },
+        };
 
-  const backdropT: Transition = { duration: 0.28, ease: EASE };
+  const backdropT: Transition = { duration: reduce ? 0 : 0.28, ease: EASE };
 
   // Controlled presence
   const [present, setPresent] = useState(false);

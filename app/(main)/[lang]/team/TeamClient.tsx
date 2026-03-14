@@ -220,6 +220,7 @@ function AutoSlideGalleryVerticalVariableHeight({
                 <motion.button
                   key={`${src}-${idx}`}
                   type="button"
+                  aria-label={`Gallery photo ${(idx % safe.length) + 1}`}
                   onClick={() => {
                     pause();
                     setFocusedIdx(isFocused ? null : idx);
@@ -238,6 +239,7 @@ function AutoSlideGalleryVerticalVariableHeight({
                     <img
                       src={src}
                       alt=""
+                      role="presentation"
                       className="h-full w-full object-cover object-center"
                       onLoad={onImgLoad(src)}
                       draggable={false}
@@ -344,6 +346,7 @@ function AutoSlideGalleryHorizontalVariableWidth({
                   <motion.button
                     key={`${src}-${idx}`}
                     type="button"
+                    aria-label={`Gallery photo ${(idx % safe.length) + 1}`}
                     onClick={() => setFocusedIdx(isFocused ? null : idx)}
                     className="relative shrink-0 overflow-hidden rounded-2xl bg-white/35 ring-1 ring-black/10"
                     style={{ width: w, height: cardH }}
@@ -359,6 +362,7 @@ function AutoSlideGalleryHorizontalVariableWidth({
                       <img
                         src={baseSrc}
                         alt=""
+                        role="presentation"
                         className="h-full w-full object-cover object-center"
                         onLoad={onImgLoad(baseSrc)}
                         draggable={false}

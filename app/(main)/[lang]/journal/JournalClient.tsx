@@ -224,6 +224,8 @@ export default function JournalClient({
 
   return (
     <main id="top" className="w-full pt-0 sm:pt-10 pb-24">
+      <h1 className="sr-only">{tt(lang, "Journal de Olivea", "Olivea Journal")}</h1>
+
       <JournalFilterDock
         lang={lang}
         posts={posts}

@@ -119,8 +119,12 @@ async function loadActivePopup(): Promise<ActivePopupFile | null> {
 
 /* ── Handler ─────────────────────────────────────────────────────── */
 
+const CACHE_HEADERS = {
+  "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+} as const;
+
 const nullPopup = () =>
-  NextResponse.json<{ popup: null }>({ popup: null }, { status: 200 });
+  NextResponse.json<{ popup: null }>({ popup: null }, { status: 200, headers: CACHE_HEADERS });
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -151,7 +155,7 @@ export async function GET(req: Request) {
       ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
     };
 
-    return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200 });
+    return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200, headers: CACHE_HEADERS });
   }
 
   const popup: SitePopup = {

@@ -79,8 +79,8 @@ function Field({
 
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl border border-black/10 bg-white/70 " +
-  "focus:outline-none focus:ring-2 focus:ring-black/15 " +
-  "text-[15px] text-(--olivea-ink) placeholder:text-(--olivea-ink)/45";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/25 " +
+  "text-[15px] text-(--olivea-ink) placeholder:text-(--olivea-ink)/45 focus-custom";
 
 declare global {
   interface Window {

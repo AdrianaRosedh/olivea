@@ -356,6 +356,20 @@ body.lcp-demote .fixed-lcp {
 .prose h3 { font-size: calc(1.4em * var(--journal-font-scale)); }
 .prose h4 { font-size: calc(1.15em * var(--journal-font-scale)); }
 
+/* ───────────────────────────────────────────────────────────── */
+/* GLOBAL FOCUS-VISIBLE RING                                     */
+/* ───────────────────────────────────────────────────────────── */
+:is(a, button, [role="button"], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--olivea-olive);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Opt-out: add .focus-custom to elements with their own ring */
+.focus-custom:focus-visible {
+  outline: none;
+}
+
 .prose p,
 .prose li,
 .prose blockquote {

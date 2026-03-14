@@ -23,7 +23,7 @@ export function FillButton({ href, label, isActive }: FillButtonProps) {
       href={href}
       onMouseEnter={handleMouseEnter}
       className={[
-        "relative px-6 py-2.5 h-13 min-w-47.5 whitespace-nowrap rounded-md border flex items-center justify-center font-medium text-base uppercase tracking-wide fill-nav",
+        "relative px-6 py-2.5 h-13 min-w-47.5 whitespace-nowrap rounded-md border flex items-center justify-center font-medium text-base uppercase tracking-wide fill-nav focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 focus-visible:ring-offset-2 focus-custom",
         isActive
           ? "bg-(--olivea-olive) text-white border-(--olivea-olive)"
           : "text-(--olivea-olive) border-(--olivea-olive)",

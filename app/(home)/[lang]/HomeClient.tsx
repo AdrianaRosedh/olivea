@@ -7,6 +7,7 @@ import {
   domAnimation,
   m,
   AnimatePresence,
+  useReducedMotion,
   type Variants,
 } from "framer-motion";
 import Image from "next/image";
@@ -34,19 +35,21 @@ const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"
   loading: () => null,
 });
 
-// Motion variants
-const containerVariants: Variants = {
-  hidden: {},
-  show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } },
-};
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.19, 1, 0.22, 1] },
-  },
-};
+// Motion variants (factory so we can pass reduce flag)
+function makeContainerVariants(reduce: boolean): Variants {
+  return reduce
+    ? { hidden: {}, show: {} }
+    : { hidden: {}, show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } } };
+}
+
+function makeItemVariants(reduce: boolean): Variants {
+  return reduce
+    ? { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0 } } }
+    : {
+        hidden: { opacity: 0, y: 40 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.19, 1, 0.22, 1] } },
+      };
+}
 
 type SectionDef = {
   href: string;
@@ -57,6 +60,10 @@ type SectionDef = {
 };
 
 export default function HomeClient() {
+  const reduce = useReducedMotion() ?? false;
+  const containerVariants = useMemo(() => makeContainerVariants(reduce), [reduce]);
+  const itemVariants = useMemo(() => makeItemVariants(reduce), [reduce]);
+
   useEffect(() => {
     watchLCP();
     // ensure FixedLCP is reset on entry
@@ -256,6 +263,12 @@ export default function HomeClient() {
           "
           style={{ opacity: revealMain ? 1 : 0 }}
         >
+          <h1 className="sr-only">
+            {isES
+              ? "OLIVEA — Hotel Boutique, Restaurante Farm-to-Table y Café en Valle de Guadalupe"
+              : "OLIVEA — Boutique Hotel, Farm-to-Table Restaurant & Café in Valle de Guadalupe"}
+          </h1>
+
           {/* ✅ Frame fills the padded area exactly */}
           <div
             ref={heroBoxRef}

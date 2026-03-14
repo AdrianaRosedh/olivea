@@ -508,6 +508,7 @@ export default function LinktreeClient({
          <Image
            src="/images/linktree/gardenleaves-blur.jpg"
            alt=""
+           role="presentation"
            fill
            priority
            sizes="100vw"
@@ -526,6 +527,7 @@ export default function LinktreeClient({
          <Image
            src="/images/linktree/gardenleaves.avif"
            alt=""
+           role="presentation"
            fill
            // ✅ Perf: remove priority here
            sizes="100vw"
