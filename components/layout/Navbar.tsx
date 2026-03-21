@@ -21,7 +21,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
   lang: "en" | "es";
-  dictionary: AppDictionary;
+  /** @deprecated dictionary is no longer used — lang is derived from pathname */
+  dictionary?: AppDictionary;
 }
 
 type CenterItem = {
@@ -31,6 +32,25 @@ type CenterItem = {
 };
 
 const SCROLL_BG_START = 14;
+
+/* ── Visual tokens ────────────────────────────────────────────────
+   Derived from --olivea-olive (#5e7658) and --olivea-cream (#e7eae1).
+   Centralized here so a palette change only needs one update.
+   ──────────────────────────────────────────────────────────────── */
+const TOKENS = {
+  ink: "rgba(94,118,88,0.82)",       // olive at 82%
+  light: "rgba(231,234,225,0.98)",   // cream at 98%
+  ring: "rgba(94,118,88,0.30)",      // olive ring
+  ringStrong: "rgba(94,118,88,0.42)",
+  glassBg: "rgba(231,234,225,0.64)", // cream glass
+  glassRing: "1px solid rgba(94,118,88,0.12)",
+  glassShadow: "0 16px 44px rgba(18,24,16,0.10)",
+  pillBg: "rgba(231,234,225,0.92)",
+  pillBorder: "1px solid rgba(94,118,88,0.22)",
+  pillShadow: "0 18px 40px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 0 0 1px rgba(0,0,0,0.03)",
+  sliderShadow: "0 10px 22px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.18)",
+  hoverEase: [0.16, 1, 0.3, 1] as [number, number, number, number],
+} as const;
 
 function clamp(n: number, a: number, b: number) {
   return Math.max(a, Math.min(b, n));
@@ -122,26 +142,21 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
     if (reserveWrapRef.current) setReserveRect(reserveWrapRef.current.getBoundingClientRect());
   }, []);
 
+  // ResizeObserver: only fires when elements actually change size (replaces timers + resize listener)
   useEffect(() => {
-    measure();
-    window.addEventListener("resize", measure);
-    const t1 = window.setTimeout(measure, 50);
-    const t2 = window.setTimeout(measure, 220);
-    return () => {
-      window.removeEventListener("resize", measure);
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
+    const ro = new ResizeObserver(() => measure());
+    if (pillsSurfaceRef.current) ro.observe(pillsSurfaceRef.current);
+    if (reserveWrapRef.current) ro.observe(reserveWrapRef.current);
+    measure(); // initial read
+    return () => ro.disconnect();
   }, [pathname, measure]);
 
+  // Re-measure when glass toggles (scroll state change shifts layout)
   useEffect(() => {
     measure();
   }, [showGlass, measure]);
 
   // Glass style (soft entrance)
-  const glassBg = "rgba(231,234,225,0.64)";
-  const glassRing = "1px solid rgba(94,118,88,0.12)";
-  const glassShadow = "0 16px 44px rgba(18,24,16,0.10)";
 
   const enter = { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" };
   const exit = { opacity: 0, y: -6, scale: 0.992, filter: "blur(2px)" };
@@ -207,12 +222,8 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
     return () => window.removeEventListener("resize", onResize);
   }, [updateActiveRect]);
 
-  // Visual tokens
-  const ink = "rgba(94,118,88,0.82)";
-  const light = "rgba(231,234,225,0.98)";
-  const ring = "rgba(94,118,88,0.30)";
-  const ringStrong = "rgba(94,118,88,0.42)";
-  const hoverEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
+  // Lifted hover state (single source instead of per-pill useState)
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
 
   return (
     <nav
@@ -313,10 +324,9 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
             ref={pillsSurfaceRef}
             className="relative inline-flex items-center gap-2 rounded-full p-2"
             style={{
-              background: "rgba(231,234,225,0.92)",
-              border: "1px solid rgba(94,118,88,0.22)",
-              boxShadow:
-                "0 18px 40px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 0 0 1px rgba(0,0,0,0.03)",
+              background: TOKENS.pillBg,
+              border: TOKENS.pillBorder,
+              boxShadow: TOKENS.pillShadow,
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
             }}
@@ -336,8 +346,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
                 style={{
                   left: 0,
                   background: "var(--olivea-olive)",
-                  boxShadow:
-                    "0 10px 22px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.18)",
+                  boxShadow: TOKENS.sliderShadow,
                 }}
               />
             ) : null}
@@ -346,11 +355,8 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
               <CenterPillLink
                 key={it.href}
                 item={it}
-                ink={ink}
-                light={light}
-                ring={ring}
-                ringStrong={ringStrong}
-                hoverEase={hoverEase}
+                hovered={hoveredHref === it.href}
+                onHover={setHoveredHref}
                 onSameRouteClick={handleSameRouteCenterClick}
                 registerLink={registerLink}
               />
@@ -388,9 +394,9 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
                 width: "100%",
                 height: "calc(100% - 0px)",
                 borderRadius: RADIUS,
-                background: glassBg,
-                border: glassRing,
-                boxShadow: glassShadow,
+                background: TOKENS.glassBg,
+                border: TOKENS.glassRing,
+                boxShadow: TOKENS.glassShadow,
                 backdropFilter: "blur(18px)",
                 WebkitBackdropFilter: "blur(18px)",
               }}
@@ -398,7 +404,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
               animate={{
                 boxShadow: showGlass
                   ? "0 18px 52px rgba(18,24,16,0.12)"
-                  : glassShadow,
+                  : TOKENS.glassShadow,
               }}
               transition={{ duration: 0.30, ease: [0.16, 1, 0.3, 1] }}
             />
@@ -411,35 +417,36 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
 
 function CenterPillLink({
   item,
-  ink,
-  light,
-  ring,
-  ringStrong,
-  hoverEase,
+  hovered,
+  onHover,
   onSameRouteClick,
   registerLink,
 }: {
   item: { href: string; label: string; isActive: boolean };
-  ink: string;
-  light: string;
-  ring: string;
-  ringStrong: string;
-  hoverEase: [number, number, number, number];
+  hovered: boolean;
+  onHover: (href: string | null) => void;
   onSameRouteClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   registerLink: (href: string) => (node: HTMLAnchorElement | null) => void;
 }) {
   const { href, label, isActive } = item;
-  const [hovered, setHovered] = useState(false);
+  const { ink, light, ring, ringStrong, hoverEase } = TOKENS;
   const refCb = useMemo(() => registerLink(href), [registerLink, href]);
   const localRef = useRef<HTMLAnchorElement>(null);
+  const rafRef = useRef(0);
 
   const onMouseMove = (e: MouseEvent<HTMLAnchorElement>) => {
     if (!localRef.current) return;
-    const { left, width } = localRef.current.getBoundingClientRect();
-    localRef.current.style.setProperty(
-      "--hover-x",
-      Math.round(((e.clientX - left) / width) * 100) + "%"
-    );
+    const clientX = e.clientX;
+    if (rafRef.current) return; // skip if a frame is already queued
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = 0;
+      if (!localRef.current) return;
+      const { left, width } = localRef.current.getBoundingClientRect();
+      localRef.current.style.setProperty(
+        "--hover-x",
+        Math.round(((clientX - left) / width) * 100) + "%"
+      );
+    });
   };
 
   const showHoverRing = hovered && !isActive;
@@ -452,10 +459,10 @@ function CenterPillLink({
         refCb(node);
       }}
       onMouseMove={onMouseMove}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
+      onMouseEnter={() => onHover(href)}
+      onMouseLeave={() => onHover(null)}
+      onFocus={() => onHover(href)}
+      onBlur={() => onHover(null)}
       onClick={(e) => {
         if (isActive) onSameRouteClick(e);
       }}
