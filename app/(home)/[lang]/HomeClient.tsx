@@ -17,7 +17,7 @@ import { usePathname } from "next/navigation";
 import { cormHero } from "@/app/fonts";
 import ReservationButton from "@components/ui/ReservationButton";
 import InlineEntranceCard from "@components/ui/InlineEntranceCard";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useIntroAnimation } from "@/hooks/useIntroAnimation";
 import { useMorphSequence } from "@/hooks/useMorphSequence";
 import { HERO, TIMING } from "@/lib/introConstants";
