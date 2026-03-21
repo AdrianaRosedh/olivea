@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getDictionary, type Lang } from "../dictionaries";
 import { listJournalIndex, type JournalIndexItem } from "@/lib/journal/load";
 import JournalClient from "./JournalClient";
-import { SITE } from "@/lib/site";
+import { SITE, canonicalUrl } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -65,7 +65,7 @@ export async function generateMetadata({
       : "Articles, field notes, and decisions from the Olivea ecosystem in Valle de Guadalupe — garden, kitchen, hospitality, and community.");
 
   const path = `/${lang}/journal`;
-  const canonical = `${SITE.baseUrl}${path}`;
+  const canonical = canonicalUrl(path);
 
   const ogImage = jm.ogImage ?? jm.ogDefault ?? "/images/seo/journal-og.jpg";
   const ogLocale = lang === "es" ? "es_MX" : "en_US";

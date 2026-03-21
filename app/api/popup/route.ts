@@ -168,5 +168,5 @@ export async function GET(req: Request) {
     ...(t.href ? { href: t.href } : {}),
   };
 
-  return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200 });
+  return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200, headers: CACHE_HEADERS });
 }

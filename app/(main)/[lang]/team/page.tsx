@@ -1,6 +1,7 @@
 // app/(main)/[lang]/team/page.tsx
 import type { Metadata } from "next";
 import { loadLocale } from "@/lib/i18n";
+import { SITE, canonicalUrl } from "@/lib/site";
 import TeamClient, { type TeamDict } from "./TeamClient";
 
 type PageProps = {
@@ -35,9 +36,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const description = isTeamDict(maybeteam) ? maybeteam.description : "";
 
+  const title = withBrand(baseTitle);
+  const path = `/${lang}/team`;
+  const url = canonicalUrl(path);
+  const isEs = lang === "es";
+
   return {
-    title: withBrand(baseTitle),
+    title,
     description,
+    metadataBase: new URL(SITE.canonicalBaseUrl),
+    alternates: {
+      canonical: url,
+      languages: { es: canonicalUrl("/es/team"), en: canonicalUrl("/en/team") },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: SITE.name,
+      locale: isEs ? "es_MX" : "en_US",
+      type: "website",
+    },
   };
 }
 
