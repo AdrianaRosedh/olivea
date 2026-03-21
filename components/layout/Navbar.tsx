@@ -123,7 +123,8 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
   // --- Geometry / spacing
   const NAV_H = "clamp(80px, 9vh, 112px)";
   const LOGO_W = "clamp(96px, 10.5vw, 230px)";
-  const INSET = 12; // px
+  const INSET_LEFT = 12; // px — breathing room left of pills
+  const INSET_RIGHT = 20; // px — breathing room right of reserve button
   const RADIUS = 9999;
 
   // More space from top (works with fixed children)
@@ -158,13 +159,14 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
 
   // Glass style (soft entrance)
 
-  const enter = { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" };
-  const exit = { opacity: 0, y: -6, scale: 0.992, filter: "blur(2px)" };
+  // Note: avoid animating `filter: blur()` alongside backdropFilter — causes Chrome compositing artifacts
+  const enter = { opacity: 1, y: 0, scale: 1 };
+  const exit = { opacity: 0, y: -6, scale: 0.992 };
 
   // Glass should cover: inner pills surface + reserve only (exclude logo)
-  const glassLeft = pillsRect ? Math.max(0, pillsRect.left - INSET) : undefined;
+  const glassLeft = pillsRect ? Math.max(0, pillsRect.left - INSET_LEFT) : undefined;
   const glassRight = reserveRect
-    ? Math.max(0, window.innerWidth - (reserveRect.right + INSET))
+    ? Math.max(0, window.innerWidth - (reserveRect.right + INSET_RIGHT))
     : undefined;
 
   const canShowGlass =
@@ -392,7 +394,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
             <motion.div
               style={{
                 width: "100%",
-                height: "calc(100% - 0px)",
+                height: "100%",
                 borderRadius: RADIUS,
                 background: TOKENS.glassBg,
                 border: TOKENS.glassRing,
