@@ -36,6 +36,7 @@
       "title": { "es": "Chef Daniel Nates", "en": "Chef Daniel Nates" },
       "web": "/images/press/media/web/chefdanielnates.jpg",
       "hires": "/images/press/media/hires/chefdanielnates.jpg",
+
       "credit": "Technicolor | Creative Studio"
     },
     {
@@ -51,7 +52,7 @@
       "category": "garden",
       "title": { "es": "Huertitos", "en": "Garden Beds" },
       "web": "/images/press/media/web/huertitos.jpg",
-      "hires": "/images/press/media/hires/huertitos.jpg",
+      "hires": "/images/press/media/hires/huertitos.png",
       "credit": "Technicolor | Creative Studio"
     },
     {
@@ -59,7 +60,7 @@
       "category": "people",
       "title": { "es": "Líderes", "en": "Leaders" },
       "web": "/images/press/media/web/leaderestrio.jpg",
-      "hires": "/images/press/media/hires/leaderestrio.jpg",
+      "hires": "/images/press/media/hires/leaderestrio.png",
       "credit": "Technicolor | Creative Studio"
     },
     {
@@ -67,7 +68,7 @@
       "category": "hotel",
       "title": { "es": "Cama de Casa Olivea", "en": "Bed in Casa Olivea" },
       "web": "/images/press/media/web/bed.jpg",
-      "hires": "/images/press/media/hires/bed.jpg",
+      "hires": "/images/press/media/hires/bed.jpeg",
       "credit": "Technicolor | Creative Studio"
     },
     {
@@ -91,7 +92,7 @@
       "category": "hotel",
       "title": { "es": "Lounge de Olivea", "en": "Olivea's Lounge" },
       "web": "/images/press/media/web/lounge.jpg",
-      "hires": "/images/press/media/hires/lounge.jpg",
+      "hires": "/images/press/media/hires/lounge.png",
       "credit": "Technicolor | Creative Studio"
     },
     {
@@ -132,7 +133,7 @@
       "category": "architecture",
       "title": { "es": "Plato de Bacalao", "en": "Bacalao Plate" },
       "web": "/images/press/media/web/background.jpg",
-      "hires": "/images/press/media/hires/background.jpg",
+      "hires": "/images/press/media/hires/background.png",
       "credit": "Adriana Rose"
     },
     {
@@ -212,7 +213,7 @@
       "category": "food",
       "title": { "es": "Plato de Tamal", "en": "Tamal Dish" },
       "web": "/images/press/media/web/tamal.jpg",
-      "hires": "/images/press/media/hires/tamal.jpg",
+      "hires": "/images/press/media/hires/tamal.png",
       "credit": "Adriana Rose"
     },
     {
