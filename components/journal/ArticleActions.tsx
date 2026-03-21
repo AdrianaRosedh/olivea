@@ -2,8 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-
-type Lang = "es" | "en";
+import { type Lang } from "@/lib/i18n";
 
 type ShareCapableNavigator = Navigator & {
   share?: (data: ShareData) => Promise<void>;

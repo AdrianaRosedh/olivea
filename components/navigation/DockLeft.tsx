@@ -15,10 +15,10 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { tt, type Lang } from "@/lib/i18n";
 
 /* ── Types ───────────────────────────────────────────────────────── */
 type Identity = "casa" | "cafe" | "farmtotable";
-type Lang = "es" | "en";
 
 export type NavOverride = Array<{
   id: string;
@@ -48,10 +48,6 @@ const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
 const IO_THRESHOLDS = [0, 0.2, 0.4, 0.6, 0.8, 1];
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
-
 function clampScroll(y: number) {
   const max = document.documentElement.scrollHeight - window.innerHeight;
   return Math.min(Math.max(0, y), Math.max(0, max));

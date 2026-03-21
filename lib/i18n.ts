@@ -9,6 +9,11 @@ import type {
 export type Lang = DictLang;
 export type AppDictionary = DictAppDictionary;
 
+/** Inline translation helper — use for simple es/en string switching. */
+export function tt(lang: Lang, es: string, en: string): string {
+  return lang === "es" ? es : en;
+}
+
 // Accept either a string or Lang and normalize to "es" | "en"
 export async function loadLocale({
   lang: rawLang,

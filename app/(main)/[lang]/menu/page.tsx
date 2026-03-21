@@ -1,9 +1,8 @@
 // app/(main)/[lang]/menu/page.tsx
 import type { Metadata } from "next";
 import { SITE, canonicalUrl } from "@/lib/site";
+import { type Lang } from "@/lib/i18n";
 import MenuDeepLinkClient from "./MenuDeepLinkClient";
-
-type Lang = "es" | "en";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));

@@ -8,6 +8,7 @@ import {
   type Variants,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { tt } from "@/lib/i18n";
 import type { JournalFilterDockProps } from "./JournalFilterDock";
 import {
   Search,
@@ -43,9 +44,6 @@ const panelV: Variants = {
 
 function labelAll(lang: JournalFilterDockProps["lang"]) {
   return lang === "es" ? "Todos" : "All";
-}
-function tt(lang: JournalFilterDockProps["lang"], es: string, en: string) {
-  return lang === "es" ? es : en;
 }
 
 function getNavbarEl(): HTMLElement | null {

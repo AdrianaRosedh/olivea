@@ -5,6 +5,7 @@ import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Lang } from "../dictionaries";
+import { tt } from "@/lib/i18n";
 import JournalFilterDock from "./JournalFilterDock";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
@@ -58,10 +59,6 @@ const VIEWPORT = {
 } as const;
 
 const MotionLink = motion(Link);
-
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
 
 export default function JournalClient({
   lang,

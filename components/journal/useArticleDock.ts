@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useScroll, useMotionValueEvent } from "framer-motion";
-import type { Lang } from "@/app/(main)/[lang]/dictionaries";
+import type { Lang } from "@/lib/i18n";
+import { tt } from "@/lib/i18n";
 import type { TocItem } from "@/components/journal/ArticleTOC";
 import { shortPathForArticle } from "@/lib/journal/shortcode";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
@@ -9,10 +10,6 @@ import { setModalOpen } from "@/components/ui/modalFlag";
 type ShareCapableNavigator = Navigator & {
   share?: (data: ShareData) => Promise<void>;
 };
-
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
 
 function enc(s: string) {
   return encodeURIComponent(s);

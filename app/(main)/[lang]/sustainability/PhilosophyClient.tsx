@@ -11,6 +11,7 @@ import {
   type Variants,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { tt } from "@/lib/i18n";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 import PhilosophyDockLeft from "./PhilosophyDockLeft";
 import FloatingPracticesCardGSAP from "./FloatingPracticesCardGSAP";
@@ -18,10 +19,6 @@ import { PracticesCard, SignalsRow } from "./ProofModules";
 import PhilosophyMobileNav from "./PhilosophyMobileNav";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
 
 function paragraphs(body: string) {
   return body

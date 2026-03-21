@@ -61,6 +61,28 @@ const config: Config = {
       borderRadius: {
         "2xl": "1.5rem",
       },
+
+      /**
+       * ✅ Named z-index tiers — use these in new code instead of magic numbers.
+       * Existing code still uses raw numbers; migrate gradually.
+       *
+       * Scale:
+       *   dock (40) → navbar (60) → section-nav (96) → banner (200)
+       *   → mobile-drawer (998–999) → mobile-nav (1000) → modal (1200–1400)
+       *   → popup (9998–9999) → chat-overlay (max)
+       */
+      zIndex: {
+        dock: "40",
+        navbar: "60",
+        "section-nav": "96",
+        banner: "200",
+        "mobile-drawer": "999",
+        "mobile-nav": "1000",
+        "modal-backdrop": "1200",
+        modal: "1300",
+        "modal-close": "1400",
+        popup: "9999",
+      },
     },
   },
   plugins: [animate, typography],

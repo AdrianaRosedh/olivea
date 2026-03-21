@@ -20,6 +20,7 @@ import {
 } from "framer-motion";
 import { X, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { type Lang } from "@/lib/i18n";
 
 import { TEAM, type LeaderProfile } from "./teamData";
 import { useRouter, usePathname } from "next/navigation";
@@ -29,8 +30,6 @@ import TeamMobileNav from "./TeamMobileNav";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
-
-type Lang = "es" | "en";
 
 export type TeamDict = {
   title: string;

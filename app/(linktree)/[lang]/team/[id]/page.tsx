@@ -2,13 +2,12 @@
 import type { Metadata } from "next";
 import LinktreeClient from "./LinktreeClient";
 import { absoluteUrl } from "@/lib/site";
+import { type Lang } from "@/lib/i18n";
 
 import {
   TEAM,
   type LeaderProfile,
 } from "@/app/(main)/[lang]/team/teamData";
-
-type Lang = "es" | "en";
 const normalizeLang = (raw: string): Lang => (raw === "en" ? "en" : "es");
 const safeStr = (x: unknown): string => (typeof x === "string" ? x : "");
 

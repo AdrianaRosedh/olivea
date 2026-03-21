@@ -2,9 +2,8 @@
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { type Lang } from "@/lib/i18n";
 import { handleSubmit, type ApplicationErrors } from "./actions";
-
-type Lang = "es" | "en";
 type State = { success?: boolean; errors?: ApplicationErrors };
 
 const initialState: State = { success: false, errors: {} };

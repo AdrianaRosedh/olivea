@@ -3,16 +3,13 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import { tt } from "@/lib/i18n";
 import type { PhilosophySection, Lang } from "./philosophyTypes";
 
 gsap.registerPlugin(ScrollTrigger);
 
 // optional; ok to keep
 gsap.ticker.lagSmoothing(1000, 16);
-
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
 
 /* ---------------- tuning ---------------- */
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
+import { type Lang } from "@/lib/i18n";
 import {
   motion,
   AnimatePresence,
@@ -9,8 +10,6 @@ import {
   type Variants,
 } from "framer-motion";
 import { X } from "lucide-react";
-
-type Lang = "es" | "en";
 type BannerType = "notice" | "promo" | "warning";
 
 type BannerPayload = {

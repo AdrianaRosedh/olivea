@@ -1,8 +1,7 @@
 // app/(linktree)/[lang]/layout.tsx
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/site";
-
-type Lang = "es" | "en";
+import { type Lang } from "@/lib/i18n";
 const normalizeLang = (raw: string): Lang => (raw === "en" ? "en" : "es");
 
 export async function generateMetadata({

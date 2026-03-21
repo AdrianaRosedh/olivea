@@ -1,9 +1,8 @@
 // app/olivea-locator/route.ts
 import { NextResponse, type NextRequest } from "next/server";
+import { type Lang } from "@/lib/i18n";
 
 export const runtime = "nodejs";
-
-type Lang = "es" | "en";
 function normalizeLang(raw: string | null): Lang {
   return raw === "en" ? "en" : "es";
 }

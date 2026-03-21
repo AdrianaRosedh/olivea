@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { type Lang } from "@/lib/i18n";
 import {
   isObject,
   isStringOrUndefined,
@@ -10,8 +11,6 @@ import {
   validateBilingualBlock,
   validateOptionalPathList,
 } from "@/lib/contentRules";
-
-type Lang = "es" | "en";
 type BannerType = "notice" | "promo" | "warning";
 
 type ActiveBannerFile = {

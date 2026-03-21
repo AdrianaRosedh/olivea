@@ -9,6 +9,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { tt } from "@/lib/i18n";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 
 import gsap from "gsap";
@@ -28,10 +29,6 @@ const dockV: Variants = {
   hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE_OUT } },
 };
-
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
 
 function prefersReducedMotionOnce(): boolean {
   if (typeof window === "undefined") return false;

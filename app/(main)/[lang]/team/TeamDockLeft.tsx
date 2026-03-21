@@ -13,11 +13,11 @@ import {
 import Image from "next/image";
 import { SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tt, type Lang } from "@/lib/i18n";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 
 export type TeamCategory = "all" | "hotel" | "restaurant" | "cafe";
-type Lang = "es" | "en";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -29,10 +29,6 @@ const dockV: Variants = {
     transition: { duration: 0.7, ease: EASE, delay: 0.25 },
   },
 };
-
-function tt(lang: Lang, es: string, en: string) {
-  return lang === "es" ? es : en;
-}
 
 export default function TeamDockLeft({
   lang,
