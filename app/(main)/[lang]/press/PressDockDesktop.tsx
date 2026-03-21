@@ -399,7 +399,10 @@ export function PressDockDesktop({
 
         <button
           type="button"
-          onClick={() => setMoreOpen(true)}
+          onClick={() => {
+            toggleCollapsed();
+            setMoreOpen(true);
+          }}
           className={iconBtn(moreOpen)}
           aria-label={tt(lang, "Filtros", "Filters")}
           title={tt(lang, "Filtros", "Filters")}

@@ -107,12 +107,5 @@ export function usePressSections(filteredBase: PressItem[]) {
     setMentionsYearTab,
     awardsShown,
     mentionsShown,
-
-    // ✅ optional debug
-    __debug: {
-      awardsAll,
-      awardsOnly,
-      pinnedAwards,
-    },
   };
 }

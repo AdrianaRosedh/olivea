@@ -6,12 +6,43 @@ import type { Identity, ItemKind, PressItem } from "./pressTypes";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 
-import gsap from "gsap";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-gsap.registerPlugin(ScrollToPlugin);
-
 const TOP_OFFSET_PX = 120;
-const MANUAL_MS = 950;
+
+/**
+ * Lightweight RAF-based smooth scroll — replaces GSAP + ScrollToPlugin (~15KB).
+ * Uses power3.out easing for matching feel.
+ */
+function smoothScrollTo(
+  targetY: number,
+  durationMs: number,
+  reduce: boolean,
+) {
+  const startY = window.scrollY;
+  const delta = targetY - startY;
+
+  if (Math.abs(delta) < 2 || durationMs === 0 || reduce) {
+    window.scrollTo({ top: targetY, behavior: "auto" });
+    return;
+  }
+
+  const start = performance.now();
+
+  const step = (now: number) => {
+    const elapsed = Math.min((now - start) / durationMs, 1);
+    // power3.out easing: 1 - (1 - t)^3
+    const eased = 1 - Math.pow(1 - elapsed, 3);
+    window.scrollTo({ top: startY + delta * eased, behavior: "auto" });
+
+    if (elapsed < 1) requestAnimationFrame(step);
+  };
+
+  requestAnimationFrame(step);
+}
+
+function clampScroll(y: number) {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  return Math.min(Math.max(0, y), Math.max(0, max));
+}
 
 export function usePressDock({
   items,
@@ -155,14 +186,11 @@ export function usePressDock({
     };
   }, [sheetOpen]);
 
-  // ✅ Timer management
-  const unlockTimer = useRef<number | null>(null);
+  // ✅ Timer management (cleanup on unmount)
   const safetyTimer = useRef<number | null>(null);
 
   const clearTimers = useCallback(() => {
-    if (unlockTimer.current) window.clearTimeout(unlockTimer.current);
     if (safetyTimer.current) window.clearTimeout(safetyTimer.current);
-    unlockTimer.current = null;
     safetyTimer.current = null;
   }, []);
 
@@ -206,7 +234,7 @@ export function usePressDock({
     setYear("all");
   };
 
-  // ✅ Smooth scroll to section (GSAP on desktop, native on mobile)
+  // ✅ Smooth scroll to section (lightweight RAF on desktop, native on mobile)
   const scrollToSection = useCallback(
     (id: string) => {
       if (!isDesktopRef.current) return;
@@ -218,24 +246,14 @@ export function usePressDock({
       if (!el) return;
 
       clearTimers();
-      gsap.killTweensOf(window);
 
-      gsap.to(window, {
-        duration: reduce ? 0 : 0.95,
-        ease: "power3.out",
-        overwrite: true,
-        scrollTo: {
-          y: el,
-          offsetY: TOP_OFFSET_PX,
-          autoKill: true,
-        },
-      });
+      const rect = el.getBoundingClientRect();
+      const targetY = clampScroll(window.scrollY + rect.top - TOP_OFFSET_PX);
+      smoothScrollTo(targetY, 950, reduce);
 
       if (window.location.hash.slice(1) !== id) {
         window.history.replaceState(null, "", `#${id}`);
       }
-
-      safetyTimer.current = window.setTimeout(() => {}, MANUAL_MS + 250);
     },
     [clearTimers, reduce]
   );

@@ -130,6 +130,13 @@ export default function StructuredDataServer() {
       // ✅ Keep awards explicit + aligned with your Press page
       award: ["One MICHELIN Star", "MICHELIN Green Star"],
       subjectOf: recognitionWorks,
+      // ✅ Opening hours for Google Knowledge Panel "Open now"
+      // Wed 5–8pm · Fri 2:30–8:30pm · Sun 2–7pm
+      openingHoursSpecification: [
+        { "@type": "OpeningHoursSpecification", dayOfWeek: "Wednesday", opens: "17:00", closes: "20:00" },
+        { "@type": "OpeningHoursSpecification", dayOfWeek: "Friday", opens: "14:30", closes: "20:30" },
+        { "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: "14:00", closes: "19:00" },
+      ],
     },
 
     {
@@ -145,6 +152,10 @@ export default function StructuredDataServer() {
       hasMap: GOOGLE_MAPS.hotel,
       sameAs: [GOOGLE_MAPS.hotel, MICHELIN.hotel],
       subjectOf: recognitionWorks,
+      // ✅ Hotel check-in/check-out (open daily)
+      openingHoursSpecification: [
+        { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "00:00", closes: "23:59" },
+      ],
     },
 
     {
@@ -161,6 +172,11 @@ export default function StructuredDataServer() {
       hasMap: GOOGLE_MAPS.cafe,
       sameAs: [GOOGLE_MAPS.cafe],
       subjectOf: recognitionWorks,
+      // ✅ Wed–Mon 7:30am–2:30pm · Tue 7:30am–9:30am
+      openingHoursSpecification: [
+        { "@type": "OpeningHoursSpecification", dayOfWeek: ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday"], opens: "07:30", closes: "14:30" },
+        { "@type": "OpeningHoursSpecification", dayOfWeek: "Tuesday", opens: "07:30", closes: "09:30" },
+      ],
     },
   ];
 
