@@ -12,10 +12,6 @@ import { cn } from "@/lib/utils";
 import { tt } from "@/lib/i18n";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 
-import gsap from "gsap";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-gsap.registerPlugin(ScrollToPlugin);
-
 const TOP_OFFSET_PX = 120;
 const MANUAL_MS = 900;
 const SWAP_Y = 26;
@@ -103,6 +99,37 @@ function clampToMaxScroll(y: number) {
 
 function setSnapDisabled(disabled: boolean) {
   document.documentElement.classList.toggle("snap-disable", disabled);
+}
+
+/**
+ * Lightweight RAF-based smooth scroll — replaces GSAP + ScrollToPlugin.
+ * Uses power3.out easing for matching feel.
+ */
+function smoothScrollTo(targetY: number, durationMs: number, onDone?: () => void) {
+  const startY = window.scrollY;
+  const delta = targetY - startY;
+
+  if (Math.abs(delta) < 2 || durationMs === 0) {
+    window.scrollTo({ top: targetY, behavior: "auto" });
+    onDone?.();
+    return;
+  }
+
+  const start = performance.now();
+
+  const step = (now: number) => {
+    const elapsed = Math.min((now - start) / durationMs, 1);
+    const eased = 1 - Math.pow(1 - elapsed, 3);
+    window.scrollTo({ top: startY + delta * eased, behavior: "auto" });
+
+    if (elapsed < 1) {
+      requestAnimationFrame(step);
+    } else {
+      onDone?.();
+    }
+  };
+
+  requestAnimationFrame(step);
 }
 
 function nativeScrollToElement(el: HTMLElement, offsetY: number, smooth: boolean) {
@@ -201,20 +228,15 @@ export default function PhilosophyDockLeft({
         return;
       }
 
-      // Expanded + fine pointer: GSAP smooth + re-center
-      gsap.killTweensOf(window);
-      gsap.to(window, {
-        duration: 0.95,
-        ease: "power3.out",
-        overwrite: "auto",
-        scrollTo: { y: el, offsetY: TOP_OFFSET_PX, autoKill: false },
-        onComplete: () => {
-          const targetY = clampToMaxScroll(centerYFor(el));
-          if (Math.abs(window.scrollY - targetY) > 10) {
-            window.scrollTo({ top: targetY, behavior: "auto" });
-          }
-          setSnapDisabled(false);
-        },
+      // Expanded + fine pointer: lightweight RAF smooth scroll + re-center
+      const rect = el.getBoundingClientRect();
+      const targetY = clampToMaxScroll(window.scrollY + rect.top - TOP_OFFSET_PX);
+      smoothScrollTo(targetY, 950, () => {
+        const centeredY = clampToMaxScroll(centerYFor(el));
+        if (Math.abs(window.scrollY - centeredY) > 10) {
+          window.scrollTo({ top: centeredY, behavior: "auto" });
+        }
+        setSnapDisabled(false);
       });
 
       if (window.location.hash.slice(1) !== id) {
