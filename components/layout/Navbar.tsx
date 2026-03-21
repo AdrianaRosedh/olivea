@@ -175,7 +175,10 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
     if (!surface) return;
 
     const active = center.find((c) => c.isActive);
-    if (!active) return;
+    if (!active) {
+      setActiveRect(null);
+      return;
+    }
 
     const el = linkElsRef.current.get(active.href);
     if (!el) return;
