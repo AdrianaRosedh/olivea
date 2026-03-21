@@ -136,18 +136,15 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
   const pillsSurfaceRef = useRef<HTMLDivElement>(null);
 
   const [pillsRect, setPillsRect] = useState<DOMRect | null>(null);
-  const [reserveRect, setReserveRect] = useState<DOMRect | null>(null);
 
   const measure = useCallback(() => {
     if (pillsSurfaceRef.current) setPillsRect(pillsSurfaceRef.current.getBoundingClientRect());
-    if (reserveWrapRef.current) setReserveRect(reserveWrapRef.current.getBoundingClientRect());
   }, []);
 
-  // ResizeObserver: only fires when elements actually change size (replaces timers + resize listener)
+  // ResizeObserver: only fires when pills element actually changes size
   useEffect(() => {
     const ro = new ResizeObserver(() => measure());
     if (pillsSurfaceRef.current) ro.observe(pillsSurfaceRef.current);
-    if (reserveWrapRef.current) ro.observe(reserveWrapRef.current);
     measure(); // initial read
     return () => ro.disconnect();
   }, [pathname, measure]);
@@ -159,18 +156,18 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
 
   // Glass style (soft entrance)
 
-  // Note: avoid animating `filter: blur()` alongside backdropFilter — causes Chrome compositing artifacts
-  const enter = { opacity: 1, y: 0, scale: 1 };
-  const exit = { opacity: 0, y: -6, scale: 0.992 };
+  // Glass enter/exit: opacity-only to avoid Chrome compositing artifacts
+  // (scale + y transforms on a parent distort backdropFilter on the child)
+  const enter = { opacity: 1 };
+  const exit = { opacity: 0 };
 
-  // Glass should cover: inner pills surface + reserve only (exclude logo)
+  // Glass should cover: inner pills surface → past reserve button (exclude logo)
+  // Left edge: measured from pills. Right edge: matches Reserve's CSS positioning
+  // so they always align regardless of viewport width.
   const glassLeft = pillsRect ? Math.max(0, pillsRect.left - INSET_LEFT) : undefined;
-  const glassRight = reserveRect
-    ? Math.max(0, window.innerWidth - (reserveRect.right + INSET_RIGHT))
-    : undefined;
+  const glassRightCss = `calc(var(--gutter) + env(safe-area-inset-right) - ${INSET_RIGHT}px)`;
 
-  const canShowGlass =
-    showGlass && !!pillsRect && !!reserveRect && glassLeft != null && glassRight != null;
+  const canShowGlass = showGlass && !!pillsRect && glassLeft != null;
 
   // ---------------------------------------------------------------------------
   // ACTIVE SLIDER (single element that moves — avoids layoutId transform glitches)
@@ -385,7 +382,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
             style={{
               top: TOP_OFFSET,
               left: glassLeft,
-              right: glassRight,
+              right: glassRightCss,
               height: NAV_H,
               display: "flex",
               alignItems: "center",
