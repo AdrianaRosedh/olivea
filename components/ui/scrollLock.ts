@@ -11,7 +11,7 @@ let prevPaddingRight: string | null = null;
 
 let prevHtmlOverflow: string | null = null;
 
-let scrollYAtLock = 0;
+let __scrollYAtLock = 0;
 let hasSafetyListeners = false;
 
 function getScrollbarWidth() {
@@ -19,7 +19,7 @@ function getScrollbarWidth() {
   return Math.max(0, window.innerWidth - document.documentElement.clientWidth);
 }
 
-function isAndroid() {
+function _isAndroid() {
   if (typeof navigator === "undefined") return false;
   return /Android/i.test(navigator.userAgent);
 }
@@ -34,7 +34,7 @@ function applyLock() {
   const body = document.body;
   const html = document.documentElement;
 
-  scrollYAtLock = window.scrollY || window.pageYOffset || 0;
+  _scrollYAtLock = window.scrollY || window.pageYOffset || 0;
 
   prevOverflow = body.style.overflow;
   prevPosition = body.style.position;
