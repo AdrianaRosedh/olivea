@@ -2,9 +2,8 @@
 import type { Metadata } from "next";
 import PhilosophyClient from "./PhilosophyClient";
 import { loadPhilosophySections } from "./load";
+import { canonicalUrl } from "@/lib/site";
 import type { Lang } from "./philosophyTypes";
-
-const SITE_URL = "https://www.oliveafarmtotable.com";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -25,7 +24,7 @@ export async function generateMetadata({
       : "Olivea’s philosophy in Valle de Guadalupe: origins, identity, efficiency, innovation, gastronomy, and community — from garden to table.";
 
   const path = `/${lang}/sustainability`;
-  const canonical = `${SITE_URL}${path}`;
+  const canonical = canonicalUrl(path);
 
   return {
     title,
@@ -38,8 +37,8 @@ export async function generateMetadata({
     alternates: {
       canonical,
       languages: {
-        es: `${SITE_URL}/es/sustainability`,
-        en: `${SITE_URL}/en/sustainability`,
+        es: canonicalUrl("/es/sustainability"),
+        en: canonicalUrl("/en/sustainability"),
       },
     },
 

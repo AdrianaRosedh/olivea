@@ -464,7 +464,7 @@ export default function Farmpop({
                                 transform: "translateZ(0)",
                                 backfaceVisibility: "hidden",
                               }}
-                              loading="eager"
+                              loading="lazy"
                               referrerPolicy="strict-origin-when-cross-origin"
                               allow="fullscreen"
                               allowFullScreen
@@ -488,7 +488,7 @@ export default function Farmpop({
                             transform: "translateZ(0)",
                             backfaceVisibility: "hidden",
                           }}
-                          loading="eager"
+                          loading="lazy"
                           referrerPolicy="strict-origin-when-cross-origin"
                           allow="fullscreen"
                           allowFullScreen

@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
   motion,
   useReducedMotion,
@@ -14,8 +15,13 @@ import { cn } from "@/lib/utils";
 import { tt } from "@/lib/i18n";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 import PhilosophyDockLeft from "./PhilosophyDockLeft";
-import FloatingPracticesCardGSAP from "./FloatingPracticesCardGSAP";
 import { PracticesCard, SignalsRow } from "./ProofModules";
+
+// Dynamic import keeps GSAP (~60KB) out of the shared bundle
+const FloatingPracticesCardGSAP = dynamic(
+  () => import("./FloatingPracticesCardGSAP"),
+  { ssr: false, loading: () => null },
+);
 import PhilosophyMobileNav from "./PhilosophyMobileNav";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
