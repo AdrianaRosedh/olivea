@@ -80,11 +80,24 @@ export default function CardParallax({
     }
 
     let raf = 0;
+    let cachedHeight = 0;
+    let cachedOffsetTop = 0;
+    let needsRectUpdate = true;
+
+    const measureRect = () => {
+      const rect = el.getBoundingClientRect();
+      cachedHeight = rect.height;
+      // Convert current visual top to a scroll-independent offset
+      cachedOffsetTop = rect.top + (window.scrollY || window.pageYOffset);
+      needsRectUpdate = false;
+    };
 
     const update = () => {
-      const rect = el.getBoundingClientRect();
+      if (needsRectUpdate) measureRect();
+      const scrollY = window.scrollY || window.pageYOffset;
       const vh = window.innerHeight || 1;
-      const progress = (rect.top + rect.height / 2 - vh / 2) / (vh / 2);
+      const elTop = cachedOffsetTop - scrollY;
+      const progress = (elTop + cachedHeight / 2 - vh / 2) / (vh / 2);
       const offset = Math.max(-60, Math.min(60, -progress * (speed * 200)));
       el.style.transform = `translateY(${offset}px)`;
     };
@@ -97,13 +110,19 @@ export default function CardParallax({
       });
     };
 
+    const onResize = () => {
+      needsRectUpdate = true;
+      onScroll();
+    };
+
+    measureRect();
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [speed, shouldEnableParallax]);

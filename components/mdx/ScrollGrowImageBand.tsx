@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import {
   motion,
   useReducedMotion,
@@ -10,6 +10,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 type UseScrollOptions = NonNullable<Parameters<typeof useScroll>[0]>;
 type OffsetType = UseScrollOptions extends { offset?: infer O } ? O : unknown;
@@ -52,20 +53,6 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 function findEl(selector?: string): HTMLElement | null {
   if (!selector) return null;
   return document.querySelector(selector) as HTMLElement | null;
-}
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    const onChange = () => setMatches(mql.matches);
-    onChange();
-    mql.addEventListener?.("change", onChange);
-    return () => mql.removeEventListener?.("change", onChange);
-  }, [query]);
-
-  return matches;
 }
 
 export default function ScrollGrowImageBand({

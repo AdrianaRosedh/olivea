@@ -48,21 +48,14 @@ function applyLock() {
   const sbw = getScrollbarWidth();
   if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
-  // ✅ lock html as the base lock (more stable cross-device)
-  html.style.overflow = "hidden";
-
-  // ✅ Android-safe: avoid body position:fixed (can “freeze” scroll on some builds)
-  if (isAndroid()) {
-    body.style.overflow = "hidden";
-    body.style.position = prevPosition ?? "";
-    body.style.top = prevTop ?? "";
-    body.style.width = prevWidth ?? "";
-  } else {
-    body.style.overflow = "hidden";
-    body.style.position = "fixed";
-    body.style.top = `-${scrollYAtLock}px`;
-    body.style.width = "100%";
-  }
+  // ✅ Unified scroll lock: overflow:hidden on both html + body
+  // Avoids position:fixed which can freeze scroll on Android
+  // and cause iOS address bar / layout issues
+  html.style.overflow = “hidden”;
+  body.style.overflow = “hidden”;
+  body.style.position = prevPosition ?? “”;
+  body.style.top = prevTop ?? “”;
+  body.style.width = prevWidth ?? “”;
 
   setGlobalLockedFlag(true);
 }
@@ -78,10 +71,6 @@ function releaseLock() {
   body.style.paddingRight = prevPaddingRight ?? "";
 
   html.style.overflow = prevHtmlOverflow ?? "";
-
-  if (!isAndroid()) {
-    window.scrollTo(0, scrollYAtLock);
-  }
 
   setGlobalLockedFlag(false);
 }

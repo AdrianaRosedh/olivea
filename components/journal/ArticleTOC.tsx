@@ -27,14 +27,10 @@ export default function ArticleTOC({ items }: { items: TocItem[] }) {
 
     const io = new IntersectionObserver(
       (entries) => {
-        // pick the top-most visible heading
+        // pick the top-most visible heading using boundingClientRect (no layout thrashing)
         const visible = entries
           .filter((e) => e.isIntersecting)
-          .sort(
-            (a, b) =>
-              (a.target as HTMLElement).offsetTop -
-              (b.target as HTMLElement).offsetTop
-          );
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
         if (visible[0]?.target?.id) setActive(visible[0].target.id);
       },
       { rootMargin: "-20% 0px -70% 0px", threshold: [0, 1] }

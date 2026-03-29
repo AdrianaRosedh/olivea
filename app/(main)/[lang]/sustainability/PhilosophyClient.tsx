@@ -46,11 +46,14 @@ function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function linkifyNames(text: string, lang: Lang): ReactNode {
-  const pattern = BIO_TARGETS.map((x) => escapeRe(x.name)).join("|");
-  if (!pattern) return text;
+// Pre-compiled regex for bio name linking (constant data → compile once)
+const _BIO_PATTERN = BIO_TARGETS.map((x) => escapeRe(x.name)).join("|");
+const _BIO_RE = _BIO_PATTERN ? new RegExp(`(${_BIO_PATTERN})`, "g") : null;
 
-  const re = new RegExp(`(${pattern})`, "g");
+function linkifyNames(text: string, lang: Lang): ReactNode {
+  if (!_BIO_RE) return text;
+
+  const re = new RegExp(_BIO_RE.source, _BIO_RE.flags);
   const parts = text.split(re);
 
   return parts.map((part, idx) => {

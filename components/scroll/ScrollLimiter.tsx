@@ -62,7 +62,13 @@ export default function ScrollLimiter({
     const ro = new ResizeObserver(recompute);
     ro.observe(document.documentElement);
 
-    window.addEventListener("resize", recompute);
+    // Debounced resize — avoids recalc on every pixel of resize drag
+    let resizeRaf = 0;
+    const onResize = () => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(recompute);
+    };
+    window.addEventListener("resize", onResize);
 
     // Recompute once fonts / images settle
     const tm = window.setTimeout(recompute, 200);
@@ -73,7 +79,8 @@ export default function ScrollLimiter({
 
     return () => {
       ro.disconnect();
-      window.removeEventListener("resize", recompute);
+      window.removeEventListener("resize", onResize);
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
       clearTimeout(tm);
       cancelAnimationFrame(raf1);
       cancelAnimationFrame(raf2);

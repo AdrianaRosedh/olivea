@@ -518,8 +518,9 @@ export default function InlineEntranceCard({
                     fontFamily: "var(--font-serif)",
                     fontSize: isMobile ? 28 : 22,
                     fontWeight: 600,
-                    marginTop: isHovered ? 20 : 28,
-                    transition: `margin-top ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
+                    marginTop: 28,
+                    transform: isHovered ? "translateY(-8px)" : "translateY(0)",
+                    transition: `transform ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                   }}
                   className="not-italic"
                 >

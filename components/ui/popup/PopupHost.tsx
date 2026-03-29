@@ -105,7 +105,7 @@ export default function PopupHost() {
     const p = pathname ?? "/";
     const url = `/api/popup?lang=${lang}&path=${encodeURIComponent(p)}`;
 
-    fetch(url, { cache: "no-store" })
+    fetch(url, { cache: "default" })
       .then((r) => r.json() as Promise<unknown>)
       .then((dataUnknown) => {
         if (cancelled) return;

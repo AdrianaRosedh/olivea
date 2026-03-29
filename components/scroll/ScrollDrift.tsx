@@ -1,7 +1,7 @@
 // components/scroll/ScrollDrift.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import {
   motion,
   useScroll,
@@ -12,24 +12,11 @@ import {
   type UseScrollOptions,
   type UseInViewOptions,
 } from "framer-motion";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 type ScrollOffset = NonNullable<UseScrollOptions["offset"]>;
 type InViewMargin = NonNullable<UseInViewOptions["margin"]>;
 type Align = "left" | "right" | "auto";
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    const onChange = () => setMatches(mql.matches);
-    onChange();
-    mql.addEventListener?.("change", onChange);
-    return () => mql.removeEventListener?.("change", onChange);
-  }, [query]);
-
-  return matches;
-}
 
 export default function ScrollDrift({
   children,

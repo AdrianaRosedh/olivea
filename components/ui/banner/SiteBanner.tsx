@@ -85,7 +85,7 @@ export default function SiteBanner() {
     const p = pathname ?? "/";
     const url = `/api/banner?lang=${lang}&path=${encodeURIComponent(p)}`;
 
-    fetch(url, { cache: "no-store" })
+    fetch(url, { cache: "default" })
       .then((r) => r.json() as Promise<unknown>)
       .then((data) => {
         if (cancelled) return;
