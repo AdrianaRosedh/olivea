@@ -51,11 +51,11 @@ function applyLock() {
   // ✅ Unified scroll lock: overflow:hidden on both html + body
   // Avoids position:fixed which can freeze scroll on Android
   // and cause iOS address bar / layout issues
-  html.style.overflow = “hidden”;
-  body.style.overflow = “hidden”;
-  body.style.position = prevPosition ?? “”;
-  body.style.top = prevTop ?? “”;
-  body.style.width = prevWidth ?? “”;
+  html.style.overflow = "hidden";
+  body.style.overflow = "hidden";
+  body.style.position = prevPosition ?? "";
+  body.style.top = prevTop ?? "";
+  body.style.width = prevWidth ?? "";
 
   setGlobalLockedFlag(true);
 }
