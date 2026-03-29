@@ -313,12 +313,10 @@ function MobileHotelSheet({
 function MobileRestaurantSheet({
   lang,
   visible,
-  otInstance,
   onClose,
 }: {
   lang: "es" | "en";
   visible: boolean;
-  otInstance: number;
   onClose: () => void;
 }) {
   const trapRef = useFocusTrap<HTMLDivElement>({
@@ -367,7 +365,7 @@ function MobileRestaurantSheet({
           </div>
 
           <div className="w-full flex-1 min-h-0 overflow-hidden">
-            <div key={otInstance} className="w-full h-full">
+            <div className="w-full h-full">
               <OpentableWidget />
             </div>
           </div>
@@ -419,10 +417,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
   // Full-screen overlays (mobile only)
   const [showHotelOverlay, setShowHotelOverlay] = useState(false);
   const [showRestaurantOverlay, setShowRestaurantOverlay] = useState(false);
-  const [otInstance, setOtInstance] = useState(0);
-
   const openRestaurantOverlay = useCallback(() => {
-    setOtInstance((n) => n + 1);
     setShowRestaurantOverlay(true);
   }, []);
 
@@ -439,7 +434,12 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   useEffect(() => {
     if (!isOpen) {
-      setMounted({ restaurant: false, hotel: false, cafe: false });
+      // Keep restaurant mounted so the OpenTable iframe stays alive
+      setMounted((m) => ({
+        restaurant: m.restaurant,
+        hotel: false,
+        cafe: false,
+      }));
       setShowHotelOverlay(false);
       setShowRestaurantOverlay(false);
       return;
@@ -655,7 +655,6 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         <MobileRestaurantSheet
           lang={lang}
           visible={showRestaurantOverlay}
-          otInstance={otInstance}
           onClose={closeRestaurantOverlay}
         />
       )}
