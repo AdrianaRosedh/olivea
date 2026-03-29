@@ -11,17 +11,11 @@ let prevPaddingRight: string | null = null;
 
 let prevHtmlOverflow: string | null = null;
 
-let __scrollYAtLock = 0;
 let hasSafetyListeners = false;
 
 function getScrollbarWidth() {
   if (typeof window === "undefined") return 0;
   return Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-}
-
-function _isAndroid() {
-  if (typeof navigator === "undefined") return false;
-  return /Android/i.test(navigator.userAgent);
 }
 
 function setGlobalLockedFlag(on: boolean) {
@@ -33,8 +27,6 @@ function setGlobalLockedFlag(on: boolean) {
 function applyLock() {
   const body = document.body;
   const html = document.documentElement;
-
-  _scrollYAtLock = window.scrollY || window.pageYOffset || 0;
 
   prevOverflow = body.style.overflow;
   prevPosition = body.style.position;
