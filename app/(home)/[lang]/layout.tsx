@@ -14,7 +14,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const isEs = lang === "es";
 
-  const title = isEs ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience";
+  const title = isEs ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality";
 
   const description = isEs
     ? "Olivea: hospitalidad de granja en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, farm stay y café nacidos del huerto en Baja California. Donde el huerto es la esencia."
@@ -96,7 +96,7 @@ export default function HomeLangLayout({
     "@type": "WebPage",
     "@id": `${homeUrl}#webpage`,
     url: homeUrl,
-    name: isEs ? "OLIVEA · La Experiencia" : "OLIVEA · The Experience",
+    name: isEs ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality",
     isPartOf: { "@id": `${SITE.canonicalBaseUrl}#website` },
     about: { "@id": `${SITE.canonicalBaseUrl}#organization` },
     primaryImageOfPage: {

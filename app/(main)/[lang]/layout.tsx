@@ -24,7 +24,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { lang } = await params;
   const baseTitle =
-    lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
+    lang === "es" ? "OLIVEA | Farm Hospitality" : "OLIVEA | Farm Hospitality";
 
   return {
     title: { default: baseTitle, template: "%s" },

@@ -176,16 +176,17 @@
     "cta_restaurant": "Visit the Restaurant",
     "cta_casa": "Stay at Casa Olivea",
     "meta": {
-      "title": "OLIVEA | The Experience",
-      "description": "Olivea: One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café—rooted in a living garden in Valle de Guadalupe, Baja California.",
+      "title": "OLIVEA | Farm Hospitality",
+      "description": "Olivea: farm hospitality in Valle de Guadalupe — MICHELIN-starred restaurant, farm stay listed in the MICHELIN Guide, and café rooted in a working garden in Baja California.",
       "keywords": [
         "Olivea",
+        "farm hospitality",
+        "farm stay Mexico",
+        "farm hospitality Mexico",
         "Valle de Guadalupe",
         "Ensenada",
-        "restaurant",
-        "cafe",
-        "hotel",
-        "farm-to-table",
+        "MICHELIN restaurant",
+        "farm stay Baja California",
         "tasting menu",
         "MICHELIN Star",
         "MICHELIN Green Star",
@@ -196,7 +197,7 @@
   },
   "metadata": {
     "description": "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café in Valle de Guadalupe, Baja California.",
-    "siteName": "Olivea The Experience",
+    "siteName": "OLIVEA Farm Hospitality",
     "twitter": "@yourhandle",
     "ogDefault": "/images/seo/default-og.jpg"
   },

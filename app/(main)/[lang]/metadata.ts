@@ -9,7 +9,7 @@ export async function generateMetadata(
   { params: { lang } }: Props,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const title = lang === "es" ? "OLIVEA | La Experiencia" : "OLIVEA | The Experience";
+  const title = lang === "es" ? "OLIVEA | Farm Hospitality" : "OLIVEA | Farm Hospitality";
 
   return {
     title,

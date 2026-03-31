@@ -176,16 +176,17 @@
     "cta_restaurant": "Visitar el Restaurante",
     "cta_casa": "Hospedarse en Casa Olivea",
     "meta": {
-      "title": "OLIVEA | La Experiencia",
-      "description": "Olivea: restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, Casa Olivea listada en MICHELIN Guide (Hotels & Stays) y Olivea Café—nacidos del huerto en Valle de Guadalupe, Baja California.",
+      "title": "OLIVEA | Farm Hospitality",
+      "description": "Olivea: hospitalidad de granja en Valle de Guadalupe — restaurante con Estrella MICHELIN y Estrella Verde, farm stay listado en MICHELIN Guide y café nacidos del huerto en Baja California.",
       "keywords": [
         "Olivea",
+        "farm hospitality",
+        "farm stay México",
+        "hospitalidad de granja",
         "Valle de Guadalupe",
         "Ensenada",
-        "restaurante",
-        "café",
-        "hotel",
-        "granja a la mesa",
+        "restaurante MICHELIN",
+        "farm stay Baja California",
         "menú degustación",
         "Estrella MICHELIN",
         "Estrella Verde",
@@ -196,7 +197,7 @@
   },
   "metadata": {
     "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, hotel listado en MICHELIN Guide y café en Valle de Guadalupe, Baja California.",
-    "siteName": "OLIVEA La Experiencia",
+    "siteName": "OLIVEA Farm Hospitality",
     "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/default-og.jpg"
   },

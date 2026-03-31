@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "OLIVEA | La Experiencia",
+    name: "OLIVEA | Farm Hospitality",
     short_name: "OLIVEA",
-    description: "Una experencia del huerto a mesa",
+    description: "Farm hospitality in Valle de Guadalupe — restaurant, farm stay & café born from the garden.",
     start_url: "/",
     scope: "/",
     display: "standalone",
