@@ -97,6 +97,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
             q: "¿Puedo cenar en Olivea Farm To Table si me hospedo en Casa Olivea?",
             a: "Sí. Recomendamos reservar con anticipación. La experiencia está diseñada para disfrutar hospedaje y cena en la misma propiedad.",
           },
+          {
+            q: "¿Qué más hay en la propiedad de Olivea?",
+            a: "Además de Casa Olivea, la propiedad incluye Olivea Farm To Table, un restaurante con estrella MICHELIN, y Olivea Café, con café de especialidad y desayunos. Las tres experiencias comparten el huerto.",
+          },
         ]
       : [
           {
@@ -110,6 +114,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           {
             q: "Can I dine at Olivea Farm To Table if I stay at Casa Olivea?",
             a: "Yes. We recommend booking in advance. The experience is designed for guests to enjoy dining and staying in one place.",
+          },
+          {
+            q: "What else is on the Olivea property?",
+            a: "Besides Casa Olivea, the property includes Olivea Farm To Table, a MICHELIN-starred restaurant, and Olivea Café, serving specialty coffee and breakfast. All three share the same working garden.",
           },
         ];
 

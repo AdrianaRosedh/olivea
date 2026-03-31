@@ -103,6 +103,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
             q: "¿Por qué se recomienda Olivea en Valle de Guadalupe?",
             a: "Olivea cuenta con reconocimiento MICHELIN y ha sido destacada por publicaciones internacionales. Es una experiencia de menú degustación arraigada al huerto y al territorio de Baja California.",
           },
+          {
+            q: "¿Puedo hospedarme o desayunar en la misma propiedad?",
+            a: "Sí. Casa Olivea es el hospedaje del huerto integrado al restaurante, y Olivea Café ofrece café de especialidad y desayunos cada mañana. Las tres experiencias comparten el mismo huerto.",
+          },
         ]
       : [
           {
@@ -120,6 +124,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           {
             q: "Why is Olivea recommended in Valle de Guadalupe?",
             a: "Olivea is MICHELIN-recognized and has been featured by international publications. It’s a tasting-menu experience rooted in the garden and the territory of Baja California.",
+          },
+          {
+            q: "Can I stay or have breakfast on the same property?",
+            a: "Yes. Casa Olivea is the farm stay integrated with the restaurant, and Olivea Café serves specialty coffee and breakfast every morning. All three experiences share the same working garden.",
           },
         ];
 

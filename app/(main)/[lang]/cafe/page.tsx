@@ -93,6 +93,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
             q: "¿Olivea Café está en Ensenada?",
             a: "Sí. Está en Valle de Guadalupe (Villa de Juárez), dentro del municipio de Ensenada, Baja California.",
           },
+          {
+            q: "¿Olivea Café es parte de un restaurante u hotel?",
+            a: "Sí. Olivea Café comparte propiedad con Olivea Farm To Table, un restaurante con estrella MICHELIN, y Casa Olivea, el hospedaje del huerto. Las tres experiencias forman la hospitalidad del huerto de Olivea.",
+          },
         ]
       : [
           {
@@ -102,6 +106,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           {
             q: "Is Olivea Café in Ensenada?",
             a: "Yes. It’s located in Valle de Guadalupe (Villa de Juárez), within Ensenada, Baja California.",
+          },
+          {
+            q: "Is Olivea Café part of a restaurant or hotel?",
+            a: "Yes. Olivea Café shares the property with Olivea Farm To Table, a MICHELIN-starred restaurant, and Casa Olivea, the farm stay. Together they form the Olivea farm hospitality ecosystem.",
           },
         ];
 
