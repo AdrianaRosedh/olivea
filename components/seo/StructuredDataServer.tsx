@@ -84,6 +84,7 @@ export default function StructuredDataServer() {
       "@type": "Organization",
       "@id": `${base}#organization`,
       name: "Familia Olivea",
+      description: "Farm hospitality ecosystem in Valle de Guadalupe, Baja California — MICHELIN-starred restaurant, farm stay, and café born from a working garden.",
       url: base,
       logo: canonicalUrl("/images/oliveaFTT.png"),
       sameAs: [
@@ -116,12 +117,17 @@ export default function StructuredDataServer() {
       "@type": "Restaurant",
       "@id": `${base}#restaurant`,
       name: "Olivea Farm To Table",
+      description: "MICHELIN-starred tasting-menu restaurant with farm stay and café on the same property. Farm hospitality in Valle de Guadalupe, Baja California.",
       url: canonicalUrl("/farmtotable"),
       mainEntityOfPage: canonicalUrl("/farmtotable"),
       telephone: "+52-6463836402",
       address: commonAddress,
       geo,
-      servesCuisine: ["Farm-to-table", "Baja California"],
+      servesCuisine: ["Farm-to-table", "Baja California", "Mexican"],
+      containsPlace: [
+        { "@id": `${base}#hotel` },
+        { "@id": `${base}#cafe` },
+      ],
       priceRange: "$$$",
       hasMap: GOOGLE_MAPS.restaurant,
       // ✅ Maps + official MICHELIN listing to anchor the entity
@@ -140,9 +146,11 @@ export default function StructuredDataServer() {
     },
 
     {
-      "@type": "Hotel",
+      "@type": "LodgingBusiness",
+      additionalType: "https://schema.org/Resort",
       "@id": `${base}#hotel`,
       name: "Casa Olivea",
+      description: "Farm stay integrated with a working garden and MICHELIN-starred restaurant in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
       url: canonicalUrl("/casa"),
       mainEntityOfPage: canonicalUrl("/casa"),
       telephone: "+52-6463882369",
@@ -152,6 +160,12 @@ export default function StructuredDataServer() {
       hasMap: GOOGLE_MAPS.hotel,
       sameAs: [GOOGLE_MAPS.hotel, MICHELIN.hotel],
       subjectOf: recognitionWorks,
+      containedInPlace: { "@id": `${base}#restaurant` },
+      amenityFeature: [
+        { "@type": "LocationFeatureSpecification", name: "Working garden", value: true },
+        { "@type": "LocationFeatureSpecification", name: "Farm-to-table restaurant", value: true },
+        { "@type": "LocationFeatureSpecification", name: "Specialty café", value: true },
+      ],
       // ✅ Hotel check-in/check-out (open daily)
       openingHoursSpecification: [
         { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "00:00", closes: "23:59" },

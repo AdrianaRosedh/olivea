@@ -2,8 +2,8 @@ import type { DefaultSeoProps } from 'next-seo';
 import { canonicalUrl, SITE } from '@/lib/site';
 
 const seoConfig: DefaultSeoProps = {
-  defaultTitle: 'Olivea La Experiencia | Hotel, Café, Restaurant',
-  description: "Experience Olivea\u2019s Garden-inspired Hotel, Caf\u00e9, and Farm-to-Table Restaurant.",
+  defaultTitle: 'Olivea | Farm Hospitality in Valle de Guadalupe',
+  description: "Farm hospitality in Valle de Guadalupe — MICHELIN-starred restaurant, farm stay, and caf\u00e9 born from a working garden in Baja California.",
   canonical: canonicalUrl('/'),
   openGraph: {
     type: 'website',

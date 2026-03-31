@@ -11,7 +11,7 @@ export default function Head() {
     url,
     image: [absoluteUrl("/images/seo/casa-og.jpg")],
     description:
-      "A garden-centered boutique hotel located in Valle de Guadalupe, Baja California. Part of the Olivea ecosystem, where the garden is the essence.",
+      "A farm stay located inside a working garden in Valle de Guadalupe, Baja California. Part of the Olivea farm hospitality ecosystem — stay where the garden is the essence.",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Valle de Guadalupe",

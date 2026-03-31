@@ -11,7 +11,7 @@ export default function Head() {
     url,
     image: [absoluteUrl("/images/seo/farmtotable-og.jpg")],
     description:
-      "A garden-led tasting menu restaurant located in Valle de Guadalupe, Baja California. Part of the Olivea ecosystem, where the garden is the essence.",
+      "A garden-led tasting-menu restaurant with farm stay and café on the same property in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
     servesCuisine: ["Mexican", "Farm-to-table"],
     address: {
       "@type": "PostalAddress",

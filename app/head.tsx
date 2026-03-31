@@ -8,6 +8,7 @@ export default function Head() {
     "@type": "Organization",
     "@id": orgId,
     name: "Olivea",
+    description: "Farm hospitality in Valle de Guadalupe, Baja California — MICHELIN-starred restaurant, farm stay, and café born from a working garden.",
     url: SITE.baseUrl,
     logo: absoluteUrl("/images/logos/olivea-mark.png"),
     sameAs: [

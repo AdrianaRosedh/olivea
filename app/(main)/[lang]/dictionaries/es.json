@@ -40,16 +40,16 @@
     "title": "Casa Olivea",
     "description": "Hotel boutique integrado al huerto: habitaciones, servicios y reservas.",
     "meta": {
-      "title": "Casa OLIVEA",
-      "description": "Hotel boutique integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Luz, silencio y confort honesto en cada habitación.",
+      "title": "Casa OLIVEA | Farm Stay en Valle de Guadalupe",
+      "description": "Farm stay integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro de la granja — luz, silencio y confort honesto.",
       "keywords": [
         "Casa Olivea",
-        "hotel",
-        "hotel boutique",
-        "habitaciones",
+        "farm stay",
+        "farm stay México",
+        "hospitalidad de granja",
         "Valle de Guadalupe",
         "Ensenada",
-        "diseño"
+        "hospedaje en restaurante"
       ],
       "ogImage": "/images/seo/casa-og.jpg"
     }
@@ -59,7 +59,7 @@
     "description": "Menú degustación con Una Estrella MICHELIN y Estrella Verde, nacido del huerto en Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Menú de temporada donde el huerto es la esencia.",
+      "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, con farm stay y café en la misma propiedad en Valle de Guadalupe, Baja California. Hospitalidad de granja donde el huerto es la esencia.",
       "ogImage": "/images/seo/farm-og.jpg"
     }
   }, 

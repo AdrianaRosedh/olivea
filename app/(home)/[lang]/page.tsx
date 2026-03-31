@@ -19,12 +19,12 @@ export async function generateMetadata({
   const isEs = lang === "es";
 
   const title = isEs
-    ? "OLIVEA | Donde el huerto es la esencia"
-    : "OLIVEA | Where the garden is the essence";
+    ? "OLIVEA | Farm Hospitality en Valle de Guadalupe, Baja California"
+    : "OLIVEA | Farm Hospitality in Valle de Guadalupe, Baja California";
 
   const description = isEs
-    ? "Restaurante de degustación, hotel boutique y café de especialidad nacidos del huerto en Valle de Guadalupe, Baja California."
-    : "Tasting restaurant, boutique hotel, and specialty café born from the garden in Valle de Guadalupe, Baja California.";
+    ? "Hospitalidad de granja en Valle de Guadalupe: restaurante de degustación con estrella MICHELIN, farm stay y café nacidos del huerto en Baja California."
+    : "Farm hospitality in Valle de Guadalupe: MICHELIN-starred tasting restaurant, farm stay, and café born from a working garden in Baja California.";
 
   const canonicalPath = isEs ? "/es" : "/en";
 

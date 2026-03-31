@@ -124,12 +124,12 @@ export default function HomeClient() {
   const descriptions = useMemo(() => {
     return isES
       ? {
-          casa: "Una estancia cerca del huerto.",
+          casa: "Hospédate dentro de la granja.",
           farm: "Donde el huerto se goza.",
           cafe: "Despierta con sabor.",
         }
       : {
-          casa: "A stay with nature's garden.",
+          casa: "Stay inside the farm.",
           farm: "Where the garden is enjoyed.",
           cafe: "Wake up with flavor.",
         };
@@ -265,8 +265,8 @@ export default function HomeClient() {
         >
           <h1 className="sr-only">
             {isES
-              ? "OLIVEA — Hotel Boutique, Restaurante Farm-to-Table y Café en Valle de Guadalupe"
-              : "OLIVEA — Boutique Hotel, Farm-to-Table Restaurant & Café in Valle de Guadalupe"}
+              ? "OLIVEA — Farm Hospitality en Valle de Guadalupe: Restaurante con Estrella MICHELIN, Farm Stay y Café"
+              : "OLIVEA — Farm Hospitality in Valle de Guadalupe: MICHELIN-Starred Restaurant, Farm Stay & Café"}
           </h1>
 
           {/* ✅ Frame fills the padded area exactly */}
