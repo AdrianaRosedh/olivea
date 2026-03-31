@@ -30,9 +30,9 @@ export async function generateMetadata({
 
   const isEs = L === "es";
 
-  const fallbackTitle = isEs ? "Casa OLIVEA | Farm Stay en Valle de Guadalupe" : "Casa OLIVEA | Farm Stay in Valle de Guadalupe";
+  const fallbackTitle = isEs ? "Casa OLIVEA | Hospedaje del Huerto en Valle de Guadalupe" : "Casa OLIVEA | Farm Stay in Valle de Guadalupe";
   const fallbackDescription = isEs
-    ? "Farm stay integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro de la granja. Donde el huerto es la esencia."
+    ? "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro del huerto. Donde el huerto es la esencia."
     : "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay inside the farm. Where the garden is the essence.";
 
   const title = dict.casa?.meta?.title ?? fallbackTitle;
@@ -87,7 +87,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
       ? [
           {
             q: "¿Por qué hospedarse en Casa Olivea en Valle de Guadalupe?",
-            a: "Casa Olivea es un farm stay integrado al huerto y conectado a Olivea Farm To Table, ideal para vivir la hospitalidad de granja: hospedaje, gastronomía y naturaleza en el mismo lugar.",
+            a: "Casa Olivea es un hospedaje integrado al huerto y conectado a Olivea Farm To Table, ideal para vivir la hospitalidad del huerto: hospedaje, gastronomía y naturaleza en el mismo lugar.",
           },
           {
             q: "¿Casa Olivea está en Valle de Guadalupe o Ensenada?",

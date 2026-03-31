@@ -265,7 +265,7 @@ export default function HomeClient() {
         >
           <h1 className="sr-only">
             {isES
-              ? "OLIVEA — Farm Hospitality en Valle de Guadalupe: Restaurante con Estrella MICHELIN, Farm Stay y Café"
+              ? "OLIVEA — Hospitalidad del Huerto en Valle de Guadalupe: Restaurante con Estrella MICHELIN, Hospedaje y Café"
               : "OLIVEA — Farm Hospitality in Valle de Guadalupe: MICHELIN-Starred Restaurant, Farm Stay & Café"}
           </h1>
 
@@ -284,7 +284,7 @@ export default function HomeClient() {
             {isMobile && !showVideo && (
               <Image
                 src="/images/hero.avif"
-                alt={isES ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality"}
+                alt={isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
                 fill
                 priority
                 fetchPriority="high"
@@ -341,7 +341,7 @@ export default function HomeClient() {
               <>
                 <Image
                   src="/images/hero.avif"
-                  alt={isES ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality"}
+                  alt={isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
                   fill
                   priority
                   fetchPriority="high"
@@ -391,7 +391,7 @@ export default function HomeClient() {
               <span
                 className={`${cormHero.className} italic text-(--olivea-mist) text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
               >
-                {isES ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality"}
+                {isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
               </span>
             </m.div>
 
@@ -495,7 +495,7 @@ export default function HomeClient() {
             <span
               className={`${cormHero.className} italic mt-3 text-(--olivea-mist) text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none`}
             >
-              {isES ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality"}
+              {isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
             </span>
 
             <nav

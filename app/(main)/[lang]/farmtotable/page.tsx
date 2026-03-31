@@ -32,7 +32,7 @@ export async function generateMetadata({
 
   const fallbackTitle = "Olivea Farm To Table";
   const fallbackDescription = isEs
-    ? "Restaurante de menú degustación con estrella MICHELIN, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Con farm stay y café en la misma propiedad. Donde el huerto es la esencia."
+    ? "Restaurante de menú degustación con estrella MICHELIN, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Con hospedaje y café en la misma propiedad. Donde el huerto es la esencia."
     : "MICHELIN-starred tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. With farm stay and café on the same property. Where the garden is the essence.";
 
   const title = dict.farmtotable?.meta?.title ?? fallbackTitle;

@@ -12,9 +12,9 @@ import VhSetter from "@/components/ui/VhSetter";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.canonicalBaseUrl),
 
-  title: "OLIVEA | Farm Hospitality en Valle de Guadalupe",
+  title: "OLIVEA | Hospitalidad del Huerto en Valle de Guadalupe",
   description:
-    "OLIVEA: hospitalidad de granja en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, farm stay y café nacidos del huerto. Donde el huerto es la esencia.",
+    "OLIVEA: hospitalidad del huerto en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, hospedaje y café nacidos del huerto. Donde el huerto es la esencia.",
 
   alternates: {
     canonical: "/",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: canonicalUrl("/"),
-    title: "OLIVEA | Farm Hospitality en Valle de Guadalupe",
+    title: "OLIVEA | Hospitalidad del Huerto en Valle de Guadalupe",
     description:
       "OLIVEA — farm hospitality in Valle de Guadalupe: MICHELIN-starred restaurant, farm stay, and café rooted in a working garden in Baja California.",
     siteName: "OLIVEA",

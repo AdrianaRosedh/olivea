@@ -16,7 +16,7 @@ export async function generateMetadata({
     title: lang === "es" ? "Prensa | OLIVEA" : "Press | OLIVEA",
     description:
       lang === "es"
-        ? "Reconocimientos, menciones en medios y recursos oficiales de prensa de Olivea — hospitalidad de granja, restaurante con estrella MICHELIN y farm stay en Valle de Guadalupe."
+        ? "Reconocimientos, menciones en medios y recursos oficiales de prensa de Olivea — hospitalidad del huerto, restaurante con estrella MICHELIN y hospedaje en Valle de Guadalupe."
         : "Awards, media coverage, and official press resources for Olivea — farm hospitality, MICHELIN-starred restaurant, and farm stay in Valle de Guadalupe.",
   };
 }

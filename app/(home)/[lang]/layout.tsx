@@ -14,10 +14,10 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const isEs = lang === "es";
 
-  const title = isEs ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality";
+  const title = isEs ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality";
 
   const description = isEs
-    ? "Olivea: hospitalidad de granja en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, farm stay y café nacidos del huerto en Baja California. Donde el huerto es la esencia."
+    ? "Olivea: hospitalidad del huerto en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, hospedaje y café nacidos del huerto en Baja California. Donde el huerto es la esencia."
     : "Olivea: farm hospitality in Valle de Guadalupe — MICHELIN-starred tasting restaurant, farm stay, and café rooted in a working garden in Baja California. Where the garden is the essence.";
 
   const canonicalPath = isEs ? "/es" : "/en";
@@ -96,7 +96,7 @@ export default function HomeLangLayout({
     "@type": "WebPage",
     "@id": `${homeUrl}#webpage`,
     url: homeUrl,
-    name: isEs ? "OLIVEA · Farm Hospitality" : "OLIVEA · Farm Hospitality",
+    name: isEs ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality",
     isPartOf: { "@id": `${SITE.canonicalBaseUrl}#website` },
     about: { "@id": `${SITE.canonicalBaseUrl}#organization` },
     primaryImageOfPage: {

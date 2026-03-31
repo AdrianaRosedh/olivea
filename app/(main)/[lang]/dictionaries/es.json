@@ -40,13 +40,13 @@
     "title": "Casa Olivea",
     "description": "Hotel boutique integrado al huerto: habitaciones, servicios y reservas.",
     "meta": {
-      "title": "Casa OLIVEA | Farm Stay en Valle de Guadalupe",
-      "description": "Farm stay integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro de la granja — luz, silencio y confort honesto.",
+      "title": "Casa OLIVEA | Hospedaje del Huerto en Valle de Guadalupe",
+      "description": "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro del huerto — luz, silencio y confort honesto.",
       "keywords": [
         "Casa Olivea",
-        "farm stay",
+        "hospedaje del huerto",
         "farm stay México",
-        "hospitalidad de granja",
+        "hospitalidad del huerto",
         "Valle de Guadalupe",
         "Ensenada",
         "hospedaje en restaurante"
@@ -59,7 +59,7 @@
     "description": "Menú degustación con Una Estrella MICHELIN y Estrella Verde, nacido del huerto en Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, con farm stay y café en la misma propiedad en Valle de Guadalupe, Baja California. Hospitalidad de granja donde el huerto es la esencia.",
+      "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, con hospedaje y café en la misma propiedad en Valle de Guadalupe, Baja California. Hospitalidad del huerto donde el huerto es la esencia.",
       "ogImage": "/images/seo/farm-og.jpg"
     }
   }, 
@@ -176,17 +176,17 @@
     "cta_restaurant": "Visitar el Restaurante",
     "cta_casa": "Hospedarse en Casa Olivea",
     "meta": {
-      "title": "OLIVEA | Farm Hospitality",
-      "description": "Olivea: hospitalidad de granja en Valle de Guadalupe — restaurante con Estrella MICHELIN y Estrella Verde, farm stay listado en MICHELIN Guide y café nacidos del huerto en Baja California.",
+      "title": "OLIVEA | Hospitalidad del Huerto",
+      "description": "Olivea: hospitalidad del huerto en Valle de Guadalupe — restaurante con Estrella MICHELIN y Estrella Verde, hospedaje y café nacidos del huerto en Baja California.",
       "keywords": [
         "Olivea",
+        "hospitalidad del huerto",
         "farm hospitality",
         "farm stay México",
-        "hospitalidad de granja",
         "Valle de Guadalupe",
         "Ensenada",
         "restaurante MICHELIN",
-        "farm stay Baja California",
+        "hospedaje Valle de Guadalupe",
         "menú degustación",
         "Estrella MICHELIN",
         "Estrella Verde",
@@ -197,7 +197,7 @@
   },
   "metadata": {
     "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, hotel listado en MICHELIN Guide y café en Valle de Guadalupe, Baja California.",
-    "siteName": "OLIVEA Farm Hospitality",
+    "siteName": "OLIVEA Hospitalidad del Huerto",
     "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/default-og.jpg"
   },
