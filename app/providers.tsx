@@ -34,6 +34,12 @@ const SharedVideoTransitionLazy = dynamic(
   { ssr: false, loading: () => null }
 );
 
+// Live garden map overlay: always mounted (button is tiny, overlay is lazy)
+const LiveGarden = dynamic(
+  () => import("@/components/live-garden/LiveGarden"),
+  { ssr: false, loading: () => null }
+);
+
 /* ========== Conditional shells ========== */
 
 /** Load & render reservation modal only when it's open (saves a chunk on idle pages). */
@@ -125,6 +131,7 @@ export function AppProviders({ children }: AppProvidersProps) {
 
               {children}
               <ConditionalReservationModal />
+              <LiveGarden />
             </ClientProviders>
           </ScrollProvider>
         </ReservationProvider>
