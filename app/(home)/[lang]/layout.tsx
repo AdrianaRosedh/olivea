@@ -2,7 +2,7 @@
 import type { Metadata, ResolvingMetadata, Viewport } from "next";
 import FixedLCP from "./FixedLCP";
 import { SITE, canonicalUrl } from "@/lib/site";
-import StructuredDataServer from "@/components/seo/StructuredDataServer";
+import StructuredDataServer, { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 
 export const viewport: Viewport = {
   themeColor: "#5a6852",
@@ -90,15 +90,15 @@ export default function HomeLangLayout({
     { name: isEs ? "Contacto" : "Contact", url: canonicalUrl(`/${langPrefix}/contact`) },
   ];
 
-  // Homepage page schema (lightweight)
+  // Homepage page schema (lightweight) — uses shared ENTITY_IDS
   const pageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "@id": `${homeUrl}#webpage`,
     url: homeUrl,
     name: isEs ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality",
-    isPartOf: { "@id": `${SITE.canonicalBaseUrl}#website` },
-    about: { "@id": `${SITE.canonicalBaseUrl}#organization` },
+    isPartOf: { "@id": ENTITY_IDS.website },
+    about: { "@id": ENTITY_IDS.organization },
     primaryImageOfPage: {
       "@type": "ImageObject",
       url: canonicalUrl("/images/og/cover.jpg"),
@@ -107,11 +107,11 @@ export default function HomeLangLayout({
     },
   };
 
-  // Navigation schema (clean + canonical)
+  // Navigation schema (consistent @id across home + main layouts)
   const navLd = {
     "@context": "https://schema.org",
     "@type": "SiteNavigationElement",
-    "@id": `${homeUrl}#sitenav`,
+    "@id": `${SITE.canonicalBaseUrl}#sitenav`,
     name: nav.map((n) => n.name),
     url: nav.map((n) => n.url),
   };

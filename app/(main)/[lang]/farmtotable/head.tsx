@@ -1,40 +1,58 @@
-import { absoluteUrl } from "@/lib/site";
+import { canonicalUrl } from "@/lib/site";
+import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 
+/**
+ * Olivea Farm To Table page-level head.
+ *
+ * The full Restaurant entity lives in StructuredDataServer (the @graph).
+ * This file adds WebPage + BreadcrumbList for page hierarchy + sitelinks.
+ */
 export default function Head() {
-  const url = absoluteUrl("/farmtotable");
+  const url = canonicalUrl("/es/farmtotable");
 
-  const restaurantLd = {
+  const webPage = {
     "@context": "https://schema.org",
-    "@type": "Restaurant",
-    "@id": `${url}#restaurant`,
-    name: "Olivea Farm To Table",
+    "@type": "WebPage",
+    "@id": `${url}#webpage`,
     url,
-    image: [absoluteUrl("/images/seo/farmtotable-og.jpg")],
+    name: "Olivea Farm To Table | MICHELIN-Starred Restaurant",
     description:
-      "A garden-led tasting-menu restaurant with farm stay and café on the same property in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
-    servesCuisine: ["Mexican", "Farm-to-table"],
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Valle de Guadalupe",
-      addressRegion: "Baja California",
-      addressCountry: "MX",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: 31.9909578,
-      longitude: -116.6421398,
-    },
-    isPartOf: {
-      "@type": "Organization",
-      name: "Olivea",
-      url: absoluteUrl("/"),
-    },
+      "MICHELIN-starred tasting-menu restaurant with farm stay and café on the same property in Valle de Guadalupe, Baja California.",
+    isPartOf: { "@id": ENTITY_IDS.website },
+    about: { "@id": ENTITY_IDS.restaurant },
+    breadcrumb: { "@id": `${url}#breadcrumb` },
+  };
+
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "@id": `${url}#breadcrumb`,
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "OLIVEA",
+        item: canonicalUrl("/es"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Olivea Farm To Table",
+        item: url,
+      },
+    ],
   };
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantLd) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPage) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
+    </>
   );
 }

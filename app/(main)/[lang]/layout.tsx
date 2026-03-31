@@ -11,6 +11,7 @@ import {
   type AppDictionary,
 } from "@/app/(main)/[lang]/dictionaries";
 import ClientPrewarm from "./prewarm-client";
+import { canonicalUrl, SITE } from "@/lib/site";
 
 export function generateStaticParams() {
   return [{ lang: "es" }, { lang: "en" }];
@@ -47,9 +48,36 @@ export default async function LangLayout({
     dict: AppDictionary;
   };
 
+  const isEs = lang === "es";
+  const prefix = isEs ? "es" : "en";
+
+  // ✅ SiteNavigationElement on ALL pages (not just home) for Google sitelinks
+  const nav = [
+    { name: "Casa Olivea", url: canonicalUrl(`/${prefix}/casa`) },
+    { name: "Olivea Farm To Table", url: canonicalUrl(`/${prefix}/farmtotable`) },
+    { name: "Olivea Café", url: canonicalUrl(`/${prefix}/cafe`) },
+    { name: isEs ? "Filosofía" : "Philosophy", url: canonicalUrl(`/${prefix}/sustainability`) },
+    { name: isEs ? "Cuaderno" : "Journal", url: canonicalUrl(`/${prefix}/journal`) },
+    { name: isEs ? "Prensa" : "Press", url: canonicalUrl(`/${prefix}/press`) },
+    { name: isEs ? "Contacto" : "Contact", url: canonicalUrl(`/${prefix}/contact`) },
+  ];
+
+  const navLd = {
+    "@context": "https://schema.org",
+    "@type": "SiteNavigationElement",
+    "@id": `${SITE.canonicalBaseUrl}#sitenav`,
+    name: nav.map((n) => n.name),
+    url: nav.map((n) => n.url),
+  };
+
   return (
     <div data-scope="main">
       <StructuredDataServer />
+      {/* ✅ Navigation schema for sitelinks */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }}
+      />
       <ClientPrewarm />
       <LayoutShell lang={lang} dictionary={dict}>
         {children}
