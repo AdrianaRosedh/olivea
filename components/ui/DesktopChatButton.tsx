@@ -188,7 +188,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
   return (
     <div
       ref={rootRef}
-      className="fixed z-9999 hidden md:block" 
+      className="fixed z-1400 hidden md:block"
       style={{
         right: `max(${BASE_RIGHT}px, env(safe-area-inset-right))`,
         bottom: `calc(max(${BASE_BOTTOM}px, env(safe-area-inset-bottom)) + ${extraBottom}px)`,
