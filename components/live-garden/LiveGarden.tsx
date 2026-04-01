@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
+import { setModalOpen } from "@/components/ui/modalFlag";
 
 // Web Component types declared in types/roseiies.d.ts
 
@@ -116,11 +117,13 @@ export default function LiveGarden() {
 
   const open = useCallback(() => {
     setIsOpen(true);
+    setModalOpen(true);
     lockBodyScroll();
   }, []);
 
   const close = useCallback(() => {
     setIsOpen(false);
+    setModalOpen(false);
     unlockBodyScroll();
   }, []);
 
@@ -214,8 +217,11 @@ export default function LiveGarden() {
               initial="hidden"
               animate="visible"
               exit="exit"
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className={cn(
-                "fixed z-1500 flex flex-col",
+                "fixed z-1501 flex flex-col",
                 // Mobile: full screen
                 "inset-0",
                 // Desktop: centered with margin + rounded corners
