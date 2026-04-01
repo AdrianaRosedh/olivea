@@ -17,9 +17,10 @@ export const metadata: Metadata = {
     "OLIVEA: hospitalidad del huerto en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, hospedaje y café nacidos del huerto. Donde el huerto es la esencia.",
 
   alternates: {
-    canonical: "/",
     languages: {
-      "es-MX": "/",
+      "es-MX": "/es",
+      "en-US": "/en",
+      es: "/es",
       en: "/en",
     },
   },

@@ -85,40 +85,78 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const ids = getTeamIds();
   const now = new Date();
 
-  for (const lang of ["es", "en"] as const) {
-    for (const route of routes) {
-      const p = route === "" ? `/${lang}` : `/${lang}${route}`;
-      const pClean = cleanPath(p);
+  // ─── Static routes (both languages, with hreflang alternates) ───
+  for (const route of routes) {
+    const isHome = route === "";
+    const isJournalIndex = route === "/journal";
+    const isSustainability = route === "/sustainability";
 
-      const isHome = route === "";
-      const isJournalIndex = route === "/journal";
-      const isSustainability = route === "/sustainability";
+    const esPath = cleanPath(isHome ? "/es" : `/es${route}`);
+    const enPath = cleanPath(isHome ? "/en" : `/en${route}`);
 
+    const alternates = {
+      languages: {
+        es: cleanUrl(canonicalUrl(esPath)),
+        en: cleanUrl(canonicalUrl(enPath)),
+      },
+    };
+
+    for (const lang of ["es", "en"] as const) {
+      const p = lang === "es" ? esPath : enPath;
       out.push({
-        // ✅ Always canonical (never preview / localhost)
-        url: cleanUrl(canonicalUrl(pClean)),
+        url: cleanUrl(canonicalUrl(p)),
         lastModified: now,
         changeFrequency: isHome ? "daily" : isJournalIndex || isSustainability ? "weekly" : "weekly",
         priority: isHome ? 1.0 : isJournalIndex ? 0.9 : isSustainability ? 0.85 : 0.8,
+        alternates,
       });
     }
+  }
 
-    for (const id of ids) {
+  // ─── Team member pages ───
+  for (const id of ids) {
+    const esPath = cleanPath(`/es/team/${id}`);
+    const enPath = cleanPath(`/en/team/${id}`);
+
+    const alternates = {
+      languages: {
+        es: cleanUrl(canonicalUrl(esPath)),
+        en: cleanUrl(canonicalUrl(enPath)),
+      },
+    };
+
+    for (const lang of ["es", "en"] as const) {
+      const p = lang === "es" ? esPath : enPath;
       out.push({
-        url: cleanUrl(canonicalUrl(cleanPath(`/${lang}/team/${id}`))),
+        url: cleanUrl(canonicalUrl(p)),
         lastModified: now,
         changeFrequency: "monthly",
         priority: 0.6,
+        alternates,
       });
     }
+  }
 
+  // ─── Journal entries ───
+  for (const lang of ["es", "en"] as const) {
     const journalEntries = await getJournalEntries(lang);
     for (const it of journalEntries) {
+      const esPath = cleanPath(`/es/journal/${it.slug}`);
+      const enPath = cleanPath(`/en/journal/${it.slug}`);
+
+      const alternates = {
+        languages: {
+          es: cleanUrl(canonicalUrl(esPath)),
+          en: cleanUrl(canonicalUrl(enPath)),
+        },
+      };
+
       out.push({
         url: cleanUrl(canonicalUrl(cleanPath(`/${lang}/journal/${it.slug}`))),
         lastModified: it.lastModified,
         changeFrequency: "monthly",
         priority: 0.7,
+        alternates,
       });
     }
   }
