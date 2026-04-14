@@ -1,7 +1,13 @@
 // app/api/banner/route.ts
+//
+// Edge runtime: this endpoint does no database I/O and no Node APIs.
+// Content is bundled at build time via a static JSON import, so response
+// time is bounded by handler execution + CDN latency.
+//
+// To update banner content: edit content/banners/active.json and redeploy.
+export const runtime = "edge";
+
 import { NextResponse } from "next/server";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { type Lang } from "@/lib/i18n";
 import {
   isObject,
@@ -11,6 +17,7 @@ import {
   validateBilingualBlock,
   validateOptionalPathList,
 } from "@/lib/contentRules";
+import activeBannerData from "@/content/banners/active.json";
 type BannerType = "notice" | "promo" | "warning";
 
 type ActiveBannerFile = {
@@ -64,15 +71,14 @@ function isActiveBannerFile(v: unknown): v is ActiveBannerFile {
 
 /* ── Loader ──────────────────────────────────────────────────────── */
 
-async function loadActiveBanner(): Promise<ActiveBannerFile | null> {
-  try {
-    const filePath = path.join(process.cwd(), "content", "banners", "active.json");
-    const raw = await readFile(filePath, "utf8");
-    const parsed: unknown = JSON.parse(raw);
-    return isActiveBannerFile(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
+// Static import is bundled at build time — zero runtime file I/O.
+// Still validated because the JSON file is authored by humans.
+const ACTIVE_BANNER: ActiveBannerFile | null = isActiveBannerFile(activeBannerData)
+  ? activeBannerData
+  : null;
+
+function loadActiveBanner(): ActiveBannerFile | null {
+  return ACTIVE_BANNER;
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
@@ -89,7 +95,7 @@ export async function GET(req: Request) {
   const lang: Lang = url.searchParams.get("lang") === "en" ? "en" : "es";
   const currentPath = url.searchParams.get("path") ?? "/";
 
-  const active = await loadActiveBanner();
+  const active = loadActiveBanner();
   if (!active || !active.enabled) return nullBanner();
 
   if (!passesTimeWindow(active.startsAt, active.endsAt)) return nullBanner();

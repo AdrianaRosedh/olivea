@@ -1,7 +1,15 @@
 // app/api/popup/route.ts
+//
+// Edge runtime: content is bundled statically (no runtime file I/O), and the
+// rate limit is a per-isolate best-effort guard. On edge, state is fragmented
+// across more isolates than on Node lambdas, but the endpoint is CDN-cached
+// with s-maxage=60, so most traffic never reaches a handler — this limit only
+// catches obviously-scripted abuse behind the cache.
+//
+// To update popup content: edit content/popups/active.json and redeploy.
+export const runtime = "edge";
+
 import { NextResponse } from "next/server";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { type Lang } from "@/lib/i18n";
 import {
   isObject,
@@ -12,6 +20,7 @@ import {
   validateOptionalPathList,
 } from "@/lib/contentRules";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import activePopupData from "@/content/popups/active.json";
 
 type ActivePopupFile = {
   enabled: boolean;
@@ -106,15 +115,14 @@ function isActivePopupFile(v: unknown): v is ActivePopupFile {
 
 /* ── Loader ──────────────────────────────────────────────────────── */
 
-async function loadActivePopup(): Promise<ActivePopupFile | null> {
-  try {
-    const filePath = path.join(process.cwd(), "content", "popups", "active.json");
-    const raw = await readFile(filePath, "utf8");
-    const parsed: unknown = JSON.parse(raw);
-    return isActivePopupFile(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
+// Static import is bundled at build time — zero runtime file I/O.
+// Still validated because the JSON file is authored by humans.
+const ACTIVE_POPUP: ActivePopupFile | null = isActivePopupFile(activePopupData)
+  ? activePopupData
+  : null;
+
+function loadActivePopup(): ActivePopupFile | null {
+  return ACTIVE_POPUP;
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
@@ -149,7 +157,7 @@ export async function GET(req: Request) {
   const lang: Lang = url.searchParams.get("lang") === "en" ? "en" : "es";
   const currentPath = url.searchParams.get("path") ?? "/";
 
-  const active = await loadActivePopup();
+  const active = loadActivePopup();
   if (!active || !active.enabled) return nullPopup();
 
   if (!passesTimeWindow(active.rules.startsAt, active.rules.endsAt)) return nullPopup();

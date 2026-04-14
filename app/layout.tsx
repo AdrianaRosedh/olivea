@@ -105,6 +105,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
+        {/*
+          ✅ Preconnect to third-party origins used on first paint.
+          Opens TCP+TLS early so the first request to each origin doesn't
+          pay the full handshake cost. Keep this list tight — every preconnect
+          competes for bandwidth with the LCP image.
+        */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
+        <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="" />
+        <link rel="preconnect" href="https://static1.cloudbeds.com" crossOrigin="" />
+        <link rel="preconnect" href="https://hotels.cloudbeds.com" crossOrigin="" />
+        <link rel="preconnect" href="https://www.opentable.com" crossOrigin="" />
+        <link rel="preconnect" href="https://www.opentable.com.mx" crossOrigin="" />
+        {/* DNS-only hints for origins that may load later but are likely */}
+        <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+        <link rel="dns-prefetch" href="https://maps.gstatic.com" />
+
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-M3JEDWZ732"
           strategy="lazyOnload"
