@@ -33,7 +33,7 @@ interface Props {
 
 const container: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.02 } },
+  visible: { transition: { staggerChildren: 0.04, delayChildren: 0.01 } },
   exit: { transition: { duration: 0.1 } },
 };
 
@@ -214,7 +214,7 @@ export default function MobileDrawer({
                   initial="hidden"
                   animate={itemsReady ? "visible" : "hidden"}
                   exit="exit"
-                  className="relative h-full w-full flex flex-col px-6 pb-10 pt-20"
+                  className="relative h-full w-full flex flex-col px-6 pb-10 pt-20 pwa-safe-top pwa-safe-bottom"
                 >
                   {/* Main links */}
                   <div className="flex flex-col gap-3">
@@ -241,13 +241,28 @@ export default function MobileDrawer({
                         >
                           <span className="text-base font-semibold">{label}</span>
                           <span
+                            aria-hidden="true"
                             className={
                               active
                                 ? "text-(--olivea-cream)"
-                                : "text-(--olivea-cream)/70"
+                                : "text-(--olivea-cream)/60"
                             }
                           >
-                            ↗
+                            {/* Refined thin diagonal arrow — replaces the Unicode ↗ glyph
+                                which rendered too heavy from the body font. */}
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 14 14"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.25"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M4 10 L10 4" />
+                              <path d="M5.5 4 L10 4 L10 8.5" />
+                            </svg>
                           </span>
                         </motion.button>
                       );

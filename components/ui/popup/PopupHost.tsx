@@ -13,6 +13,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { isFlagSet, setFlag } from "@/lib/storage";
 
 export type SitePopup =
   | {
@@ -100,15 +101,14 @@ export default function PopupHost() {
 
   // Fetch active popup (single file via /api/popup, rule-aware using path)
   useEffect(() => {
-    let cancelled = false;
-
+    const controller = new AbortController();
     const p = pathname ?? "/";
     const url = `/api/popup?lang=${lang}&path=${encodeURIComponent(p)}`;
 
-    fetch(url, { cache: "default" })
+    fetch(url, { cache: "default", signal: controller.signal })
       .then((r) => r.json() as Promise<unknown>)
       .then((dataUnknown) => {
-        if (cancelled) return;
+        if (controller.signal.aborted) return;
 
         if (!isObject(dataUnknown) || !("popup" in dataUnknown)) {
           setPopup(null);
@@ -118,22 +118,20 @@ export default function PopupHost() {
         const maybe = (dataUnknown as PopupApiResponse).popup;
         setPopup(maybe && isSitePopup(maybe) ? maybe : null);
       })
-      .catch(() => {
-        if (!cancelled) setPopup(null);
+      .catch((err) => {
+        // Ignore AbortError (expected on unmount / route change)
+        if (err?.name === "AbortError") return;
+        setPopup(null);
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [lang, pathname]);
 
   const key = useMemo(() => (popup ? `${STORAGE_PREFIX}${popup.id}` : ""), [popup]);
 
   const close = useCallback(() => {
     setOpen(false);
-    try {
-      if (popup) localStorage.setItem(key, "1");
-    } catch {}
+    if (popup) setFlag(key);
   }, [key, popup]);
 
   useEffect(() => {
@@ -142,9 +140,7 @@ export default function PopupHost() {
     // Extra safeguard: never show on journal pages
     if (pathname?.includes("/journal")) return;
 
-    try {
-      if (localStorage.getItem(key) === "1") return;
-    } catch {}
+    if (isFlagSet(key)) return;
 
     if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 

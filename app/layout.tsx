@@ -1,6 +1,6 @@
 // app/layout.tsx
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { AppProviders } from "./providers";
 import { fontsClass } from "./fonts";
@@ -8,6 +8,14 @@ import PathTracker from "@/components/PathTracker";
 import { SITE, canonicalUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
 import VhSetter from "@/components/ui/VhSetter";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#65735b",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.canonicalBaseUrl),
@@ -86,6 +94,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={fontsClass}>
       <head>
+        {/*
+          ✅ Pre-hydration PWA standalone detection.
+          Runs before first paint so `pwa-safe-*` utility classes
+          pick up env(safe-area-inset-*) on iOS immediately (no flash).
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;if(s)document.documentElement.classList.add('pwa-standalone');}catch(e){}})();`,
+          }}
+        />
+
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-M3JEDWZ732"
           strategy="lazyOnload"

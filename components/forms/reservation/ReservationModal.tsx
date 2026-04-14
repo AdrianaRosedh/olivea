@@ -273,7 +273,7 @@ function MobileHotelSheet({
       role="dialog"
       aria-modal="true"
       aria-label={lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
-      className={`fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col transition-opacity duration-300 ${
+      className={`fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col transition-opacity duration-300 pwa-safe-top pwa-safe-bottom ${
         visible
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"
@@ -333,7 +333,7 @@ function MobileRestaurantSheet({
           role="dialog"
           aria-modal="true"
           aria-label={lang === "es" ? "Olivea Farm To Table — Reservaciones" : "Olivea Farm To Table — Reservations"}
-          className="fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col"
+          className="fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col pwa-safe-top pwa-safe-bottom"
           initial={{ opacity: 0, y: reduce ? 0 : 16 }}
           animate={{ opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.2, ease: EASE } }}
           exit={{ opacity: 0, y: reduce ? 0 : 16, transition: { duration: reduce ? 0 : 0.18, ease: EASE } }}

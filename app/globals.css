@@ -233,6 +233,36 @@
 }
 
 /* ───────────────────────────────────────────────────────────── */
+/* PWA STANDALONE MODE                                           */
+/* When saved to homescreen, there's no browser chrome —         */
+/* content must respect the status bar / Dynamic Island / notch  */
+/* and the bottom home indicator.                                */
+/*                                                               */
+/* Fixed-positioned overlays (homepage, drawer, modal) opt in    */
+/* via the utility classes `.pwa-safe-top` / `.pwa-safe-bottom`. */
+/* iOS Safari does not always trigger (display-mode: standalone) */
+/* reliably, so `html.pwa-standalone` is also set pre-hydration  */
+/* in app/layout.tsx via navigator.standalone.                   */
+/* ───────────────────────────────────────────────────────────── */
+@media (display-mode: standalone) {
+  .pwa-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pwa-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+html.pwa-standalone .pwa-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+html.pwa-standalone .pwa-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ───────────────────────────────────────────────────────────── */
 /* VIEWPORT HEIGHT FIX                                           */
 /* ───────────────────────────────────────────────────────────── */
 @layer utilities {
@@ -334,14 +364,6 @@ body.lcp-demote .fixed-lcp {
   .fixed-lcp {
     transition: none;
   }
-}
-
-/* ───────────────────────────────────────────────────────────── */
-/* BELOW THE FOLD PERFORMANCE                                    */
-/* ───────────────────────────────────────────────────────────── */
-.home-section-late {
-  content-visibility: auto;
-  contain-intrinsic-size: 1000px;
 }
 
 /* ───────────────────────────────────────────────────────────── */

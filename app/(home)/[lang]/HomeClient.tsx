@@ -259,7 +259,7 @@ export default function HomeClient() {
           className="
             fixed inset-0 z-10 flex flex-col items-center justify-start lg:justify-center
             bg-(--olivea-cream) transition-opacity duration-300 not-italic
-            p-3 lg:p-6
+            p-3 lg:p-6 pwa-safe-top
           "
           style={{ opacity: revealMain ? 1 : 0 }}
         >

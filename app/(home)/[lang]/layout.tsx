@@ -6,6 +6,7 @@ import StructuredDataServer, { ENTITY_IDS } from "@/components/seo/StructuredDat
 
 export const viewport: Viewport = {
   themeColor: "#5a6852",
+  viewportFit: "cover",
 };
 
 export async function generateMetadata(

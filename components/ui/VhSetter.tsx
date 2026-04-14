@@ -14,6 +14,9 @@ export default function VhSetter() {
     let raf = 0;
     let last = NaN;
 
+    // Note: `pwa-standalone` class is set pre-hydration in app/layout.tsx
+    // so safe-area padding applies before first paint.
+
     const apply = () => {
       raf = 0;
       const vh = computeVhPxRounded();

@@ -32,6 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor:   "#5e7658",
+  viewportFit:  "cover",
 }
 
 export default async function LegalPage({

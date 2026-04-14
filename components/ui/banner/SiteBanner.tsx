@@ -10,6 +10,7 @@ import {
   type Variants,
 } from "framer-motion";
 import { X } from "lucide-react";
+import { isFlagSet, setFlag } from "@/lib/storage";
 type BannerType = "notice" | "promo" | "warning";
 
 type BannerPayload = {
@@ -80,15 +81,14 @@ export default function SiteBanner() {
 
   // Fetch active banner
   useEffect(() => {
-    let cancelled = false;
-
+    const controller = new AbortController();
     const p = pathname ?? "/";
     const url = `/api/banner?lang=${lang}&path=${encodeURIComponent(p)}`;
 
-    fetch(url, { cache: "default" })
+    fetch(url, { cache: "default", signal: controller.signal })
       .then((r) => r.json() as Promise<unknown>)
       .then((data) => {
-        if (cancelled) return;
+        if (controller.signal.aborted) return;
 
         if (!isObject(data) || !("banner" in data)) {
           setBanner(null);
@@ -98,13 +98,12 @@ export default function SiteBanner() {
         const maybe = (data as BannerApiResponse).banner;
         setBanner(isBannerPayload(maybe) ? maybe : null);
       })
-      .catch(() => {
-        if (!cancelled) setBanner(null);
+      .catch((err) => {
+        if (err?.name === "AbortError") return;
+        setBanner(null);
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [lang, pathname]);
 
   const dismissKey = useMemo(
@@ -115,18 +114,12 @@ export default function SiteBanner() {
   // Respect dismissal
   useEffect(() => {
     if (!banner) return;
-    try {
-      setHidden(localStorage.getItem(dismissKey) === "1");
-    } catch {
-      setHidden(false);
-    }
+    setHidden(isFlagSet(dismissKey));
   }, [banner, dismissKey]);
 
   const dismiss = useCallback(() => {
     setHidden(true);
-    try {
-      if (banner) localStorage.setItem(dismissKey, "1");
-    } catch {}
+    if (banner) setFlag(dismissKey);
   }, [banner, dismissKey]);
 
   // Arm after delay

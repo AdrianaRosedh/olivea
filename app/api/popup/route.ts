@@ -11,6 +11,7 @@ import {
   validateBilingualBlock,
   validateOptionalPathList,
 } from "@/lib/contentRules";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 type ActivePopupFile = {
   enabled: boolean;
@@ -122,10 +123,28 @@ const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
 } as const;
 
+// Best-effort per-IP throttle. The response is CDN-cached (s-maxage=60),
+// so most traffic never reaches this handler. Limit applies to cache-miss
+// requests (worst case: one instance × 120/min).
+const RATE_LIMIT = { limit: 120, windowMs: 60_000 };
+
 const nullPopup = () =>
   NextResponse.json<{ popup: null }>({ popup: null }, { status: 200, headers: CACHE_HEADERS });
 
 export async function GET(req: Request) {
+  // Rate limit first — cheapest path out.
+  const { ok, retryAfter } = rateLimit(clientIp(req), RATE_LIMIT);
+  if (!ok) {
+    return new NextResponse("Too Many Requests", {
+      status: 429,
+      headers: {
+        "Retry-After": String(retryAfter),
+        "X-RateLimit-Limit": String(RATE_LIMIT.limit),
+        "X-RateLimit-Remaining": "0",
+      },
+    });
+  }
+
   const url = new URL(req.url);
   const lang: Lang = url.searchParams.get("lang") === "en" ? "en" : "es";
   const currentPath = url.searchParams.get("path") ?? "/";
