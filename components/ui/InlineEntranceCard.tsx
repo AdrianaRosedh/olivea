@@ -375,20 +375,29 @@ export default function InlineEntranceCard({
     MOBILE_COLLAPSED: 96,
   };
 
-  // 🔥 Responsive desktop scaling
-  let desktopScale = 1;
-  
-  if (typeof window !== "undefined") {
-    const w = window.innerWidth;
-  
-    if (w >= 1600) desktopScale = 1.45;
-    else if (w >= 1400) desktopScale = 1.3;
-    else if (w >= 1200) desktopScale = 1.15;
-    else desktopScale = 1;
-  }
-  
+  // 🔥 Responsive desktop scaling — live resize via state
+  const [desktopScale, setDesktopScale] = useState(1);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || isMobile) return;
+
+    const computeScale = () => {
+      const w = window.innerWidth;
+      if (w >= 1600) return 1.45;
+      if (w >= 1400) return 1.3;
+      if (w >= 1200) return 1.15;
+      return 1;
+    };
+
+    setDesktopScale(computeScale());
+
+    const onResize = () => setDesktopScale(computeScale());
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
+  }, [isMobile]);
+
   const scale = isMobile ? 1 : desktopScale;
-  
+
   const CARD_WIDTH = BASE.CARD_W * scale;
   const CARD_HEIGHT = BASE.CARD_H * scale;
   const TOP_DESKTOP = BASE.TOP_H * scale;

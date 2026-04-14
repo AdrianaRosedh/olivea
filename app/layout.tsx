@@ -62,7 +62,11 @@ export const metadata: Metadata = {
     },
   },
 
-  appleWebApp: { title: "OLIVEA" },
+  appleWebApp: {
+    title: "OLIVEA",
+    capable: true,
+    statusBarStyle: "black-translucent",
+  },
 
   icons: {
     icon: [

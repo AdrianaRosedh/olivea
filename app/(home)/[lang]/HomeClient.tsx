@@ -237,7 +237,7 @@ export default function HomeClient() {
                   animate={innerScaleControls}
                 >
                   {/* Mobile vertical loader bar */}
-                  <div className="absolute inset-0 md:hidden z-20 flex items-center justify-start pl-4 py-6 pointer-events-none select-none">
+                  <div className="absolute inset-0 lg:hidden z-20 flex items-center justify-start pl-4 py-6 pointer-events-none select-none">
                     <div
                       className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden"
                       style={{ "--bar-duration": "4s" } as React.CSSProperties}
@@ -257,9 +257,9 @@ export default function HomeClient() {
         {/* Main */}
         <main
           className="
-            fixed inset-0 z-10 flex flex-col items-center justify-start md:justify-center
+            fixed inset-0 z-10 flex flex-col items-center justify-start lg:justify-center
             bg-(--olivea-cream) transition-opacity duration-300 not-italic
-            p-3 md:p-6
+            p-3 lg:p-6
           "
           style={{ opacity: revealMain ? 1 : 0 }}
         >
@@ -308,7 +308,7 @@ export default function HomeClient() {
             {isMobile && (showVideo || mobileVideoVisible) && (
               <video
                 ref={mobileVideoRef}
-                className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-(--video-brightness) pointer-events-none md:hidden"
+                className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-(--video-brightness) pointer-events-none lg:hidden"
                 muted
                 playsInline
                 autoPlay
@@ -383,7 +383,7 @@ export default function HomeClient() {
 
             {/* Mobile title after overlay */}
             <m.div
-              className="absolute inset-0 md:hidden z-30 flex items-center justify-center pointer-events-none"
+              className="absolute inset-0 lg:hidden z-30 flex items-center justify-center pointer-events-none"
               variants={itemVariants}
               initial="hidden"
               animate={overlayGone ? "show" : "hidden"}
@@ -415,7 +415,7 @@ export default function HomeClient() {
 
           {/* Mobile cards */}
           <m.div
-            className="relative z-10 flex flex-col md:hidden flex-1 w-full px-4"
+            className="relative z-10 flex flex-col lg:hidden flex-1 w-full px-4"
             variants={containerVariants}
             initial="hidden"
             animate={introStarted ? "hidden" : "show"}
@@ -464,7 +464,7 @@ export default function HomeClient() {
           {/* FIXED bottom bar (mobile only) */}
           <div
             className="
-              fixed bottom-0 left-0 right-0 md:hidden z-40
+              fixed bottom-0 left-0 right-0 lg:hidden z-40
               px-4
               pt-3
               pb-[max(env(safe-area-inset-bottom),16px)]
@@ -477,7 +477,7 @@ export default function HomeClient() {
           </div>
 
           {/* Desktop flow */}
-          <div className="absolute inset-0 hidden md:flex flex-col items-center z-40">
+          <div className="absolute inset-0 hidden lg:flex flex-col items-center z-40">
             <div
               ref={logoTargetRef}
               className="relative w-24 h-24 mt-12 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 pointer-events-none"
@@ -502,8 +502,11 @@ export default function HomeClient() {
               aria-label={isES ? "Navegación principal" : "Primary navigation"}
               className="mt-6 lg:mt-8 pointer-events-auto"
             >
-              {/* ✅ Keep INLINE on desktop */}
-              <ul className="flex gap-8 xl:gap-12 2xl:gap-16 justify-center">
+              {/* ✅ Keep INLINE on desktop — fluid gaps scale with viewport */}
+              <ul
+                className="flex justify-center"
+                style={{ gap: "clamp(1rem, 2.5vw, 4rem)" }}
+              >
                 {sections.map((sec) => (
                   <li key={sec.href}>
                     <InlineEntranceCard
@@ -513,6 +516,7 @@ export default function HomeClient() {
                       description={sec.description}
                       logoSrc={sec.logoSrc}
                       logoAlt={sec.title}
+                      fluidDesktop
                       onActivate={() =>
                         sessionStorage.setItem("fromHomePage", "true")
                       }
@@ -522,7 +526,7 @@ export default function HomeClient() {
               </ul>
             </nav>
 
-            <div className="mt-8 md:mt-16 pointer-events-auto">
+            <div className="mt-8 lg:mt-16 pointer-events-auto">
               <ReservationButton />
             </div>
           </div>
