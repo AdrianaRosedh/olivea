@@ -2,6 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { Button } from "@/components/ui/button";
 import { useReservation } from "@/contexts/ReservationContext";
@@ -34,13 +35,77 @@ export default function ReservationButton({
     "text-[clamp(1.05rem,1.35vw,1.45rem)]"
   );
 
-  const showMobile = forceMobile; // overrides breakpoint logic when needed
+  const showMobile = forceMobile;
   const showDesktop = !forceMobile;
+
+  /* Social proof badge — mobile */
+  const badgeMobile = (
+    <div className="flex items-center justify-center gap-1.5 mb-2">
+      <Image
+        src="/images/press/awards/michelin.svg"
+        alt="MICHELIN Star"
+        width={14}
+        height={14}
+        className="w-3.5 h-3.5"
+      />
+      <Image
+        src="/images/press/awards/michelin-green-star.svg"
+        alt="MICHELIN Green Star"
+        width={14}
+        height={14}
+        className="w-3.5 h-3.5"
+      />
+      <span
+        className="text-[10px] tracking-[0.08em] uppercase"
+        style={{
+          fontFamily: "var(--font-sans)",
+          color: "var(--olivea-olive)",
+          opacity: 0.7,
+        }}
+      >
+        {isES
+          ? "Una Estrella MICHELIN · Estrella Verde"
+          : "One MICHELIN Star · Green Star"}
+      </span>
+    </div>
+  );
+
+  /* Social proof badge — desktop (white text for video bg) */
+  const badgeDesktop = (
+    <div className="flex items-center justify-center gap-2 mb-3">
+      <Image
+        src="/images/press/awards/michelin.svg"
+        alt="MICHELIN Star"
+        width={18}
+        height={18}
+        className="w-[18px] h-[18px] brightness-0 invert opacity-80"
+      />
+      <Image
+        src="/images/press/awards/michelin-green-star.svg"
+        alt="MICHELIN Green Star"
+        width={18}
+        height={18}
+        className="w-[18px] h-[18px] brightness-0 invert opacity-80"
+      />
+      <span
+        className="text-[12px] tracking-[0.12em] uppercase"
+        style={{
+          fontFamily: "var(--font-sans)",
+          color: "rgba(255,255,255,0.8)",
+        }}
+      >
+        {isES
+          ? "Una Estrella MICHELIN · Estrella Verde"
+          : "One MICHELIN Star · Green Star"}
+      </span>
+    </div>
+  );
 
   return (
     <>
       {/* Mobile / Full-width Button */}
       <div className={cn(showMobile ? "block w-full" : "md:hidden w-full", className)}>
+        {badgeMobile}
         <Button
           onClick={handleClick}
           size="lg"
@@ -56,10 +121,11 @@ export default function ReservationButton({
 
       {/* Desktop Magnetic Button */}
       {showDesktop && (
-        <div className={cn("hidden md:block", className)}>
+        <div className={cn("hidden md:flex flex-col items-center", className)}>
+          {badgeDesktop}
           <MagneticButton
             onClick={handleClick}
-            className="px-6 py-3 text-white bg-(--olivea-olive) hover:bg-(--olivea-clay) rounded-md transition-colors"
+            className="px-16 py-4 text-white bg-(--olivea-olive) hover:bg-(--olivea-clay) rounded-lg transition-colors shadow-lg"
             textClassName={labelClasses}
             ariaLabel={isES ? "Reservar" : "Reserve"}
           >

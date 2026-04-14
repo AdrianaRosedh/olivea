@@ -514,9 +514,8 @@ export default function InlineEntranceCard({
                 <h3
                   style={{
                     margin: 1,
-                    zIndex: 2,
                     fontFamily: "var(--font-serif)",
-                    fontSize: isMobile ? 28 : 22,
+                    fontSize: isMobile ? 28 : Math.round(22 * scale),
                     fontWeight: 600,
                     marginTop: 28,
                     transform: isHovered ? "translateY(-8px)" : "translateY(0)",
@@ -544,6 +543,7 @@ export default function InlineEntranceCard({
                 )}
               </motion.div>
             </div>
+
           </div>
 
           {/* Underlay (Safari-friendly) */}
@@ -600,6 +600,7 @@ export default function InlineEntranceCard({
               )}
             </div>
           )}
+
         </motion.div>
       </a>
     </div>

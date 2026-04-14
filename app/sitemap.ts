@@ -89,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const route of routes) {
     const isHome = route === "";
     const isJournalIndex = route === "/journal";
-    const isSustainability = route === "/sustainability";
+    const isCoreExperience = route === "/casa" || route === "/farmtotable" || route === "/cafe" || route === "/sustainability";
 
     const esPath = cleanPath(isHome ? "/es" : `/es${route}`);
     const enPath = cleanPath(isHome ? "/en" : `/en${route}`);
@@ -106,8 +106,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       out.push({
         url: cleanUrl(canonicalUrl(p)),
         lastModified: now,
-        changeFrequency: isHome ? "daily" : isJournalIndex || isSustainability ? "weekly" : "weekly",
-        priority: isHome ? 1.0 : isJournalIndex ? 0.9 : isSustainability ? 0.85 : 0.8,
+        changeFrequency: isHome ? "daily" : "weekly",
+        priority: isHome ? 1.0 : isCoreExperience || isJournalIndex ? 0.9 : 0.8,
         alternates,
       });
     }

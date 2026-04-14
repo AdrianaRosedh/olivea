@@ -121,17 +121,17 @@ export default function HomeClient() {
     return () => clearTimeout(t);
   }, [isMobile, heroDecoded]);
 
-  const descriptions = useMemo(() => {
+  const cards = useMemo(() => {
     return isES
       ? {
-          casa: "Hospédate dentro de la granja.",
-          farm: "Donde el huerto se goza.",
-          cafe: "Despierta con sabor.",
+          casa: { title: "Duerme con Nosotros", description: "Despierta en el huerto" },
+          farm: { title: "Cena con Nosotros", description: "Menú de degustación con estrella MICHELIN" },
+          cafe: { title: "Pasa el Día", description: "Café · Brunch · Pádel · Cena · Wine Bar" },
         }
       : {
-          casa: "Stay inside the farm.",
-          farm: "Where the garden is enjoyed.",
-          cafe: "Wake up with flavor.",
+          casa: { title: "Stay With Us", description: "Wake up in the garden" },
+          farm: { title: "Dine With Us", description: "MICHELIN-starred tasting menu" },
+          cafe: { title: "Spend the Day", description: "Coffee · Brunch · Pádel · Dinner · Wine Bar" },
         };
   }, [isES]);
 
@@ -139,27 +139,27 @@ export default function HomeClient() {
     return [
       {
         href: `${basePath}/casa`,
-        title: "Casa Olivea",
-        description: descriptions.casa,
+        title: cards.casa.title,
+        description: cards.casa.description,
         logoSrc: "/brand/alebrije-2.svg",
         sectionKey: "casa",
       },
       {
         href: `${basePath}/farmtotable`,
-        title: "Olivea Farm To Table",
-        description: descriptions.farm,
+        title: cards.farm.title,
+        description: cards.farm.description,
         logoSrc: "/brand/alebrije-1-Green.svg",
         sectionKey: "farmtotable",
       },
       {
         href: `${basePath}/cafe`,
-        title: "Olivea Café",
-        description: descriptions.cafe,
+        title: cards.cafe.title,
+        description: cards.cafe.description,
         logoSrc: "/brand/alebrije-3.svg",
         sectionKey: "cafe",
       },
     ];
-  }, [basePath, descriptions]);
+  }, [basePath, cards]);
 
   const mobileSections = useMemo(() => {
     return isMobile ? [sections[1], sections[0], sections[2]] : sections;

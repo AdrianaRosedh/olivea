@@ -151,11 +151,18 @@ export default function StructuredDataServer() {
       alternateName: ["Olivea Farm To Table", "Olivea", "Familia Olivea"],
       publisher: { "@id": ENTITY_IDS.organization },
       inLanguage: ["es-MX", "en-US"],
-      potentialAction: {
-        "@type": "SearchAction",
-        target: `${base}/es?search={query}`,
-        "query-input": "required name=query",
-      },
+      potentialAction: [
+        {
+          "@type": "SearchAction",
+          target: `${base}/es?search={query}`,
+          "query-input": "required name=query",
+        },
+        {
+          "@type": "SearchAction",
+          target: `${base}/en?search={query}`,
+          "query-input": "required name=query",
+        },
+      ],
     },
 
     // ─── Restaurant ─────────────────────────────────────────────
