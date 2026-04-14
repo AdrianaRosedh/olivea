@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
+import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
 
@@ -116,8 +117,55 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
   const faqId = canonicalUrl(`/${L}/cafe#faq`);
 
+  // Hoisted by React 19 into <head> — LCP hero preload + page JSON-LD.
+  const pageUrl = canonicalUrl(`/${L}/cafe`);
+  const webPage = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${pageUrl}#webpage`,
+    url: pageUrl,
+    name:
+      L === "es"
+        ? "Olivea Café | Café de especialidad y desayunos"
+        : "Olivea Café | Farm Breakfast & Specialty Coffee",
+    description:
+      L === "es"
+        ? "Café de especialidad, pan de casa y desayunos junto al huerto de Olivea en Valle de Guadalupe."
+        : "Specialty coffee, house bread, and farm breakfast next to the Olivea garden in Valle de Guadalupe.",
+    isPartOf: { "@id": ENTITY_IDS.website },
+    about: { "@id": ENTITY_IDS.cafe },
+    breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    inLanguage: L === "es" ? "es-MX" : "en-US",
+  };
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "@id": `${pageUrl}#breadcrumb`,
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "OLIVEA", item: canonicalUrl(`/${L}`) },
+      { "@type": "ListItem", position: 2, name: "Olivea Café", item: pageUrl },
+    ],
+  };
+
   return (
     <div>
+      {/* React 19 hoists <link> + <script> into <head> */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/cafe/hero.jpg"
+        type="image/jpeg"
+        fetchPriority="high"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPage) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
+
       <FaqJsonLd id={faqId} items={faq} />
 
       {/* Optional: invisible text (0 layout) */}

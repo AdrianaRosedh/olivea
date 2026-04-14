@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
+import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
 
@@ -124,8 +125,56 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
   const faqId = canonicalUrl(`/${L}/casa#faq`);
 
+  // Hoisted by React 19 into <head> — preloads the LCP hero image
+  // and emits page-level WebPage + BreadcrumbList JSON-LD.
+  const pageUrl = canonicalUrl(`/${L}/casa`);
+  const webPage = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${pageUrl}#webpage`,
+    url: pageUrl,
+    name:
+      L === "es"
+        ? "Casa Olivea | Hospedaje del Huerto en Valle de Guadalupe"
+        : "Casa Olivea | Farm Stay in Valle de Guadalupe",
+    description:
+      L === "es"
+        ? "Hospedaje integrado al huerto y al restaurante con estrella MICHELIN en Valle de Guadalupe, Baja California."
+        : "Farm stay integrated with a working garden and MICHELIN-starred restaurant in Valle de Guadalupe, Baja California.",
+    isPartOf: { "@id": ENTITY_IDS.website },
+    about: { "@id": ENTITY_IDS.hotel },
+    breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    inLanguage: L === "es" ? "es-MX" : "en-US",
+  };
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "@id": `${pageUrl}#breadcrumb`,
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "OLIVEA", item: canonicalUrl(`/${L}`) },
+      { "@type": "ListItem", position: 2, name: "Casa Olivea", item: pageUrl },
+    ],
+  };
+
   return (
     <div>
+      {/* React 19 hoists <link> + <script> into <head> */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/casa/hero.jpg"
+        type="image/jpeg"
+        fetchPriority="high"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPage) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
+
       {/* ✅ AI/SEO only: structured FAQ */}
       <FaqJsonLd id={faqId} items={faq} />
 

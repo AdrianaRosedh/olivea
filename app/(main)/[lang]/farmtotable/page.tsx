@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
+import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
 
@@ -134,8 +135,55 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
   const faqId = canonicalUrl(`/${L}/farmtotable#faq`);
 
+  // Hoisted by React 19 into <head> — LCP hero preload + page JSON-LD.
+  const pageUrl = canonicalUrl(`/${L}/farmtotable`);
+  const webPage = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${pageUrl}#webpage`,
+    url: pageUrl,
+    name:
+      L === "es"
+        ? "Olivea Farm To Table | Restaurante con estrella MICHELIN"
+        : "Olivea Farm To Table | MICHELIN-Starred Restaurant",
+    description:
+      L === "es"
+        ? "Restaurante de menú degustación con estrella MICHELIN, hospedaje y café en la misma propiedad en Valle de Guadalupe."
+        : "MICHELIN-starred tasting-menu restaurant with farm stay and café on the same property in Valle de Guadalupe.",
+    isPartOf: { "@id": ENTITY_IDS.website },
+    about: { "@id": ENTITY_IDS.restaurant },
+    breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    inLanguage: L === "es" ? "es-MX" : "en-US",
+  };
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "@id": `${pageUrl}#breadcrumb`,
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "OLIVEA", item: canonicalUrl(`/${L}`) },
+      { "@type": "ListItem", position: 2, name: "Olivea Farm To Table", item: pageUrl },
+    ],
+  };
+
   return (
     <div>
+      {/* React 19 hoists <link> + <script> into <head> */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/farm/hero.jpg"
+        type="image/jpeg"
+        fetchPriority="high"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPage) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
+
       <FaqJsonLd id={faqId} items={faq} />
 
       {/* Optional: invisible text (0 layout) */}

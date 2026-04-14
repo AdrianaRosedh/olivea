@@ -123,17 +123,79 @@ export default async function JournalPage({
     posts = [];
   }
 
+  // Page-level JSON-LD (Blog + CollectionPage + ItemList of top posts).
+  // React 19 hoists <script type="application/ld+json"> into <head>.
+  const orgId = `${SITE.baseUrl}#organization`;
+  const websiteId = `${SITE.baseUrl}#website`;
+  const journalUrl = canonicalUrl(`/${lang}/journal`);
+
+  const blogLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${journalUrl}#blog`,
+    name: "Olivea Journal",
+    url: journalUrl,
+    inLanguage: lang === "es" ? "es-MX" : "en-US",
+    publisher: { "@id": orgId },
+    isPartOf: { "@id": websiteId },
+  };
+
+  const collectionLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${journalUrl}#collection`,
+    name: "Olivea Journal",
+    url: journalUrl,
+    isPartOf: { "@id": websiteId },
+    about: { "@id": orgId },
+  };
+
+  const topPosts = posts.slice(0, 10);
+  const itemListLd =
+    topPosts.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "@id": `${journalUrl}#itemlist`,
+          itemListOrder: "https://schema.org/ItemListOrderDescending",
+          numberOfItems: topPosts.length,
+          itemListElement: topPosts.map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: canonicalUrl(`/${lang}/journal/${p.slug}`),
+            name: p.title ?? `Post ${i + 1}`,
+          })),
+        }
+      : null;
+
   return (
-    <JournalClient
-      lang={lang}
-      title={jm.title ?? (lang === "es" ? "Journal" : "Journal")}
-      subtitle={
-        jm.subtitle ??
-        (lang === "es"
-          ? "Artículos, notas y decisiones del ecosistema Olivea."
-          : "Articles, field notes, and decisions from the Olivea ecosystem.")
-      }
-      posts={posts}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+      />
+      {itemListLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+        />
+      ) : null}
+
+      <JournalClient
+        lang={lang}
+        title={jm.title ?? (lang === "es" ? "Journal" : "Journal")}
+        subtitle={
+          jm.subtitle ??
+          (lang === "es"
+            ? "Artículos, notas y decisiones del ecosistema Olivea."
+            : "Articles, field notes, and decisions from the Olivea ecosystem.")
+        }
+        posts={posts}
+      />
+    </>
   );
 }

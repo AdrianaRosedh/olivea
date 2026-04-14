@@ -233,7 +233,11 @@ export default function InlineEntranceCard({
 
   const handlePointerEnter = handleMouseEnter;
 
-  // Idle preload (deduped)
+  // Idle prefetch (deduped).
+  // NOTE: Chrome doesn't actually support <link rel="preload" as="video"> —
+  // it ignores the hint and logs "unsupported 'as' value" to the console.
+  // <link rel="prefetch"> warms the HTTP cache for the video just as well
+  // for our "play on hover" use case, without the warning.
   useEffect(() => {
     if (reduceMotion) return;
     if (isMobile || !isInView || !srcA) return;
@@ -243,8 +247,7 @@ export default function InlineEntranceCard({
       if (document.head.querySelector(`link[data-key="${key}"]`)) return;
 
       const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "video";
+      link.rel = "prefetch";
       link.href = srcA;
       link.type = srcA.endsWith(".webm") ? "video/webm" : "video/mp4";
       link.setAttribute("data-key", key);
