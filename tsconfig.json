@@ -27,7 +27,6 @@
     ],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "baseUrl": "./",
     "paths": {
       "@/*": [
         "./*"
@@ -36,7 +35,7 @@
         "./components/*"
       ], // This maps '@components' to the components folder
       "@types/*": [
-        "types/*"
+        "./types/*"
       ]
     }
   },

@@ -2,6 +2,7 @@
 // Server component — semantic HTML for crawlers, AI assistants, and no-JS clients.
 
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ArticleEn() {
   return (
@@ -46,7 +47,7 @@ export default function ArticleEn() {
           landscape. Breakfast at the café is included.
         </p>
         <p>
-          <a href="/en/casa">Explore Casa Olivea →</a>
+          <Link href="/en/casa">Explore Casa Olivea →</Link>
         </p>
       </section>
 
@@ -62,7 +63,7 @@ export default function ArticleEn() {
           with advance reservation.
         </p>
         <p>
-          <a href="/en/farmtotable">Explore Farm To Table →</a>
+          <Link href="/en/farmtotable">Explore Farm To Table →</Link>
         </p>
       </section>
 
@@ -76,7 +77,7 @@ export default function ArticleEn() {
           space to spend the day at Olivea.
         </p>
         <p>
-          <a href="/en/cafe">Explore Olivea Café →</a>
+          <Link href="/en/cafe">Explore Olivea Café →</Link>
         </p>
       </section>
 

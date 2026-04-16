@@ -2,6 +2,7 @@
 // Server component — semantic HTML for crawlers, AI assistants, and no-JS clients.
 
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ArticleEs() {
   return (
@@ -47,7 +48,7 @@ export default function ArticleEs() {
           el café está incluido.
         </p>
         <p>
-          <a href="/es/casa">Explorar Casa Olivea →</a>
+          <Link href="/es/casa">Explorar Casa Olivea →</Link>
         </p>
       </section>
 
@@ -63,7 +64,7 @@ export default function ArticleEs() {
           Abierto para cena en noches selectas con reservación previa.
         </p>
         <p>
-          <a href="/es/farmtotable">Explorar Farm To Table →</a>
+          <Link href="/es/farmtotable">Explorar Farm To Table →</Link>
         </p>
       </section>
 
@@ -77,7 +78,7 @@ export default function ArticleEs() {
           tranquilo y sin prisa para pasar el día en Olivea.
         </p>
         <p>
-          <a href="/es/cafe">Explorar Olivea Café →</a>
+          <Link href="/es/cafe">Explorar Olivea Café →</Link>
         </p>
       </section>
 

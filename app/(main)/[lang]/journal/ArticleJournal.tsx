@@ -2,6 +2,7 @@
 // Server-rendered semantic article for crawlers, AI assistants, and no-JS clients.
 // Renders the journal index as a list of post titles + excerpts.
 
+import Link from "next/link";
 import type { JournalIndexItem } from "@/lib/journal/load";
 
 export default function ArticleJournal({
@@ -39,9 +40,9 @@ export default function ArticleJournal({
           {posts.map((post) => (
             <article key={post.slug} itemScope itemType="https://schema.org/BlogPosting">
               <h2 itemProp="headline">
-                <a href={`/${lang}/journal/${post.slug}`} itemProp="url">
+                <Link href={`/${lang}/journal/${post.slug}`} itemProp="url">
                   {post.title}
-                </a>
+                </Link>
               </h2>
               <p itemProp="abstract">{post.excerpt}</p>
               <p>

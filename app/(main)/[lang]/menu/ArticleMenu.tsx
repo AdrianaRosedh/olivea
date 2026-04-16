@@ -3,6 +3,7 @@
 // The /menu page is a client-side redirect to /farmtotable#menu, so crawlers see nothing.
 // This article provides the essential menu context.
 
+import Link from "next/link";
 import type { Lang } from "@/lib/i18n";
 
 export default function ArticleMenu({ lang }: { lang: Lang }) {
@@ -48,9 +49,9 @@ export default function ArticleMenu({ lang }: { lang: Lang }) {
           <dd><a href="tel:+5246463836402">(646) 383-6402</a></dd>
         </dl>
         <p>
-          <a href={`/${lang}/farmtotable`}>
+          <Link href={`/${lang}/farmtotable`}>
             {isEs ? "Ver menú completo de Farm To Table →" : "View full Farm To Table menu →"}
-          </a>
+          </Link>
         </p>
       </section>
 
@@ -69,9 +70,9 @@ export default function ArticleMenu({ lang }: { lang: Lang }) {
           <dd><a href="tel:+5246463882369">(646) 388-2369</a></dd>
         </dl>
         <p>
-          <a href={`/${lang}/cafe`}>
+          <Link href={`/${lang}/cafe`}>
             {isEs ? "Ver menú completo del Café →" : "View full Café menu →"}
-          </a>
+          </Link>
         </p>
       </section>
 
