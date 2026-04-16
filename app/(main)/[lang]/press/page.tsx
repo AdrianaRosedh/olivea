@@ -1,6 +1,7 @@
 // app/(main)/[lang]/press/page.tsx
 import type { Metadata } from "next";
 import PressClient from "./PressClient";
+import ArticlePress from "./ArticlePress";
 import { loadPressItems, loadPressManifest } from "./load";
 import type { Lang } from "./pressTypes";
 
@@ -32,5 +33,13 @@ export default async function PressPage({
   const items = loadPressItems(lang);
   const manifest = loadPressManifest();
 
-  return <PressClient lang={lang} items={items} manifest={manifest} />;
+  return (
+    <>
+      {/* Server-rendered article: full semantic content for crawlers,
+          AI assistants, screen readers, and no-JS clients.
+          Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
+      <ArticlePress lang={lang} items={items} />
+      <PressClient lang={lang} items={items} manifest={manifest} />
+    </>
+  );
 }

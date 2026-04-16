@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { SITE, canonicalUrl } from "@/lib/site";
 import { type Lang } from "@/lib/i18n";
 import MenuDeepLinkClient from "./MenuDeepLinkClient";
+import ArticleMenu from "./ArticleMenu";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -50,5 +51,16 @@ export default async function MenuPage({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  return <MenuDeepLinkClient lang={lang} />;
+  const L: Lang = lang === "en" ? "en" : "es";
+
+  return (
+    <>
+      {/* Server-rendered article: full semantic content for crawlers,
+          AI assistants, screen readers, and no-JS clients.
+          The client component redirects to /farmtotable#menu,
+          but crawlers need content on this URL. */}
+      <ArticleMenu lang={L} />
+      <MenuDeepLinkClient lang={lang} />
+    </>
+  );
 }

@@ -2,6 +2,8 @@
 import type { Metadata } from "next";
 import { SITE, canonicalUrl } from "@/lib/site";
 import HomeClient from "./HomeClient";
+import ArticleEn from "./ArticleEn";
+import ArticleEs from "./ArticleEs";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -61,6 +63,21 @@ export async function generateMetadata({
   };
 }
 
-export default function Page() {
-  return <HomeClient />;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const Article = lang === "en" ? ArticleEn : ArticleEs;
+
+  return (
+    <>
+      {/* Server-rendered article: full semantic content for crawlers,
+          AI assistants, screen readers, and no-JS clients.
+          Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
+      <Article />
+      <HomeClient />
+    </>
+  );
 }

@@ -1,6 +1,8 @@
 // app/(main)/[lang]/sustainability/page.tsx
 import type { Metadata } from "next";
 import PhilosophyClient from "./PhilosophyClient";
+import ArticleEn from "./ArticleEn";
+import ArticleEs from "./ArticleEs";
 import { loadPhilosophySections } from "./load";
 import { canonicalUrl } from "@/lib/site";
 import type { Lang } from "./philosophyTypes";
@@ -66,6 +68,15 @@ export default async function SustainabilityPage({
   const p = await params;
   const lang: Lang = p.lang === "en" ? "en" : "es";
   const sections = loadPhilosophySections(lang);
+  const Article = lang === "en" ? ArticleEn : ArticleEs;
 
-  return <PhilosophyClient lang={lang} sections={sections} />;
+  return (
+    <>
+      {/* Server-rendered article: full semantic content for crawlers,
+          AI assistants, screen readers, and no-JS clients.
+          Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
+      <Article />
+      <PhilosophyClient lang={lang} sections={sections} />
+    </>
+  );
 }

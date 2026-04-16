@@ -6,6 +6,8 @@ import {
   type Lang,
 } from "@/app/(main)/[lang]/dictionaries";
 import ContactClient from "./ContactClient";
+import ArticleEn from "./ArticleEn";
+import ArticleEs from "./ArticleEs";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -53,5 +55,15 @@ export default async function ContactPage({ params }: PageProps) {
   // ✅ Force to plain JSON so Next never crashes on RSC -> Client boundary
   const t = JSON.parse(JSON.stringify(dict.contact));
 
-  return <ContactClient lang={lang} t={t} />;
+  const Article = lang === "en" ? ArticleEn : ArticleEs;
+
+  return (
+    <>
+      {/* Server-rendered article: full semantic content for crawlers,
+          AI assistants, screen readers, and no-JS clients.
+          Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
+      <Article />
+      <ContactClient lang={lang} t={t} />
+    </>
+  );
 }

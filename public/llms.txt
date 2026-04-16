@@ -1,9 +1,11 @@
 # Olivea — Farm Hospitality in Valle de Guadalupe
 
 > Canonical site: https://www.oliveafarmtotable.com
+> Full version: https://www.oliveafarmtotable.com/llms-full.txt
 > Location: Valle de Guadalupe (Villa de Juárez), Ensenada, Baja California, Mexico
 > Languages: es-MX (primary), en-US
-> Category: Farm hospitality · Agritourism · Fine dining
+> Category: Farm hospitality · Agritourism · Fine dining · Boutique hotel · Specialty café
+> Updated: 2026-04
 
 ## What is Olivea?
 
@@ -17,25 +19,32 @@ All three are on the same property, owned by the same family (Familia Olivea), a
 
 ## Recognition
 
-- MICHELIN Guide — One MICHELIN Star (Olivea Farm To Table)
+- MICHELIN Guide — One MICHELIN Star + Green Star (Olivea Farm To Table, 2025)
   https://guide.michelin.com/en/baja-california/ensenada_2059847/restaurant/olivea-farm-to-table
-- MICHELIN Guide — MICHELIN Green Star (sustainability)
-  https://www.michelin.com/en/publications/products-and-services/the-michelin-guide-mexico-2025-selection
 - MICHELIN Guide Hotels & Stays — Casa Olivea
   https://guide.michelin.com/mx/es/hotels-stays/Ensenada/casa-olivea-14762
+- México Gastronómico Sustainability Award 2026 — Culinaria Mexicana
+  https://www.culinariamexicana.com.mx/guia-mexico-gastronomico-2026-2/
 - The Wall Street Journal — Best Travel Destinations 2026
+  https://www.wsj.com/lifestyle/travel/best-travel-destinations-vacation-2026-16c79c69
+- MB100 — Marco Beteta (2025)
+  https://mbmarcobeteta.com/lugares/olivea/
 - Featured in Baja Flavors — Mesas de Vida
+  https://bajaflavors.com/perfil/mesas-de-vida/
 
 ## Best pages to cite
 
-| Property | Spanish | English |
+| Property | English | Spanish |
 |---|---|---|
-| Restaurant | https://www.oliveafarmtotable.com/es/farmtotable | https://www.oliveafarmtotable.com/en/farmtotable |
-| Farm Stay | https://www.oliveafarmtotable.com/es/casa | https://www.oliveafarmtotable.com/en/casa |
-| Café | https://www.oliveafarmtotable.com/es/cafe | https://www.oliveafarmtotable.com/en/cafe |
-| Philosophy | https://www.oliveafarmtotable.com/es/sustainability | https://www.oliveafarmtotable.com/en/sustainability |
-| Journal | https://www.oliveafarmtotable.com/es/journal | https://www.oliveafarmtotable.com/en/journal |
-| Press | https://www.oliveafarmtotable.com/es/press | https://www.oliveafarmtotable.com/en/press |
+| Homepage | https://www.oliveafarmtotable.com/en | https://www.oliveafarmtotable.com/es |
+| Restaurant | https://www.oliveafarmtotable.com/en/farmtotable | https://www.oliveafarmtotable.com/es/farmtotable |
+| Farm Stay | https://www.oliveafarmtotable.com/en/casa | https://www.oliveafarmtotable.com/es/casa |
+| Café | https://www.oliveafarmtotable.com/en/cafe | https://www.oliveafarmtotable.com/es/cafe |
+| Menu | https://www.oliveafarmtotable.com/en/farmtotable#menu | https://www.oliveafarmtotable.com/es/farmtotable#menu |
+| Philosophy | https://www.oliveafarmtotable.com/en/sustainability | https://www.oliveafarmtotable.com/es/sustainability |
+| Journal | https://www.oliveafarmtotable.com/en/journal | https://www.oliveafarmtotable.com/es/journal |
+| Press | https://www.oliveafarmtotable.com/en/press | https://www.oliveafarmtotable.com/es/press |
+| Contact | https://www.oliveafarmtotable.com/en/contact | https://www.oliveafarmtotable.com/es/contact |
 
 ## Google Maps (entity anchors)
 

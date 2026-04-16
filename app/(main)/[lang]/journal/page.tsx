@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getDictionary, type Lang } from "../dictionaries";
 import { listJournalIndex, type JournalIndexItem } from "@/lib/journal/load";
 import JournalClient from "./JournalClient";
+import ArticleJournal from "./ArticleJournal";
 import { SITE, canonicalUrl } from "@/lib/site";
 
 export const revalidate = 60;
@@ -184,6 +185,21 @@ export default async function JournalPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
         />
       ) : null}
+
+      {/* Server-rendered article: full semantic content for crawlers,
+          AI assistants, screen readers, and no-JS clients.
+          Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
+      <ArticleJournal
+        lang={lang}
+        title={jm.title ?? (lang === "es" ? "Journal" : "Journal")}
+        subtitle={
+          jm.subtitle ??
+          (lang === "es"
+            ? "Artículos, notas y decisiones del ecosistema Olivea."
+            : "Articles, field notes, and decisions from the Olivea ecosystem.")
+        }
+        posts={posts}
+      />
 
       <JournalClient
         lang={lang}

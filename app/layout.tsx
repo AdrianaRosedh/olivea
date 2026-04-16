@@ -106,6 +106,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
 
         {/*
+          ✅ Mark JS-hydrated so server-rendered articles (.ssr-article)
+          collapse once the animated client content takes over.
+          Runs pre-paint so the article never visually flashes.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.classList.add('js-hydrated');`,
+          }}
+        />
+
+        {/*
           ✅ Preconnect to third-party origins used on first paint.
           Opens TCP+TLS early so the first request to each origin doesn't
           pay the full handshake cost. Keep this list tight — every preconnect

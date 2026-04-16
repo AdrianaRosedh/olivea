@@ -7,6 +7,8 @@ import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
+import ArticleEn from "./ArticleEn";
+import ArticleEs from "./ArticleEs";
 
 type FarmMetaShape = {
   farmtotable?: { meta?: { title?: string; description?: string; ogImage?: string } };
@@ -85,6 +87,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const { lang: raw } = await params;
   const L: Lang = raw === "es" ? "es" : "en";
   const Content = L === "en" ? ContentEn : ContentEs;
+  const Article = L === "en" ? ArticleEn : ArticleEs;
 
   const faq: FaqItem[] =
     L === "es"
@@ -186,16 +189,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
       <FaqJsonLd id={faqId} items={faq} />
 
-      {/* Optional: invisible text (0 layout) */}
-      <div className="sr-only">
-        <h2>{L === "es" ? "Preguntas frecuentes" : "Frequently asked questions"}</h2>
-        {faq.map((it) => (
-          <div key={it.q}>
-            <h3>{it.q}</h3>
-            <p>{it.a}</p>
-          </div>
-        ))}
-      </div>
+      {/* Server-rendered article: full semantic content for crawlers,
+          AI assistants, screen readers, and no-JS clients.
+          Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
+      <Article />
 
       <Suspense
         fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
