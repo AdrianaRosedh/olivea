@@ -15,6 +15,22 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
+
+  // ── Subdomain enforcement ─────────────────────────────────────────
+  // Auth callback only works on admin.oliveafarmtotable.com (or localhost).
+  const host = request.headers.get("host") ?? "";
+  const hostname = host.split(":")[0];
+  const adminHost = process.env.ADMIN_HOSTNAME ?? "admin.oliveafarmtotable.com";
+  const isAllowed =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === adminHost ||
+    host.endsWith(".vercel.app");
+
+  if (!isAllowed) {
+    return new NextResponse("Not Found", { status: 404 });
+  }
+
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const code = searchParams.get("code");

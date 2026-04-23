@@ -112,14 +112,36 @@ const nextConfig: NextConfig = {
    * allowing bots to read OG tags.
    */
   async rewrites() {
-    return [
-      // Serve Spanish content at "/" without redirect
-      { source: "/", destination: "/es" },
+    // Resolve the admin hostname (configurable via env var)
+    const adminHost = process.env.ADMIN_HOSTNAME ?? "admin.oliveafarmtotable.com";
 
-      // Legacy journal paths without redirects (bot-friendly)
-      { source: "/journal", destination: "/es/journal" },
-      { source: "/journal/:slug*", destination: "/es/journal/:slug*" },
-    ];
+    return {
+      beforeFiles: [
+        // ── Subdomain routing: block /admin on main domain ────────
+        // If the hostname is NOT the admin subdomain, NOT localhost,
+        // and NOT a Vercel preview → rewrite /admin/* to a 404 page.
+        // This is a defense-in-depth layer on top of the server
+        // component check in the admin layout.
+        {
+          source: "/admin/:path*",
+          destination: "/not-found",
+          has: [
+            {
+              type: "host" as const,
+              value: `(?!${adminHost.replace(/\./g, "\\.")}$)(?!localhost$)(?!.*\\.vercel\\.app$).*`,
+            },
+          ],
+        },
+      ],
+      afterFiles: [
+        // Serve Spanish content at "/" without redirect
+        { source: "/", destination: "/es" },
+
+        // Legacy journal paths without redirects (bot-friendly)
+        { source: "/journal", destination: "/es/journal" },
+        { source: "/journal/:slug*", destination: "/es/journal/:slug*" },
+      ],
+    };
   },
 
   /**

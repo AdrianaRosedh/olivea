@@ -8,6 +8,7 @@ import { PaletteProvider } from "@/components/admin/CommandPalette";
 import { getSession } from "@/lib/auth/session";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mockUser } from "@/lib/admin/mock-user";
+import { requireAdminHost } from "@/lib/admin/require-admin-host";
 
 export const metadata: Metadata = {
   title: "Olivea Admin",
@@ -16,24 +17,38 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // ── Subdomain enforcement ─────────────────────────────────────────
+  // Admin portal only responds on admin.oliveafarmtotable.com (or localhost).
+  // Any other hostname → 404. No middleware needed (Next.js 16 DAL pattern).
+  await requireAdminHost();
+
+  // ── Authentication ────────────────────────────────────────────────
   let user;
 
   if (isSupabaseConfigured) {
-    // Production: require authenticated session
+    // Supabase is configured — require authenticated session
     try {
       user = await getSession();
     } catch {
       user = null;
     }
 
-    // If Supabase is configured but no session, redirect to login
+    // No session → redirect to login
     // (Next.js 16 DAL pattern — auth enforced in server components, not middleware)
     if (!user) {
       redirect("/admin/login");
     }
-  } else {
-    // Development: no Supabase configured — use mock user
+  } else if (process.env.NODE_ENV === "development") {
+    // Local development only: no Supabase configured — use mock user
     user = mockUser;
+  } else {
+    // Production without Supabase = misconfiguration.
+    // NEVER fall through to mock user — that's a full auth bypass.
+    throw new Error(
+      "FATAL: Supabase is not configured in production. " +
+      "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables. " +
+      "Admin access is blocked until this is resolved."
+    );
   }
 
   const resolvedUser = user;
