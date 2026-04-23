@@ -1,5 +1,6 @@
 // app/olivea-locator/route.ts
 import { NextResponse, type NextRequest } from "next/server";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { type Lang } from "@/lib/i18n";
 
 export const runtime = "nodejs";
@@ -21,15 +22,21 @@ const copy = {
 } satisfies Record<Lang, { title: string; address2Short: string; address2Long: string }>;
 
 export async function GET(req: NextRequest) {
-  const key = process.env.NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY;
-  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID; 
-
-  if (!key) {
-    return new NextResponse("Missing NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY", { status: 500 });
+  const ip = clientIp(req);
+  const { ok, retryAfter } = rateLimit(`locator:${ip}`, { limit: 60, windowMs: 60_000 });
+  if (!ok) {
+    return new NextResponse("Too Many Requests", {
+      status: 429,
+      headers: { "Retry-After": String(retryAfter) },
+    });
   }
 
-  // You *can* choose to hard-fail if missing Map ID:
-  // if (!mapId) return new NextResponse("Missing NEXT_PUBLIC_GOOGLE_MAP_ID", { status: 500 });
+  const key = process.env.NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY;
+  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID;
+
+  if (!key) {
+    return new NextResponse("Internal server error", { status: 500 });
+  }
 
   const lang = normalizeLang(req.nextUrl.searchParams.get("lang"));
   const t = copy[lang];

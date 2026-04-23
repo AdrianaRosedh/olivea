@@ -13,6 +13,7 @@ type Post = {
 
   // ✅ matches your schema
   author?: string | { id?: string; name: string };
+  authors?: Array<string | { id?: string; name: string }>;
 };
 
 export type JournalFilterDockProps = {

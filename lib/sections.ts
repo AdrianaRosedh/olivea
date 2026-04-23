@@ -1,4 +1,9 @@
 // lib/sections.ts
+
+/** Shared types for per-page section navigation (sidebar / mobile nav) */
+export type NavSub = { id: string; title: string };
+export type NavSection = { id: string; title: string; subs?: NavSub[] };
+
 export type SectionId = "casa" | "farmtotable" | "cafe";
 
 export type Lang = "es" | "en";

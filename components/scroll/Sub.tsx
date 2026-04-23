@@ -23,7 +23,7 @@ export default function Sub({
   className = "",
 }: Props) {
   return (
-    <Reveal preset={preset} delay={delay} className={cn("snap-center", className)}>
+    <Reveal preset={preset} delay={delay} className={className || undefined}>
       <div
         id={id}
         className={cn("subsection leading-relaxed md:text-lg text-oliveaText")}

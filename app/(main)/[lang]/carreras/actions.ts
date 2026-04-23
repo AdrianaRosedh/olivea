@@ -1,8 +1,10 @@
 "use server";
 
 import { z } from "zod";
-import nodemailer from "nodemailer";
 import { headers } from "next/headers";
+import { rateLimit } from "@/lib/rate-limit";
+import { sendCareersEmail } from "@/lib/email/send";
+import { submitApplication } from "@/lib/supabase/careers-actions";
 
 const formSchema = z.object({
   name: z.string().min(2, "Nombre requerido"),
@@ -25,10 +27,6 @@ const formSchema = z.object({
 });
 
 export type ApplicationErrors = Record<string, string>;
-
-function escapeHtml(s: string) {
-  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
-}
 
 async function getClientIp() {
   // ✅ In your Next version, headers() is async (Promise<ReadonlyHeaders>)
@@ -56,26 +54,16 @@ async function verifyTurnstile(token: string, ip: string) {
   return { ok: data.success as boolean };
 }
 
-function smtpTransport() {
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT || "465");
-  const secure = String(process.env.SMTP_SECURE || "true") === "true";
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (!host || !user || !pass) throw new Error("Missing SMTP env vars");
-
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    auth: { user, pass },
-  });
-}
-
 export async function handleSubmit(
   formData: FormData
 ): Promise<{ errors?: ApplicationErrors; success?: true }> {
+  // Rate limiting: 10 submissions per minute per IP
+  const ip = await getClientIp();
+  const rl = rateLimit(`carreras:${ip}`, { limit: 10, windowMs: 60_000 });
+  if (!rl.ok) {
+    return { errors: { form: "Demasiadas solicitudes. Intenta en un momento." } };
+  }
+
   const raw = Object.fromEntries(formData.entries());
   const parsed = formSchema.safeParse(raw);
 
@@ -101,45 +89,57 @@ export async function handleSubmit(
   if (Date.now() - started < 2500) return { errors: { form: "Solicitud inválida." } };
 
   // 3) Turnstile verify
-  const ip = await getClientIp();
   const ok = await verifyTurnstile(data.turnstileToken, ip);
   if (!ok.ok) return { errors: { turnstileToken: "No se pudo verificar. Intenta de nuevo." } };
 
-  // 4) Send email via SMTP
-  const to = process.env.CAREERS_TO_EMAIL || "rrhh@casaolivea.com";
-  const from = process.env.CAREERS_FROM_EMAIL || process.env.SMTP_USER || "rrhh@casaolivea.com";
-
-  const subject = `Nueva aplicación — ${data.name} (${data.area})`;
-
-  const html = `
-    <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;">
-      <h2>Nueva aplicación (Olivea Carreras)</h2>
-      <p><strong>Nombre:</strong> ${escapeHtml(data.name)}</p>
-      <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
-      <p><strong>Tel:</strong> ${escapeHtml(data.phone)}</p>
-      <p><strong>Área:</strong> ${escapeHtml(data.area)}</p>
-      <p><strong>Disponibilidad:</strong> ${escapeHtml(data.availability)}</p>
-      <p><strong>Idiomas:</strong> ${escapeHtml(data.languages)}</p>
-      <p><strong>Rol:</strong> ${escapeHtml(data.role || "-")}</p>
-      <p><strong>Links:</strong> ${escapeHtml(data.links || "-")}</p>
-      <hr/>
-      <p><strong>1) Excelencia:</strong><br/>${escapeHtml(data.q1).replace(/\n/g, "<br/>")}</p>
-      <p><strong>2) Feedback difícil:</strong><br/>${escapeHtml(data.q2).replace(/\n/g, "<br/>")}</p>
-      <p><strong>3) ¿Por qué Olivea?:</strong><br/>${escapeHtml(data.q3).replace(/\n/g, "<br/>")}</p>
-      <hr/>
-      <p><strong>Notas:</strong><br/>${escapeHtml(data.notes || "-").replace(/\n/g, "<br/>")}</p>
-      <p style="color:#666;font-size:12px">IP: ${escapeHtml(ip)} • ${new Date().toISOString()}</p>
-    </div>
-  `;
+  // 4) Save application to Supabase
+  const coverNote = [
+    data.q1 ? `Q1: ${data.q1}` : "",
+    data.q2 ? `Q2: ${data.q2}` : "",
+    data.q3 ? `Q3: ${data.q3}` : "",
+    data.notes ? `Notes: ${data.notes}` : "",
+    data.role ? `Role: ${data.role}` : "",
+    data.links ? `Links: ${data.links}` : "",
+    data.languages ? `Languages: ${data.languages}` : "",
+    data.availability ? `Availability: ${data.availability}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   try {
-    const transporter = smtpTransport();
-    await transporter.sendMail({
-      from,
+    await submitApplication({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      area: data.area,
+      coverNote,
+    });
+  } catch {
+    // Non-critical — the email is the primary delivery
+  }
+
+  // 5) Send branded email via Resend
+  const to = process.env.CAREERS_TO_EMAIL || "rrhh@casaolivea.com";
+
+  try {
+    await sendCareersEmail({
       to,
-      subject,
-      html,
       replyTo: data.email,
+      applicant: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        area: data.area,
+        availability: data.availability,
+        languages: data.languages,
+        role: data.role || undefined,
+        links: data.links || undefined,
+        q1: data.q1,
+        q2: data.q2,
+        q3: data.q3,
+        notes: data.notes || undefined,
+        ip,
+      },
     });
   } catch {
     return { errors: { form: "No se pudo enviar. Intenta más tarde." } };

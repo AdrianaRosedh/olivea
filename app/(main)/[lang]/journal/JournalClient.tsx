@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 /* =================== types =================== */
+type AuthorLike = string | { id?: string; name: string };
+
 type Post = {
   lang: "es" | "en";
   slug: string;
@@ -23,8 +25,25 @@ type Post = {
   cover?: { src: string; alt: string };
 
   // ✅ matches schema
-  author?: string | { id?: string; name: string };
+  author?: AuthorLike;
+  authors?: AuthorLike[];
 };
+
+function collectAuthorSearchTokens(p: Post): string[] {
+  const tokens: string[] = [];
+  const push = (a: AuthorLike | undefined) => {
+    if (!a) return;
+    if (typeof a === "string") {
+      tokens.push(a);
+      return;
+    }
+    if (a.name) tokens.push(a.name);
+    if (a.id) tokens.push(a.id);
+  };
+  if (Array.isArray(p.authors)) p.authors.forEach(push);
+  push(p.author);
+  return tokens;
+}
 
 /* =================== motion =================== */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -101,18 +120,14 @@ export default function JournalClient({
     };
 
     return posts.filter((p) => {
-      const authorName =
-        typeof p.author === "string" ? p.author : p.author?.name ?? "";
-      const authorId =
-        typeof p.author === "object" && p.author?.id ? p.author.id : "";
+      const authorTokens = collectAuthorSearchTokens(p);
 
       const searchText = [
         p.title,
         p.excerpt,
         p.pillar,
         ...(p.tags ?? []),
-        authorName,
-        authorId,
+        ...authorTokens,
       ]
         .join(" ")
         .toLowerCase();

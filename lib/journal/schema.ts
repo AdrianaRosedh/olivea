@@ -109,6 +109,8 @@ export const JournalFrontmatterSchema = z.object({
 
   // Optional fields your UI supports
   description: z.string().min(1).optional(),
+
+  /** Single author (legacy, still supported). */
   author: z
     .union([
       z.string().min(1),
@@ -117,6 +119,23 @@ export const JournalFrontmatterSchema = z.object({
         name: z.string().min(1),
       }),
     ])
+    .optional(),
+
+  /**
+   * Multiple authors (for co-authored pieces). When present, takes precedence
+   * over `author`. Accepts strings or { id, name } objects.
+   */
+  authors: z
+    .array(
+      z.union([
+        z.string().min(1),
+        z.object({
+          id: z.string().min(1).optional(),
+          name: z.string().min(1),
+        }),
+      ])
+    )
+    .min(1)
     .optional(),
 });
 

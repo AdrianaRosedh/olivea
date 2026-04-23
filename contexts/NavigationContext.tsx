@@ -3,6 +3,7 @@
 
 import type React from "react";
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
+import { scrollOffsetPx } from "@/lib/scroll-offset";
 
 type NavigationContextType = {
   activeSection: string | null;
@@ -23,11 +24,6 @@ const NavigationContext = createContext<NavigationContextType>({
 export const useNavigation = () => useContext(NavigationContext);
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
-function headerPx(): number {
-  const v = getComputedStyle(document.documentElement).getPropertyValue("--header-h");
-  const n = parseInt(v || "", 10);
-  return Number.isFinite(n) && n > 0 ? n : 64; // sensible fallback
-}
 function clampToMaxScroll(y: number): number {
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   return Math.min(Math.max(0, y), maxY);
@@ -58,7 +54,7 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
     if (!el) return;
 
     // compute Y so the section lands just under the header
-    const topOffset = headerPx() + 8;
+    const topOffset = scrollOffsetPx();
     const rect = el.getBoundingClientRect();
     const targetY = clampToMaxScroll(window.scrollY + rect.top - topOffset);
 

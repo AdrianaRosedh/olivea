@@ -1,5 +1,5 @@
 // app/(main)/[lang]/farmtotable/sections.en.ts
-import type { NavSection } from "./sections.es";
+import type { NavSection } from "@/lib/sections";
 
 export const SECTIONS_EN: NavSection[] = [
   {

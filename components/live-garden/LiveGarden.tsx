@@ -106,6 +106,7 @@ export default function LiveGarden() {
   const prefersReduced = useReducedMotion();
   const pathname = usePathname();
   const isEn = useMemo(() => pathname?.startsWith("/en"), [pathname]);
+  const isAdmin = useMemo(() => pathname?.startsWith("/admin"), [pathname]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -149,6 +150,9 @@ export default function LiveGarden() {
     : isMobile
       ? panelMobile
       : panelDesktop;
+
+  // Don't render on admin pages
+  if (isAdmin) return null;
 
   return (
     <>

@@ -99,6 +99,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Runs before first paint so `pwa-safe-*` utility classes
           pick up env(safe-area-inset-*) on iOS immediately (no flash).
         */}
+        {/*
+          ✅ Set <html lang> from the URL path before first paint.
+          The root layout can't access [lang] params (it's above the
+          route groups), so we read the pathname at the earliest moment.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=/^\\/(en|es)(?:\\/|$)/.exec(location.pathname);if(m)document.documentElement.lang=m[1];}catch(e){}})();`,
+          }}
+        />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;if(s)document.documentElement.classList.add('pwa-standalone');}catch(e){}})();`,
@@ -124,10 +135,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         */}
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
         <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="" />
-        <link rel="preconnect" href="https://static1.cloudbeds.com" crossOrigin="" />
-        <link rel="preconnect" href="https://hotels.cloudbeds.com" crossOrigin="" />
-        <link rel="preconnect" href="https://www.opentable.com" crossOrigin="" />
-        <link rel="preconnect" href="https://www.opentable.com.mx" crossOrigin="" />
+        {/* Cloudbeds + OpenTable widgets are modal-gated (lazy-loaded on click).
+            Moved from preconnect to dns-prefetch so they don't compete with LCP. */}
+        <link rel="dns-prefetch" href="https://static1.cloudbeds.com" />
+        <link rel="dns-prefetch" href="https://hotels.cloudbeds.com" />
+        <link rel="dns-prefetch" href="https://www.opentable.com" />
+        <link rel="dns-prefetch" href="https://www.opentable.com.mx" />
         {/* DNS-only hints for origins that may load later but are likely */}
         <link rel="dns-prefetch" href="https://maps.googleapis.com" />
         <link rel="dns-prefetch" href="https://maps.gstatic.com" />
@@ -147,6 +160,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body className="bg-background text-foreground">
+        {/* ✅ Skip-to-content link for keyboard / screen-reader users */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded focus:bg-foreground focus:px-4 focus:py-2 focus:text-background"
+        >
+          Skip to content
+        </a>
+
         <noscript>
           <style>
             {`.fixed-lcp{opacity:0 !important;transition:none !important;pointer-events:none !important;}`}

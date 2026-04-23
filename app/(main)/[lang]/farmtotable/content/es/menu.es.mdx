@@ -68,9 +68,9 @@ import CardParallax from "@/components/mdx/CardParallax";
   <div className="mt-8 md:mt-9 text-center">
     <p className="mx-auto max-w-[70ch] text-[17px] md:text-[18px] leading-[1.7] text-[var(--olivea-ink)]/90">
       Un <strong>menú degustación de 9 tiempos</strong>, concebido como un solo
-      recorrido. El menú cambia con{" "}
-      <strong>con el huerto</strong>, guiado por lo que el huerto y la temporada
-      ofrecen en su punto.
+      recorrido. Cada plato tiene un <strong>maridaje diseñado en paralelo</strong> — 
+      del Valle o del huerto — porque la bebida es parte de la historia, no un
+      acompañamiento.
     </p>
 
     <div className="mt-6 flex justify-center">
@@ -84,6 +84,12 @@ import CardParallax from "@/components/mdx/CardParallax";
             label: "Menú",
             url: "https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view",
             emoji: "🍽️",
+          },
+          {
+            id: "maridaje",
+            label: "Maridaje",
+            url: "https://www.canva.com/design/DAHHJOjrEtA/Z61x8mG86PdYutpEa6ymzg/view",
+            emoji: "🌿",
           },
           {
             id: "licores",
@@ -117,22 +123,34 @@ import CardParallax from "@/components/mdx/CardParallax";
   </div>
 
   {/* INFO */}
-  <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-3">
+  <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
     <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
       <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
-        🍷 Maridajes y descorche
+        🌿 Del huerto al vaso
       </div>
       <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
-        Un recorrido de vinos del Valle y un <em>maridaje sin alcohol</em>. Descorche:
-        <strong> $350 MXN por botella</strong>.
+        Nuestro equipo de <strong>fermentación</strong> diseña un maridaje sin
+        alcohol con ingredientes del huerto: fermentos vivos, shrubs, infusiones
+        y mocktails que cambian con la temporada.
       </p>
     </div>
 
     <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
       <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
-        🌿 Preferencias y alergias
+        🍷 Vinos del Valle y descorche
+      </div>
+      <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+        Un recorrido de vinos seleccionados del Valle de Guadalupe, maridados
+        tiempo a tiempo. Descorche: <strong>$350 MXN por botella</strong>.
+      </p>
+    </div>
+
+    <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+        🌱 Preferencias y alergias
       </div>
       <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
         Con aviso previo, adaptamos el menú con cuidado. Opción vegetariana

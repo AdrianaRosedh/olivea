@@ -13,7 +13,7 @@ import Galeria from './content/es/gallery.es.mdx';
 
 export default function ContentEs() {
   return (
-    <ScrollLimiter topOffsetPx={120} anchorSelector=".subsection" className="snap-container">
+    <ScrollLimiter anchorSelector=".subsection">
       <Hero />
       <Habitaciones />
       <Diseno />

@@ -367,6 +367,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
 
       {/* MAIN */}
       <main
+        id="main-content"
         data-hero-breakout={allowHeroBreakout ? "true" : "false"}
         className={
           isHome

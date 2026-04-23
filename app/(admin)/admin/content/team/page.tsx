@@ -1,0 +1,33 @@
+"use client";
+
+import { Users } from "lucide-react";
+import teamContent from "@/lib/content/data/team";
+import { VisualPageEditor, useEditor, MetaSection, EditableBilingual } from "@/components/admin/visual-editor";
+
+function TeamVisual() {
+  const { get, set } = useEditor();
+  const meta = get("meta") as { title?: { es: string; en: string }; description?: { es: string; en: string } } | undefined;
+
+  return (
+    <div className="space-y-8">
+      <MetaSection>
+        <EditableBilingual label="Meta Title" as="small" value={meta?.title ?? { es: "", en: "" }} onChange={(v) => set("meta.title", v)} className="text-sm text-stone-600" />
+        <EditableBilingual label="Meta Description" as="small" value={meta?.description ?? { es: "", en: "" }} onChange={(v) => set("meta.description", v)} className="text-sm text-stone-600" multiline />
+      </MetaSection>
+
+      <section className="rounded-3xl bg-white/60 ring-1 ring-black/5 p-8 md:p-12 text-center space-y-4">
+        <Users className="w-8 h-8 text-[var(--olivea-olive)] mx-auto opacity-40" />
+        <EditableBilingual label="Title" as="h1" value={(get("title") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("title", v)} className="text-2xl md:text-3xl font-serif text-stone-800" />
+        <EditableBilingual label="Description" as="p" value={(get("description") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("description", v)} className="text-base text-stone-600 leading-relaxed max-w-2xl mx-auto" multiline />
+      </section>
+    </div>
+  );
+}
+
+export default function TeamContentAdmin() {
+  return (
+    <VisualPageEditor title="Team" table="team_content" icon={<Users className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={teamContent as unknown as Record<string, unknown>}>
+      <TeamVisual />
+    </VisualPageEditor>
+  );
+}

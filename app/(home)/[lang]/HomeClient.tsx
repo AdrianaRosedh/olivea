@@ -26,8 +26,8 @@ import LazyShow from "@/components/ui/LazyShow";
 import { watchLCP } from "@/lib/perf/watchLCP";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
 
-// bump this whenever you swap the hero videos
-const HERO_VIDEO_VERSION = "2026-01-15-v2";
+// Default video version — overridden by videoConfig prop from content layer
+const DEFAULT_VIDEO_VERSION = "2026-01-15-v2";
 
 // Animated logo (client only)
 const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), {
@@ -59,7 +59,14 @@ type SectionDef = {
   sectionKey: SectionKey;
 };
 
-export default function HomeClient() {
+type VideoConfig = {
+  version: string;
+  mobile: { webm: string; mp4: string; poster: string };
+  desktop: { webm: string; mp4: string; poster: string };
+};
+
+export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig }) {
+  const HERO_VIDEO_VERSION = videoConfig?.version ?? DEFAULT_VIDEO_VERSION;
   const reduce = useReducedMotion() ?? false;
   const containerVariants = useMemo(() => makeContainerVariants(reduce), [reduce]);
   const itemVariants = useMemo(() => makeItemVariants(reduce), [reduce]);
@@ -314,7 +321,7 @@ export default function HomeClient() {
                 autoPlay
                 loop
                 preload="metadata"
-                poster="/images/hero-mobile.avif"
+                poster={videoConfig?.mobile.poster ?? "/images/hero-mobile.avif"}
                 aria-hidden
                 tabIndex={-1}
                 disablePictureInPicture
@@ -326,11 +333,11 @@ export default function HomeClient() {
                 }}
               >
                 <source
-                  src={`/videos/homepage-mobile.webm?v=${HERO_VIDEO_VERSION}`}
+                  src={`${videoConfig?.mobile.webm ?? "/videos/homepage-mobile.webm"}?v=${HERO_VIDEO_VERSION}`}
                   type="video/webm"
                 />
                 <source
-                  src={`/videos/homepage-mobile.mp4?v=${HERO_VIDEO_VERSION}`}
+                  src={`${videoConfig?.mobile.mp4 ?? "/videos/homepage-mobile.mp4"}?v=${HERO_VIDEO_VERSION}`}
                   type="video/mp4"
                 />
               </video>
@@ -365,16 +372,16 @@ export default function HomeClient() {
                   loop
                   autoPlay
                   preload="metadata"
-                  poster="/images/hero-mobile.avif"
+                  poster={videoConfig?.desktop.poster ?? "/images/hero-mobile.avif"}
                   aria-hidden
                   tabIndex={-1}
                 >
                   <source
-                    src={`/videos/homepage-HD.webm?v=${HERO_VIDEO_VERSION}`}
+                    src={`${videoConfig?.desktop.webm ?? "/videos/homepage-HD.webm"}?v=${HERO_VIDEO_VERSION}`}
                     type="video/webm"
                   />
                   <source
-                    src={`/videos/homepage-HD.mp4?v=${HERO_VIDEO_VERSION}`}
+                    src={`${videoConfig?.desktop.mp4 ?? "/videos/homepage-HD.mp4"}?v=${HERO_VIDEO_VERSION}`}
                     type="video/mp4"
                   />
                 </video>

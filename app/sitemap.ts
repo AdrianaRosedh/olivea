@@ -48,7 +48,7 @@ async function getJournalEntries(
   const dir = path.join(process.cwd(), "content", "journal", lang);
   try {
     const files = await fs.readdir(dir);
-    const mdx = files.filter((f) => f.endsWith(".mdx"));
+    const mdx = files.filter((f) => f.endsWith(".mdx")).filter((f) => !/\s+copy(\s+\d+)?\.mdx$/i.test(f));
 
     const entries = await Promise.all(
       mdx.map(async (f) => {

@@ -226,6 +226,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
 
   return (
     <nav
+      aria-label="Main navigation"
       data-scope="main"
       className="fixed left-0 right-0 z-50 bg-transparent"
       style={{ top: TOP_OFFSET }}

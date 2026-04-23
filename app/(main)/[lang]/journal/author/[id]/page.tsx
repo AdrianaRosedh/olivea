@@ -12,7 +12,7 @@ import {
   localizedAuthorBio,
   localizedAuthorTitle,
 } from "@/lib/journal/authors";
-import { normalizeAuthor } from "@/lib/journal/author";
+import { normalizeAuthors } from "@/lib/journal/author";
 import { getLeader } from "@/app/(main)/[lang]/team/teamData";
 
 function fmtDate(iso: string, lang: Lang) {
@@ -64,8 +64,8 @@ export default async function AuthorPage({
   const items = await listJournalIndex(lang);
 
   const byAuthor = items.filter((it) => {
-    const a = normalizeAuthor(it.author, lang);
-    return a.id === authorId;
+    const list = normalizeAuthors(it, lang);
+    return list.some((a) => a.id === authorId);
   });
 
   if (byAuthor.length === 0) return notFound();
@@ -82,7 +82,9 @@ export default async function AuthorPage({
 
   const profile = getAuthorProfile(authorId);
   const displayName =
-    profile?.name ?? normalizeAuthor(byAuthor[0].author, lang).name;
+    profile?.name ??
+    normalizeAuthors(byAuthor[0], lang).find((a) => a.id === authorId)?.name ??
+    authorId.replace(/[-_]/g, " ");
 
   const title = profile ? localizedAuthorTitle(profile, lang) : undefined;
   const bio = profile ? localizedAuthorBio(profile, lang) : undefined;

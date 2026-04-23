@@ -13,6 +13,7 @@ import InlineImageReveal from "../InlineImageReveal";
 import PhotoCarousel from "../PhotoCarousel";
 
 import { getDictionary, type Lang } from "@/app/(main)/[lang]/dictionaries";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import {
   listJournalSlugs,
   loadJournalBySlug,
@@ -28,7 +29,7 @@ import { SITE } from "@/lib/site";
 
 import type { TocItem } from "@/components/journal/ArticleTOC";
 import { CoverLead, BodyLead } from "@/components/journal/JournalSlugEnter";
-import { normalizeAuthor } from "@/lib/journal/author";
+import { normalizeAuthors } from "@/lib/journal/author";
 
 /* ---------------- types ---------------- */
 
@@ -168,7 +169,8 @@ export default async function JournalPostPage({
   const publishedLabel = formatDateEditorial(post.fm.publishedAt, lang);
   const publishedPrefix = lang === "es" ? "Publicado el" : "Published on";
 
-  const author = normalizeAuthor(post.fm.author, lang);
+  const authors = normalizeAuthors(post.fm, lang);
+  const authorConjunction = lang === "es" ? " y " : " and ";
 
   /* ---------- SEO JSON-LD ---------- */
 
@@ -237,12 +239,31 @@ export default async function JournalPostPage({
               <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-80">
                 <span>
                   {lang === "es" ? "Por " : "By "}
-                  <Link
-                    href={`/${lang}/journal/author/${author.id}`}
-                    className="font-medium underline underline-offset-4 hover:opacity-90"
-                  >
-                    {author.name}
-                  </Link>
+                  {authors.map((a, i) => {
+                    const isLast = i === authors.length - 1;
+                    const isSecondToLast = i === authors.length - 2;
+                    const separator = isLast
+                      ? null
+                      : isSecondToLast
+                      ? authorConjunction
+                      : ", ";
+                    const nameNode = a.id ? (
+                      <Link
+                        href={`/${lang}/journal/author/${a.id}`}
+                        className="font-medium underline underline-offset-4 hover:opacity-90"
+                      >
+                        {a.name}
+                      </Link>
+                    ) : (
+                      <span className="font-medium">{a.name}</span>
+                    );
+                    return (
+                      <span key={`${a.id ?? a.name}-${i}`}>
+                        {nameNode}
+                        {separator}
+                      </span>
+                    );
+                  })}
                 </span>
 
                 <span className="opacity-50">•</span>
@@ -291,6 +312,15 @@ export default async function JournalPostPage({
                 "prose-p:my-5",
                 "prose-p:leading-[1.85]",
                 "prose-p:text-(--olivea-clay)",
+
+                /* Headings */
+                "prose-h2:text-2xl prose-h2:font-semibold prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-(--olivea-ink)",
+                "prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-(--olivea-ink)",
+
+                /* Blockquotes — editorial style */
+                "prose-blockquote:border-l-3 prose-blockquote:border-(--olivea-olive)/30",
+                "prose-blockquote:pl-6 prose-blockquote:italic",
+                "prose-blockquote:text-(--olivea-clay)/80",
 
                 /* ---------------- INLINE IMAGE SYSTEM ---------------- */
 
@@ -369,13 +399,24 @@ export default async function JournalPostPage({
                 "[&_figure.j-wide_figcaption]:text-(--olivea-olive)",
                 "[&_figure.j-wide_figcaption]:opacity-70",
 
+                /* YouTube embeds */
+                "[&_iframe]:w-full [&_iframe]:rounded-2xl [&_iframe]:my-8",
+                "[&_.youtube-embed]:relative [&_.youtube-embed]:w-full [&_.youtube-embed]:aspect-video [&_.youtube-embed]:my-8",
+
+                /* HR dividers */
+                "prose-hr:my-10 prose-hr:border-(--olivea-olive)/10",
+
                 /* Links */
                 "prose-a:text-(--olivea-olive)",
                 "prose-a:underline",
                 "prose-a:underline-offset-4",
               ].join(" ")}
             >
-              {post.content}
+              {post.htmlBody ? (
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.htmlBody) }} />
+              ) : (
+                post.content
+              )}
             </article>
 
             {gallery.length > 0 && <PhotoCarousel images={gallery} />}

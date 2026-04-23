@@ -1,6 +1,8 @@
 // app/(home)/[lang]/page.tsx
 import type { Metadata } from "next";
 import { SITE, canonicalUrl } from "@/lib/site";
+import { getContent, listContent, t } from "@/lib/content";
+import type { Lang } from "@/lib/i18n";
 import HomeClient from "./HomeClient";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
@@ -18,17 +20,12 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const isEs = lang === "es";
+  const L = (lang === "es" ? "es" : "en") as Lang;
+  const home = await getContent("home");
 
-  const title = isEs
-    ? "OLIVEA | Hospitalidad del Huerto en Valle de Guadalupe, Baja California"
-    : "OLIVEA | Farm Hospitality in Valle de Guadalupe, Baja California";
-
-  const description = isEs
-    ? "Hospitalidad del huerto en Valle de Guadalupe: restaurante de degustación con estrella MICHELIN, hospedaje y café nacidos del huerto en Baja California."
-    : "Farm hospitality in Valle de Guadalupe: MICHELIN-starred tasting restaurant, farm stay, and café born from a working garden in Baja California.";
-
-  const canonicalPath = isEs ? "/es" : "/en";
+  const title = t(L, home.meta.title);
+  const description = t(L, home.meta.description);
+  const canonicalPath = L === "es" ? "/es" : "/en";
 
   return {
     title,
@@ -42,12 +39,12 @@ export async function generateMetadata({
       title,
       description,
       url: canonicalUrl(canonicalPath),
-      locale: isEs ? "es_MX" : "en_US",
+      locale: L === "es" ? "es_MX" : "en_US",
       type: "website",
       siteName: "OLIVEA",
       images: [
         {
-          url: canonicalUrl("/images/og/cover.jpg"),
+          url: canonicalUrl(home.meta.ogImage ?? "/images/og/cover.jpg"),
           width: 1200,
           height: 630,
           alt: "OLIVEA",
@@ -58,7 +55,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [canonicalUrl("/images/og/cover.jpg")],
+      images: [canonicalUrl(home.meta.ogImage ?? "/images/og/cover.jpg")],
     },
   };
 }
@@ -71,13 +68,25 @@ export default async function Page({
   const { lang } = await params;
   const Article = lang === "en" ? ArticleEn : ArticleEs;
 
+  // Pass video config from content layer → client component as serializable props
+  // Try hero_videos collection first (Supabase), fall back to home.video (static)
+  const home = await getContent("home");
+  const activeVideos = await listContent("heroVideos", { filter: { active: true }, limit: 1 });
+  const video = activeVideos[0] ?? home.video;
+
   return (
     <>
       {/* Server-rendered article: full semantic content for crawlers,
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
-      <HomeClient />
+      <HomeClient
+        videoConfig={video ? {
+          version: video.version,
+          mobile: video.mobile,
+          desktop: video.desktop,
+        } : undefined}
+      />
     </>
   );
 }

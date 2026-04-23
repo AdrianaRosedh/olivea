@@ -1,12 +1,6 @@
+import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkMdxFrontmatter from "remark-mdx-frontmatter";
-import remarkUnwrapImages from "remark-unwrap-images";
-import rehypeImgSize from "rehype-img-size";
 
 /* ────────────────────────────────────────────────────────────── */
 /* Canonical URL helpers                                          */
@@ -24,27 +18,16 @@ const { hostname: PUBLIC_HOSTNAME } = new URL(PUBLIC_URL);
 /* ────────────────────────────────────────────────────────────── */
 /* CSP — single source of truth lives in lib/csp.ts               */
 /* ────────────────────────────────────────────────────────────── */
+// @ts-expect-error — Next.js resolves .ts imports in config files
 import { STATIC_CSP } from "./lib/csp.ts";
 
 /* ────────────────────────────────────────────────────────────── */
-/* 1) MDX loader                                                  */
+/* 1) MDX loader (Turbopack-compatible — no non-serializable     */
+/*    plugin options. Remark/rehype plugins are only needed by    */
+/*    next-mdx-remote which configures its own pipeline.)         */
 /* ────────────────────────────────────────────────────────────── */
 const withMDX = createMDX({
   extension: /\.mdx?$/,
-  options: {
-    providerImportSource: "@mdx-js/react",
-    remarkPlugins: [
-      remarkFrontmatter,
-      remarkMdxFrontmatter,
-      remarkGfm,
-      remarkUnwrapImages,
-    ],
-    rehypePlugins: [
-      rehypeSlug,
-      [rehypeAutolinkHeadings, { behavior: "wrap" }],
-      [rehypeImgSize, { dir: "public" }],
-    ],
-  },
 });
 
 /* ────────────────────────────────────────────────────────────── */
@@ -59,7 +42,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 /* ────────────────────────────────────────────────────────────── */
 /* 3) Next config                                                 */
 /* ────────────────────────────────────────────────────────────── */
-const nextConfig = {
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   compress: true,
   productionBrowserSourceMaps: false,
@@ -67,6 +50,9 @@ const nextConfig = {
 
   experimental: {
     optimizeCss: true,
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
     optimizePackageImports: [
       "framer-motion",
       "lucide-react",
@@ -74,21 +60,6 @@ const nextConfig = {
       "lodash-es",
       "react-icons",
     ],
-  },
-
-  modularizeImports: {
-    "date-fns": { transform: "date-fns/{{member}}" },
-    "lodash-es": { transform: "lodash-es/{{member}}" },
-    "lucide-react": { transform: "lucide-react/dist/esm/icons/{{member}}" },
-  },
-
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      issuer: /\.(mdx|jsx?|tsx?)$/,
-      use: ["@svgr/webpack"],
-    });
-    return config;
   },
 
   images: {
@@ -103,6 +74,7 @@ const nextConfig = {
       { protocol: "https", hostname: "static1.cloudbeds.com" },
       { protocol: "https", hostname: "www.opentable.com" },
       { protocol: "https", hostname: "www.opentable.com.mx" },
+      { protocol: "https", hostname: "*.supabase.co" },
     ],
     unoptimized: false,
   },
@@ -122,25 +94,20 @@ const nextConfig = {
       { source: "/icons/:path*", headers: immutable },
       { source: "/_next/static/:path*", headers: immutable },
 
-      /**
-       * IMPORTANT:
-       * Do NOT mark /_next/image as immutable.
-       * It serves many variants (w/q/etc). Let Next/Vercel manage caching correctly.
-       */
-
-      // ✅ Apply CSP + timing to all routes
+      // Apply CSP + timing to all routes
       {
         source: "/:path*",
         headers: [
           { key: "Timing-Allow-Origin", value: "*" },
           { key: "Content-Security-Policy", value: STATIC_CSP },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
         ],
       },
     ];
   },
 
   /**
-   * ✅ KEY FIX FOR WHATSAPP PREVIEWS:
+   * KEY FIX FOR WHATSAPP PREVIEWS:
    * Use rewrites so "/" returns 200 HTML (no redirect),
    * allowing bots to read OG tags.
    */

@@ -4,10 +4,11 @@
 // Content is bundled at build time via a static JSON import, so response
 // time is bounded by handler execution + CDN latency.
 //
-// To update banner content: edit content/banners/active.json and redeploy.
+// To update banner content: edit lib/content/data/banners.ts and redeploy.
 export const runtime = "edge";
 
 import { NextResponse } from "next/server";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { type Lang } from "@/lib/i18n";
 import {
   isObject,
@@ -17,7 +18,8 @@ import {
   validateBilingualBlock,
   validateOptionalPathList,
 } from "@/lib/contentRules";
-import activeBannerData from "@/content/banners/active.json";
+// Content layer — single source of truth (was: @/content/banners/active.json)
+import bannerItems from "@/lib/content/data/banners";
 type BannerType = "notice" | "promo" | "warning";
 
 type ActiveBannerFile = {
@@ -71,14 +73,66 @@ function isActiveBannerFile(v: unknown): v is ActiveBannerFile {
 
 /* ── Loader ──────────────────────────────────────────────────────── */
 
-// Static import is bundled at build time — zero runtime file I/O.
-// Still validated because the JSON file is authored by humans.
-const ACTIVE_BANNER: ActiveBannerFile | null = isActiveBannerFile(activeBannerData)
-  ? activeBannerData
+// Static fallback — bundled at build time
+const staticBannerData = (() => {
+  const enabled = bannerItems.filter((b) => b.enabled);
+  if (!enabled.length) return null;
+  const b = enabled[0];
+  return {
+    enabled: b.enabled,
+    id: b.id,
+    type: b.type,
+    translations: b.translations,
+    startsAt: b.startsAt,
+    endsAt: b.endsAt,
+    dismissible: b.dismissible,
+    includePaths: b.includePaths,
+    excludePaths: b.excludePaths,
+  };
+})();
+
+const STATIC_BANNER: ActiveBannerFile | null = isActiveBannerFile(staticBannerData)
+  ? staticBannerData
   : null;
 
-function loadActiveBanner(): ActiveBannerFile | null {
-  return ACTIVE_BANNER;
+// Try Supabase first (runtime), fall back to static import
+async function loadActiveBanner(): Promise<ActiveBannerFile | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (url && key) {
+    try {
+      const res = await fetch(
+        `${url}/rest/v1/banners?enabled=eq.true&order=created_at.desc&limit=1`,
+        {
+          headers: { apikey: key, Authorization: `Bearer ${key}` },
+          next: { revalidate: 60 },
+        }
+      );
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows.length > 0) {
+          const b = rows[0];
+          const mapped = {
+            enabled: b.enabled,
+            id: b.id,
+            type: b.type,
+            translations: b.translations,
+            startsAt: b.starts_at,
+            endsAt: b.ends_at,
+            dismissible: b.dismissible ?? true,
+            includePaths: b.include_paths,
+            excludePaths: b.exclude_paths,
+          };
+          if (isActiveBannerFile(mapped)) return mapped;
+        }
+      }
+    } catch {
+      // Supabase unavailable — fall through to static
+    }
+  }
+
+  return STATIC_BANNER;
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
@@ -91,11 +145,20 @@ const nullBanner = () =>
   NextResponse.json<{ banner: null }>({ banner: null }, { status: 200, headers: CACHE_HEADERS });
 
 export async function GET(req: Request) {
+  const ip = clientIp(req);
+  const { ok, retryAfter } = rateLimit(`banner:${ip}`, { limit: 120, windowMs: 60_000 });
+  if (!ok) {
+    return new Response("Too Many Requests", {
+      status: 429,
+      headers: { "Retry-After": String(retryAfter) },
+    });
+  }
+
   const url = new URL(req.url);
   const lang: Lang = url.searchParams.get("lang") === "en" ? "en" : "es";
   const currentPath = url.searchParams.get("path") ?? "/";
 
-  const active = loadActiveBanner();
+  const active = await loadActiveBanner();
   if (!active || !active.enabled) return nullBanner();
 
   if (!passesTimeWindow(active.startsAt, active.endsAt)) return nullBanner();

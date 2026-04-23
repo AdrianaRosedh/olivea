@@ -5,8 +5,11 @@ import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionar
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
+import { getContent, t as tContent } from "@/lib/content";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
+import CafeContent from "./CafeContent";
+import type { SectionData } from "./sections/types";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
 
@@ -87,36 +90,16 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const Content = L === "en" ? ContentEn : ContentEs;
   const Article = L === "en" ? ArticleEn : ArticleEs;
 
-  const faq: FaqItem[] =
-    L === "es"
-      ? [
-          {
-            q: "¿Qué es Olivea Café?",
-            a: "Un café de especialidad junto al huerto, con pan de casa, desayunos y una atmósfera serena en Valle de Guadalupe.",
-          },
-          {
-            q: "¿Olivea Café está en Ensenada?",
-            a: "Sí. Está en Valle de Guadalupe (Villa de Juárez), dentro del municipio de Ensenada, Baja California.",
-          },
-          {
-            q: "¿Olivea Café es parte de un restaurante u hotel?",
-            a: "Sí. Olivea Café comparte propiedad con Olivea Farm To Table, un restaurante con estrella MICHELIN, y Casa Olivea, el hospedaje del huerto. Las tres experiencias forman la hospitalidad del huerto de Olivea.",
-          },
-        ]
-      : [
-          {
-            q: "What is Olivea Café?",
-            a: "A specialty coffee spot next to the garden, with house bread, breakfast, and a calm atmosphere in Valle de Guadalupe.",
-          },
-          {
-            q: "Is Olivea Café in Ensenada?",
-            a: "Yes. It’s located in Valle de Guadalupe (Villa de Juárez), within Ensenada, Baja California.",
-          },
-          {
-            q: "Is Olivea Café part of a restaurant or hotel?",
-            a: "Yes. Olivea Café shares the property with Olivea Farm To Table, a MICHELIN-starred restaurant, and Casa Olivea, the farm stay. Together they form the Olivea farm hospitality ecosystem.",
-          },
-        ];
+  // Fetch Supabase-driven sections (falls back gracefully)
+  const cafeContent = await getContent("cafe");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hasSections = cafeContent.sections && (cafeContent.sections as any[]).length > 0;
+  const faq: FaqItem[] = cafeContent.faq
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((item) => ({
+      q: tContent(L, item.question),
+      a: tContent(L, item.answer),
+    }));
 
   const faqId = canonicalUrl(`/${L}/cafe#faq`);
 
@@ -176,11 +159,19 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
 
-      <Suspense
-        fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
-      >
-        <Content />
-      </Suspense>
+      {hasSections ? (
+        <Suspense
+          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+        >
+          <CafeContent lang={L} sections={cafeContent.sections as SectionData[]} />
+        </Suspense>
+      ) : (
+        <Suspense
+          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+        >
+          <Content />
+        </Suspense>
+      )}
     </div>
   );
 }

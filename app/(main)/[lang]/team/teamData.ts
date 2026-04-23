@@ -191,7 +191,7 @@ export const TEAM: LeaderProfile[] = [
         href: "https://www.instagram.com/danielnatesv",
       },
       {
-        href: "oliveafarmtotable.com/journal/author/danielnates",
+        href: "https://oliveafarmtotable.com/journal/author/danielnates",
         label: {
           es: "Mis Entradas al Diario de Olivea",
           en: "My Journal Entries for Olivea",
@@ -214,7 +214,7 @@ export const TEAM: LeaderProfile[] = [
       es: "CEO · Tecnología y Visión",
       en: "CEO · Technology & Vision",
     },
-    org: { es: "OLIVEA · La Experencia", en: "OLIVEA · The Experience" },
+    org: { es: "OLIVEA · La Experiencia", en: "OLIVEA · The Experience" },
 
     // ✅ show in every filter explicitly
     alwaysShow: true,
@@ -238,7 +238,7 @@ export const TEAM: LeaderProfile[] = [
       {
         href: "https://roseiies.com",
         label: {
-          es: "Roseiies — Hospitaidad Inteligente",
+          es: "Roseiies — Hospitalidad Inteligente",
           en: "Roseiies — Hospitality Intelligence",
         },
         highlight: true,
@@ -252,7 +252,7 @@ export const TEAM: LeaderProfile[] = [
         highlight: true,
       },
       {
-        href: "oliveafarmtotable.com/journal/author/adrianarose",
+        href: "https://oliveafarmtotable.com/journal/author/adrianarose",
         label: {
           es: "Mis Entradas al Diario de Olivea",
           en: "My Journal Entries for Olivea",
@@ -658,7 +658,7 @@ export const TEAM: LeaderProfile[] = [
     name: "Fran",
     role: { es: "Coord. Operaciones", en: "Operations Coordinator" },
     org: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
-    tag: { es: "Operations", en: "Operaciones" },
+    tag: { es: "Operaciones", en: "Operations" },
 
     // ✅ Restaurant only (operations for Farm To Table)
     showIn: ["restaurant"],

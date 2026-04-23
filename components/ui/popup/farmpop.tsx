@@ -267,6 +267,7 @@ export default function Farmpop({
     );
     const map: Record<string, string> = {
       menu: "🍽️",
+      maridaje: "🌿",
       licores: "🥃",
       vinos: "🍷",
       bebidas: "🍹",

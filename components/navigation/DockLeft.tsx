@@ -16,6 +16,7 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { tt, type Lang } from "@/lib/i18n";
+import { scrollOffsetPx } from "@/lib/scroll-offset";
 
 /* ── Types ───────────────────────────────────────────────────────── */
 type Identity = "casa" | "cafe" | "farmtotable";
@@ -41,10 +42,14 @@ interface DockItem {
 }
 
 /* ── Constants ───────────────────────────────────────────────────── */
-const TOP_OFFSET_PX = 120;
+// Read from CSS --scroll-offset (single source of truth)
+const TOP_OFFSET_PX = () => scrollOffsetPx();
 const SNAP_LOCK_MS = 900;
 const SWAP_Y = 26;
-const IO_ROOT_MARGIN = "-45% 0px -45% 0px";
+// Top: ignore the header zone (~20% of viewport).
+// Bottom: ignore the lower 50%, so the "active" band is roughly 20%–50% of viewport.
+// This gives a 30%-tall detection zone — much more forgiving than the old 10%.
+const IO_ROOT_MARGIN = "-20% 0px -50% 0px";
 const IO_THRESHOLDS = [0, 0.2, 0.4, 0.6, 0.8, 1];
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
@@ -797,7 +802,7 @@ export default function DockLeft({
       cleanupScroll();
 
       const scroller = getScrollableAncestor(el);
-      const targetY = scrollTargetY(scroller, el, TOP_OFFSET_PX);
+      const targetY = scrollTargetY(scroller, el, TOP_OFFSET_PX());
       const useSmooth = !reduce;
 
       // Lock snap during programmatic scroll

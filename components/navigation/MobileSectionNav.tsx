@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { scrollOffsetPx } from "@/lib/scroll-offset";
 
 /* ===========================
    Types
@@ -41,11 +42,9 @@ const BOTTOM_THRESHOLD_PX = 48;
 const canUseDom = () =>
   typeof window !== "undefined" && typeof document !== "undefined";
 
-function headerPx(): number {
-  if (!canUseDom()) return 64;
-  const v = getComputedStyle(document.documentElement).getPropertyValue("--header-h");
-  const n = parseInt(v || "", 10);
-  return Number.isFinite(n) && n > 0 ? n : 64;
+/** Scroll offset: reads from CSS --scroll-offset (single source of truth) */
+function offsetPx(): number {
+  return canUseDom() ? scrollOffsetPx() : 120;
 }
 
 function setSnapDisabled(disabled: boolean) {
@@ -184,7 +183,7 @@ export default function MobileSectionNav({
         safetyTO.current = null;
       }
 
-      const header = headerPx() + 10;
+      const header = offsetPx();
       const rect = el.getBoundingClientRect();
       const targetY = Math.max(0, window.scrollY + rect.top - header);
 
@@ -235,7 +234,7 @@ export default function MobileSectionNav({
       const targets = allTargets.current;
       if (!targets.length) return;
 
-      const header = headerPx() + 10;
+      const header = offsetPx();
 
       let candidate: string | null = null;
       let best = Number.POSITIVE_INFINITY;

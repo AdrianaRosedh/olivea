@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { absoluteUrl, SITE } from "@/lib/site";
 import type { JournalFrontmatter } from "./schema";
-import { normalizeAuthor } from "./author";
+import { normalizeAuthors } from "./author";
 
 export function journalPath(lang: "es" | "en", slug: string) {
   return `/${lang}/journal/${slug}`;
@@ -50,7 +50,7 @@ export function buildJournalMetadata(args: {
     : { index: true, follow: true };
 
   const locale = fm.lang === "es" ? "es_MX" : "en_US";
-  const a = normalizeAuthor(fm.author, fm.lang);
+  const authors = normalizeAuthors(fm, fm.lang);
 
   return {
     title,
@@ -76,7 +76,7 @@ export function buildJournalMetadata(args: {
       locale,
       publishedTime: fm.publishedAt,
       modifiedTime: fm.updatedAt ?? fm.publishedAt,
-      authors: [a.name],
+      authors: authors.map((a) => a.name),
       images: ogImage
         ? [{ url: ogImage, width: 1200, height: 630, alt: title }]
         : [],
@@ -101,15 +101,7 @@ export function buildArticleJsonLd(args: {
   const imageRaw = pickOgImage(fm);
   const image = toAbs(imageRaw);
 
-  const a = normalizeAuthor(fm.author, fm.lang);
-
-  const authorEntityId = a.id
-    ? absoluteUrl(`/${fm.lang}/journal/author/${a.id}#person`)
-    : undefined;
-
-  const authorPageUrl = a.id
-    ? absoluteUrl(`/${fm.lang}/journal/author/${a.id}`)
-    : undefined;
+  const authors = normalizeAuthors(fm, fm.lang);
 
   const orgId = `${SITE.baseUrl}#organization`;
 
@@ -129,16 +121,22 @@ export function buildArticleJsonLd(args: {
     },
     image: image ? [image] : undefined,
     timeRequired: `PT${Math.max(1, readingMinutes)}M`,
-    author: [
-      authorEntityId
+    author: authors.map((a) => {
+      const entityId = a.id
+        ? absoluteUrl(`/${fm.lang}/journal/author/${a.id}#person`)
+        : undefined;
+      const pageUrl = a.id
+        ? absoluteUrl(`/${fm.lang}/journal/author/${a.id}`)
+        : undefined;
+      return entityId
         ? {
             "@type": "Person",
-            "@id": authorEntityId,
+            "@id": entityId,
             name: a.name,
-            ...(authorPageUrl ? { url: authorPageUrl } : {}),
+            ...(pageUrl ? { url: pageUrl } : {}),
           }
-        : { "@type": "Person", name: a.name },
-    ],
+        : { "@type": "Person", name: a.name };
+    }),
     publisher: {
       "@type": "Organization",
       "@id": orgId,

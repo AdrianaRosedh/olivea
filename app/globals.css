@@ -68,6 +68,10 @@
   --dock-right: clamp(0px, 6vw, 96px);
   --dock-gap: clamp(12px, 1.8vw, 22px);
 
+  /* Single source of truth for scroll-to-section offset.
+     Every JS component that scrolls to a section reads this. */
+  --scroll-offset: calc(var(--header-h) + 8px);
+
   --content-max: 1200px;
 
   --content-w: min(
@@ -164,7 +168,7 @@
   }
 
   section[id] {
-    scroll-margin-top: 8rem;
+    scroll-margin-top: var(--scroll-offset);
     scroll-margin-bottom: 3rem;
   }
 

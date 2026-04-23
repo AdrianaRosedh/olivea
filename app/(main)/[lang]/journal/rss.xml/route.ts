@@ -105,10 +105,11 @@ export async function GET(
       : "Articles, field notes, and decisions from the Olivea ecosystem.";
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
   <title>${esc(channelTitle)}</title>
   <link>${journalUrl}</link>
+  <atom:link href="${base}/${lang}/journal/rss.xml" rel="self" type="application/rss+xml"/>
   <description>${esc(channelDesc)}</description>
   <language>${lang === "es" ? "es-MX" : "en-US"}</language>
   ${items}

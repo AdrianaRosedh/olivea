@@ -23,17 +23,20 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center">
-      <h2 className="text-2xl font-semibold mb-4">Something went wrong</h2>
+      <h2 className="text-2xl font-semibold mb-4">
+        {lang === "es" ? "Algo salió mal" : "Something went wrong"}
+      </h2>
       <p className="text-muted-foreground mb-6 max-w-md">
-        We apologize for the inconvenience. Our team has been notified of this
-        issue.
+        {lang === "es"
+          ? "Disculpa las molestias. Nuestro equipo ha sido notificado del problema."
+          : "We apologize for the inconvenience. Our team has been notified of this issue."}
       </p>
       <div className="flex gap-4">
         <Button onClick={reset} variant="default">
-          Try again
+          {lang === "es" ? "Reintentar" : "Try again"}
         </Button>
         <Button onClick={() => router.push(`/${lang}`)} variant="outline">
-          Go to {lang === "es" ? "inicio" : "homepage"}
+          {lang === "es" ? "Ir a inicio" : "Go to homepage"}
         </Button>
       </div>
     </div>

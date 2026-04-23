@@ -56,7 +56,7 @@ export default function StickyBlock({
     >
       <div className="grid md:grid-cols-12 gap-8 items-start">
         <div className="md:col-span-4">
-          <div className="md:sticky md:top-24">{title}</div>
+          <div className="md:sticky" style={{ top: "var(--scroll-offset)" }}>{title}</div>
         </div>
         <div className="md:col-span-8 space-y-6 md:space-y-8">{children}</div>
       </div>

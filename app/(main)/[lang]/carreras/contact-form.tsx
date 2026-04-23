@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import React, { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { type Lang } from "@/lib/i18n";
 import { handleSubmit, type ApplicationErrors } from "./actions";
@@ -56,22 +56,47 @@ const copy = (lang: Lang) => ({
   ],
 });
 
+let fieldId = 0;
+
 function Field({
   label,
+  name,
   error,
   children,
 }: {
   label: string;
+  name?: string;
   error?: string;
   children: React.ReactNode;
 }) {
+  const id = useMemo(() => name ?? `field-${++fieldId}`, [name]);
+  const errorId = error ? `${id}-error` : undefined;
+
   return (
     <div>
-      <label className="block text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)/85">
+      <label
+        htmlFor={id}
+        className="block text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)/85"
+      >
         {label}
       </label>
-      <div className="mt-2">{children}</div>
-      {error ? <p className="mt-1 text-sm text-red-600">{error}</p> : null}
+      <div className="mt-2">
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement<Record<string, unknown>>(child)) {
+            return React.cloneElement(child, {
+              id,
+              "aria-invalid": error ? true : undefined,
+              "aria-describedby": errorId,
+            });
+          }
+          return child;
+        })}
+      </div>
+      {error ? (
+        <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -202,25 +227,25 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
       {/* … your fields stay the same … */}
       <div className="grid gap-5 md:grid-cols-2">
-        <Field label={c.name} error={state.errors?.name}>
+        <Field name="name" label={c.name} error={state.errors?.name}>
           <input name="name" type="text" className={inputClass} />
         </Field>
-        <Field label={c.email} error={state.errors?.email}>
+        <Field name="email" label={c.email} error={state.errors?.email}>
           <input name="email" type="email" className={inputClass} />
         </Field>
-        <Field label={c.phone} error={state.errors?.phone}>
+        <Field name="phone" label={c.phone} error={state.errors?.phone}>
           <input name="phone" type="text" className={inputClass} />
         </Field>
-        <Field label={c.languages} error={state.errors?.languages}>
+        <Field name="languages" label={c.languages} error={state.errors?.languages}>
           <input name="languages" type="text" className={inputClass} placeholder={c.placeholders.languages} />
         </Field>
-        <Field label={c.area} error={state.errors?.area}>
+        <Field name="area" label={c.area} error={state.errors?.area}>
           <select name="area" className={inputClass} defaultValue="">
             <option value="" disabled>{lang === "es" ? "Selecciona…" : "Select…"}</option>
             {c.areas.map((a) => <option key={a.v} value={a.v}>{a.l}</option>)}
           </select>
         </Field>
-        <Field label={c.availability} error={state.errors?.availability}>
+        <Field name="availability" label={c.availability} error={state.errors?.availability}>
           <select name="availability" className={inputClass} defaultValue="">
             <option value="" disabled>{lang === "es" ? "Selecciona…" : "Select…"}</option>
             {c.availabilityOptions.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
@@ -229,27 +254,27 @@ export default function ContactForm({ lang }: { lang: Lang }) {
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Field label={c.role} error={state.errors?.role}>
+        <Field name="role" label={c.role} error={state.errors?.role}>
           <input name="role" type="text" className={inputClass} placeholder={c.placeholders.role} />
         </Field>
-        <Field label={c.links} error={state.errors?.links}>
+        <Field name="links" label={c.links} error={state.errors?.links}>
           <input name="links" type="text" className={inputClass} placeholder={c.placeholders.links} />
         </Field>
       </div>
 
       <div className="rounded-2xl bg-white/40 ring-1 ring-black/8 p-4 md:p-5 space-y-5">
-        <Field label={c.q1} error={state.errors?.q1}>
+        <Field name="q1" label={c.q1} error={state.errors?.q1}>
           <textarea name="q1" rows={3} className={inputClass} />
         </Field>
-        <Field label={c.q2} error={state.errors?.q2}>
+        <Field name="q2" label={c.q2} error={state.errors?.q2}>
           <textarea name="q2" rows={3} className={inputClass} />
         </Field>
-        <Field label={c.q3} error={state.errors?.q3}>
+        <Field name="q3" label={c.q3} error={state.errors?.q3}>
           <textarea name="q3" rows={2} className={inputClass} />
         </Field>
       </div>
 
-      <Field label={c.notes} error={state.errors?.notes}>
+      <Field name="notes" label={c.notes} error={state.errors?.notes}>
         <textarea name="notes" rows={3} className={inputClass} />
       </Field>
 

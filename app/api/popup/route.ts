@@ -20,7 +20,28 @@ import {
   validateOptionalPathList,
 } from "@/lib/contentRules";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
-import activePopupData from "@/content/popups/active.json";
+// Content layer — single source of truth (was: @/content/popups/active.json)
+import popupItems from "@/lib/content/data/popups";
+
+// Pick the highest-priority enabled popup from the content layer
+const activePopupData = (() => {
+  const enabled = popupItems
+    .filter((p) => p.enabled)
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+  if (!enabled.length) return null;
+  const p = enabled[0];
+  return {
+    enabled: p.enabled,
+    id: p.id,
+    kind: p.kind,
+    priority: p.priority,
+    translations: p.translations,
+    media: p.media
+      ? { coverSrc: p.media.coverSrc, coverAlt: { es: p.media.coverAlt.es, en: p.media.coverAlt.en } }
+      : undefined,
+    rules: p.rules,
+  };
+})();
 
 type ActivePopupFile = {
   enabled: boolean;
@@ -115,14 +136,47 @@ function isActivePopupFile(v: unknown): v is ActivePopupFile {
 
 /* ── Loader ──────────────────────────────────────────────────────── */
 
-// Static import is bundled at build time — zero runtime file I/O.
-// Still validated because the JSON file is authored by humans.
-const ACTIVE_POPUP: ActivePopupFile | null = isActivePopupFile(activePopupData)
+// Static fallback — bundled at build time
+const STATIC_POPUP: ActivePopupFile | null = isActivePopupFile(activePopupData)
   ? activePopupData
   : null;
 
-function loadActivePopup(): ActivePopupFile | null {
-  return ACTIVE_POPUP;
+// Try Supabase first (runtime), fall back to static import
+async function loadActivePopup(): Promise<ActivePopupFile | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (url && key) {
+    try {
+      const res = await fetch(
+        `${url}/rest/v1/popups?enabled=eq.true&order=priority.desc&limit=1`,
+        {
+          headers: { apikey: key, Authorization: `Bearer ${key}` },
+          next: { revalidate: 60 },
+        }
+      );
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows.length > 0) {
+          const p = rows[0];
+          const mapped = {
+            enabled: p.enabled,
+            id: p.id,
+            kind: p.kind,
+            priority: p.priority,
+            translations: p.translations,
+            media: p.media,
+            rules: p.rules,
+          };
+          if (isActivePopupFile(mapped)) return mapped;
+        }
+      }
+    } catch {
+      // Supabase unavailable — fall through to static
+    }
+  }
+
+  return STATIC_POPUP;
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
@@ -157,7 +211,7 @@ export async function GET(req: Request) {
   const lang: Lang = url.searchParams.get("lang") === "en" ? "en" : "es";
   const currentPath = url.searchParams.get("path") ?? "/";
 
-  const active = loadActivePopup();
+  const active = await loadActivePopup();
   if (!active || !active.enabled) return nullPopup();
 
   if (!passesTimeWindow(active.rules.startsAt, active.rules.endsAt)) return nullPopup();

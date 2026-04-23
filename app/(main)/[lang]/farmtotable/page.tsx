@@ -5,8 +5,11 @@ import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionar
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
+import { getContent } from "@/lib/content";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
+import FTTContent from "./FTTContent";
+import type { SectionData } from "./sections/types";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
 
@@ -89,8 +92,22 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const Content = L === "en" ? ContentEn : ContentEs;
   const Article = L === "en" ? ArticleEn : ArticleEs;
 
-  const faq: FaqItem[] =
-    L === "es"
+  // Fetch Supabase-driven sections (falls back gracefully)
+  const fttData = await getContent('farmtotable');
+  const hasSections = fttData.sections && fttData.sections.length > 0;
+
+  // Use Supabase FAQ for JSON-LD if available
+  const faqSection = hasSections
+    ? (fttData.sections as SectionData[]).find((s) => s.id === 'faq')
+    : null;
+  const seoFaqItems = (faqSection?.seoFaq ?? []) as Array<{ q: { es: string; en: string }; a: { es: string; en: string } }>;
+
+  const faq: FaqItem[] = seoFaqItems.length > 0
+    ? seoFaqItems.map((item) => ({
+        q: L === 'es' ? item.q.es : item.q.en,
+        a: L === 'es' ? item.a.es : item.a.en,
+      }))
+    : L === "es"
       ? [
           {
             q: "¿Olivea Farm To Table es un menú degustación?",
@@ -128,7 +145,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           },
           {
             q: "Why is Olivea recommended in Valle de Guadalupe?",
-            a: "Olivea is MICHELIN-recognized and has been featured by international publications. It’s a tasting-menu experience rooted in the garden and the territory of Baja California.",
+            a: "Olivea is MICHELIN-recognized and has been featured by international publications. It's a tasting-menu experience rooted in the garden and the territory of Baja California.",
           },
           {
             q: "Can I stay or have breakfast on the same property?",
@@ -194,11 +211,19 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
 
-      <Suspense
-        fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
-      >
-        <Content />
-      </Suspense>
+      {hasSections ? (
+        <Suspense
+          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+        >
+          <FTTContent lang={L} sections={fttData.sections as SectionData[]} />
+        </Suspense>
+      ) : (
+        <Suspense
+          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+        >
+          <Content />
+        </Suspense>
+      )}
     </div>
   );
 }

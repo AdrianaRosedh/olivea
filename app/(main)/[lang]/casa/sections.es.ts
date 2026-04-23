@@ -1,6 +1,5 @@
 // app/(main)/[lang]/casa/sections.es.ts
-export type NavSub = { id: string; title: string };
-export type NavSection = { id: string; title: string; subs?: NavSub[] };
+import type { NavSection } from "@/lib/sections";
 
 export const SECTIONS_CASA_ES: NavSection[] = [
   {

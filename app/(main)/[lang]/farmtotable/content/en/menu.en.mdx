@@ -67,10 +67,10 @@ import CardParallax from "@/components/mdx/CardParallax";
 
   <div className="mt-8 md:mt-9 text-center">
     <p className="mx-auto max-w-[70ch] text-[17px] md:text-[18px] leading-[1.7] text-[var(--olivea-ink)]/90">
-      A seasonal <strong>9-course tasting menu</strong>, composed as a single
-      journey. The menu shifts{" "}
-      <strong>with the garden</strong>, guided by what the garden and the season offer
-      at their peak.
+      A <strong>9-course tasting menu</strong>, composed as a single
+      journey. Each dish has a <strong>pairing designed in parallel</strong> —
+      from the Valley or the garden — because the drink is part of the story,
+      not an accompaniment.
     </p>
 
     <div className="mt-6 flex justify-center">
@@ -84,6 +84,12 @@ import CardParallax from "@/components/mdx/CardParallax";
             label: "Menu",
             url: "https://www.canva.com/design/DAGWHOCI6cA/heZC5HWhM8gtlWBvsTNFWg/view",
             emoji: "🍽️",
+          },
+          {
+            id: "maridaje",
+            label: "Pairing",
+            url: "https://www.canva.com/design/DAHHJOjrEtA/Z61x8mG86PdYutpEa6ymzg/view",
+            emoji: "🌿",
           },
           {
             id: "licores",
@@ -116,30 +122,50 @@ import CardParallax from "@/components/mdx/CardParallax";
     <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
   </div>
 
-  {/* INFO — unchanged */}
-  <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-3">
+  {/* INFO */}
+  <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
     <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
-      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">🍷 Pairings & corkage</div>
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+        🌿 Garden to glass
+      </div>
       <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
-        A wine journey through the Valley and a <em>non-alcoholic pairing</em>. Corkage:
-        <strong> $350 MXN per bottle</strong>.
+        Our <strong>fermentation</strong> team designs a non-alcoholic pairing
+        with garden ingredients: live ferments, shrubs, infusions, and
+        mocktails that shift with the season.
       </p>
     </div>
 
     <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
-      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">🌿 Preferences & allergies</div>
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+        🍷 Valley wines & corkage
+      </div>
       <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
-        With advance notice, we adapt thoughtfully. Vegetarian available upon request.
+        A curated wine journey through the Valle de Guadalupe, paired
+        course by course. Corkage: <strong>$350 MXN per bottle</strong>.
       </p>
     </div>
 
     <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
-      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">🫒 The garden at the center</div>
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+        🌱 Preferences & allergies
+      </div>
       <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
-        Seasonal produce; precise technique. The experience lasts <strong>~3 hours</strong>.
+        With advance notice, we adapt thoughtfully. Vegetarian available
+        upon request.
+      </p>
+    </div>
+
+    <div className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6">
+      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
+      <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+        🫒 The garden at the center
+      </div>
+      <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+        Seasonal produce; precise technique. The experience lasts
+        <strong> ~3 hours</strong>.
       </p>
     </div>
   </div>

@@ -13,9 +13,7 @@ import FAQ from './content/en/faq.en.mdx';
 export default function ContentEn() {
   return (
     <ScrollLimiter
-      topOffsetPx={120}
       anchorSelector=".subsection"
-      className="snap-container scroll-smooth"
     >
       <Hero />
       <Experience />

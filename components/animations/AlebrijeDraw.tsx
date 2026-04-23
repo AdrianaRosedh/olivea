@@ -267,6 +267,7 @@ export default function AlebrijeDraw({
         boxSizing: "border-box",
       }}
     >
+      {/* ✅ SVG source: controlled build-time asset, not user-supplied */}
       {svgMarkup ? (
         <div
           className="absolute inset-0"

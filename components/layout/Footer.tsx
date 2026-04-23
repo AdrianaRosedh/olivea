@@ -308,10 +308,10 @@ export default function Footer({ dict }: FooterProps) {
             </AnimatePresence>
 
             {/* Links wrap cleanly on small screens */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <nav aria-label="Footer navigation" className="flex items-center gap-3 flex-wrap">
               <TextLink href={`/${lang}/carreras`}>{dict.footer.careers}</TextLink>
               <TextLink href={`/${lang}/legal`}>{dict.footer.legal}</TextLink>
-            </div>
+            </nav>
           </div>
 
           {/* On very small screens we show rights below instead of forcing 3 columns */}

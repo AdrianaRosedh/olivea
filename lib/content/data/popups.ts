@@ -1,0 +1,54 @@
+// lib/content/data/popups.ts
+// Popup content — mirrors content/popups/active.json
+// In Phase 2 this reads from Supabase so popups can be managed in admin
+
+import type { PopupItem } from "../types";
+
+const items: PopupItem[] = [
+  {
+    id: "popup-2026-02-22-el-mar-tambien-nuestro-jardin",
+    enabled: true,
+    kind: "journal",
+    priority: 110,
+    translations: {
+      es: {
+        badge: "Nuevo en el Journal",
+        title: "El Mar También es Nuestro Jardín",
+        excerpt:
+          "A diez minutos del restaurante comienza el origen. Visitar a nuestros productores del mar reafirma nuestra coherencia: territorio, investigación y responsabilidad.",
+        href: "/es/journal/2026-02-22-el-mar-tambien-nuestro-jardin",
+      },
+      en: {
+        badge: "New in the Journal",
+        title: "The Sea Is Also Our Garden",
+        excerpt:
+          "Ten minutes from the restaurant, origin begins. Visiting our local seafood producers reinforces our commitment to territory, research, and coherence.",
+        href: "/en/journal/2026-02-22-el-mar-tambien-nuestro-jardin",
+      },
+    },
+    media: {
+      coverSrc: "/images/journal/ElMarTambienEsNuestroJardin/cover.jpg",
+      coverAlt: {
+        es: "Producto del Pacífico durante la visita a productores locales",
+        en: "Fresh Pacific product during our visit to local seafood producers",
+      },
+    },
+    rules: {
+      startsAt: "2026-02-22T00:00:00-08:00",
+      endsAt: "2026-03-22T23:59:59-08:00",
+      includePaths: ["/*"],
+      excludePaths: [
+        "/es",
+        "/en",
+        "/es/journal",
+        "/en/journal",
+        "/es/journal/*",
+        "/en/journal/*",
+      ],
+      frequency: "oncePerPopupId",
+    },
+  },
+];
+
+export default items;
+export { items };

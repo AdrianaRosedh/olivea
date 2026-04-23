@@ -574,10 +574,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           </div>
 
           {/* Tabs */}
-          <div className="flex shrink-0 bg-(--olivea-cream) px-4 md:px-0">
+          <div role="tablist" className="flex shrink-0 bg-(--olivea-cream) px-4 md:px-0">
             {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => (
               <button
                 key={id}
+                role="tab"
                 onClick={() => handleTabClick(id)}
                 className={`relative flex-1 py-3 text-center uppercase tracking-[0.15em] transition-colors ${
                   reservationType === id
@@ -589,7 +590,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
                   fontSize: isMobile ? 16 : 18,
                   fontWeight: 400,
                 }}
-                aria-current={reservationType === id ? "page" : undefined}
+                aria-selected={reservationType === id}
               >
                 {id === "restaurant"
                   ? lang === "es"

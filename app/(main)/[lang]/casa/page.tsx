@@ -5,8 +5,11 @@ import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionar
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
+import { getContent, t as tContent } from "@/lib/content";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
+import CasaContent from "./CasaContent";
+import type { SectionData } from "./sections/types";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
 
@@ -87,44 +90,16 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const Content = L === "en" ? ContentEn : ContentEs;
   const Article = L === "en" ? ArticleEn : ArticleEs;
 
-  const faq: FaqItem[] =
-    L === "es"
-      ? [
-          {
-            q: "¿Por qué hospedarse en Casa Olivea en Valle de Guadalupe?",
-            a: "Casa Olivea es un hospedaje integrado al huerto y conectado a Olivea Farm To Table, ideal para vivir la hospitalidad del huerto: hospedaje, gastronomía y naturaleza en el mismo lugar.",
-          },
-          {
-            q: "¿Casa Olivea está en Valle de Guadalupe o Ensenada?",
-            a: "Casa Olivea está en Valle de Guadalupe (Villa de Juárez), dentro del municipio de Ensenada, Baja California.",
-          },
-          {
-            q: "¿Puedo cenar en Olivea Farm To Table si me hospedo en Casa Olivea?",
-            a: "Sí. Recomendamos reservar con anticipación. La experiencia está diseñada para disfrutar hospedaje y cena en la misma propiedad.",
-          },
-          {
-            q: "¿Qué más hay en la propiedad de Olivea?",
-            a: "Además de Casa Olivea, la propiedad incluye Olivea Farm To Table, un restaurante con estrella MICHELIN, y Olivea Café, con café de especialidad y desayunos. Las tres experiencias comparten el huerto.",
-          },
-        ]
-      : [
-          {
-            q: "Why stay at Casa Olivea in Valle de Guadalupe?",
-            a: "Casa Olivea is a farm stay integrated with the garden and connected to Olivea Farm To Table — ideal for experiencing farm hospitality: stay, dine, and wake up inside the garden.",
-          },
-          {
-            q: "Is Casa Olivea in Valle de Guadalupe or Ensenada?",
-            a: "Casa Olivea is located in Valle de Guadalupe (Villa de Juárez), within Ensenada, Baja California.",
-          },
-          {
-            q: "Can I dine at Olivea Farm To Table if I stay at Casa Olivea?",
-            a: "Yes. We recommend booking in advance. The experience is designed for guests to enjoy dining and staying in one place.",
-          },
-          {
-            q: "What else is on the Olivea property?",
-            a: "Besides Casa Olivea, the property includes Olivea Farm To Table, a MICHELIN-starred restaurant, and Olivea Café, serving specialty coffee and breakfast. All three share the same working garden.",
-          },
-        ];
+  // Fetch Supabase-driven sections (falls back gracefully)
+  const casaContent = await getContent("casa");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hasSections = casaContent.sections && (casaContent.sections as any[]).length > 0;
+  const faq: FaqItem[] = casaContent.faq
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((item) => ({
+      q: tContent(L, item.question),
+      a: tContent(L, item.answer),
+    }));
 
   const faqId = canonicalUrl(`/${L}/casa#faq`);
 
@@ -186,11 +161,19 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
 
-      <Suspense
-        fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
-      >
-        <Content />
-      </Suspense>
+      {hasSections ? (
+        <Suspense
+          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+        >
+          <CasaContent lang={L} sections={casaContent.sections as SectionData[]} />
+        </Suspense>
+      ) : (
+        <Suspense
+          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+        >
+          <Content />
+        </Suspense>
+      )}
     </div>
   );
 }

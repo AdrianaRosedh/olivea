@@ -4,24 +4,21 @@ import { loadLocale } from "@/lib/i18n";
 import Reveal from "@/components/scroll/Reveal";
 import CardParallax from "@/components/mdx/CardParallax";
 import ContactForm from "./contact-form";
+import LiveOpenings from "./live-openings";
+import { getContent, t } from "@/lib/content";
+import type { Lang } from "@/lib/i18n";
 
 type Params = { params: Promise<{ lang: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const p = await params;
   const { lang } = await loadLocale({ lang: p.lang });
+  const c = await getContent("careers");
 
-  const title = lang === "es" ? "Carreras | OLIVEA" : "Careers | OLIVEA";
-  const description =
-    lang === "es"
-      ? "Únete al equipo de Olivea en Valle de Guadalupe — hospitalidad, cocina de autor, huerto y café. Envía tu aplicación y crece con nosotros."
-      : "Join the Olivea team in Valle de Guadalupe — hospitality, farm-to-table cuisine, garden, and café. Send your application and grow with us.";
-
-  return { title, description };
-}
-
-function t(lang: "es" | "en", es: string, en: string) {
-  return lang === "es" ? es : en;
+  return {
+    title: t(lang as Lang, c.meta.title),
+    description: t(lang as Lang, c.meta.description),
+  };
 }
 
 function Divider({ className = "" }: { className?: string }) {
@@ -37,6 +34,8 @@ function Divider({ className = "" }: { className?: string }) {
 export default async function CarrerasPage({ params }: Params) {
   const p = await params;
   const { lang } = await loadLocale({ lang: p.lang });
+  const L = lang as Lang;
+  const c = await getContent("careers");
 
   const wrap =
     "mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-10";
@@ -53,113 +52,16 @@ export default async function CarrerasPage({ params }: Params) {
   const pill =
     "inline-flex items-center rounded-full px-3 py-1 text-[12px] bg-white/65 ring-1 ring-black/8 text-(--olivea-ink)/75";
 
-  const principles: Array<{ k: string; v: string }> = [
-    {
-      k: t(lang, "El huerto manda", "The garden leads"),
-      v: t(
-        lang,
-        "Trabajamos con estación y origen — no con ego.",
-        "We work with season and origin — not ego."
-      ),
-    },
-    {
-      k: t(lang, "Técnica silenciosa", "Quiet technique"),
-      v: t(
-        lang,
-        "La excelencia se siente en el ritmo, la limpieza y el detalle.",
-        "Excellence shows in rhythm, cleanliness, and detail."
-      ),
-    },
-    {
-      k: t(lang, "Ritmo completo", "Full rhythm"),
-      v: t(
-        lang,
-        "Servicio coreografiado, comunicación limpia, cero caos.",
-        "Choreographed service, clean communication, zero chaos."
-      ),
-    },
-    {
-      k: t(lang, "Cuidado real", "Real care"),
-      v: t(
-        lang,
-        "Del huésped, del equipo y del lugar — con respeto.",
-        "For guests, team, and place — with respect."
-      ),
-    },
-    {
-      k: t(lang, "Curiosidad disciplinada", "Disciplined curiosity"),
-      v: t(
-        lang,
-        "Aprender es parte del rol. Mejorar es parte del día.",
-        "Learning is part of the role. Improving is part of the day."
-      ),
-    },
-    {
-      k: t(lang, "Coherencia", "Coherence"),
-      v: t(
-        lang,
-        "Cada detalle suma: lenguaje, postura, tiempos, manos, herramientas.",
-        "Every detail matters: language, posture, timing, hands, tools."
-      ),
-    },
-  ];
+  const principles = c.principles.map((p) => ({
+    k: t(L, p.title),
+    v: t(L, p.description),
+  }));
 
-  const tracks: Array<{ title: string; desc: string; chips: string[] }> = [
-    {
-      title: t(lang, "FOH / Servicio", "FOH / Service"),
-      desc: t(
-        lang,
-        "Hospitalidad con precisión: narrativa, timing, mesa impecable.",
-        "Hospitality with precision: narrative, timing, immaculate table."
-      ),
-      chips: ["Host", "Mesero/a", "Captain", "Bar", "Sommelier"],
-    },
-    {
-      title: t(lang, "BOH / Cocina", "BOH / Kitchen"),
-      desc: t(
-        lang,
-        "Técnica, limpieza, consistencia. El plato como tributo al huerto.",
-        "Technique, cleanliness, consistency. A plate as tribute to the garden."
-      ),
-      chips: ["Línea", "Prep", "Pastry", "Expeditor"],
-    },
-    {
-      title: t(lang, "Huerto / Grounds", "Garden / Grounds"),
-      desc: t(
-        lang,
-        "Cuidado diario del origen: riego, cosecha, compost, orden.",
-        "Daily care of origin: irrigation, harvest, compost, order."
-      ),
-      chips: ["Riego", "Cosecha", "Compost", "Mantenimiento"],
-    },
-    {
-      title: t(lang, "Hotel / Casa Olivea", "Hotel / Casa Olivea"),
-      desc: t(
-        lang,
-        "Calma y detalle: recepción, housekeeping, experiencia completa.",
-        "Calm and detail: reception, housekeeping, full experience."
-      ),
-      chips: ["Front Desk", "Housekeeping", "Concierge"],
-    },
-    {
-      title: t(lang, "Café / Padel", "Café / Padel"),
-      desc: t(
-        lang,
-        "Claridad y ritmo: café, desayunos, tardes ligeras y servicio ágil.",
-        "Clarity and rhythm: coffee, breakfasts, light afternoons, agile service."
-      ),
-      chips: ["Barista", "Cocina", "Piso"],
-    },
-    {
-      title: t(lang, "Operaciones", "Operations"),
-      desc: t(
-        lang,
-        "Sistemas, soporte, orden: compras, admin, mantenimiento.",
-        "Systems, support, order: purchasing, admin, maintenance."
-      ),
-      chips: ["Compras", "Admin", "Mantenimiento", "Logística"],
-    },
-  ];
+  const tracks = c.tracks.map((tr) => ({
+    title: t(L, tr.title),
+    desc: t(L, tr.description),
+    chips: tr.chips,
+  }));
 
   return (
     <main className="w-full">
@@ -172,54 +74,44 @@ export default async function CarrerasPage({ params }: Params) {
               <div className="inline-flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-(--olivea-olive)" />
                 <span className="text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
-                  {t(lang, "Trabaja con nosotros", "Careers")}
+                  {t(L, c.hero.kicker)}
                 </span>
               </div>
             </Reveal>
 
             <Reveal preset="up" delay={0.06}>
               <h1 className="mt-4 text-[42px] leading-[1.05] md:text-[56px] md:leading-[1.03] font-semibold tracking-[-0.02em] text-(--olivea-ink)">
-                {t(lang, "Carreras en Olivea", "Careers at Olivea")}
+                {t(L, c.hero.headline)}
               </h1>
             </Reveal>
 
             <Reveal preset="fade" delay={0.12}>
               <p className="mt-5 max-w-[62ch] text-[16px] md:text-[17px] leading-[1.9] text-(--olivea-ink)/76">
-                {t(
-                  lang,
-                  "Olivea es un ecosistema: restaurante, hotel y café — guiados por el huerto. Buscamos personas con técnica, humildad y ritmo. No es “solo un trabajo”. Es oficio.",
-                  "Olivea is an ecosystem: restaurant, hotel, and café — led by the garden. We look for people with technique, humility, and rhythm. Not “just a job.” A craft."
-                )}
+                {t(L, c.hero.description)}
               </p>
             </Reveal>
 
             <div className="mt-7 flex flex-wrap gap-3">
               <a href="#vacantes" className={ctaPrimary}>
-                {t(lang, "Ver vacantes", "View openings")}
+                {t(L, c.openings.title)}
               </a>
               <a href="#aplicar" className={ctaGhost}>
-                {t(lang, "Aplicación", "Apply")}
+                {t(L, c.application.title)}
               </a>
             </div>
 
             {/* Minimal standards — clean list, not a big box */}
             <div className="mt-8">
               <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/80">
-                {t(lang, "El estándar Olivea", "The Olivea standard")}
+                {t(L, c.standards.title)}
               </div>
               <ul className="mt-3 space-y-2 text-[14.5px] leading-[1.8] text-(--olivea-ink)/74">
-                <li className="flex gap-3">
-                  <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
-                  <span>{t(lang, "Puntualidad, preparación y manos limpias.", "Punctuality, readiness, clean hands.")}</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
-                  <span>{t(lang, "Orden, lenguaje profesional y calma.", "Order, professional language, calm.")}</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
-                  <span>{t(lang, "Capacidad de recibir feedback y mejorar.", "Able to take feedback and improve.")}</span>
-                </li>
+                {c.standards.items.map((item, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
+                    <span>{t(L, item)}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -228,8 +120,8 @@ export default async function CarrerasPage({ params }: Params) {
           <div className="lg:col-span-7">
             <div className="relative overflow-hidden rounded-[34px] ring-1 ring-black/10 h-64 sm:h-80 md:h-115">
               <CardParallax
-                src="/images/journal/seasonal-garden.avif"
-                alt="Olivea — garden craft"
+                src={c.hero.image.src}
+                alt={t(L, c.hero.image.alt)}
                 speed={0.14}
                 fit="cover"
                 objectPosition="50% 62%"
@@ -243,42 +135,22 @@ export default async function CarrerasPage({ params }: Params) {
 
               {/* Floating signals — clean, not chunky */}
               <div className="absolute left-5 right-5 bottom-5 grid gap-3 md:grid-cols-3">
-                <div className="rounded-2xl bg-white/70 backdrop-blur-md ring-1 ring-black/10 p-4">
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
-                    {t(lang, "Ritmo", "Rhythm")}
+                {c.hero.signals.map((s, i) => (
+                  <div key={i} className="rounded-2xl bg-white/70 backdrop-blur-md ring-1 ring-black/10 p-4">
+                    <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
+                      {t(L, s.label)}
+                    </div>
+                    <div className="mt-2 text-[14px] leading-[1.6] text-(--olivea-ink)/75">
+                      {t(L, s.text)}
+                    </div>
                   </div>
-                  <div className="mt-2 text-[14px] leading-[1.6] text-(--olivea-ink)/75">
-                    {t(lang, "Calma con precisión.", "Calm with precision.")}
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-white/70 backdrop-blur-md ring-1 ring-black/10 p-4">
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
-                    {t(lang, "Oficio", "Craft")}
-                  </div>
-                  <div className="mt-2 text-[14px] leading-[1.6] text-(--olivea-ink)/75">
-                    {t(lang, "Técnica visible en detalles.", "Technique in the details.")}
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-white/70 backdrop-blur-md ring-1 ring-black/10 p-4">
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
-                    {t(lang, "Origen", "Origin")}
-                  </div>
-                  <div className="mt-2 text-[14px] leading-[1.6] text-(--olivea-ink)/75">
-                    {t(lang, "El huerto guía decisiones.", "The garden guides decisions.")}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Hiring steps — horizontal + clean */}
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {[
-                t(lang, "Revisión (3–7 días)", "Review (3–7 days)"),
-                t(lang, "Llamada (15 min)", "Short call (15 min)"),
-                t(lang, "Prueba / stage", "Trial / stage"),
-              ].map((label, i) => (
+              {c.hiringSteps.map((step) => t(L, step)).map((label, i) => (
                 <div key={label} className="rounded-2xl bg-white/35 ring-1 ring-black/8 p-4">
                   <div className="flex items-center gap-3">
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 ring-1 ring-black/10 text-[12px] text-(--olivea-ink)/75">
@@ -301,7 +173,7 @@ export default async function CarrerasPage({ params }: Params) {
       <section className={wrap + " pt-10 md:pt-12"}>
         <Reveal preset="up">
           <h2 className="text-2xl md:text-3xl font-semibold text-(--olivea-ink)">
-            {t(lang, "Cómo se ve la excelencia aquí", "What excellence looks like here")}
+            {t(L, c.principlesTitle ?? { es: "Cómo se ve la excelencia aquí", en: "What excellence looks like here" })}
           </h2>
         </Reveal>
 
@@ -328,7 +200,7 @@ export default async function CarrerasPage({ params }: Params) {
       <section className={wrap + " pt-10 md:pt-12"}>
         <Reveal preset="up">
           <h2 className="text-2xl md:text-3xl font-semibold text-(--olivea-ink)">
-            {t(lang, "Áreas", "Tracks")}
+            {t(L, c.tracksTitle ?? { es: "Áreas", en: "Tracks" })}
           </h2>
         </Reveal>
 
@@ -360,31 +232,32 @@ export default async function CarrerasPage({ params }: Params) {
       <section id="vacantes" className={wrap + " pt-10 md:pt-12 scroll-mt-28"}>
         <Reveal preset="up">
           <h2 className="text-2xl md:text-3xl font-semibold text-(--olivea-ink)">
-            {t(lang, "Vacantes", "Openings")}
+            {t(L, c.openings.title)}
           </h2>
         </Reveal>
+
+        {/* Live job openings from Supabase */}
+        <div className="mt-6">
+          <LiveOpenings lang={L} />
+        </div>
 
         <div className="mt-6 rounded-[28px] bg-white/18 ring-1 ring-black/8 p-7 md:p-9">
           <div className="grid gap-8 lg:grid-cols-12 items-start">
             <div className="lg:col-span-7">
               <div className="text-[13px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
-                {t(lang, "Aplicación abierta", "Open application")}
+                {t(L, c.openings.openApplication.label)}
               </div>
 
               <p className="mt-3 text-[16px] leading-[1.9] text-(--olivea-ink)/76 max-w-[70ch]">
-                {t(
-                  lang,
-                  "Si tu perfil encaja con nuestros estándares, queremos conocerte — incluso si hoy no hay una vacante publicada. Preferimos construir un banco de talento real.",
-                  "If your profile matches our standards, we want to meet you — even if there isn’t a posted opening today. We prefer building a real talent bench."
-                )}
+                {t(L, c.openings.openApplication.description)}
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <a href="#aplicar" className={ctaPrimary}>
-                  {t(lang, "Aplicar", "Apply")}
+                  {t(L, c.openings.openApplication.ctaLabel)}
                 </a>
                 <span className="inline-flex items-center text-[12.5px] text-(--olivea-ink)/60">
-                  {t(lang, "Respuesta típica: 3–7 días.", "Typical response: 3–7 days.")}
+                  {t(L, c.openings.openApplication.responseTime)}
                 </span>
               </div>
             </div>
@@ -392,21 +265,15 @@ export default async function CarrerasPage({ params }: Params) {
             <div className="lg:col-span-5">
               <div className="rounded-[22px] bg-white/40 ring-1 ring-black/10 p-5">
                 <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
-                  {t(lang, "Qué buscamos", "What we look for")}
+                  {t(L, c.openings.qualifications.title)}
                 </div>
                 <ul className="mt-3 space-y-2.5 text-[14.5px] leading-[1.8] text-(--olivea-ink)/74">
-                  <li className="flex gap-3">
-                    <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
-                    <span>{t(lang, "Humildad + disciplina.", "Humility + discipline.")}</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
-                    <span>{t(lang, "Buen ritmo bajo presión.", "Good rhythm under pressure.")}</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
-                    <span>{t(lang, "Amor por el detalle.", "Love for detail.")}</span>
-                  </li>
+                  {c.openings.qualifications.items.map((item, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
+                      <span>{t(L, item)}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -422,30 +289,22 @@ export default async function CarrerasPage({ params }: Params) {
           <div className="lg:col-span-4">
             <Reveal preset="up">
               <h2 className="text-2xl md:text-3xl font-semibold text-(--olivea-ink)">
-                {t(lang, "Aplicación", "Application")}
+                {t(L, c.application.title)}
               </h2>
             </Reveal>
 
             <Reveal preset="fade" delay={0.06}>
               <p className="mt-4 text-[15.5px] leading-[1.95] text-(--olivea-ink)/74">
-                {t(
-                  lang,
-                  "Leemos cada aplicación con intención. Si tu ritmo encaja con Olivea, te contactamos para una llamada corta.",
-                  "We read every application with intention. If your rhythm matches Olivea, we’ll reach out for a short call."
-                )}
+                {t(L, c.application.description)}
               </p>
             </Reveal>
 
             <div className="mt-6 rounded-[22px] bg-white/20 ring-1 ring-black/8 p-5">
               <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
-                {t(lang, "Consejo", "Tip")}
+                {t(L, c.application.tip.label)}
               </div>
               <p className="mt-3 text-[14.5px] leading-[1.85] text-(--olivea-ink)/74">
-                {t(
-                  lang,
-                  "Responde las 3 preguntas con honestidad. No buscamos “perfección”, buscamos criterio, calma y disciplina.",
-                  "Answer the 3 questions honestly. We’re not looking for “perfection” — we’re looking for judgment, calm, and discipline."
-                )}
+                {t(L, c.application.tip.text)}
               </p>
             </div>
           </div>

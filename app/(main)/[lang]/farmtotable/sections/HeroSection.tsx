@@ -1,0 +1,180 @@
+"use client";
+
+import CardParallax from "@/components/mdx/CardParallax";
+import Reveal from "@/components/scroll/Reveal";
+import Image from "next/image";
+import MenuScrollButton from "@/components/links/MenuScrollButton";
+import type { SectionProps } from "./types";
+import { t } from "./md";
+
+export default function HeroSection({ data, lang }: SectionProps) {
+  const imgSrc = data.image?.src ?? "/images/farm/hero.jpg";
+  const imgAlt = t(data.image?.alt, lang) || "Olivea Farm To Table";
+  const logoSrc = data.logo?.src ?? "/brand/herofarm.svg";
+  const logoAlt = t(data.logo?.alt, lang) || "Olivea Farm To Table";
+  const slogan = t(data.slogan, lang) || "Where The Garden Is The Essence";
+  const cta1 = t(data.cta1, lang) || "RESERVE";
+  const cta2 = t(data.cta2, lang) || "Menu";
+  const heading = t(data.heading, lang) || "Olivea Farm To Table";
+
+  return (
+    <section
+      id="hero"
+      className="
+        relative w-full mx-auto
+        md:max-w-none md:w-full
+        -mt-2 flex items-center justify-center pb-0
+      "
+    >
+      <div
+        className="
+          relative
+          md:!max-w-none md:!w-[min(1600px,calc(100vw-var(--dock-left,220px)-var(--dock-right,96px)-48px))]
+          w-full
+          h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+24px)]
+          md:h-[calc(100svh-var(--header-h,112px)-56px)]
+          xl:max-h-[960px]
+          hero-pill shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
+        "
+      >
+        <CardParallax
+          src={imgSrc}
+          alt={imgAlt}
+          speed={0.3}
+          surfaceClassName="h-full w-full"
+          className="-inset-[1px]"
+          fit="cover"
+          objectPosition="50% 40%"
+          priority
+          quality={58}
+          placeholder="empty"
+          sizes="(max-width: 768px) 100vw, min(1600px, calc(100vw - var(--dock-left,220px) - var(--dock-right,96px) - 48px))"
+        />
+
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
+          <h1 className="sr-only">{heading}</h1>
+
+          <div className="relative h-full flex items-center justify-center">
+            <div
+              className="
+                pointer-events-auto text-center px-4
+                relative
+                md:[left:calc((var(--dock-right,120px)-var(--dock-left,264px))/2)]
+                flex flex-col items-center
+                gap-[10px] md:gap-[14px] lg:gap-[16px]
+                -mt-2
+                md:[top:calc(-1*clamp(18px,4vh,72px))]
+                lg:[top:calc(-1*clamp(22px,5vh,96px))]
+                max-w-[min(92vw,560px)] md:max-w-none mx-auto
+              "
+            >
+              <Reveal preset="fade" delay={0.05}>
+                <div
+                  className="
+                    relative
+                    w-[clamp(170px,34vw,240px)]
+                    h-[clamp(170px,34vw,240px)]
+                    md:w-[clamp(230px,15vw,320px)]
+                    md:h-[clamp(230px,15vw,320px)]
+                    lg:w-[clamp(260px,13vw,360px)]
+                    lg:h-[clamp(260px,13vw,360px)]
+                  "
+                >
+                  <Image
+                    src={logoSrc}
+                    alt={logoAlt}
+                    fill
+                    sizes="(max-width: 640px) 240px, (max-width: 1024px) 320px, 360px"
+                    className="object-contain"
+                    priority={false}
+                  />
+                </div>
+              </Reveal>
+
+              <Reveal preset="up" delay={0.12}>
+                <div className="w-full text-center -mt-2 md:-mt-3">
+                  <span
+                    className="
+                      md:hidden
+                      inline-block whitespace-nowrap leading-tight
+                      font-serif italic uppercase text-white/95
+                      tracking-[0.06em]
+                      text-[clamp(14px,3.6vw,17px)]
+                      drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
+                    "
+                  >
+                    {slogan}
+                  </span>
+                  <span className="mt-1 h-[1px] w-20 bg-white/35 md:hidden block mx-auto" />
+
+                  <span className="hidden md:inline-flex items-center md:gap-4 md:[--rule:2.5rem] lg:[--rule:3.5rem]">
+                    <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
+                    <span
+                      className="
+                        inline-block leading-tight md:whitespace-nowrap
+                        font-serif italic uppercase text-white/95
+                        tracking-[0.14em] md:text-base lg:text-lg
+                        drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]
+                      "
+                    >
+                      {slogan}
+                    </span>
+                    <span className="md:flex-none md:h-px md:w-[var(--rule)] bg-white/30" />
+                  </span>
+                </div>
+              </Reveal>
+
+              <Reveal preset="fade" delay={0.18}>
+                <div className="flex items-center justify-center gap-2 md:gap-3 pb-[max(0px,env(safe-area-inset-bottom))]">
+                  <button
+                    type="button"
+                    aria-label={cta1}
+                    data-reserve-intent
+                    onPointerEnter={() => {
+                      window.dispatchEvent(new Event("olivea:reserve-intent"));
+                    }}
+                    onClick={() => {
+                      window.dispatchEvent(new Event("olivea:reserve"));
+                    }}
+                    className="
+                      inline-flex items-center justify-center
+                      rounded-full px-3.5 py-1.5 text-[15px]
+                      md:px-5 md:py-2.5 md:text-base
+                      lg:px-6 lg:py-3   lg:text-[17px]
+                      font-medium tracking-wide
+                      text-white/90 border border-white/35 bg-white/[0.01] backdrop-blur-[2px]
+                      shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
+                      transition hover:bg-white/8 hover:text-white
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
+                      active:scale-[0.98]
+                    "
+                  >
+                    {cta1}
+                  </button>
+
+                  <MenuScrollButton
+                    className="
+                      inline-flex items-center justify-center
+                      rounded-full px-3.5 py-1.5 text-[15px]
+                      md:px-5 md:py-2.5 md:text-base
+                      lg:px-6 lg:py-3   lg:text-[17px]
+                      font-medium tracking-wide
+                      text-white/80 border border-white/30 bg-white/[0.01] backdrop-blur-[2px]
+                      shadow-[0_2px_12px_-8px_rgba(0,0,0,0.45)]
+                      transition hover:bg-white/6 hover:text-white
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
+                      active:scale-[0.98]
+                    "
+                  >
+                    {cta2}
+                  </MenuScrollButton>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { scrollOffsetPx } from "@/lib/scroll-offset";
 
 /**
  * Ensures the last visible anchor (default .subsection) can center with the
@@ -9,12 +10,13 @@ import { useEffect, useRef } from "react";
  * Now considers existing space after the last anchor and a bottom UI offset.
  */
 export default function ScrollLimiter({
-  topOffsetPx = 120,          // e.g., navbar spacing you already use
+  topOffsetPx,                 // defaults to CSS --scroll-offset
   bottomOffsetPx = 0,         // e.g., mobile bottom bar / FAB cluster
   anchorSelector = ".subsection",
   children,
   className = "",
 }: {
+  /** Defaults to CSS --scroll-offset if omitted */
   topOffsetPx?: number;
   bottomOffsetPx?: number;
   anchorSelector?: string;
@@ -24,6 +26,8 @@ export default function ScrollLimiter({
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const effectiveOffset = topOffsetPx ?? scrollOffsetPx();
+
     function recompute() {
       const root = ref.current;
       if (!root) return;
@@ -44,8 +48,8 @@ export default function ScrollLimiter({
       // viewport height + topOffset, minus whatever bottom UI occupies.
       const desiredPad =
         lastH <= vh
-          ? Math.max(0, (vh - lastH) / 2 + topOffsetPx - bottomOffsetPx)
-          : Math.max(0, topOffsetPx - bottomOffsetPx);
+          ? Math.max(0, (vh - lastH) / 2 + effectiveOffset - bottomOffsetPx)
+          : Math.max(0, effectiveOffset - bottomOffsetPx);
 
       // How much space already exists under the last anchor inside the root?
       // (root's scrollable height - bottom of last element within root)

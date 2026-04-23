@@ -3,8 +3,7 @@ import { listJournalSlugs } from "@/lib/journal/load";
 import { makeShortCode } from "@/lib/journal/shortcode";
 import type { JournalLang } from "@/lib/journal/schema";
 
-let cached: Map<string, string> | null = null;
-
+/** Rebuild on every request — the map is small and avoids stale-cache bugs. */
 async function buildMap(): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   const langs: JournalLang[] = ["es", "en"];
@@ -27,15 +26,12 @@ export default async function ShortLinkPage({
 }) {
   const { code } = await params;
 
-  if (!cached) {
-    cached = await buildMap();
-  }
-
-  const target = cached.get(code);
+  const map = await buildMap();
+  const target = map.get(code);
 
   if (!target) {
-    // Fallback: journal index (safe default)
-    redirect("/journal");
+    // Fallback: Spanish journal index (all journal routes require [lang] prefix)
+    redirect("/es/journal");
   }
 
   // Canonical redirect
