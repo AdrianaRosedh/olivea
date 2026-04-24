@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olivea Admin Portal — System Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --cream: #e7eae1;
+    --olive: #5e7658;
+    --clay: #a3b09d;
+    --ink: #2d3a28;
+    --white: #fafaf7;
+    --border: rgba(94,118,88,0.15);
+    --section-bg: rgba(231,234,225,0.35);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--white);
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 32px 100px;
+  }
+
+  /* Header */
+  .doc-header {
+    text-align: center;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .doc-header .badge {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--olive);
+    background: var(--cream);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .doc-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .doc-header .subtitle {
+    font-size: 16px;
+    color: var(--olive);
+    font-weight: 300;
+  }
+  .doc-header .date {
+    font-size: 13px;
+    color: var(--clay);
+    margin-top: 16px;
+  }
+
+  /* Sections */
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 48px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--olive);
+    margin: 32px 0 12px;
+    letter-spacing: 0.01em;
+  }
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 20px 0 8px;
+  }
+
+  p { margin-bottom: 14px; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  /* Info boxes */
+  .info-box {
+    background: var(--section-bg);
+    border-left: 3px solid var(--olive);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .info-box.highlight {
+    background: rgba(94,118,88,0.08);
+    border-left-color: var(--olive);
+  }
+  .info-box p:last-child { margin-bottom: 0; }
+
+  /* Architecture diagram */
+  .diagram {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 24px 0;
+    font-family: 'Inter', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--ink);
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 14px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--cream);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--olive);
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    background: rgba(94,118,88,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--olive);
+  }
+
+  /* Phase cards */
+  .phase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .phase-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+  }
+  .phase-card.active {
+    border-color: var(--olive);
+    box-shadow: 0 4px 20px rgba(94,118,88,0.12);
+  }
+  .phase-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--clay);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .phase-card.active .phase-number { color: var(--olive); }
+  .phase-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .phase-desc {
+    font-size: 13px;
+    color: rgba(45,58,40,0.7);
+    line-height: 1.6;
+  }
+  .phase-time {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--olive);
+    background: var(--cream);
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+
+  /* Role badges */
+  .role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .role-card {
+    text-align: center;
+    padding: 20px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .role-icon { font-size: 28px; margin-bottom: 8px; }
+  .role-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .role-perms { font-size: 12px; color: rgba(45,58,40,0.65); line-height: 1.5; }
+
+  /* Schema block */
+  .schema {
+    background: var(--ink);
+    color: #c8d6c4;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 16px 0 24px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+  .schema .comment { color: #7a9474; }
+  .schema .keyword { color: #a3d69d; }
+  .schema .type { color: #88c0d0; }
+  .schema .string { color: #d4a87c; }
+
+  /* Numbered list */
+  .step-list {
+    counter-reset: steps;
+    list-style: none;
+    padding: 0;
+  }
+  .step-list li {
+    counter-increment: steps;
+    padding: 8px 0 8px 40px;
+    position: relative;
+  }
+  .step-list li::before {
+    content: counter(steps);
+    position: absolute;
+    left: 0;
+    width: 26px;
+    height: 26px;
+    background: var(--cream);
+    color: var(--olive);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    top: 9px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  @media (max-width: 640px) {
+    .phase-grid, .role-grid { grid-template-columns: 1fr; }
+    .doc-header h1 { font-size: 32px; }
+    .container { padding: 40px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="badge">System Architecture</div>
+    <h1>Olivea Admin Portal</h1>
+    <div class="subtitle">Content management, role-based access, and the road to a guest portal</div>
+    <div class="date">April 2026 · Architecture Proposal v1</div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <h2>1. What we're building</h2>
+  <p>
+    A private admin portal at <code>/admin</code> where your team can manage every piece of content on olivea.com — text, images, menus, pricing, hours, and reservations — without touching code. Built on <strong>Supabase</strong> (auth + database + file storage) with role-based permissions, and designed so the same infrastructure powers a future <strong>guest portal</strong>.
+  </p>
+
+  <div class="info-box highlight">
+    <p><strong>Why Supabase?</strong> You get auth, Postgres database, file storage, and real-time subscriptions in one platform — no extra vendors. It's free-tier friendly, self-hostable if you ever need it, and the Row-Level Security (RLS) model means permissions live in the database, not scattered across app code.</p>
+  </div>
+
+  <!-- HIGH-LEVEL ARCHITECTURE -->
+  <h2>2. High-level architecture</h2>
+
+  <div class="diagram">
+┌─────────────────────────────────────────────────────────┐
+│                    olivea.com                            │
+│                                                         │
+│  ┌──────────────┐   ┌──────────────┐   ┌─────────────┐ │
+│  │  Public Site  │   │ Admin Portal │   │Guest Portal │ │
+│  │  /es  /en     │   │ /admin       │   │ /guest      │ │
+│  │  (Next.js)    │   │ (Next.js)    │   │ (Phase 3)   │ │
+│  └──────┬───────┘   └──────┬───────┘   └──────┬──────┘ │
+│         │                  │                   │        │
+│         │     ┌────────────┴───────────┐       │        │
+│         │     │    API Routes          │       │        │
+│         │     │    /api/admin/*        │       │        │
+│         │     │    /api/guest/*        │       │        │
+│         │     └────────────┬───────────┘       │        │
+└─────────┼──────────────────┼───────────────────┼────────┘
+          │                  │                   │
+          ▼                  ▼                   ▼
+┌─────────────────────────────────────────────────────────┐
+│                     Supabase                            │
+│                                                         │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────┐ │
+│  │   Auth   │  │ Postgres │  │ Storage  │  │Realtime│ │
+│  │  (users  │  │ (content │  │ (images  │  │(live   │ │
+│  │  +roles) │  │  +menus) │  │  +media) │  │updates)│ │
+│  └──────────┘  └──────────┘  └──────────┘  └────────┘ │
+└─────────────────────────────────────────────────────────┘</div>
+
+  <p>The key insight: your <strong>public site stays static and fast</strong>. Content is fetched from Supabase at build time (or with ISR), so visitors still get the same blazing performance. The admin portal is a separate route group that only loads for authenticated team members.</p>
+
+  <!-- ROLES -->
+  <h2>3. Roles and permissions</h2>
+  <p>Three roles, each with clear boundaries. Permissions are enforced at the database level via Supabase Row-Level Security, so they can't be bypassed even if someone finds the API.</p>
+
+  <div class="role-grid">
+    <div class="role-card">
+      <div class="role-icon">👑</div>
+      <div class="role-name">Owner</div>
+      <div class="role-perms">
+        Everything — invite users, assign roles, manage all content, view analytics, configure site settings
+      </div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">🍳</div>
+      <div class="role-name">Editor</div>
+      <div class="role-perms">
+        Edit menus, pricing, images, journal posts, hours. Cannot invite users or change site settings
+      </div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">👁️</div>
+      <div class="role-name">Viewer</div>
+      <div class="role-perms">
+        Read-only access to all content. Can preview drafts. Cannot edit or publish
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <p><strong>Future: Guest role.</strong> When we build the guest portal, we add a <code>guest</code> role scoped only to their reservation data, preferences, and pre-arrival forms. Same auth system, different RLS policies.</p>
+  </div>
+
+  <!-- DATA MODEL -->
+  <h2>4. Database schema</h2>
+  <p>Everything your site currently stores in static MDX/JSON files moves into Postgres tables. Content is bilingual (ES/EN) by default, with a clean separation between structure and translations.</p>
+
+  <h3>Core tables</h3>
+
+  <div class="schema">
+<span class="comment">-- Users & roles (extends Supabase auth.users)</span>
+<span class="keyword">CREATE TABLE</span> profiles (
+  id          <span class="type">UUID</span> <span class="keyword">REFERENCES</span> auth.users <span class="keyword">PRIMARY KEY</span>,
+  full_name   <span class="type">TEXT</span>,
+  role        <span class="type">TEXT</span> <span class="keyword">CHECK</span> (role <span class="keyword">IN</span> (<span class="string">'owner'</span>, <span class="string">'editor'</span>, <span class="string">'viewer'</span>)),
+  avatar_url  <span class="type">TEXT</span>,
+  created_at  <span class="type">TIMESTAMPTZ</span> <span class="keyword">DEFAULT</span> now()
+);
+
+<span class="comment">-- Page sections (hero text, about copy, etc.)</span>
+<span class="keyword">CREATE TABLE</span> page_content (
+  id          <span class="type">UUID</span> <span class="keyword">DEFAULT</span> gen_random_uuid() <span class="keyword">PRIMARY KEY</span>,
+  page        <span class="type">TEXT NOT NULL</span>,          <span class="comment">-- 'farmtotable', 'cafe', 'casa'</span>
+  section     <span class="type">TEXT NOT NULL</span>,          <span class="comment">-- 'hero', 'intro', 'info_cards'</span>
+  content_es  <span class="type">JSONB NOT NULL</span>,         <span class="comment">-- { title, body, cta_label, ... }</span>
+  content_en  <span class="type">JSONB NOT NULL</span>,
+  sort_order  <span class="type">INT DEFAULT</span> 0,
+  status      <span class="type">TEXT DEFAULT</span> <span class="string">'published'</span>, <span class="comment">-- 'draft' | 'published'</span>
+  updated_by  <span class="type">UUID REFERENCES</span> profiles,
+  updated_at  <span class="type">TIMESTAMPTZ DEFAULT</span> now(),
+  <span class="keyword">UNIQUE</span> (page, section)
+);
+
+<span class="comment">-- Menu items (wine, food, drinks, spirits)</span>
+<span class="keyword">CREATE TABLE</span> menu_items (
+  id           <span class="type">UUID</span> <span class="keyword">DEFAULT</span> gen_random_uuid() <span class="keyword">PRIMARY KEY</span>,
+  menu_type    <span class="type">TEXT NOT NULL</span>,         <span class="comment">-- 'wine', 'food', 'drinks', 'spirits'</span>
+  category     <span class="type">TEXT NOT NULL</span>,         <span class="comment">-- 'De La Casa', 'Blancos', 'Cocktails'</span>
+  name_es      <span class="type">TEXT NOT NULL</span>,
+  name_en      <span class="type">TEXT</span>,
+  description_es <span class="type">TEXT</span>,
+  description_en <span class="type">TEXT</span>,
+  price        <span class="type">NUMERIC(10,2)</span>,
+  price_label  <span class="type">TEXT</span>,                 <span class="comment">-- 'copa/glass', 'botella/bottle'</span>
+  winery       <span class="type">TEXT</span>,                 <span class="comment">-- for wines</span>
+  grape        <span class="type">TEXT</span>,                 <span class="comment">-- varietal info</span>
+  region       <span class="type">TEXT</span>,
+  year         <span class="type">INT</span>,
+  tags         <span class="type">TEXT[]</span>,               <span class="comment">-- ['natural', 'house', 'seasonal']</span>
+  sort_order   <span class="type">INT DEFAULT</span> 0,
+  is_available <span class="type">BOOLEAN DEFAULT</span> true,
+  updated_by   <span class="type">UUID REFERENCES</span> profiles,
+  updated_at   <span class="type">TIMESTAMPTZ DEFAULT</span> now()
+);
+
+<span class="comment">-- Media library</span>
+<span class="keyword">CREATE TABLE</span> media (
+  id          <span class="type">UUID</span> <span class="keyword">DEFAULT</span> gen_random_uuid() <span class="keyword">PRIMARY KEY</span>,
+  storage_key <span class="type">TEXT NOT NULL</span>,         <span class="comment">-- Supabase Storage path</span>
+  alt_es      <span class="type">TEXT</span>,
+  alt_en      <span class="type">TEXT</span>,
+  width       <span class="type">INT</span>,
+  height      <span class="type">INT</span>,
+  mime_type   <span class="type">TEXT</span>,
+  size_bytes  <span class="type">INT</span>,
+  tags        <span class="type">TEXT[]</span>,
+  uploaded_by <span class="type">UUID REFERENCES</span> profiles,
+  created_at  <span class="type">TIMESTAMPTZ DEFAULT</span> now()
+);
+
+<span class="comment">-- Banners & popups (replaces active.json files)</span>
+<span class="keyword">CREATE TABLE</span> promotions (
+  id           <span class="type">UUID</span> <span class="keyword">DEFAULT</span> gen_random_uuid() <span class="keyword">PRIMARY KEY</span>,
+  kind         <span class="type">TEXT NOT NULL</span>,         <span class="comment">-- 'banner', 'popup'</span>
+  content_es   <span class="type">JSONB NOT NULL</span>,
+  content_en   <span class="type">JSONB NOT NULL</span>,
+  rules        <span class="type">JSONB</span>,                <span class="comment">-- paths, frequency, priority</span>
+  starts_at    <span class="type">TIMESTAMPTZ</span>,
+  ends_at      <span class="type">TIMESTAMPTZ</span>,
+  enabled      <span class="type">BOOLEAN DEFAULT</span> false,
+  created_by   <span class="type">UUID REFERENCES</span> profiles,
+  updated_at   <span class="type">TIMESTAMPTZ DEFAULT</span> now()
+);
+
+<span class="comment">-- Operating hours & reservations config</span>
+<span class="keyword">CREATE TABLE</span> operating_hours (
+  id          <span class="type">UUID</span> <span class="keyword">DEFAULT</span> gen_random_uuid() <span class="keyword">PRIMARY KEY</span>,
+  venue       <span class="type">TEXT NOT NULL</span>,         <span class="comment">-- 'farmtotable', 'cafe', 'casa'</span>
+  day_of_week <span class="type">INT NOT NULL</span>,          <span class="comment">-- 0=Sun .. 6=Sat</span>
+  opens_at    <span class="type">TIME</span>,
+  closes_at   <span class="type">TIME</span>,
+  is_closed   <span class="type">BOOLEAN DEFAULT</span> false,
+  notes_es    <span class="type">TEXT</span>,
+  notes_en    <span class="type">TEXT</span>,
+  <span class="keyword">UNIQUE</span> (venue, day_of_week)
+);
+
+<span class="comment">-- Journal / blog posts (replaces MDX files)</span>
+<span class="keyword">CREATE TABLE</span> journal_posts (
+  id          <span class="type">UUID</span> <span class="keyword">DEFAULT</span> gen_random_uuid() <span class="keyword">PRIMARY KEY</span>,
+  slug        <span class="type">TEXT UNIQUE NOT NULL</span>,
+  title_es    <span class="type">TEXT NOT NULL</span>,
+  title_en    <span class="type">TEXT NOT NULL</span>,
+  body_es     <span class="type">TEXT NOT NULL</span>,         <span class="comment">-- Markdown</span>
+  body_en     <span class="type">TEXT NOT NULL</span>,
+  cover_image <span class="type">UUID REFERENCES</span> media,
+  author      <span class="type">TEXT</span>,
+  tags        <span class="type">TEXT[]</span>,
+  status      <span class="type">TEXT DEFAULT</span> <span class="string">'draft'</span>,  <span class="comment">-- 'draft' | 'published'</span>
+  published_at <span class="type">TIMESTAMPTZ</span>,
+  created_by  <span class="type">UUID REFERENCES</span> profiles,
+  updated_at  <span class="type">TIMESTAMPTZ DEFAULT</span> now()
+);
+
+<span class="comment">-- Audit log — who changed what, when</span>
+<span class="keyword">CREATE TABLE</span> audit_log (
+  id          <span class="type">BIGSERIAL PRIMARY KEY</span>,
+  user_id     <span class="type">UUID REFERENCES</span> profiles,
+  action      <span class="type">TEXT NOT NULL</span>,         <span class="comment">-- 'create', 'update', 'delete', 'publish'</span>
+  table_name  <span class="type">TEXT NOT NULL</span>,
+  record_id   <span class="type">UUID</span>,
+  changes     <span class="type">JSONB</span>,                <span class="comment">-- { field: { old, new } }</span>
+  created_at  <span class="type">TIMESTAMPTZ DEFAULT</span> now()
+);</div>
+
+  <h3>Row-Level Security (RLS)</h3>
+  <p>Every table gets RLS policies so permissions are enforced at the database layer:</p>
+
+  <table>
+    <thead>
+      <tr><th>Role</th><th>Read</th><th>Create</th><th>Update</th><th>Delete</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Owner</strong></td><td>All tables</td><td>All tables</td><td>All tables</td><td>All tables</td></tr>
+      <tr><td><strong>Editor</strong></td><td>All content tables</td><td>Menu items, journal, media, promotions</td><td>Menu items, journal, media, promotions, hours</td><td>Own drafts only</td></tr>
+      <tr><td><strong>Viewer</strong></td><td>All content tables</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td><strong>Public site</strong></td><td>Published content only (via service key)</td><td>—</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ADMIN UI -->
+  <h2>5. Admin portal UI</h2>
+  <p>The admin lives in a new Next.js route group <code>app/(admin)/admin/</code> with its own layout, protected by Supabase auth middleware. It never ships to public visitors.</p>
+
+  <h3>Screens</h3>
+  <table>
+    <thead>
+      <tr><th>Screen</th><th>What it does</th><th>Min. role</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Dashboard</strong></td><td>Quick stats, recent changes, team activity</td><td>Viewer</td></tr>
+      <tr><td><strong>Pages</strong></td><td>Edit text/images for each page section (WYSIWYG-ish)</td><td>Editor</td></tr>
+      <tr><td><strong>Wine List</strong></td><td>Table editor with drag-to-reorder, filters by category</td><td>Editor</td></tr>
+      <tr><td><strong>Drinks & Spirits</strong></td><td>Same table editor for cocktails, mocktails, spirits</td><td>Editor</td></tr>
+      <tr><td><strong>Food Menu</strong></td><td>Tasting menu editor with course ordering</td><td>Editor</td></tr>
+      <tr><td><strong>Journal</strong></td><td>Markdown editor with preview, cover image upload</td><td>Editor</td></tr>
+      <tr><td><strong>Media Library</strong></td><td>Upload, tag, crop images. Auto-generates formats</td><td>Editor</td></tr>
+      <tr><td><strong>Banners & Popups</strong></td><td>Create/schedule promotions with date ranges</td><td>Editor</td></tr>
+      <tr><td><strong>Hours & Availability</strong></td><td>Set hours per venue, mark special closures</td><td>Editor</td></tr>
+      <tr><td><strong>Team</strong></td><td>Invite users, assign roles, view audit log</td><td>Owner</td></tr>
+      <tr><td><strong>Settings</strong></td><td>Site-wide config (SEO defaults, social links)</td><td>Owner</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Design approach</h3>
+  <div class="info-box">
+    <p>The admin UI extends your Olivea design language — light, airy, glass-morphism panels with your cream/olive/clay palette. Same Cormorant Garamond + Inter pairing, frosted-glass cards, and organic textures. Not a generic dark dashboard. Your team should feel like they're editing <em>their</em> restaurant, not some generic CMS.</p>
+  </div>
+
+  <!-- CONTENT FLOW -->
+  <h2>6. How content flows</h2>
+
+  <h3>Today (static)</h3>
+  <div class="diagram">
+MDX/JSON files  →  Next.js build  →  Static HTML  →  Visitor</div>
+
+  <h3>With admin portal</h3>
+  <div class="diagram">
+Admin edits  →  Supabase DB  →  Webhook triggers  →  ISR revalidation  →  Visitor
+                     │
+                     └─  Draft preview (admin-only, real-time)</div>
+
+  <p><strong>ISR (Incremental Static Regeneration)</strong> means the public site stays statically generated and fast, but re-generates specific pages within seconds when content changes. Your visitors never see a loading spinner, and editors see changes go live almost instantly.</p>
+
+  <h3>Migration strategy: gradual, not all-at-once</h3>
+  <ol class="step-list">
+    <li><strong>Menus first.</strong> Wine list, drinks, spirits, and food menus move to Supabase. These change most often and benefit the most from a table editor. This also replaces your Canva embeds with native, SEO-friendly pages.</li>
+    <li><strong>Banners & popups.</strong> Already JSON-shaped — easy to move to the <code>promotions</code> table with a simple form UI.</li>
+    <li><strong>Page content.</strong> Hero text, section copy, info cards. Each section becomes an editable block.</li>
+    <li><strong>Journal posts.</strong> MDX articles move to the database with a markdown editor.</li>
+    <li><strong>Hours & reservations.</strong> Operating hours, special closures, and eventually booking config.</li>
+  </ol>
+
+  <!-- TECH STACK -->
+  <h2>7. Technology choices</h2>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Technology</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Auth</strong></td><td>Supabase Auth</td><td>Email/password + magic link. Built-in session management. Future: OAuth for guest portal</td></tr>
+      <tr><td><strong>Database</strong></td><td>Supabase Postgres</td><td>Full SQL, JSONB for flexible bilingual content, RLS for permissions</td></tr>
+      <tr><td><strong>Storage</strong></td><td>Supabase Storage</td><td>Image uploads with transformations (resize, crop, format conversion)</td></tr>
+      <tr><td><strong>Frontend</strong></td><td>Next.js App Router</td><td>Already your stack. Admin is a new route group, shares components</td></tr>
+      <tr><td><strong>UI components</strong></td><td>Radix UI + Tailwind</td><td>Already in your project. Add: data table, rich text editor, drag-and-drop</td></tr>
+      <tr><td><strong>Rich text</strong></td><td>Tiptap or Plate</td><td>For page content editing. Outputs clean HTML/Markdown</td></tr>
+      <tr><td><strong>Data fetching</strong></td><td>SWR (already installed)</td><td>Optimistic updates, revalidation, real-time sync</td></tr>
+      <tr><td><strong>Image processing</strong></td><td>Sharp (via Supabase transform)</td><td>Auto-generate AVIF/WebP on upload, matching your current multi-format approach</td></tr>
+      <tr><td><strong>Deployment</strong></td><td>Vercel + Supabase Cloud</td><td>On-demand ISR revalidation via webhook. Zero infrastructure to manage</td></tr>
+    </tbody>
+  </table>
+
+  <!-- PHASES -->
+  <h2>8. Implementation phases</h2>
+
+  <div class="phase-grid">
+    <div class="phase-card active">
+      <div class="phase-number">01</div>
+      <div class="phase-title">Foundation</div>
+      <div class="phase-desc">
+        Set up Supabase project. Create database schema, RLS policies, and storage buckets. Build auth flow (login, invite, role assignment). Create admin layout shell with sidebar navigation.
+      </div>
+      <div class="phase-time">~1–2 weeks</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-number">02</div>
+      <div class="phase-title">Menu Management</div>
+      <div class="phase-desc">
+        Build the menu editor (wine list, drinks, spirits, food). Migrate all menu data from Canva into Supabase. Create public-facing menu pages that render from the database instead of Canva iframes.
+      </div>
+      <div class="phase-time">~2–3 weeks</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-number">03</div>
+      <div class="phase-title">Content & Media</div>
+      <div class="phase-desc">
+        Page section editor, media library with upload/crop, journal post editor with markdown preview. Migrate existing MDX content to database. Add banner/popup management.
+      </div>
+      <div class="phase-time">~2–3 weeks</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-number">04</div>
+      <div class="phase-title">Operations & Guest Portal</div>
+      <div class="phase-desc">
+        Hours management, special closures, reservation config. Then: guest portal foundation — guest auth, pre-arrival preferences, dietary forms, reservation details.
+      </div>
+      <div class="phase-time">~2–3 weeks</div>
+    </div>
+  </div>
+
+  <!-- TRADE-OFFS -->
+  <h2>9. Trade-offs and decisions</h2>
+
+  <h3>Why not a headless CMS like Sanity or Contentful?</h3>
+  <div class="info-box">
+    <p><strong>We considered it.</strong> A headless CMS gives you a polished editor out of the box. But: (a) it's another vendor and monthly cost, (b) it can't handle your menu-specific data model well (wine vintages, categories, pricing tiers), (c) it doesn't share auth with the guest portal, and (d) you lose the bilingual JSONB flexibility. Supabase gives you one platform for everything.</p>
+  </div>
+
+  <h3>Why not edit MDX files directly through a Git-based CMS?</h3>
+  <p>Tools like Tina CMS let non-developers edit MDX through a visual layer. But your team needs structured data (menu tables, pricing, hours) not just rich text. A database gives you proper queries, filtering, and the foundation for the guest portal.</p>
+
+  <h3>What about the Canva menus?</h3>
+  <p>The Canva embeds currently serve your wine, spirits, drinks, and pairing menus. Phase 2 replaces these with native pages rendered from the database — giving you SEO benefits, faster loads, and the ability to edit from the admin portal. During migration, both can coexist (admin-managed menus for categories that are ready, Canva fallback for the rest).</p>
+
+  <h3>ISR vs. full SSR</h3>
+  <p>ISR keeps your pages static (fast, cacheable, cheap) while allowing near-instant updates when content changes. Full SSR would hit the database on every request — unnecessary for a restaurant site where content changes a few times per week.</p>
+
+  <div class="divider"></div>
+
+  <!-- NEXT STEPS -->
+  <h2>10. Recommended next steps</h2>
+  <ol class="step-list">
+    <li><strong>Review this architecture</strong> — flag anything that doesn't match how you want to work. The role structure, which content to prioritize, the migration order.</li>
+    <li><strong>Create the Supabase project</strong> — I can help set up the tables, RLS policies, and storage buckets directly through your connected Supabase account.</li>
+    <li><strong>Start Phase 1</strong> — auth + admin shell. Once you can log in and see a sidebar, everything else is incremental.</li>
+    <li><strong>Decide on the menu migration</strong> — your wine list mockup is already structured perfectly for the <code>menu_items</code> table. We can seed the database from it.</li>
+  </ol>
+
+  <div class="info-box highlight" style="margin-top: 40px;">
+    <p><strong>One more thing.</strong> Because your wine list, drinks, and spirits mockups are already structured and categorized, we can use them to seed the database from day one. The restructuring work we did wasn't just for the mockups — it's the data model for your admin portal.</p>
+  </div>
+
+</div>
+</body>
+</html>

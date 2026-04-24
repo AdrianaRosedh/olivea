@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carta de Vinos — Olivea Farm To Table — Propuesta Completa</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --cream: #e7eae1;
+    --olive: #5e7658;
+    --clay: #a3b09d;
+    --ink: #5e7658;
+    --page-bg: #fafaf7;
+    --divider: rgba(94, 118, 88, 0.12);
+    --subtle: rgba(94, 118, 88, 0.55);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #2a2a2a;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .book { max-width: 1100px; margin: 40px auto; display: flex; flex-direction: column; gap: 24px; padding: 0 20px 60px; }
+
+  .spread { display: grid; grid-template-columns: 1fr 1fr; background: var(--page-bg); border-radius: 4px; box-shadow: 0 8px 40px rgba(0,0,0,0.25); overflow: hidden; }
+
+  .page { padding: 48px 44px; position: relative; }
+  .page-left { border-right: 1px solid var(--divider); }
+
+  .page-number { position: absolute; bottom: 22px; font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--subtle); }
+  .page-left .page-number { left: 44px; }
+  .page-right .page-number { right: 44px; }
+
+  .cover { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px; min-height: 400px; }
+  .cover-logo { font-size: 42px; font-weight: 300; letter-spacing: 0.22em; color: var(--olive); margin-bottom: 6px; }
+  .cover-sub { font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--clay); margin-bottom: 40px; }
+  .cover-title { font-size: 26px; font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase; color: var(--olive); margin-bottom: 28px; }
+  .cover-line { width: 40px; height: 1px; background: var(--clay); margin-bottom: 28px; }
+  .cover-motto { font-size: 17px; font-style: italic; font-weight: 300; color: var(--subtle); }
+
+  .section-title { font-size: 20px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: var(--olive); margin-bottom: 4px; }
+  .section-subtitle { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay); margin-bottom: 4px; }
+  .section-note { font-size: 13.5px; font-style: italic; font-weight: 300; color: var(--subtle); line-height: 1.55; margin-bottom: 16px; max-width: 42ch; }
+  .section-divider { width: 100%; height: 1px; background: linear-gradient(to right, var(--divider), transparent); margin: 24px 0; }
+
+  .featured { background: linear-gradient(135deg, rgba(94,118,88,0.04), rgba(163,176,157,0.06)); border: 1px solid rgba(94,118,88,0.1); border-radius: 12px; padding: 24px 28px; margin-bottom: 28px; }
+  .featured .section-title { font-size: 17px; margin-bottom: 3px; }
+  .featured .section-note { margin-bottom: 16px; }
+
+  .natural-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(94,118,88,0.08); border: 1px solid rgba(94,118,88,0.14); border-radius: 20px; padding: 3px 12px 3px 8px; font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--olive); margin-bottom: 14px; }
+  .natural-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--olive); opacity: 0.5; }
+
+  .wine-list { display: flex; flex-direction: column; gap: 10px; }
+  .wine-entry { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 10px; }
+  .wine-name { font-size: 14px; font-weight: 500; letter-spacing: 0.03em; color: var(--ink); line-height: 1.25; }
+  .wine-detail { font-family: 'Inter', sans-serif; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--subtle); margin-top: 1px; }
+  .wine-price { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400; color: var(--ink); white-space: nowrap; opacity: 0.7; }
+
+  .intro-text { font-size: 15px; font-weight: 300; line-height: 1.7; color: var(--ink); opacity: 0.85; max-width: 38ch; }
+  .intro-text-en { font-style: italic; opacity: 0.6; margin-top: 24px; }
+
+  .toc-list { display: flex; flex-direction: column; gap: 9px; margin-top: 18px; }
+  .toc-item { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.8; }
+  .toc-dots { flex: 1; border-bottom: 1px dotted var(--divider); margin: 0 12px; min-width: 20px; }
+  .toc-page { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--subtle); }
+
+  @media (max-width: 768px) {
+    .spread { grid-template-columns: 1fr; }
+    .page { padding: 32px 24px; }
+    .page-left { border-right: none; border-bottom: 1px solid var(--divider); }
+  }
+</style>
+</head>
+<body>
+<div class="book">
+
+<!-- ══════════════ COVER ══════════════ -->
+<div class="spread">
+  <div class="cover">
+    <div class="cover-logo">OLIVEA</div>
+    <div class="cover-sub">Farm To Table</div>
+    <div class="cover-title">Carta de Vinos</div>
+    <div class="cover-line"></div>
+    <div class="cover-motto">"Donde El Huerto Es La Esencia"</div>
+  </div>
+</div>
+
+<!-- ══════════════ INTRO + TOC ══════════════ -->
+<div class="spread">
+  <div class="page page-left">
+    <p class="intro-text">En Olivea Farm To Table servimos únicamente vinos del Valle de Guadalupe, nuestra tierra y una de las regiones vinícolas más importantes de México.</p>
+    <p class="intro-text" style="margin-top:14px;">Creemos en fortalecer a nuestra comunidad y en reflejar con orgullo la identidad de Baja California. Cada etiqueta que encontrará aquí nace de viñedos locales y comparte con nosotros la misión de expresar el carácter único de este valle.</p>
+    <p class="intro-text intro-text-en">At Olivea Farm To Table we serve only wines from Valle de Guadalupe, our land and one of Mexico's most important wine regions.</p>
+    <p class="intro-text intro-text-en">We believe in strengthening our community and proudly reflecting the identity of Baja California. Every label you will find here comes from local vineyards and shares with us the mission of expressing the unique character of this valley.</p>
+    <span class="page-number">i</span>
+  </div>
+  <div class="page page-right">
+    <div class="section-subtitle" style="margin-bottom:20px;">Contenido</div>
+    <div class="toc-list">
+      <div class="toc-item">De La Casa <span class="toc-dots"></span> <span class="toc-page">1</span></div>
+      <div class="toc-item">Vinos Naturales <span class="toc-dots"></span> <span class="toc-page">1</span></div>
+      <div class="toc-item">Blancos <span class="toc-dots"></span> <span class="toc-page">2</span></div>
+      <div class="toc-item">Rosados <span class="toc-dots"></span> <span class="toc-page">4</span></div>
+      <div class="toc-item">Espumosos <span class="toc-dots"></span> <span class="toc-page">5</span></div>
+      <div class="toc-item">Tintos &mdash; Ligeros <span class="toc-dots"></span> <span class="toc-page">5</span></div>
+      <div class="toc-item">Tintos &mdash; De Cuerpo <span class="toc-dots"></span> <span class="toc-page">6</span></div>
+      <div class="toc-item">Tintos &mdash; Únicos <span class="toc-dots"></span> <span class="toc-page">7</span></div>
+      <div class="toc-item">Tintos &mdash; Ensambles <span class="toc-dots"></span> <span class="toc-page">8</span></div>
+      <div class="toc-item">Dulces <span class="toc-dots"></span> <span class="toc-page">10</span></div>
+    </div>
+    <span class="page-number">ii</span>
+  </div>
+</div>
+
+<!-- ══════════════ DE LA CASA + NATURALES ══════════════ -->
+<div class="spread">
+  <div class="page page-left">
+    <div class="featured">
+      <div class="section-title">De La Casa</div>
+      <div class="section-subtitle">Vinos de nuestra tierra</div>
+      <p class="section-note">Cultivados en nuestro viñedo, elaborados con la misma intención que guía cada plato.</p>
+      <div class="wine-list">
+        <div class="wine-entry"><div><div class="wine-name">Olivea | Granache de la Casa 2021</div><div class="wine-detail">Grenache &middot; Tinto</div></div><div class="wine-price">600</div></div>
+        <div class="wine-entry"><div><div class="wine-name">Olivea | Chardonnay de la Casa 2023</div><div class="wine-detail">Chardonnay &middot; Blanco</div></div><div class="wine-price">620</div></div>
+        <div class="wine-entry"><div><div class="wine-name">Olivea | Rosado de la Casa 2023</div><div class="wine-detail">Grenache &middot; Rosado</div></div><div class="wine-price">650</div></div>
+        <div class="wine-entry"><div><div class="wine-name">Olivea | Cabernet de la Casa 9 Meses 2023</div><div class="wine-detail">Cabernet Sauvignon &middot; Tinto</div></div><div class="wine-price">820</div></div>
+        <div class="wine-entry"><div><div class="wine-name">Olivea | Cabernet de la Casa 14 Meses 2023</div><div class="wine-detail">Cabernet Sauvignon &middot; Tinto</div></div><div class="wine-price">950</div></div>
+        <div class="wine-entry"><div><div class="wine-name">Olivea | Zinfandel Vino de la Casa 2023</div><div class="wine-detail">Zinfandel &middot; Tinto</div></div><div class="wine-price">950</div></div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="section-title" style="font-size:17px;">Vinos Naturales</div>
+    <div class="natural-badge"><span class="natural-dot"></span> Intervención mínima</div>
+    <p class="section-note">Vinos vivos — sin filtrar, con levaduras nativas. La misma filosofía que nuestro huerto.</p>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Anatolia | Pet Nat 2024</div><div class="wine-detail">Tempranillo &middot; Mourvèdre &middot; Cinsault</div></div><div class="wine-price">1,540</div></div>
+    </div>
+    <span class="page-number">1</span>
+  </div>
+
+  <!-- BLANCOS page 1 -->
+  <div class="page page-right">
+    <div class="section-title">Blancos</div>
+    <div class="section-subtitle">De ligero a envolvente</div>
+    <div style="height:12px;"></div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Las Nubes | 2022</div><div class="wine-detail">Sauvignon Blanc &middot; Chardonnay</div></div><div class="wine-price">625</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Emevé | Isabella 2023</div><div class="wine-detail">Chardonnay &middot; Sauvignon Blanc &middot; Viognier</div></div><div class="wine-price">700</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinisterra | Blanc de Noirs 2024</div><div class="wine-detail">Grenache &middot; Cinsault</div></div><div class="wine-price">700</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Henry Lurton | 2022</div><div class="wine-detail">Sauvignon Blanc</div></div><div class="wine-price">800</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Monte Xianic | 2024</div><div class="wine-detail">Chenin &middot; Colombard</div></div><div class="wine-price">800</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Cava Maciel | Venus 2024</div><div class="wine-detail">Chardonnay</div></div><div class="wine-price">825</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Clos de Tres Cantos | Hoja en Blanco 2024</div><div class="wine-detail">Chenin Blanc</div></div><div class="wine-price">860</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Henri Lurton | Le Chenin 2022</div><div class="wine-detail">Chenin Blanc</div></div><div class="wine-price">870</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinisterra | Domino 2022</div><div class="wine-detail">Chenin Blanc</div></div><div class="wine-price">900</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinos Nivel | Sauvignon Blanc 2023</div><div class="wine-detail">Sauvignon Blanc</div></div><div class="wine-price">900</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Cava Maciel | Vino de la Luna 2023</div><div class="wine-detail">Chardonnay</div></div><div class="wine-price">940</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Montefiori | Paoloni 2024</div><div class="wine-detail">Chardonnay</div></div><div class="wine-price">970</div></div>
+    </div>
+    <span class="page-number">2</span>
+  </div>
+</div>
+
+<!-- ══════════════ BLANCOS (cont.) ══════════════ -->
+<div class="spread">
+  <div class="page page-left">
+    <div class="section-subtitle" style="margin-bottom:14px;">Blancos &mdash; continuación</div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Monte Xanic | Viña Kristel 2023</div><div class="wine-detail">Sauvignon Blanc</div></div><div class="wine-price">1,000</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Mina Penelote | Sauvignon Blanc 2024</div><div class="wine-detail">Sauvignon Blanc</div></div><div class="wine-price">1,000</div></div>
+      <div class="wine-entry"><div><div class="wine-name">F. Rubio | Herencia 2023</div><div class="wine-detail">Palomino &middot; Chenin Blanc</div></div><div class="wine-price">1,050</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Clos Benoit | La Paloma 2023</div><div class="wine-detail">Viognier &middot; Grenache Blanc &middot; Roussanne</div></div><div class="wine-price">1,080</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viñas del Sol | Santos Brujos 2023</div><div class="wine-detail">Chardonnay</div></div><div class="wine-price">1,100</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinos Palafox | Pionero 2020</div><div class="wine-detail">Chenin Blanc</div></div><div class="wine-price">1,150</div></div>
+      <div class="wine-entry"><div><div class="wine-name">El Mogor | Chasselas 2024</div><div class="wine-detail">Chasselas</div></div><div class="wine-price">1,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinisterra | Viognier 2023</div><div class="wine-detail">Viognier</div></div><div class="wine-price">1,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Monte Xianic | Chardonnay 2024</div><div class="wine-detail">Chardonnay</div></div><div class="wine-price">1,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">El Cielo | G&G 2022</div><div class="wine-detail">Sauvignon Blanc</div></div><div class="wine-price">1,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viñas de Frannes | Legat 2023</div><div class="wine-detail">Chardonnay</div></div><div class="wine-price">1,500</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Monte Xanic | Gran Ricardo Reserva 2022</div><div class="wine-detail">Sauvignon Blanc</div></div><div class="wine-price">2,500</div></div>
+    </div>
+    <span class="page-number">3</span>
+  </div>
+
+  <!-- ROSADOS -->
+  <div class="page page-right">
+    <div class="section-title">Rosados</div>
+    <div style="height:12px;"></div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Cava Aragón | Madera 5 Rosado 2023</div><div class="wine-detail">Sangiovese</div></div><div class="wine-price">650</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Pouya | Rosado 2023</div><div class="wine-detail">Grenache</div></div><div class="wine-price">750</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Cava Maciel | Venus 2024</div><div class="wine-detail">Merlot &middot; Grenache</div></div><div class="wine-price">850</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Hilo Negro | Tricot 2024</div><div class="wine-detail">Primitivo</div></div><div class="wine-price">950</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Pobre Diabla | Piojan</div><div class="wine-detail">Grenache &middot; Moscatel</div></div><div class="wine-price">950</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Mina Penelope | 2024</div><div class="wine-detail">Montepulciano</div></div><div class="wine-price">980</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Monte Xianic | Rosado 2024</div><div class="wine-detail">Grenache</div></div><div class="wine-price">1,050</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Relieve | Rosado 2023</div><div class="wine-detail">Tempranillo &middot; Pinot Noir</div></div><div class="wine-price">1,050</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Clos Benoit | El Pirul 2024</div><div class="wine-detail">Grenache</div></div><div class="wine-price">1,100</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinisterra | La Grenache 2023</div><div class="wine-detail">Grenache</div></div><div class="wine-price">1,100</div></div>
+      <div class="wine-entry"><div><div class="wine-name">F. Rubio | Herencia Rosado 2023</div><div class="wine-detail">Montepulciano</div></div><div class="wine-price">1,100</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Clos Benoit | Pirul 2024</div><div class="wine-detail">Grenache</div></div><div class="wine-price">1,150</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Estación de Oficios | Textura Rosa 2024</div><div class="wine-detail">Zinfandel</div></div><div class="wine-price">1,150</div></div>
+    </div>
+    <span class="page-number">4</span>
+  </div>
+</div>
+
+<!-- ══════════════ ESPUMOSOS + TINTOS LIGEROS ══════════════ -->
+<div class="spread">
+  <div class="page page-left">
+    <div class="section-title">Espumosos</div>
+    <div style="height:12px;"></div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Vinos Cruz | Espumoso Rosé 2023</div><div class="wine-detail">Barbera</div></div><div class="wine-price">1,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Sentimenti | Egli Extra Brut</div><div class="wine-detail">Barbera</div></div><div class="wine-price">1,250</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Clos de Tres Cantos | Brut Nature</div><div class="wine-detail">Barbera</div></div><div class="wine-price">1,400</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Villa Montefiori | Le Grace 2024</div><div class="wine-detail">Sangiovese</div></div><div class="wine-price">1,500</div></div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="section-title">Tintos</div>
+    <div class="section-subtitle">Ligeros y frescos</div>
+    <p class="section-note">Fruta directa, taninos suaves, brillo.</p>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Bodega Pasatiempo | Pasatiempo 2021</div><div class="wine-detail">Tempranillo</div></div><div class="wine-price">900</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Pouya | Grenache 2022</div><div class="wine-detail">Grenache</div></div><div class="wine-price">970</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Solar Fortun | Syrah 2022</div><div class="wine-detail">Syrah</div></div><div class="wine-price">1,000</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinos Plata | Plata Pura 2022</div><div class="wine-detail">Merlot</div></div><div class="wine-price">1,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Trevista | Tempranillo 2021</div><div class="wine-detail">Tempranillo</div></div><div class="wine-price">1,250</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Henri Lurton | La Syrah 2019</div><div class="wine-detail">Syrah</div></div><div class="wine-price">1,270</div></div>
+    </div>
+    <span class="page-number">5</span>
+  </div>
+
+  <div class="page page-right">
+    <div class="section-subtitle" style="margin-bottom:14px;">Ligeros &mdash; continuación</div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Origenes y Terruñeos | Sirena Pride 2015</div><div class="wine-detail">Malbec</div></div><div class="wine-price">1,650</div></div>
+      <div class="wine-entry"><div><div class="wine-name">La Lomita | Pagano 2020</div><div class="wine-detail">Grenache</div></div><div class="wine-price">1,900</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viñas del Sol | Santos Brujos 2022</div><div class="wine-detail">Tempranillo</div></div><div class="wine-price">2,000</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Finca La Carrodilla | Tempranillo 2020</div><div class="wine-detail">Tempranillo</div></div><div class="wine-price">2,050</div></div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="section-title">Tintos</div>
+    <div class="section-subtitle">De cuerpo &mdash; estructura y profundidad</div>
+    <p class="section-note">Tanino firme, madera con intención, finales largos.</p>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Henri Lurton | Le Petit 2019</div><div class="wine-detail">Petit Syrah</div></div><div class="wine-price">1,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Monte Xanic | Cabernet 2022</div><div class="wine-detail">Cabernet Sauvignon</div></div><div class="wine-price">1,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Henri Lurton | Le Cabernet 2020</div><div class="wine-detail">Cabernet Sauvignon</div></div><div class="wine-price">1,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Las Nubes | Nebbiolo 2019</div><div class="wine-detail">Nebbiolo</div></div><div class="wine-price">1,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Casa Emiliana | Mancab 2021</div><div class="wine-detail">Cabernet Sauvignon</div></div><div class="wine-price">1,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Las Nubes | Petit Syrah 2019</div><div class="wine-detail">Petit Syrah</div></div><div class="wine-price">1,300</div></div>
+    </div>
+    <span class="page-number">6</span>
+  </div>
+</div>
+
+<!-- ══════════════ DE CUERPO (cont.) + ÚNICOS ══════════════ -->
+<div class="spread">
+  <div class="page page-left">
+    <div class="section-subtitle" style="margin-bottom:14px;">De Cuerpo &mdash; continuación</div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Vinisterra | Nebbiolo 2019</div><div class="wine-detail">Nebbiolo</div></div><div class="wine-price">1,500</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Cava Maciel | Apogeo 2016</div><div class="wine-detail">Nebbiolo</div></div><div class="wine-price">1,650</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Norte 32 | Teziano 2018</div><div class="wine-detail">Nebbiolo</div></div><div class="wine-price">1,800</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Bodega Relieve | Ciclo 2021</div><div class="wine-detail">Nebbiolo</div></div><div class="wine-price">2,000</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Bodega Relieve | Gran Reserva 2013</div><div class="wine-detail">Nebbiolo</div></div><div class="wine-price">2,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Lechuza | Cabernet 2019</div><div class="wine-detail">Cabernet Sauvignon</div></div><div class="wine-price">2,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viñas de Garza | Gran Amado 2014</div><div class="wine-detail">Merlot</div></div><div class="wine-price">3,300</div></div>
+    </div>
+    <span class="page-number">7</span>
+  </div>
+
+  <!-- MONOVARIETALES ÚNICOS -->
+  <div class="page page-right">
+    <div class="section-title">Tintos</div>
+    <div class="section-subtitle">Monovarietales únicos</div>
+    <p class="section-note">Uvas singulares del Valle — cada una una declaración de lo que esta tierra puede lograr.</p>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Solar Fortun | Mourvèdre 2022</div><div class="wine-detail">Mourvèdre</div></div><div class="wine-price">950</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Roganto | Pinot Noir 2023</div><div class="wine-detail">Pinot Noir</div></div><div class="wine-price">950</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Hilo Negro | Nido de Abeja 2022</div><div class="wine-detail">Primitivo</div></div><div class="wine-price">1,100</div></div>
+      <div class="wine-entry"><div><div class="wine-name">F. Rubio | Sangiovese 2021</div><div class="wine-detail">Sangiovese</div></div><div class="wine-price">1,200</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viña de Frannes | Legat 2022</div><div class="wine-detail">Cabernet Franc</div></div><div class="wine-price">1,500</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Villa Montefiori | Aglianico 2020</div><div class="wine-detail">Aglianico</div></div><div class="wine-price">2,000</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Villa Montefiori | Nero d'Avola 2018</div><div class="wine-detail">Nero d'Avola</div></div><div class="wine-price">2,500</div></div>
+    </div>
+    <span class="page-number">8</span>
+  </div>
+</div>
+
+<!-- ══════════════ ENSAMBLES ══════════════ -->
+<div class="spread">
+  <div class="page page-left">
+    <div class="section-title">Tintos</div>
+    <div class="section-subtitle">Ensambles &mdash; el arte de la mezcla</div>
+    <p class="section-note">Donde las uvas conversan. Cada ensamble refleja una visión del enólogo y el carácter del año.</p>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Vinos Plata | Plata .925 2022</div><div class="wine-detail">Tempranillo &middot; Grenache &middot; Syrah</div></div><div class="wine-price">800</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinicola Pasatiempo | 2021</div><div class="wine-detail">Merlot &middot; Syrah</div></div><div class="wine-price">850</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Finca La Carrodilla | Canto de Luna 2023</div><div class="wine-detail">Tempranillo &middot; Cabernet Sauvignon &middot; Syrah</div></div><div class="wine-price">870</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Casa Emiliana | Ensamble 2022</div><div class="wine-detail">Syrah &middot; Nebbiolo</div></div><div class="wine-price">1,000</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Cava Aragon | Mezcla 2019</div><div class="wine-detail">Cabernet &middot; Sangiovese</div></div><div class="wine-price">1,100</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Quinta Monasterio | Cabernet Merlot 2020</div><div class="wine-detail">Cabernet Sauvignon &middot; Merlot</div></div><div class="wine-price">1,100</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Las Nubes | Nimbus 2019</div><div class="wine-detail">Nebbiolo &middot; Cabernet Sauvignon</div></div><div class="wine-price">1,150</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Solar Fortun | 0 Positivo 2021</div><div class="wine-detail">Cabernet Sauvignon &middot; Syrah</div></div><div class="wine-price">1,250</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Clos Benoit | Tinto 2022</div><div class="wine-detail">Grenache &middot; Syrah &middot; Counoise &middot; Mourvèdre</div></div><div class="wine-price">1,250</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Corona del Valle | 2020</div><div class="wine-detail">Tempranillo &middot; Nebbiolo</div></div><div class="wine-price">1,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinisterra | Pies de Tierra 2021</div><div class="wine-detail">Syrah &middot; Tempranillo</div></div><div class="wine-price">1,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Mariatinto | 2022</div><div class="wine-detail">Tempranillo &middot; Syrah &middot; Merlot &middot; Nebbiolo &middot; Cab Franc</div></div><div class="wine-price">1,300</div></div>
+    </div>
+    <span class="page-number">9</span>
+  </div>
+
+  <div class="page page-right">
+    <div class="section-subtitle" style="margin-bottom:14px;">Ensambles &mdash; continuación</div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Mina Penelope | Julio 14 2022</div><div class="wine-detail">Syrah &middot; Mourvèdre</div></div><div class="wine-price">1,350</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Villa Montefiori | Selezionato 2022</div><div class="wine-detail">Nebbiolo &middot; Montepulciano &middot; Aglianico</div></div><div class="wine-price">1,450</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Vinisterra | Cascabel 2020</div><div class="wine-detail">Tempranillo &middot; Grenache</div></div><div class="wine-price">1,500</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Adobe Guadalupe | Gabriel 2019</div><div class="wine-detail">Cabernet Sauvignon &middot; Merlot &middot; Malbec</div></div><div class="wine-price">1,760</div></div>
+      <div class="wine-entry"><div><div class="wine-name">La Lomita | Sacro 2019</div><div class="wine-detail">Cabernet Sauvignon &middot; Merlot</div></div><div class="wine-price">1,900</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Chateau Camou | Gran Vino Tinto 2019</div><div class="wine-detail">Cabernet Franc &middot; Merlot</div></div><div class="wine-price">2,150</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Adobe Guadalupe | Rafael 2019</div><div class="wine-detail">Nebbiolo &middot; Cabernet Sauvignon</div></div><div class="wine-price">2,150</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Monte Xanic | Gran Ricardo 2021</div><div class="wine-detail">Cab Sauv &middot; Cab Franc &middot; Merlot &middot; Malbec &middot; Petit Verdot</div></div><div class="wine-price">2,840</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viñas de Garza | Gran Amado 2015</div><div class="wine-detail">Cab Sauv &middot; Merlot &middot; Tempranillo &middot; Zinfandel</div></div><div class="wine-price">3,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viñas de Garza | El Sombrero 2017</div><div class="wine-detail">Cab Sauv &middot; Merlot &middot; Grenache &middot; Carignan &middot; Tempranillo</div></div><div class="wine-price">3,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Santo Tomas | Unico 2020</div><div class="wine-detail">Cabernet Sauvignon &middot; Merlot</div></div><div class="wine-price">3,300</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Santo Tomas | Dueto 2020</div><div class="wine-detail">Tempranillo &middot; Cabernet Sauvignon</div></div><div class="wine-price">3,300</div></div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="section-title" style="font-size:17px;">Dulces</div>
+    <div class="section-subtitle">Para cerrar</div>
+    <div style="height:8px;"></div>
+    <div class="wine-list">
+      <div class="wine-entry"><div><div class="wine-name">Vinos Piojan | Manel</div><div class="wine-detail">Dulce</div></div><div class="wine-price">1,540</div></div>
+      <div class="wine-entry"><div><div class="wine-name">Viña de Frannes | Duz 2018</div><div class="wine-detail">Dulce</div></div><div class="wine-price">1,900</div></div>
+    </div>
+
+    <div class="section-divider"></div>
+    <p class="section-note" style="font-size:12.5px;">Descorche: $350 MXN por botella. Precios en pesos mexicanos. Nuestra carta cambia con la temporada y la disponibilidad del Valle.</p>
+
+    <span class="page-number">10</span>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

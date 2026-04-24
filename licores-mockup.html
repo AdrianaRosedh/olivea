@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Licores — Olivea Farm To Table — Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --cream: #e7eae1;
+    --olive: #5e7658;
+    --clay: #a3b09d;
+    --ink: #5e7658;
+    --page-bg: #fafaf7;
+    --divider: rgba(94, 118, 88, 0.12);
+    --subtle: rgba(94, 118, 88, 0.55);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #2a2a2a;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .book {
+    max-width: 1100px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 20px 60px;
+  }
+
+  .spread {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--page-bg);
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden;
+  }
+
+  .page {
+    padding: 48px 44px;
+    position: relative;
+  }
+
+  .page-left { border-right: 1px solid var(--divider); }
+
+  .page-number {
+    position: absolute;
+    bottom: 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--subtle);
+  }
+  .page-left .page-number { left: 44px; }
+  .page-right .page-number { right: 44px; }
+
+  /* ── Cover ─────────────────────────── */
+  .cover {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px;
+    min-height: 300px;
+  }
+
+  .cover-logo {
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    color: var(--olive);
+    margin-bottom: 4px;
+  }
+
+  .cover-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 30px;
+  }
+
+  .cover-title {
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--olive);
+  }
+
+  .cover-line {
+    width: 36px;
+    height: 1px;
+    background: var(--clay);
+    margin: 20px 0;
+  }
+
+  /* ── Section headers ───────────────── */
+  .section-title {
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--olive);
+    margin-bottom: 3px;
+  }
+
+  .section-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 4px;
+  }
+
+  .section-note {
+    font-size: 13.5px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--subtle);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    max-width: 40ch;
+  }
+
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, var(--divider), transparent);
+    margin: 22px 0;
+  }
+
+  /* ── Category sub-header ───────────── */
+  .category-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--clay);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--divider);
+    margin-bottom: 10px;
+    margin-top: 18px;
+  }
+
+  .category-label:first-of-type {
+    margin-top: 0;
+  }
+
+  /* ── Spirit entries ────────────────── */
+  .spirit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .spirit-entry {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 8px;
+    padding: 2px 0;
+  }
+
+  .spirit-name {
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+
+  .spirit-type {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--subtle);
+    margin-top: 1px;
+  }
+
+  .spirit-price {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ink);
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  /* ── Annotation ────────────────────── */
+  .annotation {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--subtle);
+    line-height: 1.45;
+    margin-top: 6px;
+    padding: 10px 14px;
+    background: rgba(94,118,88,0.03);
+    border-radius: 6px;
+    border-left: 2px solid rgba(94,118,88,0.15);
+  }
+
+  .comp-note {
+    text-align: center;
+    padding: 14px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--olive);
+    background: rgba(94,118,88,0.04);
+  }
+
+  @media (max-width: 768px) {
+    .spread { grid-template-columns: 1fr; }
+    .page { padding: 28px 20px; }
+    .page-left { border-right: none; border-bottom: 1px solid var(--divider); }
+  }
+</style>
+</head>
+<body>
+
+<div class="book">
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- HEADER                                      -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="spread">
+    <div class="cover">
+      <div class="cover-logo">OLIVEA</div>
+      <div class="cover-sub">Farm To Table</div>
+      <div class="cover-title">Licores</div>
+      <div class="cover-line"></div>
+    </div>
+  </div>
+
+  <div class="spread">
+    <div class="comp-note" style="grid-column: 1 / -1;">
+      Propuesta: reorganizar por experiencia &mdash; agrupar por categoría de edad dentro de cada espíritu
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SPREAD 1: TEQUILA + MEZCAL                 -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="spread">
+    <div class="page page-left">
+      <div class="section-title">Tequila</div>
+      <p class="section-note">De ligero a profundo</p>
+
+      <div class="category-label">Blanco &middot; Plata</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">1800</div></div>
+          <div class="spirit-price">180</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Dobel Tahona</div></div>
+          <div class="spirit-price">200</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Siete Lenguas</div></div>
+          <div class="spirit-price">200</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Cascahuín</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">1800</div><div class="spirit-type">Reposado</div></div>
+          <div class="spirit-price">180</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Reserva de los González</div></div>
+          <div class="spirit-price">230</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Herradura</div></div>
+          <div class="spirit-price">230</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Dobel Pavito</div></div>
+          <div class="spirit-price">240</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Tequila Ocho</div><div class="spirit-type">Plata</div></div>
+          <div class="spirit-price">240</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Tía Tula</div><div class="spirit-type">Plata</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+      </div>
+
+      <div class="category-label">Cristalino &middot; Reposado &middot; Añejo</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">1800</div><div class="spirit-type">Añejo</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Tequila Ocho</div><div class="spirit-type">Reposado</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Gran Centenario</div><div class="spirit-type">Cristalino</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">1800</div><div class="spirit-type">Cristalino</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Dobel Diamante</div><div class="spirit-type">Reposado</div></div>
+          <div class="spirit-price">240</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Reserva de la Familia</div><div class="spirit-type">Platino</div></div>
+          <div class="spirit-price">280</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">G4</div><div class="spirit-type">Extra Añejo</div></div>
+          <div class="spirit-price">300</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Cascahuín Blanco</div><div class="spirit-type">Tahona</div></div>
+          <div class="spirit-price">380</div>
+        </div>
+      </div>
+
+      <div class="category-label">Reserva &middot; Extra Añejo</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Reserva Jose Cuervo PX</div><div class="spirit-type">Añejo Cristalino</div></div>
+          <div class="spirit-price">400</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Casa Dragones</div><div class="spirit-type">Blanco</div></div>
+          <div class="spirit-price">470</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Dobel 50</div><div class="spirit-type">MX Añejo</div></div>
+          <div class="spirit-price">550</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Reserva Jose Cuervo</div><div class="spirit-type">Extra Añejo</div></div>
+          <div class="spirit-price">550</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Gran Centenario Leyenda</div><div class="spirit-type">Extra Añejo</div></div>
+          <div class="spirit-price">650</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Maestro Dobel 50</div><div class="spirit-type">Cristalino</div></div>
+          <div class="spirit-price">700</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">1800</div><div class="spirit-type">Milenio</div></div>
+          <div class="spirit-price">740</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Clase Azul</div><div class="spirit-type">Reposado</div></div>
+          <div class="spirit-price">780</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Siete Leguas Antaño</div><div class="spirit-type">Extra Añejo</div></div>
+          <div class="spirit-price">850</div>
+        </div>
+      </div>
+
+      <span class="page-number">1</span>
+    </div>
+
+    <!-- MEZCAL -->
+    <div class="page page-right">
+      <div class="section-title">Mezcal</div>
+      <p class="section-note">Agave, fuego y tierra</p>
+
+      <div class="category-label">Espadín</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Amaras</div><div class="spirit-type">Espadín-Tobalá</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Aguas Manzas</div><div class="spirit-type">Espadín</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Borroso</div><div class="spirit-type">Espadín Joven</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Cordón Cerrado</div><div class="spirit-type">Espadín</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Creyente</div><div class="spirit-type">Espadín</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Rufina</div><div class="spirit-type">Espadín</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">La Viena</div><div class="spirit-type">Cuiche</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Los Amantes</div><div class="spirit-type">Espadín Joven</div></div>
+          <div class="spirit-price">280</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Los Danzantes</div><div class="spirit-type">Espadín Joven</div></div>
+          <div class="spirit-price">310</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Trago Celestial</div><div class="spirit-type">Coyote</div></div>
+          <div class="spirit-price">330</div>
+        </div>
+      </div>
+
+      <div class="category-label">Tobalá &middot; Tepeztate &middot; Silvestre</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Aguas Manzas</div><div class="spirit-type">Tepeztate</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Creyente</div><div class="spirit-type">Tobalá</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Creyente</div><div class="spirit-type">Cuishe</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Borroso</div><div class="spirit-type">Tobasiche</div></div>
+          <div class="spirit-price">280</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Borroso</div><div class="spirit-type">Tepeztate</div></div>
+          <div class="spirit-price">280</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Borroso</div><div class="spirit-type">Tobasiche-Espadín</div></div>
+          <div class="spirit-price">280</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">La Viena</div><div class="spirit-type">Tepeztate</div></div>
+          <div class="spirit-price">380</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Monte Lobos</div><div class="spirit-type">Tobalá</div></div>
+          <div class="spirit-price">400</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Cordón Cerrado</div><div class="spirit-type">Tobalá</div></div>
+          <div class="spirit-price">420</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Cordón Cerrado</div><div class="spirit-type">Tepeztate</div></div>
+          <div class="spirit-price">420</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Cordón Cerrado</div><div class="spirit-type">Pechuga de Guajolote</div></div>
+          <div class="spirit-price">460</div>
+        </div>
+      </div>
+
+      <span class="page-number">2</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SPREAD 2: WHISKEY + REST                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="spread">
+    <div class="page page-left">
+      <div class="section-title">Whiskey</div>
+      <p class="section-note">Del mundo al Valle</p>
+
+      <div class="category-label">Irish</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Bushmills 10 Años</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Bushmills 16 Años</div></div>
+          <div class="spirit-price">240</div>
+        </div>
+      </div>
+
+      <div class="category-label">Japanese</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Toki Suntory</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Hibiki Suntory</div></div>
+          <div class="spirit-price">450</div>
+        </div>
+      </div>
+
+      <div class="category-label">Scotch</div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Johnnie Walker Black Label</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Johnnie Walker Double Black</div></div>
+          <div class="spirit-price">260</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Macallan 15 Años</div></div>
+          <div class="spirit-price">800</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Johnnie Walker Blue Label</div></div>
+          <div class="spirit-price">1,250</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Macallan 18 Años</div></div>
+          <div class="spirit-price">1,500</div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section-title">Bacanora</div>
+      <div style="height: 10px;"></div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Santo Cuviso</div><div class="spirit-type">Blanco</div></div>
+          <div class="spirit-price">300</div>
+        </div>
+      </div>
+
+      <span class="page-number">3</span>
+    </div>
+
+    <div class="page page-right">
+      <div class="section-title">Ginebra</div>
+      <div style="height: 10px;"></div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Hendricks</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Monkey 47</div></div>
+          <div class="spirit-price">250</div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section-title">Cognac</div>
+      <div style="height: 10px;"></div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Rémy Martin</div></div>
+          <div class="spirit-price">300</div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section-title">Ron</div>
+      <div style="height: 10px;"></div>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Matusalem 15</div><div class="spirit-type">Solera</div></div>
+          <div class="spirit-price">220</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Matusalem Gran Reserve 23</div><div class="spirit-type">Solera</div></div>
+          <div class="spirit-price">300</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Zacapa Solera 23</div><div class="spirit-type">Solera</div></div>
+          <div class="spirit-price">320</div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section-title">Digestivos</div>
+      <p class="section-note">Para cerrar la noche</p>
+      <div class="spirit-list">
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Chinchón Dulce</div><div class="spirit-type">Licor de Anís</div></div>
+          <div class="spirit-price">95</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Chinchón Seco</div><div class="spirit-type">Licor de Anís</div></div>
+          <div class="spirit-price">120</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Vaccari Blanco</div><div class="spirit-type">Sambuca</div></div>
+          <div class="spirit-price">120</div>
+        </div>
+        <div class="spirit-entry">
+          <div><div class="spirit-name">Vaccari Nero</div><div class="spirit-type">Sambuca</div></div>
+          <div class="spirit-price">120</div>
+        </div>
+      </div>
+
+      <div class="annotation" style="margin-top: 22px;">
+        <strong>Nota de diseño:</strong> La estructura actual mezcla todas las tequilas en una sola lista sin agrupar por categoría de edad. Agrupar por Blanco → Reposado/Añejo → Reserva/Extra Añejo ayuda al huésped a navegar por intención (fresco vs. profundo) en lugar de escanear 20+ nombres para encontrar lo que busca.
+      </div>
+
+      <span class="page-number">4</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bebidas — Olivea Farm To Table — Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --cream: #e7eae1;
+    --olive: #5e7658;
+    --clay: #a3b09d;
+    --ink: #5e7658;
+    --warm-white: #f5f4f0;
+    --page-bg: #fafaf7;
+    --divider: rgba(94, 118, 88, 0.12);
+    --subtle: rgba(94, 118, 88, 0.55);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #2a2a2a;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .book {
+    max-width: 1100px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 20px;
+  }
+
+  .spread {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--page-bg);
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden;
+  }
+
+  .page {
+    padding: 52px 48px;
+    position: relative;
+  }
+
+  .page-left { border-right: 1px solid var(--divider); }
+
+  .page-number {
+    position: absolute;
+    bottom: 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--subtle);
+  }
+  .page-left .page-number { left: 48px; }
+  .page-right .page-number { right: 48px; }
+
+  /* ── Cover ─────────────────────────── */
+  .cover {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px;
+    min-height: 360px;
+  }
+
+  .cover-logo {
+    font-size: 38px;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    color: var(--olive);
+    margin-bottom: 4px;
+  }
+
+  .cover-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 36px;
+  }
+
+  .cover-title {
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--olive);
+  }
+
+  .cover-line {
+    width: 36px;
+    height: 1px;
+    background: var(--clay);
+    margin: 24px 0;
+  }
+
+  /* ── Sections ──────────────────────── */
+  .section-title {
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--olive);
+    margin-bottom: 4px;
+  }
+
+  .section-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 6px;
+  }
+
+  .section-note {
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--subtle);
+    line-height: 1.55;
+    margin-bottom: 18px;
+    max-width: 42ch;
+  }
+
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, var(--divider), transparent);
+    margin: 28px 0;
+  }
+
+  /* ── Featured box ──────────────────── */
+  .featured-box {
+    background: linear-gradient(135deg, rgba(94,118,88,0.04), rgba(163,176,157,0.06));
+    border: 1px solid rgba(94,118,88,0.1);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+  }
+
+  /* ── Badge ──────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(94,118,88,0.08);
+    border: 1px solid rgba(94,118,88,0.14);
+    border-radius: 20px;
+    padding: 3px 12px 3px 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 8.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--olive);
+    margin-bottom: 14px;
+  }
+
+  .badge-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--olive);
+    opacity: 0.5;
+  }
+
+  /* ── Drink entries ─────────────────── */
+  .drink-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .drink-entry {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 12px;
+  }
+
+  .drink-name {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .drink-ingredients {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--subtle);
+    margin-top: 3px;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .drink-price {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink);
+    white-space: nowrap;
+    opacity: 0.75;
+  }
+
+  /* ── Simple list (cerveza, agua) ──── */
+  .simple-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .simple-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .simple-item span {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  /* ── Annotation ────────────────────── */
+  .annotation {
+    font-size: 12.5px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--subtle);
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+
+  /* ── Comparison header ─────────────── */
+  .comp-header {
+    text-align: center;
+    padding: 16px 20px;
+    background: rgba(94,118,88,0.05);
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--olive);
+  }
+
+  @media (max-width: 768px) {
+    .spread { grid-template-columns: 1fr; }
+    .page { padding: 32px 24px; }
+    .page-left { border-right: none; border-bottom: 1px solid var(--divider); }
+  }
+</style>
+</head>
+<body>
+
+<div class="book">
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- HEADER: BEBIDAS                             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="spread">
+    <div class="cover">
+      <div class="cover-logo">OLIVEA</div>
+      <div class="cover-sub">Farm To Table</div>
+      <div class="cover-title">Bebidas</div>
+      <div class="cover-line"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SPREAD 1: MOCKTAILS (NEW) + COCKTAILS       -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="spread">
+    <div class="comp-header" style="grid-column: 1 / -1;">Propuesta de nueva estructura</div>
+  </div>
+
+  <div class="spread">
+    <!-- MOCKTAILS — NEW SECTION -->
+    <div class="page page-left">
+      <div class="featured-box">
+        <div class="section-title" style="font-size: 16px;">Del Huerto al Vaso</div>
+        <div class="badge"><span class="badge-dot"></span> Sin alcohol &middot; Del huerto</div>
+        <p class="section-note" style="max-width: 38ch;">
+          Diseñados por nuestro equipo de fermentación con ingredientes del huerto. Fermentos vivos, shrubs, infusiones y extractos que cambian con la temporada.
+        </p>
+        <div class="drink-list">
+          <div class="drink-entry">
+            <div>
+              <div class="drink-name">Huerto Vivo</div>
+              <div class="drink-ingredients">Shrub de higo &middot; fermento de pepino &middot; agua mineral &middot; albahaca</div>
+            </div>
+            <div class="drink-price">160</div>
+          </div>
+          <div class="drink-entry">
+            <div>
+              <div class="drink-name">Jardín de Noche</div>
+              <div class="drink-ingredients">Infusión de romero &middot; miel de lavanda &middot; limón Meyer &middot; espuma de aquafaba</div>
+            </div>
+            <div class="drink-price">160</div>
+          </div>
+          <div class="drink-entry">
+            <div>
+              <div class="drink-name">Tierra Roja</div>
+              <div class="drink-ingredients">Kombucha de jamaica &middot; chile guajillo &middot; tamarindo del huerto &middot; sal negra</div>
+            </div>
+            <div class="drink-price">160</div>
+          </div>
+          <div class="drink-entry">
+            <div>
+              <div class="drink-name">Oliva Fresca</div>
+              <div class="drink-ingredients">Jugo verde prensado &middot; fermento de nopal &middot; limón real &middot; jengibre</div>
+            </div>
+            <div class="drink-price">160</div>
+          </div>
+          <div class="drink-entry">
+            <div>
+              <div class="drink-name">Citrus del Valle</div>
+              <div class="drink-ingredients">Shrub de naranja &middot; vinagre de manzana &middot; menta &middot; tónica artesanal</div>
+            </div>
+            <div class="drink-price">160</div>
+          </div>
+        </div>
+        <p class="annotation" style="margin-top: 14px;">
+          * Nombres y recetas ilustrativos — diseña los tuyos con tu equipo de fermentación. Los mocktails rotan con la temporada.
+        </p>
+      </div>
+
+      <span class="page-number">1</span>
+    </div>
+
+    <!-- COCKTAILS -->
+    <div class="page page-right">
+      <div class="section-title">Mixología</div>
+      <div class="section-subtitle">Cocteles de la casa</div>
+      <p class="section-note">
+        Diseñados con el Valle en mente. Licores mexicanos, cítricos frescos, ingredientes con intención.
+      </p>
+
+      <div class="drink-list">
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">La Vida Te Da Sorpresas</div>
+            <div class="drink-ingredients">Mezcal Creyente Espadín &middot; piña &middot; limón &middot; cilantro</div>
+          </div>
+          <div class="drink-price">220</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Pistachita Vera</div>
+            <div class="drink-ingredients">Matusalem 15 &middot; pistache &middot; jarabe de pistache</div>
+          </div>
+          <div class="drink-price">220</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Jardín Seco</div>
+            <div class="drink-ingredients">Mezcal Espadín &middot; licor de melón &middot; ancho reyes rojo &middot; limón real &middot; cardamomo</div>
+          </div>
+          <div class="drink-price">220</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Golden Vodka</div>
+            <div class="drink-ingredients">Vodka Drako &middot; infusión de lavanda &middot; limón real &middot; kiwi</div>
+          </div>
+          <div class="drink-price">220</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Kumbala</div>
+            <div class="drink-ingredients">Mezcal Creyente Espadín &middot; tamarindo &middot; ancho reyes &middot; chile ancho &middot; cointreau &middot; sal de chiles</div>
+          </div>
+          <div class="drink-price">220</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Naked and Famous</div>
+            <div class="drink-ingredients">Mezcal Creyente Espadín &middot; chartreuse &middot; aperol &middot; limón</div>
+          </div>
+          <div class="drink-price">240</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Midori</div>
+            <div class="drink-ingredients">Gin Hendricks &middot; conserva de pepino y menta &middot; licor de guanábana &middot; sal de melisa</div>
+          </div>
+          <div class="drink-price">240</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Fresa Brava</div>
+            <div class="drink-ingredients">Tequila Reserva de la Familia &middot; lemon grass &middot; fresa y chile padrón &middot; campari</div>
+          </div>
+          <div class="drink-price">240</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Paper Plane</div>
+            <div class="drink-ingredients">Bushmills 10 &middot; amaro averna &middot; aperol &middot; limón</div>
+          </div>
+          <div class="drink-price">260</div>
+        </div>
+        <div class="drink-entry">
+          <div>
+            <div class="drink-name">Sailor</div>
+            <div class="drink-ingredients">Tequila Reserva de la Familia &middot; licor de coco Kalani &middot; limón real &middot; oleo de fresa &middot; bitter de lavanda</div>
+          </div>
+          <div class="drink-price">260</div>
+        </div>
+      </div>
+
+      <span class="page-number">2</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SPREAD 2: CERVEZA + AGUA                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="spread">
+    <div class="page page-left">
+      <div class="section-title">Cerveza</div>
+      <div style="height: 16px;"></div>
+      <div class="simple-list">
+        <div class="simple-item">Artesanal <span>95</span></div>
+        <div class="simple-item">Nacional <span>65</span></div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section-title">Agua</div>
+      <div style="height: 16px;"></div>
+      <div class="simple-list">
+        <div class="simple-item">Aqua Panna Natural <span>125</span></div>
+        <div class="simple-item">San Pellegrino Mineral <span>125</span></div>
+        <div class="simple-item">Refrescos <span>50</span></div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <p class="section-note" style="margin-top: 8px;">
+        Precios en pesos mexicanos.
+      </p>
+
+      <span class="page-number">3</span>
+    </div>
+    <div class="page page-right" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+      <p class="section-note" style="text-align: center; max-width: 32ch; font-size: 16px;">
+        "Donde el huerto es la esencia"
+      </p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
