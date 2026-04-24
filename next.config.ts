@@ -140,6 +140,9 @@ const nextConfig: NextConfig = {
         // Legacy journal paths without redirects (bot-friendly)
         { source: "/journal", destination: "/es/journal" },
         { source: "/journal/:slug*", destination: "/es/journal/:slug*" },
+
+        // Menu deep-link (opens Farmpop modal on farmtotable page)
+        { source: "/menu", destination: "/es/menu" },
       ],
     };
   },

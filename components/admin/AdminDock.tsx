@@ -124,9 +124,11 @@ export default function AdminDock() {
     setActiveCategory(cat);
   }, [pathname, setActiveCategory]);
 
+  // Don't highlight any category dock icon when Team page is active
+  const isOnTeamPage = pathname.startsWith("/admin/team");
   const isActive = useCallback(
-    (cat: AdminCategory) => activeCategory === cat,
-    [activeCategory]
+    (cat: AdminCategory) => !isOnTeamPage && activeCategory === cat,
+    [activeCategory, isOnTeamPage]
   );
 
   /* Toggle dock when clicking empty space */
@@ -239,12 +241,23 @@ export default function AdminDock() {
           href="/admin/team"
           className={`
             group relative flex items-center gap-3 rounded-2xl py-3
-            text-[var(--olivea-olive)]/50 hover:text-[var(--olivea-olive)]
-            hover:bg-[var(--olivea-olive)]/[0.04] transition-all duration-200
+            transition-all duration-200 ease-out
             ${expanded ? "px-3" : "justify-center"}
+            ${pathname.startsWith("/admin/team")
+              ? "bg-[var(--olivea-olive)]/[0.10] text-[var(--olivea-olive)]"
+              : "text-[var(--olivea-olive)]/50 hover:text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/[0.04]"
+            }
           `}
         >
-          <Users size={22} strokeWidth={1.5} className="flex-shrink-0" />
+          {/* Active indicator pill */}
+          {pathname.startsWith("/admin/team") && (
+            <motion.div
+              layoutId="dock-active"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-[var(--olivea-olive)]"
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            />
+          )}
+          <Users size={22} strokeWidth={pathname.startsWith("/admin/team") ? 2 : 1.5} className="flex-shrink-0" />
           <AnimatePresence>
             {expanded && (
               <motion.span
@@ -276,13 +289,28 @@ export default function AdminDock() {
         <button
           onClick={() => setProfileOpen(true)}
           className={`
-            flex items-center gap-3 py-2.5 w-full rounded-xl
-            hover:bg-[var(--olivea-cream)]/40 transition-all duration-200
+            relative flex items-center gap-3 py-2.5 w-full rounded-xl
+            transition-all duration-200 ease-out
             group/user
             ${expanded ? "px-3" : "justify-center"}
+            ${profileOpen
+              ? "bg-[var(--olivea-olive)]/[0.08]"
+              : "hover:bg-[var(--olivea-cream)]/40"
+            }
           `}
         >
-          <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[var(--olivea-clay)] to-[var(--olivea-olive)] flex items-center justify-center flex-shrink-0 ring-2 ring-[var(--olivea-olive)]/[0.08]">
+          {/* Active indicator pill */}
+          {profileOpen && (
+            <motion.div
+              layoutId="dock-profile-active"
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              exit={{ scaleY: 0 }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-[var(--olivea-clay)]"
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            />
+          )}
+          <div className={`w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[var(--olivea-clay)] to-[var(--olivea-olive)] flex items-center justify-center flex-shrink-0 ring-2 ${profileOpen ? "ring-[var(--olivea-olive)]/25" : "ring-[var(--olivea-olive)]/[0.08]"} transition-all duration-200`}>
             {user.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />

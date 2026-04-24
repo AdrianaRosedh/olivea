@@ -7,6 +7,7 @@
 "use client";
 
 import { useState, useEffect, useTransition, useCallback, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -22,6 +23,7 @@ import {
   Pencil,
   Sparkles,
   AlertTriangle,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/components/admin/AuthProvider";
 import {
@@ -355,8 +357,30 @@ function InviteModal({
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<AdminRole>("editor");
+  const [sectionPerms, setSectionPerms] = useState<SectionPermissions>({});
+  const [showPermissions, setShowPermissions] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const categories = ["pages", "content", "settings"] as const;
+  const categoryLabels = { pages: "Pages", content: "Content", settings: "Settings" };
+
+  function setAccess(sectionKey: string, access: SectionAccess) {
+    const inherited = defaultSectionAccess(role);
+    const newPerms = { ...sectionPerms };
+    if (access === inherited) {
+      delete newPerms[sectionKey];
+    } else {
+      newPerms[sectionKey] = access;
+    }
+    setSectionPerms(newPerms);
+  }
+
+  // Reset section perms when role changes (inherited defaults change)
+  function handleRoleChange(newRole: AdminRole) {
+    setRole(newRole);
+    setSectionPerms({});
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -367,9 +391,15 @@ function InviteModal({
       if (result.error) {
         setError(result.error);
       } else {
+        // Save section permissions if any overrides were set
+        if (result.userId && Object.keys(sectionPerms).length > 0) {
+          await updateSectionPermissions(result.userId, sectionPerms);
+        }
         setEmail("");
         setFullName("");
         setRole("editor");
+        setSectionPerms({});
+        setShowPermissions(false);
         onInvited();
         onClose();
       }
@@ -468,7 +498,7 @@ function InviteModal({
                     <button
                       key={r}
                       type="button"
-                      onClick={() => setRole(r)}
+                      onClick={() => handleRoleChange(r)}
                       className={`
                         w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left
                         border transition-all duration-200
@@ -496,6 +526,103 @@ function InviteModal({
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Per-section permissions (expandable) */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowPermissions(!showPermissions)}
+                  className="flex items-center gap-2 text-xs font-medium text-[#5e7658]
+                    hover:text-[#4a6046] transition-colors"
+                >
+                  <motion.span
+                    animate={{ rotate: showPermissions ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-[10px]"
+                  >
+                    ▶
+                  </motion.span>
+                  Customize section access
+                  {Object.keys(sectionPerms).length > 0 && (
+                    <span className="text-[9px] bg-[#5e7658]/10 text-[#5e7658] px-1.5 py-0.5 rounded-full font-semibold">
+                      {Object.keys(sectionPerms).length} override{Object.keys(sectionPerms).length !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {showPermissions && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-3 space-y-4">
+                        <p className="text-[10px] text-[#6b7a65]/70">
+                          Override per-section access or leave as inherited from {ROLE_LABELS[role]} role.
+                        </p>
+                        {categories.map((cat) => {
+                          const sections = ADMIN_SECTIONS.filter((s) => s.category === cat);
+                          return (
+                            <div key={cat}>
+                              <span className="text-[10px] font-semibold text-[#2d3b29] uppercase tracking-wider">
+                                {categoryLabels[cat]}
+                              </span>
+                              <div className="mt-1.5 space-y-0.5">
+                                {sections.map((section) => {
+                                  const currentAccess =
+                                    sectionPerms[section.key] ?? defaultSectionAccess(role);
+                                  const isInherited = !sectionPerms[section.key];
+                                  return (
+                                    <div
+                                      key={section.key}
+                                      className="flex items-center gap-2 py-1.5 px-2 rounded-lg
+                                        hover:bg-[#f4f5f0]/60 transition-colors"
+                                    >
+                                      <span className="text-[11px] text-[#2d3b29] flex-1 min-w-0 truncate">
+                                        {section.label}
+                                      </span>
+                                      <div className="flex gap-0.5">
+                                        {SECTION_ACCESS_HIERARCHY.map((access) => (
+                                          <button
+                                            key={access}
+                                            type="button"
+                                            onClick={() => setAccess(section.key, access)}
+                                            className={`
+                                              px-2 py-1 rounded text-[9px] font-semibold
+                                              transition-all duration-200
+                                              ${currentAccess === access
+                                                ? isInherited
+                                                  ? "bg-[#5e7658]/10 text-[#5e7658] border border-[#5e7658]/15"
+                                                  : access === "maestro"
+                                                    ? "bg-[#5e7658] text-white"
+                                                    : access === "editor"
+                                                      ? "bg-amber-500 text-white"
+                                                      : access === "viewer"
+                                                        ? "bg-sky-500 text-white"
+                                                        : "bg-gray-400 text-white"
+                                                : "text-[#6b7a65]/30 hover:text-[#6b7a65]/60 hover:bg-[#f4f5f0]"
+                                              }
+                                            `}
+                                          >
+                                            {SECTION_ACCESS_LABELS[access]}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {error && (
@@ -720,9 +847,24 @@ function DetailPanel({
                       className="flex items-center gap-3 py-2 px-3 rounded-xl
                         hover:bg-[#f4f5f0]/60 transition-colors group"
                     >
-                      <span className="text-sm text-[#2d3b29] flex-1 min-w-0 truncate">
-                        {section.label}
-                      </span>
+                      {section.href ? (
+                        <Link
+                          href={section.href}
+                          className="text-sm text-[#2d3b29] flex-1 min-w-0 truncate
+                            hover:text-[#5e7658] hover:underline underline-offset-2
+                            transition-colors duration-200 flex items-center gap-1.5 group/link"
+                        >
+                          {section.label}
+                          <ExternalLink
+                            size={10}
+                            className="opacity-0 group-hover/link:opacity-60 transition-opacity flex-shrink-0"
+                          />
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-[#2d3b29] flex-1 min-w-0 truncate">
+                          {section.label}
+                        </span>
+                      )}
 
                       <div className="flex gap-1">
                         {SECTION_ACCESS_HIERARCHY.map((access) => (
