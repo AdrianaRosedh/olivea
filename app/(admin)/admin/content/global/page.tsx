@@ -1,6 +1,7 @@
 "use client";
 
 import { Globe } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import globalContent from "@/lib/content/data/global";
 import { VisualPageEditor, useEditor, EditableBilingual, EditableImage, EditableJSON } from "@/components/admin/visual-editor";
 
@@ -74,8 +75,10 @@ function GlobalVisual() {
 
 export default function GlobalSettingsAdmin() {
   return (
-    <VisualPageEditor title="Global Settings" table="global_settings" icon={<Globe className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={globalContent as unknown as Record<string, unknown>}>
-      <GlobalVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="settings.global">
+      <VisualPageEditor title="Global Settings" table="global_settings" icon={<Globe className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={globalContent as unknown as Record<string, unknown>}>
+        <GlobalVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

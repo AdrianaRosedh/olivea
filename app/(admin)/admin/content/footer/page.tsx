@@ -1,6 +1,7 @@
 "use client";
 
 import { PanelBottom } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import footerContent from "@/lib/content/data/footer";
 import { VisualPageEditor, useEditor, EditableBilingual } from "@/components/admin/visual-editor";
 
@@ -30,8 +31,10 @@ function FooterVisual() {
 
 export default function FooterAdmin() {
   return (
-    <VisualPageEditor title="Footer" table="footer_content" icon={<PanelBottom className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={footerContent as unknown as Record<string, unknown>}>
-      <FooterVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="settings.footer">
+      <VisualPageEditor title="Footer" table="footer_content" icon={<PanelBottom className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={footerContent as unknown as Record<string, unknown>}>
+        <FooterVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

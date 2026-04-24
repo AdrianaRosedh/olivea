@@ -1,6 +1,7 @@
 "use client";
 
 import { Utensils, FileCode2, ExternalLink } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import farmtotableContent from "@/lib/content/data/farmtotable";
 import {
   VisualPageEditor,
@@ -143,13 +144,15 @@ function FarmToTableVisual() {
 
 export default function FarmToTableAdmin() {
   return (
-    <VisualPageEditor
-      title="Farm to Table"
-      table="farmtotable_content"
-      icon={<Utensils className="w-5 h-5 text-[var(--olivea-olive)]" />}
-      fallbackData={farmtotableContent as unknown as Record<string, unknown>}
-    >
-      <FarmToTableVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="pages.farmtotable">
+      <VisualPageEditor
+        title="Farm to Table"
+        table="farmtotable_content"
+        icon={<Utensils className="w-5 h-5 text-[var(--olivea-olive)]" />}
+        fallbackData={farmtotableContent as unknown as Record<string, unknown>}
+      >
+        <FarmToTableVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

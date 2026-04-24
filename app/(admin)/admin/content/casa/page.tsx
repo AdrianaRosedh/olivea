@@ -1,6 +1,7 @@
 "use client";
 
 import { Home, FileCode2, ExternalLink } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import casaContent from "@/lib/content/data/casa";
 import {
   VisualPageEditor,
@@ -95,8 +96,10 @@ function CasaVisual() {
 
 export default function CasaAdmin() {
   return (
-    <VisualPageEditor title="Casa" table="casa_content" icon={<Home className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={casaContent as unknown as Record<string, unknown>}>
-      <CasaVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="pages.casa">
+      <VisualPageEditor title="Casa" table="casa_content" icon={<Home className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={casaContent as unknown as Record<string, unknown>}>
+        <CasaVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

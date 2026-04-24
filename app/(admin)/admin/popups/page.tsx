@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import { Bell, Plus, Pencil, Trash2, ChevronUp } from "lucide-react";
 import { getPopups, savePopup, deletePopup, togglePopup } from "@/lib/supabase/actions";
 import type { PopupItem, PopupFrequency } from "@/lib/content/types";
@@ -497,6 +498,7 @@ export default function PopupsPage() {
   }
 
   return (
+    <SectionGuard sectionKey="content.popups">
     <div className="max-w-5xl space-y-6">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
@@ -667,5 +669,6 @@ export default function PopupsPage() {
         </div>
       )}
     </div>
+    </SectionGuard>
   );
 }

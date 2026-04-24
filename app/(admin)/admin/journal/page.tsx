@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -272,6 +273,7 @@ export default function JournalPage() {
   );
 
   return (
+    <SectionGuard sectionKey="content.journal">
     <div className="max-w-6xl space-y-6">
       {/* ── Stats bar ── */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -518,5 +520,6 @@ export default function JournalPage() {
         onUnpublish={handleUnpublish}
       />
     </div>
+    </SectionGuard>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Scale } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import legalContent from "@/lib/content/data/legal";
 import {
   VisualPageEditor,
@@ -44,8 +45,10 @@ function LegalVisual() {
 
 export default function LegalAdmin() {
   return (
-    <VisualPageEditor title="Legal" table="legal_content" icon={<Scale className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={legalContent as unknown as Record<string, unknown>}>
-      <LegalVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="pages.legal">
+      <VisualPageEditor title="Legal" table="legal_content" icon={<Scale className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={legalContent as unknown as Record<string, unknown>}>
+        <LegalVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

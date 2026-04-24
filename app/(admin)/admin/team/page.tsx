@@ -1,7 +1,8 @@
 // app/(admin)/admin/team/page.tsx
 // ─────────────────────────────────────────────────────────────────────
-// Team management page — Roseiies-style with per-section permissions.
-// Left: member list. Right: detail panel with permission grid.
+// Team management page — Roseiies Studio-style with per-section
+// permissions.  Left: member list.  Right: detail panel with
+// category pill tabs and section permission matrix.
 // ─────────────────────────────────────────────────────────────────────
 
 "use client";
@@ -13,7 +14,6 @@ import {
   Users,
   UserPlus,
   Shield,
-  Mail,
   Trash2,
   Clock,
   X,
@@ -21,9 +21,11 @@ import {
   Crown,
   Eye,
   Pencil,
-  Sparkles,
   AlertTriangle,
   ExternalLink,
+  FileText,
+  Layers,
+  Settings,
 } from "lucide-react";
 import { useAuth } from "@/components/admin/AuthProvider";
 import {
@@ -84,8 +86,19 @@ const sectionRow = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: 0.15 + i * 0.02, duration: 0.35, ease: cinematic },
+    transition: { delay: 0.1 + i * 0.025, duration: 0.35, ease: cinematic },
   }),
+};
+
+/* ── Category config ── */
+
+const CATEGORIES = ["pages", "content", "settings"] as const;
+type Category = (typeof CATEGORIES)[number];
+
+const CATEGORY_META: Record<Category, { label: string; icon: typeof FileText; description: string }> = {
+  pages:    { label: "Pages",    icon: FileText, description: "Homepage, Farm to Table, Casa, and more" },
+  content:  { label: "Content",  icon: Layers,   description: "Journal, popups, banners, FAQ, media" },
+  settings: { label: "Settings", icon: Settings,  description: "Global, navigation, footer, hours" },
 };
 
 /* ── Confirm modal ── */
@@ -109,12 +122,10 @@ function ConfirmModal({
 }) {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  // Auto-focus cancel button on open
   useEffect(() => {
     if (open) cancelRef.current?.focus();
   }, [open]);
 
-  // Close on Escape
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -128,7 +139,6 @@ function ConfirmModal({
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -137,31 +147,22 @@ function ConfirmModal({
             onClick={onCancel}
             className="fixed inset-0 bg-black/25 backdrop-blur-[6px] z-[60]"
           />
-
-          {/* Dialog */}
           <motion.div
             initial={{ opacity: 0, scale: 0.88, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 12 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60]
-              w-full max-w-[380px]"
+            transition={{ duration: 0.35, ease: cinematic }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-[380px]"
           >
             <div className="bg-white rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.12),0_0_0_1px_rgba(94,118,88,0.06)] overflow-hidden">
-              {/* Top accent bar */}
               <div className={`h-1 ${variant === "danger" ? "bg-gradient-to-r from-red-400 via-red-500 to-red-400" : "bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400"}`} />
-
               <div className="p-6">
-                {/* Icon */}
                 <motion.div
                   initial={{ scale: 0, rotate: -15 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.1, type: "spring", stiffness: 400, damping: 18 }}
                   className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4
-                    ${variant === "danger"
-                      ? "bg-red-50 border border-red-100"
-                      : "bg-amber-50 border border-amber-100"
-                    }`}
+                    ${variant === "danger" ? "bg-red-50 border border-red-100" : "bg-amber-50 border border-amber-100"}`}
                 >
                   {variant === "danger" ? (
                     <Trash2 size={20} className="text-red-500" />
@@ -169,23 +170,19 @@ function ConfirmModal({
                     <AlertTriangle size={20} className="text-amber-500" />
                   )}
                 </motion.div>
-
-                {/* Text */}
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.12, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: 0.12, duration: 0.3, ease: cinematic }}
                   className="text-center"
                 >
                   <h3 className="text-base font-semibold text-[#2d3b29]">{title}</h3>
                   <p className="text-sm text-[#6b7a65] mt-1.5 leading-relaxed">{message}</p>
                 </motion.div>
-
-                {/* Buttons */}
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.18, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: 0.18, duration: 0.3, ease: cinematic }}
                   className="flex gap-3 mt-6"
                 >
                   <button
@@ -223,6 +220,17 @@ function ConfirmModal({
 
 /* ── Avatar ── */
 
+const AVATAR_COLORS = [
+  "from-[#6b7a65] to-[#5e7658]",
+  "from-[#c9a96e] to-[#b8944f]",
+  "from-[#7a8b9c] to-[#5d7080]",
+  "from-[#9b7a6e] to-[#8a6455]",
+  "from-[#7a6b9b] to-[#635580]",
+  "from-[#6b9b7a] to-[#558065]",
+  "from-[#9b8a6b] to-[#807255]",
+  "from-[#6b8a9b] to-[#557280]",
+];
+
 function Avatar({
   name,
   url,
@@ -241,9 +249,12 @@ function Avatar({
     .toUpperCase()
     .slice(0, 2);
 
+  // Deterministic color based on name
+  const colorIdx = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % AVATAR_COLORS.length;
+
   return (
     <div
-      className={`rounded-full overflow-hidden bg-gradient-to-br from-[#6b7a65] to-[#5e7658] flex items-center justify-center flex-shrink-0 ${className}`}
+      className={`rounded-full overflow-hidden bg-gradient-to-br ${AVATAR_COLORS[colorIdx]} flex items-center justify-center flex-shrink-0 ${className}`}
       style={{ width: size, height: size }}
     >
       {url ? (
@@ -252,7 +263,7 @@ function Avatar({
       ) : (
         <span
           className="text-white font-bold"
-          style={{ fontSize: size * 0.3 }}
+          style={{ fontSize: size * 0.32 }}
         >
           {initials}
         </span>
@@ -261,11 +272,11 @@ function Avatar({
   );
 }
 
-/* ── Role badge ── */
+/* ── Role badge (inline with name, like Roseiies) ── */
 
 function RoleBadge({ role }: { role: AdminRole }) {
   const styles: Record<AdminRole, string> = {
-    owner: "bg-[#c9a96e]/10 text-[#c9a96e] border-[#c9a96e]/20",
+    owner: "bg-[#c9a96e]/12 text-[#c9a96e] border-[#c9a96e]/20",
     manager: "bg-violet-50 text-violet-700 border-violet-200/60",
     editor: "bg-amber-50 text-amber-700 border-amber-200/60",
     host: "bg-sky-50 text-sky-600 border-sky-200/60",
@@ -282,68 +293,15 @@ function RoleBadge({ role }: { role: AdminRole }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${styles[role]}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${styles[role]}`}
     >
-      <Icon size={11} />
+      <Icon size={10} />
       {ROLE_LABELS[role]}
     </span>
   );
 }
 
-/* ── Section access button ── */
-
-function AccessButton({
-  access,
-  isActive,
-  isInherited,
-  onClick,
-  disabled,
-}: {
-  access: SectionAccess;
-  isActive: boolean;
-  isInherited: boolean;
-  onClick: () => void;
-  disabled?: boolean;
-}) {
-  const baseStyles: Record<SectionAccess, string> = {
-    maestro: "bg-[#5e7658] text-white shadow-[0_2px_8px_rgba(94,118,88,0.3)]",
-    editor: "bg-amber-500 text-white shadow-[0_2px_8px_rgba(245,158,11,0.3)]",
-    viewer: "bg-sky-500 text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)]",
-    hidden: "bg-gray-400 text-white shadow-[0_2px_8px_rgba(156,163,175,0.3)]",
-  };
-
-  const inheritedStyles: Record<SectionAccess, string> = {
-    maestro: "bg-[#5e7658]/15 text-[#5e7658] border-[#5e7658]/20",
-    editor: "bg-amber-50 text-amber-600 border-amber-200/60",
-    viewer: "bg-sky-50 text-sky-600 border-sky-200/60",
-    hidden: "bg-gray-50 text-gray-400 border-gray-200/60",
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`
-        relative px-3 py-1.5 rounded-lg text-[11px] font-semibold
-        transition-all duration-300 ease-out
-        disabled:opacity-30 disabled:cursor-not-allowed
-        ${isActive
-          ? isInherited
-            ? `${inheritedStyles[access]} border`
-            : baseStyles[access]
-          : "text-[#6b7a65]/40 hover:text-[#6b7a65]/70 hover:bg-[#f4f5f0]"
-        }
-      `}
-    >
-      {SECTION_ACCESS_LABELS[access]}
-      {isActive && isInherited && (
-        <span className="ml-1 text-[9px] opacity-60">Heredar</span>
-      )}
-    </button>
-  );
-}
-
-/* ── Invite modal ── */
+/* ── Invite modal (Roseiies-style: full permission matrix inline) ── */
 
 function InviteModal({
   open,
@@ -354,16 +312,14 @@ function InviteModal({
   onClose: () => void;
   onInvited: () => void;
 }) {
+  const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<AdminRole>("editor");
   const [sectionPerms, setSectionPerms] = useState<SectionPermissions>({});
-  const [showPermissions, setShowPermissions] = useState(false);
+  const [activeCat, setActiveCat] = useState<Category>("pages");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-
-  const categories = ["pages", "content", "settings"] as const;
-  const categoryLabels = { pages: "Pages", content: "Content", settings: "Settings" };
 
   function setAccess(sectionKey: string, access: SectionAccess) {
     const inherited = defaultSectionAccess(role);
@@ -376,35 +332,43 @@ function InviteModal({
     setSectionPerms(newPerms);
   }
 
-  // Reset section perms when role changes (inherited defaults change)
   function handleRoleChange(newRole: AdminRole) {
     setRole(newRole);
     setSectionPerms({});
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
+  function overridesInCat(cat: Category): number {
+    return ADMIN_SECTIONS.filter((s) => s.category === cat && sectionPerms[s.key]).length;
+  }
 
+  function resetForm() {
+    setStep(1);
+    setEmail("");
+    setFullName("");
+    setRole("editor");
+    setSectionPerms({});
+    setActiveCat("pages");
+    setError("");
+  }
+
+  function handleSubmit() {
+    setError("");
     startTransition(async () => {
       const result = await inviteTeamMember(email, role, fullName);
       if (result.error) {
         setError(result.error);
       } else {
-        // Save section permissions if any overrides were set
         if (result.userId && Object.keys(sectionPerms).length > 0) {
           await updateSectionPermissions(result.userId, sectionPerms);
         }
-        setEmail("");
-        setFullName("");
-        setRole("editor");
-        setSectionPerms({});
-        setShowPermissions(false);
+        resetForm();
         onInvited();
         onClose();
       }
     });
   }
+
+  const activeSections = ADMIN_SECTIONS.filter((s) => s.category === activeCat);
 
   return (
     <AnimatePresence>
@@ -417,242 +381,323 @@ function InviteModal({
             onClick={onClose}
             className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
           />
-
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4, ease: cinematic }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-              w-full max-w-md bg-white rounded-2xl shadow-2xl
-              border border-[#5e7658]/10 p-6"
+              w-full max-w-[620px] max-h-[88vh] flex flex-col
+              bg-white rounded-2xl shadow-2xl border border-[#5e7658]/10 overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-semibold text-[#2d3b29] flex items-center gap-2">
-                <motion.div
-                  initial={{ rotate: -20, scale: 0 }}
-                  animate={{ rotate: 0, scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#5e7658]/[0.06] flex-shrink-0">
+              <div>
+                <h2 className="text-lg font-semibold text-[#2d3b29] flex items-center gap-2">
+                  <motion.div
+                    initial={{ rotate: -20, scale: 0 }}
+                    animate={{ rotate: 0, scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+                  >
+                    <UserPlus size={18} className="text-[#5e7658]" />
+                  </motion.div>
+                  Agregar miembro
+                </h2>
+                <p className="text-[11px] text-[#6b7a65] mt-0.5">
+                  {step === 1 ? "Información básica y rol global" : "Personaliza el acceso por sección"}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                {/* Step indicator */}
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full transition-colors ${step === 1 ? "bg-[#5e7658]" : "bg-[#5e7658]/20"}`} />
+                  <div className={`w-2 h-2 rounded-full transition-colors ${step === 2 ? "bg-[#5e7658]" : "bg-[#5e7658]/20"}`} />
+                </div>
+                <button
+                  onClick={() => { resetForm(); onClose(); }}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <UserPlus size={18} className="text-[#5e7658]" />
-                </motion.div>
-                Invite Team Member
-              </h2>
-              <button
-                onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <X size={16} className="text-gray-400" />
-              </button>
+                  <X size={16} className="text-gray-400" />
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="invite-name"
-                  className="block text-xs font-medium text-[#2d3b29] mb-1.5"
-                >
-                  Full Name
-                </label>
-                <input
-                  id="invite-name"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  placeholder="Jane Smith"
-                  className="w-full px-3 py-2.5 rounded-xl text-sm bg-white border border-[#5e7658]/15
-                    text-[#2d3b29] placeholder:text-[#6b7a65]/50
-                    focus:outline-none focus:ring-2 focus:ring-[#5e7658]/20 focus:border-[#5e7658]/30
-                    transition-all duration-200"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="invite-email"
-                  className="block text-xs font-medium text-[#2d3b29] mb-1.5"
-                >
-                  Email
-                </label>
-                <input
-                  id="invite-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="jane@casaolivea.com"
-                  className="w-full px-3 py-2.5 rounded-xl text-sm bg-white border border-[#5e7658]/15
-                    text-[#2d3b29] placeholder:text-[#6b7a65]/50
-                    focus:outline-none focus:ring-2 focus:ring-[#5e7658]/20 focus:border-[#5e7658]/30
-                    transition-all duration-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[#2d3b29] mb-2">
-                  Role
-                </label>
-                <div className="space-y-2">
-                  {ROLE_HIERARCHY.filter((r) => r !== "owner").map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => handleRoleChange(r)}
-                      className={`
-                        w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left
-                        border transition-all duration-200
-                        ${role === r
-                          ? "border-[#5e7658]/30 bg-[#5e7658]/[0.04] ring-1 ring-[#5e7658]/10"
-                          : "border-[#5e7658]/10 hover:border-[#5e7658]/20 hover:bg-[#f4f5f0]/50"
-                        }
-                      `}
-                    >
-                      <div
-                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
-                          transition-all duration-200
-                          ${role === r ? "border-[#5e7658] bg-[#5e7658]" : "border-[#6b7a65]/30"}`}
-                      >
-                        {role === r && <Check size={10} className="text-white" />}
+            {/* Content — scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 py-5" style={{ scrollbarWidth: "none" }}>
+              <AnimatePresence mode="wait">
+                {step === 1 ? (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3, ease: cinematic }}
+                    className="space-y-4"
+                  >
+                    {/* Name + Email side by side */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label htmlFor="invite-name" className="block text-[11px] font-medium text-[#2d3b29] mb-1.5">
+                          Nombre completo
+                        </label>
+                        <input
+                          id="invite-name"
+                          type="text"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                          placeholder="María García"
+                          className="w-full px-3 py-2.5 rounded-xl text-sm bg-white border border-[#5e7658]/15
+                            text-[#2d3b29] placeholder:text-[#6b7a65]/40
+                            focus:outline-none focus:ring-2 focus:ring-[#5e7658]/20 focus:border-[#5e7658]/30
+                            transition-all duration-200"
+                        />
                       </div>
                       <div>
-                        <span className="text-sm font-medium text-[#2d3b29]">
-                          {ROLE_LABELS[r]}
-                        </span>
-                        <p className="text-[10px] text-[#6b7a65] mt-0.5">
-                          {ROLE_DESCRIPTIONS[r]}
-                        </p>
+                        <label htmlFor="invite-email" className="block text-[11px] font-medium text-[#2d3b29] mb-1.5">
+                          Correo electrónico
+                        </label>
+                        <input
+                          id="invite-email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          placeholder="maria@ejemplo.com"
+                          className="w-full px-3 py-2.5 rounded-xl text-sm bg-white border border-[#5e7658]/15
+                            text-[#2d3b29] placeholder:text-[#6b7a65]/40
+                            focus:outline-none focus:ring-2 focus:ring-[#5e7658]/20 focus:border-[#5e7658]/30
+                            transition-all duration-200"
+                        />
                       </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+                    </div>
 
-              {/* Per-section permissions (expandable) */}
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setShowPermissions(!showPermissions)}
-                  className="flex items-center gap-2 text-xs font-medium text-[#5e7658]
-                    hover:text-[#4a6046] transition-colors"
-                >
-                  <motion.span
-                    animate={{ rotate: showPermissions ? 90 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-[10px]"
-                  >
-                    ▶
-                  </motion.span>
-                  Customize section access
-                  {Object.keys(sectionPerms).length > 0 && (
-                    <span className="text-[9px] bg-[#5e7658]/10 text-[#5e7658] px-1.5 py-0.5 rounded-full font-semibold">
-                      {Object.keys(sectionPerms).length} override{Object.keys(sectionPerms).length !== 1 ? "s" : ""}
-                    </span>
-                  )}
-                </button>
-
-                <AnimatePresence>
-                  {showPermissions && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      className="overflow-hidden"
-                    >
-                      <div className="pt-3 space-y-4">
-                        <p className="text-[10px] text-[#6b7a65]/70">
-                          Override per-section access or leave as inherited from {ROLE_LABELS[role]} role.
-                        </p>
-                        {categories.map((cat) => {
-                          const sections = ADMIN_SECTIONS.filter((s) => s.category === cat);
-                          return (
-                            <div key={cat}>
-                              <span className="text-[10px] font-semibold text-[#2d3b29] uppercase tracking-wider">
-                                {categoryLabels[cat]}
-                              </span>
-                              <div className="mt-1.5 space-y-0.5">
-                                {sections.map((section) => {
-                                  const currentAccess =
-                                    sectionPerms[section.key] ?? defaultSectionAccess(role);
-                                  const isInherited = !sectionPerms[section.key];
-                                  return (
-                                    <div
-                                      key={section.key}
-                                      className="flex items-center gap-2 py-1.5 px-2 rounded-lg
-                                        hover:bg-[#f4f5f0]/60 transition-colors"
-                                    >
-                                      <span className="text-[11px] text-[#2d3b29] flex-1 min-w-0 truncate">
-                                        {section.label}
-                                      </span>
-                                      <div className="flex gap-0.5">
-                                        {SECTION_ACCESS_HIERARCHY.map((access) => (
-                                          <button
-                                            key={access}
-                                            type="button"
-                                            onClick={() => setAccess(section.key, access)}
-                                            className={`
-                                              px-2 py-1 rounded text-[9px] font-semibold
-                                              transition-all duration-200
-                                              ${currentAccess === access
-                                                ? isInherited
-                                                  ? "bg-[#5e7658]/10 text-[#5e7658] border border-[#5e7658]/15"
-                                                  : access === "maestro"
-                                                    ? "bg-[#5e7658] text-white"
-                                                    : access === "editor"
-                                                      ? "bg-amber-500 text-white"
-                                                      : access === "viewer"
-                                                        ? "bg-sky-500 text-white"
-                                                        : "bg-gray-400 text-white"
-                                                : "text-[#6b7a65]/30 hover:text-[#6b7a65]/60 hover:bg-[#f4f5f0]"
-                                              }
-                                            `}
-                                          >
-                                            {SECTION_ACCESS_LABELS[access]}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
+                    {/* Role selector */}
+                    <div>
+                      <label className="block text-[11px] font-medium text-[#2d3b29] mb-2">Rol global</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {ROLE_HIERARCHY.filter((r) => r !== "owner").map((r) => (
+                          <button
+                            key={r}
+                            type="button"
+                            onClick={() => handleRoleChange(r)}
+                            className={`
+                              flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-center
+                              border transition-all duration-200
+                              ${role === r
+                                ? "border-[#5e7658]/30 bg-[#5e7658]/[0.06] ring-1 ring-[#5e7658]/10"
+                                : "border-[#5e7658]/10 hover:border-[#5e7658]/20 hover:bg-[#f4f5f0]/50"
+                              }
+                            `}
+                          >
+                            <div
+                              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+                                transition-all duration-200
+                                ${role === r ? "border-[#5e7658] bg-[#5e7658]" : "border-[#6b7a65]/30"}`}
+                            >
+                              {role === r && <Check size={10} className="text-white" />}
                             </div>
-                          );
-                        })}
+                            <span className="text-xs font-semibold text-[#2d3b29]">{ROLE_LABELS[r]}</span>
+                            <p className="text-[9px] text-[#6b7a65] leading-tight">{ROLE_DESCRIPTIONS[r]}</p>
+                          </button>
+                        ))}
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                    </div>
 
+                    {/* Preview: what this role gets */}
+                    <div className="bg-[#f4f5f0]/60 rounded-xl p-3 border border-[#5e7658]/[0.06]">
+                      <p className="text-[10px] font-semibold text-[#6b7a65] uppercase tracking-wider mb-1.5">
+                        Acceso predeterminado
+                      </p>
+                      <p className="text-[11px] text-[#6b7a65]/80 leading-relaxed">
+                        Con el rol <span className="font-semibold text-[#2d3b29]">{ROLE_LABELS[role]}</span>,
+                        todas las secciones tendrán acceso{" "}
+                        <span className="font-semibold text-[#5e7658]">
+                          {SECTION_ACCESS_LABELS[defaultSectionAccess(role)]}
+                        </span>{" "}
+                        por defecto. En el siguiente paso podrás personalizar el acceso por sección.
+                      </p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3, ease: cinematic }}
+                  >
+                    {/* Description */}
+                    <p className="text-[11px] text-[#6b7a65]/70 mb-4 leading-relaxed">
+                      Cada sección tiene su propio nivel de acceso. Elige exactamente qué
+                      puede ver o editar <span className="font-semibold text-[#2d3b29]">{fullName || "este miembro"}</span> — o
+                      deja en <span className="font-medium text-[#5e7658]">Heredar</span> para
+                      seguir el rol <span className="font-medium">{ROLE_LABELS[role]}</span>.
+                    </p>
+
+                    {/* Category pill tabs */}
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {CATEGORIES.map((cat) => {
+                        const meta = CATEGORY_META[cat];
+                        const CatIcon = meta.icon;
+                        const isActive = activeCat === cat;
+                        const overrides = overridesInCat(cat);
+
+                        return (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setActiveCat(cat)}
+                            className={`
+                              inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-medium
+                              border transition-all duration-200
+                              ${isActive
+                                ? "bg-[#5e7658] text-white border-[#5e7658] shadow-[0_2px_8px_rgba(94,118,88,0.25)]"
+                                : "bg-white text-[#6b7a65] border-[#5e7658]/12 hover:border-[#5e7658]/25 hover:bg-[#f4f5f0]"
+                              }
+                            `}
+                          >
+                            <CatIcon size={13} strokeWidth={isActive ? 2 : 1.5} />
+                            {meta.label}
+                            {overrides > 0 && (
+                              <span className={`
+                                text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-0.5
+                                ${isActive ? "bg-white/20 text-white" : "bg-[#5e7658]/10 text-[#5e7658]"}
+                              `}>
+                                {overrides}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Section permission matrix */}
+                    <div className="border border-[#5e7658]/[0.06] rounded-2xl overflow-hidden divide-y divide-[#5e7658]/[0.04]">
+                      {activeSections.map((section, i) => {
+                        const currentAccess = sectionPerms[section.key] ?? defaultSectionAccess(role);
+                        const isInherited = !sectionPerms[section.key];
+
+                        return (
+                          <motion.div
+                            key={section.key}
+                            custom={i}
+                            variants={sectionRow}
+                            initial="hidden"
+                            animate="visible"
+                            className="flex items-center gap-3 py-3 px-4 hover:bg-[#f4f5f0]/40 transition-colors"
+                          >
+                            <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate">
+                              {section.label}
+                            </span>
+                            <div className="flex">
+                              {SECTION_ACCESS_HIERARCHY.map((access) => {
+                                const isThis = currentAccess === access;
+                                const isInheritedActive = isThis && isInherited;
+
+                                return (
+                                  <button
+                                    key={access}
+                                    type="button"
+                                    onClick={() => setAccess(section.key, access)}
+                                    className={`
+                                      w-[52px] py-1.5 text-center text-[10px] font-semibold
+                                      transition-all duration-200 rounded-lg
+                                      ${isThis
+                                        ? isInheritedActive
+                                          ? "bg-[#5e7658]/15 text-[#5e7658]"
+                                          : access === "maestro" ? "bg-[#5e7658] text-white shadow-sm"
+                                          : access === "editor" ? "bg-amber-500 text-white shadow-sm"
+                                          : access === "viewer" ? "bg-sky-500 text-white shadow-sm"
+                                          : "bg-gray-400 text-white shadow-sm"
+                                        : "text-[#6b7a65]/30 hover:text-[#6b7a65]/60 hover:bg-[#f4f5f0]"
+                                      }
+                                    `}
+                                  >
+                                    {access === "maestro"
+                                      ? isInheritedActive ? "Heredar" : "Maestro"
+                                      : access === "viewer" ? "Ver"
+                                      : access === "editor" ? "Editar"
+                                      : "Oculto"}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Footer */}
+            <div className="flex-shrink-0 px-6 py-4 border-t border-[#5e7658]/[0.06] bg-[#f4f5f0]/30">
               {error && (
-                <div className="text-red-600 text-xs bg-red-50 px-3 py-2 rounded-lg">
-                  {error}
-                </div>
+                <div className="text-red-600 text-xs bg-red-50 px-3 py-2 rounded-lg mb-3">{error}</div>
               )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-medium
-                    border border-[#5e7658]/15 text-[#6b7a65]
-                    hover:bg-gray-50 transition-all duration-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-medium
-                    bg-[#5e7658] text-white hover:bg-[#4a6046]
-                    disabled:opacity-50 disabled:cursor-not-allowed
-                    transition-all duration-200 shadow-[0_2px_8px_rgba(94,118,88,0.2)]"
-                >
-                  {isPending ? "Sending..." : "Send Invite"}
-                </button>
+              <div className="flex gap-3">
+                {step === 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => { resetForm(); onClose(); }}
+                      className="flex-1 py-2.5 rounded-xl text-sm font-medium
+                        border border-[#5e7658]/15 text-[#6b7a65] hover:bg-white transition-all duration-200"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!fullName.trim() || !email.trim()) {
+                          setError("Nombre y correo son requeridos");
+                          return;
+                        }
+                        setError("");
+                        setStep(2);
+                      }}
+                      className="flex-1 py-2.5 rounded-xl text-sm font-medium
+                        bg-[#5e7658] text-white hover:bg-[#4a6046]
+                        transition-all duration-200 shadow-[0_2px_8px_rgba(94,118,88,0.2)]"
+                    >
+                      Siguiente — Permisos
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="py-2.5 px-5 rounded-xl text-sm font-medium
+                        border border-[#5e7658]/15 text-[#6b7a65] hover:bg-white transition-all duration-200"
+                    >
+                      Atrás
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={isPending}
+                      className="flex-1 py-2.5 rounded-xl text-sm font-medium
+                        bg-[#5e7658] text-white hover:bg-[#4a6046]
+                        disabled:opacity-50 disabled:cursor-not-allowed
+                        transition-all duration-200 shadow-[0_2px_8px_rgba(94,118,88,0.2)]
+                        flex items-center justify-center gap-2"
+                    >
+                      {isPending ? (
+                        "Enviando..."
+                      ) : (
+                        <>
+                          <UserPlus size={14} />
+                          Enviar invitación
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
               </div>
-            </form>
+            </div>
           </motion.div>
         </>
       )}
@@ -660,7 +705,7 @@ function InviteModal({
   );
 }
 
-/* ── Detail panel ── */
+/* ── Detail panel (Roseiies-style with pill tabs) ── */
 
 function DetailPanel({
   member,
@@ -680,25 +725,28 @@ function DetailPanel({
   const isOwner = member.role === "owner";
   const isSelf = member.id === currentUserId;
   const perms = member.sectionPermissions ?? {};
+  const [activeCat, setActiveCat] = useState<Category>("pages");
 
-  const categories = ["pages", "content", "settings"] as const;
-  const categoryLabels = { pages: "Pages", content: "Content", settings: "Settings" };
+  const activeSections = ADMIN_SECTIONS.filter((s) => s.category === activeCat);
 
   function setAccess(sectionKey: string, access: SectionAccess) {
     const inherited = defaultSectionAccess(member.role);
     const newPerms = { ...perms };
-
     if (access === inherited) {
       delete newPerms[sectionKey];
     } else {
       newPerms[sectionKey] = access;
     }
-
     onPermissionsChange(newPerms);
   }
 
   function resetAllToInherit() {
     onPermissionsChange({});
+  }
+
+  // Count overrides per category
+  function overridesInCat(cat: Category): number {
+    return ADMIN_SECTIONS.filter((s) => s.category === cat && perms[s.key]).length;
   }
 
   return (
@@ -710,58 +758,49 @@ function DetailPanel({
       exit="exit"
       className="h-full flex flex-col"
     >
-      {/* Header — fixed, never scrolls */}
-      <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-[#5e7658]/[0.06]">
+      {/* ─── Header ─── */}
+      <div className="flex-shrink-0 px-6 pt-6 pb-5 border-b border-[#5e7658]/[0.06]">
         <div className="flex items-start gap-4">
           <Avatar name={member.fullName} url={member.avatarUrl} size={56} />
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-[#2d3b29] truncate">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-xl font-semibold text-[#2d3b29] truncate">
                 {member.fullName}
               </h2>
-              {isOwner && (
-                <motion.div
-                  initial={{ scale: 0, rotate: -30 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                >
-                  <Crown size={16} className="text-[#c9a96e]" />
-                </motion.div>
-              )}
-              {/* Delete button — right of name */}
-              {!isOwner && !isSelf && (
-                <button
-                  onClick={onRemove}
-                  disabled={isPending}
-                  className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-medium
-                    text-red-400 hover:text-white hover:bg-red-500
-                    border border-red-200/60 hover:border-red-500
-                    disabled:opacity-40 disabled:cursor-not-allowed
-                    transition-all duration-200"
-                >
-                  <Trash2 size={12} />
-                  Erase
-                </button>
-              )}
+              <RoleBadge role={member.role} />
             </div>
-            <p className="text-xs text-[#6b7a65] flex items-center gap-1.5 mt-0.5">
-              <Mail size={11} />
-              {member.email}
-            </p>
+            <p className="text-xs text-[#6b7a65] mt-1">{member.email}</p>
             <p className="text-[10px] text-[#6b7a65]/60 flex items-center gap-1 mt-1">
               <Clock size={9} />
-              Last active: {member.lastActiveAt
-                ? new Date(member.lastActiveAt).toLocaleDateString("en-US", {
-                    month: "short",
+              Última actividad:{" "}
+              {member.lastActiveAt
+                ? new Date(member.lastActiveAt).toLocaleDateString("es-MX", {
                     day: "numeric",
+                    month: "short",
                     year: "numeric",
                   })
-                : "Never"}
+                : "Nunca"}
             </p>
           </div>
+
+          {/* Remove button */}
+          {!isOwner && !isSelf && (
+            <button
+              onClick={onRemove}
+              disabled={isPending}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-medium
+                text-red-400 hover:text-white hover:bg-red-500
+                border border-red-200/60 hover:border-red-500
+                disabled:opacity-40 disabled:cursor-not-allowed
+                transition-all duration-200 flex-shrink-0"
+            >
+              <Trash2 size={12} />
+              Erase
+            </button>
+          )}
         </div>
 
-        {/* Role selector */}
+        {/* Global role selector */}
         {!isOwner && !isSelf && (
           <div className="mt-4">
             <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6b7a65] mb-2">
@@ -774,8 +813,7 @@ function DetailPanel({
                   onClick={() => onRoleChange(r)}
                   disabled={isPending}
                   className={`
-                    flex-1 py-2 rounded-xl text-xs font-medium
-                    transition-all duration-300 ease-out
+                    flex-1 py-2 rounded-xl text-xs font-medium transition-all duration-300 ease-out
                     ${member.role === r
                       ? "bg-[#5e7658] text-white shadow-[0_2px_12px_rgba(94,118,88,0.25)]"
                       : "text-[#6b7a65] hover:bg-[#f4f5f0] border border-[#5e7658]/10"
@@ -791,23 +829,18 @@ function DetailPanel({
         )}
       </div>
 
-      {/* Section permissions — scrollable, hidden scrollbar */}
+      {/* ─── Section permissions (scrollable) ─── */}
       <div
-        className="flex-1 overflow-y-auto px-6 py-4 team-sections-scroll"
+        className="flex-1 overflow-y-auto px-6 py-5 team-sections-scroll"
         style={{ scrollbarWidth: "none" }}
       >
-        {/* Hide webkit scrollbar via global style */}
         <style>{`.team-sections-scroll::-webkit-scrollbar { display: none; }`}</style>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#6b7a65]">
-              Acceso a Secciones
-            </h3>
-            <p className="text-[10px] text-[#6b7a65]/60 mt-0.5">
-              Override per-section access — or leave as{" "}
-              <span className="font-medium">Heredar</span> to follow the role default
-            </p>
-          </div>
+
+        {/* Heading */}
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a65]">
+            Acceso a Secciones
+          </h3>
           {Object.keys(perms).length > 0 && !isOwner && (
             <button
               onClick={resetAllToInherit}
@@ -819,72 +852,162 @@ function DetailPanel({
             </button>
           )}
         </div>
+        <p className="text-[11px] text-[#6b7a65]/70 mb-5 leading-relaxed">
+          Cada sección tiene su propio nivel de acceso. Abajo, elige exactamente
+          qué secciones puede ver o editar — o deja en{" "}
+          <span className="font-medium text-[#5e7658]">Heredar</span> para
+          seguir el rol global.
+        </p>
 
-        {categories.map((cat) => {
-          const sections = ADMIN_SECTIONS.filter((s) => s.category === cat);
-          return (
-            <div key={cat} className="mb-6">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles size={12} className="text-[#c9a96e]" />
-                <span className="text-[11px] font-semibold text-[#2d3b29] uppercase tracking-wider">
-                  {categoryLabels[cat]}
-                </span>
-              </div>
+        {/* ─── Category pill tabs (like Roseiies app tabs) ─── */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          {CATEGORIES.map((cat) => {
+            const meta = CATEGORY_META[cat];
+            const CatIcon = meta.icon;
+            const isActive = activeCat === cat;
+            const overrides = overridesInCat(cat);
 
-              <div className="space-y-1">
-                {sections.map((section, i) => {
-                  const currentAccess =
-                    perms[section.key] ?? defaultSectionAccess(member.role);
-                  const isInherited = !perms[section.key];
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCat(cat)}
+                className={`
+                  inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-medium
+                  border transition-all duration-200
+                  ${isActive
+                    ? "bg-[#5e7658] text-white border-[#5e7658] shadow-[0_2px_8px_rgba(94,118,88,0.25)]"
+                    : "bg-white text-[#6b7a65] border-[#5e7658]/12 hover:border-[#5e7658]/25 hover:bg-[#f4f5f0]"
+                  }
+                `}
+              >
+                <CatIcon size={13} strokeWidth={isActive ? 2 : 1.5} />
+                {meta.label}
+                {overrides > 0 && (
+                  <span className={`
+                    text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-0.5
+                    ${isActive ? "bg-white/20 text-white" : "bg-[#5e7658]/10 text-[#5e7658]"}
+                  `}>
+                    {overrides}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-                  return (
-                    <motion.div
-                      key={section.key}
-                      custom={i}
-                      variants={sectionRow}
-                      initial="hidden"
-                      animate="visible"
-                      className="flex items-center gap-3 py-2 px-3 rounded-xl
-                        hover:bg-[#f4f5f0]/60 transition-colors group"
-                    >
-                      {section.href ? (
-                        <Link
-                          href={section.href}
-                          className="text-sm text-[#2d3b29] flex-1 min-w-0 truncate
-                            hover:text-[#5e7658] hover:underline underline-offset-2
-                            transition-colors duration-200 flex items-center gap-1.5 group/link"
-                        >
-                          {section.label}
-                          <ExternalLink
-                            size={10}
-                            className="opacity-0 group-hover/link:opacity-60 transition-opacity flex-shrink-0"
-                          />
-                        </Link>
-                      ) : (
-                        <span className="text-sm text-[#2d3b29] flex-1 min-w-0 truncate">
-                          {section.label}
-                        </span>
-                      )}
+        {/* ─── Active category section + description ─── */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2.5 mb-1">
+            {(() => {
+              const CatIcon = CATEGORY_META[activeCat].icon;
+              return <CatIcon size={18} className="text-[#5e7658]" />;
+            })()}
+            <span className="text-sm font-semibold text-[#2d3b29]">
+              {CATEGORY_META[activeCat].label}
+            </span>
+            {isOwner && (
+              <span className="text-[10px] text-[#6b7a65]/60 ml-auto">
+                Heredado del propietario
+              </span>
+            )}
+          </div>
+        </div>
 
-                      <div className="flex gap-1">
-                        {SECTION_ACCESS_HIERARCHY.map((access) => (
-                          <AccessButton
-                            key={access}
-                            access={access}
-                            isActive={currentAccess === access}
-                            isInherited={isInherited && currentAccess === access}
-                            onClick={() => setAccess(section.key, access)}
-                            disabled={isOwner || isPending}
-                          />
-                        ))}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+        {/* ─── Section permission matrix ─── */}
+        {/* Column headers */}
+        <div className="flex items-center gap-3 px-3 py-2 mb-1">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6b7a65]/50 flex-1">
+            Secciones
+          </span>
+          <div className="flex">
+            {SECTION_ACCESS_HIERARCHY.map((access) => (
+              <span
+                key={access}
+                className="w-[52px] text-center text-[9px] font-semibold uppercase tracking-wider text-[#6b7a65]/40"
+              >
+                {access === "viewer" ? "Ver" : access === "editor" ? "Editar" : access === "maestro" ? "Heredar" : "Oculto"}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Section rows */}
+        <div className="border border-[#5e7658]/[0.06] rounded-2xl overflow-hidden divide-y divide-[#5e7658]/[0.04]">
+          {activeSections.map((section, i) => {
+            const currentAccess = perms[section.key] ?? defaultSectionAccess(member.role);
+            const isInherited = !perms[section.key];
+
+            return (
+              <motion.div
+                key={section.key}
+                custom={i}
+                variants={sectionRow}
+                initial="hidden"
+                animate="visible"
+                className="flex items-center gap-3 py-3 px-4 hover:bg-[#f4f5f0]/40 transition-colors group"
+              >
+                {/* Section name — clickable link */}
+                {section.href ? (
+                  <Link
+                    href={section.href}
+                    className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate
+                      hover:text-[#5e7658] hover:underline underline-offset-2
+                      transition-colors duration-200 flex items-center gap-1.5 group/link"
+                  >
+                    {section.label}
+                    <ExternalLink
+                      size={10}
+                      className="opacity-0 group-hover/link:opacity-50 transition-opacity flex-shrink-0"
+                    />
+                  </Link>
+                ) : (
+                  <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate">
+                    {section.label}
+                  </span>
+                )}
+
+                {/* Permission radio buttons */}
+                <div className="flex">
+                  {SECTION_ACCESS_HIERARCHY.map((access) => {
+                    const isThis = currentAccess === access;
+                    const isInheritedActive = isThis && isInherited;
+
+                    return (
+                      <button
+                        key={access}
+                        onClick={() => setAccess(section.key, access)}
+                        disabled={isOwner || isPending}
+                        className={`
+                          w-[52px] py-1.5 text-center text-[10px] font-semibold
+                          transition-all duration-200 rounded-lg
+                          disabled:cursor-not-allowed
+                          ${isThis
+                            ? isInheritedActive
+                              ? "bg-[#5e7658]/15 text-[#5e7658]"
+                              : access === "maestro"
+                                ? "bg-[#5e7658] text-white shadow-sm"
+                                : access === "editor"
+                                  ? "bg-amber-500 text-white shadow-sm"
+                                  : access === "viewer"
+                                    ? "bg-sky-500 text-white shadow-sm"
+                                    : "bg-gray-400 text-white shadow-sm"
+                            : "text-[#6b7a65]/30 hover:text-[#6b7a65]/60 hover:bg-[#f4f5f0] disabled:hover:bg-transparent disabled:hover:text-[#6b7a65]/30"
+                          }
+                        `}
+                      >
+                        {access === "maestro"
+                          ? isInheritedActive ? "Heredar" : "Maestro"
+                          : access === "viewer" ? "Ver"
+                          : access === "editor" ? "Editar"
+                          : "Oculto"}
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </motion.div>
   );
@@ -905,7 +1028,6 @@ export default function TeamPage() {
     try {
       const data = await getTeamMembers();
       setMembers(data);
-      // Auto-select first member if none selected
       setSelectedId((prev) => {
         if (!prev && data.length > 0) return data[0].id;
         return prev;
@@ -958,12 +1080,10 @@ export default function TeamPage() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.6, ease: cinematic }}
         >
           <Shield size={48} className="mx-auto mb-4 text-[#5e7658]/20" />
-          <h1 className="text-xl font-semibold text-[#2d3b29] mb-2">
-            Access Restricted
-          </h1>
+          <h1 className="text-xl font-semibold text-[#2d3b29] mb-2">Access Restricted</h1>
           <p className="text-sm text-[#6b7a65]">
             Only the account owner can manage team members and permissions.
           </p>
@@ -978,10 +1098,10 @@ export default function TeamPage() {
       <div className="w-[280px] flex-shrink-0 border-r border-[#5e7658]/[0.06] flex flex-col bg-white/30">
         {/* Header */}
         <div className="px-4 py-4 border-b border-[#5e7658]/[0.06]">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between">
             <h1 className="text-sm font-semibold text-[#2d3b29]">Equipo</h1>
             <span className="text-[10px] text-[#6b7a65] bg-[#f4f5f0] px-2 py-0.5 rounded-full font-medium">
-              {members.length} members
+              {members.length} miembros
             </span>
           </div>
         </div>
@@ -997,7 +1117,7 @@ export default function TeamPage() {
               transition-all duration-200"
           >
             <UserPlus size={14} />
-            Add member
+            Agregar miembro
           </button>
         </div>
 
@@ -1006,64 +1126,75 @@ export default function TeamPage() {
           {isLoading ? (
             <div className="space-y-2 px-1">
               {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-14 rounded-xl bg-[#f4f5f0]/60 animate-pulse"
-                />
+                <div key={i} className="h-16 rounded-xl bg-[#f4f5f0]/60 animate-pulse" />
               ))}
             </div>
           ) : (
             <AnimatePresence>
-              {members.map((member, i) => (
-                <motion.button
-                  key={member.id}
-                  custom={i}
-                  variants={listItem}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  layout
-                  onClick={() => setSelectedId(member.id)}
-                  className={`
-                    w-full flex items-center gap-3 px-3 py-3 rounded-xl mb-0.5
-                    transition-all duration-200 text-left
-                    ${selectedId === member.id
-                      ? "bg-[#5e7658]/[0.08] shadow-[0_1px_4px_rgba(94,118,88,0.06)]"
-                      : "hover:bg-[#f4f5f0]/80"
-                    }
-                  `}
-                >
-                  <Avatar name={member.fullName} url={member.avatarUrl} size={36} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-medium text-[#2d3b29] truncate">
-                        {member.fullName}
-                      </span>
-                      {member.id === currentUser?.id && (
-                        <span className="text-[8px] text-[#6b7a65] bg-[#f4f5f0] px-1 py-0.5 rounded font-medium flex-shrink-0">
-                          You
+              {members.map((member, i) => {
+                const isSelected = selectedId === member.id;
+                const sectionCount = Object.keys(member.sectionPermissions ?? {}).length;
+
+                return (
+                  <motion.button
+                    key={member.id}
+                    custom={i}
+                    variants={listItem}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    layout
+                    onClick={() => setSelectedId(member.id)}
+                    className={`
+                      relative w-full flex items-center gap-3 px-3 py-3 rounded-xl mb-0.5
+                      transition-all duration-200 text-left
+                      ${isSelected
+                        ? "bg-[#5e7658]/[0.08] shadow-[0_1px_4px_rgba(94,118,88,0.06)]"
+                        : "hover:bg-[#f4f5f0]/80"
+                      }
+                    `}
+                  >
+                    {/* Active indicator bar */}
+                    {isSelected && (
+                      <motion.div
+                        layoutId="team-active"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 rounded-full bg-[#5e7658]"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+
+                    <Avatar name={member.fullName} url={member.avatarUrl} size={38} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-sm truncate ${isSelected ? "font-semibold text-[#2d3b29]" : "font-medium text-[#2d3b29]"}`}>
+                          {member.fullName}
+                        </span>
+                        {member.id === currentUser?.id && (
+                          <span className="text-[8px] text-[#6b7a65] bg-[#f4f5f0] px-1 py-0.5 rounded font-medium flex-shrink-0">
+                            Tú
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {member.role === "owner" ? (
+                          <span className="text-[10px] font-semibold text-[#c9a96e]">
+                            {ROLE_LABELS[member.role]}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-[#6b7a65]">
+                            {member.email}
+                          </span>
+                        )}
+                      </div>
+                      {!isSelected && sectionCount > 0 && (
+                        <span className="text-[9px] text-[#5e7658]/60 mt-0.5 block">
+                          {sectionCount} override{sectionCount !== 1 ? "s" : ""}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <RoleBadge role={member.role} />
-                    </div>
-                  </div>
-
-                  {/* Active indicator */}
-                  {selectedId === member.id && (
-                    <motion.div
-                      layoutId="team-active"
-                      className="w-[3px] h-8 rounded-full bg-[#5e7658] absolute left-0"
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 30,
-                      }}
-                    />
-                  )}
-                </motion.button>
-              ))}
+                  </motion.button>
+                );
+              })}
             </AnimatePresence>
           )}
         </div>
@@ -1077,15 +1208,9 @@ export default function TeamPage() {
               key={selectedMember.id}
               member={selectedMember}
               currentUserId={currentUser?.id}
-              onRoleChange={(role) =>
-                handleRoleChange(selectedMember.id, role)
-              }
-              onPermissionsChange={(perms) =>
-                handlePermissionsChange(selectedMember.id, perms)
-              }
-              onRemove={() =>
-                handleRemove(selectedMember.id, selectedMember.fullName)
-              }
+              onRoleChange={(role) => handleRoleChange(selectedMember.id, role)}
+              onPermissionsChange={(perms) => handlePermissionsChange(selectedMember.id, perms)}
+              onRemove={() => handleRemove(selectedMember.id, selectedMember.fullName)}
               isPending={isPending}
             />
           ) : (
@@ -1097,7 +1222,7 @@ export default function TeamPage() {
               <div className="text-center">
                 <Users size={40} className="mx-auto mb-3 text-[#5e7658]/15" />
                 <p className="text-sm text-[#6b7a65]/50">
-                  Select a team member to manage permissions
+                  Selecciona un miembro del equipo para gestionar permisos
                 </p>
               </div>
             </motion.div>
@@ -1115,9 +1240,9 @@ export default function TeamPage() {
       {/* Confirm remove modal */}
       <ConfirmModal
         open={!!confirmRemove}
-        title="Remove Team Member"
-        message={`Are you sure you want to remove ${confirmRemove?.name ?? "this member"} from the team? This action cannot be undone.`}
-        confirmLabel="Remove"
+        title="Eliminar miembro"
+        message={`¿Estás segura de que quieres eliminar a ${confirmRemove?.name ?? "este miembro"} del equipo? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
         variant="danger"
         onConfirm={executeRemove}
         onCancel={() => setConfirmRemove(null)}

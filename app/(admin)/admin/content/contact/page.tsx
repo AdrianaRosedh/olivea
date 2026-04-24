@@ -1,6 +1,7 @@
 "use client";
 
 import { Mail, MapPin, Phone, AtSign } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import contactContent from "@/lib/content/data/contact";
 import {
   VisualPageEditor,
@@ -132,8 +133,10 @@ function ContactVisual() {
 
 export default function ContactAdmin() {
   return (
-    <VisualPageEditor title="Contact" table="contact_content" icon={<Mail className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={contactContent as unknown as Record<string, unknown>}>
-      <ContactVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="pages.contact">
+      <VisualPageEditor title="Contact" table="contact_content" icon={<Mail className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={contactContent as unknown as Record<string, unknown>}>
+        <ContactVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

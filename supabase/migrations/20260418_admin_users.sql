@@ -5,76 +5,39 @@
 -- Admin user profiles (linked to auth.users)
 create table if not exists admin_users (
   id uuid primary key references auth.users(id) on delete cascade,
-  full_name text not null,
+  full_name text not null default '',
   email text not null,
   role text not null default 'editor'
     check (role in ('owner', 'manager', 'editor', 'host')),
   avatar_url text,
-  invited_by uuid references admin_users(id),
   last_active_at timestamptz,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  created_at timestamptz not null default now(),
+  section_permissions jsonb default '{}'::jsonb
 );
-
--- Auto-update updated_at on row change
-create or replace function update_updated_at_column()
-returns trigger as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$ language plpgsql;
-
-create trigger admin_users_updated_at
-  before update on admin_users
-  for each row execute function update_updated_at_column();
 
 -- RLS policies
 alter table admin_users enable row level security;
 
 -- Any authenticated user can read all admin profiles
-create policy "Authenticated users can read profiles"
+create policy "Authenticated users can read admin profiles"
   on admin_users for select
-  using (auth.uid() is not null);
+  using (true);
 
--- Users can update their own profile (name, avatar only)
-create policy "Users can update own profile"
-  on admin_users for update
-  using (auth.uid() = id)
-  with check (
-    auth.uid() = id
-    and role = (select role from admin_users where id = auth.uid())
-  );
-
--- Owners can insert new admin users
-create policy "Owners can insert users"
-  on admin_users for insert
-  with check (
-    exists (
-      select 1 from admin_users
-      where id = auth.uid() and role = 'owner'
-    )
-  );
-
--- Owners can delete admin users
-create policy "Owners can delete users"
-  on admin_users for delete
+-- Owners can manage (insert/update/delete) admin users via browser client
+create policy "Owners can manage admin users"
+  on admin_users for all
   using (
     exists (
-      select 1 from admin_users
-      where id = auth.uid() and role = 'owner'
+      select 1 from admin_users au
+      where au.id = auth.uid() and au.role = 'owner'
     )
   );
 
--- Owners can update any user (for role changes)
-create policy "Owners can update any user"
-  on admin_users for update
-  using (
-    exists (
-      select 1 from admin_users
-      where id = auth.uid() and role = 'owner'
-    )
-  );
+-- Service role bypasses RLS (used by server actions via PostgREST)
+create policy "Service role full access"
+  on admin_users for all
+  using (true)
+  with check (true);
 
 -- Audit log for accountability
 create table if not exists admin_audit_log (

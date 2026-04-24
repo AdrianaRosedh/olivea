@@ -55,27 +55,27 @@ export interface AdminSection {
 export const ADMIN_SECTIONS: AdminSection[] = [
   // Pages
   { key: "pages.homepage",       label: "Homepage",       icon: "Video",           category: "pages",    href: "/admin/content/homepage" },
-  { key: "pages.farmtotable",    label: "Farm to Table",  icon: "UtensilsCrossed", category: "pages",    href: "/admin/content/farmtotable" },
+  { key: "pages.farmtotable",    label: "Farm to Table",  icon: "UtensilsCrossed", category: "pages",    href: "/admin/content/farm-to-table" },
   { key: "pages.casa",           label: "Casa",           icon: "Home",            category: "pages",    href: "/admin/content/casa" },
   { key: "pages.cafe",           label: "Café",           icon: "Coffee",          category: "pages",    href: "/admin/content/cafe" },
   { key: "pages.contact",        label: "Contact",        icon: "Mail",            category: "pages",    href: "/admin/content/contact" },
   { key: "pages.sustainability", label: "Sustainability", icon: "Leaf",            category: "pages",    href: "/admin/content/sustainability" },
   { key: "pages.press",          label: "Press",          icon: "Newspaper",       category: "pages",    href: "/admin/content/press" },
-  { key: "pages.careers",        label: "Careers",        icon: "Briefcase",       category: "pages",    href: "/admin/careers" },
+  { key: "pages.careers",        label: "Careers",        icon: "Briefcase",       category: "pages",    href: "/admin/content/careers" },
   { key: "pages.legal",          label: "Legal",          icon: "Scale",           category: "pages",    href: "/admin/content/legal" },
-  { key: "pages.team",           label: "Team",           icon: "Users",           category: "pages",    href: "/admin/team" },
+  { key: "pages.team",           label: "Team",           icon: "Users",           category: "pages",    href: "/admin/content/team" },
   { key: "pages.notfound",       label: "404 Page",       icon: "AlertCircle",     category: "pages",    href: "/admin/content/not-found" },
   // Content
   { key: "content.journal",      label: "Journal",        icon: "BookOpen",        category: "content",  href: "/admin/journal" },
   { key: "content.popups",       label: "Popups",         icon: "Bell",            category: "content",  href: "/admin/popups" },
   { key: "content.banners",      label: "Banners",        icon: "Flag",            category: "content",  href: "/admin/banners" },
-  { key: "content.casafaq",      label: "Casa FAQ",       icon: "HelpCircle",      category: "content",  href: "/admin/casa-faq" },
+  { key: "content.casafaq",      label: "Casa FAQ",       icon: "HelpCircle",      category: "content",  href: "/admin/content/casa-faq" },
   { key: "content.media",        label: "Media",          icon: "Image",           category: "content",  href: "/admin/media" },
   // Settings
-  { key: "settings.global",      label: "Global",         icon: "Globe",           category: "settings", href: "/admin/site-settings" },
-  { key: "settings.navigation",  label: "Navigation",     icon: "Menu",            category: "settings", href: "/admin/site-settings" },
-  { key: "settings.footer",      label: "Footer",         icon: "PanelBottom",     category: "settings", href: "/admin/site-settings" },
-  { key: "settings.promotions",  label: "Promotions",     icon: "Megaphone",       category: "settings", href: "/admin/site-settings" },
+  { key: "settings.global",      label: "Global",         icon: "Globe",           category: "settings", href: "/admin/content/global" },
+  { key: "settings.navigation",  label: "Navigation",     icon: "Menu",            category: "settings", href: "/admin/content/drawer" },
+  { key: "settings.footer",      label: "Footer",         icon: "PanelBottom",     category: "settings", href: "/admin/content/footer" },
+  { key: "settings.promotions",  label: "Promotions",     icon: "Megaphone",       category: "settings", href: "/admin/promotions" },
   { key: "settings.hours",       label: "Hours",          icon: "Clock",           category: "settings", href: "/admin/hours" },
 ];
 

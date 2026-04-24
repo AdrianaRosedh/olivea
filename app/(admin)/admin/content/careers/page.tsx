@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Briefcase,
@@ -1124,6 +1125,7 @@ export default function CareersAdmin() {
   }, []);
 
   return (
+    <SectionGuard sectionKey="pages.careers">
     <div className="max-w-5xl space-y-6">
       {/* Toast */}
       <AnimatePresence>
@@ -1200,5 +1202,6 @@ export default function CareersAdmin() {
         </AnimatePresence>
       )}
     </div>
+    </SectionGuard>
   );
 }

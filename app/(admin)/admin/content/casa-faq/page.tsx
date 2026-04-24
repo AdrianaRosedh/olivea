@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import {
   getCasaFaq,
   saveCasaFaqItem,
@@ -450,6 +451,7 @@ export default function CasaFaqPage() {
   /* ---------------------------------------------------------------- */
 
   return (
+    <SectionGuard sectionKey="content.casafaq">
     <div className="max-w-4xl mx-auto py-10 px-4 space-y-8">
       {/* Page header */}
       <div className="flex items-center justify-between">
@@ -558,5 +560,6 @@ export default function CasaFaqPage() {
         </div>
       )}
     </div>
+    </SectionGuard>
   );
 }

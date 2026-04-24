@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import { Flag, Plus, Pencil, Trash2, ChevronUp } from "lucide-react";
 import {
   getBanners,
@@ -397,6 +398,7 @@ export default function BannersPage() {
     "rounded-full px-5 py-2 text-xs tracking-widest uppercase font-semibold bg-white/60 text-[var(--olivea-ink)] ring-1 ring-black/10 hover:bg-white/80 transition-colors";
 
   return (
+    <SectionGuard sectionKey="content.banners">
     <div className="max-w-5xl space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -568,5 +570,6 @@ export default function BannersPage() {
         </div>
       )}
     </div>
+    </SectionGuard>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import { Clock, Plus, Trash2, GripVertical, Save, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -105,13 +106,16 @@ export default function HoursPage() {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto flex items-center justify-center py-24">
-        <Loader2 className="w-6 h-6 animate-spin text-[var(--olivea-olive)]" />
-      </div>
+      <SectionGuard sectionKey="settings.hours">
+        <div className="max-w-3xl mx-auto flex items-center justify-center py-24">
+          <Loader2 className="w-6 h-6 animate-spin text-[var(--olivea-olive)]" />
+        </div>
+      </SectionGuard>
     );
   }
 
   return (
+    <SectionGuard sectionKey="settings.hours">
     <motion.div
       className="max-w-3xl mx-auto space-y-6"
       initial={{ opacity: 0, y: 20 }}
@@ -261,5 +265,6 @@ export default function HoursPage() {
         </button>
       </div>
     </motion.div>
+    </SectionGuard>
   );
 }

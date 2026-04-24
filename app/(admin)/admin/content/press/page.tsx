@@ -1,6 +1,7 @@
 "use client";
 
 import { Newspaper, ExternalLink, Plus, Trash2 } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import pressContent from "@/lib/content/data/press";
 import {
   VisualPageEditor,
@@ -109,8 +110,10 @@ function PressVisual() {
 
 export default function PressAdmin() {
   return (
-    <VisualPageEditor title="Press" table="press_content" icon={<Newspaper className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={pressContent as unknown as Record<string, unknown>}>
-      <PressVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="pages.press">
+      <VisualPageEditor title="Press" table="press_content" icon={<Newspaper className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={pressContent as unknown as Record<string, unknown>}>
+        <PressVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

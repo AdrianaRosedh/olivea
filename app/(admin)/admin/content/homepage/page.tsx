@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import {
   Video,
   Plus,
@@ -489,13 +490,16 @@ export default function HomepageHeroEditor() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <Loader2 size={28} className="animate-spin text-[var(--olivea-olive)]" />
-      </div>
+      <SectionGuard sectionKey="pages.homepage">
+        <div className="flex items-center justify-center py-32">
+          <Loader2 size={28} className="animate-spin text-[var(--olivea-olive)]" />
+        </div>
+      </SectionGuard>
     );
   }
 
   return (
+    <SectionGuard sectionKey="pages.homepage">
     <div className="mx-auto max-w-4xl space-y-8 pb-16">
       {/* ── Header ────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
@@ -688,5 +692,6 @@ export default function HomepageHeroEditor() {
         })}
       </section>
     </div>
+    </SectionGuard>
   );
 }

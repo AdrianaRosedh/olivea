@@ -1,6 +1,7 @@
 "use client";
 
 import { Coffee, FileCode2, ExternalLink } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import cafeContent from "@/lib/content/data/cafe";
 import {
   VisualPageEditor,
@@ -94,8 +95,10 @@ function CafeVisual() {
 
 export default function CafeAdmin() {
   return (
-    <VisualPageEditor title="Cafe" table="cafe_content" icon={<Coffee className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={cafeContent as unknown as Record<string, unknown>}>
-      <CafeVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="pages.cafe">
+      <VisualPageEditor title="Cafe" table="cafe_content" icon={<Coffee className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={cafeContent as unknown as Record<string, unknown>}>
+        <CafeVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

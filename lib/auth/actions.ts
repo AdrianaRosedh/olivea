@@ -8,7 +8,8 @@ import { createClient, createAdminClient } from "./supabase-server";
 import { selectRows, insertRows, updateRows, deleteRows, assertUUID } from "@/lib/supabase/client";
 import { requireRole } from "./session";
 import { revalidatePath } from "next/cache";
-import type { AdminRole, SectionPermissions } from "./types";
+import type { AdminRole, SectionAccess, SectionPermissions } from "./types";
+import { ADMIN_SECTIONS, SECTION_ACCESS_HIERARCHY } from "./types";
 
 /* ── Login ── */
 
@@ -178,14 +179,30 @@ export async function updateTeamMemberRole(userId: string, role: AdminRole) {
   revalidatePath("/admin/team");
 }
 
+const VALID_SECTION_KEYS = new Set(ADMIN_SECTIONS.map((s) => s.key));
+const VALID_ACCESS_VALUES = new Set<string>(SECTION_ACCESS_HIERARCHY);
+
 export async function updateSectionPermissions(
   userId: string,
   sectionPermissions: Record<string, string>
 ) {
   await requireRole("owner");
   assertUUID(userId, "userId");
+
+  // Validate every key is a known section and every value is a valid access level
+  const validated: SectionPermissions = {};
+  for (const [key, value] of Object.entries(sectionPermissions)) {
+    if (!VALID_SECTION_KEYS.has(key)) {
+      throw new Error(`Invalid section key: ${key}`);
+    }
+    if (!VALID_ACCESS_VALUES.has(value)) {
+      throw new Error(`Invalid access level: ${value}`);
+    }
+    validated[key] = value as SectionAccess;
+  }
+
   await updateRows("admin_users", `id=eq.${userId}`, {
-    section_permissions: sectionPermissions,
+    section_permissions: validated,
   });
   revalidatePath("/admin/team");
 }

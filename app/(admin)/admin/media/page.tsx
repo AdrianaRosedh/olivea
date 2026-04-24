@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import { Image as ImageIcon, Upload, Trash2, Loader2, Copy, Check, FolderOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -92,6 +93,7 @@ export default function MediaPage() {
   };
 
   return (
+    <SectionGuard sectionKey="content.media">
     <motion.div
       className="max-w-5xl mx-auto space-y-6"
       initial={{ opacity: 0, y: 20 }}
@@ -231,5 +233,6 @@ export default function MediaPage() {
         </motion.div>
       )}
     </motion.div>
+    </SectionGuard>
   );
 }

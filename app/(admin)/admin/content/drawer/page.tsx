@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import drawerContent from "@/lib/content/data/drawer";
 import {
   VisualPageEditor,
@@ -76,13 +77,15 @@ function DrawerVisual() {
 
 export default function DrawerAdmin() {
   return (
-    <VisualPageEditor
-      title="Drawer Navigation"
-      table="drawer_content"
-      icon={<Menu className="w-5 h-5 text-[var(--olivea-olive)]" />}
-      fallbackData={drawerContent as unknown as Record<string, unknown>}
-    >
-      <DrawerVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="settings.navigation">
+      <VisualPageEditor
+        title="Drawer Navigation"
+        table="drawer_content"
+        icon={<Menu className="w-5 h-5 text-[var(--olivea-olive)]" />}
+        fallbackData={drawerContent as unknown as Record<string, unknown>}
+      >
+        <DrawerVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }

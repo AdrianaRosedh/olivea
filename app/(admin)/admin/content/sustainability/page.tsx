@@ -1,6 +1,7 @@
 "use client";
 
 import { Leaf, ExternalLink } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
 import sustainabilityContent from "@/lib/content/data/sustainability";
 import sustainabilitySections from "@/lib/content/data/sustainabilitySections";
 import {
@@ -76,8 +77,10 @@ function SustainabilityVisual() {
 
 export default function SustainabilityAdmin() {
   return (
-    <VisualPageEditor title="Sustainability" table="sustainability_content" icon={<Leaf className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={fallback}>
-      <SustainabilityVisual />
-    </VisualPageEditor>
+    <SectionGuard sectionKey="pages.sustainability">
+      <VisualPageEditor title="Sustainability" table="sustainability_content" icon={<Leaf className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={fallback}>
+        <SustainabilityVisual />
+      </VisualPageEditor>
+    </SectionGuard>
   );
 }
