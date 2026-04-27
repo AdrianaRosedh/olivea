@@ -10,9 +10,10 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(
-  { params: { lang } }: { params: { lang: "es" | "en" } },
+  { params }: { params: Promise<{ lang: "es" | "en" }> },
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const { lang } = await params;
   const isEs = lang === "es";
 
   const title = isEs ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality";
@@ -23,7 +24,7 @@ export async function generateMetadata(
 
   const canonicalPath = isEs ? "/es" : "/en";
   const url = canonicalUrl(canonicalPath);
-  const ogImage = canonicalUrl("/images/og/cover.jpg");
+  const ogImage = canonicalUrl("/images/seo/cover.jpg");
 
   return {
     title,
@@ -64,14 +65,15 @@ export async function generateMetadata(
   };
 }
 
-export default function HomeLangLayout({
+export default async function HomeLangLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { lang: "es" | "en" };
+  params: Promise<{ lang: "es" | "en" }>;
 }) {
-  const isEs = params.lang === "es";
+  const { lang } = await params;
+  const isEs = lang === "es";
   const langPrefix = isEs ? "es" : "en";
 
   const homePath = isEs ? "/es" : "/en";
@@ -102,7 +104,7 @@ export default function HomeLangLayout({
     about: { "@id": ENTITY_IDS.organization },
     primaryImageOfPage: {
       "@type": "ImageObject",
-      url: canonicalUrl("/images/og/cover.jpg"),
+      url: canonicalUrl("/images/seo/cover.jpg"),
       width: 1200,
       height: 630,
     },

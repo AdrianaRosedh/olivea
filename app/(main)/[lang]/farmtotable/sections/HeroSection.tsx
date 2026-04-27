@@ -87,7 +87,7 @@ export default function HeroSection({ data, lang }: SectionProps) {
                     fill
                     sizes="(max-width: 640px) 240px, (max-width: 1024px) 320px, 360px"
                     className="object-contain"
-                    priority={false}
+                    priority
                   />
                 </div>
               </Reveal>

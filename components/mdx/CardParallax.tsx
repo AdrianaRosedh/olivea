@@ -171,8 +171,9 @@ export default function CardParallax({
           quality={quality}
           placeholder={effectivePlaceholder}
           blurDataURL={blurDataURL}
-          onLoadingComplete={(img) => {
+          onLoad={(e) => {
             // Unlock parallax after decode (more stable on slow devices)
+            const img = e.currentTarget;
             if (img?.decode) {
               img.decode().catch(() => {}).finally(() => setReady(true));
             } else {

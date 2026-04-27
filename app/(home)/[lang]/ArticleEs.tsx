@@ -27,7 +27,7 @@ export default function ArticleEs() {
           </em>
         </p>
         <Image
-          src="/images/og/cover.jpg"
+          src="/images/seo/cover.jpg"
           alt="Vista aérea de la propiedad OLIVEA en Valle de Guadalupe — huerto, restaurante, hospedaje y café rodeados del paisaje de Baja California."
           width={1200}
           height={630}

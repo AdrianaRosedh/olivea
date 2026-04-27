@@ -23,7 +23,7 @@ export default function ArticleEn() {
           </em>
         </p>
         <Image
-          src="/images/sustainability/hero.jpg"
+          src="/images/farm/garden.jpg"
           alt="The OLIVEA garden in Valle de Guadalupe — olive trees, raised beds, and the surrounding Baja California desert landscape."
           width={1200}
           height={630}

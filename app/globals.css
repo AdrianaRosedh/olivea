@@ -167,6 +167,13 @@
     min-height: 100%;
   }
 
+  /* Font utility classes — consume the next/font CSS variables set on <html>
+     by app/fonts.ts. Client components use these instead of importing font
+     instances directly (Turbopack disallows next/font calls in client modules). */
+  .font-corm      { font-family: var(--font-serif), Georgia, serif; }
+  .font-corm-hero { font-family: var(--font-serif-hero), Georgia, serif; }
+  .font-jakarta   { font-family: var(--font-sans), system-ui, sans-serif; }
+
   section[id] {
     scroll-margin-top: var(--scroll-offset);
     scroll-margin-bottom: 3rem;

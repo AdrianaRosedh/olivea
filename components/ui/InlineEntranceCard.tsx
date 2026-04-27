@@ -607,7 +607,7 @@ export default function InlineEntranceCard({
                   fill
                   sizes="96px"
                   className="object-contain"
-                  priority={false}
+                  priority
                 />
               )}
             </div>

@@ -223,6 +223,7 @@ export default async function JournalPostPage({
                   src={post.fm.cover.src}
                   alt={post.fm.cover.alt || post.fm.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, 860px"
                   priority
                   style={{ objectFit: "cover" }}
                 />

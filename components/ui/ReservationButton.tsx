@@ -6,7 +6,6 @@ import Image from "next/image";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { Button } from "@/components/ui/button";
 import { useReservation } from "@/contexts/ReservationContext";
-import { corm } from "@/app/fonts";
 import { cn } from "@/lib/utils";
 
 interface ReservationButtonProps {
@@ -29,7 +28,7 @@ export default function ReservationButton({
 
   // exact same typography as the navbar RESERVE button
   const labelClasses = cn(
-    corm.className,
+    "font-corm",
     "uppercase font-semibold leading-none",
     "!tracking-[0.18em] [letter-spacing:0.18em]",
     "text-[clamp(1.05rem,1.35vw,1.45rem)]"

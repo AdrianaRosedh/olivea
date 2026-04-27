@@ -24,7 +24,7 @@ export default function ArticleEs() {
           </em>
         </p>
         <Image
-          src="/images/sustainability/hero.jpg"
+          src="/images/farm/garden.jpg"
           alt="El huerto de OLIVEA en Valle de Guadalupe — olivos, camas de cultivo y el paisaje desértico de Baja California."
           width={1200}
           height={630}

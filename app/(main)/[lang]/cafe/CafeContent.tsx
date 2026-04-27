@@ -1,5 +1,3 @@
-"use client";
-
 import ScrollLimiter from "@/components/scroll/ScrollLimiter";
 import HeroSection from "./sections/HeroSection";
 import ExperienceSection from "./sections/ExperienceSection";

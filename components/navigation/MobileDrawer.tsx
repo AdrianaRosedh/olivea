@@ -8,10 +8,7 @@ import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
-/**
- * ✅ Big mobile weight win:
- * `react-icons` lives ONLY inside this chunk, which loads ONLY when drawer is open.
- */
+// Social dock is dynamic so its inline-SVG icon module only loads when the drawer opens.
 const MobileDrawerSocialDock = dynamic(
   () => import("./MobileDrawerSocialDock"),
   { ssr: false, loading: () => null }
@@ -316,7 +313,7 @@ export default function MobileDrawer({
                       />
                     </motion.div>
 
-                    {/* ✅ Social icons are dynamic → react-icons loads only when drawer opens */}
+                    {/* Social icons are dynamic → only load when drawer opens. */}
                     <motion.div
                       variants={item}
                       className="transform-gpu will-change-transform"

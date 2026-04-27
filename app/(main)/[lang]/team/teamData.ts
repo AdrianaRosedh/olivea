@@ -468,9 +468,9 @@ export const TEAM: LeaderProfile[] = [
       es: "Encargada de Recursos Humanos en Olivea, Cristina es la guardiana del bienestar del equipo. Escucha con profundidad y crea un espacio donde cada persona puede sentirse segura para hablar, crecer y ser tomada en cuenta. Es el puente entre el equipo y la dirección, asegurando que las voces internas se transformen en acciones concretas. Observa dónde están las mentes y los corazones del equipo, permitiendo que Olivea crezca de manera sana y consciente. En una organización donde el equipo es familia, su trabajo sostiene la confianza, la estructura y el desarrollo humano.",
       en: "Head of Human Resources at Olivea, Cristina is the guardian of the team’s well-being. A powerful listener, she creates a space where every person feels safe to speak, grow, and be taken seriously. She serves as the bridge between the team and leadership, ensuring that internal voices translate into meaningful action. She understands where people stand emotionally and professionally, allowing Olivea to grow in a healthy and conscious way. In an organization where the team is family, her work sustains trust, structure, and human development.",
     },
-    avatar: "/images/team/cristina.png",
+    avatar: "/images/team/cristina.webp",
     gallery: [
-      "/images/team/cristina.png",
+      "/images/team/cristina.webp",
       "/images/team/cristina/01.JPG",
       "/images/team/cristina/02.JPG",
       "/images/team/cristina/03.JPG",
@@ -519,9 +519,9 @@ export const TEAM: LeaderProfile[] = [
       es: "Supervisor de Casa Olivea, Leonardo cuida la operación diaria con responsabilidad, temple y una profunda vocación por su equipo. Escucha, protege y asume el liderazgo con firmeza y sensibilidad. Toma orgullo en su rol y en la consistencia del servicio, asegurando que cada huésped viva la experiencia con coherencia y calidez. Inquieto y ambicioso, siempre busca mejorar procesos, probar nuevas ideas y aprender de cada intento, sea éxito o error. Su impulso por crecer y evolucionar no solo lo mueve a él, sino que inspira a quienes lo rodean. Es guardián del estándar y promotor del crecimiento dentro de Casa Olivea.",
       en: "Supervisor of Casa Olivea, Leonardo oversees daily operations with responsibility, composure, and a deep commitment to his team. He listens, protects, and leads with both firmness and care. Taking pride in his role and in service consistency, he ensures every guest experiences Olivea with coherence and warmth. Ambitious and forward-moving, he constantly seeks improvement, testing new ideas and learning from every outcome — whether success or failure. His drive for growth not only fuels him, but elevates those around him. He is both guardian of the standard and catalyst for evolution within Casa Olivea.",
     },
-    avatar: "/images/team/leonardo.png",
+    avatar: "/images/team/leonardo.webp",
     gallery: [
-      "/images/team/leonardo.png",
+      "/images/team/leonardo.webp",
       "/images/team/leo/01.jpg",
       "/images/team/leo/02.jpg",
       "/images/team/leo/03.JPG",

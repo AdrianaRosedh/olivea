@@ -14,7 +14,6 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cormHero } from "@/app/fonts";
 import ReservationButton from "@components/ui/ReservationButton";
 import InlineEntranceCard from "@components/ui/InlineEntranceCard";
 import { useIsMobile } from "@/hooks/useMediaQuery";
@@ -302,7 +301,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                 placeholder="blur"
                 blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
                 className="object-cover"
-                onLoadingComplete={() => {
+                onLoad={() => {
                   setHeroDecoded(true);
                   setOverlayGone?.(true);
                   if (typeof document !== "undefined")
@@ -359,7 +358,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                   placeholder="blur"
                   blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
                   className="object-cover"
-                  onLoadingComplete={() => {
+                  onLoad={() => {
                     if (typeof document !== "undefined")
                       document.body.classList.add("lcp-demote");
                   }}
@@ -396,7 +395,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
               animate={overlayGone ? "show" : "hidden"}
             >
               <span
-                className={`${cormHero.className} italic text-(--olivea-mist) text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center`}
+                className="font-corm-hero italic text-(--olivea-mist) text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center"
               >
                 {isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
               </span>
@@ -500,7 +499,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
             </div>
 
             <span
-              className={`${cormHero.className} italic mt-3 text-(--olivea-mist) text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none`}
+              className="font-corm-hero italic mt-3 text-(--olivea-mist) text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none"
             >
               {isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
             </span>

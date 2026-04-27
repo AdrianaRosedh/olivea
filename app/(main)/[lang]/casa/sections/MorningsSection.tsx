@@ -33,6 +33,7 @@ export default function MorningsSection({ data, lang }: SectionProps) {
           src={imgSrc}
           alt={imgAlt}
           fill
+          sizes="(max-width: 768px) 100vw, 1200px"
           className="object-cover"
           quality={80}
           priority

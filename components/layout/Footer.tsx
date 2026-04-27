@@ -7,13 +7,13 @@ import Cookies from "js-cookie";
 import { AnimatePresence, motion } from "framer-motion";
 import { GlobeIcon } from "lucide-react";
 import {
-  FaYoutube,
-  FaInstagram,
-  FaTiktok,
-  FaLinkedin,
-  FaSpotify,
-  FaPinterest,
-} from "react-icons/fa";
+  YouTubeIcon,
+  InstagramIcon,
+  TikTokIcon,
+  LinkedInIcon,
+  SpotifyIcon,
+  PinterestIcon,
+} from "@/components/icons/SocialIcons";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
 interface FooterProps {
@@ -142,12 +142,12 @@ export default function Footer({ dict }: FooterProps) {
   const rightsText = lang === "en" ? "All rights reserved" : "Todos los derechos reservados";
 
   const socialItems: SocialItem[] = [
-    { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <FaYoutube /> },
-    { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram", icon: <FaInstagram /> },
-    { id: "tt", href: "https://www.tiktok.com/@familiaolivea", label: "TikTok", icon: <FaTiktok /> },
-    { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <FaLinkedin /> },
-    { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <FaSpotify /> },
-    { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <FaPinterest /> },
+    { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <YouTubeIcon /> },
+    { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram", icon: <InstagramIcon /> },
+    { id: "tt", href: "https://www.tiktok.com/@familiaolivea", label: "TikTok", icon: <TikTokIcon /> },
+    { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <LinkedInIcon /> },
+    { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <SpotifyIcon /> },
+    { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <PinterestIcon /> },
   ];
 
   const TextLink = ({ href, children }: { href: string; children: ReactNode }) => (

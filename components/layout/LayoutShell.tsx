@@ -371,10 +371,10 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
         data-hero-breakout={allowHeroBreakout ? "true" : "false"}
         className={
           isHome
-            ? "p-0 m-0 overflow-hidden"
+            ? "relative p-0 m-0 overflow-hidden"
             : isJournal
-              ? "w-full pt-16 md:pt-28 pb-20"
-              : "w-full pt-16 md:pt-28 pb-20"
+              ? "relative w-full pt-16 md:pt-28 pb-20"
+              : "relative w-full pt-16 md:pt-28 pb-20"
         }
         style={{
           paddingLeft: "max(var(--gutter), env(safe-area-inset-left))",

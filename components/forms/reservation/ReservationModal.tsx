@@ -21,7 +21,6 @@ import {
   type ReservationType,
 } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
-import { Plus_Jakarta_Sans } from "next/font/google";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 import Image from "next/image";
@@ -32,12 +31,6 @@ const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), {
 });
 const OpentableWidget = dynamic(() => import("./OpentableWidget"), {
   ssr: false,
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
-  display: "swap",
 });
 
 /* ── Shared constants ────────────────────────────────────────────── */
@@ -95,7 +88,7 @@ function HotelPane({
       {isMobile && (
         <div className="px-4 py-3 bg-(--olivea-cream) shrink-0">
           <span
-            className={`${jakarta.className} font-semibold text-(--olivea-ink) tracking-[0.15em] uppercase`}
+            className={`font-jakarta font-semibold text-(--olivea-ink) tracking-[0.15em] uppercase`}
             style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
             id="hotel-pane-title"
           >
@@ -163,7 +156,7 @@ function RestaurantPane({
             />
           </div>
           <span
-            className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
+            className={`font-jakarta font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
             style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
             id="restaurant-pane-title"
           >
@@ -186,7 +179,7 @@ function RestaurantPane({
     <div className="flex-1 min-h-0 flex flex-col">
       <div className="px-4 py-3 bg-(--olivea-cream) shrink-0">
         <span
-          className={`${jakarta.className} font-semibold text-(--olivea-ink) tracking-[0.15em] uppercase`}
+          className={`font-jakarta font-semibold text-(--olivea-ink) tracking-[0.15em] uppercase`}
           style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
           id="restaurant-pane-title"
         >
@@ -236,7 +229,7 @@ function CafePane({ lang, isMobile }: { lang: "es" | "en"; isMobile: boolean }) 
             />
           </div>
           <span
-            className={`${jakarta.className} font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
+            className={`font-jakarta font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
             style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
           >
             Olivea Café

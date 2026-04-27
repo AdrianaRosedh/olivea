@@ -41,12 +41,15 @@ function ServiceCard({
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement | null>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    container: containerRef,
-    // Enter → active → leave
-    offset: ["start 0.9", "end 0.15"],
-  });
+  // Only pass `container` once it's actually been resolved on the client.
+  // Passing a ref whose .current is null makes framer-motion warn
+  // "Container ref is defined but not hydrated".
+  const offset: ["start 0.9", "end 0.15"] = ["start 0.9", "end 0.15"];
+  const { scrollYProgress } = useScroll(
+    containerRef.current
+      ? { target: ref, container: containerRef, offset }
+      : { target: ref, offset }
+  );
 
   // Deterministic per-card “signature” (stable + subtle variation)
   const sig = useMemo(() => {

@@ -49,7 +49,9 @@ const nextConfig: NextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
 
   experimental: {
-    optimizeCss: true,
+    // optimizeCss removed — relies on the deprecated `critters` package and
+    // conflicts with the Turbopack font loader in Next 16. Turbopack's
+    // built-in CSS pipeline already handles modern CSS optimization.
     serverActions: {
       bodySizeLimit: "5mb",
     },
@@ -58,12 +60,12 @@ const nextConfig: NextConfig = {
       "lucide-react",
       "date-fns",
       "lodash-es",
-      "react-icons",
     ],
   },
 
   images: {
     formats: ["image/avif", "image/webp"],
+    qualities: [35, 58, 60, 70, 75, 80],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2560],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
@@ -92,7 +94,9 @@ const nextConfig: NextConfig = {
       { source: "/videos/:path*", headers: immutable },
       { source: "/fonts/:path*", headers: immutable },
       { source: "/icons/:path*", headers: immutable },
-      { source: "/_next/static/:path*", headers: immutable },
+      // /_next/static cache headers are managed natively by Next.js (and by
+      // vercel.json in production). Setting them here triggers a dev-mode
+      // warning and can break HMR.
 
       // Apply CSP + timing to all routes
       {

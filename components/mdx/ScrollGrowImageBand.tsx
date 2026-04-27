@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useReducedMotion,
@@ -82,6 +82,13 @@ export default function ScrollGrowImageBand({
 }: Props) {
   const reduce = useReducedMotion();
   const targetRef = useRef<HTMLDivElement | null>(null);
+  // Track target mount via state so useScroll only receives a populated ref.
+  // (Avoids framer-motion's "Container/Target ref defined but not hydrated" warning.)
+  const [targetReady, setTargetReady] = useState(false);
+  const setTargetNode = useCallback((node: HTMLDivElement | null) => {
+    targetRef.current = node;
+    setTargetReady(node !== null);
+  }, []);
 
   // ✅ mobile == md breakpoint parity
   const isMobile = useMediaQuery("(max-width: 767px)");
@@ -111,7 +118,11 @@ export default function ScrollGrowImageBand({
    * - Desktop: keep container-based scrolling (your current behavior)
    * - Mobile: bind to window scroll (omit container) because mobile commonly scrolls the page, not <main>
    */
-  const scrollOpts = useMemo(() => {
+  const scrollOpts = useMemo<UseScrollOptions | undefined>(() => {
+    // First render — target hasn't mounted yet. Pass no refs so useScroll
+    // falls back to viewport tracking (no-op until target is populated).
+    if (!targetReady) return { offset: offsetMutable };
+
     const base: UseScrollOptions = {
       target: targetRef,
       offset: offsetMutable,
@@ -120,12 +131,14 @@ export default function ScrollGrowImageBand({
     // Mobile: viewport scroll
     if (isMobile) return base;
 
-    // Desktop: container scroll
+    // Desktop: container scroll, but only once the container element is resolved.
+    if (!containerEl) return base;
+
     return {
       ...base,
       container: containerRef,
     } as UseScrollOptions;
-  }, [isMobile, offsetMutable, containerRef]);
+  }, [targetReady, isMobile, offsetMutable, containerRef, containerEl]);
 
   const scroll = useScroll(scrollOpts);
   const scrollYProgress = scroll.scrollYProgress as MotionValue<number>;
@@ -196,7 +209,7 @@ export default function ScrollGrowImageBand({
 
   return (
     <motion.div
-      ref={targetRef}
+      ref={setTargetNode}
       className={[
         "relative mt-10 w-full mx-auto overflow-hidden",
         maxWClassName,

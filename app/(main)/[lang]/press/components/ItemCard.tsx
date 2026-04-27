@@ -125,6 +125,7 @@ export default function ItemCard({
                       src={b.src}
                       alt={b.label}
                       fill
+                      sizes="16px"
                       className={cn("object-contain", b.imgClassName)}
                     />
                   </span>
@@ -219,6 +220,7 @@ export default function ItemCard({
                           src={b.src}
                           alt={b.label}
                           fill
+                          sizes="24px"
                           className={cn("object-contain", b.imgClassName)}
                         />
                       </span>

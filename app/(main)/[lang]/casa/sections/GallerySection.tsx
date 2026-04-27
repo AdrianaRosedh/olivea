@@ -1,5 +1,3 @@
-"use client";
-
 import StickyBlock from "@/components/scroll/StickyBlock";
 import GalleryGrid from "@/components/ui/GalleryGrid";
 import type { SectionProps } from "./types";

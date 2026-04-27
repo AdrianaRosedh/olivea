@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  FaYoutube,
-  FaInstagram,
-  FaTiktok,
-  FaLinkedin,
-  FaSpotify,
-  FaPinterest,
-} from "react-icons/fa";
+  YouTubeIcon,
+  InstagramIcon,
+  TikTokIcon,
+  LinkedInIcon,
+  SpotifyIcon,
+  PinterestIcon,
+} from "@/components/icons/SocialIcons";
 
 type Item = {
   id: "yt" | "ig" | "tt" | "li" | "sp" | "pt";
@@ -27,17 +27,17 @@ const SOCIAL: Item[] = [
 function iconFor(id: Item["id"]) {
   switch (id) {
     case "yt":
-      return <FaYoutube size={20} />;
+      return <YouTubeIcon size={20} />;
     case "ig":
-      return <FaInstagram size={20} />;
+      return <InstagramIcon size={20} />;
     case "tt":
-      return <FaTiktok size={20} />;
+      return <TikTokIcon size={20} />;
     case "li":
-      return <FaLinkedin size={20} />;
+      return <LinkedInIcon size={20} />;
     case "sp":
-      return <FaSpotify size={20} />;
+      return <SpotifyIcon size={20} />;
     case "pt":
-      return <FaPinterest size={20} />;
+      return <PinterestIcon size={20} />;
   }
 }
 

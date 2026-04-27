@@ -40,6 +40,7 @@ export default function NotFound() {
         src="/images/farm/hero.jpg"
         alt="Background"
         fill
+        sizes="100vw"
         className="object-cover -z-10"
         priority
       />

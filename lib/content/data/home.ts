@@ -13,7 +13,7 @@ const home: HomeContent = {
       es: "Hospitalidad del huerto en Valle de Guadalupe: restaurante de degustación con estrella MICHELIN, hospedaje y café nacidos del huerto en Baja California.",
       en: "Farm hospitality in Valle de Guadalupe: MICHELIN-starred tasting restaurant, farm stay, and café born from a working garden in Baja California.",
     },
-    ogImage: "/images/og/cover.jpg",
+    ogImage: "/images/seo/cover.jpg",
     keywords: [
       "Olivea",
       "farm hospitality",
@@ -41,7 +41,7 @@ const home: HomeContent = {
       en: "Stay at Casa Olivea",
     },
     image: {
-      src: "/images/og/cover.jpg",
+      src: "/images/seo/cover.jpg",
       alt: {
         es: "OLIVEA — hospitalidad del huerto",
         en: "OLIVEA — farm hospitality",

@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "OLIVEA",
     images: [
       {
-        url: canonicalUrl("/images/og/cover.jpg"),
+        url: canonicalUrl("/images/seo/cover.jpg"),
         width: 1200,
         height: 630,
         alt: "OLIVEA",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     title: "OLIVEA | Farm Hospitality in Valle de Guadalupe",
     description:
       "Farm hospitality in Valle de Guadalupe — MICHELIN-starred restaurant, farm stay, and café born from the garden. Where the garden is the essence.",
-    images: [canonicalUrl("/images/og/cover.jpg")],
+    images: [canonicalUrl("/images/seo/cover.jpg")],
   },
 
   robots: {
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={fontsClass}>
+    <html lang="es" className={fontsClass} suppressHydrationWarning>
       <head>
         {/*
           ✅ Pre-hydration PWA standalone detection.

@@ -69,6 +69,7 @@ export default function CourtyardSection({ data, lang }: SectionProps) {
               src={imgSrc}
               alt={imgAlt}
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
               quality={80}
               priority

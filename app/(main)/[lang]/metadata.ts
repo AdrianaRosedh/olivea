@@ -22,7 +22,7 @@ export async function generateMetadata(
     openGraph: {
       title,
       description,
-      images: [{ url: "/images/og/cover.jpg", width: 1200, height: 630, alt: "OLIVEA" }],
+      images: [{ url: "/images/seo/cover.jpg", width: 1200, height: 630, alt: "OLIVEA" }],
     },
     alternates: {
       languages: {

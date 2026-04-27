@@ -15,7 +15,6 @@ import Image from "next/image";
 import { useReservation } from "@/contexts/ReservationContext";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
-import { corm } from "@/app/fonts";
 import { buildCenterNavItems, reserveDefault } from "@/lib/sections";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -261,7 +260,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
             fill
             className="object-contain"
             sizes="(min-width: 1440px) 230px, (min-width: 1024px) 200px, 150px"
-            priority={false}
+            priority
           />
         </div>
       </Link>
@@ -292,7 +291,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
         >
           <span
             className={[
-              corm.className,
+              "font-corm",
               "uppercase font-semibold leading-none",
               "tracking-[0.18em]!",
               "text-[clamp(1.05rem,1.35vw,1.45rem)]",

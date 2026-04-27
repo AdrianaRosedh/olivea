@@ -136,14 +136,8 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
   return (
     <div>
-      {/* React 19 hoists <link> + <script> into <head> */}
-      <link
-        rel="preload"
-        as="image"
-        href="/images/casa/hero.jpg"
-        type="image/jpeg"
-        fetchPriority="high"
-      />
+      {/* React 19 hoists <script> into <head>.
+          Hero image preload is emitted automatically by next/image with priority+fetchPriority. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPage) }}

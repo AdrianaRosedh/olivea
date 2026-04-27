@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import SectionGuard from "@/components/admin/SectionGuard";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -22,7 +23,14 @@ import {
   unpublishJournalPost,
 } from "@/lib/supabase/content-actions";
 import type { JournalPost, JournalStatus } from "@/lib/content/types";
-import JournalEditor from "@/components/admin/JournalEditor";
+
+// Editor is heavy (~1.4k LOC + WYSIWYG/MDX deps). Split into its own chunk so
+// the journal LIST view loads fast; the editor chunk fetches in parallel and
+// is ready by the time the user clicks "New Article" / "Edit".
+const JournalEditor = dynamic(() => import("@/components/admin/JournalEditor"), {
+  ssr: false,
+  loading: () => null,
+});
 
 /* ─── Status badge ─── */
 function StatusBadge({ status }: { status: JournalStatus }) {

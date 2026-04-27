@@ -77,7 +77,7 @@ const VIEWPORT = {
   margin: "0px 0px -18% 0px",
 } as const;
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 export default function JournalClient({
   lang,

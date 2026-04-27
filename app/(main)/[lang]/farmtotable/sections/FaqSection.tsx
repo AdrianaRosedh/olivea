@@ -1,5 +1,3 @@
-"use client";
-
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
 import ModernFAQ from "@/components/ui/ModernFAQ";

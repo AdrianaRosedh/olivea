@@ -61,9 +61,10 @@ function getExcerpt(obj: unknown): string | undefined {
 
 export async function GET(
   _req: Request,
-  { params }: { params: { lang: string } }
+  { params }: { params: Promise<{ lang: string }> }
 ) {
-  const lang = params.lang === "es" ? "es" : "en";
+  const { lang: rawLang } = await params;
+  const lang = rawLang === "es" ? "es" : "en";
   const base = SITE.baseUrl;
 
   const journalUrl = `${base}/${lang}/journal`;
