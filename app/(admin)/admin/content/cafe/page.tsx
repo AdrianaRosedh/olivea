@@ -9,7 +9,27 @@ import {
   MetaSection,
   EditableBilingual,
   EditableImage,
+  EditableSections,
+  EditableJSON,
+  EditableFAQ,
 } from "@/components/admin/visual-editor";
+
+/** Section storage uses { q, a } per item. EditableFAQ uses { question, answer }.
+    These adapters map between the two without losing other fields. */
+function sectionItemsToFaqEntries(items: unknown): { question: { es: string; en: string }; answer: { es: string; en: string } }[] {
+  if (!Array.isArray(items)) return [];
+  return items.map((it) => {
+    const item = it as Record<string, unknown>;
+    return {
+      question: (item.q as { es: string; en: string }) ?? { es: "", en: "" },
+      answer: (item.a as { es: string; en: string }) ?? { es: "", en: "" },
+    };
+  });
+}
+
+function faqEntriesToSectionItems(entries: { question: { es: string; en: string }; answer: { es: string; en: string } }[]) {
+  return entries.map((e) => ({ q: e.question, a: e.answer }));
+}
 
 const mdxSections = [
   { name: "Hero",        file: "hero.es.mdx / hero.en.mdx" },
@@ -21,6 +41,16 @@ const mdxSections = [
   { name: "Menu",        file: "menu.es.mdx / menu.en.mdx" },
   { name: "FAQ",         file: "faq.es.mdx / faq.en.mdx" },
 ];
+
+interface SectionShape {
+  id?: string;
+  title?: { es: string; en: string };
+  subtitle?: { es: string; en: string };
+  body?: { es: string; en: string };
+  description?: { es: string; en: string };
+  image?: { src: string; alt?: { es: string; en: string } };
+  [key: string]: unknown;
+}
 
 function CafeVisual() {
   const { get, set } = useEditor();
@@ -35,6 +65,24 @@ function CafeVisual() {
     title?: { es: string; en: string };
     description?: { es: string; en: string };
   } | undefined;
+
+  const sections = (get("sections") as SectionShape[]) ?? [];
+
+  // Pull the FAQ section's items so admin can edit Q&A with a structured form.
+  const faqSection = sections.find((s) => s.id === "faq");
+  const faqEntries = sectionItemsToFaqEntries(faqSection?.items);
+
+  const updateFaqEntries = (entries: { question: { es: string; en: string }; answer: { es: string; en: string } }[]) => {
+    const newItems = faqEntriesToSectionItems(entries);
+    const idx = sections.findIndex((s) => s.id === "faq");
+    const newSections = [...sections];
+    if (idx >= 0) {
+      newSections[idx] = { ...newSections[idx], items: newItems } as SectionShape;
+    } else {
+      newSections.push({ id: "faq", items: newItems } as SectionShape);
+    }
+    set("sections", newSections);
+  };
 
   return (
     <div className="space-y-6">
@@ -60,12 +108,41 @@ function CafeVisual() {
         <EditableBilingual label="Subheadline" as="p" value={hero?.subheadline ?? { es: "", en: "" }} onChange={(v) => set("hero.subheadline", v)} className="text-base text-stone-600 font-serif italic" placeholder="Subheadline text..." />
       </div>
 
-      {/* MDX content reference */}
+      {/* Structured FAQ editor — Q&A pairs that appear in the FAQ section. */}
+      <EditableFAQ
+        label="FAQ — Questions & Answers"
+        value={faqEntries}
+        onChange={updateFaqEntries}
+        collapsed={false}
+      />
+
+      {/* Visual section editor — covers title/body/image for each section.
+          When admin saves sections data, the public page reads from DB and
+          overrides the MDX fallback. */}
+      <EditableSections
+        label="Page Sections (visual editing)"
+        value={sections}
+        onChange={(v) => set("sections", v)}
+        fields={["title", "subtitle", "body", "description", "image"]}
+        collapsed={false}
+      />
+
+      {/* Raw JSON access for advanced fields like FAQ items, stats arrays,
+          custom CTAs, etc. that aren't covered by the visual editor above. */}
+      <EditableJSON
+        label="Sections (raw JSON — for FAQ items, stats, custom fields)"
+        value={sections}
+        onChange={(v) => set("sections", v)}
+        rows={20}
+        collapsed
+      />
+
+      {/* MDX fallback reference */}
       <div className="rounded-2xl border border-stone-200/60 bg-white/40 overflow-hidden">
         <div className="px-5 py-3 border-b border-stone-200/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileCode2 className="w-4 h-4 text-stone-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Page Content</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">MDX Fallback (used when DB is empty)</span>
             <span className="text-[10px] text-stone-400">({mdxSections.length} sections)</span>
           </div>
           <a href="/es/cafe" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-[11px] font-semibold hover:bg-stone-200 transition-colors">
@@ -75,9 +152,8 @@ function CafeVisual() {
         </div>
         <div className="px-5 py-4 space-y-2.5">
           <p className="text-xs text-stone-500 leading-relaxed mb-3">
-            This page&apos;s body content is built with interactive MDX components
-            (parallax images, scroll animations, galleries). To edit section text or images,
-            modify the MDX files directly in the codebase.
+            If no sections are saved above, the public page falls back to these MDX files in the codebase.
+            Once you save sections from this admin, your edits override the MDX content.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {mdxSections.map((s) => (
@@ -96,7 +172,7 @@ function CafeVisual() {
 export default function CafeAdmin() {
   return (
     <SectionGuard sectionKey="pages.cafe">
-      <VisualPageEditor title="Cafe" table="cafe_content" icon={<Coffee className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={cafeContent as unknown as Record<string, unknown>}>
+      <VisualPageEditor title="Cafe" table="cafe_content" icon={<Coffee className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={cafeContent as unknown as Record<string, unknown>} livePath="/cafe">
         <CafeVisual />
       </VisualPageEditor>
     </SectionGuard>

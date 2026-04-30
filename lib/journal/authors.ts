@@ -1,6 +1,6 @@
 // lib/journal/authors.ts
 import type { Lang } from "@/app/(main)/[lang]/dictionaries";
-import { getLeader, type LeaderProfile } from "@/app/(main)/[lang]/team/teamData";
+import { getLeader, loadLeader, type LeaderProfile } from "@/app/(main)/[lang]/team/teamData";
 import { AUTHOR_EXTRAS } from "@/content/journal/authorExtras";
 import type { AuthorExtra } from "@/content/journal/authorExtras";
 
@@ -68,7 +68,20 @@ function fromExtras(id: string, extra: AuthorExtra): ResolvedAuthorProfile {
  * 2) AUTHOR_EXTRAS (non-team authors)
  */
 export function getAuthorProfile(id: string): ResolvedAuthorProfile | null {
+  // Synchronous variant — uses static TEAM fallback only.
+  // Server callers should prefer loadAuthorProfile() to honor admin DB edits.
   const team = getLeader(id);
+  if (team) return fromTeam(id, team);
+
+  const extra = AUTHOR_EXTRAS[id];
+  if (extra) return fromExtras(id, extra);
+
+  return null;
+}
+
+/** Async variant: prefers DB-stored team roster, falls back to TEAM/AUTHOR_EXTRAS. */
+export async function loadAuthorProfile(id: string): Promise<ResolvedAuthorProfile | null> {
+  const team = await loadLeader(id);
   if (team) return fromTeam(id, team);
 
   const extra = AUTHOR_EXTRAS[id];

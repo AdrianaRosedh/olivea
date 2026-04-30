@@ -1,26 +1,13 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
 import { canonicalUrl } from "@/lib/site";
-import { TEAM } from "@/app/(main)/[lang]/team/teamData";
+import { loadTeam } from "@/app/(main)/[lang]/team/teamData";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-type MaybeTeamItem = { id?: unknown };
-
-function getTeamIds(): string[] {
-  const t = TEAM as unknown;
-
-  if (Array.isArray(t)) {
-    return (t as MaybeTeamItem[])
-      .map((m) => (typeof m?.id === "string" ? m.id : null))
-      .filter((x): x is string => !!x);
-  }
-
-  if (t && typeof t === "object") {
-    return Object.keys(t as Record<string, unknown>);
-  }
-
-  return [];
+async function getTeamIds(): Promise<string[]> {
+  const team = await loadTeam();
+  return team.map((m) => m.id).filter((x): x is string => typeof x === "string" && !!x);
 }
 
 function cleanUrl(u: string): string {
@@ -82,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ] as const;
 
   const out: MetadataRoute.Sitemap = [];
-  const ids = getTeamIds();
+  const ids = await getTeamIds();
   const now = new Date();
 
   // ─── Static routes (both languages, with hreflang alternates) ───

@@ -18,7 +18,28 @@ import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
 
 interface FooterProps {
   dict: AppDictionary;
+  socials?: { platform: string; url: string; label: string }[];
 }
+
+// Map social platform name → inline SVG icon component.
+// Used to render socials passed in from global_settings.
+const SOCIAL_ICON_MAP: Record<string, ReactNode> = {
+  youtube: <YouTubeIcon />,
+  instagram: <InstagramIcon />,
+  tiktok: <TikTokIcon />,
+  linkedin: <LinkedInIcon />,
+  spotify: <SpotifyIcon />,
+  pinterest: <PinterestIcon />,
+};
+
+const FALLBACK_SOCIALS: SocialItem[] = [
+  { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <YouTubeIcon /> },
+  { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram", icon: <InstagramIcon /> },
+  { id: "tt", href: "https://www.tiktok.com/@familiaolivea", label: "TikTok", icon: <TikTokIcon /> },
+  { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <LinkedInIcon /> },
+  { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <SpotifyIcon /> },
+  { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <PinterestIcon /> },
+];
 
 type SocialItem = {
   id: string;
@@ -37,7 +58,7 @@ function fadeNavigate(href: string) {
   a.remove();
 }
 
-export default function Footer({ dict }: FooterProps) {
+export default function Footer({ dict, socials }: FooterProps) {
   const pathname = usePathname() ?? "/es";
 
   const firstSeg = pathname.split("/")[1];
@@ -141,14 +162,15 @@ export default function Footer({ dict }: FooterProps) {
 
   const rightsText = lang === "en" ? "All rights reserved" : "Todos los derechos reservados";
 
-  const socialItems: SocialItem[] = [
-    { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <YouTubeIcon /> },
-    { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram", icon: <InstagramIcon /> },
-    { id: "tt", href: "https://www.tiktok.com/@familiaolivea", label: "TikTok", icon: <TikTokIcon /> },
-    { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <LinkedInIcon /> },
-    { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <SpotifyIcon /> },
-    { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <PinterestIcon /> },
-  ];
+  // Prefer admin-edited socials from global_settings; fall back to defaults.
+  const socialItems: SocialItem[] = socials && socials.length > 0
+    ? socials.map((s, i) => ({
+        id: s.platform || `s${i}`,
+        href: s.url,
+        label: s.label || s.platform,
+        icon: SOCIAL_ICON_MAP[s.platform.toLowerCase()] ?? <InstagramIcon />,
+      }))
+    : FALLBACK_SOCIALS;
 
   const TextLink = ({ href, children }: { href: string; children: ReactNode }) => (
     <Link

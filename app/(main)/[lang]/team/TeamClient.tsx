@@ -449,9 +449,11 @@ function LeaderCard({
 export default function TeamClient({
   lang,
   team,
+  members,
 }: {
   lang: Lang;
   team: TeamDict;
+  members?: LeaderProfile[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -464,8 +466,9 @@ export default function TeamClient({
   const t = (x?: { es: string; en: string }) => (x ? x[uiLang] : "");
 
   const leadersSorted = useMemo(() => {
-    return [...TEAM].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
-  }, []);
+    const source = members && members.length > 0 ? members : TEAM;
+    return [...source].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
+  }, [members]);
 
   const [category, setCategory] = useState<Category>("all");
 

@@ -243,3 +243,63 @@ export async function updateProfile(data: {
   revalidatePath("/admin");
   return { error: null };
 }
+
+/* ── Audit log ── */
+
+export interface AuditLogEntry {
+  id: string;
+  user_id: string | null;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  metadata: Record<string, unknown>;
+  ip_address: string | null;
+  created_at: string;
+  user_name?: string;
+  user_email?: string;
+}
+
+export async function getAuditLog(limit = 200): Promise<AuditLogEntry[]> {
+  await requireRole("manager");
+  const rows = await selectRows<{
+    id: string;
+    user_id: string | null;
+    action: string;
+    resource_type: string | null;
+    resource_id: string | null;
+    metadata: Record<string, unknown> | null;
+    ip_address: string | null;
+    created_at: string;
+  }>("admin_audit_log", {
+    role: "service_role",
+    query: `select=*&order=created_at.desc&limit=${Math.max(1, Math.min(limit, 500))}`,
+  });
+
+  // Hydrate user names/emails in a single batch
+  const userIds = [...new Set(rows.map((r) => r.user_id).filter((id): id is string => !!id))];
+  let userMap = new Map<string, { full_name: string; email: string }>();
+  if (userIds.length > 0) {
+    const inList = userIds.map((id) => `"${id}"`).join(",");
+    const users = await selectRows<{ id: string; full_name: string; email: string }>(
+      "admin_users",
+      {
+        role: "service_role",
+        query: `select=id,full_name,email&id=in.(${inList})`,
+      }
+    );
+    userMap = new Map(users.map((u) => [u.id, { full_name: u.full_name, email: u.email }]));
+  }
+
+  return rows.map((r) => ({
+    id: r.id,
+    user_id: r.user_id,
+    action: r.action,
+    resource_type: r.resource_type,
+    resource_id: r.resource_id,
+    metadata: r.metadata ?? {},
+    ip_address: r.ip_address,
+    created_at: r.created_at,
+    user_name: r.user_id ? userMap.get(r.user_id)?.full_name : undefined,
+    user_email: r.user_id ? userMap.get(r.user_id)?.email : undefined,
+  }));
+}

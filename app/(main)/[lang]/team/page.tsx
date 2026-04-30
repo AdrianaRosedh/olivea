@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { loadLocale } from "@/lib/i18n";
 import { SITE, canonicalUrl } from "@/lib/site";
 import TeamClient, { type TeamDict } from "./TeamClient";
+import { loadTeam } from "./teamData";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -94,9 +95,11 @@ export default async function TeamPage({ params }: PageProps) {
         leadersTitle: lang === "es" ? "Líderes de Olivea" : "Leaders of Olivea",
       };
 
+  const members = await loadTeam();
+
   return (
     <main className="w-full px-6 sm:px-10 py-10">
-      <TeamClient lang={lang} team={team} />
+      <TeamClient lang={lang} team={team} members={members} />
     </main>
   );
 }

@@ -48,6 +48,11 @@ export default async function LangLayout({
     dict: AppDictionary;
   };
 
+  // Footer socials use the hardcoded fallback for now. Admin can still edit
+  // global_settings.socials via /admin/content/global; wiring those edits to
+  // the Footer would require an extra fetch here (which currently opts the
+  // page out of SSG) or a properly cached unstable_cache wrapper.
+
   const isEs = lang === "es";
   const prefix = isEs ? "es" : "en";
 

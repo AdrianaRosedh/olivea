@@ -318,11 +318,37 @@ export interface LegalContent {
   sections: ContentSection[];
 }
 
+/** Team member (DB-stored variant of LeaderProfile from teamData.ts).
+    Kept loosely typed at this layer to avoid app→lib dependency; consumers
+    in the team UI cast to LeaderProfile. */
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: Bilingual;
+  org?: Bilingual;
+  tag?: Bilingual;
+  bio?: Bilingual;
+  avatar?: string;
+  gallery?: string[];
+  priority?: number;
+  tile?: "hero" | "md";
+  showIn?: ("hotel" | "restaurant" | "cafe")[];
+  alwaysShow?: boolean;
+  links?: {
+    label: Bilingual;
+    href: string;
+    icon?: "instagram" | "whatsapp" | "tock" | "hotel" | "email" | "link" | "calendar";
+    highlight?: boolean;
+    forceButton?: boolean;
+  }[];
+}
+
 /** Team page */
 export interface TeamContent {
   meta: PageMeta;
   title: Bilingual;
   description: Bilingual;
+  members?: TeamMember[];
 }
 
 /** Not Found (404) */
@@ -330,44 +356,6 @@ export interface NotFoundContent {
   meta: PageMeta;
   message: Bilingual;
   cta: Bilingual;
-}
-
-/* ── Menus (already modeled in admin) ── */
-
-export interface WineItem {
-  id: string;
-  category: string;
-  name: string;
-  winery: string;
-  grape?: string;
-  year?: number;
-  priceGlass?: number;
-  priceBottle?: number;
-  tags: string[];
-  available: boolean;
-  sortOrder: number;
-}
-
-export interface DrinkItem {
-  id: string;
-  category: string;
-  name: string;
-  description?: string;
-  price?: number;
-  tags: string[];
-  available: boolean;
-  sortOrder: number;
-}
-
-export interface SpiritItem {
-  id: string;
-  category: string;
-  subcategory?: string;
-  name: string;
-  brand?: string;
-  price?: number;
-  available: boolean;
-  sortOrder: number;
 }
 
 /* ── Media Library ── */

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, createContext, useContext } from "react";
-import { Save, Loader2, RefreshCw, Undo2, ChevronDown, ChevronRight, Settings } from "lucide-react";
+import { Save, Loader2, RefreshCw, Undo2, ChevronDown, ChevronRight, Settings, ExternalLink } from "lucide-react";
 import { getPageContent, savePageContent } from "@/lib/supabase/actions";
 import { useAuth } from "@/components/admin/AuthProvider";
 
@@ -78,12 +78,17 @@ function MetaSection({ children }: { children: React.ReactNode }) {
       >
         <span className="flex items-center gap-2">
           <Settings className="w-3.5 h-3.5" />
-          SEO & Meta
+          Search & Social Preview
         </span>
         {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
       </button>
       {open && (
         <div className="px-4 pb-4 pt-2 space-y-4 border-t border-stone-200/60">
+          <p className="text-[11px] text-stone-500 leading-relaxed">
+            This is what people see when this page appears in Google or is shared on social media.
+            The <strong className="text-stone-700">title</strong> is the clickable headline; the{" "}
+            <strong className="text-stone-700">description</strong> is the short blurb below it.
+          </p>
           {children}
         </div>
       )}
@@ -104,6 +109,9 @@ interface VisualPageEditorProps {
   icon?: React.ReactNode;
   /** Static fallback data */
   fallbackData?: Record<string, unknown>;
+  /** Public path users can visit to see their edits live, e.g. "/casa".
+      The toolbar renders a button that opens /es{path} in a new tab. */
+  livePath?: string;
   /** The visual editor content — receives editable context */
   children: React.ReactNode;
 }
@@ -113,6 +121,7 @@ export default function VisualPageEditor({
   table,
   icon,
   fallbackData,
+  livePath,
   children,
 }: VisualPageEditorProps) {
   const { canEdit: userCanEdit } = useAuth();
@@ -214,13 +223,27 @@ export default function VisualPageEditor({
                   {!userCanEdit
                     ? "Read-only — you need Editor access to make changes"
                     : isDirty
-                      ? "Unsaved changes"
-                      : "Click any text or image to edit"}
+                      ? "Unsaved changes — click Save to publish"
+                      : "Edits go live on the public site within 60 seconds of saving"}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
+              {/* View live page */}
+              {livePath && (
+                <a
+                  href={`/es${livePath}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[var(--olivea-olive)] text-xs font-medium hover:bg-[var(--olivea-cream)]/50 transition-colors"
+                  title={`Open ${livePath} in a new tab`}
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  View live page
+                </a>
+              )}
+
               {/* Discard */}
               {userCanEdit && isDirty && (
                 <button

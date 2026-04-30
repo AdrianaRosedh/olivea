@@ -29,10 +29,10 @@ interface CategoryDef {
 }
 
 const categories: CategoryDef[] = [
-  { key: "dashboard", label: "Dashboard",  icon: LayoutDashboard, href: "/admin" },
-  { key: "pages",     label: "Pages",      icon: FileText,        href: "/admin/pages" },
-  { key: "content",   label: "Content",    icon: Layers,          href: "/admin/content-hub" },
-  { key: "settings",  label: "Settings",   icon: Settings,        href: "/admin/site-settings" },
+  { key: "dashboard", label: "Today",         icon: LayoutDashboard, href: "/admin" },
+  { key: "daily",     label: "Daily Updates", icon: Layers,          href: "/admin/content-hub" },
+  { key: "pages",     label: "Brand & Pages", icon: FileText,        href: "/admin/pages" },
+  { key: "setup",     label: "Setup",         icon: Settings,        href: "/admin/site-settings" },
 ];
 
 /* ─── Dock icon button ─── */

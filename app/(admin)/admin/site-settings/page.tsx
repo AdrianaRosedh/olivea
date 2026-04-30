@@ -1,5 +1,5 @@
 import CategoryCardGrid from "@/components/admin/CategoryCardGrid";
 
 export default function SiteSettingsHub() {
-  return <CategoryCardGrid category="settings" />;
+  return <CategoryCardGrid category="setup" />;
 }

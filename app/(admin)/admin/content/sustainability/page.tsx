@@ -78,7 +78,7 @@ function SustainabilityVisual() {
 export default function SustainabilityAdmin() {
   return (
     <SectionGuard sectionKey="pages.sustainability">
-      <VisualPageEditor title="Sustainability" table="sustainability_content" icon={<Leaf className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={fallback}>
+      <VisualPageEditor title="Sustainability" table="sustainability_content" icon={<Leaf className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={fallback} livePath="/sustainability">
         <SustainabilityVisual />
       </VisualPageEditor>
     </SectionGuard>

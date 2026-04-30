@@ -66,6 +66,9 @@ export default function EditableSections({
   };
 
   const removeItem = (idx: number) => {
+    const item = value[idx];
+    const title = item?.title?.en || item?.title?.es || item?.id || `section ${idx + 1}`;
+    if (!window.confirm(`Delete the section "${title}"? You'll need to save the page for this to take effect.`)) return;
     onChange(value.filter((_, i) => i !== idx));
   };
 

@@ -1,148 +1,15 @@
 // lib/supabase/content-actions.ts
 // ─────────────────────────────────────────────────────────────────────
-// Server actions for wines, drinks, spirits, and journal — fetching
-// real data from Supabase with fallback to mock data.
+// Server actions for journal content — fetch and mutate journal posts
+// from Supabase with mock-data fallback when unconfigured.
 // ─────────────────────────────────────────────────────────────────────
 "use server";
 
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { selectRows, updateRows, deleteRows, upsertRows, assertUUID } from "@/lib/supabase/client";
+import { selectRows, updateRows, upsertRows, assertUUID } from "@/lib/supabase/client";
 import { requireSession } from "@/lib/auth/session";
-import type { WineItem, DrinkItem, JournalPost, JournalStatus } from "@/lib/content/types";
-
-// ── Wine helpers ─────────────────────────────────────────────────────
-
-interface WineRow {
-  id: string;
-  category: string;
-  name: string;
-  winery: string;
-  grape: string | null;
-  year: number | null;
-  price_glass: number | null;
-  price_bottle: number | null;
-  tags: string[] | null;
-  available: boolean;
-  sort_order: number;
-}
-
-function mapWineRow(r: WineRow): WineItem {
-  return {
-    id: r.id ?? "",
-    category: r.category ?? "Uncategorized",
-    name: r.name ?? "Unnamed",
-    winery: r.winery ?? "",
-    grape: r.grape ?? undefined,
-    year: r.year ?? undefined,
-    priceGlass: r.price_glass ?? undefined,
-    priceBottle: r.price_bottle ?? undefined,
-    tags: r.tags ?? [],
-    available: r.available ?? true,
-    sortOrder: r.sort_order ?? 0,
-  };
-}
-
-export async function getWines(): Promise<WineItem[]> {
-  await requireSession();
-  if (!isSupabaseConfigured) {
-    const { mockWines } = await import("@/lib/admin/mock-data");
-    return mockWines;
-  }
-  try {
-    const rows = await selectRows<WineRow>("wines", {
-      role: "service_role",
-      query: "order=category.asc,sort_order.asc",
-    });
-    return rows.map(mapWineRow);
-  } catch (e) {
-    console.error("[content-actions] Failed to fetch wines:", e);
-    const { mockWines } = await import("@/lib/admin/mock-data");
-    return mockWines;
-  }
-}
-
-export async function getWineCategories(): Promise<string[]> {
-  await requireSession();
-  if (!isSupabaseConfigured) {
-    const { wineCategories } = await import("@/lib/admin/mock-data");
-    return [...wineCategories];
-  }
-  try {
-    const rows = await selectRows<{ category: string }>("wines", {
-      role: "service_role",
-      query: "select=category",
-    });
-    const cats = [...new Set(rows.map((r) => r.category))];
-    return cats.length > 0 ? cats : [...(await import("@/lib/admin/mock-data")).wineCategories];
-  } catch {
-    const { wineCategories } = await import("@/lib/admin/mock-data");
-    return [...wineCategories];
-  }
-}
-
-// ── Drink helpers ────────────────────────────────────────────────────
-
-interface DrinkRow {
-  id: string;
-  category: string;
-  name: string;
-  description: string | null;
-  price: number | null;
-  tags: string[] | null;
-  available: boolean;
-  sort_order: number;
-}
-
-function mapDrinkRow(r: DrinkRow): DrinkItem {
-  return {
-    id: r.id ?? "",
-    category: r.category ?? "Uncategorized",
-    name: r.name ?? "Unnamed",
-    description: r.description ?? undefined,
-    price: r.price ?? undefined,
-    tags: r.tags ?? [],
-    available: r.available ?? true,
-    sortOrder: r.sort_order ?? 0,
-  };
-}
-
-export async function getDrinks(): Promise<DrinkItem[]> {
-  await requireSession();
-  if (!isSupabaseConfigured) {
-    const { mockDrinks } = await import("@/lib/admin/mock-data");
-    return mockDrinks;
-  }
-  try {
-    const rows = await selectRows<DrinkRow>("drinks", {
-      role: "service_role",
-      query: "order=category.asc,sort_order.asc",
-    });
-    return rows.map(mapDrinkRow);
-  } catch (e) {
-    console.error("[content-actions] Failed to fetch drinks:", e);
-    const { mockDrinks } = await import("@/lib/admin/mock-data");
-    return mockDrinks;
-  }
-}
-
-export async function getDrinkCategories(): Promise<string[]> {
-  await requireSession();
-  if (!isSupabaseConfigured) {
-    const { drinkCategories } = await import("@/lib/admin/mock-data");
-    return [...drinkCategories];
-  }
-  try {
-    const rows = await selectRows<{ category: string }>("drinks", {
-      role: "service_role",
-      query: "select=category",
-    });
-    const cats = [...new Set(rows.map((r) => r.category))];
-    return cats.length > 0 ? cats : [...(await import("@/lib/admin/mock-data")).drinkCategories];
-  } catch {
-    const { drinkCategories } = await import("@/lib/admin/mock-data");
-    return [...drinkCategories];
-  }
-}
+import { logAudit } from "@/lib/auth/audit";
+import type { JournalPost, JournalStatus } from "@/lib/content/types";
 
 // ── Journal helpers ──────────────────────────────────────────────────
 
@@ -207,38 +74,6 @@ export async function getJournalPosts(): Promise<JournalPost[]> {
   }
 }
 
-// ── Wine mutations ──────────────────────────────────────────────────
-
-export async function toggleWineAvailability(id: string, available: boolean): Promise<void> {
-  await requireSession();
-  assertUUID(id, "wineId");
-  if (!isSupabaseConfigured) return;
-  await updateRows("wines", `id=eq.${id}`, { available });
-}
-
-export async function deleteWine(id: string): Promise<void> {
-  await requireSession();
-  assertUUID(id, "wineId");
-  if (!isSupabaseConfigured) return;
-  await deleteRows("wines", `id=eq.${id}`);
-}
-
-// ── Drink mutations ─────────────────────────────────────────────────
-
-export async function toggleDrinkAvailability(id: string, available: boolean): Promise<void> {
-  await requireSession();
-  assertUUID(id, "drinkId");
-  if (!isSupabaseConfigured) return;
-  await updateRows("drinks", `id=eq.${id}`, { available });
-}
-
-export async function deleteDrink(id: string): Promise<void> {
-  await requireSession();
-  assertUUID(id, "drinkId");
-  if (!isSupabaseConfigured) return;
-  await deleteRows("drinks", `id=eq.${id}`);
-}
-
 // ── Journal mutations ───────────────────────────────────────────────
 
 const VALID_JOURNAL_STATUSES: JournalStatus[] = ["draft", "published", "archived"];
@@ -278,6 +113,12 @@ export async function saveJournalPost(post: JournalPost): Promise<JournalPost> {
   };
 
   const [saved] = await upsertRows<JournalRow>("journal_posts", row, { onConflict: "id" });
+  await logAudit({
+    action: "save",
+    resourceType: "journal_post",
+    resourceId: post.id,
+    metadata: { slug: post.slug, status: post.status },
+  });
   return saved ? mapJournalRow(saved) : post;
 }
 
@@ -290,6 +131,7 @@ export async function publishJournalPost(id: string): Promise<void> {
     published_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   });
+  await logAudit({ action: "publish", resourceType: "journal_post", resourceId: id });
 }
 
 export async function unpublishJournalPost(id: string): Promise<void> {
@@ -301,4 +143,5 @@ export async function unpublishJournalPost(id: string): Promise<void> {
     published_at: null,
     updated_at: new Date().toISOString(),
   });
+  await logAudit({ action: "unpublish", resourceType: "journal_post", resourceId: id });
 }

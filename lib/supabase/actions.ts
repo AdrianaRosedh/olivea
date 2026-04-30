@@ -8,6 +8,7 @@
 import { selectRows, selectOne, upsertRows, deleteRows, updateRows } from "./client";
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "./config";
+import { logAudit } from "@/lib/auth/audit";
 
 // ── Auth guard for write operations ────────────────────────────────
 // All mutating actions verify the user has at least "editor" role.
@@ -102,6 +103,7 @@ export async function getPopup(id: string) {
 export async function savePopup(popup: Record<string, unknown>) {
   await requireEditor();
   await upsertRows("popups", popup, { onConflict: "id" });
+  await logAudit({ action: "save", resourceType: "popup", resourceId: String(popup.id ?? "") });
   revalidatePath("/api/popup");
   revalidatePath("/admin/popups");
 }
@@ -109,6 +111,7 @@ export async function savePopup(popup: Record<string, unknown>) {
 export async function deletePopup(id: string) {
   await requireManager();
   await deleteRows("popups", `id=eq.${encodeURIComponent(id)}`);
+  await logAudit({ action: "delete", resourceType: "popup", resourceId: id });
   revalidatePath("/api/popup");
   revalidatePath("/admin/popups");
 }
@@ -116,6 +119,7 @@ export async function deletePopup(id: string) {
 export async function togglePopup(id: string, enabled: boolean) {
   await requireEditor();
   await updateRows("popups", `id=eq.${encodeURIComponent(id)}`, { enabled });
+  await logAudit({ action: enabled ? "enable" : "disable", resourceType: "popup", resourceId: id });
   revalidatePath("/api/popup");
   revalidatePath("/admin/popups");
 }
@@ -136,6 +140,7 @@ export async function getBanner(id: string) {
 export async function saveBanner(banner: Record<string, unknown>) {
   await requireEditor();
   await upsertRows("banners", banner, { onConflict: "id" });
+  await logAudit({ action: "save", resourceType: "banner", resourceId: String(banner.id ?? "") });
   revalidatePath("/api/banner");
   revalidatePath("/admin/banners");
 }
@@ -143,6 +148,7 @@ export async function saveBanner(banner: Record<string, unknown>) {
 export async function deleteBanner(id: string) {
   await requireManager();
   await deleteRows("banners", `id=eq.${encodeURIComponent(id)}`);
+  await logAudit({ action: "delete", resourceType: "banner", resourceId: id });
   revalidatePath("/api/banner");
   revalidatePath("/admin/banners");
 }
@@ -150,6 +156,7 @@ export async function deleteBanner(id: string) {
 export async function toggleBanner(id: string, enabled: boolean) {
   await requireEditor();
   await updateRows("banners", `id=eq.${encodeURIComponent(id)}`, { enabled });
+  await logAudit({ action: enabled ? "enable" : "disable", resourceType: "banner", resourceId: id });
   revalidatePath("/api/banner");
   revalidatePath("/admin/banners");
 }
@@ -166,6 +173,7 @@ export async function getCasaFaq() {
 export async function saveCasaFaqItem(item: Record<string, unknown>) {
   await requireEditor();
   await upsertRows("casa_faq", item, { onConflict: "id" });
+  await logAudit({ action: "save", resourceType: "casa_faq", resourceId: String(item.id ?? "") });
   revalidatePath("/es/casa");
   revalidatePath("/en/casa");
   revalidatePath("/admin/content/casa-faq");
@@ -174,6 +182,7 @@ export async function saveCasaFaqItem(item: Record<string, unknown>) {
 export async function deleteCasaFaqItem(id: string) {
   await requireManager();
   await deleteRows("casa_faq", `id=eq.${encodeURIComponent(id)}`);
+  await logAudit({ action: "delete", resourceType: "casa_faq", resourceId: id });
   revalidatePath("/es/casa");
   revalidatePath("/en/casa");
   revalidatePath("/admin/content/casa-faq");
@@ -322,6 +331,7 @@ export async function savePageContent(table: PageTable, data: Record<string, unk
   const dbData = fieldMap ? camelToSnake(data, fieldMap) : data;
 
   await upsertRows(table, { id: "singleton", ...dbData }, { onConflict: "id" });
+  await logAudit({ action: "save", resourceType: table, resourceId: "singleton" });
   for (const path of pageRevalidations[table] ?? []) {
     revalidatePath(path);
   }
@@ -339,6 +349,7 @@ export async function getSustainabilitySections() {
 export async function saveSustainabilitySection(item: Record<string, unknown>) {
   await requireEditor();
   await upsertRows("sustainability_sections", item, { onConflict: "id" });
+  await logAudit({ action: "save", resourceType: "sustainability_section", resourceId: String(item.id ?? "") });
   revalidatePath("/es/sustainability");
   revalidatePath("/en/sustainability");
 }
@@ -346,6 +357,7 @@ export async function saveSustainabilitySection(item: Record<string, unknown>) {
 export async function deleteSustainabilitySection(id: string) {
   await requireManager();
   await deleteRows("sustainability_sections", `id=eq.${encodeURIComponent(id)}`);
+  await logAudit({ action: "delete", resourceType: "sustainability_section", resourceId: id });
   revalidatePath("/es/sustainability");
   revalidatePath("/en/sustainability");
 }

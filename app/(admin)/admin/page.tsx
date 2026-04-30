@@ -8,18 +8,21 @@ import {
   TrendingDown,
   ArrowRight,
   FileText,
-  Layers,
-  Settings,
-  Users,
+  Bell,
+  BookOpen,
+  Clock,
+  Flag,
+  Image as ImageIcon,
 } from "lucide-react";
 import { getDashboardData, type DashboardData } from "@/lib/admin/dashboard-stats";
 
-/* ─── Quick actions — mirrors the AdminDock navigation ─── */
+/* ─── Quick actions — the things you actually do day-to-day ─── */
 const quickActions = [
-  { label: "Pages", href: "/admin/pages", icon: "pages" },
-  { label: "Content hub", href: "/admin/content-hub", icon: "content" },
-  { label: "Site settings", href: "/admin/site-settings", icon: "settings" },
-  { label: "Team", href: "/admin/team", icon: "team" },
+  { label: "Post a special or announcement",  href: "/admin/popups",   icon: "popups" },
+  { label: "Add or edit a journal post",      href: "/admin/journal",  icon: "journal" },
+  { label: "Update operating hours",          href: "/admin/hours",    icon: "hours" },
+  { label: "Add a site banner",               href: "/admin/banners",  icon: "banners" },
+  { label: "Upload photos",                   href: "/admin/media",    icon: "media" },
 ] as const;
 
 /* ─── Cinematic easing curves ─── */
@@ -75,12 +78,13 @@ const sectionFade: Variants = {
   },
 };
 
-/* ─── Icon map — matches AdminDock categories ─── */
+/* ─── Icon map for quick actions ─── */
 const iconMap: Record<string, React.ElementType> = {
-  pages: FileText,
-  content: Layers,
-  settings: Settings,
-  team: Users,
+  popups: Bell,
+  journal: BookOpen,
+  hours: Clock,
+  banners: Flag,
+  media: ImageIcon,
 };
 
 /* ─── Stat card ─── */
@@ -314,6 +318,7 @@ export default function AdminDashboard() {
     { label: "Job openings", value: "—" },
   ];
 
+  const liveNow = data?.liveNow ?? [];
   const activity = data?.recentActivity ?? [];
 
   return (
@@ -376,50 +381,98 @@ export default function AdminDashboard() {
           ))}
         </motion.div>
 
-        {/* Recent activity */}
+        {/* Right column: Live now + Recent activity */}
         <motion.div
-          className="lg:col-span-3"
+          className="lg:col-span-3 space-y-6"
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.3, ease: cinematicSlow }}
         >
-          <motion.h2
-            className="text-xs font-semibold text-[var(--olivea-clay)] uppercase tracking-wider mb-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.35, ease: cinematic }}
-          >
-            Site overview
-          </motion.h2>
-          <motion.div
-            className="rounded-2xl bg-white/50 backdrop-blur-sm border border-[var(--olivea-olive)]/[0.05] p-5"
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.65, delay: 0.4, ease: cinematic }}
-            whileHover={{
-              borderColor: "rgba(94,118,88,0.1)",
-              transition: { duration: 0.3 },
-            }}
-          >
-            {loading ? (
-              <div className="space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-[var(--olivea-cream)]/60 animate-pulse" />
-                    <div className="flex-1 h-4 rounded bg-[var(--olivea-cream)]/40 animate-pulse" />
-                  </div>
-                ))}
-              </div>
-            ) : activity.length > 0 ? (
-              activity.map((item, i) => (
-                <ActivityRow key={item.id} {...item} index={i} />
-              ))
-            ) : (
-              <p className="text-sm text-[var(--olivea-clay)] text-center py-6">
-                No activity yet. Start by adding content to your site.
-              </p>
-            )}
-          </motion.div>
+          {/* Live now */}
+          <div>
+            <motion.h2
+              className="text-xs font-semibold text-[var(--olivea-clay)] uppercase tracking-wider mb-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.35, ease: cinematic }}
+            >
+              What&apos;s live right now
+            </motion.h2>
+            <div className="rounded-2xl bg-white/50 backdrop-blur-sm border border-[var(--olivea-olive)]/[0.05] p-5">
+              {loading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="h-9 rounded bg-[var(--olivea-cream)]/40 animate-pulse" />
+                  ))}
+                </div>
+              ) : liveNow.length > 0 ? (
+                <ul className="space-y-2">
+                  {liveNow.map((item) => (
+                    <li key={item.id}>
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-[var(--olivea-cream)]/40 transition-colors text-sm text-[var(--olivea-ink)]/80"
+                      >
+                        <span
+                          className={
+                            "shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider " +
+                            (item.kind === "banner"
+                              ? "bg-amber-50 text-amber-700 border-amber-200/60"
+                              : item.kind === "popup"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
+                                : "bg-violet-50 text-violet-700 border-violet-200/60")
+                          }
+                        >
+                          {item.kind}
+                        </span>
+                        <span className="flex-1 truncate">{item.label}</span>
+                        <ArrowRight size={14} className="text-[var(--olivea-olive)]/40" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-[var(--olivea-clay)] text-center py-4">
+                  Nothing live right now. Visitors won&apos;t see any banners, popups, or promotions.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Recent admin activity (audit log) */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xs font-semibold text-[var(--olivea-clay)] uppercase tracking-wider">
+                Recent admin activity
+              </h2>
+              <Link
+                href="/admin/audit-log"
+                className="text-[11px] text-[var(--olivea-olive)] hover:underline"
+              >
+                See full audit log →
+              </Link>
+            </div>
+            <div className="rounded-2xl bg-white/50 backdrop-blur-sm border border-[var(--olivea-olive)]/[0.05] p-5">
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-[var(--olivea-cream)]/60 animate-pulse" />
+                      <div className="flex-1 h-4 rounded bg-[var(--olivea-cream)]/40 animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              ) : activity.length > 0 ? (
+                activity.map((item, i) => (
+                  <ActivityRow key={item.id} {...item} index={i} />
+                ))
+              ) : (
+                <p className="text-sm text-[var(--olivea-clay)] text-center py-6">
+                  No admin activity yet. Edits will appear here as they happen.
+                </p>
+              )}
+            </div>
+          </div>
         </motion.div>
       </motion.div>
     </motion.div>

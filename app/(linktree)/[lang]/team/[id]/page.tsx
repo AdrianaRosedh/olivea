@@ -5,7 +5,7 @@ import { absoluteUrl } from "@/lib/site";
 import { type Lang } from "@/lib/i18n";
 
 import {
-  TEAM,
+  loadLeader,
   type LeaderProfile,
 } from "@/app/(main)/[lang]/team/teamData";
 const normalizeLang = (raw: string): Lang => (raw === "en" ? "en" : "es");
@@ -15,21 +15,8 @@ function asRecord(x: unknown): Record<string, unknown> | null {
   return x && typeof x === "object" ? (x as Record<string, unknown>) : null;
 }
 
-function findMember(id: string): LeaderProfile | undefined {
-  const t = TEAM as unknown;
-
-  if (Array.isArray(t)) {
-    const hit = t.find((m) => {
-      const r = asRecord(m);
-      return r && r.id === id;
-    });
-    return hit as LeaderProfile | undefined;
-  }
-
-  const r = asRecord(t);
-  if (r) return r[id] as LeaderProfile | undefined;
-
-  return undefined;
+async function findMember(id: string): Promise<LeaderProfile | undefined> {
+  return loadLeader(id);
 }
 
 function pickStringProp(
@@ -55,7 +42,7 @@ export async function generateMetadata({
   const lang = normalizeLang(p.lang);
   const id = safeStr(p.id);
 
-  const member = findMember(id);
+  const member = await findMember(id);
 
   const name = safeStr(member?.name) || "Olivea";
   const role = i18nPick(member?.role, lang);
@@ -68,10 +55,13 @@ export async function generateMetadata({
       : [role, org].filter(Boolean).join(" · ") ||
         `${name}'s profile at Olivea.`) || "";
 
-  // ✅ match your app routing style: /es/... and /en/...
-  const canonicalPath = `/${lang}/team/${id}`;
-  const esPath = `/es/team/${id}`;
-  const enPath = `/en/team/${id}`;
+  // ✅ Canonical URL always uses the member's real id, not the alias the user typed.
+  // This way `/team/adriana`, `/team/Adriana`, and `/team/adrianarose` all canonicalize
+  // to the same URL — Google won't see them as duplicates.
+  const canonicalId = safeStr(member?.id) || id;
+  const canonicalPath = `/${lang}/team/${canonicalId}`;
+  const esPath = `/es/team/${canonicalId}`;
+  const enPath = `/en/team/${canonicalId}`;
 
   const ogImage =
     pickStringProp(member, "ogImage") ||
@@ -113,7 +103,7 @@ export default async function Page({
   const lang = normalizeLang(p.lang);
   const id = safeStr(p.id);
 
-  const member = findMember(id);
+  const member = await findMember(id);
 
   if (!member) {
     return (

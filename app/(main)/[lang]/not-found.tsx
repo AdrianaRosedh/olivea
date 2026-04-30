@@ -1,38 +1,17 @@
 // app/(main)/[lang]/not-found.tsx
-"use client"
+// Server component — keeps SSG eligibility for the parent [lang] segment.
+// We default to ES (the primary locale) rather than reading headers(), since
+// using next/headers here would opt every page in this segment into dynamic
+// rendering at request time. The visual 404 fallback is nearly identical in
+// both languages, so the small UX cost is worth the SSG win.
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { getContent, t } from "@/lib/content";
 
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { getDictionary, type Lang } from "./dictionaries"
-
-export default function NotFound() {
-  // 1) get lang from route
-  const { lang: rawLang } = useParams<{ lang?: string }>() || {}
-  const lang: Lang = rawLang === "es" ? "es" : "en"
-
-  // 2) just keep the piece we need
-  const [dict, setDict] = useState<{
-    notFound: { title?: string; message?: string; cta?: string }
-  } | null>(null)
-
-  useEffect(() => {
-    // getDictionary is synchronous
-    const d = getDictionary(lang)
-    setDict({
-      notFound: d.notFound ?? {
-        title:   lang === "es" ? "404" : "404",
-        message: lang === "es" ? "La página que buscas no existe." : "Page not found.",
-        cta:     lang === "es" ? "Volver al inicio" : "Go Home",
-      },
-    })
-  }, [lang])
-
-  if (!dict) return null
-
-  const { title, message, cta } = dict.notFound
+export default async function NotFound() {
+  const lang = "es" as const;
+  const notFound = await getContent("notFound");
 
   return (
     <main className="relative w-full mk-fullh flex items-center justify-center text-white text-center">
@@ -45,12 +24,12 @@ export default function NotFound() {
         priority
       />
       <div className="bg-black/60 p-10 rounded-xl max-w-lg">
-        <h1 className="text-5xl font-light mb-4">{title ?? "404"}</h1>
-        <p className="text-xl font-light mb-6">{message ?? "Page not found."}</p>
+        <h1 className="text-5xl font-light mb-4">404</h1>
+        <p className="text-xl font-light mb-6">{t(lang, notFound.message)}</p>
         <Link href={`/${lang}`}>
-          <Button variant="secondary">{cta ?? "Go Home"}</Button>
+          <Button variant="secondary">{t(lang, notFound.cta)}</Button>
         </Link>
       </div>
     </main>
-  )
+  );
 }

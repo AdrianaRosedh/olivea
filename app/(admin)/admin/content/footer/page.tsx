@@ -32,7 +32,7 @@ function FooterVisual() {
 export default function FooterAdmin() {
   return (
     <SectionGuard sectionKey="settings.footer">
-      <VisualPageEditor title="Footer" table="footer_content" icon={<PanelBottom className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={footerContent as unknown as Record<string, unknown>}>
+      <VisualPageEditor title="Footer" table="footer_content" icon={<PanelBottom className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={footerContent as unknown as Record<string, unknown>} livePath="/">
         <FooterVisual />
       </VisualPageEditor>
     </SectionGuard>

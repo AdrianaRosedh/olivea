@@ -48,6 +48,9 @@ export default function EditableFAQ({
   };
 
   const removeItem = (idx: number) => {
+    const q = value[idx]?.question?.en || value[idx]?.question?.es || "this question";
+    const preview = q.length > 60 ? q.slice(0, 60) + "…" : q;
+    if (!window.confirm(`Delete the FAQ "${preview}"? You'll need to save the page for this to take effect.`)) return;
     onChange(value.filter((_, i) => i !== idx));
     if (expandedIdx === idx) setExpandedIdx(null);
   };

@@ -46,7 +46,7 @@ function LegalVisual() {
 export default function LegalAdmin() {
   return (
     <SectionGuard sectionKey="pages.legal">
-      <VisualPageEditor title="Legal" table="legal_content" icon={<Scale className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={legalContent as unknown as Record<string, unknown>}>
+      <VisualPageEditor title="Legal" table="legal_content" icon={<Scale className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={legalContent as unknown as Record<string, unknown>} livePath="/legal">
         <LegalVisual />
       </VisualPageEditor>
     </SectionGuard>

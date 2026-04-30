@@ -17,9 +17,9 @@ interface BusinessHours {
 
 /* ── Venue options ── */
 const venueOptions = [
-  { value: "farmtotable", label: "Farm to Table" },
-  { value: "casa", label: "Casa & Café" },
-  { value: "cafe", label: "Café" },
+  { value: "farmtotable", label: "Olivea Farm to Table" },
+  { value: "casa", label: "Casa Olivea" },
+  { value: "cafe", label: "Café Olivea" },
 ] as const;
 
 /* ── Easing ── */
@@ -70,6 +70,9 @@ export default function HoursPage() {
   };
 
   const removeItem = (idx: number) => {
+    const item = hours[idx];
+    const venueLabel = venueOptions.find((v) => v.value === item?.venue)?.label ?? item?.venue ?? "this entry";
+    if (!window.confirm(`Delete hours for "${venueLabel}"? This will be removed from the public site after you save.`)) return;
     setHours(hours.filter((_, i) => i !== idx));
     setDirty(true);
   };
@@ -232,7 +235,7 @@ export default function HoursPage() {
             {/* ── Schedule (bilingual) ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Schedule (ES)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Schedule (Spanish)</label>
                 <input
                   type="text"
                   value={item.schedule.es}
@@ -242,7 +245,7 @@ export default function HoursPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Schedule (EN)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Schedule (English)</label>
                 <input
                   type="text"
                   value={item.schedule.en}
@@ -252,6 +255,9 @@ export default function HoursPage() {
                 />
               </div>
             </div>
+            <p className="text-[11px] text-stone-400 leading-relaxed pl-1">
+              Tip: separate days with a dot ( · ) and use en-dash for time ranges (5–8 not 5-8). Example: <code className="text-stone-500">Wed 5–8 · Fri 2:30–8:30 · Sun 2–7</code>
+            </p>
           </motion.div>
         ))}
 

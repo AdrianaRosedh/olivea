@@ -119,6 +119,7 @@ const MapIcon = dynamic(() => import("lucide-react").then((m) => m.Map), {
 interface LayoutShellProps {
   lang: Lang;
   dictionary: AppDictionary;
+  socials?: { platform: string; url: string; label: string }[];
   children: React.ReactNode;
 }
 
@@ -182,7 +183,7 @@ async function loadSections(identity: Identity, lang: Lang): Promise<SectionShap
   return data;
 }
 
-function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
+function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) {
   const lenis = useLenis();
   const pathname = usePathname();
 
@@ -389,7 +390,7 @@ function LayoutShell({ lang, dictionary, children }: LayoutShellProps) {
       </main>
 
       {/* FOOTER */}
-      {!isHome && !isMobileLike && <Footer dict={dictionary} />}
+      {!isHome && !isMobileLike && <Footer dict={dictionary} socials={socials} />}
 
       {/* DOCKS */}
       {!isHome && !isMobileLike && (

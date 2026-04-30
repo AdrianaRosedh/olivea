@@ -2,8 +2,18 @@
 
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 
-/* ── Admin navigation categories ── */
-export type AdminCategory = "dashboard" | "pages" | "content" | "settings";
+/* ── Admin navigation categories ──
+   Reorganized by INTENT, not data structure:
+     - dashboard:  "Today" — what's live right now + quick actions
+     - daily:      Things you might post or toggle this week (popups, banners,
+                   journal articles, hours).
+     - pages:      The brand pages — content that lives on each public page.
+     - setup:      Site-wide settings that change rarely (footer, legal, contact,
+                   navigation, brand identity).
+   The previous "content" + "settings" bucket was confusing; "daily" surfaces
+   the high-frequency tasks first.
+*/
+export type AdminCategory = "dashboard" | "daily" | "pages" | "setup";
 
 export interface CategoryItem {
   label: string;
@@ -13,39 +23,56 @@ export interface CategoryItem {
 }
 
 export const categoryMeta: Record<AdminCategory, { label: string; description: string }> = {
-  dashboard: { label: "Dashboard", description: "Overview and recent activity" },
-  pages:     { label: "Pages", description: "Edit content for each page of the site" },
-  content:   { label: "Content", description: "Journal, popups, banners, FAQ, and media" },
-  settings:  { label: "Settings", description: "Global settings, navigation, and footer" },
+  dashboard: {
+    label: "Today",
+    description: "What's live right now, plus quick actions",
+  },
+  daily: {
+    label: "Daily Updates",
+    description: "Things you post or toggle often — specials, banners, journal, hours",
+  },
+  pages: {
+    label: "Brand & Pages",
+    description: "Editorial content for every page on the public site",
+  },
+  setup: {
+    label: "Setup",
+    description: "Brand identity, navigation, footer, legal — rarely changes",
+  },
 };
 
 export const categoryItems: Record<AdminCategory, CategoryItem[]> = {
   dashboard: [], // Dashboard has its own layout
+  // Daily/weekly cadence — the stuff that drives visitors today.
+  daily: [
+    { label: "Specials & Announcements", href: "/admin/popups",            icon: "Bell",       description: "Pop-up messages shown to visitors (today's special, event reminder)" },
+    { label: "Site Banners",             href: "/admin/banners",           icon: "Flag",       description: "Top-of-page banners (sale, holiday hours, urgent notice)" },
+    { label: "Promotions",               href: "/admin/promotions",        icon: "Megaphone",  description: "Time-limited offers shown across selected pages" },
+    { label: "Journal",                  href: "/admin/journal",           icon: "BookOpen",   description: "Long-form articles and stories — full draft/publish workflow" },
+    { label: "Operating Hours",          href: "/admin/hours",             icon: "Clock",      description: "Hours of operation shown on the live status badge and footer" },
+    { label: "Photos & Media",           href: "/admin/media",             icon: "Image",      description: "Upload images for use anywhere on the site" },
+  ],
+  // Page editors — the editorial content per public page.
   pages: [
-    { label: "Homepage",       href: "/admin/content/homepage",        icon: "Video",           description: "Hero video and homepage content" },
-    { label: "Farm to Table",  href: "/admin/content/farm-to-table",   icon: "UtensilsCrossed", description: "Restaurant page content" },
-    { label: "Casa",           href: "/admin/content/casa",            icon: "Home",            description: "Farm stay page content" },
-    { label: "Café",           href: "/admin/content/cafe",            icon: "Coffee",          description: "Café page content" },
-    { label: "Contact",        href: "/admin/content/contact",         icon: "Mail",            description: "Contact info and form settings" },
-    { label: "Sustainability", href: "/admin/content/sustainability",  icon: "Leaf",            description: "Sustainability page" },
-    { label: "Press",          href: "/admin/content/press",           icon: "Newspaper",       description: "Press features and mentions" },
-    { label: "Careers",        href: "/admin/content/careers",         icon: "Briefcase",       description: "Job openings and careers page" },
-    { label: "Legal",          href: "/admin/content/legal",           icon: "Scale",           description: "Privacy policy and terms" },
-    { label: "Team",           href: "/admin/content/team",            icon: "Users",           description: "Team members page" },
-    { label: "404 Page",       href: "/admin/content/not-found",       icon: "AlertCircle",     description: "Custom not-found page" },
+    { label: "Homepage",                 href: "/admin/content/homepage",       icon: "Video",           description: "Hero video, headline, and section cards on the home page" },
+    { label: "Casa Olivea",              href: "/admin/content/casa",           icon: "Home",            description: "Farm-stay hotel page — hero, sections, gallery" },
+    { label: "Casa FAQ",                 href: "/admin/content/casa-faq",       icon: "HelpCircle",      description: "Casa Olivea questions & answers (separate editor with reorder)" },
+    { label: "Olivea Farm to Table",     href: "/admin/content/farm-to-table",  icon: "UtensilsCrossed", description: "MICHELIN restaurant page — hero, sections, FAQ" },
+    { label: "Olivea Café",              href: "/admin/content/cafe",           icon: "Coffee",          description: "Daytime café & padel page — hero, sections, FAQ" },
+    { label: "Sustainability",           href: "/admin/content/sustainability", icon: "Leaf",            description: "Philosophy and sustainability practices" },
+    { label: "Press",                    href: "/admin/content/press",          icon: "Newspaper",       description: "Press chrome — hero text and tagline (awards live in MDX files)" },
+    { label: "Team Page",                href: "/admin/content/team",           icon: "Users",           description: "Public team page meta + roster (JSON editor)" },
+    { label: "Contact",                  href: "/admin/content/contact",        icon: "Mail",            description: "Contact info, addresses, social, form labels" },
+    { label: "Careers",                  href: "/admin/content/careers",        icon: "Briefcase",       description: "Careers page chrome plus active job openings" },
   ],
-  content: [
-    { label: "Journal",   href: "/admin/journal",            icon: "BookOpen",    description: "Blog posts and articles" },
-    { label: "Popups",    href: "/admin/popups",             icon: "Bell",        description: "Site popup announcements" },
-    { label: "Banners",   href: "/admin/banners",            icon: "Flag",        description: "Promotional site banners" },
-    { label: "Casa FAQ",  href: "/admin/content/casa-faq",   icon: "HelpCircle",  description: "Frequently asked questions for Casa" },
-    { label: "Media",     href: "/admin/media",              icon: "Image",       description: "Image library and uploads" },
-  ],
-  settings: [
-    { label: "Global",     href: "/admin/content/global",  icon: "Globe",       description: "Site-wide settings and defaults" },
-    { label: "Navigation", href: "/admin/content/drawer",  icon: "Menu",        description: "Main navigation drawer links" },
-    { label: "Footer",     href: "/admin/content/footer",  icon: "PanelBottom", description: "Footer content and links" },
-    { label: "Hours",      href: "/admin/hours",           icon: "Clock",       description: "Operating hours for all venues" },
+  // Site setup — rarely changed.
+  setup: [
+    { label: "Brand & Identity",         href: "/admin/content/global",   icon: "Globe",       description: "Site name, tagline, social URLs, default OG image, contact info" },
+    { label: "Mobile Navigation",        href: "/admin/content/drawer",   icon: "Menu",        description: "Items shown in the mobile drawer menu" },
+    { label: "Footer",                   href: "/admin/content/footer",   icon: "PanelBottom", description: "Footer copy and link groups" },
+    { label: "Legal Pages",              href: "/admin/content/legal",    icon: "Scale",       description: "Privacy policy, terms, cookie statement" },
+    { label: "404 Page",                 href: "/admin/content/not-found",icon: "AlertCircle", description: "Message shown when a visitor hits a missing page" },
+    { label: "Audit Log",                href: "/admin/audit-log",        icon: "ScrollText",  description: "Who edited what, and when" },
   ],
 };
 
@@ -65,11 +92,13 @@ const DockContext = createContext<DockContextValue>({
   setActiveCategory: () => {},
 });
 
-/** Hub route → category mapping */
+/** Hub route → category mapping
+ *  Hub URLs continue to work but map to the new category labels. The legacy
+ *  hub paths are kept so existing bookmarks don't break. */
 const hubRoutes: Record<string, AdminCategory> = {
   "/admin/pages": "pages",
-  "/admin/content-hub": "content",
-  "/admin/site-settings": "settings",
+  "/admin/content-hub": "daily",
+  "/admin/site-settings": "setup",
 };
 
 /** Map any pathname to its parent category */

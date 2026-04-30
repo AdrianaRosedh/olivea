@@ -43,6 +43,8 @@ import {
   Menu,
   PanelBottom,
   Clock,
+  Megaphone,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 
@@ -68,6 +70,8 @@ const iconMap: Record<string, LucideIcon> = {
   Menu,
   PanelBottom,
   Clock,
+  Megaphone,
+  ScrollText,
 };
 
 const categoryIcons: Record<string, LucideIcon> = {
@@ -88,34 +92,36 @@ interface SearchItem {
 }
 
 const allItems: SearchItem[] = [
-  // Dashboard
-  { label: "Dashboard", href: "/admin", icon: "LayoutDashboard", description: "Overview and recent activity", category: "dashboard", categoryLabel: "Dashboard" },
-  // Pages
-  { label: "Homepage", href: "/admin/content/homepage", icon: "Video", description: "Hero video and homepage content", category: "pages", categoryLabel: "Pages" },
-  { label: "Farm to Table", href: "/admin/content/farm-to-table", icon: "UtensilsCrossed", description: "Restaurant page content", category: "pages", categoryLabel: "Pages" },
-  { label: "Casa", href: "/admin/content/casa", icon: "Home", description: "Farm stay page content", category: "pages", categoryLabel: "Pages" },
-  { label: "Café", href: "/admin/content/cafe", icon: "Coffee", description: "Café page content", category: "pages", categoryLabel: "Pages" },
-  { label: "Contact", href: "/admin/content/contact", icon: "Mail", description: "Contact info and form settings", category: "pages", categoryLabel: "Pages" },
-  { label: "Sustainability", href: "/admin/content/sustainability", icon: "Leaf", description: "Sustainability page", category: "pages", categoryLabel: "Pages" },
-  { label: "Press", href: "/admin/content/press", icon: "Newspaper", description: "Press features and mentions", category: "pages", categoryLabel: "Pages" },
-  { label: "Careers", href: "/admin/content/careers", icon: "Briefcase", description: "Job openings and careers page", category: "pages", categoryLabel: "Pages" },
-  { label: "Legal", href: "/admin/content/legal", icon: "Scale", description: "Privacy policy and terms", category: "pages", categoryLabel: "Pages" },
-  { label: "Team", href: "/admin/content/team", icon: "Users", description: "Team members page", category: "pages", categoryLabel: "Pages" },
-  { label: "404 Page", href: "/admin/content/not-found", icon: "AlertCircle", description: "Custom not-found page", category: "pages", categoryLabel: "Pages" },
-  // Content
-  { label: "Journal", href: "/admin/journal", icon: "BookOpen", description: "Blog posts and articles", category: "content", categoryLabel: "Content" },
-  { label: "Popups", href: "/admin/popups", icon: "Bell", description: "Site popup announcements", category: "content", categoryLabel: "Content" },
-  { label: "Banners", href: "/admin/banners", icon: "Flag", description: "Promotional site banners", category: "content", categoryLabel: "Content" },
-  { label: "Casa FAQ", href: "/admin/content/casa-faq", icon: "HelpCircle", description: "Frequently asked questions for Casa", category: "content", categoryLabel: "Content" },
-  { label: "Media", href: "/admin/media", icon: "Image", description: "Image library and uploads", category: "content", categoryLabel: "Content" },
-  // Settings
-  { label: "Global Settings", href: "/admin/content/global", icon: "Globe", description: "Site-wide settings and defaults", category: "settings", categoryLabel: "Settings" },
-  { label: "Navigation", href: "/admin/content/drawer", icon: "Menu", description: "Main navigation drawer links", category: "settings", categoryLabel: "Settings" },
-  { label: "Footer", href: "/admin/content/footer", icon: "PanelBottom", description: "Footer content and links", category: "settings", categoryLabel: "Settings" },
-  { label: "Hours", href: "/admin/hours", icon: "Clock", description: "Operating hours for all venues", category: "settings", categoryLabel: "Settings" },
-  // Extra pages not in categoryItems
-  { label: "Team Management", href: "/admin/team", icon: "Users", description: "Manage team members and roles", category: "dashboard", categoryLabel: "Admin" },
-  { label: "Menu", href: "/admin/menu", icon: "UtensilsCrossed", description: "Restaurant and café menus", category: "content", categoryLabel: "Content" },
+  // Today (dashboard)
+  { label: "Today",                   href: "/admin",                        icon: "LayoutDashboard", description: "What's live right now and recent activity",                          category: "dashboard", categoryLabel: "Today" },
+  // Daily Updates — high-frequency edits
+  { label: "Specials & Announcements", href: "/admin/popups",                icon: "Bell",            description: "Pop-up messages (today's special, event reminder)",                  category: "daily", categoryLabel: "Daily Updates" },
+  { label: "Site Banners",            href: "/admin/banners",                icon: "Flag",            description: "Top-of-page banners (sale, holiday hours, urgent notice)",          category: "daily", categoryLabel: "Daily Updates" },
+  { label: "Promotions",              href: "/admin/promotions",             icon: "Megaphone",       description: "Time-limited offers across selected pages",                          category: "daily", categoryLabel: "Daily Updates" },
+  { label: "Journal",                 href: "/admin/journal",                icon: "BookOpen",        description: "Long-form articles — full draft/publish workflow",                   category: "daily", categoryLabel: "Daily Updates" },
+  { label: "Operating Hours",         href: "/admin/hours",                  icon: "Clock",           description: "Hours shown on the live status badge and footer",                    category: "daily", categoryLabel: "Daily Updates" },
+  { label: "Photos & Media",          href: "/admin/media",                  icon: "Image",           description: "Upload images for use anywhere on the site",                         category: "daily", categoryLabel: "Daily Updates" },
+  // Brand & Pages — editorial content per public page
+  { label: "Homepage",                href: "/admin/content/homepage",       icon: "Video",           description: "Hero video, headline, and section cards",                            category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Casa Olivea",             href: "/admin/content/casa",           icon: "Home",            description: "Farm-stay hotel page",                                               category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Casa FAQ",                href: "/admin/content/casa-faq",       icon: "HelpCircle",      description: "Casa Olivea questions & answers (separate editor)",                  category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Olivea Farm to Table",    href: "/admin/content/farm-to-table",  icon: "UtensilsCrossed", description: "MICHELIN restaurant page",                                           category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Olivea Café",             href: "/admin/content/cafe",           icon: "Coffee",          description: "Daytime café & padel page",                                          category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Sustainability",          href: "/admin/content/sustainability", icon: "Leaf",            description: "Philosophy and sustainability practices",                            category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Press",                   href: "/admin/content/press",          icon: "Newspaper",       description: "Press chrome (awards live in MDX files)",                            category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Team Page",               href: "/admin/content/team",           icon: "Users",           description: "Public team page meta + roster",                                     category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Contact",                 href: "/admin/content/contact",        icon: "Mail",            description: "Contact info, addresses, social, form labels",                       category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Careers",                 href: "/admin/content/careers",        icon: "Briefcase",       description: "Careers page chrome plus active job openings",                       category: "pages", categoryLabel: "Brand & Pages" },
+  // Setup — rarely-changed
+  { label: "Brand & Identity",        href: "/admin/content/global",         icon: "Globe",           description: "Site name, tagline, social URLs, default OG image, contact info",    category: "setup", categoryLabel: "Setup" },
+  { label: "Mobile Navigation",       href: "/admin/content/drawer",         icon: "Menu",            description: "Items shown in the mobile drawer menu",                              category: "setup", categoryLabel: "Setup" },
+  { label: "Footer",                  href: "/admin/content/footer",         icon: "PanelBottom",     description: "Footer copy and link groups",                                        category: "setup", categoryLabel: "Setup" },
+  { label: "Legal Pages",             href: "/admin/content/legal",          icon: "Scale",           description: "Privacy policy, terms, cookie statement",                            category: "setup", categoryLabel: "Setup" },
+  { label: "404 Page",                href: "/admin/content/not-found",      icon: "AlertCircle",     description: "Message shown when a visitor hits a missing page",                   category: "setup", categoryLabel: "Setup" },
+  { label: "Audit Log",               href: "/admin/audit-log",              icon: "ScrollText",      description: "Who edited what, and when",                                          category: "setup", categoryLabel: "Setup" },
+  // Admin user management (separate from public team page)
+  { label: "Admin Users",              href: "/admin/team",                  icon: "Users",           description: "Manage who can log in to admin and what they can edit",              category: "setup", categoryLabel: "Setup" },
+  { label: "Menu (Canva links)",       href: "/admin/menu",                  icon: "UtensilsCrossed", description: "Quick links to the Canva-hosted PDF menus",                          category: "daily", categoryLabel: "Daily Updates" },
 ];
 
 /* ─── Context for opening palette from anywhere ─── */

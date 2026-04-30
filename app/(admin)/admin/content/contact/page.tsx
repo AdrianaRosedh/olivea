@@ -134,7 +134,7 @@ function ContactVisual() {
 export default function ContactAdmin() {
   return (
     <SectionGuard sectionKey="pages.contact">
-      <VisualPageEditor title="Contact" table="contact_content" icon={<Mail className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={contactContent as unknown as Record<string, unknown>}>
+      <VisualPageEditor title="Contact" table="contact_content" icon={<Mail className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={contactContent as unknown as Record<string, unknown>} livePath="/contact">
         <ContactVisual />
       </VisualPageEditor>
     </SectionGuard>

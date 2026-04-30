@@ -9,7 +9,19 @@ import {
   MetaSection,
   EditableBilingual,
   EditableImage,
+  EditableSections,
+  EditableJSON,
 } from "@/components/admin/visual-editor";
+
+interface SectionShape {
+  id?: string;
+  title?: { es: string; en: string };
+  subtitle?: { es: string; en: string };
+  body?: { es: string; en: string };
+  description?: { es: string; en: string };
+  image?: { src: string; alt?: { es: string; en: string } };
+  [key: string]: unknown;
+}
 
 const mdxSections = [
   { name: "Hero",           file: "hero.es.mdx / hero.en.mdx" },
@@ -37,6 +49,8 @@ function CasaVisual() {
     description?: { es: string; en: string };
   } | undefined;
 
+  const sections = (get("sections") as SectionShape[]) ?? [];
+
   return (
     <div className="space-y-6">
       <MetaSection>
@@ -61,12 +75,33 @@ function CasaVisual() {
         <EditableBilingual label="Subheadline" as="p" value={hero?.subheadline ?? { es: "", en: "" }} onChange={(v) => set("hero.subheadline", v)} className="text-base text-stone-600 font-serif italic" placeholder="Subheadline text..." />
       </div>
 
-      {/* MDX content reference */}
+      {/* Visual section editor — covers title/body/image for each section.
+          When admin saves sections data, the public page reads from DB and
+          overrides the MDX fallback. Use the Casa FAQ admin page (/admin/content/casa-faq)
+          for structured FAQ editing. */}
+      <EditableSections
+        label="Page Sections (visual editing)"
+        value={sections}
+        onChange={(v) => set("sections", v)}
+        fields={["title", "subtitle", "body", "description", "image"]}
+        collapsed={false}
+      />
+
+      {/* Raw JSON access for advanced fields. */}
+      <EditableJSON
+        label="Sections (raw JSON — for stats, custom fields, advanced editing)"
+        value={sections}
+        onChange={(v) => set("sections", v)}
+        rows={20}
+        collapsed
+      />
+
+      {/* MDX fallback reference */}
       <div className="rounded-2xl border border-stone-200/60 bg-white/40 overflow-hidden">
         <div className="px-5 py-3 border-b border-stone-200/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileCode2 className="w-4 h-4 text-stone-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Page Content</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">MDX Fallback (used when DB is empty)</span>
             <span className="text-[10px] text-stone-400">({mdxSections.length} sections)</span>
           </div>
           <a href="/es/casa" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-[11px] font-semibold hover:bg-stone-200 transition-colors">
@@ -76,9 +111,8 @@ function CasaVisual() {
         </div>
         <div className="px-5 py-4 space-y-2.5">
           <p className="text-xs text-stone-500 leading-relaxed mb-3">
-            This page&apos;s body content is built with interactive MDX components
-            (parallax images, scroll animations, galleries). To edit section text or images,
-            modify the MDX files directly in the codebase.
+            If no sections are saved above, the public page falls back to these MDX files in the codebase.
+            Once you save sections from this admin, your edits override the MDX content.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {mdxSections.map((s) => (
@@ -97,7 +131,7 @@ function CasaVisual() {
 export default function CasaAdmin() {
   return (
     <SectionGuard sectionKey="pages.casa">
-      <VisualPageEditor title="Casa" table="casa_content" icon={<Home className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={casaContent as unknown as Record<string, unknown>}>
+      <VisualPageEditor title="Casa" table="casa_content" icon={<Home className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={casaContent as unknown as Record<string, unknown>} livePath="/casa">
         <CasaVisual />
       </VisualPageEditor>
     </SectionGuard>

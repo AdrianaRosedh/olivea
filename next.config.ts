@@ -132,7 +132,11 @@ const nextConfig: NextConfig = {
           has: [
             {
               type: "host" as const,
-              value: `(?!${adminHost.replace(/\./g, "\\.")}$)(?!localhost$)(?!.*\\.vercel\\.app$).*`,
+              // Block /admin on the public domain. Allow:
+              //   - the configured admin subdomain
+              //   - any host containing "localhost" (dev: localhost, olivea-localhost, etc.)
+              //   - Vercel preview hosts (*.vercel.app)
+              value: `(?!${adminHost.replace(/\./g, "\\.")}$)(?!.*localhost.*)(?!.*\\.vercel\\.app$).*`,
             },
           ],
         },

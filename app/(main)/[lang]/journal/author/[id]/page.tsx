@@ -8,12 +8,12 @@ import type { Lang } from "@/app/(main)/[lang]/dictionaries";
 import { listJournalIndex } from "@/lib/journal/load";
 import { absoluteUrl, SITE } from "@/lib/site";
 import {
-  getAuthorProfile,
+  loadAuthorProfile,
   localizedAuthorBio,
   localizedAuthorTitle,
 } from "@/lib/journal/authors";
 import { normalizeAuthors } from "@/lib/journal/author";
-import { getLeader } from "@/app/(main)/[lang]/team/teamData";
+import { loadLeader } from "@/app/(main)/[lang]/team/teamData";
 
 function fmtDate(iso: string, lang: Lang) {
   try {
@@ -71,7 +71,7 @@ export default async function AuthorPage({
   if (byAuthor.length === 0) return notFound();
 
   // ✅ team membership (controls leader line visibility)
-  const teamMember = getLeader(authorId);
+  const teamMember = await loadLeader(authorId);
   const isTeamAuthor = !!teamMember;
 
   // Team hub link (NOT individual linktree)
@@ -80,7 +80,7 @@ export default async function AuthorPage({
   // Still keep individual linktree click behavior for avatar + name/title
   const teamLinktreeHref = `/${lang}/team/${authorId}`;
 
-  const profile = getAuthorProfile(authorId);
+  const profile = await loadAuthorProfile(authorId);
   const displayName =
     profile?.name ??
     normalizeAuthors(byAuthor[0], lang).find((a) => a.id === authorId)?.name ??

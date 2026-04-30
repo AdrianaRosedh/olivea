@@ -111,7 +111,7 @@ function PressVisual() {
 export default function PressAdmin() {
   return (
     <SectionGuard sectionKey="pages.press">
-      <VisualPageEditor title="Press" table="press_content" icon={<Newspaper className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={pressContent as unknown as Record<string, unknown>}>
+      <VisualPageEditor title="Press" table="press_content" icon={<Newspaper className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={pressContent as unknown as Record<string, unknown>} livePath="/press">
         <PressVisual />
       </VisualPageEditor>
     </SectionGuard>

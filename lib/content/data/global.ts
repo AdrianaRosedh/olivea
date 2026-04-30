@@ -45,7 +45,12 @@ const global: GlobalSettings = {
     },
   ],
   socials: [
-    { platform: "instagram", url: "https://instagram.com/oliveafarmtotable", label: "@oliveafarmtotable" },
+    { platform: "youtube",   url: "https://www.youtube.com/@GrupoOlivea",                       label: "YouTube" },
+    { platform: "instagram", url: "https://instagram.com/oliveafarmtotable/",                   label: "Instagram" },
+    { platform: "tiktok",    url: "https://www.tiktok.com/@familiaolivea",                      label: "TikTok" },
+    { platform: "linkedin",  url: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn" },
+    { platform: "spotify",   url: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8",   label: "Spotify" },
+    { platform: "pinterest", url: "https://mx.pinterest.com/familiaolivea/",                    label: "Pinterest" },
   ],
   defaultOgImage: "/images/seo/seo-og.jpg",
   twitterHandle: "@oliveafarmtotable",

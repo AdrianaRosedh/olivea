@@ -42,6 +42,7 @@ export type {
   CareersContent,
   LegalContent,
   TeamContent,
+  TeamMember,
   NotFoundContent,
 
   // Journal
@@ -50,11 +51,6 @@ export type {
   JournalArticle,
   JournalAuthor,
   JournalArticleSeo,
-
-  // Menus
-  WineItem,
-  DrinkItem,
-  SpiritItem,
 
   // Media & Promotions
   MediaItem,

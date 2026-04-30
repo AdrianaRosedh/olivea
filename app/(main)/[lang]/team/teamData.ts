@@ -708,21 +708,80 @@ export const TEAM: LeaderProfile[] = [
    Helpers
 ========================================================= */
 
+const normalizeId = (s: string) =>
+  s
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+/** Build the set of slugs that should resolve to a given member.
+ *  - The canonical `id` (e.g. "adrianarose")
+ *  - The first name from `name` (e.g. "adriana", "daniel")
+ *  - The full lowercased name without spaces (e.g. "adrianarose")
+ *  - Any explicit `aliases` field (forward-compat, not yet typed in)
+ */
+function aliasesFor(member: LeaderProfile): string[] {
+  const slugs = new Set<string>();
+  slugs.add(normalizeId(member.id));
+  const name = (member.name ?? "").trim();
+  if (name) {
+    const firstName = name.split(/\s+/)[0] ?? "";
+    if (firstName) slugs.add(normalizeId(firstName));
+    slugs.add(normalizeId(name.replace(/\s+/g, "")));
+  }
+  return [...slugs];
+}
+
+function findMemberInList(
+  list: LeaderProfile[],
+  id: string
+): LeaderProfile | undefined {
+  const key = normalizeId(id);
+  // exact id match first
+  const exact = list.find((l) => normalizeId(l.id) === key);
+  if (exact) return exact;
+  // alias match (first name, full name without spaces)
+  return list.find((l) => aliasesFor(l).includes(key));
+}
+
 export function getLeader(id?: string | null): LeaderProfile | undefined {
   if (!id) return undefined;
-
-  const normalize = (s: string) =>
-    s
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-
-  const key = normalize(String(id));
-
-  return TEAM.find((l) => normalize(l.id) === key);
+  return findMemberInList(TEAM, String(id));
 }
 
 export function getSortedTeam(): LeaderProfile[] {
   return [...TEAM].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
+}
+
+/* =========================================================
+   DB-aware loaders (server-side)
+   - loadTeam(): returns members from getContent("team") if present,
+                 else falls back to TEAM. Used by server components.
+   - loadLeader(id): same but returns one member.
+========================================================= */
+
+export async function loadTeam(): Promise<LeaderProfile[]> {
+  try {
+    const { getContent } = await import("@/lib/content");
+    const team = await getContent("team");
+    const members = team.members;
+    if (Array.isArray(members) && members.length > 0) {
+      return members as unknown as LeaderProfile[];
+    }
+  } catch {
+    // fall through
+  }
+  return TEAM;
+}
+
+export async function loadSortedTeam(): Promise<LeaderProfile[]> {
+  const list = await loadTeam();
+  return [...list].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
+}
+
+export async function loadLeader(id?: string | null): Promise<LeaderProfile | undefined> {
+  if (!id) return undefined;
+  const list = await loadTeam();
+  return findMemberInList(list, String(id));
 }

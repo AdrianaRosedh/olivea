@@ -32,8 +32,9 @@ export async function requireAdminHost(): Promise<void> {
   // Strip port for comparison (localhost:3000 → localhost)
   const hostname = host.split(":")[0];
 
-  // Allow localhost in development
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
+  // Allow any localhost variant in development
+  // (matches "localhost", "olivea-localhost", "admin.localhost", etc.)
+  if (hostname.includes("localhost") || hostname === "127.0.0.1") {
     return;
   }
 

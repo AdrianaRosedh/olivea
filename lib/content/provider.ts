@@ -27,9 +27,6 @@ import type {
   GlobalSettings,
   DrawerContent,
   FooterContent,
-  WineItem,
-  DrinkItem,
-  SpiritItem,
   FaqItem,
   MediaItem,
   Promotion,
@@ -65,9 +62,6 @@ export type ContentKey = keyof ContentMap;
 // ── Collection Map — maps collection keys to their item types ──
 
 export interface CollectionMap {
-  wines: WineItem;
-  drinks: DrinkItem;
-  spirits: SpiritItem;
   journal: JournalPost;
   journalArticles: JournalArticle;
   faq: FaqItem;
@@ -503,8 +497,8 @@ export async function getContent<K extends ContentKey>(
  * List items in a collection with optional filtering.
  *
  * @example
- *   const wines = await listContent("wines", { filter: { available: true } });
  *   const published = await listContent("journal", { filter: { status: "published" } });
+ *   const popups = await listContent("popups", { filter: { enabled: true } });
  */
 export async function listContent<K extends CollectionKey>(
   key: K,
@@ -517,7 +511,7 @@ export async function listContent<K extends CollectionKey>(
  * Get a single collection item by ID.
  *
  * @example
- *   const wine = await getContentById("wines", "w1");
+ *   const post = await getContentById("journal", "post-id");
  */
 export async function getContentById<K extends CollectionKey>(
   key: K,

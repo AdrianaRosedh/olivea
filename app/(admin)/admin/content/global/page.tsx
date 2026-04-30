@@ -76,7 +76,7 @@ function GlobalVisual() {
 export default function GlobalSettingsAdmin() {
   return (
     <SectionGuard sectionKey="settings.global">
-      <VisualPageEditor title="Global Settings" table="global_settings" icon={<Globe className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={globalContent as unknown as Record<string, unknown>}>
+      <VisualPageEditor title="Global Settings" table="global_settings" icon={<Globe className="w-5 h-5 text-[var(--olivea-olive)]" />} fallbackData={globalContent as unknown as Record<string, unknown>} livePath="/">
         <GlobalVisual />
       </VisualPageEditor>
     </SectionGuard>
