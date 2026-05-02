@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   motion,
   useReducedMotion,
@@ -33,7 +33,14 @@ type Props = {
   objectPosition?: string;
   priority?: boolean;
 
-  /** Scroll binding */
+  /**
+   * Scroll binding. By default the band tracks the **viewport** scroll, which
+   * works on every page regardless of layout.
+   *
+   * Pass a CSS selector (e.g. "main") only if the page has a custom internal
+   * scroll container that owns the scrolling — most pages don't, and binding
+   * to a non-existent container silently disables the animation.
+   */
   scrollContainerSelector?: string;
   offset?: OffsetType;
 
@@ -50,18 +57,13 @@ type Props = {
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-function findEl(selector?: string): HTMLElement | null {
-  if (!selector) return null;
-  return document.querySelector(selector) as HTMLElement | null;
-}
-
 export default function ScrollGrowImageBand({
   src,
   alt,
-  startH = "170px",
-  endH = "420px",
-  delayStart = 0.18,
-  holdAt = 0.88,
+  startH = "160px",
+  endH = "460px",
+  delayStart = 0.05,
+  holdAt = 0.85,
 
   maxWClassName = "max-w-275",
   className = "",
@@ -69,7 +71,9 @@ export default function ScrollGrowImageBand({
   objectPosition = "50% 45%",
   priority = false,
 
-  scrollContainerSelector = "main",
+  // Default ignored — we always bind to viewport scroll for reliability.
+  // Kept for backwards compatibility with existing call sites that pass it.
+  scrollContainerSelector: _scrollContainerSelector,
   offset,
 
   showOverlays = true,
@@ -83,7 +87,8 @@ export default function ScrollGrowImageBand({
   const reduce = useReducedMotion();
   const targetRef = useRef<HTMLDivElement | null>(null);
   // Track target mount via state so useScroll only receives a populated ref.
-  // (Avoids framer-motion's "Container/Target ref defined but not hydrated" warning.)
+  // (Avoids framer-motion's "Target ref defined but not hydrated" warning and
+  // ensures the scroll binding actually attaches once the element is in the DOM.)
   const [targetReady, setTargetReady] = useState(false);
   const setTargetNode = useCallback((node: HTMLDivElement | null) => {
     targetRef.current = node;
@@ -93,52 +98,25 @@ export default function ScrollGrowImageBand({
   // ✅ mobile == md breakpoint parity
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  const [containerEl, setContainerEl] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setContainerEl(
-      findEl(scrollContainerSelector) ||
-        (document.querySelector("main") as HTMLElement | null) ||
-        null
-    );
-  }, [scrollContainerSelector]);
-
-  const containerRef = useMemo(
-    () => ({ current: containerEl }) as React.RefObject<HTMLElement>,
-    [containerEl]
-  );
-
+  /**
+   * Default to a generous "track-the-target-through-the-viewport" range so the
+   * reveal happens *while the band is on screen*, not before the user reaches
+   * it. Tuned so:
+   *   progress 0 → target's top edge at the bottom of the viewport (just entering)
+   *   progress 1 → target's bottom edge at the top of the viewport (just leaving)
+   */
   const offsetMutable: OffsetType = useMemo(() => {
     if (offset) return offset;
-    return ["end 98%", "start 28%"] as unknown as OffsetType;
+    return ["start end", "end start"] as unknown as OffsetType;
   }, [offset]);
 
-  /**
-   * ✅ Key fix:
-   * - Desktop: keep container-based scrolling (your current behavior)
-   * - Mobile: bind to window scroll (omit container) because mobile commonly scrolls the page, not <main>
-   */
+  // Always bind to viewport scroll. Container-based binding silently fails on
+  // any page that doesn't render a matching scroll container (which is most of
+  // them — `ScrollLimiter` is a plain <div>, not a scroller).
   const scrollOpts = useMemo<UseScrollOptions | undefined>(() => {
-    // First render — target hasn't mounted yet. Pass no refs so useScroll
-    // falls back to viewport tracking (no-op until target is populated).
     if (!targetReady) return { offset: offsetMutable };
-
-    const base: UseScrollOptions = {
-      target: targetRef,
-      offset: offsetMutable,
-    };
-
-    // Mobile: viewport scroll
-    if (isMobile) return base;
-
-    // Desktop: container scroll, but only once the container element is resolved.
-    if (!containerEl) return base;
-
-    return {
-      ...base,
-      container: containerRef,
-    } as UseScrollOptions;
-  }, [targetReady, isMobile, offsetMutable, containerRef, containerEl]);
+    return { target: targetRef, offset: offsetMutable };
+  }, [targetReady, offsetMutable]);
 
   const scroll = useScroll(scrollOpts);
   const scrollYProgress = scroll.scrollYProgress as MotionValue<number>;
