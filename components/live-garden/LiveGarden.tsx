@@ -64,7 +64,7 @@ const pulseKeyframes = `
 
 // ─── Map container (iframe embed) ───────────────────────────────────
 
-function MapContainer() {
+function MapContainer({ isEn }: { isEn: boolean }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -82,7 +82,9 @@ function MapContainer() {
               <circle cx="12" cy="12" r="10" strokeOpacity={0.25} />
               <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
             </svg>
-            <span className="text-sm tracking-wide">Loading map...</span>
+            <span className="text-sm tracking-wide">
+              {isEn ? "Loading map..." : "Cargando mapa..."}
+            </span>
           </div>
         </div>
       )}
@@ -92,7 +94,7 @@ function MapContainer() {
         allow="fullscreen"
         loading="lazy"
         className="absolute inset-0 w-full h-full border-0"
-        title="Olivea Live Garden Map"
+        title={isEn ? "Olivea Live Garden Map" : "Mapa en vivo del huerto Olivea"}
       />
     </div>
   );
@@ -105,8 +107,8 @@ export default function LiveGarden() {
   const [isMobile, setIsMobile] = useState(false);
   const prefersReduced = useReducedMotion();
   const pathname = usePathname();
-  const isEn = useMemo(() => pathname?.startsWith("/en"), [pathname]);
-  const isAdmin = useMemo(() => pathname?.startsWith("/admin"), [pathname]);
+  const isEn = useMemo(() => pathname?.startsWith("/en") ?? false, [pathname]);
+  const isAdmin = useMemo(() => pathname?.startsWith("/admin") ?? false, [pathname]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -179,9 +181,9 @@ export default function LiveGarden() {
               "transition-[colors,transform] duration-200",
               "cursor-pointer select-none",
               // Top-right, directly below RESERVAR button
-              "top-[140px] right-[42px]",
+              "top-35 right-10.5",
             )}
-            aria-label="Open live garden map"
+            aria-label={isEn ? "Open the live garden map" : "Abrir el mapa del huerto en vivo"}
           >
             {/* Pulse dot */}
             <span className="relative flex h-2 w-2">
@@ -193,7 +195,7 @@ export default function LiveGarden() {
             </span>
 
             <span className="text-[10px] font-semibold tracking-widest uppercase">
-              En Vivo
+              {isEn ? "Live in the Garden" : "El Huerto En Vivo"}
             </span>
           </motion.button>
         )}
@@ -244,7 +246,7 @@ export default function LiveGarden() {
                     <span className="relative rounded-full h-2 w-2 bg-green-400" />
                   </span>
                   <h2 className="text-sm md:text-base font-medium tracking-wide uppercase" style={{ color: "var(--olivea-olive)" }}>
-                    Olivea — En Vivo
+                    {isEn ? "Olivea — Live" : "Olivea — En Vivo"}
                   </h2>
                 </div>
 
@@ -258,7 +260,7 @@ export default function LiveGarden() {
                     "cursor-pointer",
                   )}
                   style={{ color: "var(--olivea-olive)" }}
-                  aria-label="Close map"
+                  aria-label={isEn ? "Close map" : "Cerrar mapa"}
                 >
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <path d="M4 4l10 10M14 4L4 14" />
@@ -274,7 +276,7 @@ export default function LiveGarden() {
               </p>
 
               {/* ─── Map ────────────────────────────────────── */}
-              <MapContainer />
+              <MapContainer isEn={isEn} />
 
 
               {/* ─── Footer: Powered by Roseiies ────────────── */}
@@ -286,7 +288,7 @@ export default function LiveGarden() {
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
                 >
                   <span className="text-xs tracking-wide text-neutral-500">
-                    Powered by
+                    {isEn ? "Powered by" : "Hecho con"}
                   </span>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
