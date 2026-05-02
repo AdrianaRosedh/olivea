@@ -183,7 +183,7 @@ export default function LiveGarden() {
               // Top-right, directly below RESERVAR button
               "top-35 right-10.5",
             )}
-            aria-label={isEn ? "Open the live garden map" : "Abrir el mapa del huerto en vivo"}
+            aria-label={isEn ? "See what's growing in the garden right now" : "Vean qué crece en el huerto ahora mismo"}
           >
             {/* Pulse dot */}
             <span className="relative flex h-2 w-2">
@@ -195,7 +195,7 @@ export default function LiveGarden() {
             </span>
 
             <span className="text-[10px] font-semibold tracking-widest uppercase">
-              {isEn ? "Live in the Garden" : "El Huerto En Vivo"}
+              {isEn ? "See What's Growing" : "Vean Qué Crece Hoy"}
             </span>
           </motion.button>
         )}
