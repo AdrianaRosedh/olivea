@@ -10,6 +10,7 @@ import {
   type Lang,
   type AppDictionary,
 } from "@/app/(main)/[lang]/dictionaries";
+import { applyCmsOverlay } from "@/app/(main)/[lang]/dictionaries/cms-overlay";
 import ClientPrewarm from "./prewarm-client";
 import { canonicalUrl, SITE } from "@/lib/site";
 
@@ -43,15 +44,15 @@ export default async function LangLayout({
 }) {
   const { lang: rawLang } = await params;
 
-  const { lang, dict } = (await loadLocale({ lang: rawLang })) as {
+  const { lang, dict: staticDict } = (await loadLocale({ lang: rawLang })) as {
     lang: Lang;
     dict: AppDictionary;
   };
 
-  // Footer socials use the hardcoded fallback for now. Admin can still edit
-  // global_settings.socials via /admin/content/global; wiring those edits to
-  // the Footer would require an extra fetch here (which currently opts the
-  // page out of SSG) or a properly cached unstable_cache wrapper.
+  // Overlay admin-edited CMS values (footer, drawer, contact labels, hours)
+  // onto the static dictionary. Reads are anon-key fetches with 60s ISR, so
+  // pages stay prerendered — on any failure the static dictionary wins.
+  const dict = await applyCmsOverlay(lang, staticDict);
 
   const isEs = lang === "es";
   const prefix = isEs ? "es" : "en";

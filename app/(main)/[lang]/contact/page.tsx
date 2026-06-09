@@ -5,6 +5,7 @@ import {
   normalizeLang,
   type Lang,
 } from "@/app/(main)/[lang]/dictionaries";
+import { applyCmsOverlay } from "@/app/(main)/[lang]/dictionaries/cms-overlay";
 import ContactClient from "./ContactClient";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
@@ -50,7 +51,9 @@ export default async function ContactPage({ params }: PageProps) {
   const { lang: raw } = await params;
   const lang: Lang = normalizeLang(raw);
 
-  const dict = getDictionary(lang);
+  // Static dictionary + admin-edited CMS overlay (labels, hours, footer note).
+  // Metadata above intentionally stays on the static dictionary.
+  const dict = await applyCmsOverlay(lang, getDictionary(lang));
 
   // ✅ Force to plain JSON so Next never crashes on RSC -> Client boundary
   const t = JSON.parse(JSON.stringify(dict.contact));

@@ -299,9 +299,11 @@ const pageRevalidations: Record<PageTable, string[]> = {
   legal_content: ["/es/legal", "/en/legal"],
   team_content: ["/es/team", "/en/team"],
   not_found_content: ["/es", "/en"],
-  global_settings: ["/"],
-  drawer_content: ["/"],
-  footer_content: ["/"],
+  // These three feed the dictionary CMS overlay in app/(main)/[lang]/layout.tsx,
+  // so they affect every page under the layout — revalidate the whole tree.
+  global_settings: ["layout:/"],
+  drawer_content: ["layout:/"],
+  footer_content: ["layout:/"],
 };
 
 export async function getPageContent(table: PageTable) {
@@ -334,7 +336,11 @@ export async function savePageContent(table: PageTable, data: Record<string, unk
   await upsertRows(table, { id: "singleton", ...dbData }, { onConflict: "id" });
   await logAudit({ action: "save", resourceType: table, resourceId: "singleton" });
   for (const path of pageRevalidations[table] ?? []) {
-    revalidatePath(path);
+    if (path.startsWith("layout:")) {
+      revalidatePath(path.slice("layout:".length), "layout");
+    } else {
+      revalidatePath(path);
+    }
   }
 }
 
