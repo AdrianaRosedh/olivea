@@ -24,6 +24,50 @@ import {
 
 const ROOT = process.cwd();
 const CONTENT_DIR = path.join(ROOT, "content", "journal");
+const PUBLIC_DIR = path.join(ROOT, "public");
+
+/** Local public asset (e.g. "/images/journal/...") that exists on disk? */
+async function localAssetExists(src: string): Promise<boolean> {
+  if (!src.startsWith("/")) return true; // remote URLs: trust them
+  try {
+    await fs.access(path.join(PUBLIC_DIR, src));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Guard against frontmatter covers pointing at files that were never
+ * exported to /public — a broken <img> on every index card otherwise.
+ * The cover is optional, so dropping it falls back to the no-cover card.
+ */
+async function dropMissingCover(
+  fm: JournalFrontmatter,
+  label: string
+): Promise<JournalFrontmatter> {
+  if (fm.cover && !(await localAssetExists(fm.cover.src))) {
+    console.warn(
+      `[journal] Cover image missing on disk for ${label}: ${fm.cover.src} — rendering without cover. Export the image to /public or fix the frontmatter.`
+    );
+    return { ...fm, cover: undefined };
+  }
+  return fm;
+}
+
+/** Warn (build-time) about inline body images that don't exist on disk. */
+async function warnMissingBodyImages(source: string, label: string) {
+  const srcs = [...source.matchAll(/src=["'](\/images\/[^"']+)["']/g)].map(
+    (m) => m[1]
+  );
+  for (const src of srcs) {
+    if (!(await localAssetExists(src))) {
+      console.warn(
+        `[journal] Body image missing on disk for ${label}: ${src}`
+      );
+    }
+  }
+}
 
 function langDir(lang: JournalLang) {
   return path.join(CONTENT_DIR, lang);
@@ -144,8 +188,12 @@ async function loadMdxBySlug(
     options: { parseFrontmatter: false },
   });
 
+  const label = `${lang}/${fileSlug}`;
+  const fm = await dropMissingCover(parsed.data, label);
+  await warnMissingBodyImages(content, label);
+
   return {
-    fm: parsed.data,
+    fm,
     content: compiled.content,
     readingMinutes: Math.max(1, Math.round(rt.minutes)),
   };
