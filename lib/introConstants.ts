@@ -23,6 +23,14 @@ export const SPLASH = {
   bobSec: 2.0,
 } as const;
 
+export const INTRO = {
+  // Hard cap on the whole intro. The morph sequence awaits video metadata,
+  // LCP, and several animation promises — if any of them stalls (data-saver,
+  // low-power autoplay blocks, codec issues), the overlay must still clear.
+  // Natural sequence worst case is ~4.2s; this only fires when something hung.
+  watchdogMs: 7000,
+} as const;
+
 // Optional: a single place for your easing (nice & smooth)
 export const EASE = {
   out: [0.19, 1, 0.22, 1] as [number, number, number, number], // easeOutCubic-ish

@@ -376,7 +376,9 @@ html.pwa-standalone .pwa-safe-bottom {
 }
 
 /* Once JS hydrates, hide the server article. The animated client
-   version takes over visually; the article stays in DOM for a11y. */
+   version takes over visually; the article stays in DOM for a11y.
+   (layout.tsx adds js-hydrated pre-paint but removes it again after 4s
+   if React never hydrates — so this never hides content permanently.) */
 .js-hydrated .ssr-article {
   position: absolute;
   width: 1px;
@@ -387,6 +389,16 @@ html.pwa-standalone .pwa-safe-bottom {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Scroll-reveal fallback: Reveal renders opacity:0 inline (SSR) and relies
+   on JS to animate in. If hydration never lands (watchdog above removed
+   js-hydrated), force the content visible — animation is enhancement,
+   never a gate. */
+html:not(.js-hydrated) [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 /* ───────────────────────────────────────────────────────────── */

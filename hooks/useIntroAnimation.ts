@@ -2,7 +2,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useAnimation } from "framer-motion";
-import { TIMING, SPLASH } from "@/lib/introConstants";
+import { TIMING, SPLASH, INTRO } from "@/lib/introConstants";
 
 /* ── Sub-hook: Idle gate + internal-return detection ─────────────── */
 
@@ -287,6 +287,27 @@ export function useIntroAnimation(isMobile: boolean) {
     heroBoxRef,
     logoTargetRef
   );
+
+  // Reduced motion: skip the cinematic intro entirely — straight to content.
+  useEffect(() => {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setOverlayGone(true);
+    setShowLoader(false);
+    setIntroStarted(false);
+  }, []);
+
+  // Watchdog: the morph sequence awaits video metadata and a chain of
+  // animation promises. If any of them stalls, the overlay would sit on top
+  // of the page and swallow input — force-clear it past the deadline.
+  useEffect(() => {
+    if (!introStarted) return;
+    const t = setTimeout(() => {
+      setOverlayGone(true);
+      setShowLoader(false);
+      setIntroStarted(false);
+    }, INTRO.watchdogMs);
+    return () => clearTimeout(t);
+  }, [introStarted]);
 
   // Logo bobbing (respects reduced motion)
   useEffect(() => {

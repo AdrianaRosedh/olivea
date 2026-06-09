@@ -119,11 +119,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/*
           ✅ Mark JS-hydrated so server-rendered articles (.ssr-article)
           collapse once the animated client content takes over.
-          Runs pre-paint so the article never visually flashes.
+          Runs pre-paint so the article never visually flashes — BUT if
+          hydration doesn't land within 4s (slow network, blocked JS),
+          un-hide the server content so the page is never blank.
+          AppProviders clears the watchdog once React is actually live.
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.classList.add('js-hydrated');`,
+            __html: `document.documentElement.classList.add('js-hydrated');window.__oliveaHydration=setTimeout(function(){document.documentElement.classList.remove('js-hydrated');},4000);`,
           }}
         />
 

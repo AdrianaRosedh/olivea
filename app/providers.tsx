@@ -1,9 +1,9 @@
 // app/providers.tsx
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { LazyMotion, domAnimation } from "framer-motion";
+import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
 import {
   SharedTransitionProvider,
   useSharedTransition,
@@ -120,8 +120,20 @@ function TransitionOverlayGate() {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
+  // React is live: confirm the js-hydrated marker and cancel the
+  // pre-hydration watchdog (see the inline script in app/layout.tsx).
+  useLayoutEffect(() => {
+    const w = window as Window & { __oliveaHydration?: number };
+    if (w.__oliveaHydration) clearTimeout(w.__oliveaHydration);
+    document.documentElement.classList.add("js-hydrated");
+  }, []);
+
   return (
     <LazyMotion features={domAnimation}>
+      {/* Honor prefers-reduced-motion across every motion component:
+          transform/layout animations are skipped, opacity still resolves,
+          so animated content always becomes visible. */}
+      <MotionConfig reducedMotion="user">
       <SharedTransitionProvider>
         <ReservationProvider>
           <ScrollProvider>
@@ -139,6 +151,7 @@ export function AppProviders({ children }: AppProvidersProps) {
         {/* ⬇️ Overlay now deferred until intent/active */}
         <TransitionOverlayGate />
       </SharedTransitionProvider>
+      </MotionConfig>
     </LazyMotion>
   );
 }
