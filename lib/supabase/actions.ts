@@ -197,6 +197,7 @@ export async function reorderCasaFaq(items: { id: string; sort_order: number }[]
   }
   revalidatePath("/es/casa");
   revalidatePath("/en/casa");
+  revalidatePath("/admin/content/casa-faq");
 }
 
 // ── Careers Content ─────────────────────────────────────────────────

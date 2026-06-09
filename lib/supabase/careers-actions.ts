@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import {
   selectRows,
@@ -14,6 +15,13 @@ import {
   assertUUID,
 } from "@/lib/supabase/client";
 import { requireSession } from "@/lib/auth/session";
+
+// The public careers page caches its data — bust it whenever openings change.
+function revalidateCareers() {
+  revalidatePath("/es/carreras");
+  revalidatePath("/en/carreras");
+  revalidatePath("/admin/content/careers");
+}
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -178,6 +186,7 @@ export async function saveJobOpening(opening: Partial<JobOpening> & { id?: strin
   }
 
   const [saved] = await upsertRows<OpeningRow>("job_openings", row, { onConflict: "id" });
+  revalidateCareers();
   return saved ? mapOpening(saved) : null;
 }
 
@@ -186,6 +195,7 @@ export async function deleteJobOpening(id: string): Promise<void> {
   assertUUID(id, "openingId");
   if (!isSupabaseConfigured) return;
   await deleteRows("job_openings", `id=eq.${id}`);
+  revalidateCareers();
 }
 
 export async function toggleJobOpeningStatus(id: string, status: "draft" | "live" | "closed"): Promise<void> {
@@ -195,6 +205,7 @@ export async function toggleJobOpeningStatus(id: string, status: "draft" | "live
   const updates: Record<string, unknown> = { status, updated_at: new Date().toISOString() };
   if (status === "live") updates.published_at = new Date().toISOString();
   await updateRows("job_openings", `id=eq.${id}`, updates);
+  revalidateCareers();
 }
 
 // ── Job Applications ────────────────────────────────────────────────
@@ -308,6 +319,8 @@ export async function getLiveJobOpenings(): Promise<JobOpening[]> {
     const rows = await selectRows<OpeningRow>("job_openings", {
       role: "anon",
       query: "status=eq.live&order=sort_order.asc",
+      // ISR: cache for 60s — revalidateCareers() busts it on admin edits
+      revalidate: 60,
     });
     return rows.map(mapOpening);
   } catch {

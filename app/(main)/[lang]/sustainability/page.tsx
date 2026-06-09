@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import PhilosophyClient from "./PhilosophyClient";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
-import { loadPhilosophySections } from "./load";
+import { loadPhilosophySectionsCms } from "./load";
 import { canonicalUrl } from "@/lib/site";
 import type { Lang } from "./philosophyTypes";
 
@@ -67,7 +67,7 @@ export default async function SustainabilityPage({
 }) {
   const p = await params;
   const lang: Lang = p.lang === "en" ? "en" : "es";
-  const sections = loadPhilosophySections(lang);
+  const sections = await loadPhilosophySectionsCms(lang);
   const Article = lang === "en" ? ArticleEn : ArticleEs;
 
   return (

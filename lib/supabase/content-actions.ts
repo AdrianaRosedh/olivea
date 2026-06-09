@@ -5,11 +5,26 @@
 // ─────────────────────────────────────────────────────────────────────
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { selectRows, updateRows, upsertRows, assertUUID } from "@/lib/supabase/client";
 import { requireSession } from "@/lib/auth/session";
 import { logAudit } from "@/lib/auth/audit";
 import type { JournalPost, JournalStatus } from "@/lib/content/types";
+
+// Public journal pages are ISR-cached — every mutation must bust them or
+// edits stay invisible until the next revalidation window / redeploy.
+function revalidateJournal(slug?: string) {
+  for (const lang of ["es", "en"] as const) {
+    revalidatePath(`/${lang}/journal`);
+    revalidatePath(`/${lang}/journal/rss.xml`);
+    if (slug) revalidatePath(`/${lang}/journal/${slug}`);
+  }
+  // Cover all post pages: publish/unpublish only know the id, and tags,
+  // authors and translation links can change which pages exist.
+  revalidatePath("/[lang]/journal/[slug]", "page");
+  revalidatePath("/admin/journal");
+}
 
 // ── Journal helpers ──────────────────────────────────────────────────
 
@@ -119,6 +134,7 @@ export async function saveJournalPost(post: JournalPost): Promise<JournalPost> {
     resourceId: post.id,
     metadata: { slug: post.slug, status: post.status },
   });
+  revalidateJournal(post.slug);
   return saved ? mapJournalRow(saved) : post;
 }
 
@@ -132,6 +148,7 @@ export async function publishJournalPost(id: string): Promise<void> {
     updated_at: new Date().toISOString(),
   });
   await logAudit({ action: "publish", resourceType: "journal_post", resourceId: id });
+  revalidateJournal();
 }
 
 export async function unpublishJournalPost(id: string): Promise<void> {
@@ -144,4 +161,5 @@ export async function unpublishJournalPost(id: string): Promise<void> {
     updated_at: new Date().toISOString(),
   });
   await logAudit({ action: "unpublish", resourceType: "journal_post", resourceId: id });
+  revalidateJournal();
 }
