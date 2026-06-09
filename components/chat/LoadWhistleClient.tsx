@@ -18,6 +18,10 @@ export default function LoadWhistleClient({ enabled = true }: { enabled?: boolea
   useEffect(() => {
     if (!enabled) return;
 
+    // Whistle whitelists the production domain — on localhost / previews it
+    // only throws "Invalid Domain" errors, so skip the third-party script.
+    if (!/(^|\.)oliveafarmtotable\.com$/.test(window.location.hostname)) return;
+
     // Strongly-typed local handle to window — no global augmentation
     const w = window as typeof window & WhistleGlobals;
 

@@ -40,19 +40,20 @@ export default function ReservationButton({
   /* Social proof badge — mobile */
   const badgeMobile = (
     <div className="flex items-center justify-center gap-1.5 mb-2">
+      {/* The badge SVGs have a viewBox but no root width/height, so CSS
+          auto-sizing collapses to 0. Size purely via the width/height
+          attributes (≈ the 83.4×91.1 and 96.99×90.73 viewBox ratios). */}
       <Image
         src="/images/press/awards/michelin.svg"
         alt="MICHELIN Star"
-        width={14}
+        width={13}
         height={14}
-        className="w-3.5 h-3.5"
       />
       <Image
         src="/images/press/awards/michelin-green-star.svg"
         alt="MICHELIN Green Star"
-        width={14}
+        width={15}
         height={14}
-        className="w-3.5 h-3.5"
       />
       <span
         className="text-[10px] tracking-[0.08em] uppercase"
@@ -75,16 +76,16 @@ export default function ReservationButton({
       <Image
         src="/images/press/awards/michelin.svg"
         alt="MICHELIN Star"
-        width={18}
+        width={16}
         height={18}
-        className="w-[18px] h-[18px] brightness-0 invert opacity-80"
+        className="brightness-0 invert opacity-80"
       />
       <Image
         src="/images/press/awards/michelin-green-star.svg"
         alt="MICHELIN Green Star"
-        width={18}
+        width={19}
         height={18}
-        className="w-[18px] h-[18px] brightness-0 invert opacity-80"
+        className="brightness-0 invert opacity-80"
       />
       <span
         className="text-[12px] tracking-[0.12em] uppercase"

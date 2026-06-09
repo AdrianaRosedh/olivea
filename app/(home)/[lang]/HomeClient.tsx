@@ -494,7 +494,9 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                 fill
                 sizes="(min-width: 1024px) 224px, (min-width: 768px) 192px, 144px"
                 className="object-contain"
-                priority={false}
+                // eager (not priority): it's the detected LCP on desktop, but
+                // we don't want it preloaded ahead of the hero image
+                loading="eager"
               />
             </div>
 

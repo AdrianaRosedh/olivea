@@ -2,7 +2,7 @@
 
 A high-performance, bilingual (ES/EN) hospitality web platform powering **Olivea Farm To Table**, **Casa Olivea**, and **Olivea Café**.
 
-Built with **Next.js 16 + React 19**, server components, MDX content, advanced Framer Motion animations, shared video transitions, and an optimized Webpack production pipeline.
+Built with **Next.js 16 + React 19**, server components, MDX content, advanced Framer Motion animations, shared video transitions, and Turbopack (the Next 16 default bundler).
 
 This repository contains the complete frontend of the Olivea digital experience — fast, secure, multilingual, animation-driven, and deeply optimized for mobile.
 
@@ -34,7 +34,8 @@ This repository contains the complete frontend of the Olivea digital experience 
 
 **Build & Deployment**
 
-- Webpack (forced, stable build)
+- Turbopack (Next 16 default — the MDX setup is deliberately Turbopack-compatible: no plugin options in `next.config.ts`)
+- pnpm 10 (`packageManager` field; do not commit a `package-lock.json`)
 - Deployed on Vercel
 - Strict CSP & performance headers
 
@@ -88,8 +89,8 @@ Special CSP rules are applied to:
 
 ### 6. Performance Engineering
 
-* `next build --webpack` (stable & MDX-compatible)
-* `optimizeCss`, `modularizeImports`, `tree-shaking`
+* `next build` (Turbopack, Next 16 default)
+* `optimizePackageImports`, tree-shaking
 * Lazy loaded components
 * Preloading strategies (hero image → background video)
 * Static generation for most pages
@@ -135,11 +136,10 @@ olivea/
 │   ├── videos/
 │   └── icons/
 │
-├── styles/
-│   └── tailwind.css
+├── app/globals.css             # Design tokens + Tailwind v4 entry (CSS-first, no tailwind.config)
 │
 ├── vercel.json                 # Cache headers + build command
-├── next.config.js              # MDX, Webpack, CSP headers
+├── next.config.ts              # MDX, CSP headers, rewrites
 └── proxy.ts                    # Security & locale middleware
 ```
 
@@ -147,47 +147,49 @@ olivea/
 
 ## ⚙️ Environment Variables
 
-This project requires the following variables (configured in Vercel):
+This project requires the following variables (configured in Vercel; values live in `.env.local` for development — never commit them):
 
 ```bash
-NEXT_PUBLIC_SITE_URL= https://oliveafarmtotable.com         
-
-If these are missing, the app will throw at startup.
+NEXT_PUBLIC_SITE_URL=          # https://oliveafarmtotable.com
+NEXT_PUBLIC_SUPABASE_URL=      # Supabase project URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY= # Supabase anon (public) key
+SUPABASE_SERVICE_ROLE_KEY=     # server-only — admin mutations
+RESEND_API_KEY=                # magic-link auth emails
+ADMIN_AUTH_BYPASS=             # dev-only mock admin session; never set in prod
+```
 
 ---
 
 ## 🧩 Running Locally
 
+This project uses **pnpm 10** (see `packageManager` in `package.json`) and **Node 20**.
+
 ### 1. Install dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. Run Dev Server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
-### 3. Set build to Webpack (critical)
+The dev script binds to `olivea-localhost:3000` (add `127.0.0.1 olivea-localhost` to `/etc/hosts`).
 
-Production builds MUST use Webpack:
+### 3. Production build
 
 ```bash
-npm run build
+pnpm build
 ```
 
-You should see:
-
-```txt
-Next.js 16.0.7 (webpack)
-```
+You should see `Next.js 16.x (Turbopack)`. The MDX setup in `next.config.ts` is intentionally Turbopack-compatible — keep remark/rehype plugins out of `createMDX` (they belong to `next-mdx-remote`, which configures its own pipeline).
 
 ### 4. Start Production
 
 ```bash
-npm run start
+pnpm start
 ```
 
 ---
@@ -198,15 +200,9 @@ This app is deployed on Vercel using the default Next.js adapter with a custom `
 
 Deployment details:
 
-* `vercel.json` → specifies custom headers & **forces `npm run build`**
-* Webpack used for MDX compatibility
+* `vercel.json` → custom cache headers + build command
+* pnpm detected automatically via `packageManager` / `pnpm-lock.yaml`
 * Long-term caching for static assets
-
-Ensure that in Vercel settings:
-
-```txt
-Build Command: npm run build
-```
 
 ---
 
