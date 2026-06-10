@@ -24,7 +24,7 @@ export default function GallerySection({ data, lang }: SectionProps) {
       title={null}
       variant="top"
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
-      containerClassName="w-full md:max-w-[92vw] md:mx-auto"
+      containerClassName="w-full md:max-w-[min(1220px,94vw)] md:mx-auto"
     >
       <GalleryGrid topImages={topImages} bottomImages={bottomImages} />
     </StickyBlock>
