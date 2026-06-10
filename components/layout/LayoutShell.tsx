@@ -383,7 +383,24 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
         }}
       >
         <SubtleContentFade duration={0.65}>
-          <div className={isHome ? "" : "mx-auto"} style={{ width: isHome ? undefined : "var(--content-w)" }}>
+          <div
+            // Pages with a chapter rail position via --content-left so the
+            // column yields to the expanded rail instead of sliding under
+            // it (below 1281px the variable equals plain centering, so this
+            // is identical to mx-auto there). Pages without a rail center.
+            className={isHome || (identity && !isMobileLike) ? "" : "mx-auto"}
+            style={
+              isHome
+                ? undefined
+                : identity && !isMobileLike
+                  ? {
+                      width: "var(--content-w)",
+                      marginLeft:
+                        "calc(var(--content-left) - max(var(--gutter), env(safe-area-inset-left)))",
+                    }
+                  : { width: "var(--content-w)" }
+            }
+          >
             {allowHeroBreakout ? <NavigationProvider>{children}</NavigationProvider> : children}
           </div>
         </SubtleContentFade>

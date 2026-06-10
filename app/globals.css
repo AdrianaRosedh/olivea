@@ -62,11 +62,21 @@
   --tap: clamp(44px, 4.8vh, 56px);
 
   --dock-left-compact: 64px;
-  --dock-left-expanded: 220px;
+  /* Expanded chapter rail grows with the viewport so it doesn't feel lost
+     on large monitors (220px at ~1440 → 290px on ultrawide). */
+  --dock-left-expanded: clamp(220px, 13.5vw, 290px);
   --dock-left: clamp(var(--dock-left-compact), 14vw, var(--dock-left-expanded));
 
   --dock-right: clamp(0px, 6vw, 96px);
   --dock-gap: clamp(12px, 1.8vw, 22px);
+
+  /* Dock typography scale — fixed sizes read "small" on wide screens.
+     All consumed by DockLeft via inline font-size vars. */
+  --dock-label-fs: clamp(11px, 0.3vw + 7px, 13px);   /* CAPÍTULOS header  */
+  --dock-num-fs: clamp(12px, 0.3vw + 8px, 13.5px);   /* chapter numbers   */
+  --dock-title-fs: clamp(18px, 0.65vw + 9px, 22px);  /* chapter titles    */
+  --dock-sub-fs: clamp(13px, 0.35vw + 8px, 15px);    /* subsection links  */
+  --dock-item-gap: clamp(18px, 1.3vw, 28px);         /* space between chapters */
 
   /* Single source of truth for scroll-to-section offset.
      Every JS component that scrolls to a section reads this. */
@@ -85,6 +95,19 @@
     )
   );
 
+  /* Where the expanded chapter rail sits (DockLeft reads this): hugs the
+     ideal content column, never closer to the edge than the gutter. */
+  --dock-left-x: max(
+    calc(var(--gutter) + env(safe-area-inset-left)),
+    calc((100vw - var(--content-max)) / 2 - var(--dock-gap) - var(--dock-left))
+  );
+
+  /* Where the content column starts on pages WITH a left dock
+     (LayoutShell applies it): centered when there's room, pushed right
+     of the rail + gap when there isn't. Below 1281px (compact rail)
+     plain centering wins — see the desktop override. */
+  --content-left: calc((100vw - var(--content-w)) / 2);
+
   --radius-lg: clamp(14px, 1.2vw, 22px);
 }
 
@@ -94,6 +117,23 @@
     --tap: clamp(48px, 5.2vh, 64px);
     --dock-left-expanded: 200px;
     --dock-left: clamp(56px, 12vw, var(--dock-left-expanded));
+  }
+}
+
+/* Desktop with the expanded chapter rail (DockLeft switches to expanded
+   at 1281px): the reservation must equal the rendered rail exactly —
+   the old 14vw mid-clamp under-reserved by up to ~40px and let the rail
+   overlap content. */
+@media (min-width: 1281px) {
+  :root {
+    --dock-left: var(--dock-left-expanded);
+    /* Content yields to the expanded rail instead of sliding under it.
+       When the viewport is wide enough the two terms are equal and the
+       column is simply centered. */
+    --content-left: max(
+      calc((100vw - var(--content-w)) / 2),
+      calc(var(--dock-left-x) + var(--dock-left) + var(--dock-gap))
+    );
   }
 }
 

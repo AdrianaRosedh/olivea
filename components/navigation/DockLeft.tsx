@@ -318,14 +318,14 @@ const subItemVariants: Variants = {
 
 /* ── Visual positioning: keep dock near content on ultrawide ────── */
 function getDockLeftX(mode: Mode) {
-  const dockW =
-    mode === "compact"
-      ? "var(--dock-left-compact)"
-      : "var(--dock-left-expanded)";
+  // Expanded rail: single source of truth shared with the content column
+  // (globals.css --dock-left-x / --content-left), so the two can never
+  // overlap and center together when there's room.
+  if (mode === "expanded") return "var(--dock-left-x)";
 
   return `max(
     calc(var(--gutter) + env(safe-area-inset-left)),
-    calc((100vw - var(--content-max)) / 2 - var(--dock-gap) - ${dockW})
+    calc((100vw - var(--content-max)) / 2 - var(--dock-gap) - var(--dock-left-compact))
   )`;
 }
 
@@ -362,18 +362,26 @@ function DockSkeleton({ lang, mode }: { lang: Lang; mode: Mode }) {
   return (
     <nav
       className="hidden md:flex fixed z-40 pointer-events-none"
-      style={{ left, top: "50%", transform: "translateY(-50%)" }}
+      style={{
+        left,
+        top: "50%",
+        transform: "translateY(-50%)",
+        width: "var(--dock-left-expanded)",
+      }}
       aria-hidden="true"
     >
-      <div className="relative">
-        <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-35">
+      <div className="relative w-full">
+        <div
+          className="mb-4 pl-10 uppercase tracking-[0.34em] text-(--olivea-olive) opacity-35"
+          style={{ fontSize: "var(--dock-label-fs)" }}
+        >
           {tt(lang, "Capítulos", "Chapters")}
         </div>
-        <div className="w-55">
-          <div className="flex flex-col gap-5">
+        <div className="w-full">
+          <div className="flex flex-col" style={{ gap: "var(--dock-item-gap)" }}>
             {Array.from({ length: 6 }, (_, i) => (
               <div key={i} className="flex items-center gap-4">
-                <div className="h-3 w-10 rounded bg-black/5" />
+                <div className="h-3 w-10 shrink-0 rounded bg-black/5" />
                 <div className="h-5 w-36 rounded bg-black/5" />
               </div>
             ))}
@@ -555,18 +563,22 @@ function ExpandedItem({
         {/* Section number */}
         <span
           className={cn(
-            "w-10 tabular-nums text-[12px] tracking-[0.28em] font-semibold",
+            "w-10 shrink-0 tabular-nums tracking-[0.28em] font-semibold",
             isActive ? "opacity-80" : "opacity-55"
           )}
+          style={{ fontSize: "var(--dock-num-fs)" }}
         >
           {item.number}
         </span>
 
         {/* Label with hover swap effect (single element + translateY) */}
-        <div className="relative h-8 overflow-hidden min-w-55">
+        <div
+          className="relative overflow-hidden min-w-0 flex-1"
+          style={{ height: "calc(var(--dock-title-fs) * 1.65)" }}
+        >
           <motion.div
-            className="text-[18px] font-semibold whitespace-nowrap"
-            style={{ fontFamily: "var(--font-serif)" }}
+            className="font-semibold whitespace-nowrap"
+            style={{ fontFamily: "var(--font-serif)", fontSize: "var(--dock-title-fs)" }}
             initial={false}
             animate={
               reduce
@@ -583,8 +595,8 @@ function ExpandedItem({
 
           {!reduce && (
             <motion.div
-              className="text-[18px] font-semibold absolute top-0 left-0 whitespace-nowrap"
-              style={{ fontFamily: "var(--font-serif)" }}
+              className="font-semibold absolute top-0 left-0 whitespace-nowrap"
+              style={{ fontFamily: "var(--font-serif)", fontSize: "var(--dock-title-fs)" }}
               initial={{ y: SWAP_Y, opacity: 0 }}
               animate={{
                 y: isSwapping ? 0 : SWAP_Y,
@@ -636,8 +648,9 @@ function ExpandedItem({
                       href={`#${sub.id}`}
                       onClick={(e) => onNavigate(e, sub.id)}
                       variants={subItemVariants}
+                      style={{ fontSize: "var(--dock-sub-fs)" }}
                       className={cn(
-                        "relative block text-[13px] leading-snug tracking-[0.02em]",
+                        "relative block leading-snug tracking-[0.02em]",
                         "rounded-sm outline-none transition-colors",
                         "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/20",
                         "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-white)",
@@ -696,25 +709,36 @@ function ExpandedDock({
   return (
     <nav
       className="hidden md:flex fixed z-40 pointer-events-auto"
-      style={{ left, top: "50%", transform: "translateY(-50%)" }}
+      // Honest width: the box matches the space the layout reserves
+      // (--content-w subtracts it), so the dock can never sit on top of
+      // content or swallow clicks meant for it.
+      style={{
+        left,
+        top: "50%",
+        transform: "translateY(-50%)",
+        width: "var(--dock-left-expanded)",
+      }}
       aria-label={tt(lang, "Capítulos", "Chapters")}
     >
       <motion.div
         variants={dockV}
         initial="hidden"
         animate="show"
-        className="relative"
+        className="relative w-full"
       >
         {/* Vertical line */}
         <div className="absolute left-4.5 top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/12 to-transparent" />
 
         {/* Header */}
-        <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-55">
+        <div
+          className="mb-4 pl-10 uppercase tracking-[0.34em] text-(--olivea-olive) opacity-55"
+          style={{ fontSize: "var(--dock-label-fs)" }}
+        >
           {tt(lang, "Capítulos", "Chapters")}
         </div>
 
         {/* Items */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col" style={{ gap: "var(--dock-item-gap)" }}>
           {items.map((item) => (
             <ExpandedItem
               key={item.id}
