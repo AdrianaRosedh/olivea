@@ -27,7 +27,21 @@ type ContactDict = {
 type Props = {
   lang: Lang;
   t: ContactDict;
+  /** Admin-editable via global_settings.contact_info (Supabase). */
+  contactInfo: { email: string; phone: string };
 };
+
+/** "+52 646 388 2369" → "tel:+526463882369" */
+function telHref(phone: string) {
+  return `tel:${phone.replace(/[^+\d]/g, "")}`;
+}
+
+/** "+52 646 388 2369" → "(646) 388-2369" (last 10 digits, MX local style) */
+function formatLocalPhone(phone: string) {
+  const d = phone.replace(/\D/g, "").slice(-10);
+  if (d.length !== 10) return phone;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+}
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -60,12 +74,13 @@ const VIEWPORT = {
   margin: "0px 0px -18% 0px",
 } as const;
 
-export default function ContactClient({ lang, t }: Props) {
+export default function ContactClient({ lang, t, contactInfo }: Props) {
   const reduce = useReducedMotion();
 
   const address = "México 3 Km 92.5, 22766 Villa de Juárez, B.C.";
   const mapsUrl = "https://maps.app.goo.gl/oySkL6k7G7t5VFus5";
-  const email = "hola@casaolivea.com";
+  const email = contactInfo.email;
+  const mainTel = telHref(contactInfo.phone);
 
   const pill =
     "rounded-full bg-white/34 backdrop-blur ring-1 ring-black/5 transition hover:bg-white/45";
@@ -140,7 +155,7 @@ export default function ContactClient({ lang, t }: Props) {
                   </a>
 
                   <a
-                    href="tel:+5246463882369"
+                    href={mainTel}
                     className={cn(
                       pill,
                       "px-4 py-3.5 text-sm text-(--olivea-ink)/85 flex items-center justify-center gap-2"
@@ -212,7 +227,7 @@ export default function ContactClient({ lang, t }: Props) {
                     <div className="mt-3 flex items-center gap-3">
                       <Phone className="w-5 h-5 text-(--olivea-olive)" />
                       <a
-                        href="tel:+5246463836402"
+                        href="tel:+526463836402"
                         className="text-sm underline decoration-(--olivea-olive)/30 hover:decoration-(--olivea-olive)"
                       >
                         (646) 383-6402
@@ -239,10 +254,10 @@ export default function ContactClient({ lang, t }: Props) {
                     <div className="mt-3 flex items-center gap-3">
                       <Phone className="w-5 h-5 text-(--olivea-olive)" />
                       <a
-                        href="tel:+5246463882369"
+                        href={mainTel}
                         className="text-sm underline decoration-(--olivea-olive)/30 hover:decoration-(--olivea-olive)"
                       >
-                        (646) 388-2369
+                        {formatLocalPhone(contactInfo.phone)}
                       </a>
                     </div>
 

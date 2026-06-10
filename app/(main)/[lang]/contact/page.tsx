@@ -6,7 +6,28 @@ import {
   type Lang,
 } from "@/app/(main)/[lang]/dictionaries";
 import { applyCmsOverlay } from "@/app/(main)/[lang]/dictionaries/cms-overlay";
+import { getContent } from "@/lib/content";
 import ContactClient from "./ContactClient";
+
+// Confirmed with ownership (June 2026): main contact is the Casa line.
+// Farm To Table's direct line (646 383 6402) is separate and stays in the
+// component. The CMS (global_settings.contact_info) can override these.
+const FALLBACK_CONTACT = {
+  email: "hola@casaolivea.com",
+  phone: "+52 646 388 2369",
+};
+
+async function loadContactInfo() {
+  try {
+    const g = await getContent("global");
+    const email = g?.contactInfo?.email?.trim();
+    const phone = g?.contactInfo?.phone?.trim();
+    if (email && phone) return { email, phone };
+  } catch {
+    // fall through to static values
+  }
+  return FALLBACK_CONTACT;
+}
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
 
@@ -66,7 +87,7 @@ export default async function ContactPage({ params }: PageProps) {
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
-      <ContactClient lang={lang} t={t} />
+      <ContactClient lang={lang} t={t} contactInfo={await loadContactInfo()} />
     </>
   );
 }

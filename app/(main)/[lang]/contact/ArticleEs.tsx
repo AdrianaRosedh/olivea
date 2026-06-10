@@ -60,7 +60,7 @@ export default function ArticleEs() {
           </dd>
           <dt>Teléfono</dt>
           <dd>
-            <a href="tel:+5246463882369" itemProp="telephone">
+            <a href="tel:+526463882369" itemProp="telephone">
               +52 (646) 388-2369
             </a>
           </dd>
@@ -75,7 +75,7 @@ export default function ArticleEs() {
           <dd>Mié 5–8 · Vie 2:30–8:30 · Dom 2–7</dd>
           <dt>Teléfono</dt>
           <dd>
-            <a href="tel:+5246463836402">(646) 383-6402</a>
+            <a href="tel:+526463836402">(646) 383-6402</a>
           </dd>
         </dl>
       </section>
@@ -88,7 +88,7 @@ export default function ArticleEs() {
           <dd>Mié–Lun 7:30–2:30 · Mar 7:30–9:30</dd>
           <dt>Teléfono</dt>
           <dd>
-            <a href="tel:+5246463882369">(646) 388-2369</a>
+            <a href="tel:+526463882369">(646) 388-2369</a>
           </dd>
         </dl>
       </section>

@@ -15,8 +15,8 @@ const global: GlobalSettings = {
       es: "Carretera Tecate-Ensenada Km 83, Valle de Guadalupe, Ensenada, Baja California, México",
       en: "Carretera Tecate-Ensenada Km 83, Valle de Guadalupe, Ensenada, Baja California, Mexico",
     },
-    email: "hola@oliveafarmtotable.com",
-    phone: "+52 646 155 3069",
+    email: "hola@casaolivea.com",
+    phone: "+52 646 388 2369",
     googleMapsUrl: "https://maps.app.goo.gl/oLiVeA",
     googleMapsEmbed:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3374.123!2d-116.6123!3d32.0789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOlivea%20Farm%20To%20Table!5e0!3m2!1ses!2smx!4v1",
