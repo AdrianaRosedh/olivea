@@ -251,13 +251,23 @@ A custom system using:
 
 ---
 
-## 🧪 Testing (Recommended)
+## 🧪 Testing
 
-Coming soon. Suggested future additions:
+Playwright smoke suite in `e2e/` — content-presence assertions on the
+critical pages (locale routing, homepage entrances, journal, contact hours,
+sustainability chapters, robots/sitemap), desktop + mobile viewports.
 
-* Playwright for full-page rendering
-* Snapshot tests for MDX pages
-* Integration tests for language routing (`/ → /es`, etc.)
+```bash
+pnpm build          # suite runs against a production build
+pnpm test:e2e       # starts next start on :3100 automatically
+```
+
+First run only: `pnpm exec playwright install chromium`.
+
+CI (`.github/workflows/ci.yml`) runs lint → typecheck → build → smoke on
+every push and PR. No secrets are configured in CI — without Supabase env
+vars the app intentionally falls back to static content, which is what the
+suite asserts.
 
 ---
 

@@ -39,6 +39,10 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/refs": "off",
       "react-hooks/static-components": "off",
+      // React Compiler advisory — flags manual useCallback/useMemo deps it
+      // can't auto-preserve. Informational, not a correctness bug; same
+      // stance as the rules above.
+      "react-hooks/preserve-manual-memoization": "off",
     },
   },
 ]);

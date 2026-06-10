@@ -49,3 +49,8 @@ public/images/press/Olivea-Photo.zip
 
 # Internal playbooks (not for deployment)
 Olivea_Playbook_*.pdf
+
+# Playwright
+/test-results/
+/playwright-report/
+/e2e/.auth/

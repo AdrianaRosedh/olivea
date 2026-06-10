@@ -20,6 +20,8 @@
     "start": "next start",
     "start:local": "cross-env HOST=olivea-localhost PORT=3000 next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
     "analyze": "ANALYZE=true next build",
     "images:formats": "node scripts/convert-missing-formats.mjs",
     "press:web": "node scripts/press-web.mjs"
@@ -72,6 +74,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "16.2.4",
     "@next/mdx": "16.2.4",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4.1.5",
     "@tailwindcss/typography": "^0.5.16",
     "@types/js-cookie": "^3.0.6",
