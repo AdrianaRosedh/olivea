@@ -62,21 +62,25 @@
   --tap: clamp(44px, 4.8vh, 56px);
 
   --dock-left-compact: 64px;
-  /* Expanded chapter rail grows with the viewport so it doesn't feel lost
-     on large monitors (220px at ~1440 → 290px on ultrawide). */
-  --dock-left-expanded: clamp(220px, 13.5vw, 290px);
+  /* Fixed expanded rail width (220px). The viewport-fluid clamp made the
+     rail — and, by coupling, the hero (width = 100vw − rail − dock-right − 48)
+     — visibly grow on wide screens; reverted to the original fixed width.
+     The overlap fix from the same change lives in DockLeft (title min-w-0
+     flex-1) and stays, so 220px no longer under-reserves. */
+  --dock-left-expanded: 220px;
   --dock-left: clamp(var(--dock-left-compact), 14vw, var(--dock-left-expanded));
 
   --dock-right: clamp(0px, 6vw, 96px);
   --dock-gap: clamp(12px, 1.8vw, 22px);
 
-  /* Dock typography scale — fixed sizes read "small" on wide screens.
-     All consumed by DockLeft via inline font-size vars. */
-  --dock-label-fs: clamp(11px, 0.3vw + 7px, 13px);   /* CAPÍTULOS header  */
-  --dock-num-fs: clamp(12px, 0.3vw + 8px, 13.5px);   /* chapter numbers   */
-  --dock-title-fs: clamp(18px, 0.65vw + 9px, 22px);  /* chapter titles    */
-  --dock-sub-fs: clamp(13px, 0.35vw + 8px, 15px);    /* subsection links  */
-  --dock-item-gap: clamp(18px, 1.3vw, 28px);         /* space between chapters */
+  /* Dock typography — original fixed sizes (the viewport-fluid scale made
+     the rail read noticeably larger on wide monitors). Consumed by DockLeft
+     via inline font-size vars. */
+  --dock-label-fs: 11px;     /* CAPÍTULOS header  */
+  --dock-num-fs: 12px;       /* chapter numbers   */
+  --dock-title-fs: 18px;     /* chapter titles    */
+  --dock-sub-fs: 13px;       /* subsection links  */
+  --dock-item-gap: 20px;     /* space between chapters (was gap-5) */
 
   /* Single source of truth for scroll-to-section offset.
      Every JS component that scrolls to a section reads this. */
