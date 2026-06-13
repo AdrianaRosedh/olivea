@@ -8,6 +8,7 @@ import { t, tm } from "./md";
 const tabEmojis: Record<string, string> = {
   menu: "\uD83C\uDF7D\uFE0F",
   pairing: "\uD83C\uDF3F",
+  "non-alcoholic": "\uD83C\uDF75",
   spirits: "\uD83E\uDD43",
   wine: "\uD83C\uDF77",
   drinks: "\uD83C\uDF79",
