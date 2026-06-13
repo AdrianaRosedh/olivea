@@ -44,8 +44,8 @@ export default function ArticleEs() {
           al huerto y conectado a Olivea Farm To Table — un restaurante con
           estrella MICHELIN — y Olivea Café. Catorce suites diseñadas por
           Ange Joy, cada una con terraza privada con vista al huerto, los
-          olivos y el paisaje desértico de Baja California. El desayuno en
-          el café está incluido.
+          olivos y el paisaje desértico de Baja California. El desayuno está
+          disponible en el café (no incluido).
         </p>
         <p>
           <Link href="/es/casa">Explorar Casa Olivea →</Link>

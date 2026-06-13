@@ -94,7 +94,7 @@ export default function ArticleEs() {
         <h3>¿Qué estilo de desayuno ofrecen?</h3>
         <p>El desayuno es mayormente salado, con alma mexicana — pensado para sentirse calmado, nutritivo e intencional.</p>
         <h3>¿Cómo funciona el desayuno para huéspedes de Casa Olivea?</h3>
-        <p>El desayuno está incluido para dos personas, servido en Olivea Café.</p>
+        <p>El desayuno no está incluido en la estancia, pero los huéspedes pueden disfrutarlo en Olivea Café cada mañana.</p>
         <h3>¿De dónde proviene el café?</h3>
         <p>El café proviene exclusivamente de México, trabajado con técnica y constancia.</p>
         <h3>¿Sirven matcha?</h3>

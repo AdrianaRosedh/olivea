@@ -95,7 +95,7 @@ export default function ArticleEn() {
         <h3>What is the breakfast style?</h3>
         <p>Breakfast is mostly savory, rooted in Mexican comfort — designed to feel calm, nourishing, and intentional.</p>
         <h3>How does breakfast work for Casa Olivea guests?</h3>
-        <p>Breakfast is included for two, served at Olivea Café.</p>
+        <p>Breakfast is not included with your stay, but guests are welcome to enjoy it at Olivea Café each morning.</p>
         <h3>Where does the coffee come from?</h3>
         <p>Coffee is sourced exclusively from Mexico, crafted with technique and consistency.</p>
         <h3>Do you serve matcha?</h3>

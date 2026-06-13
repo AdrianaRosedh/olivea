@@ -44,7 +44,7 @@ export default function ArticleEn() {
           MICHELIN-starred restaurant — and Olivea Café. Fourteen suites
           designed by Ange Joy, each with a private terrace overlooking the
           garden, olive trees, and the surrounding Baja California desert
-          landscape. Breakfast at the café is included.
+          landscape. Breakfast is available at the café (not included).
         </p>
         <p>
           <Link href="/en/casa">Explore Casa Olivea →</Link>
