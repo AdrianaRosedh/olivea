@@ -48,6 +48,17 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   pageExtensions: ["ts", "tsx", "mdx"],
 
+  // Keep /public out of serverless function bundles. lib/journal/load.ts does a
+  // dev-time fs.access against /public to flag missing journal cover images;
+  // Vercel's file tracer reacts by bundling the entire ~1 GB /public tree into
+  // every journal function, which pushed the RSS function to 729 MB (over the
+  // 300 MB limit) and failed the deploy. Public assets are CDN-served and are
+  // never read from the function filesystem at runtime (see localAssetExists),
+  // so excluding them from tracing is safe for all routes.
+  outputFileTracingExcludes: {
+    "**": ["public/**"],
+  },
+
   experimental: {
     // optimizeCss removed — relies on the deprecated `critters` package and
     // conflicts with the Turbopack font loader in Next 16. Turbopack's

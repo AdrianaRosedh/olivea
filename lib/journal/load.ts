@@ -29,6 +29,13 @@ const PUBLIC_DIR = path.join(ROOT, "public");
 /** Local public asset (e.g. "/images/journal/...") that exists on disk? */
 async function localAssetExists(src: string): Promise<boolean> {
   if (!src.startsWith("/")) return true; // remote URLs: trust them
+  // Dev/build-time guard only. In production the serverless function's
+  // filesystem does not carry /public — assets are served from the CDN, and
+  // /public is deliberately excluded from output-file tracing to keep the
+  // bundle small (see `outputFileTracingExcludes` in next.config.ts). Probing
+  // the function FS there would wrongly report every cover as missing and drop
+  // it. So trust local paths in production; only verify on disk during `next dev`.
+  if (process.env.NODE_ENV === "production") return true;
   try {
     await fs.access(path.join(PUBLIC_DIR, src));
     return true;
