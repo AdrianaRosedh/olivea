@@ -1,4 +1,7 @@
 // app/(main)/[lang]/farmtotable/sections.en.ts
+// IDs must match the DOM (.main-section / .subsection ids rendered by the
+// section components). Order must match page flow. Verified against the
+// live DOM by e2e/dock-nav.spec.ts.
 import type { NavSection } from "@/lib/sections";
 
 export const SECTIONS_EN: NavSection[] = [
@@ -6,18 +9,18 @@ export const SECTIONS_EN: NavSection[] = [
     id: "experience",
     title: "The experience",
     subs: [
-      { id: "origin",  title: "Origin" },
+      { id: "origin", title: "Origin" },
       { id: "balance", title: "Balance" },
-      { id: "values",  title: "Values" },
+      { id: "values", title: "Values" },
     ],
   },
   {
     id: "kitchen",
     title: "The kitchen",
     subs: [
-      { id: "product",   title: "Product" },
+      { id: "product", title: "Product" },
       { id: "technique", title: "Technique" },
-      { id: "team",      title: "Team" },
+      { id: "team", title: "Team" },
     ],
   },
   {
@@ -25,7 +28,8 @@ export const SECTIONS_EN: NavSection[] = [
     title: "The table",
     subs: [
       { id: "hospitality", title: "Hospitality" },
-      { id: "narrative",   title: "Narrative" },
+      { id: "narrative", title: "Narrative" },
+      { id: "terrace", title: "Terrace" },
     ],
   },
   {
@@ -41,7 +45,11 @@ export const SECTIONS_EN: NavSection[] = [
       { id: "storytelling", title: "Storytelling" },
     ],
   },
-
+  {
+    id: "gallery",
+    title: "Gallery",
+    subs: [],
+  },
   {
     id: "menu",
     title: "Menu",

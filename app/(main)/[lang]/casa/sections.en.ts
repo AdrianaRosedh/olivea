@@ -1,3 +1,7 @@
+// app/(main)/[lang]/casa/sections.en.ts
+// IDs must match the DOM ids rendered by the casa section components
+// (sub ids are shared across languages; titles are localized). Order must
+// match page flow. Verified against the live DOM by e2e/dock-nav.spec.ts.
 import type { NavSection } from "@/lib/sections";
 
 export const SECTIONS_CASA_EN: NavSection[] = [
@@ -5,8 +9,6 @@ export const SECTIONS_CASA_EN: NavSection[] = [
     id: "rooms",
     title: "Rooms",
     subs: [
-      { id: "esencia", title: "Essence" },
-      { id: "detalle", title: "Comfort" },
       { id: "luz", title: "Light" },
     ],
   },
@@ -14,7 +16,7 @@ export const SECTIONS_CASA_EN: NavSection[] = [
     id: "design",
     title: "Design",
     subs: [
-      { id: "luz", title: "Light" },
+      { id: "iluminacion", title: "Light" },
       { id: "materiales", title: "Materials" },
       { id: "sostenibilidad", title: "Sustainable" },
     ],
@@ -24,8 +26,8 @@ export const SECTIONS_CASA_EN: NavSection[] = [
     title: "Courtyard",
     subs: [
       { id: "memoria", title: "Memory" },
-      { id: "estetica", title: "Balance" },
-      { id: "serenidad", title: "Serenity" },
+      { id: "estetica_equilibrio", title: "Balance" },
+      { id: "serenidad_clima", title: "Serenity" },
     ],
   },
   {
@@ -34,7 +36,6 @@ export const SECTIONS_CASA_EN: NavSection[] = [
     subs: [
       { id: "breakfast", title: "Breakfast" },
       { id: "cafe", title: "Coffee" },
-      { id: "ritmo", title: "Tempo" },
     ],
   },
   {
@@ -46,6 +47,11 @@ export const SECTIONS_CASA_EN: NavSection[] = [
       { id: "access", title: "Getting Here" },
       { id: "concierge", title: "Concierge" },
     ],
+  },
+  {
+    id: "gallery",
+    title: "Gallery",
+    subs: [],
   },
   {
     id: "services",

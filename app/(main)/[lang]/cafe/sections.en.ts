@@ -1,3 +1,5 @@
+// IDs must match the DOM ids rendered by the cafe section components.
+// Order must match page flow. Verified by e2e/dock-nav.spec.ts.
 import type { NavSection } from "@/lib/sections";
 
 export const SECTIONS_CAFE_EN: NavSection[] = [
@@ -41,6 +43,11 @@ export const SECTIONS_CAFE_EN: NavSection[] = [
       { id: "play", title: "Play" },
       { id: "life", title: "Life" },
     ],
+  },
+  {
+    id: "gallery",
+    title: "Gallery",
+    subs: [],
   },
   {
     id: "menu",

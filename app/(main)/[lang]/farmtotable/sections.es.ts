@@ -1,60 +1,64 @@
 // app/(main)/[lang]/farmtotable/sections.es.ts
+// IDs must match the DOM (.main-section / .subsection ids rendered by the
+// section components — sub ids are canonical English in the DOM regardless
+// of language; only the titles are localized). Order must match page flow.
+// Verified against the live DOM by e2e/dock-nav.spec.ts.
 import type { NavSection } from "@/lib/sections";
 
 export const SECTIONS_ES: NavSection[] = [
   {
-    id: 'experiencia',
-    title: 'La experiencia',
+    id: "experiencia",
+    title: "La experiencia",
     subs: [
-      { id: 'origen', title: 'Origen' },
-      { id: 'equilibrio', title: 'Equilibrio' },
-      { id: 'valores', title: 'Valores' },
+      { id: "origin", title: "Origen" },
+      { id: "balance", title: "Equilibrio" },
+      { id: "values", title: "Valores" },
     ],
   },
   {
-    id: 'cocina',
-    title: 'La cocina',
+    id: "cocina",
+    title: "La cocina",
     subs: [
-      { id: 'producto', title: 'Producto' },
-      { id: 'tecnica', title: 'Técnica' },
-      { id: 'equipo', title: 'Equipo' },
+      { id: "product", title: "Producto" },
+      { id: "technique", title: "Técnica" },
+      { id: "team", title: "Equipo" },
     ],
   },
   {
-    id: 'mesa',
-    title: 'La mesa',
+    id: "mesa",
+    title: "La mesa",
     subs: [
-      { id: 'hospitalidad', title: 'Hospitalidad' },
-      { id: 'narrativa', title: 'Narrativa' },
+      { id: "hospitality", title: "Hospitalidad" },
+      { id: "narrative", title: "Narrativa" },
+      { id: "terrace", title: "Terraza" },
     ],
   },
   {
-    id: 'despensa',
-    title: 'La despensa',
+    id: "despensa",
+    title: "La despensa",
     subs: [
-      { id: 'proximidad', title: 'Proximidad' },
-      { id: 'temporada', title: 'Temporada' },
-      { id: 'trazabilidad', title: 'Trazabilidad' },
+      { id: "territory", title: "Territorio" },
+      { id: "ecosystem", title: "Sistema" },
+      { id: "cycle", title: "Ciclo" },
+      { id: "fermentation", title: "Fermentación" },
+      { id: "research", title: "Investigación" },
+      { id: "chef-daniel", title: "Chef Daniel" },
+      { id: "storytelling", title: "Relato" },
     ],
   },
-
-  // NEW (match <StickyBlock id="galeria"> in gallery.es.mdx)
   {
-    id: 'galeria',
-    title: 'Galería',
+    id: "gallery",
+    title: "Galería",
     subs: [],
   },
-
   {
-    id: 'menu',
-    title: 'Menú',
+    id: "menu",
+    title: "Menú",
     subs: [],
   },
-
-  // NEW (match <StickyBlock id="faq"> in faq.es.mdx)
   {
-    id: 'faq',
-    title: 'Preguntas frecuentes',
+    id: "faq",
+    title: "Preguntas frecuentes",
     subs: [],
   },
 ];
