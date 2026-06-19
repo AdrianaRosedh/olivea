@@ -76,7 +76,7 @@ A shared courtyard connects the suites to the garden and the restaurant. Olive t
 
 ### Mornings
 
-Breakfast is included at Olivea Café — specialty coffee, house bread, and farm-fresh breakfast next to the garden.
+Guests can begin the day at Olivea Café — specialty coffee, house bread, and farm-fresh breakfast next to the garden. Breakfast at the café is not included in the stay.
 
 ### Services
 
@@ -86,7 +86,7 @@ Concierge and wine experiences available. Pádel courts at the café. Proximity 
 
 - Check-in: 3:00 PM
 - Check-out: 12:00 PM
-- Breakfast at Olivea Café included
+- Breakfast available at Olivea Café (not included)
 - Booking via the website (Cloudbeds integration)
 - Phone: +52 (646) 388-2369
 
