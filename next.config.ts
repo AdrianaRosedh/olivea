@@ -63,6 +63,12 @@ const nextConfig: NextConfig = {
     // optimizeCss removed — relies on the deprecated `critters` package and
     // conflicts with the Turbopack font loader in Next 16. Turbopack's
     // built-in CSS pipeline already handles modern CSS optimization.
+    //
+    // inlineCss: emit the page's CSS as inline <style> in the document head
+    // instead of a render-blocking <link rel="stylesheet">. Removes the CSS
+    // request from the critical path (PageSpeed "render-blocking requests":
+    // ~280ms desktop / ~1150ms mobile) with no visual change.
+    inlineCss: true,
     serverActions: {
       bodySizeLimit: "5mb",
     },
