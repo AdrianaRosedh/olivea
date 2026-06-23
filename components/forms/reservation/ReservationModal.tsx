@@ -133,10 +133,12 @@ function HotelPane({
 /* ── Restaurant Pane ─────────────────────────────────────────────── */
 
 function RestaurantPane({
+  lang,
   isMobile,
   mounted,
   onOpenOverlay,
 }: {
+  lang: "es" | "en";
   isMobile: boolean;
   mounted: boolean;
   onOpenOverlay: () => void;
@@ -162,6 +164,19 @@ function RestaurantPane({
           >
             Olivea Farm To Table
           </span>
+
+          {/* Always-available booking link. The OpenTable iframe below can
+              render blank (third-party embed/cookie limits on OT's side), so
+              guarantee a working path to reserve. */}
+          <a
+            href={OPENTABLE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--olivea-olive) hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors whitespace-nowrap"
+          >
+            {lang === "es" ? "Reservar en OpenTable" : "Reserve on OpenTable"}
+            <ExternalLink size={16} />
+          </a>
         </div>
 
         <div
@@ -169,7 +184,7 @@ function RestaurantPane({
           aria-labelledby="restaurant-pane-title"
           onWheelCapture={stopWheelPropagation}
         >
-          {mounted && <OpentableWidget />}
+          {mounted && <OpentableWidget lang={lang} />}
         </div>
       </>
     );
@@ -359,7 +374,7 @@ function MobileRestaurantSheet({
 
           <div className="w-full flex-1 min-h-0 overflow-hidden">
             <div className="w-full h-full">
-              <OpentableWidget />
+              <OpentableWidget lang={lang} />
             </div>
           </div>
         </motion.div>
@@ -620,6 +635,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               aria-hidden={reservationType !== "restaurant"}
             >
               <RestaurantPane
+                lang={lang}
                 isMobile={isMobile}
                 mounted={mounted.restaurant}
                 onOpenOverlay={openRestaurantOverlay}
