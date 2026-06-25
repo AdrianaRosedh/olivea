@@ -87,17 +87,18 @@ export default function Farmpop({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // Normalize to a single unified tab list (force ?embed for Canva)
+  // Normalize to a single unified tab list. `?embed` is a Canva-specific param
+  // (Canva's chromeless view). Appending it to non-Canva embeds like roseiies
+  // switches them to an embed view that drops the custom font, so only add it
+  // for Canva URLs; leave other embeds (e.g. roseiies) as authored.
   const tabList: MenuTab[] = useMemo(() => {
+    const embed = (url: string) =>
+      /canva\.com/i.test(url) && !url.includes("?embed") ? `${url}?embed` : url;
     if (tabs && tabs.length) {
-      return tabs.map((t) => ({
-        ...t,
-        url: t.url.includes("?embed") ? t.url : `${t.url}?embed`,
-      }));
+      return tabs.map((t) => ({ ...t, url: embed(t.url) }));
     }
     if (canvaUrl) {
-      const u = canvaUrl.includes("?embed") ? canvaUrl : `${canvaUrl}?embed`;
-      return [{ id: "single", label: "Menú", url: u }];
+      return [{ id: "single", label: "Menú", url: embed(canvaUrl) }];
     }
     return [];
   }, [tabs, canvaUrl]);
