@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import SectionGuard from "@/components/admin/SectionGuard";
-import { Bell, Plus, Pencil, Trash2, ChevronUp } from "lucide-react";
+import { Bell, Plus, Pencil, Trash2, ChevronUp, X } from "lucide-react";
 import { getPopups, savePopup, deletePopup, togglePopup } from "@/lib/supabase/actions";
 import type { PopupItem, PopupFrequency } from "@/lib/content/types";
 
@@ -151,6 +151,113 @@ function BilingualInput({
   );
 }
 
+/* ─── Live Preview ─── */
+/* Mirrors the real popup card in components/ui/popup/PopupHost.tsx so editors
+   see exactly what ships (incl. the rule that covers only show for "journal"
+   kind and the default "Nuevo/New" badge). Static — no entrance animation. */
+
+function PopupPreview({ form }: { form: PopupItem }) {
+  const [lang, setLang] = useState<"es" | "en">("es");
+  const [imgOk, setImgOk] = useState(true);
+
+  const t = form.translations[lang];
+  const badge = (t.badge || "").trim() || (lang === "es" ? "Nuevo" : "New");
+  const title = (t.title || "").trim();
+  const excerpt = (t.excerpt || "").trim();
+  const href = (t.href || "").trim();
+  // The real card only renders a cover for "journal" kind.
+  const coverSrc = form.kind === "journal" ? (form.media?.coverSrc || "").trim() : "";
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider">
+          Live preview
+        </span>
+        <div className="inline-flex rounded-full bg-white/70 ring-1 ring-black/10 p-0.5 text-[11px] font-semibold">
+          {(["es", "en"] as const).map((l) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => setLang(l)}
+              className={`rounded-full px-3 py-1 uppercase tracking-wider transition-colors ${
+                lang === l
+                  ? "bg-[var(--olivea-olive)] text-white"
+                  : "text-[var(--olivea-ink)]/55 hover:text-[var(--olivea-ink)]/80"
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Preview canvas */}
+      <div className="rounded-2xl bg-black/[0.02] ring-1 ring-black/5 p-4">
+        <div className="overflow-hidden rounded-[24px] bg-[var(--olivea-cream)] ring-1 ring-[var(--olivea-olive)]/15 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.4)]">
+          {/* Header: badge + (decorative) close */}
+          <div className="flex items-center justify-between px-5 pt-4">
+            <span className="text-[11px] uppercase tracking-[0.34em] text-[var(--olivea-olive)] opacity-90">
+              {badge}
+            </span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-[var(--olivea-olive)] ring-1 ring-[var(--olivea-olive)]/15">
+              <X size={15} strokeWidth={1.75} />
+            </span>
+          </div>
+
+          <div className="px-5 pb-5">
+            {coverSrc && imgOk ? (
+              <div className="mt-4 aspect-video overflow-hidden rounded-2xl bg-black/5 ring-1 ring-[var(--olivea-olive)]/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={coverSrc}
+                  alt=""
+                  onError={() => setImgOk(false)}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : null}
+
+            <div className="mt-4 rounded-2xl bg-[var(--olivea-cream)] px-4 py-4 ring-1 ring-[var(--olivea-olive)]/10">
+              <h3 className="text-[20px] font-semibold leading-tight text-[var(--olivea-olive)]">
+                {title || (
+                  <span className="opacity-30">
+                    {lang === "es" ? "Título del popup" : "Popup title"}
+                  </span>
+                )}
+              </h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-[var(--olivea-clay)]">
+                {excerpt || (
+                  <span className="opacity-30">
+                    {lang === "es" ? "Texto del popup…" : "Popup body text…"}
+                  </span>
+                )}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {href ? (
+                  <span className="inline-flex items-center justify-center rounded-xl bg-[var(--olivea-olive)] px-4 py-2.5 text-[11px] uppercase tracking-[0.28em] text-white">
+                    {lang === "es" ? "Leer" : "Read"}
+                  </span>
+                ) : null}
+                <span className="inline-flex items-center justify-center rounded-xl bg-white/70 px-4 py-2.5 text-[11px] uppercase tracking-[0.28em] text-[var(--olivea-olive)] ring-1 ring-[var(--olivea-olive)]/10">
+                  {lang === "es" ? "Ahora no" : "Not now"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-[11px] leading-relaxed text-[var(--olivea-ink)]/50">
+        {form.kind === "announcement"
+          ? "Announcements don’t show a cover image. "
+          : "Journal popups show the cover image above. "}
+        Only the highest-priority enabled popup appears on the site.
+      </p>
+    </div>
+  );
+}
+
 /* ─── Popup Form ─── */
 
 function PopupForm({
@@ -207,7 +314,8 @@ function PopupForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <form onSubmit={handleSubmit} className="min-w-0 space-y-6">
       {/* ── Identity ── */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="col-span-2">
@@ -424,6 +532,10 @@ function PopupForm({
         </button>
       </div>
     </form>
+      <div className="lg:sticky lg:top-4">
+        <PopupPreview form={form} />
+      </div>
+    </div>
   );
 }
 
