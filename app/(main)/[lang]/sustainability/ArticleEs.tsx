@@ -124,6 +124,20 @@ export default function ArticleEs() {
           apoyar a las personas sin reemplazarlas? ¿Cómo puede la
           hospitalidad volverse más serena, más clara y más humana?
         </p>
+        <p>
+          Aquí es donde vive{" "}
+          <a
+            href="https://roseiies.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            roseiies
+          </a>{" "}
+          — nuestro propio estudio, creado para dar a Olivea su tecnología
+          silenciosa: las cartas vivas, las reservaciones y los sistemas de
+          conocimiento que permiten que un equipo pequeño sostenga una visión
+          grande. Aquí, innovar es menos fricción, no más pantallas.
+        </p>
       </section>
 
       {/* ── 5. Gastronomía ── */}

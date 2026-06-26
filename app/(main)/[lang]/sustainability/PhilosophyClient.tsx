@@ -33,41 +33,52 @@ function paragraphs(body: string) {
     .filter(Boolean);
 }
 
-/* ---------------- inline bio links (no MDX compile required) ---------------- */
+/* --------- inline auto-links: team bios (internal) + roseiies (external) --------- */
 
-const BIO_TARGETS: Array<{ name: string; id: string }> = [
-  { name: "Ange Joy", id: "ange" },
-  { name: "Cristina", id: "cristina" },
-  { name: "Adriana Rose", id: "adrianarose" },
-  { name: "Daniel Nates", id: "danielnates" },
+type AutoLink = {
+  name: string;
+  href: (lang: Lang) => string;
+  external: boolean;
+};
+
+const AUTO_LINKS: AutoLink[] = [
+  { name: "Ange Joy", href: (l) => `/${l}/team/ange`, external: false },
+  { name: "Cristina", href: (l) => `/${l}/team/cristina`, external: false },
+  { name: "Adriana Rose", href: (l) => `/${l}/team/adrianarose`, external: false },
+  { name: "Daniel Nates", href: (l) => `/${l}/team/danielnates`, external: false },
+  // roseiies — Olivea's technology studio. Always opens roseiies.com in a new tab.
+  { name: "roseiies", href: () => "https://roseiies.com", external: true },
 ];
 
 function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Pre-compiled regex for bio name linking (constant data → compile once)
-const _BIO_PATTERN = BIO_TARGETS.map((x) => escapeRe(x.name)).join("|");
-const _BIO_RE = _BIO_PATTERN ? new RegExp(`(${_BIO_PATTERN})`, "g") : null;
+// Pre-compiled regex (constant data → compile once). Longest names first so a
+// multi-word match always wins over any substring overlap.
+const _AUTO_PATTERN = [...AUTO_LINKS]
+  .sort((a, b) => b.name.length - a.name.length)
+  .map((x) => escapeRe(x.name))
+  .join("|");
+const _AUTO_RE = _AUTO_PATTERN ? new RegExp(`(${_AUTO_PATTERN})`, "g") : null;
 
 function linkifyNames(text: string, lang: Lang): ReactNode {
-  if (!_BIO_RE) return text;
+  if (!_AUTO_RE) return text;
 
-  const re = new RegExp(_BIO_RE.source, _BIO_RE.flags);
+  const re = new RegExp(_AUTO_RE.source, _AUTO_RE.flags);
   const parts = text.split(re);
 
   return parts.map((part, idx) => {
-    const hit = BIO_TARGETS.find((x) => x.name === part);
+    const hit = AUTO_LINKS.find((x) => x.name === part);
     if (!hit) return part;
-
-    const href = `/${lang}/team/${hit.id}`;
 
     return (
       <a
-        key={`${hit.id}-${idx}`}
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
+        key={`${part}-${idx}`}
+        href={hit.href(lang)}
+        {...(hit.external
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
         className={cn(
           "underline underline-offset-4",
           "decoration-(--olivea-olive)/55",
@@ -75,7 +86,7 @@ function linkifyNames(text: string, lang: Lang): ReactNode {
           "transition-colors"
         )}
       >
-        {hit.name}
+        {part}
       </a>
     );
   });
@@ -517,6 +528,45 @@ export default function PhilosophyClient({
                   "Olivea is not finished. Ideas keep flowing, questions keep appearing, and with this team there are no limits, only direction. We measure, reflect, improve. And we keep going."
                 )}
               </p>
+
+              {/* Gentle landing: invite the reader to experience it */}
+              <div className="mt-9 flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onMouseEnter={() =>
+                    window.dispatchEvent(new Event("olivea:reserve-intent"))
+                  }
+                  onFocus={() =>
+                    window.dispatchEvent(new Event("olivea:reserve-intent"))
+                  }
+                  onClick={() =>
+                    window.dispatchEvent(new Event("olivea:reserve"))
+                  }
+                  className={cn(
+                    "inline-flex items-center justify-center",
+                    "rounded-2xl px-6 py-3.5 sm:py-3",
+                    "bg-(--olivea-olive) text-white",
+                    "text-[12px] uppercase tracking-[0.28em]",
+                    "shadow-[0_14px_34px_-20px_rgba(0,0,0,0.45)]",
+                    "hover:opacity-95 transition"
+                  )}
+                >
+                  {tt(lang, "Reservar", "Reserve")}
+                </button>
+
+                <a
+                  href={`/${lang}/team`}
+                  className={cn(
+                    "inline-flex items-center justify-center",
+                    "rounded-2xl px-6 py-3.5 sm:py-3",
+                    "bg-white/60 ring-1 ring-(--olivea-olive)/12",
+                    "text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive)",
+                    "hover:bg-white/80 transition"
+                  )}
+                >
+                  {tt(lang, "Conoce a los Colibríes", "Meet the Colibríes")}
+                </a>
+              </div>
             </motion.section>
           </div>
         </div>

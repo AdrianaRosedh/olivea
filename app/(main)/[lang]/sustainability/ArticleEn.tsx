@@ -120,6 +120,20 @@ export default function ArticleEn() {
           support people rather than replace them? How can hospitality
           become calmer, clearer, and more human?
         </p>
+        <p>
+          This is where{" "}
+          <a
+            href="https://roseiies.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            roseiies
+          </a>{" "}
+          lives — our own studio, built to give Olivea its quiet technology: the
+          living menus, the reservations, and the knowledge systems that let a
+          small team hold a large vision. Innovation here looks like less
+          friction, not more screens.
+        </p>
       </section>
 
       {/* ── 5. Gastronomy ── */}
