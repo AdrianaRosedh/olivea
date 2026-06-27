@@ -311,15 +311,15 @@ export default function MobileDrawer({
                         "active:scale-[0.99] transition-transform duration-150",
                         "text-(--olivea-cream)",
                         isActive(`/${lang}/innovation`)
-                          ? "bg-(--olivea-honey)/25 ring-(--olivea-honey)/40"
-                          : "bg-(--olivea-honey)/15 ring-(--olivea-honey)/25 hover:bg-(--olivea-honey)/20",
+                          ? "bg-white/12 ring-white/20"
+                          : "bg-white/6 ring-white/10 hover:bg-white/10",
                       ].join(" ")}
                     >
                       <span className="flex items-center justify-between gap-3">
                         <span className="uppercase tracking-[0.18em]">
                           {lang === "es" ? "Innovación" : "Innovation"}
                         </span>
-                        <span aria-hidden="true" className="text-(--olivea-honey)">
+                        <span aria-hidden="true" className="text-(--olivea-cream)/50">
                           →
                         </span>
                       </span>

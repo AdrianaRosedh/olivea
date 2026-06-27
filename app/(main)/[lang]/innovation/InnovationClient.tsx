@@ -1,339 +1,301 @@
 "use client";
 
 import Link from "next/link";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-  type Variants,
-} from "framer-motion";
-import {
-  Droplet,
-  Carrot,
-  Martini,
-  FlaskConical,
-  Sprout,
-  CalendarDays,
-  Boxes,
-  CalendarCheck,
-  RefreshCw,
-  type LucideIcon,
-} from "lucide-react";
+import { motion, type Variants } from "framer-motion";
+import { NavigationProvider } from "@/contexts/NavigationContext";
+import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
 };
 const stagger: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.04 } },
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.04 } },
 };
+
+// lifted from the Philosophy page so this reads as the same brand
+const EYEBROW = "text-[11px] uppercase tracking-[0.3em] text-(--olivea-olive)/70";
+const PANEL =
+  "rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 shadow-[0_10px_24px_rgba(40,60,35,0.08)]";
 
 export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
   const t = (es: string, en: string) => (lang === "es" ? es : en);
-  const reduce = useReducedMotion() ?? false;
-  const { scrollY } = useScroll();
-  const glowA = useTransform(scrollY, [0, 900], [0, -160]);
-  const glowB = useTransform(scrollY, [0, 900], [0, 120]);
 
-  // The art — what only hands can do (Olivea's laboratory).
-  const craft: { Icon: LucideIcon; title: string; line: string }[] = [
-    { Icon: Droplet, title: t("Salsa de soya", "Soy sauce"), line: t("Fermentada en casa, desde el grano.", "Brewed in-house, from the bean up.") },
-    { Icon: Carrot, title: t("Vegetales curados", "Aged & preserved"), line: t("La cosecha, guardada en el tiempo.", "The harvest, kept in time.") },
-    { Icon: Martini, title: t("Carta líquida", "A liquid menu"), line: t("Diseñada a mano, trago a trago.", "Designed by hand, pour by pour.") },
-    { Icon: FlaskConical, title: t("Fermentaciones", "Fermentations"), line: t("En investigación, siempre.", "Always under investigation.") },
-    { Icon: Sprout, title: t("La tierra", "The land"), line: t("Recorrida por lo que ofrece.", "Foraged for what it offers.") },
+  const navSections = [
+    { id: "craft", label: t("El oficio", "The craft") },
+    { id: "technology", label: t("La tecnología", "Technology") },
+    { id: "method", label: t("El método", "The method") },
   ];
 
-  // The technology — the friction roseiies carries so the craft keeps its time.
-  const quiet: { Icon: LucideIcon; label: string }[] = [
-    { Icon: CalendarDays, label: t("Agendas y libros", "Scheduling & books") },
-    { Icon: Boxes, label: t("Inventario", "Inventory") },
-    { Icon: CalendarCheck, label: t("Reservaciones", "Reservations") },
-    { Icon: RefreshCw, label: t("Carta viva, sincronizada", "Living menu, in sync") },
+  const craft: { n: string; title: string; line: string }[] = [
+    {
+      n: "01",
+      title: t("Salsa de soya", "Soy sauce"),
+      line: t(
+        "Fermentada en casa durante meses. Hace años que no compramos una botella.",
+        "Fermented in-house over months. We haven't bought a bottle in years.",
+      ),
+    },
+    {
+      n: "02",
+      title: t("Curados y preservados", "Aged & preserved"),
+      line: t(
+        "La cosecha detenida en su punto, para que la temporada nunca termine.",
+        "The harvest held at its peak, so the season never fully ends.",
+      ),
+    },
+    {
+      n: "03",
+      title: t("La carta líquida", "The liquid menu"),
+      line: t(
+        "Compuesta con el mismo rigor que el plato.",
+        "Composed with the same rigor as the plate.",
+      ),
+    },
+    {
+      n: "04",
+      title: t("Fermentación", "Fermentation"),
+      line: t(
+        "Una investigación constante: registrada, probada, corregida.",
+        "An ongoing investigation: logged, tasted, corrected.",
+      ),
+    },
+    {
+      n: "05",
+      title: t("La tierra", "The land"),
+      line: t(
+        "Recorrida a diario. No se toma nada que no se comprenda.",
+        "Walked daily. Nothing is taken that isn't understood.",
+      ),
+    },
   ];
 
-  const titleWords = t("Donde el arte encuentra la tecnología", "Where art meets technology").split(" ");
+  const quiet: string[] = [
+    t("Agendas y los libros", "Scheduling & the books"),
+    t("Inventario y abasto", "Inventory & supply"),
+    t("Reservaciones", "Reservations"),
+    t("La carta viva, sincronizada", "The living menu, in sync"),
+  ];
 
   return (
-    <main className="relative w-full overflow-clip">
-      {/* ═════════════ HERO ═════════════ */}
-      <section className="relative px-6 sm:px-10 md:px-12 pt-28 sm:pt-36 pb-12">
-        {/* animated ambient glows */}
-        <motion.div
-          aria-hidden="true"
-          style={reduce ? undefined : { y: glowA }}
-          className="pointer-events-none absolute -top-24 left-[18%] -z-10 h-[540px] w-[540px] rounded-full"
-        >
-          <div
-            className="h-full w-full rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(182,137,74,0.18), rgba(231,234,225,0) 66%)" }}
-          />
-        </motion.div>
-        <motion.div
-          aria-hidden="true"
-          style={reduce ? undefined : { y: glowB }}
-          className="pointer-events-none absolute top-8 right-[12%] -z-10 h-[480px] w-[480px] rounded-full"
-        >
-          <div
-            className="h-full w-full rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(94,118,88,0.13), rgba(231,234,225,0) 70%)" }}
-          />
-        </motion.div>
-
-        <div className="mx-auto max-w-[1080px]">
-          <motion.div initial="hidden" animate="show" variants={stagger}>
-            <motion.div
-              variants={fadeUp}
-              className="text-[12px] uppercase tracking-[0.4em] text-(--olivea-honey)"
-            >
+    <NavigationProvider>
+      <main className="relative w-full overflow-clip px-6 sm:px-10 md:px-12 pt-24 sm:pt-32 pb-40 sm:pb-32">
+        <div className="mx-auto max-w-[1100px]">
+          {/* ───────── HERO ───────── */}
+          <motion.header initial="hidden" animate="show" variants={stagger} className="max-w-[60ch]">
+            <motion.div variants={fadeUp} className={EYEBROW}>
               {t("Innovación", "Innovation")}
             </motion.div>
             <motion.h1
               variants={fadeUp}
-              className="mt-5 max-w-[20ch] text-[clamp(2.7rem,1.5rem_+_4.6vw,5rem)] font-semibold leading-[0.98] tracking-[-0.025em] text-(--olivea-forest)"
+              className="mt-4 text-[clamp(2.4rem,1.5rem_+_3.8vw,4.2rem)] font-semibold leading-[1.02] tracking-[-0.02em]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              {titleWords.map((w, i) => {
-                const accent = /^(art|arte|technology|tecnología)$/i.test(w);
-                return (
-                  <span key={`${w}-${i}`}>
-                    <span className={accent ? "italic text-(--olivea-honey)" : undefined}>{w}</span>
-                    {i < titleWords.length - 1 ? " " : ""}
-                  </span>
-                );
-              })}
+              {t("Donde el arte encuentra la tecnología", "Where art meets technology")}
             </motion.h1>
-            <motion.p
-              variants={fadeUp}
-              className="mt-7 max-w-[58ch] text-[17px] sm:text-[20px] leading-relaxed text-(--olivea-olive)"
-            >
+            <motion.p variants={fadeUp} className="mt-6 text-[17px] sm:text-[19px] leading-relaxed">
               {t(
-                "Una sola regla: ninguno se apodera del otro. El oficio sigue siendo humano. La tecnología permanece en silencio. Cada uno existe para dejarle espacio al otro.",
-                "One rule: neither takes over the other. The craft stays human. The technology stays quiet. Each exists to make room for the other.",
+                "Nada de esto es decoración. El trabajo detrás del plato se sostiene con el mismo rigor que el plato mismo — el oficio sigue siendo humano, la tecnología permanece en silencio, y cada uno protege el tiempo del otro.",
+                "None of this is decoration. The work behind the plate is held to the same standard as the plate itself — the craft kept human, the technology kept quiet, each protecting the other's time.",
               )}
             </motion.p>
-          </motion.div>
-        </div>
-      </section>
+          </motion.header>
 
-      {/* ═════════════ THE ART — laboratory cards ═════════════ */}
-      <section className="relative px-6 sm:px-10 md:px-12 py-14 sm:py-20">
-        <div className="mx-auto max-w-[1080px]">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={fadeUp}
-            className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3"
-          >
-            <div>
-              <div className="text-[12px] uppercase tracking-[0.32em] text-(--olivea-honey)">
-                {t("El arte", "The art")}
-              </div>
-              <h2
-                className="mt-2 text-[clamp(2rem,1.4rem_+_2.4vw,3rem)] font-semibold tracking-[-0.02em] text-(--olivea-forest)"
-                style={{ fontFamily: "var(--font-serif)" }}
-              >
-                {t("El laboratorio", "The laboratory")}
-              </h2>
-            </div>
-            <p className="max-w-[34ch] text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/90">
-              {t("Por un pasillo, lo que solo las manos pueden hacer.", "Down one hall — what only hands can do.")}
-            </p>
-          </motion.div>
-
-          <motion.div
+          {/* ───────── TWO FORCES — laboratory + roseiies, side by side ───────── */}
+          <motion.section
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.12 }}
             variants={stagger}
-            className="mt-10 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            className="mt-16 sm:mt-24 grid gap-4 sm:gap-5 lg:grid-cols-2 lg:items-start"
           >
-            {craft.map(({ Icon, title, line }) => (
-              <motion.article
-                key={title}
-                variants={fadeUp}
-                whileHover={reduce ? undefined : { y: -6, transition: { type: "spring", stiffness: 280, damping: 20 } }}
-                className="group relative overflow-hidden rounded-[28px] bg-(--olivea-ivory)/60 ring-1 ring-(--olivea-olive)/10 p-7 sm:p-8 transition-shadow duration-300 hover:shadow-[0_36px_70px_-34px_rgba(40,40,30,0.45)] hover:ring-(--olivea-honey)/30"
-              >
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                  style={{ background: "radial-gradient(circle, rgba(182,137,74,0.20), rgba(182,137,74,0) 70%)" }}
-                />
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-(--olivea-honey)/12 text-(--olivea-honey) ring-1 ring-(--olivea-honey)/20 transition-colors duration-300 group-hover:bg-(--olivea-honey)/20">
-                  <Icon className="h-6 w-6" strokeWidth={1.5} />
-                </div>
-                <h3
-                  className="mt-6 text-[22px] sm:text-[24px] text-(--olivea-forest)"
-                  style={{ fontFamily: "var(--font-serif)" }}
-                >
-                  {title}
-                </h3>
-                <p className="mt-2 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)">
-                  {line}
-                </p>
-              </motion.article>
-            ))}
-
-            {/* thesis tile — fills the 6th cell */}
+            {/* LEFT — the craft */}
             <motion.div
               variants={fadeUp}
-              className="relative grid place-items-center overflow-hidden rounded-[28px] bg-(--olivea-forest) p-8 text-center"
+              id="craft"
+              className={`main-section scroll-mt-28 ${PANEL} p-7 sm:p-9`}
             >
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-60"
-                style={{ background: "radial-gradient(120% 90% at 80% 0%, rgba(182,137,74,0.22), rgba(51,66,46,0) 60%)" }}
-              />
-              <p
-                className="relative text-[19px] sm:text-[21px] leading-snug text-(--olivea-ivory)"
-                style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
+              <div className={EYEBROW}>{t("El oficio", "The craft")}</div>
+              <h2
+                className="mt-2 text-[clamp(1.7rem,1.3rem_+_1.4vw,2.2rem)] font-semibold tracking-[-0.02em]"
+                style={{ fontFamily: "var(--font-serif)" }}
               >
-                {t("Ninguno se apodera del otro.", "Neither takes over the other.")}
+                {t("El laboratorio", "The laboratory")}
+              </h2>
+              <p className="mt-3 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/85">
+                {t(
+                  "Todo aquí se hace, no se compra — y nada se hace a la ligera.",
+                  "Everything here is made, not bought — and nothing is made casually.",
+                )}
               </p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═════════════ THE TECHNOLOGY — the quiet layer ═════════════ */}
-      <section className="relative px-6 sm:px-10 md:px-12 py-4">
-        <div className="mx-auto max-w-[1080px]">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.25 }}
-            variants={fadeUp}
-            className="relative overflow-hidden rounded-[32px] bg-(--olivea-ivory)/45 ring-1 ring-(--olivea-honey)/20 px-7 py-10 sm:px-12 sm:py-14"
-          >
-            <div className="grid gap-9 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-              <div>
-                <div className="text-[12px] uppercase tracking-[0.32em] text-(--olivea-honey)">
-                  {t("La tecnología", "The technology")}
-                </div>
-                {/* roseiies wordmark — the studio's main logo */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/roseiies-logo.svg" alt="roseiies" className="mt-3 h-8 sm:h-9 w-auto" />
-                <p className="mt-5 max-w-[42ch] text-[16px] sm:text-[17px] leading-relaxed text-(--olivea-olive)">
-                  {t(
-                    "Justo al lado, en silencio, roseiies. Carga con todo lo que no debería robarle tiempo al oficio.",
-                    "Right beside it, quietly, roseiies. It carries everything that shouldn't steal time from the craft.",
-                  )}
-                </p>
-              </div>
-              <motion.ul
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.3 }}
-                variants={stagger}
-                className="grid gap-3 sm:grid-cols-2"
-              >
-                {quiet.map(({ Icon, label }) => (
-                  <motion.li
-                    key={label}
-                    variants={fadeUp}
-                    className="flex items-center gap-3 rounded-2xl bg-white/55 ring-1 ring-(--olivea-olive)/10 px-4 py-3.5"
-                  >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-(--olivea-olive)/10 text-(--olivea-olive)">
-                      <Icon className="h-[18px] w-[18px]" strokeWidth={1.5} />
+              <ul className="mt-7 space-y-5">
+                {craft.map(({ n, title, line }) => (
+                  <li key={n} className="flex gap-4">
+                    <span className="mt-1 text-[12px] tabular-nums tracking-[0.14em] text-(--olivea-olive)/45">
+                      {n}
                     </span>
-                    <span className="text-[14px] sm:text-[15px] leading-snug text-(--olivea-olive)">
-                      {label}
-                    </span>
-                  </motion.li>
+                    <div>
+                      <h3
+                        className="text-[17px] sm:text-[18px]"
+                        style={{ fontFamily: "var(--font-serif)" }}
+                      >
+                        {title}
+                      </h3>
+                      <p className="mt-1 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-olive)/80">
+                        {line}
+                      </p>
+                    </div>
+                  </li>
                 ))}
-              </motion.ul>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+              </ul>
+            </motion.div>
 
-      {/* ═════════════ HOW THEY DO IT ═════════════ */}
-      <section className="relative px-6 sm:px-10 md:px-12 py-16 sm:py-24">
-        <div className="mx-auto max-w-[760px] text-center">
-          <motion.div
+            {/* RIGHT — roseiies */}
+            <motion.div
+              variants={fadeUp}
+              id="technology"
+              className={`main-section scroll-mt-28 ${PANEL} p-7 sm:p-9`}
+            >
+              <div className={EYEBROW}>{t("La tecnología", "The technology")}</div>
+              {/* roseiies wordmark — masked in Olivea olive so the page stays one brand */}
+              <span
+                role="img"
+                aria-label="roseiies"
+                className="mt-2 inline-block bg-(--olivea-olive)"
+                style={{
+                  height: "1.9rem",
+                  width: "8.66rem",
+                  maskImage: "url(/images/roseiies-logo.svg)",
+                  WebkitMaskImage: "url(/images/roseiies-logo.svg)",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskSize: "contain",
+                  WebkitMaskSize: "contain",
+                  maskPosition: "left center",
+                  WebkitMaskPosition: "left center",
+                }}
+              />
+              <p className="mt-4 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/85">
+                {t(
+                  "Junto al laboratorio, invisible, el estudio que absorbe el trabajo que ningún oficio debería cargar.",
+                  "Beside the laboratory, unseen, the studio that absorbs the work no craft should carry.",
+                )}
+              </p>
+              <ul className="mt-6 space-y-3">
+                {quiet.map((label) => (
+                  <li key={label} className="flex items-start gap-3">
+                    <span aria-hidden="true" className="mt-2 text-(--olivea-olive)/40">—</span>
+                    <span className="text-[15px] sm:text-[16px] leading-snug">{label}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 flex flex-col gap-2.5 sm:flex-row">
+                <Link
+                  href={`/${lang}/roseiies`}
+                  className="inline-flex items-center justify-center rounded-2xl px-6 py-3 bg-(--olivea-olive) text-white text-[12px] uppercase tracking-[0.26em] shadow-[0_14px_30px_-18px_rgba(40,60,35,0.6)] hover:opacity-95 transition"
+                >
+                  {t("Construido con roseiies", "Built with roseiies")}
+                </Link>
+                <a
+                  href="https://roseiies.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-2xl px-6 py-3 bg-white/55 ring-1 ring-(--olivea-olive)/25 text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) hover:bg-white/80 transition"
+                >
+                  {t("Conoce roseiies", "Visit roseiies")}
+                </a>
+              </div>
+            </motion.div>
+          </motion.section>
+
+          {/* the rule, stated plainly */}
+          <motion.blockquote
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, amount: 0.4 }}
-            variants={stagger}
+            viewport={{ once: true, amount: 0.6 }}
+            variants={fadeUp}
+            className="mx-auto mt-16 sm:mt-20 max-w-[24ch] text-center text-[clamp(1.6rem,1.2rem_+_1.8vw,2.4rem)] leading-[1.2]"
+            style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
           >
-            <motion.div variants={fadeUp} className="text-[12px] uppercase tracking-[0.32em] text-(--olivea-honey)">
-              {t("Cómo lo hacen", "How they do it")}
-            </motion.div>
-            <motion.p
-              variants={fadeUp}
-              className="mt-5 text-[clamp(1.4rem,1.1rem_+_1.5vw,2.1rem)] leading-[1.3] text-(--olivea-forest)"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              {t(
-                "roseiies absorbe la fricción — y el laboratorio recupera lo único que el oficio necesita: tiempo y atención.",
-                "roseiies absorbs the friction — and the laboratory gets back the one thing craft needs: time and attention.",
-              )}
-            </motion.p>
-            <motion.p variants={fadeUp} className="mt-5 text-[16px] sm:text-[17px] leading-relaxed text-(--olivea-olive)">
-              {t(
-                "Lo que la cocina aprende, la tecnología lo recuerda.",
-                "What the kitchen learns, the technology remembers.",
-              )}
-            </motion.p>
-            <motion.div variants={fadeUp} className="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href={`/${lang}/roseiies`}
-                className="inline-flex items-center justify-center rounded-2xl px-7 py-3.5 bg-(--olivea-olive) text-white text-[12px] uppercase tracking-[0.28em] shadow-[0_18px_38px_-20px_rgba(0,0,0,0.5)] hover:opacity-95 transition"
-              >
-                {t("Construido con roseiies", "Built with roseiies")}
-              </Link>
-              <a
-                href="https://roseiies.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl px-7 py-3.5 bg-white/60 ring-1 ring-(--olivea-honey)/30 text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey) hover:bg-white/80 transition"
-              >
-                {t("Conoce roseiies", "Visit roseiies")}
-              </a>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+            {t("Ninguno se apodera del otro.", "Neither takes over the other.")}
+          </motion.blockquote>
 
-      {/* ═════════════ CLOSE ═════════════ */}
-      <section className="relative px-6 sm:px-10 md:px-12 pb-40 sm:pb-32">
-        <div className="mx-auto max-w-[1080px]">
+          {/* ───────── THE METHOD ───────── */}
+          <section id="method" className="main-section scroll-mt-28 mt-20 sm:mt-28">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.4 }}
+              variants={stagger}
+              className="mx-auto max-w-[680px] text-center"
+            >
+              <motion.div variants={fadeUp} className={EYEBROW}>
+                {t("El método", "The method")}
+              </motion.div>
+              <motion.p
+                variants={fadeUp}
+                className="mt-5 text-[clamp(1.35rem,1.1rem_+_1.3vw,2rem)] leading-[1.32]"
+                style={{ fontFamily: "var(--font-serif)" }}
+              >
+                {t(
+                  "roseiies absorbe la fricción — y el laboratorio conserva lo único de lo que un oficio no puede prescindir: tiempo, y atención sin reservas.",
+                  "roseiies absorbs the friction — and the laboratory keeps the one thing a craft cannot do without: time, and undivided attention.",
+                )}
+              </motion.p>
+              <motion.p
+                variants={fadeUp}
+                className="mt-5 text-[16px] sm:text-[17px] leading-relaxed text-(--olivea-olive)/90"
+              >
+                {t(
+                  "Lo que la cocina aprende, la tecnología lo recuerda. Lo que la tecnología resuelve, la cocina nunca tiene que cargarlo.",
+                  "What the kitchen learns, the technology remembers. What the technology handles, the kitchen never has to.",
+                )}
+              </motion.p>
+            </motion.div>
+          </section>
+
+          {/* ───────── CLOSE ───────── */}
           <motion.div
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.4 }}
             variants={fadeUp}
-            className="flex flex-wrap items-center justify-between gap-4 border-t border-(--olivea-honey)/20 pt-8"
+            className="mt-20 sm:mt-28 flex flex-wrap items-center justify-between gap-4 border-t border-(--olivea-olive)/15 pt-8"
           >
-            <p className="max-w-[46ch] text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)">
+            <p className="max-w-[46ch] text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/90">
               {t(
-                "El mismo equilibrio recorre toda la propiedad.",
-                "The same balance runs through the whole property.",
+                "El mismo rigor recorre toda la propiedad.",
+                "The same standard runs through the whole property.",
               )}
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] uppercase tracking-[0.18em]">
               <Link
                 href={`/${lang}/farmtotable`}
-                className="text-(--olivea-forest) underline decoration-(--olivea-honey)/40 underline-offset-4 hover:decoration-(--olivea-honey) transition"
+                className="underline decoration-(--olivea-olive)/35 underline-offset-4 hover:decoration-(--olivea-olive) transition"
               >
                 {t("La mesa", "The table")}
               </Link>
               <Link
                 href={`/${lang}/sustainability`}
-                className="text-(--olivea-forest) underline decoration-(--olivea-honey)/40 underline-offset-4 hover:decoration-(--olivea-honey) transition"
+                className="underline decoration-(--olivea-olive)/35 underline-offset-4 hover:decoration-(--olivea-olive) transition"
               >
                 {t("Nuestra filosofía", "Our philosophy")}
               </Link>
             </div>
           </motion.div>
         </div>
-      </section>
-    </main>
+      </main>
+
+      {/* mobile section bar — same control Philosophy + Team use */}
+      <MobileSectionNav
+        items={navSections}
+        pageTitle={{ es: "Innovación", en: "Innovation" }}
+        lang={lang}
+        enableSubRow={false}
+      />
+    </NavigationProvider>
   );
 }
