@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useMotionValue,
+  animate,
+  type PanInfo,
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
@@ -13,6 +20,21 @@ import { setModalOpen } from "@/components/ui/modalFlag";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const EASE_IN_OUT = [0.4, 0, 0.2, 1] as const;
+
+// ── Draggable orb config ────────────────────────────────────────────
+// Responsive: slightly smaller orb on phones; more edge padding on desktop so
+// it doesn't sit flush against the screen edge.
+function orbDims(vw: number) {
+  const mobile = vw < 768;
+  return { size: mobile ? 48 : 56, edge: mobile ? 16 : 32 };
+}
+const ORB_TOP_MARGIN = 64; // keep clear of the header
+const ORB_BOTTOM_MARGIN = 28; // keep clear of the bottom
+const ORB_STORAGE_KEY = "olivea:livegarden:orb:v1";
+
+type OrbSide = "left" | "right";
+const clampN = (v: number, min: number, max: number) =>
+  Math.min(Math.max(v, min), max);
 
 const overlayVariants = {
   hidden: { opacity: 0 },
@@ -109,6 +131,8 @@ export default function LiveGarden() {
   const pathname = usePathname();
   const isEn = useMemo(() => pathname?.startsWith("/en") ?? false, [pathname]);
   const isAdmin = useMemo(() => pathname?.startsWith("/admin") ?? false, [pathname]);
+  // Hide on individual team bio pages (/[lang]/team/{name}); the index keeps it.
+  const isTeamMember = useMemo(() => pathname?.includes("/team/") ?? false, [pathname]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -147,57 +171,217 @@ export default function LiveGarden() {
     return () => window.removeEventListener("olivea:live-garden", handler);
   }, [open]);
 
+  // ── Draggable orb (chat-head style: drag → fling → snap to edge → remember) ──
+  const orbX = useMotionValue(0);
+  const orbY = useMotionValue(0);
+  const [orbSide, setOrbSide] = useState<OrbSide>("right");
+  const [orbReady, setOrbReady] = useState(false);
+  const [orbHover, setOrbHover] = useState(false);
+  const [orbDragging, setOrbDragging] = useState(false);
+  const [orbSize, setOrbSize] = useState(56);
+  const orbMovedRef = useRef(false);
+
+  const placeOrb = useCallback(
+    (s: OrbSide, yy: number, withAnim: boolean) => {
+      if (typeof window === "undefined") return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const { size, edge } = orbDims(vw);
+      const targetX = s === "right" ? vw - size - edge : edge;
+      orbY.set(clampN(yy, ORB_TOP_MARGIN, vh - size - ORB_BOTTOM_MARGIN));
+      if (withAnim && !prefersReduced) {
+        animate(orbX, targetX, {
+          type: "spring",
+          stiffness: 520,
+          damping: 38,
+          mass: 0.9,
+        });
+      } else {
+        orbX.set(targetX);
+      }
+    },
+    [prefersReduced, orbX, orbY],
+  );
+
+  // Restore saved position on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let s: OrbSide = "right";
+    let yy = window.innerHeight * 0.18;
+    try {
+      const raw = localStorage.getItem(ORB_STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as { side?: OrbSide; yRatio?: number };
+        if (saved.side === "left" || saved.side === "right") s = saved.side;
+        if (typeof saved.yRatio === "number")
+          yy = saved.yRatio * window.innerHeight;
+      }
+    } catch {
+      /* ignore bad storage */
+    }
+    setOrbSide(s);
+    setOrbSize(orbDims(window.innerWidth).size);
+    placeOrb(s, yy, false);
+    setOrbReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep it on-screen across resize / orientation / viewport changes
+  useEffect(() => {
+    const onResize = () => {
+      setOrbSize(orbDims(window.innerWidth).size);
+      placeOrb(orbSide, orbY.get(), false);
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    window.visualViewport?.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+      window.visualViewport?.removeEventListener("resize", onResize);
+    };
+  }, [orbSide, placeOrb, orbY]);
+
+  const handleOrbDragStart = useCallback(() => {
+    orbMovedRef.current = true;
+    setOrbDragging(true);
+  }, []);
+
+  const handleOrbDragEnd = useCallback(
+    (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      setOrbDragging(false);
+      const vw = window.innerWidth;
+      const center = orbX.get() + orbDims(vw).size / 2 + info.velocity.x * 0.04;
+      const s: OrbSide = center > vw / 2 ? "right" : "left";
+      setOrbSide(s);
+      placeOrb(s, orbY.get(), true);
+      try {
+        localStorage.setItem(
+          ORB_STORAGE_KEY,
+          JSON.stringify({ side: s, yRatio: orbY.get() / window.innerHeight }),
+        );
+      } catch {
+        /* ignore */
+      }
+      // Reset the drag flag just after the trailing click is swallowed
+      window.setTimeout(() => {
+        orbMovedRef.current = false;
+      }, 60);
+    },
+    [orbX, orbY, placeOrb],
+  );
+
+  const handleOrbClick = useCallback(() => {
+    if (orbMovedRef.current) {
+      orbMovedRef.current = false;
+      return; // it was a drag, not a tap
+    }
+    open();
+  }, [open]);
+
   const panel = prefersReduced
     ? panelReduced
     : isMobile
       ? panelMobile
       : panelDesktop;
 
-  // Don't render on admin pages
-  if (isAdmin) return null;
+  // Don't render on admin pages or individual team bio pages
+  if (isAdmin || isTeamMember) return null;
 
   return (
     <>
       {/* Inject pulse animation */}
       <style dangerouslySetInnerHTML={{ __html: pulseKeyframes }} />
 
-      {/* ─── Floating Button ─────────────────────────────────── */}
+      {/* ─── Draggable roseiies live-map orb ─────────────────── */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
-            key="live-btn"
-            onClick={open}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
+          <motion.div
+            key="live-orb"
+            drag
+            dragMomentum={false}
+            onDragStart={handleOrbDragStart}
+            onDragEnd={handleOrbDragEnd}
+            onHoverStart={() => setOrbHover(true)}
+            onHoverEnd={() => setOrbHover(false)}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: orbReady ? 1 : 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.6 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
+            whileDrag={{ scale: 1.12 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              x: orbX,
+              y: orbY,
+              width: orbSize,
+              height: orbSize,
+              touchAction: "none",
+            }}
             className={cn(
-              "fixed z-9999 flex items-center gap-2",
-              "hidden md:flex",
-              "px-3.5 py-2 rounded-full",
-              "bg-(--olivea-olive) hover:bg-(--olivea-clay) text-(--olivea-cream)",
-              "shadow-[0_18px_44px_-28px_rgba(0,0,0,0.6)]",
-              "hover:scale-105 active:scale-95",
-              "transition-[colors,transform] duration-200",
-              "cursor-pointer select-none",
-              // Top-right, directly below RESERVAR button
-              "top-35 right-10.5",
+              "fixed left-0 top-0 z-9999",
+              "cursor-grab active:cursor-grabbing select-none",
             )}
-            aria-label={isEn ? "See what's growing in the garden right now" : "Vean qué crece en el huerto ahora mismo"}
           >
-            {/* Pulse dot */}
-            <span className="relative flex h-2 w-2">
+            <button
+              type="button"
+              onClick={handleOrbClick}
+              aria-label={isEn ? "See what's growing in the garden right now" : "Vean qué crece en el huerto ahora mismo"}
+              className={cn(
+                "relative grid place-items-center w-full h-full rounded-full outline-none",
+                "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/45 focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-cream)",
+              )}
+            >
+              {/* lift shadow (grows while dragging) */}
               <span
-                className="absolute inset-0 rounded-full bg-green-400"
-                style={{ animation: "live-pulse 2s ease-out infinite" }}
+                aria-hidden="true"
+                className="absolute inset-0 rounded-full transition-shadow duration-200"
+                style={{
+                  boxShadow: orbDragging
+                    ? "0 26px 50px -14px rgba(0,0,0,0.5)"
+                    : "0 14px 34px -16px rgba(0,0,0,0.45)",
+                }}
               />
-              <span className="relative rounded-full h-2 w-2 bg-green-400" />
-            </span>
+              {/* roseiies orb (the woggle) */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/roseiies-mark.svg"
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                className="relative w-full h-full rounded-full ring-1 ring-white/45 pointer-events-none"
+              />
+              {/* live badge */}
+              <span className="absolute top-1 right-1 flex h-3 w-3">
+                <span
+                  className="absolute inset-0 rounded-full bg-green-400"
+                  style={{ animation: "live-pulse 2s ease-out infinite" }}
+                />
+                <span className="relative h-3 w-3 rounded-full bg-green-400 ring-2 ring-(--olivea-cream)" />
+              </span>
+            </button>
 
-            <span className="text-[10px] font-semibold tracking-widest uppercase">
-              {isEn ? "See What's Growing" : "Vean Qué Crece Hoy"}
-            </span>
-          </motion.button>
+            {/* Desktop hover label (sits on the side opposite the snapped edge) */}
+            <AnimatePresence>
+              {orbHover && !orbDragging && (
+                <motion.span
+                  key="orb-label"
+                  initial={{ opacity: 0, x: orbSide === "right" ? 8 : -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: orbSide === "right" ? 8 : -8 }}
+                  transition={{ duration: 0.18, ease: EASE_OUT }}
+                  className={cn(
+                    "hidden md:block pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap",
+                    "px-3 py-1.5 rounded-full bg-(--olivea-olive) text-(--olivea-cream)",
+                    "text-[10px] font-semibold tracking-widest uppercase",
+                    "shadow-[0_14px_34px_-20px_rgba(0,0,0,0.55)]",
+                    orbSide === "right" ? "right-full mr-3" : "left-full ml-3",
+                  )}
+                >
+                  {isEn ? "See What's Growing" : "Vean Qué Crece Hoy"}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.div>
         )}
       </AnimatePresence>
 
