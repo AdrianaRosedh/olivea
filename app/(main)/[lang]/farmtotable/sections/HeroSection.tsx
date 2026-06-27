@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import CardParallax from "@/components/mdx/CardParallax";
 import Reveal from "@/components/scroll/Reveal";
 import Image from "next/image";
@@ -17,22 +18,53 @@ export default function HeroSection({ data, lang }: SectionProps) {
   const cta2 = t(data.cta2, lang) || "Menu";
   const heading = t(data.heading, lang) || "Olivea Farm To Table";
 
+  // Center the hero content (logo/slogan/buttons) to the PAGE, not the hero box.
+  // The hero is pushed right by the left dock, and that offset shifts across
+  // breakpoints in ways a static calc can't track — so measure the hero's center
+  // and publish the exact correction as a CSS var the content consumes.
+  const pillRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = pillRef.current;
+    if (!el) return;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty(
+        "--hero-shift",
+        `${Math.round(window.innerWidth / 2 - (r.left + r.width / 2))}px`,
+      );
+    };
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("orientationchange", update);
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+      ro.disconnect();
+    };
+  }, []);
+
   return (
     <section
       id="hero"
       className="
         relative w-full mx-auto
         md:max-w-none md:w-full
+        lg:!w-[min(1600px,calc(100vw-var(--dock-left,220px)-var(--dock-right,96px)-(var(--gutter,32px)*2)-(var(--dock-gap,22px)*2)))]
+        lg:!mx-0
         -mt-2 flex items-center justify-center pb-0
       "
     >
       <div
+        ref={pillRef}
         className="
           relative
           md:!max-w-none md:!w-[min(1600px,calc(100vw-var(--dock-left,220px)-var(--dock-right,96px)-48px))]
+          lg:!w-full
           w-full
           h-[calc(100dvh-var(--header-h,64px)-var(--mobile-nav-h,84px)+24px)]
-          md:h-[calc(100svh-var(--header-h,112px)-56px)]
+          md:h-[calc(100svh-var(--header-h,112px)-124px)]
           xl:max-h-[960px]
           hero-pill shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)]
         "
@@ -57,10 +89,13 @@ export default function HeroSection({ data, lang }: SectionProps) {
 
           <div className="relative h-full flex items-center justify-center">
             <div
+              style={{
+                transform:
+                  "translateX(var(--hero-shift, calc((var(--dock-right, 96px) - var(--dock-left, 220px)) / 2)))",
+              }}
               className="
                 pointer-events-auto text-center px-4
                 relative
-                md:[left:calc((var(--dock-right,120px)-var(--dock-left,264px))/2)]
                 flex flex-col items-center
                 gap-[10px] md:gap-[14px] lg:gap-[16px]
                 -mt-2
