@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { tt } from "@/lib/i18n";
+import { useLenis } from "@/components/providers/ScrollProvider";
 import type { PhilosophySection, Lang } from "./philosophyTypes";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -279,7 +280,7 @@ function MobilePracticesAccordion({
               key={s.id}
               className={[
                 "rounded-2xl overflow-hidden",
-                "bg-(--olivea-cream)/70",
+                "bg-(--olivea-ivory)/75",
                 "ring-1 ring-(--olivea-olive)/18",
                 "shadow-[0_14px_34px_rgba(18,24,16,0.08)]",
               ].join(" ")}
@@ -393,6 +394,11 @@ export default function FloatingPracticesCardGSAP({
   const [isDesktop, setIsDesktop] = useState(false);
   const isDesktopRef = useRef(false);
 
+  // Smooth-scroll engine (Lenis). ScrollTrigger must be updated in lockstep
+  // with it, or the floating card tracks the raw scroll while the page
+  // animates on Lenis's clock → visible stutter/jank.
+  const lenis = useLenis();
+
   const triggersRef = useRef<ScrollTrigger[]>([]);
   const rafRef = useRef<number>(0);
 
@@ -415,6 +421,18 @@ export default function FloatingPracticesCardGSAP({
       else mq.removeListener(sync);
     };
   }, []);
+
+  // Keep ScrollTrigger in sync with Lenis's smoothed scroll position.
+  // This is the fix for the "glitchy" desktop scroll: ST now recalculates
+  // on every Lenis frame instead of off the unsmoothed native scroll.
+  useEffect(() => {
+    if (!isDesktop) return;
+    const update = () => ScrollTrigger.update();
+    lenis.on("scroll", update);
+    // Positions may have been measured before Lenis was ready.
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => lenis.off("scroll", update);
+  }, [isDesktop, lenis]);
 
   const [activeId, setActiveId] = useState<string>(sections[0]?.id ?? "");
   const [frontId, setFrontId] = useState<string>(sections[0]?.id ?? "");
@@ -699,7 +717,7 @@ export default function FloatingPracticesCardGSAP({
           ref={cardRef}
           className={[
             "relative overflow-hidden rounded-2xl",
-            "bg-(--olivea-cream)/70",
+            "bg-(--olivea-ivory)/75",
             "ring-1 ring-(--olivea-olive)/18",
             "shadow-[0_18px_44px_rgba(18,24,16,0.10)]",
           ].join(" ")}
@@ -747,13 +765,13 @@ export default function FloatingPracticesCardGSAP({
       >
         <div className="w-105">
           <div ref={measureFrontRef}>
-            <div className="rounded-2xl bg-(--olivea-cream)/70 ring-1 ring-(--olivea-olive)/18 overflow-hidden">
+            <div className="rounded-2xl bg-(--olivea-ivory)/75 ring-1 ring-(--olivea-olive)/18 overflow-hidden">
               <PracticesContent title={title} items={frontItems} />
             </div>
           </div>
 
           <div ref={measureBackRef} className="mt-6">
-            <div className="rounded-2xl bg-(--olivea-cream)/70 ring-1 ring-(--olivea-olive)/18 overflow-hidden">
+            <div className="rounded-2xl bg-(--olivea-ivory)/75 ring-1 ring-(--olivea-olive)/18 overflow-hidden">
               <PracticesContent title={title} items={backItems} />
             </div>
           </div>

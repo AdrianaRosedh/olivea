@@ -29,7 +29,7 @@ export function SignalsRow({ items }: { items?: string[] }) {
           key={x}
           className={cn(
             "px-3 py-1 rounded-full text-[12px]",
-            "bg-white/30 ring-1 ring-(--olivea-olive)/12",
+            "bg-(--olivea-ivory)/60 ring-1 ring-(--olivea-olive)/12",
             "text-(--olivea-olive) opacity-90"
           )}
         >
@@ -57,7 +57,7 @@ export function PracticesCard({
     <motion.div
       variants={blockV}
       className={cn(
-        "rounded-2xl bg-white/40 ring-1 ring-(--olivea-olive)/12 p-5",
+        "rounded-2xl bg-(--olivea-ivory)/60 ring-1 ring-(--olivea-olive)/12 p-5",
         "shadow-[0_14px_34px_rgba(40,60,35,0.10)]",
         className
       )}

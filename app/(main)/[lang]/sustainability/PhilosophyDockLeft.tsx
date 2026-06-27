@@ -381,8 +381,8 @@ export default function PhilosophyDockLeft({
                       className={cn(
                         "tabular-nums text-[12px] tracking-[0.22em] font-semibold",
                         isActive
-                          ? "text-(--olivea-olive) opacity-90"
-                          : "text-(--olivea-olive) opacity-70"
+                          ? "text-(--olivea-honey) opacity-100"
+                          : "text-(--olivea-honey) opacity-75"
                       )}
                       style={{ fontFamily: "var(--font-serif)" }}
                     >
@@ -394,7 +394,7 @@ export default function PhilosophyDockLeft({
                       className={cn(
                         "absolute bottom-2 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full",
                         isActive
-                          ? "bg-(--olivea-olive)/45"
+                          ? "bg-(--olivea-honey)/55"
                           : "bg-transparent"
                       )}
                     />
@@ -460,8 +460,8 @@ export default function PhilosophyDockLeft({
             const isSwapping = hoverEnabled && isHovered;
 
             const textClass = isActive
-              ? "text-(--olivea-olive) font-black"
-              : "text-(--olivea-olive) opacity-75 hover:opacity-100 hover:text-(--olivea-olive)";
+              ? "text-(--olivea-forest) font-black"
+              : "text-(--olivea-olive) opacity-75 hover:opacity-100 hover:text-(--olivea-forest)";
 
             return (
               <a
@@ -488,15 +488,15 @@ export default function PhilosophyDockLeft({
                       animate={{ opacity: 1, scaleY: 1 }}
                       exit={{ opacity: 0, scaleY: 0.7 }}
                       transition={{ duration: reduce ? 0 : 0.18, ease: EASE_OUT }}
-                      className="absolute left-4.5 top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-olive)/35 origin-center"
+                      className="absolute left-4.5 top-1/2 h-9 w-px -translate-y-1/2 bg-(--olivea-honey)/45 origin-center"
                     />
                   )}
                 </AnimatePresence>
 
                 <span
                   className={cn(
-                    "w-10 tabular-nums text-[12px] tracking-[0.28em] font-semibold",
-                    isActive ? "opacity-80" : "opacity-55"
+                    "w-10 tabular-nums text-[12px] tracking-[0.28em] font-semibold text-(--olivea-honey)",
+                    isActive ? "opacity-100" : "opacity-65"
                   )}
                 >
                   {item.number}

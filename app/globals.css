@@ -15,6 +15,12 @@
   --olivea-sand: #dcd5c3;
   --olivea-sage: #5e7658;
 
+  /* Quiet sage depth — tonal hierarchy + one warm accent (Philosophy page).
+     New tokens only; existing aliases above are untouched. */
+  --olivea-forest: #33422e; /* deep heading ink — adds hierarchy vs body */
+  --olivea-ivory: #efece2;  /* warm ground, vs the flat cream */
+  --olivea-honey: #b6894a;  /* sparing accent: numerals, rules, links, CTA */
+
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 

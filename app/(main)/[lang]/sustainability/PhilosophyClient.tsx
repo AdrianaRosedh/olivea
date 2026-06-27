@@ -81,8 +81,8 @@ function linkifyNames(text: string, lang: Lang): ReactNode {
           : {})}
         className={cn(
           "underline underline-offset-4",
-          "decoration-(--olivea-olive)/55",
-          "hover:decoration-(--olivea-olive)",
+          "decoration-(--olivea-honey)/60",
+          "hover:decoration-(--olivea-honey)",
           "transition-colors"
         )}
       >
@@ -279,7 +279,7 @@ export default function PhilosophyClient({
               </div>
 
               <h1
-                className="mt-3 text-[38px] sm:text-[46px] md:text-[52px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
+                className="mt-3 text-[clamp(2.25rem,1.5rem_+_3.2vw,3.5rem)] font-semibold tracking-[-0.02em] text-(--olivea-forest)"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
                 {tt(
@@ -355,7 +355,7 @@ export default function PhilosophyClient({
                 <p
                   className={cn(
                     "mt-2 text-[16px] sm:text-[17px] leading-[1.9]",
-                    "text-(--olivea-olive)"
+                    "text-(--olivea-forest)"
                   )}
                   style={{ fontFamily: "var(--font-serif)" }}
                 >
@@ -411,7 +411,7 @@ export default function PhilosophyClient({
                     <div className="flex items-center gap-3">
                       <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-70">
                         {tt(lang, "Capítulo", "Chapter")}{" "}
-                        <span className="tabular-nums">
+                        <span className="tabular-nums text-(--olivea-honey)">
                           {String(idx + 1).padStart(2, "0")}
                         </span>
                       </div>
@@ -433,7 +433,7 @@ export default function PhilosophyClient({
                     />
 
                     <h2
-                      className="mt-4 text-[32px] sm:text-[36px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
+                      className="mt-4 text-[clamp(1.85rem,1.4rem_+_1.8vw,2.4rem)] font-semibold tracking-[-0.02em] text-(--olivea-forest)"
                       style={{ fontFamily: "var(--font-serif)" }}
                     >
                       {s.title}
@@ -496,7 +496,7 @@ export default function PhilosophyClient({
                     </motion.div>
                   </motion.div>
 
-                  <div className="mt-14 h-px bg-linear-to-r from-transparent via-(--olivea-olive)/14 to-transparent" />
+                  <div className="mt-14 h-px bg-linear-to-r from-transparent via-(--olivea-honey)/25 to-transparent" />
                 </motion.section>
               ))}
             </div>
@@ -510,7 +510,7 @@ export default function PhilosophyClient({
               transition={{ duration: reduce ? 0.1 : 0.7, ease: EASE }}
             >
               <h3
-                className="text-[26px] sm:text-[28px] font-semibold tracking-[-0.02em] text-(--olivea-olive)"
+                className="text-[clamp(1.6rem,1.3rem_+_1.1vw,1.9rem)] font-semibold tracking-[-0.02em] text-(--olivea-forest)"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
                 {tt(lang, "Un sistema vivo", "A living system")}
@@ -559,9 +559,9 @@ export default function PhilosophyClient({
                   className={cn(
                     "inline-flex items-center justify-center",
                     "rounded-2xl px-6 py-3.5 sm:py-3",
-                    "bg-white/60 ring-1 ring-(--olivea-olive)/12",
-                    "text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive)",
-                    "hover:bg-white/80 transition"
+                    "bg-(--olivea-ivory)/70 ring-1 ring-(--olivea-honey)/30",
+                    "text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey)",
+                    "hover:bg-(--olivea-ivory)/95 transition"
                   )}
                 >
                   {tt(lang, "Conoce a los Colibríes", "Meet the Colibríes")}
