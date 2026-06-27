@@ -193,7 +193,7 @@
        LEFT corners to ~0 (the harsh look). Half-height keeps the same circular
        right end without that side effect. */
     --reserve-h: 60px;
-    --reserve-left-r: 10px;
+    --reserve-left-r: 20px 8px;
     --reserve-right-r: calc(var(--reserve-h) / 2);
 
     border-top-left-radius: var(--reserve-left-r);
@@ -210,8 +210,8 @@
 @layer base {
   [data-scope="main"] button.olivea-reserve {
     --reserve-h: 60px;
-    --reserve-left-r: 10px; /* soft corners, slightly tighter (right end unchanged) */
-    --reserve-right-r: calc(var(--reserve-h) / 2); /* 30px — circular finish, unchanged */
+    --reserve-left-r: 20px 8px; /* elliptical, mirrors the hero pill's soft left (104x96) scaled per-axis */
+    --reserve-right-r: calc(var(--reserve-h) / 2); /* 30px — circular finish, mirrors the hero's arch right */
 
     display: inline-flex;
     align-items: center;
