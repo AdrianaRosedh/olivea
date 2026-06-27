@@ -333,6 +333,29 @@ export default function Footer({ dict, socials }: FooterProps) {
             <nav aria-label="Footer navigation" className="flex items-center gap-3 flex-wrap">
               <TextLink href={`/${lang}/carreras`}>{dict.footer.careers}</TextLink>
               <TextLink href={`/${lang}/legal`}>{dict.footer.legal}</TextLink>
+              {/* roseiies — brand wordmark masked in Olivea green, slightly emphasized */}
+              <Link
+                href={`/${lang}/roseiies`}
+                aria-label="roseiies"
+                className="group relative inline-flex items-center opacity-100 transition-[opacity,transform] duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-clay)/40"
+              >
+                <span
+                  aria-hidden="true"
+                  className="inline-block bg-(--olivea-olive) transition-colors duration-200 group-hover:bg-(--olivea-forest)"
+                  style={{
+                    height: "1.3em",
+                    width: "5.92em",
+                    maskImage: "url(/images/roseiies-logo.svg)",
+                    WebkitMaskImage: "url(/images/roseiies-logo.svg)",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskSize: "contain",
+                    WebkitMaskSize: "contain",
+                    maskPosition: "center",
+                    WebkitMaskPosition: "center",
+                  }}
+                />
+              </Link>
             </nav>
           </div>
 

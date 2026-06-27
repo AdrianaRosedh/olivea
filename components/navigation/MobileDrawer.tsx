@@ -299,6 +299,33 @@ export default function MobileDrawer({
                     </div>
                   </motion.div>
 
+                  {/* Innovation — featured, full-width */}
+                  <motion.div variants={item} className="mt-3">
+                    <button
+                      onClick={() => handleClick(`/${lang}/innovation`)}
+                      className={[
+                        "transform-gpu will-change-transform w-full",
+                        "rounded-2xl px-5 py-4 text-sm text-left",
+                        blurClass,
+                        "ring-1 transition-colors duration-200",
+                        "active:scale-[0.99] transition-transform duration-150",
+                        "text-(--olivea-cream)",
+                        isActive(`/${lang}/innovation`)
+                          ? "bg-(--olivea-honey)/25 ring-(--olivea-honey)/40"
+                          : "bg-(--olivea-honey)/15 ring-(--olivea-honey)/25 hover:bg-(--olivea-honey)/20",
+                      ].join(" ")}
+                    >
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="uppercase tracking-[0.18em]">
+                          {lang === "es" ? "Innovación" : "Innovation"}
+                        </span>
+                        <span aria-hidden="true" className="text-(--olivea-honey)">
+                          →
+                        </span>
+                      </span>
+                    </button>
+                  </motion.div>
+
                   <div className="flex-1 min-h-6" />
 
                   {/* Footer */}

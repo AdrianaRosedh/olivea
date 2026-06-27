@@ -115,6 +115,10 @@ const MapIcon = dynamic(() => import("lucide-react").then((m) => m.Map), {
   ssr: false,
   loading: () => <IconFallback />,
 });
+const SparklesIcon = dynamic(() => import("lucide-react").then((m) => m.Sparkles), {
+  ssr: false,
+  loading: () => <IconFallback />,
+});
 
 interface LayoutShellProps {
   lang: Lang;
@@ -327,6 +331,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
       return [
         { id: "press", href: `/${pathLang}/press`, label: dictionary.press.title, icon: <AwardIcon /> },
         { id: "sustainability", href: `/${pathLang}/sustainability`, label: dictionary.sustainability.title, icon: <LeafIcon /> },
+        { id: "innovation", href: `/${pathLang}/innovation`, label: pathLang === "es" ? "Innovación" : "Innovation", icon: <SparklesIcon /> },
         { id: "journal", href: `/${pathLang}/journal`, label: dictionary.journal.title, icon: <BookOpenIcon /> },
         { id: "team", href: `/${pathLang}/team`, label: dictionary.team.title, icon: <UsersIcon /> },
         { id: "contact", href: `/${pathLang}/contact`, label: dictionary.contact.title, icon: <MapIcon /> },

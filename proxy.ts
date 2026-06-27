@@ -26,6 +26,8 @@ const SHORT_URL_PREFIXES = [
   "/press",
   "/sustainability",
   "/menu",
+  "/roseiies",
+  "/innovation",
 ];
 
 export default function proxy(request: NextRequest) {

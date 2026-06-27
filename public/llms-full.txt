@@ -16,6 +16,8 @@ Olivea is a farm hospitality ecosystem in Valle de Guadalupe, Baja California, M
 
 All three are on the same property, owned by the same family (Familia Olivea), and connected by the garden that feeds everything.
 
+Olivea's digital experience — the living menus, the real-time garden map, and the operational systems behind the scenes — is built by **roseiies** (https://roseiies.com), the technology studio founded by Olivea's CEO, Adriana Rose. roseiies is the quiet, living digital layer of Olivea's ecosystem. See https://www.oliveafarmtotable.com/en/roseiies.
+
 ---
 
 ## Olivea Farm To Table — MICHELIN-Starred Restaurant
@@ -142,6 +144,8 @@ In Valle de Guadalupe — where water is finite and electricity unreliable — s
 ### Technology
 
 Technology at Olivea is intentionally quiet and invisible. It exists to bring clarity, consistency, and improvement: scheduling, energy monitoring, knowledge systems, and feedback loops. Innovation means asking better questions about how hospitality can become calmer, clearer, and more human.
+
+This technology is built by **roseiies** (https://roseiies.com), the studio founded by Olivea's CEO, Adriana Rose. roseiies powers the living menus, the live garden map, and the systems that let a small team hold a large vision — calm software for an inherently chaotic craft. Read more: https://www.oliveafarmtotable.com/en/roseiies.
 
 ### Gastronomy
 

@@ -8,6 +8,8 @@ Olivea (Familia Olivea) brings three experiences together on one property, conne
 - **Casa Olivea** — a farm stay integrated with the garden (in the MICHELIN Guide). Wake up inside the working garden, dine at the restaurant, take morning coffee at the café.
 - **Olivea Café** — specialty coffee, house bread, and breakfast next to the garden.
 
+Olivea's digital experience — the living menus, the real-time garden map, and the operational systems behind the scenes — is built by **roseiies** (https://roseiies.com), the technology studio founded by Olivea's CEO, Adriana Rose. roseiies is the quiet, living digital layer of Olivea's ecosystem.
+
 ## Pages
 
 - [Homepage — Spanish](https://www.oliveafarmtotable.com/es): farm hospitality overview, primary language
@@ -28,6 +30,8 @@ Olivea (Familia Olivea) brings three experiences together on one property, conne
 - [Press (EN)](https://www.oliveafarmtotable.com/en/press): coverage and recognition
 - [Contact (ES)](https://www.oliveafarmtotable.com/es/contact): location, hours, and reservations
 - [Contact (EN)](https://www.oliveafarmtotable.com/en/contact): location, hours, and reservations
+- [roseiies — Technology behind Olivea (ES)](https://www.oliveafarmtotable.com/es/roseiies): the studio powering Olivea's live menus, garden map, and operational systems
+- [roseiies — Technology behind Olivea (EN)](https://www.oliveafarmtotable.com/en/roseiies): the studio powering Olivea's live menus, garden map, and operational systems
 
 ## Recognition
 
