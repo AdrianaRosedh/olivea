@@ -187,13 +187,19 @@
 @layer base {
   button.olivea-reserve {
     /* if this class exists, it should always look like a pill */
+    /* Right end is a full semicircle ("circular finish"); the left corners are
+       softly rounded — not harsh, not a matching capsule. NB: a 9999px right
+       radius makes the browser scale ALL radii down to fit, which collapsed the
+       LEFT corners to ~0 (the harsh look). Half-height keeps the same circular
+       right end without that side effect. */
     --reserve-h: 60px;
-    --reserve-left-r: calc(var(--reserve-h) / 2);
+    --reserve-left-r: 14px;
+    --reserve-right-r: calc(var(--reserve-h) / 2);
 
     border-top-left-radius: var(--reserve-left-r);
     border-bottom-left-radius: var(--reserve-left-r);
-    border-top-right-radius: 9999px;
-    border-bottom-right-radius: 9999px;
+    border-top-right-radius: var(--reserve-right-r);
+    border-bottom-right-radius: var(--reserve-right-r);
 
     overflow: hidden;
     position: relative;
@@ -204,7 +210,8 @@
 @layer base {
   [data-scope="main"] button.olivea-reserve {
     --reserve-h: 60px;
-    --reserve-left-r: calc(var(--reserve-h) / 2); /* 30px */
+    --reserve-left-r: 14px; /* soft corners, not a capsule */
+    --reserve-right-r: calc(var(--reserve-h) / 2); /* 30px — circular finish */
 
     display: inline-flex;
     align-items: center;
@@ -216,11 +223,11 @@
     border: 0;
     cursor: pointer;
 
-    /* ✅ real shape */
+    /* ✅ real shape — soft left corners + circular right end */
     border-top-left-radius: var(--reserve-left-r);
     border-bottom-left-radius: var(--reserve-left-r);
-    border-top-right-radius: 9999px;
-    border-bottom-right-radius: 9999px;
+    border-top-right-radius: var(--reserve-right-r);
+    border-bottom-right-radius: var(--reserve-right-r);
 
     /* ✅ real fill (no pseudo-element fill) */
     background:

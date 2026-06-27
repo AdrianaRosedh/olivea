@@ -87,8 +87,8 @@ function clamp(n: number, min: number, max: number): number {
 }
 
 function approxDockH(): number {
-  const rows = 5 * ROW;
-  const gaps = 4 * GAP;
+  const rows = 4 * ROW;
+  const gaps = 3 * GAP;
   const pad = 2 * PAD;
   return rows + gaps + pad + 8;
 }
@@ -211,15 +211,13 @@ export function MobileNav({ isDrawerOpen }: Props) {
       pathname.includes("/posts"));
 
   const [wReserve, setWReserve] = useState(64);
-  const [wLive, setWLive] = useState(52);
   const [wChat, setWChat] = useState(34);
 
   const pillWReserve = ROW + PILL_GAP + wReserve + TEXT_PAD_X * 2;
-  const pillWLive = ROW + PILL_GAP + wLive + TEXT_PAD_X * 2;
   const pillWChat = ROW + PILL_GAP + wChat + TEXT_PAD_X * 2;
 
   const compactW = ROW + PAD * 2;
-  const expandedW = Math.max(pillWReserve, pillWLive, pillWChat, ROW) + PAD * 2;
+  const expandedW = Math.max(pillWReserve, pillWChat, ROW) + PAD * 2;
 
   const sideRight = pos.side === "right";
 
@@ -407,17 +405,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
       );
     };
   }, [isDrawerOpen, outlineOpen, isDragging, onReserve]);
-
-  const onLive = useCallback(() => {
-    track("Live Garden Opened", {
-      source: expanded
-        ? "mobile_floating_dock_expanded"
-        : "mobile_floating_dock",
-      lang,
-    });
-    setExpanded(false);
-    window.dispatchEvent(new CustomEvent("olivea:live-garden"));
-  }, [expanded, lang]);
 
   const onChat = useCallback(() => {
     track("Chat Opened", {
@@ -607,11 +594,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
             onWidth={setWReserve}
           />
           <MeasureText
-            text={labels.live}
-            className="text-[14px] font-medium tracking-[0.02em]"
-            onWidth={setWLive}
-          />
-          <MeasureText
             text={labels.chat}
             className="text-[14px] font-medium tracking-[0.02em]"
             onWidth={setWChat}
@@ -694,13 +676,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
                     label={labels.reserve}
                     pillW={pillWReserve}
                     onClick={onReserve}
-                  />
-
-                  <ActionRow
-                    tone="live"
-                    label={labels.live}
-                    pillW={pillWLive}
-                    onClick={onLive}
                   />
 
                   <ActionRow
