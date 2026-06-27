@@ -180,10 +180,10 @@ export default function Footer({ dict, socials }: FooterProps) {
         "opacity-80 hover:opacity-100",
         "transition-[opacity,transform,color] duration-200",
         "hover:-translate-y-px",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-clay)/40",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40",
       ].join(" ")}
     >
-      <span className="transition-colors group-hover:text-(--olivea-clay)">{children}</span>
+      <span className="text-(--olivea-olive)">{children}</span>
       <span
         className="pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
         style={{
@@ -267,8 +267,8 @@ export default function Footer({ dict, socials }: FooterProps) {
                 "rounded-md text-[0.95em] font-medium",
                 "transition-[transform,box-shadow,background-color,color,border-color] duration-200",
                 "border border-[rgba(0,0,0,0.06)]",
-                "hover:bg-(--olivea-clay) hover:text-white",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-clay)/40",
+                "hover:bg-(--olivea-olive) hover:text-white",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40",
                 // never let it be too wide
                 "max-w-40",
               ].join(" ")}
@@ -314,14 +314,14 @@ export default function Footer({ dict, socials }: FooterProps) {
                   <button
                     type="button"
                     onClick={() => switchLocale("en")}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-clay) hover:text-white transition-colors"
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-olive) hover:text-white transition-colors"
                   >
                     🇺🇸 English
                   </button>
                   <button
                     type="button"
                     onClick={() => switchLocale("es")}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-clay) hover:text-white transition-colors"
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-olive) hover:text-white transition-colors"
                   >
                     🇲🇽 Español
                   </button>
@@ -330,18 +330,18 @@ export default function Footer({ dict, socials }: FooterProps) {
             </AnimatePresence>
 
             {/* Links wrap cleanly on small screens */}
-            <nav aria-label="Footer navigation" className="flex items-center gap-3 flex-wrap">
+            <nav aria-label="Footer navigation" className="flex items-center gap-3 whitespace-nowrap">
               <TextLink href={`/${lang}/carreras`}>{dict.footer.careers}</TextLink>
               <TextLink href={`/${lang}/legal`}>{dict.footer.legal}</TextLink>
               {/* roseiies — brand wordmark masked in Olivea green, slightly emphasized */}
               <Link
                 href={`/${lang}/roseiies`}
                 aria-label="roseiies"
-                className="group relative inline-flex items-center opacity-100 transition-[opacity,transform] duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-clay)/40"
+                className="group relative inline-flex items-center opacity-100 transition-[opacity,transform] duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40"
               >
                 <span
                   aria-hidden="true"
-                  className="inline-block bg-(--olivea-olive) transition-colors duration-200 group-hover:bg-(--olivea-forest)"
+                  className="inline-block bg-(--olivea-olive)"
                   style={{
                     height: "1.3em",
                     width: "5.92em",
@@ -383,7 +383,7 @@ export default function Footer({ dict, socials }: FooterProps) {
             "opacity-80",
           ].join(" ")}
         >
-          <span className="cursor-default transition-colors hover:text-(--olivea-clay)">
+          <span className="cursor-default transition-colors hover:text-(--olivea-olive)">
             <span className="whitespace-nowrap">© {new Date().getFullYear()} Casa Olivea A.C.</span>
             <span className="mx-1 inline-block align-middle opacity-60">•</span>
             <span className="wrap-break-words">{rightsText}</span>
