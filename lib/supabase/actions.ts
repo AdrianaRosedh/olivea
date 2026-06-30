@@ -9,6 +9,7 @@ import { selectRows, selectOne, upsertRows, deleteRows, updateRows } from "./cli
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "./config";
 import { logAudit } from "@/lib/auth/audit";
+import { pingIndexNowForPaths } from "@/lib/indexnow";
 
 // ── Auth guard for write operations ────────────────────────────────
 // All mutating actions verify the user has at least "editor" role.
@@ -342,6 +343,9 @@ export async function savePageContent(table: PageTable, data: Record<string, unk
       revalidatePath(path);
     }
   }
+
+  // Notify IndexNow (Bing -> Copilot + ChatGPT Search) of the changed URLs.
+  await pingIndexNowForPaths(pageRevalidations[table] ?? []);
 }
 
 // ── Sustainability Sections (collection) ───────────────────────────
