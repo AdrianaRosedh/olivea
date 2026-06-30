@@ -1,7 +1,7 @@
 // app/(linktree)/[lang]/team/[id]/page.tsx
 import type { Metadata } from "next";
 import LinktreeClient from "./LinktreeClient";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, SITE } from "@/lib/site";
 import { type Lang } from "@/lib/i18n";
 
 import {
@@ -94,6 +94,30 @@ export async function generateMetadata({
   };
 }
 
+/** schema.org Person — lets AI/Google read who each person is, straight from
+ *  the site (name, role, bio, photo, employer, and verified social links). */
+function buildPersonJsonLd(member: LeaderProfile, lang: Lang) {
+  const sameAs = (member.links ?? [])
+    .map((l) => l.href)
+    .filter((h) => /^https?:\/\//.test(h) && !h.includes("oliveafarmtotable.com"));
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${SITE.canonicalBaseUrl}/team/${member.id}#person`,
+    name: member.name,
+    ...(member.role?.[lang] ? { jobTitle: member.role[lang] } : {}),
+    ...(member.bio?.[lang] ? { description: member.bio[lang] } : {}),
+    ...(member.avatar ? { image: absoluteUrl(member.avatar) } : {}),
+    url: absoluteUrl(`/${lang}/team/${member.id}`),
+    worksFor: {
+      "@type": "Organization",
+      "@id": `${SITE.canonicalBaseUrl}#organization`,
+      name: "Olivea",
+    },
+    ...(sameAs.length ? { sameAs } : {}),
+  };
+}
+
 export default async function Page({
   params,
 }: {
@@ -116,5 +140,13 @@ export default async function Page({
     );
   }
 
-  return <LinktreeClient lang={lang} member={member} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildPersonJsonLd(member, lang)) }}
+      />
+      <LinktreeClient lang={lang} member={member} />
+    </>
+  );
 }
