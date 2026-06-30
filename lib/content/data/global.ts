@@ -38,8 +38,8 @@ const global: GlobalSettings = {
       venue: "casa",
       label: { es: "Casa Olivea & Olivea Café", en: "Casa Olivea & Olivea Café" },
       schedule: {
-        es: "Mié–Lun 7:30–2:30 · Mar 7:30–9:30",
-        en: "Wed–Mon 7:30–2:30 · Tue 7:30–9:30",
+        es: "Café Mié–Lun 7:30–2:30 · Mar 7:30–9:30 · Casa abierto a diario",
+        en: "Café Wed–Mon 7:30–2:30 · Tue 7:30–9:30 · Casa open daily",
       },
       sortOrder: 1,
     },
