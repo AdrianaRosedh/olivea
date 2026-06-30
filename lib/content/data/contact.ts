@@ -37,9 +37,13 @@ const contact: ContactContent = {
       es: "Olivea Farm To Table",
       en: "Olivea Farm To Table",
     },
-    casaCafeTitle: {
-      es: "Casa Olivea & Olivea Café",
-      en: "Casa Olivea & Olivea Café",
+    cafeTitle: {
+      es: "Olivea Café",
+      en: "Olivea Café",
+    },
+    casaTitle: {
+      es: "Casa Olivea",
+      en: "Casa Olivea",
     },
   },
   footerNote: {

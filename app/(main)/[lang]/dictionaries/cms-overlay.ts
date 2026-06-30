@@ -80,8 +80,10 @@ export async function applyCmsOverlay(
     c.labels.email = pick(contact.labels?.email) ?? c.labels.email;
     c.sections.farmToTableTitle =
       pick(contact.sections?.farmToTableTitle) ?? c.sections.farmToTableTitle;
-    c.sections.casaCafeTitle =
-      pick(contact.sections?.casaCafeTitle) ?? c.sections.casaCafeTitle;
+    c.sections.cafeTitle =
+      pick(contact.sections?.cafeTitle) ?? c.sections.cafeTitle;
+    c.sections.casaTitle =
+      pick(contact.sections?.casaTitle) ?? c.sections.casaTitle;
     c.footerNote = pick(contact.footerNote) ?? c.footerNote;
     c.map.iframeTitle = pick(contact.map?.iframeTitle) ?? c.map.iframeTitle;
     c.map.badgeLabel = pick(contact.map?.badgeLabel) ?? c.map.badgeLabel;
@@ -93,9 +95,11 @@ export async function applyCmsOverlay(
   // must be able to change without a developer.
   if (global?.hours?.length) {
     const farm = global.hours.find((h) => h.venue === "farmtotable");
+    const cafe = global.hours.find((h) => h.venue === "cafe");
     const casa = global.hours.find((h) => h.venue === "casa");
     d.contact.hours.farmToTable = pick(farm?.schedule) ?? d.contact.hours.farmToTable;
-    d.contact.hours.casaCafe = pick(casa?.schedule) ?? d.contact.hours.casaCafe;
+    d.contact.hours.cafe = pick(cafe?.schedule) ?? d.contact.hours.cafe;
+    d.contact.hours.casa = pick(casa?.schedule) ?? d.contact.hours.casa;
   }
 
   return d;

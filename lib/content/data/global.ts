@@ -35,13 +35,23 @@ const global: GlobalSettings = {
     },
     {
       id: "h2",
-      venue: "casa",
-      label: { es: "Casa Olivea & Olivea Café", en: "Casa Olivea & Olivea Café" },
+      venue: "cafe",
+      label: { es: "Olivea Café", en: "Olivea Café" },
       schedule: {
-        es: "Café Mié–Lun 7:30–2:30 · Mar 7:30–9:30 · Casa abierto a diario",
-        en: "Café Wed–Mon 7:30–2:30 · Tue 7:30–9:30 · Casa open daily",
+        es: "Mié–Lun 7:30–2:30 · Mar 7:30–9:30",
+        en: "Wed–Mon 7:30–2:30 · Tue 7:30–9:30",
       },
       sortOrder: 1,
+    },
+    {
+      id: "h3",
+      venue: "casa",
+      label: { es: "Casa Olivea", en: "Casa Olivea" },
+      schedule: {
+        es: "Abierto a diario · reserva en línea",
+        en: "Open daily · book online",
+      },
+      sortOrder: 2,
     },
   ],
   socials: [

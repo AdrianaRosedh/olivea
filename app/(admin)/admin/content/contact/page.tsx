@@ -99,8 +99,12 @@ function ContactVisual() {
             <EditableBilingual label="FTT Title" as="h3" value={sections.farmToTableTitle ?? { es: "", en: "" }} onChange={(v) => set("sections.farmToTableTitle", v)} className="text-lg font-serif text-stone-800" />
           </div>
           <div className="rounded-xl bg-white/60 ring-1 ring-black/5 p-5 space-y-2">
-            <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Casa & Café</span>
-            <EditableBilingual label="Casa/Café Title" as="h3" value={sections.casaCafeTitle ?? { es: "", en: "" }} onChange={(v) => set("sections.casaCafeTitle", v)} className="text-lg font-serif text-stone-800" />
+            <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Café</span>
+            <EditableBilingual label="Café Title" as="h3" value={sections.cafeTitle ?? { es: "", en: "" }} onChange={(v) => set("sections.cafeTitle", v)} className="text-lg font-serif text-stone-800" />
+          </div>
+          <div className="rounded-xl bg-white/60 ring-1 ring-black/5 p-5 space-y-2">
+            <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Casa</span>
+            <EditableBilingual label="Casa Title" as="h3" value={sections.casaTitle ?? { es: "", en: "" }} onChange={(v) => set("sections.casaTitle", v)} className="text-lg font-serif text-stone-800" />
           </div>
         </div>
       </section>

@@ -81,11 +81,13 @@
   },
   "sections": {
     "farmToTableTitle": "Olivea Farm To Table",
-    "casaCafeTitle": "Casa Olivea & Olivea Café"
+    "cafeTitle": "Olivea Café",
+    "casaTitle": "Casa Olivea"
   },
   "hours": {
     "farmToTable": "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
-    "casaCafe": "Café Mié–Lun 7:30–2:30 · Mar 7:30–9:30 · Casa abierto a diario"
+    "cafe": "Mié–Lun 7:30–2:30 · Mar 7:30–9:30",
+    "casa": "Abierto a diario · reserva en línea"
   },
   "footerNote": "Para eventos especiales o coordinación de grupos, escríbenos por email y te ayudamos a organizarlo.",
   "map": {

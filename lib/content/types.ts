@@ -195,7 +195,8 @@ export interface ContactContent {
   };
   sections: {
     farmToTableTitle: Bilingual;
-    casaCafeTitle: Bilingual;
+    cafeTitle: Bilingual;
+    casaTitle: Bilingual;
   };
   footerNote: Bilingual;
   map: {

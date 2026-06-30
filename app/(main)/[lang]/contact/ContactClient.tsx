@@ -13,8 +13,8 @@ type ContactDict = {
   metaDescription: string;
   actions: { maps: string; email: string; call: string };
   labels: { address: string; email: string };
-  sections: { farmToTableTitle: string; casaCafeTitle: string };
-  hours: { farmToTable: string; casaCafe: string };
+  sections: { farmToTableTitle: string; cafeTitle: string; casaTitle: string };
+  hours: { farmToTable: string; cafe: string; casa: string };
   footerNote: string;
   map: {
     iframeTitle: string;
@@ -248,7 +248,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                     className={cn(card, "p-6")}
                   >
                     <p className="text-(--olivea-ink) font-semibold text-[16px]">
-                      {t.sections.casaCafeTitle}
+                      {t.sections.cafeTitle}
                     </p>
 
                     <div className="mt-3 flex items-center gap-3">
@@ -264,7 +264,34 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                     <div className="mt-3 flex items-start gap-3">
                       <Clock className="w-5 h-5 text-(--olivea-olive) mt-0.5" />
                       <div className="text-sm text-(--olivea-ink)/75 leading-6">
-                        {t.hours.casaCafe}
+                        {t.hours.cafe}
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    variants={itemInV}
+                    custom={6}
+                    className={cn(card, "p-6")}
+                  >
+                    <p className="text-(--olivea-ink) font-semibold text-[16px]">
+                      {t.sections.casaTitle}
+                    </p>
+
+                    <div className="mt-3 flex items-center gap-3">
+                      <Phone className="w-5 h-5 text-(--olivea-olive)" />
+                      <a
+                        href={mainTel}
+                        className="text-sm underline decoration-(--olivea-olive)/30 hover:decoration-(--olivea-olive)"
+                      >
+                        {formatLocalPhone(contactInfo.phone)}
+                      </a>
+                    </div>
+
+                    <div className="mt-3 flex items-start gap-3">
+                      <Clock className="w-5 h-5 text-(--olivea-olive) mt-0.5" />
+                      <div className="text-sm text-(--olivea-ink)/75 leading-6">
+                        {t.hours.casa}
                       </div>
                     </div>
                   </motion.div>
@@ -272,7 +299,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
 
                 <motion.p
                   variants={itemInV}
-                  custom={6}
+                  custom={7}
                   className="text-sm text-(--olivea-ink)/55 leading-relaxed max-w-[75ch]"
                 >
                   {t.footerNote}

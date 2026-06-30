@@ -75,13 +75,15 @@ export const dictionarySchema = z.object({
     /* Section titles */
     sections: z.object({
       farmToTableTitle: z.string(),
-      casaCafeTitle: z.string(),
+      cafeTitle: z.string(),
+      casaTitle: z.string(),
     }),
 
     /* Opening hours */
     hours: z.object({
       farmToTable: z.string(),
-      casaCafe: z.string(),
+      cafe: z.string(),
+      casa: z.string(),
     }),
 
     /* Footer note */
