@@ -157,6 +157,8 @@ export interface FarmToTableContent {
   hero: HeroBlock;
   sections: ContentSection[];
   faq: FaqItem[];
+  /** Supabase row updated_at (ISO) — feeds schema dateModified. */
+  updatedAt?: string;
 }
 
 /** Casa Olivea page */
@@ -165,6 +167,7 @@ export interface CasaContent {
   hero: HeroBlock;
   sections: ContentSection[];
   faq: FaqItem[];
+  updatedAt?: string;
 }
 
 /** Café page */
@@ -173,6 +176,7 @@ export interface CafeContent {
   hero: HeroBlock;
   sections: ContentSection[];
   faq: FaqItem[];
+  updatedAt?: string;
 }
 
 /** Contact page */

@@ -123,6 +123,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     about: { "@id": ENTITY_IDS.hotel },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
     inLanguage: L === "es" ? "es-MX" : "en-US",
+    ...(casaContent.updatedAt ? { dateModified: casaContent.updatedAt } : {}),
   };
   const breadcrumb = {
     "@context": "https://schema.org",

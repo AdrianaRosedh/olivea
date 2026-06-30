@@ -122,6 +122,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     about: { "@id": ENTITY_IDS.cafe },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
     inLanguage: L === "es" ? "es-MX" : "en-US",
+    ...(cafeContent.updatedAt ? { dateModified: cafeContent.updatedAt } : {}),
   };
   const breadcrumb = {
     "@context": "https://schema.org",

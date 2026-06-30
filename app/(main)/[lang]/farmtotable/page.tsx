@@ -174,6 +174,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     about: { "@id": ENTITY_IDS.restaurant },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
     inLanguage: L === "es" ? "es-MX" : "en-US",
+    ...(fttData.updatedAt ? { dateModified: fttData.updatedAt } : {}),
   };
   const breadcrumb = {
     "@context": "https://schema.org",

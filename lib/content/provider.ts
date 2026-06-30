@@ -203,8 +203,12 @@ class SupabaseContentSource implements ContentSource {
       // Merge with static defaults so missing columns (e.g. faq not in
       // casa_content) are filled from the data file rather than undefined.
       const staticDefault = await this.static.get(key);
-      const { id: _id, updated_at: _u, ...cleanRow } = row;
-      return { ...staticDefault, ...cleanRow } as ContentMap[K];
+      const { id: _id, updated_at, ...cleanRow } = row;
+      return {
+        ...staticDefault,
+        ...cleanRow,
+        ...(typeof updated_at === "string" ? { updatedAt: updated_at } : {}),
+      } as ContentMap[K];
     } catch {
       // Supabase unavailable — silent fallback to static
       return this.static.get(key);
