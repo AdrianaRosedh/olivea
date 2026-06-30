@@ -197,6 +197,30 @@ export default function StructuredDataServer() {
       hasMap: GOOGLE_MAPS.restaurant,
       sameAs: [GOOGLE_MAPS.restaurant, MICHELIN.restaurant],
       acceptsReservations: true,
+      // ✅ chef as an entity — common AI query for a MICHELIN restaurant
+      employee: {
+        "@type": "Person",
+        name: "Daniel Nates",
+        jobTitle: "Executive Chef",
+      },
+      // ✅ ReserveAction — lets AI/Google surface a "reserve a table" action
+      potentialAction: {
+        "@type": "ReserveAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate:
+            "https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website",
+          inLanguage: "es-MX",
+          actionPlatform: [
+            "https://schema.org/DesktopWebPlatform",
+            "https://schema.org/MobileWebPlatform",
+          ],
+        },
+        result: {
+          "@type": "Reservation",
+          name: "Reservation at Olivea Farm To Table",
+        },
+      },
       award: ["One MICHELIN Star", "MICHELIN Green Star"],
       subjectOf: recognitionWorks,
       openingHoursSpecification: [
