@@ -7,11 +7,18 @@ import { motion } from "framer-motion";
 
 /* ── Types ── */
 
+interface HoursSlot {
+  days: string[];
+  opens: string;
+  closes: string;
+}
+
 interface BusinessHours {
   id: string;
   venue: string;
   label: { es: string; en: string };
   schedule: { es: string; en: string };
+  slots?: HoursSlot[];
   sortOrder: number;
 }
 
@@ -21,6 +28,17 @@ const venueOptions = [
   { value: "casa", label: "Casa Olivea" },
   { value: "cafe", label: "Café Olivea" },
 ] as const;
+
+/* ── Days (schema.org weekday names) ── */
+const DAYS: { full: string; short: string }[] = [
+  { full: "Monday", short: "Mon" },
+  { full: "Tuesday", short: "Tue" },
+  { full: "Wednesday", short: "Wed" },
+  { full: "Thursday", short: "Thu" },
+  { full: "Friday", short: "Fri" },
+  { full: "Saturday", short: "Sat" },
+  { full: "Sunday", short: "Sun" },
+];
 
 /* ── Easing ── */
 const cinematic: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -75,6 +93,17 @@ export default function HoursPage() {
     if (!window.confirm(`Delete hours for "${venueLabel}"? This will be removed from the public site after you save.`)) return;
     setHours(hours.filter((_, i) => i !== idx));
     setDirty(true);
+  };
+
+  /* ── Structured slots (drive openingHoursSpecification in JSON-LD) ── */
+  const addSlot = (idx: number) => {
+    updateItem(idx, { slots: [...(hours[idx].slots ?? []), { days: [], opens: "09:00", closes: "17:00" }] });
+  };
+  const updateSlot = (idx: number, sIdx: number, patch: Partial<HoursSlot>) => {
+    updateItem(idx, { slots: (hours[idx].slots ?? []).map((s, i) => (i === sIdx ? { ...s, ...patch } : s)) });
+  };
+  const removeSlot = (idx: number, sIdx: number) => {
+    updateItem(idx, { slots: (hours[idx].slots ?? []).filter((_, i) => i !== sIdx) });
   };
 
   const moveItem = (idx: number, dir: -1 | 1) => {
@@ -258,6 +287,44 @@ export default function HoursPage() {
             <p className="text-[11px] text-stone-400 leading-relaxed pl-1">
               Tip: separate days with a dot ( · ) and use en-dash for time ranges (5–8 not 5-8). Example: <code className="text-stone-500">Wed 5–8 · Fri 2:30–8:30 · Sun 2–7</code>
             </p>
+
+            {/* ── Structured hours (drives Google & AI opening hours in JSON-LD) ── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Structured hours · for Google &amp; AI</label>
+                <button onClick={() => addSlot(idx)} className="text-[11px] font-semibold text-[var(--olivea-olive)] hover:underline">+ Add time block</button>
+              </div>
+              {(item.slots ?? []).length === 0 && (
+                <p className="text-[11px] text-stone-400 italic">No structured hours yet — search engines fall back to the display text above.</p>
+              )}
+              {(item.slots ?? []).map((slot, sIdx) => (
+                <div key={sIdx} className="rounded-lg bg-stone-50/80 ring-1 ring-stone-100 p-3 space-y-2">
+                  <div className="flex flex-wrap gap-1">
+                    {DAYS.map((d) => {
+                      const on = slot.days.includes(d.full);
+                      return (
+                        <button
+                          key={d.full}
+                          onClick={() => updateSlot(idx, sIdx, { days: on ? slot.days.filter((x) => x !== d.full) : [...slot.days, d.full] })}
+                          className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${on ? "bg-[var(--olivea-olive)] text-white" : "bg-white text-stone-500 ring-1 ring-stone-200 hover:ring-[var(--olivea-olive)]/40"}`}
+                        >
+                          {d.short}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input type="time" value={slot.opens} onChange={(e) => updateSlot(idx, sIdx, { opens: e.target.value })} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 focus:border-[var(--olivea-olive)] outline-none" />
+                    <span className="text-stone-400 text-sm">to</span>
+                    <input type="time" value={slot.closes} onChange={(e) => updateSlot(idx, sIdx, { closes: e.target.value })} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 focus:border-[var(--olivea-olive)] outline-none" />
+                    <div className="flex-1" />
+                    <button onClick={() => removeSlot(idx, sIdx)} className="p-1.5 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500" title="Remove time block">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         ))}
 

@@ -1,5 +1,6 @@
 // components/seo/StructuredDataServer.tsx
 import { canonicalUrl, SITE } from "@/lib/site";
+import { getContent } from "@/lib/content";
 
 type Recognition = {
   name: string;
@@ -64,8 +65,22 @@ export const ENTITY_IDS = {
   cafe: `${BASE}#cafe`,
 } as const;
 
-export default function StructuredDataServer() {
+export default async function StructuredDataServer() {
   const base = BASE;
+
+  // Opening hours are admin-editable via global_settings → JSON-LD stays in
+  // sync without a developer. Falls back to the hardcoded specs below.
+  const settings = await getContent("global").catch(() => null);
+  const toSpecs = (venue: string) => {
+    const slots = settings?.hours?.find((h) => h.venue === venue)?.slots;
+    if (!slots?.length) return null;
+    return slots.map((s) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: s.days.length === 1 ? s.days[0] : s.days,
+      opens: s.opens,
+      closes: s.closes,
+    }));
+  };
 
   const commonAddress = {
     "@type": "PostalAddress",
@@ -221,7 +236,7 @@ export default function StructuredDataServer() {
       // the page ineligible for review stars. Google surfaces the Business Profile
       // rating in Search natively; AI-facing ratings live in llms.txt.
       subjectOf: recognitionWorks,
-      openingHoursSpecification: [
+      openingHoursSpecification: toSpecs("farmtotable") ?? [
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Wednesday", opens: "17:00", closes: "20:00" },
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Friday", opens: "14:30", closes: "20:30" },
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: "14:00", closes: "19:00" },
@@ -253,7 +268,7 @@ export default function StructuredDataServer() {
         { "@type": "LocationFeatureSpecification", name: "Specialty café", value: true },
         { "@type": "LocationFeatureSpecification", name: "Pádel court", value: true },
       ],
-      openingHoursSpecification: [
+      openingHoursSpecification: toSpecs("casa") ?? [
         { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "00:00", closes: "23:59" },
       ],
     },
@@ -279,7 +294,7 @@ export default function StructuredDataServer() {
       // ✅ Café is also contained in the restaurant property
       containedInPlace: { "@id": ENTITY_IDS.restaurant },
       parentOrganization: { "@id": ENTITY_IDS.organization },
-      openingHoursSpecification: [
+      openingHoursSpecification: toSpecs("cafe") ?? [
         { "@type": "OpeningHoursSpecification", dayOfWeek: ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday"], opens: "07:30", closes: "14:30" },
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Tuesday", opens: "07:30", closes: "09:30" },
       ],

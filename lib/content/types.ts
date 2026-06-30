@@ -38,11 +38,20 @@ export interface PageMeta {
 
 /* ── Business Info (global, shared across pages) ── */
 
+/** A machine-readable opening-hours slot that drives schema.org openingHoursSpecification. */
+export interface HoursSlot {
+  days: string[]; // schema.org weekday names, e.g. ["Wednesday", "Friday"]
+  opens: string; // 24h "HH:MM"
+  closes: string; // 24h "HH:MM"
+}
+
 export interface BusinessHours {
   id: string;
   venue: "farmtotable" | "casa" | "cafe";
   label: Bilingual;
   schedule: Bilingual; // e.g. "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7"
+  /** Structured slots that drive openingHoursSpecification in JSON-LD (optional). */
+  slots?: HoursSlot[];
   sortOrder: number;
 }
 

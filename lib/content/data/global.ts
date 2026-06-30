@@ -31,6 +31,11 @@ const global: GlobalSettings = {
         es: "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
         en: "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7",
       },
+      slots: [
+        { days: ["Wednesday"], opens: "17:00", closes: "20:00" },
+        { days: ["Friday"], opens: "14:30", closes: "20:30" },
+        { days: ["Sunday"], opens: "14:00", closes: "19:00" },
+      ],
       sortOrder: 0,
     },
     {
@@ -41,6 +46,10 @@ const global: GlobalSettings = {
         es: "Mié–Lun 7:30–2:30 · Mar 7:30–9:30",
         en: "Wed–Mon 7:30–2:30 · Tue 7:30–9:30",
       },
+      slots: [
+        { days: ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday"], opens: "07:30", closes: "14:30" },
+        { days: ["Tuesday"], opens: "07:30", closes: "09:30" },
+      ],
       sortOrder: 1,
     },
     {
@@ -51,6 +60,9 @@ const global: GlobalSettings = {
         es: "Abierto a diario · reserva en línea",
         en: "Open daily · book online",
       },
+      slots: [
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "00:00", closes: "23:59" },
+      ],
       sortOrder: 2,
     },
   ],
