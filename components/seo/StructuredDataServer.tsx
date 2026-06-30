@@ -155,6 +155,46 @@ export default async function StructuredDataServer() {
         "Valle de Guadalupe wine region",
         "Baja California gastronomy",
       ],
+      // ✅ Key people as linked Person entities (resolve to /team/<id> pages)
+      founder: {
+        "@type": "Person",
+        "@id": `${base}/team/ange#person`,
+        name: "Ange Joy",
+        jobTitle: "Founder & Designer",
+        url: canonicalUrl("/es/team/ange"),
+      },
+      employee: [
+        {
+          "@type": "Person",
+          "@id": `${base}/team/adrianarose#person`,
+          name: "Adriana Rose",
+          jobTitle: "CEO — Technology & Vision",
+          url: canonicalUrl("/es/team/adrianarose"),
+        },
+        {
+          "@type": "Person",
+          "@id": `${base}/team/danielnates#person`,
+          name: "Daniel Nates",
+          jobTitle: "Executive Chef",
+          url: canonicalUrl("/es/team/danielnates"),
+        },
+      ],
+    },
+
+    // ─── roseiies (Adriana Rose's hospitality-intelligence studio) ───
+    {
+      "@type": "Organization",
+      "@id": "https://roseiies.com/#organization",
+      name: "roseiies",
+      alternateName: "Roseiies",
+      description:
+        "Hospitality intelligence studio founded by Adriana Rose, CEO of Olivea — applying technology and design to hospitality, beginning with the Olivea ecosystem.",
+      url: "https://roseiies.com",
+      founder: {
+        "@type": "Person",
+        "@id": `${base}/team/adrianarose#person`,
+        name: "Adriana Rose",
+      },
     },
 
     // ─── WebSite ────────────────────────────────────────────────
@@ -209,8 +249,10 @@ export default async function StructuredDataServer() {
       // ✅ chef as an entity — common AI query for a MICHELIN restaurant
       employee: {
         "@type": "Person",
+        "@id": `${base}/team/danielnates#person`,
         name: "Daniel Nates",
         jobTitle: "Executive Chef",
+        url: canonicalUrl("/es/team/danielnates"),
       },
       // ✅ ReserveAction — lets AI/Google surface a "reserve a table" action
       potentialAction: {
