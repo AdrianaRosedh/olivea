@@ -179,14 +179,8 @@ export default function StructuredDataServer() {
       address: commonAddress,
       geo,
       servesCuisine: ["Farm-to-table", "Baja California", "Mexican", "Tasting menu"],
-      // ✅ hasMenu — point crawlers + AI engines at the server-rendered menu page
-      hasMenu: {
-        "@type": "Menu",
-        name: "Tasting Menu",
-        url: canonicalUrl("/es/menu"),
-        description:
-          "A single seasonal tasting menu of nine courses, composed in stations and guided by the garden, climate, and time — it changes every 5–6 weeks.",
-      },
+      // ✅ menu — the property Google documents for food establishments (menu URL)
+      menu: canonicalUrl("/es/menu"),
       // ✅ containsPlace + parentOrganization for entity graph
       containsPlace: [
         { "@id": ENTITY_IDS.hotel },
@@ -222,14 +216,10 @@ export default function StructuredDataServer() {
         },
       },
       award: ["One MICHELIN Star", "MICHELIN Green Star"],
-      // ✅ genuine aggregate from Google Business Profile (public, verifiable)
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.8",
-        reviewCount: "124",
-        bestRating: "5",
-        worstRating: "1",
-      },
+      // NOTE: deliberately NO self-applied aggregateRating. Per Google's
+      // review-snippet policy, a business rating itself is self-serving and makes
+      // the page ineligible for review stars. Google surfaces the Business Profile
+      // rating in Search natively; AI-facing ratings live in llms.txt.
       subjectOf: recognitionWorks,
       openingHoursSpecification: [
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Wednesday", opens: "17:00", closes: "20:00" },
@@ -281,6 +271,7 @@ export default function StructuredDataServer() {
       address: commonAddress,
       geo,
       servesCuisine: ["Coffee", "Breakfast", "Pastries", "Mexican"],
+      menu: canonicalUrl("/es/menu"),
       priceRange: "$$",
       hasMap: GOOGLE_MAPS.cafe,
       sameAs: [GOOGLE_MAPS.cafe],
