@@ -86,7 +86,7 @@ export default function ArticleEs() {
       <section aria-label="Ubicación" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
         <h2>Ubicación</h2>
         <p>
-          <span itemProp="streetAddress">México 3 Km 92.5</span>,{" "}
+          <span itemProp="streetAddress">Carretera Ensenada-Tecate Km 92.5</span>,{" "}
           <span itemProp="postalCode">22766</span>{" "}
           <span itemProp="addressLocality">Villa de Juárez</span>,{" "}
           <span itemProp="addressRegion">Baja California</span>,{" "}

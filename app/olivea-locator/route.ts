@@ -97,21 +97,21 @@ export async function GET(req: NextRequest) {
         locations: [
           {
             title: "Olivea Café",
-            address1: "Carretera Federal #3 Km 92.5",
+            address1: "Carretera Ensenada-Tecate Km 92.5",
             address2: "${t.address2Short}",
             coords: { lat: 31.9908168, lng: -116.6421964 },
             placeId: "ChIJ8chTvsP72IARSvB3fdU_IXs"
           },
           {
             title: "Olivea Farm to Table",
-            address1: "Carretera Federal #3 Km 92.5",
+            address1: "Carretera Ensenada-Tecate Km 92.5",
             address2: "${t.address2Short}",
             coords: { lat: 31.9909261, lng: -116.6420781 },
             placeId: "ChIJbYfJrqXt2IARBBKPw8lnU2w"
           },
           {
             title: "Casa Olivea",
-            address1: "Carretera Federal #3 Km 92.5",
+            address1: "Carretera Ensenada-Tecate Km 92.5",
             address2: "${t.address2Long}",
             coords: { lat: 31.9909784, lng: -116.6421103 },
             placeId: "ChIJre413DXt2IARY0L-nk6BVHE"

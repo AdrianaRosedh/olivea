@@ -69,7 +69,7 @@ export default function StructuredDataServer() {
 
   const commonAddress = {
     "@type": "PostalAddress",
-    streetAddress: "México 3 Km 92.5, 22766 Villa de Juárez",
+    streetAddress: "Carretera Ensenada-Tecate Km 92.5, Villa de Juárez",
     addressLocality: "Ensenada",
     addressRegion: "Baja California",
     postalCode: "22766",
@@ -179,6 +179,14 @@ export default function StructuredDataServer() {
       address: commonAddress,
       geo,
       servesCuisine: ["Farm-to-table", "Baja California", "Mexican", "Tasting menu"],
+      // ✅ hasMenu — point crawlers + AI engines at the server-rendered menu page
+      hasMenu: {
+        "@type": "Menu",
+        name: "Tasting Menu",
+        url: canonicalUrl("/es/menu"),
+        description:
+          "A single seasonal tasting menu of nine courses, composed in stations and guided by the garden, climate, and time — it changes every 5–6 weeks.",
+      },
       // ✅ containsPlace + parentOrganization for entity graph
       containsPlace: [
         { "@id": ENTITY_IDS.hotel },

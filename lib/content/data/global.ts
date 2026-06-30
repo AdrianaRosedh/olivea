@@ -12,15 +12,15 @@ const global: GlobalSettings = {
   defaultLocale: "es",
   contactInfo: {
     address: {
-      es: "Carretera Tecate-Ensenada Km 83, Valle de Guadalupe, Ensenada, Baja California, México",
-      en: "Carretera Tecate-Ensenada Km 83, Valle de Guadalupe, Ensenada, Baja California, Mexico",
+      es: "Carretera Ensenada-Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, México",
+      en: "Carretera Ensenada-Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, Mexico",
     },
     email: "hola@casaolivea.com",
     phone: "+52 646 388 2369",
-    googleMapsUrl: "https://maps.app.goo.gl/oLiVeA",
+    googleMapsUrl: "https://maps.app.goo.gl/c2RsfNfQom2Jg73P7",
     googleMapsEmbed:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3374.123!2d-116.6123!3d32.0789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOlivea%20Farm%20To%20Table!5e0!3m2!1ses!2smx!4v1",
-    coordinates: { lat: 32.0789, lng: -116.6123 },
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3374.123!2d-116.6420781!3d31.9909261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOlivea%20Farm%20To%20Table!5e0!3m2!1ses!2smx!4v1",
+    coordinates: { lat: 31.9909261, lng: -116.6420781 },
   },
   hours: [
     {

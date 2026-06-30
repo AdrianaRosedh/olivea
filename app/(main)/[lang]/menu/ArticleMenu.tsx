@@ -80,7 +80,7 @@ export default function ArticleMenu({ lang }: { lang: Lang }) {
       <section aria-label={isEs ? "Ubicación" : "Location"}>
         <h2>{isEs ? "Ubicación" : "Location"}</h2>
         <p>
-          México 3 Km 92.5, 22766 Villa de Juárez, Baja California, {isEs ? "México" : "Mexico"}.
+          Carretera Ensenada-Tecate Km 92.5, 22766 Villa de Juárez, Baja California, {isEs ? "México" : "Mexico"}.
         </p>
       </section>
     </article>

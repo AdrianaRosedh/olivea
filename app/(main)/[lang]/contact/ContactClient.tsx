@@ -77,7 +77,7 @@ const VIEWPORT = {
 export default function ContactClient({ lang, t, contactInfo }: Props) {
   const reduce = useReducedMotion();
 
-  const address = "México 3 Km 92.5, 22766 Villa de Juárez, B.C.";
+  const address = "Carretera Ensenada-Tecate Km 92.5, 22766 Villa de Juárez, B.C.";
   const mapsUrl = "https://maps.app.goo.gl/oySkL6k7G7t5VFus5";
   const email = contactInfo.email;
   const mainTel = telHref(contactInfo.phone);
