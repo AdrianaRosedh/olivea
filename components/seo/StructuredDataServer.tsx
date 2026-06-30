@@ -222,6 +222,14 @@ export default function StructuredDataServer() {
         },
       },
       award: ["One MICHELIN Star", "MICHELIN Green Star"],
+      // ✅ genuine aggregate from Google Business Profile (public, verifiable)
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.8",
+        reviewCount: "124",
+        bestRating: "5",
+        worstRating: "1",
+      },
       subjectOf: recognitionWorks,
       openingHoursSpecification: [
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Wednesday", opens: "17:00", closes: "20:00" },
