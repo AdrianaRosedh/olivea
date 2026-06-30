@@ -65,6 +65,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/journal",
     "/legal",
     "/farmtotable",
+    "/menu",
+    "/innovation",
+    "/roseiies",
     "/team",
   ] as const;
 
