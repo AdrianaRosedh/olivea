@@ -11,12 +11,12 @@ function normalizeLang(raw: string | null): Lang {
 const copy = {
   es: {
     title: "Olivea Locator",
-    address2Short: "Ensenada, B.C., México",
+    address2Short: "Ensenada, Baja California, México",
     address2Long: "Ensenada, Baja California, México",
   },
   en: {
     title: "Olivea Locator",
-    address2Short: "Ensenada, B.C., Mexico",
+    address2Short: "Ensenada, Baja California, Mexico",
     address2Long: "Ensenada, Baja California, Mexico",
   },
 } satisfies Record<Lang, { title: string; address2Short: string; address2Long: string }>;

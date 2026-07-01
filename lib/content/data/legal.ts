@@ -237,10 +237,10 @@ To exercise them, send your request to hola@casaolivea.com stating your name and
       { es: "Contacto", en: "Contact" },
       {
         es: `¿Dudas sobre privacidad o estos términos? Escríbenos:
-Casa Olivea A.C. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, B.C., C.P. 22766, México.
+Casa Olivea A.C. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, C.P. 22766, México.
 hola@casaolivea.com · +52 646 388 2369.`,
         en: `Questions about privacy or these terms? Contact us:
-Casa Olivea A.C. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, B.C., 22766, Mexico.
+Casa Olivea A.C. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, Mexico.
 hola@casaolivea.com · +52 646 388 2369.`,
       }),
   ],

@@ -125,7 +125,7 @@ function defaultFooter() {
         <td align="center" style="font-size: 11px; color: #6b7a65; line-height: 18px;">
           <a href="${SITE_URL}" style="color: #5e7658; font-weight: 500;">oliveafarmtotable.com</a>
           <br />
-          Valle de Guadalupe, Ensenada, B.C., México
+          Valle de Guadalupe, Ensenada, Baja California, México
           <br />
           <span style="color: #c9a96e;">·</span> Farm to Table <span style="color: #c9a96e;">·</span> Hotel <span style="color: #c9a96e;">·</span> Café <span style="color: #c9a96e;">·</span>
         </td>
