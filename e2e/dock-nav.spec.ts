@@ -48,11 +48,30 @@ for (const { path, sections } of CASES) {
       sections.map((s) => s.id)
     );
 
-    // 2) every subsection anchor resolves somewhere
-    const idSet = new Set(dom.allIds);
-    const missing = sections.flatMap(
-      (s) => (s.subs ?? []).filter((sub) => !idSet.has(sub.id)).map((sub) => `${s.id} → ${sub.id}`)
-    );
-    expect(missing, `dead subsection anchors on ${path}`).toEqual([]);
+    // 2) every subsection anchor resolves somewhere — but ONLY in the
+    //    Supabase-backed structured render. Subsection anchors (<Sub id>) are
+    //    emitted by the TSX section components (FTTContent/CafeContent/
+    //    CasaContent), which render only when getContent() returns Supabase
+    //    rows. Without Supabase env — e.g. the secret-free CI — the page falls
+    //    back to the static MDX article, which renders the chapters (so check
+    //    #1 still holds) but intentionally omits these subsection anchors. The
+    //    dock config matches the structured render, so assert the invariant
+    //    only when that render is actually active (same gate the app uses).
+    const structuredRender =
+      !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (structuredRender) {
+      const idSet = new Set(dom.allIds);
+      const missing = sections.flatMap(
+        (s) => (s.subs ?? []).filter((sub) => !idSet.has(sub.id)).map((sub) => `${s.id} → ${sub.id}`)
+      );
+      expect(missing, `dead subsection anchors on ${path}`).toEqual([]);
+    } else {
+      test.info().annotations.push({
+        type: "note",
+        description: `subsection-anchor check skipped on ${path}: no Supabase env → static MDX fallback render`,
+      });
+    }
   });
 }
