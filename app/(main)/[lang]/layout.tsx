@@ -4,6 +4,7 @@ import "../main.css";
 import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
 import StructuredDataServer from "@/components/seo/StructuredDataServer";
+import SitemapNav from "@/components/seo/SitemapNav";
 import LayoutShell from "@/components/layout/LayoutShell";
 import {
   loadLocale,
@@ -84,6 +85,10 @@ export default async function LangLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }}
       />
+      {/* ✅ Crawlable internal-link graph. The visual nav is a tap-to-open
+          drawer (not in the DOM until opened), so this always-rendered,
+          screen-reader-only <nav> is what crawlers follow between pages. */}
+      <SitemapNav lang={lang} />
       <ClientPrewarm />
       <LayoutShell lang={lang} dictionary={dict}>
         {children}

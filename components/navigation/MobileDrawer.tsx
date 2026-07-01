@@ -1,12 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
 import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+
+// ✅ SEO: real crawlable <a href> nav that keeps framer-motion stagger.
+// Google can't follow onClick handlers — the primary nav must be anchors.
+const MotionLink = motion.create(Link);
 
 // Social dock is dynamic so its inline-SVG icon module only loads when the drawer opens.
 const MobileDrawerSocialDock = dynamic(
@@ -144,7 +149,15 @@ export default function MobileDrawer({
     ];
   }, [lang]);
 
-  const handleClick = (href: string) => {
+  // Progressive enhancement: the items are real <a href> (crawlable + "open in
+  // new tab" works), but a normal left-click keeps the drawer's close-then-
+  // navigate animation. Modified clicks (⌘/ctrl/shift/alt, middle) fall through.
+  const handleAnchorClick = (
+    e: MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
     window.navigator.vibrate?.(10);
     onClose();
     window.setTimeout(() => router.push(href), 90);
@@ -218,10 +231,12 @@ export default function MobileDrawer({
                     {mainLinks.map(({ href, label }) => {
                       const active = isActive(href);
                       return (
-                        <motion.button
+                        <MotionLink
                           key={href}
+                          href={href}
                           variants={item}
-                          onClick={() => handleClick(href)}
+                          onClick={(e) => handleAnchorClick(e, href)}
+                          aria-current={active ? "page" : undefined}
                           className={[
                             "transform-gpu will-change-transform",
                             "w-full rounded-2xl px-6 py-4 text-left",
@@ -261,7 +276,7 @@ export default function MobileDrawer({
                               <path d="M5.5 4 L10 4 L10 8.5" />
                             </svg>
                           </span>
-                        </motion.button>
+                        </MotionLink>
                       );
                     })}
                   </div>
@@ -276,9 +291,11 @@ export default function MobileDrawer({
                       {moreLinks.map(({ href, label }) => {
                         const active = isActive(href);
                         return (
-                          <button
+                          <Link
                             key={href}
-                            onClick={() => handleClick(href)}
+                            href={href}
+                            onClick={(e) => handleAnchorClick(e, href)}
+                            aria-current={active ? "page" : undefined}
                             className={[
                               "transform-gpu will-change-transform",
                               "rounded-2xl px-4 py-3 text-sm text-left",
@@ -293,7 +310,7 @@ export default function MobileDrawer({
                             ].join(" ")}
                           >
                             {label}
-                          </button>
+                          </Link>
                         );
                       })}
                     </div>
@@ -301,10 +318,12 @@ export default function MobileDrawer({
 
                   {/* Innovation — featured, full-width */}
                   <motion.div variants={item} className="mt-3">
-                    <button
-                      onClick={() => handleClick(`/${lang}/innovation`)}
+                    <Link
+                      href={`/${lang}/innovation`}
+                      onClick={(e) => handleAnchorClick(e, `/${lang}/innovation`)}
+                      aria-current={isActive(`/${lang}/innovation`) ? "page" : undefined}
                       className={[
-                        "transform-gpu will-change-transform w-full",
+                        "block transform-gpu will-change-transform w-full",
                         "rounded-2xl px-5 py-4 text-sm text-left",
                         blurClass,
                         "ring-1 transition-colors duration-200",
@@ -323,7 +342,7 @@ export default function MobileDrawer({
                           →
                         </span>
                       </span>
-                    </button>
+                    </Link>
                   </motion.div>
 
                   <div className="flex-1 min-h-6" />
@@ -348,15 +367,16 @@ export default function MobileDrawer({
                       <MobileDrawerSocialDock />
                     </motion.div>
 
-                    <motion.button
+                    <MotionLink
+                      href={`/${lang}/about`}
                       variants={item}
-                      onClick={() => handleClick(`/${lang}/about`)}
+                      onClick={(e) => handleAnchorClick(e, `/${lang}/about`)}
                       className="text-xs text-(--olivea-shell) opacity-80 hover:opacity-100 hover:underline text-center transform-gpu will-change-transform"
                     >
                       Copyright © {new Date().getFullYear()} Casa Olivea AC.
                       <br />
                       {rightsText}
-                    </motion.button>
+                    </MotionLink>
                   </div>
                 </motion.div>
               </motion.div>
