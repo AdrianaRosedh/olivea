@@ -7,10 +7,12 @@ import prettier from "eslint-config-prettier";
 export default defineConfig([
   globalIgnores([
     ".next/**",
+    "**/.next/**",        // nested build output (e.g. inside .claude worktrees)
     "out/**",
     "build/**",
     "dist/**",
     "node_modules/**",
+    ".claude/**",         // Claude local state + git worktrees — never lint these
     "next-env.d.ts",
   ]),
 
