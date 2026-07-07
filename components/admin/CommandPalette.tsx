@@ -121,7 +121,7 @@ const allItems: SearchItem[] = [
   { label: "Audit Log",               href: "/admin/audit-log",              icon: "ScrollText",      description: "Who edited what, and when",                                          category: "setup", categoryLabel: "Setup" },
   // Admin user management (separate from public team page)
   { label: "Admin Users",              href: "/admin/team",                  icon: "Users",           description: "Manage who can log in to admin and what they can edit",              category: "setup", categoryLabel: "Setup" },
-  { label: "Menu (Canva links)",       href: "/admin/menu",                  icon: "UtensilsCrossed", description: "Quick links to the Canva-hosted PDF menus",                          category: "daily", categoryLabel: "Daily Updates" },
+  { label: "Menus & Links",            href: "/admin/menu",                  icon: "UtensilsCrossed", description: "Edit the live menu embeds — tasting menu tabs, wine list, café menu", category: "daily", categoryLabel: "Daily Updates" },
 ];
 
 /* ─── Context for opening palette from anywhere ─── */

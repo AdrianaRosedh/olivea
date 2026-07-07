@@ -72,6 +72,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "content.banners",      label: "Site Banners",             icon: "Flag",            category: "content", href: "/admin/banners" },
   { key: "settings.promotions",  label: "Promotions",               icon: "Megaphone",       category: "content", href: "/admin/promotions" },
   { key: "content.journal",      label: "Journal",                  icon: "BookOpen",        category: "content", href: "/admin/journal" },
+  { key: "content.menu",         label: "Menus & Links",            icon: "UtensilsCrossed", category: "content", href: "/admin/menu" },
   { key: "settings.hours",       label: "Operating Hours",          icon: "Clock",           category: "content", href: "/admin/hours" },
   { key: "content.media",        label: "Photos & Media",           icon: "Image",           category: "content", href: "/admin/media" },
   // Setup — rarely changed

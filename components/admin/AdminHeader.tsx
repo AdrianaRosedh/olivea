@@ -2,12 +2,13 @@
 
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Bell, Plus, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 const pageTitles: Record<string, string> = {
   // Main sections
   "/admin": "Dashboard",
-  "/admin/menu": "Food Menu",
+  "/admin/menu": "Menus & Links",
+  "/admin/audit-log": "Audit Log",
   "/admin/journal": "Journal",
   "/admin/media": "Media Library",
   "/admin/hours": "Hours & Availability",
@@ -38,7 +39,8 @@ const pageTitles: Record<string, string> = {
 
 const pageDescriptions: Record<string, string> = {
   "/admin": "Welcome back. Here\u2019s what\u2019s happening.",
-  "/admin/menu": "Your 9-course tasting menu.",
+  "/admin/menu": "The live menu embeds \u2014 edit links without a deploy.",
+  "/admin/audit-log": "Who edited what, and when.",
   "/admin/journal": "Stories from the garden.",
   "/admin/media": "Upload and manage images.",
   "/admin/hours": "Operating hours and special closures.",
@@ -69,7 +71,6 @@ export default function AdminHeader() {
   const pathname = usePathname();
   const title = pageTitles[pathname] ?? "Admin";
   const description = pageDescriptions[pathname] ?? "";
-  const showAddButton = ["/admin/journal"].includes(pathname);
 
   return (
     <header className="
@@ -113,27 +114,9 @@ export default function AdminHeader() {
           <ExternalLink size={11} className="opacity-50 group-hover:opacity-100 transition-opacity" />
         </a>
 
-        {showAddButton && (
-          <button className="
-            flex items-center gap-2 px-4 py-2 rounded-xl
-            bg-[var(--olivea-olive)] text-white text-sm font-medium
-            hover:bg-[var(--olivea-olive)]/90 transition-colors
-            shadow-[0_2px_12px_rgba(94,118,88,0.2)]
-          ">
-            <Plus size={16} />
-            <span>Add new</span>
-          </button>
-        )}
-
-        <button className="
-          relative p-2.5 rounded-xl
-          text-[var(--olivea-olive)]/70 hover:text-[var(--olivea-olive)]
-          hover:bg-[var(--olivea-cream)]/50
-          transition-all
-        ">
-          <Bell size={18} />
-          <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-[var(--olivea-olive)] rounded-full" />
-        </button>
+        {/* NOTE: the previous "Add new" and notification-bell buttons were
+            removed — they had no click handlers (dead affordances). Add-new
+            lives inside each editor; re-add a bell only with a real inbox. */}
       </div>
     </header>
   );

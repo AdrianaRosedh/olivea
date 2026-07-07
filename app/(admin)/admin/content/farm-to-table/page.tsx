@@ -1,6 +1,7 @@
 "use client";
 
-import { Utensils, FileCode2, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Utensils, FileCode2, ExternalLink, UtensilsCrossed, ArrowRight } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import farmtotableContent from "@/lib/content/data/farmtotable";
 import {
@@ -159,6 +160,27 @@ function FarmToTableVisual() {
         fields={["title", "subtitle", "body", "description", "image"]}
         collapsed={false}
       />
+
+      {/* Menu embed links have a dedicated, friendlier editor. */}
+      <Link
+        href="/admin/menu"
+        className="group flex items-center justify-between rounded-2xl border border-stone-200/80 bg-white/60 px-5 py-4 hover:border-[var(--olivea-olive)]/[0.2] hover:bg-white/80 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[var(--olivea-cream)]/60 border border-[var(--olivea-olive)]/[0.08] flex items-center justify-center">
+            <UtensilsCrossed className="w-4 h-4 text-[var(--olivea-olive)]" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-stone-800 group-hover:text-[var(--olivea-olive)] transition-colors">
+              Live menu tabs (wine list, pairing, tasting menu)
+            </div>
+            <div className="text-[11px] text-stone-400">
+              Edited in Menus &amp; Links — labels and embed URLs for the menu popup
+            </div>
+          </div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-stone-300 group-hover:text-[var(--olivea-olive)] group-hover:translate-x-0.5 transition-all" />
+      </Link>
 
       {/* Raw JSON access for FAQ items, stats, custom fields. */}
       <EditableJSON

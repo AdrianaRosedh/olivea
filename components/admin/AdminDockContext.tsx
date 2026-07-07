@@ -49,6 +49,7 @@ export const categoryItems: Record<AdminCategory, CategoryItem[]> = {
     { label: "Site Banners",             href: "/admin/banners",           icon: "Flag",       description: "Top-of-page banners (sale, holiday hours, urgent notice)" },
     { label: "Promotions",               href: "/admin/promotions",        icon: "Megaphone",  description: "Time-limited offers shown across selected pages" },
     { label: "Journal",                  href: "/admin/journal",           icon: "BookOpen",   description: "Long-form articles and stories — full draft/publish workflow" },
+    { label: "Menus & Links",            href: "/admin/menu",              icon: "UtensilsCrossed", description: "The live menu embeds — tasting menu tabs, wine list, café menu" },
     { label: "Operating Hours",          href: "/admin/hours",             icon: "Clock",      description: "Hours of operation shown on the live status badge and footer" },
     { label: "Photos & Media",           href: "/admin/media",             icon: "Image",      description: "Upload images for use anywhere on the site" },
   ],
