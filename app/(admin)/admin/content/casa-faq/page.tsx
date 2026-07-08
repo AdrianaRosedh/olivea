@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import SectionGuard from "@/components/admin/SectionGuard";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 import {
   getCasaFaq,
   saveCasaFaqItem,
@@ -142,6 +143,7 @@ function FaqCard({
   const [draft, setDraft] = useState<FaqItem>(item);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { t } = useAdminLocale();
 
   // Sync draft when item prop changes (e.g. after reorder)
   useEffect(() => {
@@ -189,7 +191,7 @@ function FaqCard({
             className={cls.btnIcon}
             disabled={index === 0}
             onClick={() => onMove(item.id, "up")}
-            title="Move up"
+            title={t(STR.moveUp)}
           >
             <ChevronUp size={14} />
           </button>
@@ -197,7 +199,7 @@ function FaqCard({
             className={cls.btnIcon}
             disabled={index === total - 1}
             onClick={() => onMove(item.id, "down")}
-            title="Move down"
+            title={t(STR.moveDown)}
           >
             <ChevronDown size={14} />
           </button>
@@ -227,7 +229,7 @@ function FaqCard({
                 setExpanded(true);
                 setEditing(true);
               }}
-              title="Edit"
+              title={t(STR.edit)}
             >
               <Pencil size={15} />
             </button>
@@ -235,7 +237,7 @@ function FaqCard({
           <button
             className={`${cls.btnIcon} hover:text-red-600`}
             onClick={() => setConfirmDelete(true)}
-            title="Delete"
+            title={t(STR.delete)}
           >
             <Trash2 size={15} />
           </button>
@@ -246,20 +248,20 @@ function FaqCard({
       {confirmDelete && (
         <div className="mt-4 flex items-center gap-3 rounded-xl bg-red-50/80 ring-1 ring-red-200 px-4 py-3">
           <p className="text-sm text-red-700 flex-1">
-            Delete this FAQ item? This cannot be undone.
+            {t({ es: "¿Eliminar esta pregunta? Esta acción no se puede deshacer.", en: "Delete this FAQ item? This cannot be undone." })}
           </p>
           <button
             className="rounded-full px-4 py-1.5 text-xs tracking-widest uppercase font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
             onClick={handleDelete}
             disabled={saving}
           >
-            {saving ? <Loader2 size={14} className="animate-spin" /> : "Delete"}
+            {saving ? <Loader2 size={14} className="animate-spin" /> : t(STR.delete)}
           </button>
           <button
             className={cls.btnGhost}
             onClick={() => setConfirmDelete(false)}
           >
-            Cancel
+            {t(STR.cancel)}
           </button>
         </div>
       )}
@@ -270,14 +272,14 @@ function FaqCard({
           {editing ? (
             <>
               <BilingualInput
-                label="Question"
+                label={t({ es: "Pregunta", en: "Question" })}
                 esValue={draft.question.es}
                 enValue={draft.question.en}
                 onChangeEs={(v) => patchQuestion("es", v)}
                 onChangeEn={(v) => patchQuestion("en", v)}
               />
               <BilingualInput
-                label="Answer"
+                label={t({ es: "Respuesta", en: "Answer" })}
                 esValue={draft.answer.es}
                 enValue={draft.answer.en}
                 onChangeEs={(v) => patchAnswer("es", v)}
@@ -295,24 +297,24 @@ function FaqCard({
                   ) : (
                     <Save size={14} className="inline mr-1" />
                   )}
-                  Save
+                  {t(STR.save)}
                 </button>
                 <button className={cls.btnGhost} onClick={handleCancel}>
                   <X size={14} className="inline mr-1" />
-                  Cancel
+                  {t(STR.cancel)}
                 </button>
               </div>
             </>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <p className={cls.label}>Answer (ES)</p>
+                <p className={cls.label}>{t({ es: "Respuesta (ES)", en: "Answer (ES)" })}</p>
                 <p className="text-sm text-[var(--olivea-ink)] whitespace-pre-wrap leading-relaxed">
                   {item.answer.es || "\u2014"}
                 </p>
               </div>
               <div className="space-y-2">
-                <p className={cls.label}>Answer (EN)</p>
+                <p className={cls.label}>{t({ es: "Respuesta (EN)", en: "Answer (EN)" })}</p>
                 <p className="text-sm text-[var(--olivea-ink)] whitespace-pre-wrap leading-relaxed">
                   {item.answer.en || "\u2014"}
                 </p>
@@ -335,6 +337,7 @@ export default function CasaFaqPage() {
   const [showNew, setShowNew] = useState(false);
   const [newDraft, setNewDraft] = useState<DraftFaq>(emptyDraft());
   const [savingNew, setSavingNew] = useState(false);
+  const { t } = useAdminLocale();
 
   /* Load items */
   const load = useCallback(async () => {
@@ -460,9 +463,9 @@ export default function CasaFaqPage() {
             <HelpCircle size={22} className="text-[var(--olivea-olive)]" />
           </div>
           <div>
-            <h1 className={cls.heading}>Casa FAQ</h1>
+            <h1 className={cls.heading}>{t({ es: "Preguntas de Casa", en: "Casa FAQ" })}</h1>
             <p className="text-xs text-[var(--olivea-clay)] mt-0.5">
-              Manage frequently asked questions for the Casa page
+              {t({ es: "Administra las preguntas frecuentes de la página de Casa", en: "Manage frequently asked questions for the Casa page" })}
             </p>
           </div>
         </div>
@@ -471,24 +474,24 @@ export default function CasaFaqPage() {
           onClick={() => setShowNew((s) => !s)}
         >
           <Plus size={14} className="inline mr-1 -ml-0.5" />
-          Add Item
+          {t({ es: "Agregar elemento", en: "Add Item" })}
         </button>
       </div>
 
       {/* New item form */}
       {showNew && (
         <div className={`${cls.card} ring-[var(--olivea-olive)]/20 ring-2`}>
-          <h2 className={`${cls.heading} mb-4`}>New FAQ Item</h2>
+          <h2 className={`${cls.heading} mb-4`}>{t({ es: "Nueva pregunta frecuente", en: "New FAQ Item" })}</h2>
           <div className="space-y-4">
             <BilingualInput
-              label="Question"
+              label={t({ es: "Pregunta", en: "Question" })}
               esValue={newDraft.question.es}
               enValue={newDraft.question.en}
               onChangeEs={(v) => patchNewQuestion("es", v)}
               onChangeEn={(v) => patchNewQuestion("en", v)}
             />
             <BilingualInput
-              label="Answer"
+              label={t({ es: "Respuesta", en: "Answer" })}
               esValue={newDraft.answer.es}
               enValue={newDraft.answer.en}
               onChangeEs={(v) => patchNewAnswer("es", v)}
@@ -506,7 +509,7 @@ export default function CasaFaqPage() {
                 ) : (
                   <Save size={14} className="inline mr-1" />
                 )}
-                Save
+                {t(STR.save)}
               </button>
               <button
                 className={cls.btnGhost}
@@ -516,7 +519,7 @@ export default function CasaFaqPage() {
                 }}
               >
                 <X size={14} className="inline mr-1" />
-                Cancel
+                {t(STR.cancel)}
               </button>
             </div>
           </div>
@@ -538,7 +541,9 @@ export default function CasaFaqPage() {
             className="mx-auto text-[var(--olivea-clay)]/30 mb-3"
           />
           <p className="text-sm text-[var(--olivea-clay)]">
-            No FAQ items yet. Click <strong>Add Item</strong> to create one.
+            {t({ es: "Aún no hay preguntas frecuentes. Haz clic en ", en: "No FAQ items yet. Click " })}
+            <strong>{t({ es: "Agregar elemento", en: "Add Item" })}</strong>
+            {t({ es: " para crear una.", en: " to create one." })}
           </p>
         </div>
       )}

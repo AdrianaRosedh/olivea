@@ -35,6 +35,7 @@ import {
   saveCareersContent,
 } from "@/lib/supabase/actions";
 import staticCareers from "@/lib/content/data/careers";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 
 /* ── Styling tokens ─────────────────────────────────────────────── */
 
@@ -102,15 +103,17 @@ function BiInput({
   onChange,
   multiline = false,
 }: {
-  label: string;
+  label: Bi;
   value: Bi;
   onChange: (v: Bi) => void;
   multiline?: boolean;
 }) {
+  const { t } = useAdminLocale();
   const Tag = multiline ? "textarea" : "input";
+  const labelText = t(label);
   return (
     <div className="space-y-2">
-      <p className={cls.label}>{label}</p>
+      <p className={cls.label}>{labelText}</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1">
           <span className={cls.langTag}>ES</span>
@@ -118,7 +121,7 @@ function BiInput({
             className={multiline ? cls.textarea : cls.input}
             value={value.es}
             onChange={(e) => onChange({ ...value, es: e.target.value })}
-            placeholder={`${label} (Español)`}
+            placeholder={`${labelText} (Español)`}
           />
         </div>
         <div className="space-y-1">
@@ -127,7 +130,7 @@ function BiInput({
             className={multiline ? cls.textarea : cls.input}
             value={value.en}
             onChange={(e) => onChange({ ...value, en: e.target.value })}
-            placeholder={`${label} (English)`}
+            placeholder={`${labelText} (English)`}
           />
         </div>
       </div>
@@ -161,12 +164,36 @@ const applicationStatuses = [
   "rejected",
 ] as const;
 
+/* ── Status / type display labels (bilingual) ────────────────────── */
+
+const openingStatusLabels: Record<string, Bi> = {
+  draft: { es: "Borrador", en: "Draft" },
+  live: { es: "En vivo", en: "Live" },
+  closed: { es: "Cerrada", en: "Closed" },
+};
+
+const applicationStatusLabels: Record<string, Bi> = {
+  applied: { es: "Recibida", en: "Applied" },
+  reviewing: { es: "En revisión", en: "Reviewing" },
+  interview: { es: "Entrevista", en: "Interview" },
+  offer: { es: "Oferta", en: "Offer" },
+  hired: { es: "Contratada", en: "Hired" },
+  rejected: { es: "Rechazada", en: "Rejected" },
+};
+
+const jobTypeLabels: Record<string, Bi> = {
+  "full-time": { es: "Tiempo completo", en: "Full-time" },
+  "part-time": { es: "Medio tiempo", en: "Part-time" },
+  seasonal: { es: "Temporada", en: "Seasonal" },
+  internship: { es: "Prácticas", en: "Internship" },
+};
+
 /* ── Tab definition ──────────────────────────────────────────────── */
 
 const tabs = [
-  { key: "openings", label: "Job Openings", icon: Briefcase },
-  { key: "applications", label: "Applications", icon: Users },
-  { key: "page", label: "Page Content", icon: FileText },
+  { key: "openings", label: { es: "Vacantes", en: "Job Openings" }, icon: Briefcase },
+  { key: "applications", label: { es: "Postulaciones", en: "Applications" }, icon: Users },
+  { key: "page", label: { es: "Contenido", en: "Page Content" }, icon: FileText },
 ] as const;
 
 type TabKey = (typeof tabs)[number]["key"];
@@ -186,6 +213,7 @@ function OpeningsTab({
 }) {
   const [editing, setEditing] = useState<Partial<JobOpening> | null>(null);
   const [saving, setSaving] = useState(false);
+  const { t } = useAdminLocale();
 
   const openNew = () =>
     setEditing({
@@ -219,11 +247,11 @@ function OpeningsTab({
           }
           return [...prev, saved];
         });
-        toast(editing.id ? "Opening updated" : "Opening created", "success");
+        toast(editing.id ? t({ es: "Vacante actualizada", en: "Opening updated" }) : t({ es: "Vacante creada", en: "Opening created" }), "success");
         setEditing(null);
       }
     } catch {
-      toast("Failed to save opening", "error");
+      toast(t({ es: "No se pudo guardar la vacante", en: "Failed to save opening" }), "error");
     } finally {
       setSaving(false);
     }
@@ -234,10 +262,10 @@ function OpeningsTab({
     setOpenings((prev) => prev.filter((o) => o.id !== id));
     try {
       await deleteJobOpening(id);
-      toast("Opening deleted", "success");
+      toast(t({ es: "Vacante eliminada", en: "Opening deleted" }), "success");
     } catch {
       setOpenings(backup);
-      toast("Failed to delete", "error");
+      toast(t({ es: "No se pudo eliminar", en: "Failed to delete" }), "error");
     }
   };
 
@@ -247,14 +275,23 @@ function OpeningsTab({
     );
     try {
       await toggleJobOpeningStatus(id, status);
-      toast(`Opening ${status === "live" ? "published" : status}`, "success");
+      toast(
+        t(
+          status === "live"
+            ? { es: "Vacante publicada", en: "Opening published" }
+            : status === "closed"
+            ? { es: "Vacante cerrada", en: "Opening closed" }
+            : { es: "Vacante en borrador", en: "Opening draft" }
+        ),
+        "success"
+      );
     } catch {
       setOpenings((prev) =>
         prev.map((o) =>
           o.id === id ? { ...o, status: status === "live" ? "draft" : "live" } : o
         )
       );
-      toast("Failed to update status", "error");
+      toast(t({ es: "No se pudo actualizar el estado", en: "Failed to update status" }), "error");
     }
   };
 
@@ -263,11 +300,16 @@ function OpeningsTab({
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-[var(--olivea-clay)]">
-          {openings.length} opening{openings.length !== 1 ? "s" : ""}
+          {openings.length}{" "}
+          {t(
+            openings.length !== 1
+              ? { es: "vacantes", en: "openings" }
+              : { es: "vacante", en: "opening" }
+          )}
         </p>
         <button onClick={openNew} className={cls.btnPrimary}>
           <span className="flex items-center gap-2">
-            <Plus size={14} /> New opening
+            <Plus size={14} /> {t({ es: "Nueva vacante", en: "New opening" })}
           </span>
         </button>
       </div>
@@ -288,16 +330,16 @@ function OpeningsTab({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="text-sm font-semibold text-[var(--olivea-ink)] truncate">
-                      {o.titleEs || o.titleEn || "Untitled"}
+                      {o.titleEs || o.titleEn || t({ es: "Sin título", en: "Untitled" })}
                     </h3>
                     <span className={cls.badge(openingStatusColors[o.status])}>
-                      {o.status}
+                      {t(openingStatusLabels[o.status])}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-[var(--olivea-clay)]">
-                    <span>{o.area || "No area"}</span>
+                    <span>{o.area || t({ es: "Sin área", en: "No area" })}</span>
                     <span>·</span>
-                    <span className="capitalize">{o.type.replace("-", " ")}</span>
+                    <span className="capitalize">{t(jobTypeLabels[o.type])}</span>
                     <span>·</span>
                     <span>{o.location}</span>
                   </div>
@@ -307,7 +349,7 @@ function OpeningsTab({
                   {o.status === "draft" ? (
                     <button
                       onClick={() => handleToggle(o.id, "live")}
-                      title="Publish"
+                      title={t({ es: "Publicar", en: "Publish" })}
                       className="p-2 rounded-lg hover:bg-emerald-50 text-[var(--olivea-clay)] hover:text-emerald-600 transition-colors"
                     >
                       <Eye size={16} />
@@ -315,7 +357,7 @@ function OpeningsTab({
                   ) : o.status === "live" ? (
                     <button
                       onClick={() => handleToggle(o.id, "closed")}
-                      title="Close"
+                      title={t({ es: "Cerrar", en: "Close" })}
                       className="p-2 rounded-lg hover:bg-gray-100 text-[var(--olivea-clay)] hover:text-gray-600 transition-colors"
                     >
                       <EyeOff size={16} />
@@ -323,7 +365,7 @@ function OpeningsTab({
                   ) : (
                     <button
                       onClick={() => handleToggle(o.id, "live")}
-                      title="Reopen"
+                      title={t({ es: "Reabrir", en: "Reopen" })}
                       className="p-2 rounded-lg hover:bg-emerald-50 text-[var(--olivea-clay)] hover:text-emerald-600 transition-colors"
                     >
                       <Eye size={16} />
@@ -349,7 +391,7 @@ function OpeningsTab({
 
         {openings.length === 0 && (
           <div className="text-center py-16 text-sm text-[var(--olivea-clay)]">
-            No job openings yet. Click "New opening" to create one.
+            {t({ es: 'Aún no hay vacantes. Haz clic en "Nueva vacante" para crear una.', en: 'No job openings yet. Click "New opening" to create one.' })}
           </div>
         )}
       </div>
@@ -374,7 +416,7 @@ function OpeningsTab({
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-[var(--olivea-ink)]">
-                  {editing.id ? "Edit Opening" : "New Opening"}
+                  {editing.id ? t({ es: "Editar vacante", en: "Edit Opening" }) : t({ es: "Nueva vacante", en: "New Opening" })}
                 </h2>
                 <button
                   onClick={() => setEditing(null)}
@@ -386,7 +428,7 @@ function OpeningsTab({
 
               <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
                 <BiInput
-                  label="Title"
+                  label={{ es: "Título", en: "Title" }}
                   value={{ es: editing.titleEs ?? "", en: editing.titleEn ?? "" }}
                   onChange={(v) =>
                     setEditing((p) => ({ ...p!, titleEs: v.es, titleEn: v.en }))
@@ -395,18 +437,18 @@ function OpeningsTab({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1">
-                    <p className={cls.label}>Area</p>
+                    <p className={cls.label}>{t({ es: "Área", en: "Area" })}</p>
                     <input
                       className={cls.input}
                       value={editing.area ?? ""}
                       onChange={(e) =>
                         setEditing((p) => ({ ...p!, area: e.target.value }))
                       }
-                      placeholder="e.g. Kitchen, Service, Bar"
+                      placeholder={t({ es: "p. ej. Cocina, Servicio, Bar", en: "e.g. Kitchen, Service, Bar" })}
                     />
                   </div>
                   <div className="space-y-1">
-                    <p className={cls.label}>Type</p>
+                    <p className={cls.label}>{t({ es: "Tipo", en: "Type" })}</p>
                     <div className="relative">
                       <select
                         className={cls.select}
@@ -418,10 +460,10 @@ function OpeningsTab({
                           }))
                         }
                       >
-                        <option value="full-time">Full-time</option>
-                        <option value="part-time">Part-time</option>
-                        <option value="seasonal">Seasonal</option>
-                        <option value="internship">Internship</option>
+                        <option value="full-time">{t(jobTypeLabels["full-time"])}</option>
+                        <option value="part-time">{t(jobTypeLabels["part-time"])}</option>
+                        <option value="seasonal">{t(jobTypeLabels.seasonal)}</option>
+                        <option value="internship">{t(jobTypeLabels.internship)}</option>
                       </select>
                       <ChevronDown
                         size={14}
@@ -430,7 +472,7 @@ function OpeningsTab({
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <p className={cls.label}>Location</p>
+                    <p className={cls.label}>{t({ es: "Ubicación", en: "Location" })}</p>
                     <input
                       className={cls.input}
                       value={editing.location ?? ""}
@@ -443,7 +485,7 @@ function OpeningsTab({
                 </div>
 
                 <BiInput
-                  label="Description"
+                  label={{ es: "Descripción", en: "Description" }}
                   value={{
                     es: editing.descriptionEs ?? "",
                     en: editing.descriptionEn ?? "",
@@ -459,7 +501,7 @@ function OpeningsTab({
                 />
 
                 <BiInput
-                  label="Requirements"
+                  label={{ es: "Requisitos", en: "Requirements" }}
                   value={{
                     es: editing.requirementsEs ?? "",
                     en: editing.requirementsEn ?? "",
@@ -475,7 +517,7 @@ function OpeningsTab({
                 />
 
                 <div className="space-y-1">
-                  <p className={cls.label}>Status</p>
+                  <p className={cls.label}>{t({ es: "Estado", en: "Status" })}</p>
                   <div className="relative">
                     <select
                       className={cls.select}
@@ -487,9 +529,9 @@ function OpeningsTab({
                         }))
                       }
                     >
-                      <option value="draft">Draft</option>
-                      <option value="live">Live</option>
-                      <option value="closed">Closed</option>
+                      <option value="draft">{t(openingStatusLabels.draft)}</option>
+                      <option value="live">{t(openingStatusLabels.live)}</option>
+                      <option value="closed">{t(openingStatusLabels.closed)}</option>
                     </select>
                     <ChevronDown
                       size={14}
@@ -501,7 +543,7 @@ function OpeningsTab({
 
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-black/5">
                 <button onClick={() => setEditing(null)} className={cls.btnGhost}>
-                  Cancel
+                  {t(STR.cancel)}
                 </button>
                 <button
                   onClick={handleSave}
@@ -514,7 +556,7 @@ function OpeningsTab({
                     ) : (
                       <Save size={14} />
                     )}
-                    {editing.id ? "Update" : "Create"}
+                    {editing.id ? t({ es: "Actualizar", en: "Update" }) : t({ es: "Crear", en: "Create" })}
                   </span>
                 </button>
               </div>
@@ -544,6 +586,7 @@ function ApplicationsTab({
   const [expanded, setExpanded] = useState<string | null>(null);
   const [noteText, setNoteText] = useState("");
   const [addingNote, setAddingNote] = useState(false);
+  const { t } = useAdminLocale();
 
   const filtered = applications.filter((a) => {
     const matchSearch =
@@ -571,12 +614,12 @@ function ApplicationsTab({
     );
     try {
       await updateApplicationStatus(id, status);
-      toast(`Status → ${status}`, "success");
+      toast(t({ es: "Estado", en: "Status" }) + " → " + t(applicationStatusLabels[status]), "success");
     } catch {
       setApplications((apps) =>
         apps.map((a) => (a.id === id ? { ...a, status: prev! } : a))
       );
-      toast("Failed to update status", "error");
+      toast(t({ es: "No se pudo actualizar el estado", en: "Failed to update status" }), "error");
     }
   };
 
@@ -596,9 +639,9 @@ function ApplicationsTab({
         )
       );
       setNoteText("");
-      toast("Note added", "success");
+      toast(t({ es: "Nota agregada", en: "Note added" }), "success");
     } catch {
-      toast("Failed to add note", "error");
+      toast(t({ es: "No se pudo agregar la nota", en: "Failed to add note" }), "error");
     } finally {
       setAddingNote(false);
     }
@@ -616,7 +659,7 @@ function ApplicationsTab({
               : "bg-white/60 text-[var(--olivea-clay)] border-black/10 hover:bg-white/80"
           )}
         >
-          All ({applications.length})
+          {t({ es: "Todas", en: "All" })} ({applications.length})
         </button>
         {applicationStatuses.map((s) => (
           <button
@@ -628,7 +671,7 @@ function ApplicationsTab({
                 : "bg-white/60 text-[var(--olivea-clay)] border-black/10 hover:bg-white/80"
             )}
           >
-            <span className="capitalize">{s}</span> ({counts[s] ?? 0})
+            {t(applicationStatusLabels[s])} ({counts[s] ?? 0})
           </button>
         ))}
       </div>
@@ -643,7 +686,7 @@ function ApplicationsTab({
           className={`${cls.input} pl-10`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, email, or area…"
+          placeholder={t({ es: "Buscar por nombre, correo o área…", en: "Search by name, email, or area…" })}
         />
       </div>
 
@@ -677,13 +720,13 @@ function ApplicationsTab({
                           applicationStatusColors[app.status]
                         )}
                       >
-                        {app.status}
+                        {t(applicationStatusLabels[app.status])}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-[var(--olivea-clay)]">
                       <span>{app.email}</span>
                       <span>·</span>
-                      <span>{app.area || "General"}</span>
+                      <span>{app.area || t({ es: "General", en: "General" })}</span>
                       {app.openingTitle && (
                         <>
                           <span>·</span>
@@ -722,19 +765,19 @@ function ApplicationsTab({
                       {/* Contact & details */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                         <div>
-                          <span className={cls.label}>Phone</span>
+                          <span className={cls.label}>{t({ es: "Teléfono", en: "Phone" })}</span>
                           <p className="mt-1 text-[var(--olivea-ink)]">
                             {app.phone || "—"}
                           </p>
                         </div>
                         <div>
-                          <span className={cls.label}>Email</span>
+                          <span className={cls.label}>{t({ es: "Correo", en: "Email" })}</span>
                           <p className="mt-1 text-[var(--olivea-ink)]">
                             {app.email}
                           </p>
                         </div>
                         <div>
-                          <span className={cls.label}>Applied</span>
+                          <span className={cls.label}>{t({ es: "Postulación", en: "Applied" })}</span>
                           <p className="mt-1 text-[var(--olivea-ink)]">
                             {new Date(app.appliedAt).toLocaleDateString(
                               "en-US",
@@ -751,7 +794,7 @@ function ApplicationsTab({
                       {/* Cover note */}
                       {app.coverNote && (
                         <div>
-                          <span className={cls.label}>Cover note</span>
+                          <span className={cls.label}>{t({ es: "Nota de presentación", en: "Cover note" })}</span>
                           <p className="mt-1 text-sm text-[var(--olivea-ink)]/80 bg-[var(--olivea-cream)]/30 rounded-xl p-3">
                             {app.coverNote}
                           </p>
@@ -761,21 +804,21 @@ function ApplicationsTab({
                       {/* Resume link */}
                       {app.resumeUrl && (
                         <div>
-                          <span className={cls.label}>Resume</span>
+                          <span className={cls.label}>{t({ es: "Currículum", en: "Resume" })}</span>
                           <a
                             href={app.resumeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-1 inline-block text-sm text-[var(--olivea-olive)] underline"
                           >
-                            View resume →
+                            {t({ es: "Ver currículum →", en: "View resume →" })}
                           </a>
                         </div>
                       )}
 
                       {/* Status changer */}
                       <div>
-                        <span className={cls.label}>Move to stage</span>
+                        <span className={cls.label}>{t({ es: "Mover a etapa", en: "Move to stage" })}</span>
                         <div className="flex flex-wrap gap-2 mt-2">
                           {applicationStatuses.map((s) => (
                             <button
@@ -788,7 +831,7 @@ function ApplicationsTab({
                                   : "bg-white/60 text-[var(--olivea-clay)] border-black/10 hover:bg-white/80"
                               )}
                             >
-                              <span className="capitalize">{s}</span>
+                              {t(applicationStatusLabels[s])}
                             </button>
                           ))}
                         </div>
@@ -797,7 +840,7 @@ function ApplicationsTab({
                       {/* Notes */}
                       <div>
                         <span className={cls.label}>
-                          Notes ({app.notes.length})
+                          {t({ es: "Notas", en: "Notes" })} ({app.notes.length})
                         </span>
                         <div className="mt-2 space-y-2">
                           {app.notes.map((n, i) => (
@@ -822,7 +865,7 @@ function ApplicationsTab({
                             className={`${cls.input} flex-1`}
                             value={noteText}
                             onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Add a note…"
+                            placeholder={t({ es: "Agrega una nota…", en: "Add a note…" })}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault();
@@ -854,8 +897,8 @@ function ApplicationsTab({
         {filtered.length === 0 && (
           <div className="text-center py-16 text-sm text-[var(--olivea-clay)]">
             {applications.length === 0
-              ? "No applications yet. They'll appear here when candidates apply."
-              : "No applications match your filters."}
+              ? t({ es: "Aún no hay postulaciones. Aparecerán aquí cuando los candidatos apliquen.", en: "No applications yet. They'll appear here when candidates apply." })
+              : t({ es: "Ninguna postulación coincide con tus filtros.", en: "No applications match your filters." })}
           </div>
         )}
       </div>
@@ -892,6 +935,7 @@ function PageContentTab({
   const [data, setData] = useState<CareersPageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { t } = useAdminLocale();
 
   useEffect(() => {
     getCareersContent()
@@ -951,9 +995,9 @@ function PageContentTab({
     setSaving(true);
     try {
       await saveCareersContent(data as unknown as Record<string, unknown>);
-      toast("Page content saved", "success");
+      toast(t({ es: "Contenido de la página guardado", en: "Page content saved" }), "success");
     } catch {
-      toast("Failed to save page content", "error");
+      toast(t({ es: "No se pudo guardar el contenido", en: "Failed to save page content" }), "error");
     } finally {
       setSaving(false);
     }
@@ -977,18 +1021,18 @@ function PageContentTab({
       {/* Meta */}
       <div className={cls.card}>
         <h3 className="text-sm font-semibold text-[var(--olivea-ink)] mb-4">
-          SEO / Meta
+          {t({ es: "SEO / Metadatos", en: "SEO / Meta" })}
         </h3>
         <div className="space-y-4">
           <BiInput
-            label="Page title"
+            label={{ es: "Título de la página", en: "Page title" }}
             value={data.meta.title}
             onChange={(v) =>
               setData({ ...data, meta: { ...data.meta, title: v } })
             }
           />
           <BiInput
-            label="Meta description"
+            label={{ es: "Descripción SEO", en: "Meta description" }}
             value={data.meta.description}
             onChange={(v) =>
               setData({ ...data, meta: { ...data.meta, description: v } })
@@ -1001,25 +1045,25 @@ function PageContentTab({
       {/* Hero */}
       <div className={cls.card}>
         <h3 className="text-sm font-semibold text-[var(--olivea-ink)] mb-4">
-          Hero Section
+          {t({ es: "Sección principal", en: "Hero Section" })}
         </h3>
         <div className="space-y-4">
           <BiInput
-            label="Kicker"
+            label={{ es: "Antetítulo", en: "Kicker" }}
             value={data.hero.kicker}
             onChange={(v) =>
               setData({ ...data, hero: { ...data.hero, kicker: v } })
             }
           />
           <BiInput
-            label="Headline"
+            label={{ es: "Título", en: "Headline" }}
             value={data.hero.headline}
             onChange={(v) =>
               setData({ ...data, hero: { ...data.hero, headline: v } })
             }
           />
           <BiInput
-            label="Description"
+            label={{ es: "Descripción", en: "Description" }}
             value={data.hero.description}
             onChange={(v) =>
               setData({ ...data, hero: { ...data.hero, description: v } })
@@ -1027,7 +1071,7 @@ function PageContentTab({
             multiline
           />
           <div className="space-y-1">
-            <p className={cls.label}>Hero image URL</p>
+            <p className={cls.label}>{t({ es: "URL de la imagen principal", en: "Hero image URL" })}</p>
             <input
               className={cls.input}
               value={data.hero.image.src}
@@ -1049,18 +1093,18 @@ function PageContentTab({
       {/* Application section */}
       <div className={cls.card}>
         <h3 className="text-sm font-semibold text-[var(--olivea-ink)] mb-4">
-          Application Section
+          {t({ es: "Sección de postulación", en: "Application Section" })}
         </h3>
         <div className="space-y-4">
           <BiInput
-            label="Title"
+            label={{ es: "Título", en: "Title" }}
             value={data.application.title}
             onChange={(v) =>
               setData({ ...data, application: { ...data.application, title: v } })
             }
           />
           <BiInput
-            label="Description"
+            label={{ es: "Descripción", en: "Description" }}
             value={data.application.description}
             onChange={(v) =>
               setData({
@@ -1086,7 +1130,7 @@ function PageContentTab({
             ) : (
               <Save size={14} />
             )}
-            Save page content
+            {t({ es: "Guardar contenido", en: "Save page content" })}
           </span>
         </button>
       </div>
@@ -1107,6 +1151,7 @@ export default function CareersAdmin() {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const { t } = useAdminLocale();
 
   const toast = useCallback(
     (message: string, type: "success" | "error") =>
@@ -1136,13 +1181,13 @@ export default function CareersAdmin() {
 
       {/* Tab bar */}
       <div className="flex items-center gap-1 p-1 rounded-2xl bg-white/40 backdrop-blur-sm ring-1 ring-black/5 w-fit">
-        {tabs.map((t) => {
-          const Icon = t.icon;
-          const active = tab === t.key;
+        {tabs.map((tabItem) => {
+          const Icon = tabItem.icon;
+          const active = tab === tabItem.key;
           return (
             <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
+              key={tabItem.key}
+              onClick={() => setTab(tabItem.key)}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
                 ${
@@ -1153,8 +1198,8 @@ export default function CareersAdmin() {
               `}
             >
               <Icon size={16} />
-              {t.label}
-              {t.key === "applications" && applications.length > 0 && (
+              {t(tabItem.label)}
+              {tabItem.key === "applications" && applications.length > 0 && (
                 <span className="ml-1 text-[10px] font-bold bg-[var(--olivea-cream)] text-[var(--olivea-olive)] px-1.5 py-0.5 rounded-full">
                   {applications.length}
                 </span>

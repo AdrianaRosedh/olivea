@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Utensils, FileCode2, ExternalLink, UtensilsCrossed, ArrowRight } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import farmtotableContent from "@/lib/content/data/farmtotable";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 import {
   VisualPageEditor,
   useEditor,
@@ -58,6 +59,7 @@ const mdxSections = [
 
 function FarmToTableVisual() {
   const { get, set } = useEditor();
+  const { t } = useAdminLocale();
 
   const hero = get("hero") as {
     headline?: { es: string; en: string };
@@ -93,13 +95,13 @@ function FarmToTableVisual() {
       {/* ── SEO / Meta ──────────────────────────────────────── */}
       <MetaSection>
         <EditableBilingual
-          label="Meta Title" as="small"
+          label={{ es: "Título SEO", en: "Meta Title" }} as="small"
           value={meta?.title ?? { es: "", en: "" }}
           onChange={(v) => set("meta.title", v)}
           className="text-sm text-stone-600"
         />
         <EditableBilingual
-          label="Meta Description" as="small"
+          label={{ es: "Descripción SEO", en: "Meta Description" }} as="small"
           value={meta?.description ?? { es: "", en: "" }}
           onChange={(v) => set("meta.description", v)}
           className="text-sm text-stone-600" multiline
@@ -114,7 +116,7 @@ function FarmToTableVisual() {
           onChange={(src) => set("hero.image.src", src)}
           className="rounded-2xl"
           aspect="hero"
-          label="Hero Image"
+          label={{ es: "Imagen principal", en: "Hero Image" }}
         />
       </section>
 
@@ -123,28 +125,28 @@ function FarmToTableVisual() {
         <div className="flex items-center gap-2 mb-1">
           <div className="w-1 h-5 rounded-full bg-[var(--olivea-olive)]" />
           <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
-            Hero Text
+            {t({ es: "Texto principal", en: "Hero Text" })}
           </span>
         </div>
         <EditableBilingual
-          label="Headline" as="h1"
+          label={{ es: "Título", en: "Headline" }} as="h1"
           value={hero?.headline ?? { es: "", en: "" }}
           onChange={(v) => set("hero.headline", v)}
           className="text-2xl font-serif font-medium text-stone-800"
-          placeholder="Page headline..."
+          placeholder={t({ es: "Título de la página…", en: "Page headline..." })}
         />
         <EditableBilingual
-          label="Subheadline" as="p"
+          label={{ es: "Subtítulo", en: "Subheadline" }} as="p"
           value={hero?.subheadline ?? { es: "", en: "" }}
           onChange={(v) => set("hero.subheadline", v)}
           className="text-base text-stone-600 font-serif italic"
-          placeholder="Subheadline text..."
+          placeholder={t({ es: "Texto del subtítulo…", en: "Subheadline text..." })}
         />
       </div>
 
       {/* Structured FAQ editor — Q&A pairs that appear in the FAQ section. */}
       <EditableFAQ
-        label="FAQ — Questions & Answers"
+        label={{ es: "Preguntas frecuentes", en: "FAQ — Questions & Answers" }}
         value={faqEntries}
         onChange={updateFaqEntries}
         collapsed={false}
@@ -154,7 +156,7 @@ function FarmToTableVisual() {
           Edits are saved to farmtotable_content.sections and override
           the MDX fallback files when the live page renders. */}
       <EditableSections
-        label="Page Sections (visual editing)"
+        label={{ es: "Secciones de la página (edición visual)", en: "Page Sections (visual editing)" }}
         value={sections}
         onChange={(v) => set("sections", v)}
         fields={["title", "subtitle", "body", "description", "image"]}
@@ -172,10 +174,10 @@ function FarmToTableVisual() {
           </div>
           <div>
             <div className="text-sm font-semibold text-stone-800 group-hover:text-[var(--olivea-olive)] transition-colors">
-              Live menu tabs (wine list, pairing, tasting menu)
+              {t({ es: "Pestañas del menú en vivo (carta de vinos, maridaje, menú de degustación)", en: "Live menu tabs (wine list, pairing, tasting menu)" })}
             </div>
             <div className="text-[11px] text-stone-400">
-              Edited in Menus &amp; Links — labels and embed URLs for the menu popup
+              {t({ es: "Se edita en Menús y Enlaces — etiquetas y URLs para la ventana emergente del menú", en: "Edited in Menus & Links — labels and embed URLs for the menu popup" })}
             </div>
           </div>
         </div>
@@ -184,7 +186,7 @@ function FarmToTableVisual() {
 
       {/* Raw JSON access for FAQ items, stats, custom fields. */}
       <EditableJSON
-        label="Sections (raw JSON — for FAQ items, stats, custom fields)"
+        label={t({ es: "Secciones (JSON — preguntas, cifras, campos personalizados)", en: "Sections (raw JSON — for FAQ items, stats, custom fields)" })}
         value={sections}
         onChange={(v) => set("sections", v)}
         rows={20}
@@ -197,10 +199,10 @@ function FarmToTableVisual() {
           <div className="flex items-center gap-2">
             <FileCode2 className="w-4 h-4 text-stone-400" />
             <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
-              MDX Fallback (used when DB is empty)
+              {t({ es: "Respaldo MDX (se usa cuando la base de datos está vacía)", en: "MDX Fallback (used when DB is empty)" })}
             </span>
             <span className="text-[10px] text-stone-400">
-              ({mdxSections.length} sections)
+              ({mdxSections.length} {t({ es: "secciones", en: "sections" })})
             </span>
           </div>
           <a
@@ -210,13 +212,15 @@ function FarmToTableVisual() {
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-[11px] font-semibold hover:bg-stone-200 transition-colors"
           >
             <ExternalLink className="w-3 h-3" />
-            View Live Page
+            {t(STR.viewLivePage)}
           </a>
         </div>
         <div className="px-5 py-4 space-y-2.5">
           <p className="text-xs text-stone-500 leading-relaxed mb-3">
-            If no sections are saved above, the public page falls back to these MDX files in the codebase.
-            Once you save sections from this admin, your edits override the MDX content.
+            {t({
+              es: "Si no guardas ninguna sección arriba, la página pública usa estos archivos MDX del código. En cuanto guardes secciones desde este panel, tus cambios reemplazan el contenido MDX.",
+              en: "If no sections are saved above, the public page falls back to these MDX files in the codebase. Once you save sections from this admin, your edits override the MDX content.",
+            })}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {mdxSections.map((s) => (

@@ -15,6 +15,7 @@ import {
   MetaSection,
   EditableBilingual,
 } from "@/components/admin/visual-editor";
+import { useAdminLocale } from "@/lib/admin/i18n";
 import type { Bilingual, InnovationCraftItem } from "@/lib/content/types";
 
 const EMPTY: Bilingual = { es: "", en: "" };
@@ -37,6 +38,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 
 function InnovationVisual() {
   const { get, set } = useEditor();
+  const { t } = useAdminLocale();
 
   const meta = get("meta") as { title?: Bilingual; description?: Bilingual } | undefined;
   const hero = get("hero") as
@@ -57,71 +59,71 @@ function InnovationVisual() {
     <div className="space-y-6">
       <MetaSection>
         <EditableBilingual
-          label="Meta Title" as="small"
+          label={{ es: "Título SEO", en: "Meta Title" }} as="small"
           value={bi(meta?.title)}
           onChange={(v) => set("meta.title", v)}
           className="text-sm text-stone-600"
         />
         <EditableBilingual
-          label="Meta Description" as="small"
+          label={{ es: "Descripción SEO", en: "Meta Description" }} as="small"
           value={bi(meta?.description)}
           onChange={(v) => set("meta.description", v)}
           className="text-sm text-stone-600" multiline
         />
       </MetaSection>
 
-      <Card title="Hero">
-        <BilingualField label="Eyebrow" value={bi(hero?.eyebrow)} onChange={(v) => set("hero.eyebrow", v)} />
-        <BilingualField label="Headline" value={bi(hero?.headline)} onChange={(v) => set("hero.headline", v)} />
-        <BilingualField label="Intro" type="textarea" rows={4} value={bi(hero?.intro)} onChange={(v) => set("hero.intro", v)} />
+      <Card title={t({ es: "Sección principal", en: "Hero" })}>
+        <BilingualField label={t({ es: "Antetítulo", en: "Eyebrow" })} value={bi(hero?.eyebrow)} onChange={(v) => set("hero.eyebrow", v)} />
+        <BilingualField label={t({ es: "Título", en: "Headline" })} value={bi(hero?.headline)} onChange={(v) => set("hero.headline", v)} />
+        <BilingualField label={t({ es: "Introducción", en: "Intro" })} type="textarea" rows={4} value={bi(hero?.intro)} onChange={(v) => set("hero.intro", v)} />
       </Card>
 
-      <Card title="The Craft — laboratory panel">
-        <BilingualField label="Eyebrow" value={bi(craft?.eyebrow)} onChange={(v) => set("craft.eyebrow", v)} />
-        <BilingualField label="Title" value={bi(craft?.title)} onChange={(v) => set("craft.title", v)} />
-        <BilingualField label="Intro" type="textarea" rows={2} value={bi(craft?.intro)} onChange={(v) => set("craft.intro", v)} />
+      <Card title={t({ es: "El oficio — panel de laboratorio", en: "The Craft — laboratory panel" })}>
+        <BilingualField label={t({ es: "Antetítulo", en: "Eyebrow" })} value={bi(craft?.eyebrow)} onChange={(v) => set("craft.eyebrow", v)} />
+        <BilingualField label={t({ es: "Título", en: "Title" })} value={bi(craft?.title)} onChange={(v) => set("craft.title", v)} />
+        <BilingualField label={t({ es: "Introducción", en: "Intro" })} type="textarea" rows={2} value={bi(craft?.intro)} onChange={(v) => set("craft.intro", v)} />
         <EditableListShell<InnovationCraftItem>
-          label="Craft items (numbered 01, 02… by order)"
+          label={{ es: "Elementos del oficio (numerados 01, 02… por orden)", en: "Craft items (numbered 01, 02… by order)" }}
           items={craft?.items ?? []}
           onChange={(items) => set("craft.items", items)}
           makeItem={() => ({ title: { ...EMPTY }, line: { ...EMPTY } })}
-          addLabel="Add craft item"
+          addLabel={{ es: "Agregar elemento", en: "Add craft item" }}
           renderItem={(item, update) => (
             <>
-              <BilingualField label="Title" value={bi(item.title)} onChange={(v) => update({ title: v })} />
-              <BilingualField label="Line" type="textarea" rows={2} value={bi(item.line)} onChange={(v) => update({ line: v })} />
+              <BilingualField label={t({ es: "Título", en: "Title" })} value={bi(item.title)} onChange={(v) => update({ title: v })} />
+              <BilingualField label={t({ es: "Línea", en: "Line" })} type="textarea" rows={2} value={bi(item.line)} onChange={(v) => update({ line: v })} />
             </>
           )}
         />
       </Card>
 
-      <Card title="The Technology — roseiies panel">
-        <BilingualField label="Eyebrow" value={bi(technology?.eyebrow)} onChange={(v) => set("technology.eyebrow", v)} />
-        <BilingualField label="Intro" type="textarea" rows={3} value={bi(technology?.intro)} onChange={(v) => set("technology.intro", v)} />
+      <Card title={t({ es: "La tecnología — panel de roseiies", en: "The Technology — roseiies panel" })}>
+        <BilingualField label={t({ es: "Antetítulo", en: "Eyebrow" })} value={bi(technology?.eyebrow)} onChange={(v) => set("technology.eyebrow", v)} />
+        <BilingualField label={t({ es: "Introducción", en: "Intro" })} type="textarea" rows={3} value={bi(technology?.intro)} onChange={(v) => set("technology.intro", v)} />
         <EditableListShell<Bilingual>
-          label="Quiet-work list"
+          label={{ es: "Lista de trabajo silencioso", en: "Quiet-work list" }}
           items={technology?.items ?? []}
           onChange={(items) => set("technology.items", items)}
           makeItem={() => ({ ...EMPTY })}
-          addLabel="Add line"
+          addLabel={{ es: "Agregar línea", en: "Add line" }}
           renderItem={(item, update) => (
-            <BilingualField label="Line" value={bi(item)} onChange={(v) => update(v)} />
+            <BilingualField label={t({ es: "Línea", en: "Line" })} value={bi(item)} onChange={(v) => update(v)} />
           )}
         />
       </Card>
 
-      <Card title="Center quote">
-        <BilingualField label="Quote" value={bi(get("quote"))} onChange={(v) => set("quote", v)} />
+      <Card title={t({ es: "Cita central", en: "Center quote" })}>
+        <BilingualField label={t({ es: "Cita", en: "Quote" })} value={bi(get("quote"))} onChange={(v) => set("quote", v)} />
       </Card>
 
-      <Card title="The Method">
-        <BilingualField label="Eyebrow" value={bi(method?.eyebrow)} onChange={(v) => set("method.eyebrow", v)} />
-        <BilingualField label="Lead paragraph" type="textarea" rows={3} value={bi(method?.lead)} onChange={(v) => set("method.lead", v)} />
-        <BilingualField label="Body paragraph" type="textarea" rows={3} value={bi(method?.body)} onChange={(v) => set("method.body", v)} />
+      <Card title={t({ es: "El método", en: "The Method" })}>
+        <BilingualField label={t({ es: "Antetítulo", en: "Eyebrow" })} value={bi(method?.eyebrow)} onChange={(v) => set("method.eyebrow", v)} />
+        <BilingualField label={t({ es: "Párrafo de entrada", en: "Lead paragraph" })} type="textarea" rows={3} value={bi(method?.lead)} onChange={(v) => set("method.lead", v)} />
+        <BilingualField label={t({ es: "Párrafo del cuerpo", en: "Body paragraph" })} type="textarea" rows={3} value={bi(method?.body)} onChange={(v) => set("method.body", v)} />
       </Card>
 
-      <Card title="Closing line">
-        <BilingualField label="Line" value={bi(closing?.line)} onChange={(v) => set("closing.line", v)} />
+      <Card title={t({ es: "Línea de cierre", en: "Closing line" })}>
+        <BilingualField label={t({ es: "Línea", en: "Line" })} value={bi(closing?.line)} onChange={(v) => set("closing.line", v)} />
       </Card>
     </div>
   );

@@ -23,17 +23,17 @@ function LegalVisual() {
   return (
     <div className="space-y-6">
       <MetaSection>
-        <EditableBilingual label="Meta Title" as="small" value={meta?.title ?? { es: "", en: "" }} onChange={(v) => set("meta.title", v)} className="text-sm text-stone-600" />
-        <EditableBilingual label="Meta Description" as="small" value={meta?.description ?? { es: "", en: "" }} onChange={(v) => set("meta.description", v)} className="text-sm text-stone-600" multiline />
+        <EditableBilingual label={{ es: "Título SEO", en: "Meta Title" }} as="small" value={meta?.title ?? { es: "", en: "" }} onChange={(v) => set("meta.title", v)} className="text-sm text-stone-600" />
+        <EditableBilingual label={{ es: "Descripción SEO", en: "Meta Description" }} as="small" value={meta?.description ?? { es: "", en: "" }} onChange={(v) => set("meta.description", v)} className="text-sm text-stone-600" multiline />
       </MetaSection>
 
       <section className="rounded-2xl bg-white/60 ring-1 ring-black/5 p-6 md:p-8 space-y-4">
-        <EditableBilingual label="Title" as="h1" value={(get("title") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("title", v)} className="text-2xl font-serif text-stone-800" />
-        <EditableBilingual label="Description" as="p" value={(get("description") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("description", v)} className="text-base text-stone-600 leading-relaxed" multiline />
+        <EditableBilingual label={{ es: "Título", en: "Title" }} as="h1" value={(get("title") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("title", v)} className="text-2xl font-serif text-stone-800" />
+        <EditableBilingual label={{ es: "Descripción", en: "Description" }} as="p" value={(get("description") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("description", v)} className="text-base text-stone-600 leading-relaxed" multiline />
       </section>
 
       <EditableSections
-        label="Legal Sections"
+        label={{ es: "Secciones legales", en: "Legal Sections" }}
         value={sections}
         onChange={(v) => set("sections", v)}
         fields={["title", "body"]}

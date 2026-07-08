@@ -20,6 +20,7 @@ import {
   saveHomeContent,
 } from "@/lib/supabase/actions";
 import staticHome from "@/lib/content/data/home";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 
 /* ─── Types ──────────────────────────────────────────────────────── */
 
@@ -67,10 +68,11 @@ const BTN_GHOST =
 /* ─── Sub-components ─────────────────────────────────────────────── */
 
 function ActiveBadge() {
+  const { t } = useAdminLocale();
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
       <Check size={12} />
-      Active
+      {t({ es: "Activo", en: "Active" })}
     </span>
   );
 }
@@ -86,6 +88,7 @@ function MediaInputGroup({
   media: VideoMedia;
   onChange: (m: VideoMedia) => void;
 }) {
+  const { t } = useAdminLocale();
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-sm font-medium text-[var(--olivea-ink)]/70">
@@ -95,19 +98,19 @@ function MediaInputGroup({
       <div className="grid gap-2">
         <input
           className={INPUT}
-          placeholder="WebM path"
+          placeholder={t({ es: "Ruta WebM", en: "WebM path" })}
           value={media.webm}
           onChange={(e) => onChange({ ...media, webm: e.target.value })}
         />
         <input
           className={INPUT}
-          placeholder="MP4 path"
+          placeholder={t({ es: "Ruta MP4", en: "MP4 path" })}
           value={media.mp4}
           onChange={(e) => onChange({ ...media, mp4: e.target.value })}
         />
         <input
           className={INPUT}
-          placeholder="Poster image path"
+          placeholder={t({ es: "Ruta de imagen (póster)", en: "Poster image path" })}
           value={media.poster}
           onChange={(e) => onChange({ ...media, poster: e.target.value })}
         />
@@ -131,6 +134,7 @@ function VideoForm({
   saving: boolean;
   isNew: boolean;
 }) {
+  const { t } = useAdminLocale();
   return (
     <div className="space-y-5">
       {/* ID + Version */}
@@ -149,7 +153,7 @@ function VideoForm({
         </div>
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/60 mb-1 uppercase tracking-wider">
-            Version
+            {t({ es: "Versión", en: "Version" })}
           </label>
           <input
             className={INPUT}
@@ -164,11 +168,11 @@ function VideoForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/60 mb-1 uppercase tracking-wider">
-            Label (ES)
+            {t({ es: "Etiqueta (ES)", en: "Label (ES)" })}
           </label>
           <input
             className={INPUT}
-            placeholder="Etiqueta en espa\u00f1ol"
+            placeholder={t({ es: "Etiqueta en espa\u00f1ol", en: "Spanish label" })}
             value={draft.label.es}
             onChange={(e) =>
               onChange({ ...draft, label: { ...draft.label, es: e.target.value } })
@@ -177,11 +181,11 @@ function VideoForm({
         </div>
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/60 mb-1 uppercase tracking-wider">
-            Label (EN)
+            {t({ es: "Etiqueta (EN)", en: "Label (EN)" })}
           </label>
           <input
             className={INPUT}
-            placeholder="English label"
+            placeholder={t({ es: "Etiqueta en inglés", en: "English label" })}
             value={draft.label.en}
             onChange={(e) =>
               onChange({ ...draft, label: { ...draft.label, en: e.target.value } })
@@ -194,13 +198,13 @@ function VideoForm({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MediaInputGroup
           icon={Smartphone}
-          title="Mobile"
+          title={t({ es: "Móvil", en: "Mobile" })}
           media={draft.mobile}
           onChange={(m) => onChange({ ...draft, mobile: m })}
         />
         <MediaInputGroup
           icon={Monitor}
-          title="Desktop"
+          title={t({ es: "Escritorio", en: "Desktop" })}
           media={draft.desktop}
           onChange={(m) => onChange({ ...draft, desktop: m })}
         />
@@ -212,16 +216,16 @@ function VideoForm({
           {saving ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 size={14} className="animate-spin" />
-              Saving...
+              {t(STR.saving)}
             </span>
           ) : isNew ? (
-            "Create"
+            t({ es: "Crear", en: "Create" })
           ) : (
-            "Save Changes"
+            t(STR.saveChanges)
           )}
         </button>
         <button className={BTN_GHOST} onClick={onCancel} disabled={saving}>
-          Cancel
+          {t(STR.cancel)}
         </button>
       </div>
     </div>
@@ -240,6 +244,7 @@ interface HomeHero {
 }
 
 function HeroTextEditor() {
+  const { t } = useAdminLocale();
   const fallback = staticHome.hero;
   const [hero, setHero] = useState<HomeHero>({
     title: { ...fallback.title },
@@ -292,28 +297,28 @@ function HeroTextEditor() {
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <Type size={18} className="text-[var(--olivea-olive)]" />
-          <h2 className={HEADING}>Hero Text Content</h2>
+          <h2 className={HEADING}>{t({ es: "Contenido del texto principal", en: "Hero Text Content" })}</h2>
         </div>
         <button className={BTN_PRIMARY} onClick={handleSave} disabled={saving}>
-          {saving ? <Loader2 size={14} className="animate-spin" /> : "Save Text"}
+          {saving ? <Loader2 size={14} className="animate-spin" /> : t({ es: "Guardar texto", en: "Save Text" })}
         </button>
       </div>
 
       {status === "saved" && (
         <div className="mb-4 rounded-xl bg-emerald-50/80 ring-1 ring-emerald-200 px-4 py-2 text-sm text-emerald-700">
-          Text saved
+          {t({ es: "Texto guardado", en: "Text saved" })}
         </div>
       )}
       {status === "error" && (
         <div className="mb-4 rounded-xl bg-red-50/80 ring-1 ring-red-200 px-4 py-2 text-sm text-red-700">
-          Save failed — check your connection and try again
+          {t({ es: "No se pudo guardar — revisa tu conexión e inténtalo de nuevo", en: "Save failed — check your connection and try again" })}
         </div>
       )}
 
       <div className="space-y-4">
         {/* Title */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">Title</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">{t({ es: "Título", en: "Title" })}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">ES</span>
@@ -328,7 +333,7 @@ function HeroTextEditor() {
 
         {/* Subtitle */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">Subtitle</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">{t({ es: "Subtítulo", en: "Subtitle" })}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">ES</span>
@@ -343,7 +348,7 @@ function HeroTextEditor() {
 
         {/* CTA Restaurant */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">CTA — Restaurant</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">{t({ es: "Llamado a la acción — Restaurante", en: "CTA — Restaurant" })}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">ES</span>
@@ -358,7 +363,7 @@ function HeroTextEditor() {
 
         {/* CTA Casa */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">CTA — Casa Olivea</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">{t({ es: "Llamado a la acción — Casa Olivea", en: "CTA — Casa Olivea" })}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">ES</span>
@@ -378,6 +383,7 @@ function HeroTextEditor() {
 /* ─── Main page ──────────────────────────────────────────────────── */
 
 export default function HomepageHeroEditor() {
+  const { t } = useAdminLocale();
   const [videos, setVideos] = useState<HeroVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -385,7 +391,7 @@ export default function HomepageHeroEditor() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<HeroVideoDraft | null>(null);
   const [showNew, setShowNew] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<{ es: string; en: string } | null>(null);
   const [newDraft, setNewDraft] = useState<HeroVideoDraft>({
     ...EMPTY_DRAFT,
     label: { es: "", en: "" },
@@ -428,7 +434,7 @@ export default function HomepageHeroEditor() {
       await fetchVideos();
     } catch (err) {
       console.error("Failed to save new video config", err);
-      setSaveError("Failed to create video configuration. Please try again.");
+      setSaveError({ es: "No se pudo crear la configuración del video. Inténtalo de nuevo.", en: "Failed to create video configuration. Please try again." });
     } finally {
       setSaving(false);
     }
@@ -446,7 +452,7 @@ export default function HomepageHeroEditor() {
       await fetchVideos();
     } catch (err) {
       console.error("Failed to save video config", err);
-      setSaveError("Failed to save video configuration. Please try again.");
+      setSaveError({ es: "No se pudo guardar la configuración del video. Inténtalo de nuevo.", en: "Failed to save video configuration. Please try again." });
     } finally {
       setSaving(false);
     }
@@ -460,7 +466,7 @@ export default function HomepageHeroEditor() {
       await fetchVideos();
     } catch (err) {
       console.error("Failed to set active video", err);
-      setSaveError("Failed to activate video. Please try again.");
+      setSaveError({ es: "No se pudo activar el video. Inténtalo de nuevo.", en: "Failed to activate video. Please try again." });
     } finally {
       setActivating(null);
     }
@@ -505,7 +511,7 @@ export default function HomepageHeroEditor() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Video size={22} className="text-[var(--olivea-olive)]" />
-          <h1 className={HEADING}>Homepage Hero Video</h1>
+          <h1 className={HEADING}>{t({ es: "Video principal del inicio", en: "Homepage Hero Video" })}</h1>
         </div>
         {!showNew && (
           <button
@@ -517,7 +523,7 @@ export default function HomepageHeroEditor() {
           >
             <span className="inline-flex items-center gap-2">
               <Plus size={14} />
-              New Config
+              {t({ es: "Nueva configuración", en: "New Config" })}
             </span>
           </button>
         )}
@@ -526,7 +532,7 @@ export default function HomepageHeroEditor() {
       {/* ── Error toast ─────────────────────────────────── */}
       {saveError && (
         <div className="rounded-xl bg-red-50/80 ring-1 ring-red-200 px-4 py-2 text-sm text-red-700 text-center">
-          {saveError}
+          {t(saveError)}
         </div>
       )}
 
@@ -536,24 +542,24 @@ export default function HomepageHeroEditor() {
       {/* ── Active preview ────────────────────────────────── */}
       {activeVideo && (
         <section className={CARD}>
-          <h2 className={`${HEADING} mb-4`}>Active Preview</h2>
+          <h2 className={`${HEADING} mb-4`}>{t({ es: "Vista previa activa", en: "Active Preview" })}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <div className="flex items-center gap-2 text-sm font-medium text-[var(--olivea-ink)]/70 mb-2">
                 <Smartphone size={16} />
-                Mobile Poster
+                {t({ es: "Póster móvil", en: "Mobile Poster" })}
               </div>
               <div className="rounded-xl bg-white/80 ring-1 ring-black/10 p-3 text-xs text-[var(--olivea-ink)]/60 break-all">
-                {activeVideo.mobile.poster || "No poster set"}
+                {activeVideo.mobile.poster || t({ es: "Sin póster", en: "No poster set" })}
               </div>
             </div>
             <div>
               <div className="flex items-center gap-2 text-sm font-medium text-[var(--olivea-ink)]/70 mb-2">
                 <Monitor size={16} />
-                Desktop Poster
+                {t({ es: "Póster escritorio", en: "Desktop Poster" })}
               </div>
               <div className="rounded-xl bg-white/80 ring-1 ring-black/10 p-3 text-xs text-[var(--olivea-ink)]/60 break-all">
-                {activeVideo.desktop.poster || "No poster set"}
+                {activeVideo.desktop.poster || t({ es: "Sin póster", en: "No poster set" })}
               </div>
             </div>
           </div>
@@ -562,10 +568,10 @@ export default function HomepageHeroEditor() {
               <strong>ID:</strong> {activeVideo.id}
             </span>
             <span>
-              <strong>Version:</strong> {activeVideo.version}
+              <strong>{t({ es: "Versión:", en: "Version:" })}</strong> {activeVideo.version}
             </span>
             <span>
-              <strong>Label:</strong> {activeVideo.label.en} / {activeVideo.label.es}
+              <strong>{t({ es: "Etiqueta:", en: "Label:" })}</strong> {activeVideo.label.en} / {activeVideo.label.es}
             </span>
           </div>
         </section>
@@ -577,7 +583,7 @@ export default function HomepageHeroEditor() {
           <h2 className={`${HEADING} mb-5`}>
             <span className="inline-flex items-center gap-2">
               <Plus size={18} />
-              New Video Configuration
+              {t({ es: "Nueva configuración de video", en: "New Video Configuration" })}
             </span>
           </h2>
           <VideoForm
@@ -593,11 +599,11 @@ export default function HomepageHeroEditor() {
 
       {/* ── Video list ────────────────────────────────────── */}
       <section className="space-y-4">
-        <h2 className={HEADING}>All Configurations ({videos.length})</h2>
+        <h2 className={HEADING}>{t({ es: "Todas las configuraciones", en: "All Configurations" })} ({videos.length})</h2>
 
         {videos.length === 0 && (
           <p className="text-sm text-[var(--olivea-ink)]/50">
-            No video configurations yet. Create one to get started.
+            {t({ es: "Aún no hay configuraciones de video. Crea una para comenzar.", en: "No video configurations yet. Create one to get started." })}
           </p>
         )}
 
@@ -626,22 +632,22 @@ export default function HomepageHeroEditor() {
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-[var(--olivea-ink)]/50">
                       <div>
                         <span className="inline-flex items-center gap-1 font-medium">
-                          <Smartphone size={12} /> Mobile
+                          <Smartphone size={12} /> {t({ es: "Móvil", en: "Mobile" })}
                         </span>
                         <div className="ml-4 mt-0.5 space-y-0.5">
                           <div className="truncate">WebM: {video.mobile.webm || "--"}</div>
                           <div className="truncate">MP4: {video.mobile.mp4 || "--"}</div>
-                          <div className="truncate">Poster: {video.mobile.poster || "--"}</div>
+                          <div className="truncate">{t({ es: "Póster", en: "Poster" })}: {video.mobile.poster || "--"}</div>
                         </div>
                       </div>
                       <div>
                         <span className="inline-flex items-center gap-1 font-medium">
-                          <Monitor size={12} /> Desktop
+                          <Monitor size={12} /> {t({ es: "Escritorio", en: "Desktop" })}
                         </span>
                         <div className="ml-4 mt-0.5 space-y-0.5">
                           <div className="truncate">WebM: {video.desktop.webm || "--"}</div>
                           <div className="truncate">MP4: {video.desktop.mp4 || "--"}</div>
-                          <div className="truncate">Poster: {video.desktop.poster || "--"}</div>
+                          <div className="truncate">{t({ es: "Póster", en: "Poster" })}: {video.desktop.poster || "--"}</div>
                         </div>
                       </div>
                     </div>
@@ -659,7 +665,7 @@ export default function HomepageHeroEditor() {
                       {activating === video.id ? (
                         <Loader2 size={14} className="animate-spin" />
                       ) : (
-                        "Set Active"
+                        t({ es: "Activar", en: "Set Active" })
                       )}
                     </button>
                   )}

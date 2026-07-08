@@ -3,6 +3,7 @@
 import { Menu } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import drawerContent from "@/lib/content/data/drawer";
+import { useAdminLocale } from "@/lib/admin/i18n";
 import {
   VisualPageEditor,
   useEditor,
@@ -12,6 +13,7 @@ import {
 
 function DrawerVisual() {
   const { get, set } = useEditor();
+  const { t } = useAdminLocale();
 
   const mainLinks = (get("mainLinks") ?? []) as Array<{
     title?: { es: string; en: string };
@@ -28,12 +30,12 @@ function DrawerVisual() {
       {/* Visual drawer preview */}
       <section className="rounded-2xl bg-stone-900 text-white p-6 md:p-8 space-y-5 max-w-sm mx-auto">
         <div className="text-xs uppercase tracking-wider text-white/40 font-semibold">
-          Drawer Preview
+          {t({ es: "Vista previa del menú", en: "Drawer Preview" })}
         </div>
         <div className="h-px bg-white/10" />
         <div className="space-y-2">
           <EditableBilingual
-            label="Copyright" as="small"
+            label={{ es: "Derechos de autor", en: "Copyright" }} as="small"
             value={(get("copyright") ?? { es: "", en: "" }) as { es: string; en: string }}
             onChange={(v) => set("copyright", v)}
             className="text-xs text-white/50"
@@ -41,13 +43,13 @@ function DrawerVisual() {
         </div>
         <div className="flex gap-4">
           <EditableBilingual
-            label="See More" as="span"
+            label={{ es: "Ver más", en: "See More" }} as="span"
             value={(get("seeMore") ?? { es: "", en: "" }) as { es: string; en: string }}
             onChange={(v) => set("seeMore", v)}
             className="text-xs text-white/60 underline underline-offset-2"
           />
           <EditableBilingual
-            label="Hide" as="span"
+            label={{ es: "Ocultar", en: "Hide" }} as="span"
             value={(get("hide") ?? { es: "", en: "" }) as { es: string; en: string }}
             onChange={(v) => set("hide", v)}
             className="text-xs text-white/60 underline underline-offset-2"
@@ -57,7 +59,7 @@ function DrawerVisual() {
 
       {/* Link sections — proper visual editors */}
       <EditableSections
-        label="Main Links"
+        label={{ es: "Enlaces principales", en: "Main Links" }}
         value={mainLinks}
         onChange={(v) => set("mainLinks", v)}
         fields={["title", "description"]}
@@ -65,7 +67,7 @@ function DrawerVisual() {
       />
 
       <EditableSections
-        label="More Links"
+        label={{ es: "Más enlaces", en: "More Links" }}
         value={moreLinks}
         onChange={(v) => set("moreLinks", v)}
         fields={["title", "description"]}

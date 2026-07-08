@@ -16,6 +16,7 @@ import {
   MetaSection,
   EditableBilingual,
 } from "@/components/admin/visual-editor";
+import { useAdminLocale } from "@/lib/admin/i18n";
 import type { Bilingual, RoseiiesSection } from "@/lib/content/types";
 
 const EMPTY: Bilingual = { es: "", en: "" };
@@ -38,6 +39,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 
 function RoseiiesVisual() {
   const { get, set } = useEditor();
+  const { t } = useAdminLocale();
 
   const meta = get("meta") as { title?: Bilingual; description?: Bilingual } | undefined;
   const hero = get("hero") as
@@ -56,42 +58,42 @@ function RoseiiesVisual() {
     <div className="space-y-6">
       <MetaSection>
         <EditableBilingual
-          label="Meta Title" as="small"
+          label={{ es: "Título SEO", en: "Meta Title" }} as="small"
           value={bi(meta?.title)}
           onChange={(v) => set("meta.title", v)}
           className="text-sm text-stone-600"
         />
         <EditableBilingual
-          label="Meta Description" as="small"
+          label={{ es: "Descripción SEO", en: "Meta Description" }} as="small"
           value={bi(meta?.description)}
           onChange={(v) => set("meta.description", v)}
           className="text-sm text-stone-600" multiline
         />
       </MetaSection>
 
-      <Card title="Hero">
-        <BilingualField label="Back link label" value={bi(hero?.back)} onChange={(v) => set("hero.back", v)} />
-        <BilingualField label="Eyebrow" value={bi(hero?.eyebrow)} onChange={(v) => set("hero.eyebrow", v)} />
-        <BilingualField label="Headline" value={bi(hero?.headline)} onChange={(v) => set("hero.headline", v)} />
-        <BilingualField label="Intro" type="textarea" rows={4} value={bi(hero?.intro)} onChange={(v) => set("hero.intro", v)} />
+      <Card title={t({ es: "Sección principal", en: "Hero" })}>
+        <BilingualField label={t({ es: "Etiqueta del enlace de regreso", en: "Back link label" })} value={bi(hero?.back)} onChange={(v) => set("hero.back", v)} />
+        <BilingualField label={t({ es: "Antetítulo", en: "Eyebrow" })} value={bi(hero?.eyebrow)} onChange={(v) => set("hero.eyebrow", v)} />
+        <BilingualField label={t({ es: "Título", en: "Headline" })} value={bi(hero?.headline)} onChange={(v) => set("hero.headline", v)} />
+        <BilingualField label={t({ es: "Introducción", en: "Intro" })} type="textarea" rows={4} value={bi(hero?.intro)} onChange={(v) => set("hero.intro", v)} />
       </Card>
 
-      <Card title="Founder — Adriana">
-        <BilingualField label="Eyebrow" value={bi(founder?.eyebrow)} onChange={(v) => set("founder.eyebrow", v)} />
-        <BilingualField label="Title" value={bi(founder?.title)} onChange={(v) => set("founder.title", v)} />
+      <Card title={t({ es: "Fundadora — Adriana", en: "Founder — Adriana" })}>
+        <BilingualField label={t({ es: "Antetítulo", en: "Eyebrow" })} value={bi(founder?.eyebrow)} onChange={(v) => set("founder.eyebrow", v)} />
+        <BilingualField label={t({ es: "Título", en: "Title" })} value={bi(founder?.title)} onChange={(v) => set("founder.title", v)} />
         <EditableListShell<Bilingual>
-          label="Paragraphs"
+          label={{ es: "Párrafos", en: "Paragraphs" }}
           items={founder?.paragraphs ?? []}
           onChange={(items) => set("founder.paragraphs", items)}
           makeItem={() => ({ ...EMPTY })}
-          addLabel="Add paragraph"
+          addLabel={{ es: "Agregar párrafo", en: "Add paragraph" }}
           renderItem={(item, update) => (
-            <BilingualField label="Paragraph" type="textarea" rows={3} value={bi(item)} onChange={(v) => update(v)} />
+            <BilingualField label={t({ es: "Párrafo", en: "Paragraph" })} type="textarea" rows={3} value={bi(item)} onChange={(v) => update(v)} />
           )}
         />
-        <BilingualField label="Pull quote" value={bi(founder?.quote)} onChange={(v) => set("founder.quote", v)} />
+        <BilingualField label={t({ es: "Cita destacada", en: "Pull quote" })} value={bi(founder?.quote)} onChange={(v) => set("founder.quote", v)} />
         <ImageUpload
-          label="Portrait"
+          label={t({ es: "Retrato", en: "Portrait" })}
           value={founder?.image ?? ""}
           onChange={(v) => set("founder.image", v)}
           folder="team"
@@ -99,47 +101,47 @@ function RoseiiesVisual() {
       </Card>
 
       <EditableListShell<RoseiiesSection>
-        label="Editorial sections"
+        label={{ es: "Secciones editoriales", en: "Editorial sections" }}
         items={sections}
         onChange={(items) => set("sections", items)}
         makeItem={() => ({ eyebrow: { ...EMPTY }, title: { ...EMPTY }, body: [] })}
-        addLabel="Add section"
+        addLabel={{ es: "Agregar sección", en: "Add section" }}
         renderItem={(section, update) => (
           <>
-            <BilingualField label="Eyebrow" value={bi(section.eyebrow)} onChange={(v) => update({ eyebrow: v })} />
-            <BilingualField label="Title" value={bi(section.title)} onChange={(v) => update({ title: v })} />
+            <BilingualField label={t({ es: "Antetítulo", en: "Eyebrow" })} value={bi(section.eyebrow)} onChange={(v) => update({ eyebrow: v })} />
+            <BilingualField label={t({ es: "Título", en: "Title" })} value={bi(section.title)} onChange={(v) => update({ title: v })} />
             <EditableListShell<Bilingual>
-              label="Paragraphs"
+              label={{ es: "Párrafos", en: "Paragraphs" }}
               items={section.body ?? []}
               onChange={(body) => update({ body })}
               makeItem={() => ({ ...EMPTY })}
-              addLabel="Add paragraph"
+              addLabel={{ es: "Agregar párrafo", en: "Add paragraph" }}
               renderItem={(p, updateP) => (
-                <BilingualField label="Paragraph" type="textarea" rows={3} value={bi(p)} onChange={(v) => updateP(v)} />
+                <BilingualField label={t({ es: "Párrafo", en: "Paragraph" })} type="textarea" rows={3} value={bi(p)} onChange={(v) => updateP(v)} />
               )}
             />
           </>
         )}
       />
 
-      <Card title="Principle chips (shown under the last section)">
+      <Card title={t({ es: "Fichas de principios (se muestran bajo la última sección)", en: "Principle chips (shown under the last section)" })}>
         <EditableListShell<Bilingual>
-          label="Beliefs"
+          label={{ es: "Creencias", en: "Beliefs" }}
           items={beliefs}
           onChange={(items) => set("beliefs", items)}
           makeItem={() => ({ ...EMPTY })}
-          addLabel="Add belief"
+          addLabel={{ es: "Agregar creencia", en: "Add belief" }}
           renderItem={(item, update) => (
-            <BilingualField label="Belief" type="textarea" rows={2} value={bi(item)} onChange={(v) => update(v)} />
+            <BilingualField label={t({ es: "Creencia", en: "Belief" })} type="textarea" rows={2} value={bi(item)} onChange={(v) => update(v)} />
           )}
         />
       </Card>
 
-      <Card title="Bottom CTA">
-        <BilingualField label="Kicker (next to the logo)" value={bi(cta?.kicker)} onChange={(v) => set("cta.kicker", v)} />
-        <BilingualField label="Line" value={bi(cta?.line)} onChange={(v) => set("cta.line", v)} />
-        <BilingualField label="Primary button" value={bi(cta?.primary)} onChange={(v) => set("cta.primary", v)} />
-        <BilingualField label="Secondary button" value={bi(cta?.secondary)} onChange={(v) => set("cta.secondary", v)} />
+      <Card title={t({ es: "Llamado a la acción (abajo)", en: "Bottom CTA" })}>
+        <BilingualField label={t({ es: "Antetítulo (junto al logo)", en: "Kicker (next to the logo)" })} value={bi(cta?.kicker)} onChange={(v) => set("cta.kicker", v)} />
+        <BilingualField label={t({ es: "Línea", en: "Line" })} value={bi(cta?.line)} onChange={(v) => set("cta.line", v)} />
+        <BilingualField label={t({ es: "Botón principal", en: "Primary button" })} value={bi(cta?.primary)} onChange={(v) => set("cta.primary", v)} />
+        <BilingualField label={t({ es: "Botón secundario", en: "Secondary button" })} value={bi(cta?.secondary)} onChange={(v) => set("cta.secondary", v)} />
       </Card>
     </div>
   );

@@ -15,14 +15,15 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { getDashboardData, type DashboardData } from "@/lib/admin/dashboard-stats";
+import { useAdminLocale, type B } from "@/lib/admin/i18n";
 
 /* ─── Quick actions — the things you actually do day-to-day ─── */
 const quickActions = [
-  { label: "Post a special or announcement",  href: "/admin/popups",   icon: "popups" },
-  { label: "Add or edit a journal post",      href: "/admin/journal",  icon: "journal" },
-  { label: "Update operating hours",          href: "/admin/hours",    icon: "hours" },
-  { label: "Add a site banner",               href: "/admin/banners",  icon: "banners" },
-  { label: "Upload photos",                   href: "/admin/media",    icon: "media" },
+  { label: { es: "Publica un especial o anuncio",            en: "Post a special or announcement" }, href: "/admin/popups",   icon: "popups" },
+  { label: { es: "Agrega o edita una entrada del cuaderno",  en: "Add or edit a journal post" },      href: "/admin/journal",  icon: "journal" },
+  { label: { es: "Actualiza los horarios de operación",      en: "Update operating hours" },          href: "/admin/hours",    icon: "hours" },
+  { label: { es: "Agrega un banner al sitio",                en: "Add a site banner" },               href: "/admin/banners",  icon: "banners" },
+  { label: { es: "Sube fotos",                               en: "Upload photos" },                   href: "/admin/media",    icon: "media" },
 ] as const;
 
 /* ─── Cinematic easing curves ─── */
@@ -85,6 +86,13 @@ const iconMap: Record<string, React.ElementType> = {
   hours: Clock,
   banners: Flag,
   media: ImageIcon,
+};
+
+/* ─── Live-now kind badge labels ─── */
+const kindLabels: Record<"banner" | "popup" | "promotion", B> = {
+  banner: { es: "Banner", en: "banner" },
+  popup: { es: "Ventana emergente", en: "popup" },
+  promotion: { es: "Promoción", en: "promotion" },
 };
 
 /* ─── Stat card ─── */
@@ -297,6 +305,7 @@ function ActivityRow({
 
 /* ─── Dashboard page ─── */
 export default function AdminDashboard() {
+  const { t } = useAdminLocale();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -312,10 +321,10 @@ export default function AdminDashboard() {
   const permissionError = params?.get("error") === "insufficient_permissions";
 
   const stats = data?.stats ?? [
-    { label: "Journal posts", value: "—" },
-    { label: "Team members", value: "—" },
-    { label: "Pages managed", value: "—" },
-    { label: "Job openings", value: "—" },
+    { label: t({ es: "Entradas del cuaderno", en: "Journal posts" }), value: "—" },
+    { label: t({ es: "Miembros del equipo", en: "Team members" }), value: "—" },
+    { label: t({ es: "Páginas administradas", en: "Pages managed" }), value: "—" },
+    { label: t({ es: "Vacantes", en: "Job openings" }), value: "—" },
   ];
 
   const liveNow = data?.liveNow ?? [];
@@ -344,7 +353,7 @@ export default function AdminDashboard() {
           transition={{ duration: 0.5, ease: cinematic }}
           className="rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4 text-sm text-amber-800"
         >
-          <strong>Access denied</strong> — you don&apos;t have permission to view that page. Contact your admin to request access.
+          <strong>{t({ es: "Acceso denegado", en: "Access denied" })}</strong> — {t({ es: "no tienes permiso para ver esa página. Contacta a tu administrador para solicitar acceso.", en: "you don't have permission to view that page. Contact your admin to request access." })}
         </motion.div>
       )}
 
@@ -374,10 +383,10 @@ export default function AdminDashboard() {
             className="text-xs font-semibold text-[var(--olivea-clay)] uppercase tracking-wider mb-4"
             variants={fadeUp}
           >
-            Quick actions
+            {t({ es: "Acciones rápidas", en: "Quick actions" })}
           </motion.h2>
           {quickActions.map((action) => (
-            <QuickActionCard key={action.href} {...action} />
+            <QuickActionCard key={action.href} label={t(action.label)} href={action.href} icon={action.icon} />
           ))}
         </motion.div>
 
@@ -396,7 +405,7 @@ export default function AdminDashboard() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.35, ease: cinematic }}
             >
-              What&apos;s live right now
+              {t({ es: "Qué está en vivo ahora", en: "What's live right now" })}
             </motion.h2>
             <div className="rounded-2xl bg-white/50 backdrop-blur-sm border border-[var(--olivea-olive)]/[0.05] p-5">
               {loading ? (
@@ -423,7 +432,7 @@ export default function AdminDashboard() {
                                 : "bg-violet-50 text-violet-700 border-violet-200/60")
                           }
                         >
-                          {item.kind}
+                          {t(kindLabels[item.kind])}
                         </span>
                         <span className="flex-1 truncate">{item.label}</span>
                         <ArrowRight size={14} className="text-[var(--olivea-olive)]/40" />
@@ -433,7 +442,7 @@ export default function AdminDashboard() {
                 </ul>
               ) : (
                 <p className="text-sm text-[var(--olivea-clay)] text-center py-4">
-                  Nothing live right now. Visitors won&apos;t see any banners, popups, or promotions.
+                  {t({ es: "No hay nada en vivo ahora. Los visitantes no verán banners, ventanas emergentes ni promociones.", en: "Nothing live right now. Visitors won't see any banners, popups, or promotions." })}
                 </p>
               )}
             </div>
@@ -443,13 +452,13 @@ export default function AdminDashboard() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xs font-semibold text-[var(--olivea-clay)] uppercase tracking-wider">
-                Recent admin activity
+                {t({ es: "Actividad administrativa reciente", en: "Recent admin activity" })}
               </h2>
               <Link
                 href="/admin/audit-log"
                 className="text-[11px] text-[var(--olivea-olive)] hover:underline"
               >
-                See full audit log →
+                {t({ es: "Ver registro completo →", en: "See full audit log →" })}
               </Link>
             </div>
             <div className="rounded-2xl bg-white/50 backdrop-blur-sm border border-[var(--olivea-olive)]/[0.05] p-5">
@@ -468,7 +477,7 @@ export default function AdminDashboard() {
                 ))
               ) : (
                 <p className="text-sm text-[var(--olivea-clay)] text-center py-6">
-                  No admin activity yet. Edits will appear here as they happen.
+                  {t({ es: "Aún no hay actividad. Las ediciones aparecerán aquí conforme sucedan.", en: "No admin activity yet. Edits will appear here as they happen." })}
                 </p>
               )}
             </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Coffee, FileCode2, ExternalLink, UtensilsCrossed, ArrowRight } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import cafeContent from "@/lib/content/data/cafe";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 import {
   VisualPageEditor,
   useEditor,
@@ -55,6 +56,7 @@ interface SectionShape {
 
 function CafeVisual() {
   const { get, set } = useEditor();
+  const { t } = useAdminLocale();
 
   const hero = get("hero") as {
     headline?: { es: string; en: string };
@@ -88,30 +90,30 @@ function CafeVisual() {
   return (
     <div className="space-y-6">
       <MetaSection>
-        <EditableBilingual label="Meta Title" as="small" value={meta?.title ?? { es: "", en: "" }} onChange={(v) => set("meta.title", v)} className="text-sm text-stone-600" />
-        <EditableBilingual label="Meta Description" as="small" value={meta?.description ?? { es: "", en: "" }} onChange={(v) => set("meta.description", v)} className="text-sm text-stone-600" multiline />
+        <EditableBilingual label={{ es: "Título SEO", en: "Meta Title" }} as="small" value={meta?.title ?? { es: "", en: "" }} onChange={(v) => set("meta.title", v)} className="text-sm text-stone-600" />
+        <EditableBilingual label={{ es: "Descripción SEO", en: "Meta Description" }} as="small" value={meta?.description ?? { es: "", en: "" }} onChange={(v) => set("meta.description", v)} className="text-sm text-stone-600" multiline />
       </MetaSection>
 
       <section className="relative rounded-2xl overflow-hidden">
         <EditableImage
           src={hero?.image?.src ?? ""} alt={hero?.image?.alt?.en ?? ""}
           onChange={(src) => set("hero.image.src", src)}
-          className="rounded-2xl" aspect="hero" label="Hero Image"
+          className="rounded-2xl" aspect="hero" label={{ es: "Imagen principal", en: "Hero Image" }}
         />
       </section>
 
       <div className="rounded-2xl border border-stone-200/80 bg-white/60 p-6 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-1 h-5 rounded-full bg-[var(--olivea-olive)]" />
-          <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Hero Text</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-stone-500">{t({ es: "Texto principal", en: "Hero Text" })}</span>
         </div>
-        <EditableBilingual label="Headline" as="h1" value={hero?.headline ?? { es: "", en: "" }} onChange={(v) => set("hero.headline", v)} className="text-2xl font-serif font-medium text-stone-800" placeholder="Page headline..." />
-        <EditableBilingual label="Subheadline" as="p" value={hero?.subheadline ?? { es: "", en: "" }} onChange={(v) => set("hero.subheadline", v)} className="text-base text-stone-600 font-serif italic" placeholder="Subheadline text..." />
+        <EditableBilingual label={{ es: "Título", en: "Headline" }} as="h1" value={hero?.headline ?? { es: "", en: "" }} onChange={(v) => set("hero.headline", v)} className="text-2xl font-serif font-medium text-stone-800" placeholder={t({ es: "Título de la página…", en: "Page headline..." })} />
+        <EditableBilingual label={{ es: "Subtítulo", en: "Subheadline" }} as="p" value={hero?.subheadline ?? { es: "", en: "" }} onChange={(v) => set("hero.subheadline", v)} className="text-base text-stone-600 font-serif italic" placeholder={t({ es: "Texto del subtítulo…", en: "Subheadline text..." })} />
       </div>
 
       {/* Structured FAQ editor — Q&A pairs that appear in the FAQ section. */}
       <EditableFAQ
-        label="FAQ — Questions & Answers"
+        label={{ es: "Preguntas frecuentes", en: "FAQ — Questions & Answers" }}
         value={faqEntries}
         onChange={updateFaqEntries}
         collapsed={false}
@@ -121,7 +123,7 @@ function CafeVisual() {
           When admin saves sections data, the public page reads from DB and
           overrides the MDX fallback. */}
       <EditableSections
-        label="Page Sections (visual editing)"
+        label={{ es: "Secciones de la página (edición visual)", en: "Page Sections (visual editing)" }}
         value={sections}
         onChange={(v) => set("sections", v)}
         fields={["title", "subtitle", "body", "description", "image"]}
@@ -139,10 +141,10 @@ function CafeVisual() {
           </div>
           <div>
             <div className="text-sm font-semibold text-stone-800 group-hover:text-[var(--olivea-olive)] transition-colors">
-              Live menu link (“View live menu” button)
+              {t({ es: "Enlace del menú en vivo (botón “Ver menú en vivo”)", en: "Live menu link (“View live menu” button)" })}
             </div>
             <div className="text-[11px] text-stone-400">
-              Edited in Menus &amp; Links — the café menu embed URL and button label
+              {t({ es: "Se edita en Menús y Enlaces — la URL del menú del café y la etiqueta del botón", en: "Edited in Menus & Links — the café menu embed URL and button label" })}
             </div>
           </div>
         </div>
@@ -152,7 +154,7 @@ function CafeVisual() {
       {/* Raw JSON access for advanced fields like FAQ items, stats arrays,
           custom CTAs, etc. that aren't covered by the visual editor above. */}
       <EditableJSON
-        label="Sections (raw JSON — for FAQ items, stats, custom fields)"
+        label={t({ es: "Secciones (JSON — preguntas, cifras, campos personalizados)", en: "Sections (raw JSON — for FAQ items, stats, custom fields)" })}
         value={sections}
         onChange={(v) => set("sections", v)}
         rows={20}
@@ -164,18 +166,20 @@ function CafeVisual() {
         <div className="px-5 py-3 border-b border-stone-200/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileCode2 className="w-4 h-4 text-stone-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">MDX Fallback (used when DB is empty)</span>
-            <span className="text-[10px] text-stone-400">({mdxSections.length} sections)</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">{t({ es: "Respaldo MDX (se usa cuando la base de datos está vacía)", en: "MDX Fallback (used when DB is empty)" })}</span>
+            <span className="text-[10px] text-stone-400">({mdxSections.length} {t({ es: "secciones", en: "sections" })})</span>
           </div>
           <a href="/es/cafe" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-[11px] font-semibold hover:bg-stone-200 transition-colors">
             <ExternalLink className="w-3 h-3" />
-            View Live Page
+            {t(STR.viewLivePage)}
           </a>
         </div>
         <div className="px-5 py-4 space-y-2.5">
           <p className="text-xs text-stone-500 leading-relaxed mb-3">
-            If no sections are saved above, the public page falls back to these MDX files in the codebase.
-            Once you save sections from this admin, your edits override the MDX content.
+            {t({
+              es: "Si no guardas ninguna sección arriba, la página pública usa estos archivos MDX del código. En cuanto guardes secciones desde este panel, tus cambios reemplazan el contenido MDX.",
+              en: "If no sections are saved above, the public page falls back to these MDX files in the codebase. Once you save sections from this admin, your edits override the MDX content.",
+            })}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {mdxSections.map((s) => (
