@@ -288,7 +288,9 @@ type PageTable =
   | "not_found_content"
   | "global_settings"
   | "drawer_content"
-  | "footer_content";
+  | "footer_content"
+  | "innovation_content"
+  | "roseiies_content";
 
 const pageRevalidations: Record<PageTable, string[]> = {
   farmtotable_content: ["/es/farmtotable", "/en/farmtotable"],
@@ -305,6 +307,8 @@ const pageRevalidations: Record<PageTable, string[]> = {
   global_settings: ["layout:/"],
   drawer_content: ["layout:/"],
   footer_content: ["layout:/"],
+  innovation_content: ["/es/innovation", "/en/innovation"],
+  roseiies_content: ["/es/roseiies", "/en/roseiies"],
 };
 
 export async function getPageContent(table: PageTable) {
@@ -371,4 +375,53 @@ export async function deleteSustainabilitySection(id: string) {
   await logAudit({ action: "delete", resourceType: "sustainability_section", resourceId: id });
   revalidatePath("/es/sustainability");
   revalidatePath("/en/sustainability");
+}
+
+// ── Press Items (collection) ────────────────────────────────────────
+// Rows in press_items are the press page's primary source (the MDX
+// files remain as a fallback when the table is empty/unreachable).
+
+const PRESS_ID_RE = /^[a-z0-9][a-z0-9-]{1,80}$/i;
+function assertPressId(id: string): void {
+  if (!PRESS_ID_RE.test(id)) {
+    throw new Error(`Invalid press item id: ${id}`);
+  }
+}
+
+const PRESS_REVALIDATE = ["/es/press", "/en/press"];
+
+function revalidatePress() {
+  for (const p of PRESS_REVALIDATE) revalidatePath(p);
+}
+
+export async function getPressItemsAdmin() {
+  return selectRows("press_items", {
+    role: "service_role",
+    query: "order=published_at.desc",
+  });
+}
+
+export async function savePressItem(item: Record<string, unknown>) {
+  await requireEditor();
+  assertPressId(String(item.id ?? ""));
+  await upsertRows("press_items", item, { onConflict: "id" });
+  await logAudit({ action: "save", resourceType: "press_item", resourceId: String(item.id) });
+  revalidatePress();
+  await pingIndexNowForPaths(PRESS_REVALIDATE);
+}
+
+export async function togglePressItem(id: string, enabled: boolean) {
+  await requireEditor();
+  assertPressId(id);
+  await updateRows("press_items", `id=eq.${encodeURIComponent(id)}`, { enabled });
+  await logAudit({ action: enabled ? "enable" : "disable", resourceType: "press_item", resourceId: id });
+  revalidatePress();
+}
+
+export async function deletePressItem(id: string) {
+  await requireManager();
+  assertPressId(id);
+  await deleteRows("press_items", `id=eq.${encodeURIComponent(id)}`);
+  await logAudit({ action: "delete", resourceType: "press_item", resourceId: id });
+  revalidatePress();
 }

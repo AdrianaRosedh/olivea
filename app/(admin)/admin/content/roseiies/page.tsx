@@ -1,0 +1,162 @@
+"use client";
+
+// Admin editor for the public roseiies page (/roseiies).
+// Every text block on the page is editable here; saves write to
+// roseiies_content in Supabase and go live within a minute.
+
+import { Globe } from "lucide-react";
+import SectionGuard from "@/components/admin/SectionGuard";
+import roseiiesContent from "@/lib/content/data/roseiies";
+import BilingualField from "@/components/admin/BilingualField";
+import ImageUpload from "@/components/admin/ImageUpload";
+import EditableListShell from "@/components/admin/visual-editor/EditableListShell";
+import {
+  VisualPageEditor,
+  useEditor,
+  MetaSection,
+  EditableBilingual,
+} from "@/components/admin/visual-editor";
+import type { Bilingual, RoseiiesSection } from "@/lib/content/types";
+
+const EMPTY: Bilingual = { es: "", en: "" };
+const bi = (v: unknown): Bilingual => {
+  const o = (v ?? {}) as Partial<Bilingual>;
+  return { es: o.es ?? "", en: o.en ?? "" };
+};
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-stone-200/80 bg-white/60 p-6 space-y-4">
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-1 h-5 rounded-full bg-[var(--olivea-olive)]" />
+        <span className="text-xs font-bold uppercase tracking-wider text-stone-500">{title}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function RoseiiesVisual() {
+  const { get, set } = useEditor();
+
+  const meta = get("meta") as { title?: Bilingual; description?: Bilingual } | undefined;
+  const hero = get("hero") as
+    | { back?: Bilingual; eyebrow?: Bilingual; headline?: Bilingual; intro?: Bilingual }
+    | undefined;
+  const founder = get("founder") as
+    | { eyebrow?: Bilingual; title?: Bilingual; paragraphs?: Bilingual[]; quote?: Bilingual; image?: string }
+    | undefined;
+  const sections = (get("sections") as RoseiiesSection[] | undefined) ?? [];
+  const beliefs = (get("beliefs") as Bilingual[] | undefined) ?? [];
+  const cta = get("cta") as
+    | { kicker?: Bilingual; line?: Bilingual; primary?: Bilingual; secondary?: Bilingual }
+    | undefined;
+
+  return (
+    <div className="space-y-6">
+      <MetaSection>
+        <EditableBilingual
+          label="Meta Title" as="small"
+          value={bi(meta?.title)}
+          onChange={(v) => set("meta.title", v)}
+          className="text-sm text-stone-600"
+        />
+        <EditableBilingual
+          label="Meta Description" as="small"
+          value={bi(meta?.description)}
+          onChange={(v) => set("meta.description", v)}
+          className="text-sm text-stone-600" multiline
+        />
+      </MetaSection>
+
+      <Card title="Hero">
+        <BilingualField label="Back link label" value={bi(hero?.back)} onChange={(v) => set("hero.back", v)} />
+        <BilingualField label="Eyebrow" value={bi(hero?.eyebrow)} onChange={(v) => set("hero.eyebrow", v)} />
+        <BilingualField label="Headline" value={bi(hero?.headline)} onChange={(v) => set("hero.headline", v)} />
+        <BilingualField label="Intro" type="textarea" rows={4} value={bi(hero?.intro)} onChange={(v) => set("hero.intro", v)} />
+      </Card>
+
+      <Card title="Founder — Adriana">
+        <BilingualField label="Eyebrow" value={bi(founder?.eyebrow)} onChange={(v) => set("founder.eyebrow", v)} />
+        <BilingualField label="Title" value={bi(founder?.title)} onChange={(v) => set("founder.title", v)} />
+        <EditableListShell<Bilingual>
+          label="Paragraphs"
+          items={founder?.paragraphs ?? []}
+          onChange={(items) => set("founder.paragraphs", items)}
+          makeItem={() => ({ ...EMPTY })}
+          addLabel="Add paragraph"
+          renderItem={(item, update) => (
+            <BilingualField label="Paragraph" type="textarea" rows={3} value={bi(item)} onChange={(v) => update(v)} />
+          )}
+        />
+        <BilingualField label="Pull quote" value={bi(founder?.quote)} onChange={(v) => set("founder.quote", v)} />
+        <ImageUpload
+          label="Portrait"
+          value={founder?.image ?? ""}
+          onChange={(v) => set("founder.image", v)}
+          folder="team"
+        />
+      </Card>
+
+      <EditableListShell<RoseiiesSection>
+        label="Editorial sections"
+        items={sections}
+        onChange={(items) => set("sections", items)}
+        makeItem={() => ({ eyebrow: { ...EMPTY }, title: { ...EMPTY }, body: [] })}
+        addLabel="Add section"
+        renderItem={(section, update) => (
+          <>
+            <BilingualField label="Eyebrow" value={bi(section.eyebrow)} onChange={(v) => update({ eyebrow: v })} />
+            <BilingualField label="Title" value={bi(section.title)} onChange={(v) => update({ title: v })} />
+            <EditableListShell<Bilingual>
+              label="Paragraphs"
+              items={section.body ?? []}
+              onChange={(body) => update({ body })}
+              makeItem={() => ({ ...EMPTY })}
+              addLabel="Add paragraph"
+              renderItem={(p, updateP) => (
+                <BilingualField label="Paragraph" type="textarea" rows={3} value={bi(p)} onChange={(v) => updateP(v)} />
+              )}
+            />
+          </>
+        )}
+      />
+
+      <Card title="Principle chips (shown under the last section)">
+        <EditableListShell<Bilingual>
+          label="Beliefs"
+          items={beliefs}
+          onChange={(items) => set("beliefs", items)}
+          makeItem={() => ({ ...EMPTY })}
+          addLabel="Add belief"
+          renderItem={(item, update) => (
+            <BilingualField label="Belief" type="textarea" rows={2} value={bi(item)} onChange={(v) => update(v)} />
+          )}
+        />
+      </Card>
+
+      <Card title="Bottom CTA">
+        <BilingualField label="Kicker (next to the logo)" value={bi(cta?.kicker)} onChange={(v) => set("cta.kicker", v)} />
+        <BilingualField label="Line" value={bi(cta?.line)} onChange={(v) => set("cta.line", v)} />
+        <BilingualField label="Primary button" value={bi(cta?.primary)} onChange={(v) => set("cta.primary", v)} />
+        <BilingualField label="Secondary button" value={bi(cta?.secondary)} onChange={(v) => set("cta.secondary", v)} />
+      </Card>
+    </div>
+  );
+}
+
+export default function RoseiiesAdmin() {
+  return (
+    <SectionGuard sectionKey="pages.roseiies">
+      <VisualPageEditor
+        title="roseiies"
+        table="roseiies_content"
+        icon={<Globe className="w-5 h-5 text-[var(--olivea-olive)]" />}
+        fallbackData={roseiiesContent as unknown as Record<string, unknown>}
+        livePath="/roseiies"
+      >
+        <RoseiiesVisual />
+      </VisualPageEditor>
+    </SectionGuard>
+  );
+}

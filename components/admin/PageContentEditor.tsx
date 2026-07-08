@@ -20,7 +20,9 @@ type PageTable =
   | "not_found_content"
   | "global_settings"
   | "drawer_content"
-  | "footer_content";
+  | "footer_content"
+  | "innovation_content"
+  | "roseiies_content";
 
 interface FieldDef {
   key: string;

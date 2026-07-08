@@ -591,3 +591,54 @@ export interface HeroVideo {
   version: string;           // cache-busting version string
   active: boolean;           // which video set is currently live
 }
+
+/* ── Innovation page ── */
+
+export interface InnovationCraftItem {
+  title: Bilingual;
+  line: Bilingual;
+}
+
+export interface InnovationContent {
+  meta: { title: Bilingual; description: Bilingual };
+  hero: { eyebrow: Bilingual; headline: Bilingual; intro: Bilingual };
+  craft: {
+    eyebrow: Bilingual;
+    title: Bilingual;
+    intro: Bilingual;
+    items: InnovationCraftItem[]; // numbered 01… by position
+  };
+  technology: {
+    eyebrow: Bilingual;
+    intro: Bilingual;
+    items: Bilingual[]; // the "quiet work" list
+  };
+  quote: Bilingual;
+  method: { eyebrow: Bilingual; lead: Bilingual; body: Bilingual };
+  closing: { line: Bilingual };
+  updatedAt?: string;
+}
+
+/* ── roseiies page ── */
+
+export interface RoseiiesSection {
+  eyebrow: Bilingual;
+  title: Bilingual;
+  body: Bilingual[]; // paragraphs
+}
+
+export interface RoseiiesContent {
+  meta: { title: Bilingual; description: Bilingual };
+  hero: { back: Bilingual; eyebrow: Bilingual; headline: Bilingual; intro: Bilingual };
+  founder: {
+    eyebrow: Bilingual;
+    title: Bilingual;
+    paragraphs: Bilingual[];
+    quote: Bilingual;
+    image: string;
+  };
+  sections: RoseiiesSection[]; // studio / in practice / principles
+  beliefs: Bilingual[]; // principle chips under the last section
+  cta: { kicker: Bilingual; line: Bilingual; primary: Bilingual; secondary: Bilingual };
+  updatedAt?: string;
+}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import MobileSectionNav from "@/components/navigation/MobileSectionNav";
+import type { InnovationContent, Bilingual } from "@/lib/content/types";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -21,64 +22,28 @@ const EYEBROW = "text-[11px] uppercase tracking-[0.3em] text-(--olivea-olive)/70
 const PANEL =
   "rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 shadow-[0_10px_24px_rgba(40,60,35,0.08)]";
 
-export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
-  const t = (es: string, en: string) => (lang === "es" ? es : en);
+export default function InnovationClient({
+  lang,
+  content,
+}: {
+  lang: "en" | "es";
+  content: InnovationContent;
+}) {
+  // Content comes from the CMS (Supabase row, falling back to the static
+  // seed in lib/content/data/innovation.ts) — edit it at /admin/content/innovation.
+  const t = (b: Bilingual) => (lang === "es" ? b.es : b.en);
 
   const navSections = [
-    { id: "craft", label: t("El oficio", "The craft") },
-    { id: "technology", label: t("La tecnología", "Technology") },
-    { id: "method", label: t("El método", "The method") },
+    { id: "craft", label: t(content.craft.eyebrow) },
+    { id: "technology", label: t(content.technology.eyebrow) },
+    { id: "method", label: t(content.method.eyebrow) },
   ];
 
-  const craft: { n: string; title: string; line: string }[] = [
-    {
-      n: "01",
-      title: t("Salsa de soya", "Soy sauce"),
-      line: t(
-        "Fermentada en casa durante meses. Hace años que no compramos una botella.",
-        "Fermented in-house over months. We haven't bought a bottle in years.",
-      ),
-    },
-    {
-      n: "02",
-      title: t("Curados y preservados", "Aged & preserved"),
-      line: t(
-        "La cosecha detenida en su punto, para que la temporada nunca termine.",
-        "The harvest held at its peak, so the season never fully ends.",
-      ),
-    },
-    {
-      n: "03",
-      title: t("La carta líquida", "The liquid menu"),
-      line: t(
-        "Compuesta con el mismo rigor que el plato.",
-        "Composed with the same rigor as the plate.",
-      ),
-    },
-    {
-      n: "04",
-      title: t("Fermentación", "Fermentation"),
-      line: t(
-        "Una investigación constante: registrada, probada, corregida.",
-        "An ongoing investigation: logged, tasted, corrected.",
-      ),
-    },
-    {
-      n: "05",
-      title: t("La tierra", "The land"),
-      line: t(
-        "Recorrida a diario. No se toma nada que no se comprenda.",
-        "Walked daily. Nothing is taken that isn't understood.",
-      ),
-    },
-  ];
-
-  const quiet: string[] = [
-    t("Agendas y los libros", "Scheduling & the books"),
-    t("Inventario y abasto", "Inventory & supply"),
-    t("Reservaciones", "Reservations"),
-    t("La carta viva, sincronizada", "The living menu, in sync"),
-  ];
+  const craftItems = content.craft.items.map((item, i) => ({
+    n: String(i + 1).padStart(2, "0"),
+    title: t(item.title),
+    line: t(item.line),
+  }));
 
   return (
     <NavigationProvider>
@@ -87,20 +52,17 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
           {/* ───────── HERO ───────── */}
           <motion.header initial="hidden" animate="show" variants={stagger} className="max-w-[60ch]">
             <motion.div variants={fadeUp} className={EYEBROW}>
-              {t("Innovación", "Innovation")}
+              {t(content.hero.eyebrow)}
             </motion.div>
             <motion.h1
               variants={fadeUp}
               className="mt-4 text-[clamp(2.4rem,1.5rem_+_3.8vw,4.2rem)] font-semibold leading-[1.02] tracking-[-0.02em]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              {t("Donde el arte encuentra la tecnología", "Where art meets technology")}
+              {t(content.hero.headline)}
             </motion.h1>
             <motion.p variants={fadeUp} className="mt-6 text-[17px] sm:text-[19px] leading-relaxed">
-              {t(
-                "Nada de esto es decoración. El trabajo detrás del plato se sostiene con el mismo rigor que el plato mismo — el oficio sigue siendo humano, la tecnología permanece en silencio, y cada uno protege el tiempo del otro.",
-                "None of this is decoration. The work behind the plate is held to the same standard as the plate itself — the craft kept human, the technology kept quiet, each protecting the other's time.",
-              )}
+              {t(content.hero.intro)}
             </motion.p>
           </motion.header>
 
@@ -118,21 +80,18 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
               id="craft"
               className={`main-section scroll-mt-28 ${PANEL} p-7 sm:p-9`}
             >
-              <div className={EYEBROW}>{t("El oficio", "The craft")}</div>
+              <div className={EYEBROW}>{t(content.craft.eyebrow)}</div>
               <h2
                 className="mt-2 text-[clamp(1.7rem,1.3rem_+_1.4vw,2.2rem)] font-semibold tracking-[-0.02em]"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
-                {t("El laboratorio", "The laboratory")}
+                {t(content.craft.title)}
               </h2>
               <p className="mt-3 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/85">
-                {t(
-                  "Todo aquí se hace, no se compra — y nada se hace a la ligera.",
-                  "Everything here is made, not bought — and nothing is made casually.",
-                )}
+                {t(content.craft.intro)}
               </p>
               <ul className="mt-7 space-y-5">
-                {craft.map(({ n, title, line }) => (
+                {craftItems.map(({ n, title, line }) => (
                   <li key={n} className="flex gap-4">
                     <span className="mt-1 text-[12px] tabular-nums tracking-[0.14em] text-(--olivea-olive)/45">
                       {n}
@@ -159,7 +118,7 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
               id="technology"
               className={`main-section scroll-mt-28 ${PANEL} p-7 sm:p-9`}
             >
-              <div className={EYEBROW}>{t("La tecnología", "The technology")}</div>
+              <div className={EYEBROW}>{t(content.technology.eyebrow)}</div>
               {/* roseiies wordmark — masked in Olivea olive so the page stays one brand */}
               <span
                 role="img"
@@ -179,16 +138,13 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
                 }}
               />
               <p className="mt-4 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/85">
-                {t(
-                  "Junto al laboratorio, invisible, el estudio que absorbe el trabajo que ningún oficio debería cargar.",
-                  "Beside the laboratory, unseen, the studio that absorbs the work no craft should carry.",
-                )}
+                {t(content.technology.intro)}
               </p>
               <ul className="mt-6 space-y-3">
-                {quiet.map((label) => (
-                  <li key={label} className="flex items-start gap-3">
+                {content.technology.items.map((label, i) => (
+                  <li key={i} className="flex items-start gap-3">
                     <span aria-hidden="true" className="mt-2 text-(--olivea-olive)/40">—</span>
-                    <span className="text-[15px] sm:text-[16px] leading-snug">{label}</span>
+                    <span className="text-[15px] sm:text-[16px] leading-snug">{t(label)}</span>
                   </li>
                 ))}
               </ul>
@@ -197,7 +153,7 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
                   href={`/${lang}/roseiies`}
                   className="inline-flex items-center justify-center rounded-2xl px-6 py-3 bg-(--olivea-olive) text-white text-[12px] uppercase tracking-[0.26em] shadow-[0_14px_30px_-18px_rgba(40,60,35,0.6)] hover:opacity-95 transition"
                 >
-                  {t("Construido con roseiies", "Built with roseiies")}
+                  {lang === "es" ? "Construido con roseiies" : "Built with roseiies"}
                 </Link>
                 <a
                   href="https://roseiies.com"
@@ -205,7 +161,7 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-2xl px-6 py-3 bg-white/55 ring-1 ring-(--olivea-olive)/25 text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) hover:bg-white/80 transition"
                 >
-                  {t("Conoce roseiies", "Visit roseiies")}
+                  {lang === "es" ? "Conoce roseiies" : "Visit roseiies"}
                 </a>
               </div>
             </motion.div>
@@ -220,7 +176,7 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
             className="mx-auto mt-16 sm:mt-20 max-w-[24ch] text-center text-[clamp(1.6rem,1.2rem_+_1.8vw,2.4rem)] leading-[1.2]"
             style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
           >
-            {t("Ninguno se apodera del otro.", "Neither takes over the other.")}
+            {t(content.quote)}
           </motion.blockquote>
 
           {/* ───────── THE METHOD ───────── */}
@@ -233,26 +189,20 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
               className="mx-auto max-w-[680px] text-center"
             >
               <motion.div variants={fadeUp} className={EYEBROW}>
-                {t("El método", "The method")}
+                {t(content.method.eyebrow)}
               </motion.div>
               <motion.p
                 variants={fadeUp}
                 className="mt-5 text-[clamp(1.35rem,1.1rem_+_1.3vw,2rem)] leading-[1.32]"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
-                {t(
-                  "roseiies absorbe la fricción — y el laboratorio conserva lo único de lo que un oficio no puede prescindir: tiempo, y atención sin reservas.",
-                  "roseiies absorbs the friction — and the laboratory keeps the one thing a craft cannot do without: time, and undivided attention.",
-                )}
+                {t(content.method.lead)}
               </motion.p>
               <motion.p
                 variants={fadeUp}
                 className="mt-5 text-[16px] sm:text-[17px] leading-relaxed text-(--olivea-olive)/90"
               >
-                {t(
-                  "Lo que la cocina aprende, la tecnología lo recuerda. Lo que la tecnología resuelve, la cocina nunca tiene que cargarlo.",
-                  "What the kitchen learns, the technology remembers. What the technology handles, the kitchen never has to.",
-                )}
+                {t(content.method.body)}
               </motion.p>
             </motion.div>
           </section>
@@ -266,23 +216,20 @@ export default function InnovationClient({ lang }: { lang: "en" | "es" }) {
             className="mt-20 sm:mt-28 flex flex-wrap items-center justify-between gap-4 border-t border-(--olivea-olive)/15 pt-8"
           >
             <p className="max-w-[46ch] text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/90">
-              {t(
-                "El mismo rigor recorre toda la propiedad.",
-                "The same standard runs through the whole property.",
-              )}
+              {t(content.closing.line)}
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] uppercase tracking-[0.18em]">
               <Link
                 href={`/${lang}/farmtotable`}
                 className="underline decoration-(--olivea-olive)/35 underline-offset-4 hover:decoration-(--olivea-olive) transition"
               >
-                {t("La mesa", "The table")}
+                {lang === "es" ? "La mesa" : "The table"}
               </Link>
               <Link
                 href={`/${lang}/sustainability`}
                 className="underline decoration-(--olivea-olive)/35 underline-offset-4 hover:decoration-(--olivea-olive) transition"
               >
-                {t("Nuestra filosofía", "Our philosophy")}
+                {lang === "es" ? "Nuestra filosofía" : "Our philosophy"}
               </Link>
             </div>
           </motion.div>

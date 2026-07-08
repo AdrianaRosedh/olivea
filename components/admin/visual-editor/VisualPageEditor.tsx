@@ -19,7 +19,9 @@ type PageTable =
   | "not_found_content"
   | "global_settings"
   | "drawer_content"
-  | "footer_content";
+  | "footer_content"
+  | "innovation_content"
+  | "roseiies_content";
 
 interface EditorContextValue {
   data: Record<string, unknown>;

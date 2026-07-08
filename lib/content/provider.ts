@@ -27,6 +27,8 @@ import type {
   GlobalSettings,
   DrawerContent,
   FooterContent,
+  InnovationContent,
+  RoseiiesContent,
   FaqItem,
   MediaItem,
   Promotion,
@@ -55,6 +57,8 @@ export interface ContentMap {
   global: GlobalSettings;
   drawer: DrawerContent;
   footer: FooterContent;
+  innovation: InnovationContent;
+  roseiies: RoseiiesContent;
 }
 
 export type ContentKey = keyof ContentMap;
@@ -164,6 +168,8 @@ class SupabaseContentSource implements ContentSource {
     global: "global_settings",
     drawer: "drawer_content",
     footer: "footer_content",
+    innovation: "innovation_content",
+    roseiies: "roseiies_content",
   };
 
   /** Map collection keys to Supabase table names */

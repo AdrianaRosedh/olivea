@@ -1,6 +1,7 @@
 // app/(main)/[lang]/innovation/page.tsx
 import type { Metadata } from "next";
 import { SITE, canonicalUrl } from "@/lib/site";
+import { getContent } from "@/lib/content";
 import InnovationClient from "./InnovationClient";
 
 type PageProps = { params: Promise<{ lang: string }> };
@@ -10,12 +11,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const lang: "en" | "es" = raw === "en" ? "en" : "es";
   const es = lang === "es";
 
-  const title = es
-    ? "Innovación — Cómo innova Olivea | OLIVEA"
-    : "Innovation — How Olivea innovates | OLIVEA";
-  const description = es
-    ? "En Olivea la innovación es donde el arte se encuentra con la tecnología: el laboratorio donde fermentamos, curamos y creamos, y roseiies que se encarga de lo técnico para que el oficio conserve su tiempo."
-    : "At Olivea, innovation is where art meets technology — the laboratory where we ferment, cure, and create, and roseiies handling the techy admin so the craft keeps its time.";
+  const content = await getContent("innovation");
+  const title = es ? content.meta.title.es : content.meta.title.en;
+  const description = es ? content.meta.description.es : content.meta.description.en;
   const url = canonicalUrl(`/${lang}/innovation`);
 
   return {
@@ -45,6 +43,9 @@ export default async function InnovationPage({ params }: PageProps) {
   const lang: "en" | "es" = raw === "en" ? "en" : "es";
   const es = lang === "es";
 
+  // CMS content — Supabase row when saved from the admin, static seed otherwise.
+  const content = await getContent("innovation");
+
   // Structured data — frames Olivea's innovation and attributes the technology to roseiies.
   const jsonLd = {
     "@context": "https://schema.org",
@@ -72,7 +73,7 @@ export default async function InnovationPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <InnovationClient lang={lang} />
+      <InnovationClient lang={lang} content={content} />
     </>
   );
 }

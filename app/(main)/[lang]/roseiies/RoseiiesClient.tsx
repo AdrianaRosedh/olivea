@@ -4,28 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import Reveal from "@/components/scroll/Reveal";
+import type { RoseiiesContent, Bilingual } from "@/lib/content/types";
 
-export default function RoseiiesClient({ lang }: { lang: "en" | "es" }) {
-  const t = (esText: string, enText: string) => (lang === "es" ? esText : enText);
+export default function RoseiiesClient({
+  lang,
+  content,
+}: {
+  lang: "en" | "es";
+  content: RoseiiesContent;
+}) {
+  // Content comes from the CMS (Supabase row, falling back to the static
+  // seed in lib/content/data/roseiies.ts) — edit it at /admin/content/roseiies.
+  const t = (b: Bilingual) => (lang === "es" ? b.es : b.en);
 
-  const beliefs = [
-    t(
-      "Las herramientas amplían la capacidad de un equipo, no la reducen.",
-      "Tools expand a team's capacity — they don't diminish it.",
-    ),
-    t(
-      "Diseñado para quienes operan, no para quienes miran tableros.",
-      "Built for the people who operate, not the ones who watch dashboards.",
-    ),
-    t(
-      "Una sola fuente de verdad para toda la propiedad.",
-      "One source of truth for the whole property.",
-    ),
-    t(
-      "Software calmado para un oficio inherentemente caótico.",
-      "Calm software for an inherently chaotic craft.",
-    ),
-  ];
+  const [studioSection, practiceSection, principlesSection] = content.sections;
 
   return (
     <main className="relative w-full overflow-clip px-6 sm:px-10 md:px-12 pt-24 sm:pt-28 pb-40 sm:pb-32">
@@ -48,7 +40,7 @@ export default function RoseiiesClient({ lang }: { lang: "en" | "es" }) {
               className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-(--olivea-olive)/70 hover:text-(--olivea-honey) transition"
             >
               <span aria-hidden="true">←</span>
-              {t("Volver a Innovación", "Back to Innovation")}
+              {t(content.hero.back)}
             </Link>
             {/* roseiies wordmark — the studio's main logo */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -58,19 +50,16 @@ export default function RoseiiesClient({ lang }: { lang: "en" | "es" }) {
               className="mt-8 h-9 sm:h-10 w-auto"
             />
             <div className="mt-8 text-[12px] uppercase tracking-[0.34em] text-(--olivea-honey)">
-              {t("Tecnología", "Technology")}
+              {t(content.hero.eyebrow)}
             </div>
             <h1
               className="mt-3 text-[clamp(2.5rem,1.6rem_+_3.6vw,4rem)] font-semibold tracking-[-0.02em] text-(--olivea-forest)"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              {t("Construido con roseiies", "Built with roseiies")}
+              {t(content.hero.headline)}
             </h1>
             <p className="mt-6 text-[17px] sm:text-[19px] leading-relaxed text-(--olivea-olive) max-w-[60ch]">
-              {t(
-                "Detrás de cada carta viva, cada reservación y el mapa del huerto en tiempo real hay un estudio: roseiies. Así es como Olivea innova — con tecnología que desaparece dentro del trabajo.",
-                "Behind every living menu, every reservation, and the real-time garden map is a studio: roseiies. This is how Olivea innovates — with technology that disappears into the work.",
-              )}
+              {t(content.hero.intro)}
             </p>
           </header>
         </Reveal>
@@ -90,7 +79,7 @@ export default function RoseiiesClient({ lang }: { lang: "en" | "es" }) {
               />
               <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[28px] ring-1 ring-(--olivea-honey)/25 shadow-[0_40px_80px_-40px_rgba(40,40,30,0.5)]">
                 <Image
-                  src="/images/team/adriana.jpg"
+                  src={content.founder.image || "/images/team/adriana.jpg"}
                   alt="Adriana Rose"
                   fill
                   sizes="(max-width: 1024px) 90vw, 420px"
@@ -104,103 +93,74 @@ export default function RoseiiesClient({ lang }: { lang: "en" | "es" }) {
             {/* Narrative */}
             <div className="max-w-[56ch]">
               <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-honey)">
-                {t("La fundadora", "The founder")}
+                {t(content.founder.eyebrow)}
               </div>
               <h2
                 className="mt-3 text-[clamp(1.9rem,1.4rem_+_1.8vw,2.6rem)] font-semibold tracking-[-0.02em] text-(--olivea-forest)"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
-                {t("Una misma mente", "One mind")}
+                {t(content.founder.title)}
               </h2>
               <div className="mt-5 space-y-4 text-[16px] sm:text-[17px] leading-relaxed text-(--olivea-olive)">
-                <p>
-                  {t(
-                    "Adriana Rose fundó roseiies y dirige Olivea como su CEO. Arquitecta del ecosistema Olivea, diseña la experiencia como un sistema vivo donde concepto, tecnología y sensibilidad estética convergen.",
-                    "Adriana Rose founded roseiies and leads Olivea as its CEO. The architect of the Olivea ecosystem, she designs the experience as a living system where concept, technology, and aesthetic sensibility converge.",
-                  )}
-                </p>
-                <p>
-                  {t(
-                    "Lo que aprende caminando el piso de Olivea — llevando los libros, abriendo el restaurante — moldea roseiies. Y lo que construye en roseiies regresa a Olivea.",
-                    "What she learns walking the floor at Olivea — keeping the books, opening the restaurant — shapes roseiies. And what she builds in roseiies returns to Olivea.",
-                  )}
-                </p>
+                {content.founder.paragraphs.map((p, i) => (
+                  <p key={i}>{t(p)}</p>
+                ))}
               </div>
               <blockquote
                 className="mt-7 border-l-2 border-(--olivea-honey)/50 pl-5 text-[19px] sm:text-[22px] leading-snug text-(--olivea-forest)"
                 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
               >
-                {t("Una hace mejor a la otra.", "Each makes the other better.")}
+                {t(content.founder.quote)}
               </blockquote>
             </div>
           </section>
         </Reveal>
 
         {/* ───────── EDITORIAL SECTIONS ───────── */}
-        <Section
-          eyebrow={t("El estudio", "The studio")}
-          title={t(
-            "Un espacio de trabajo para toda la propiedad",
-            "One workspace for the whole property",
-          )}
-          body={[
-            t(
-              "roseiies nació de una frustración simple: las herramientas para administrar un lugar como Olivea estaban dispersas, ruidosas y diseñadas para tableros — no para personas.",
-              "roseiies began from a simple frustration: the tools to run a place like Olivea were scattered, noisy, and built for dashboards — not for people.",
-            ),
-            t(
-              "La idea es una sola: reunir el huerto, la cocina, el comedor y el hotel bajo una misma fuente de verdad. Software calmado para un oficio inherentemente caótico.",
-              "The idea is singular: bring the garden, the kitchen, the dining room, and the stay under one source of truth. Calm software for an inherently chaotic craft.",
-            ),
-          ]}
-        />
+        {studioSection && (
+          <Section
+            eyebrow={t(studioSection.eyebrow)}
+            title={t(studioSection.title)}
+            body={studioSection.body.map(t)}
+          />
+        )}
 
-        <Section
-          eyebrow={t("En la práctica", "In practice")}
-          title={t("Cómo Olivea funciona con roseiies", "How Olivea runs on roseiies")}
-          body={[
-            t(
-              "Lo que ves vivo en Olivea, vive en roseiies: las cartas que se actualizan solas — maridaje, vinos —, el mapa del huerto en tiempo real, y el conocimiento que permite que un equipo pequeño sostenga una visión grande.",
-              "Everything you see live at Olivea lives on roseiies: the menus that update themselves — pairings, wine — the real-time garden map, and the knowledge that lets a small team hold a large vision.",
-            ),
-            t(
-              "Y lo que no ves, también: la organización de tareas, el monitoreo de energía, los ciclos de retroalimentación. La capa digital viva de un ecosistema vivo.",
-              "And what you don't see, too: scheduling, energy monitoring, feedback loops. The living digital layer of a living ecosystem.",
-            ),
-          ]}
-        />
+        {practiceSection && (
+          <Section
+            eyebrow={t(practiceSection.eyebrow)}
+            title={t(practiceSection.title)}
+            body={practiceSection.body.map(t)}
+          />
+        )}
 
-        <Section
-          eyebrow={t("Principios", "Principles")}
-          title={t("Tecnología silenciosa", "Quiet technology")}
-          body={[
-            t(
-              "En Olivea, la tecnología es intencionalmente silenciosa. roseiies comparte esa creencia. Innovar, aquí, es menos fricción — no más pantallas.",
-              "At Olivea, technology is intentionally quiet. roseiies shares that belief. Innovation, here, is less friction — not more screens.",
-            ),
-          ]}
-        >
-          <ul className="mt-7 grid gap-3 sm:grid-cols-2">
-            {beliefs.map((b) => (
-              <li
-                key={b}
-                className="flex gap-3 rounded-2xl bg-(--olivea-ivory)/55 ring-1 ring-(--olivea-olive)/10 px-5 py-4 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)"
-              >
-                <span
-                  className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-honey)"
-                  aria-hidden="true"
-                />
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
+        {principlesSection && (
+          <Section
+            eyebrow={t(principlesSection.eyebrow)}
+            title={t(principlesSection.title)}
+            body={principlesSection.body.map(t)}
+          >
+            <ul className="mt-7 grid gap-3 sm:grid-cols-2">
+              {content.beliefs.map((b, i) => (
+                <li
+                  key={i}
+                  className="flex gap-3 rounded-2xl bg-(--olivea-ivory)/55 ring-1 ring-(--olivea-olive)/10 px-5 py-4 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)"
+                >
+                  <span
+                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-honey)"
+                    aria-hidden="true"
+                  />
+                  <span>{t(b)}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
 
         {/* ───────── CTA ───────── */}
         <Reveal preset="up" delay={0.05}>
           <div className="mt-24 rounded-[28px] bg-(--olivea-ivory)/50 ring-1 ring-(--olivea-honey)/20 px-7 py-9 sm:px-10 sm:py-11">
             <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive)/70">
-              <span>{t("Hecho con", "Built with")}</span>
+              <span>{t(content.cta.kicker)}</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/roseiies-logo.svg"
@@ -212,10 +172,7 @@ export default function RoseiiesClient({ lang }: { lang: "en" | "es" }) {
               className="mt-4 max-w-[48ch] text-[18px] sm:text-[20px] leading-snug text-(--olivea-forest)"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              {t(
-                "Conoce el estudio detrás de la capa viva de Olivea.",
-                "Meet the studio behind Olivea's living layer.",
-              )}
+              {t(content.cta.line)}
             </p>
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
               <a
@@ -224,13 +181,13 @@ export default function RoseiiesClient({ lang }: { lang: "en" | "es" }) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-2xl px-6 py-3.5 sm:py-3 bg-(--olivea-olive) text-white text-[12px] uppercase tracking-[0.28em] shadow-[0_14px_34px_-20px_rgba(0,0,0,0.45)] hover:opacity-95 transition"
               >
-                {t("Conoce el estudio", "Meet the studio")}
+                {t(content.cta.primary)}
               </a>
               <Link
                 href={`/${lang}/sustainability`}
                 className="inline-flex items-center justify-center rounded-2xl px-6 py-3.5 sm:py-3 bg-white/60 ring-1 ring-(--olivea-honey)/30 text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey) hover:bg-white/80 transition"
               >
-                {t("Nuestra filosofía", "Our philosophy")}
+                {t(content.cta.secondary)}
               </Link>
             </div>
           </div>

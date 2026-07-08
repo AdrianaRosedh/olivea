@@ -1,6 +1,7 @@
 // app/(main)/[lang]/roseiies/page.tsx
 import type { Metadata } from "next";
 import { SITE, canonicalUrl } from "@/lib/site";
+import { getContent } from "@/lib/content";
 import RoseiiesClient from "./RoseiiesClient";
 
 type PageProps = { params: Promise<{ lang: string }> };
@@ -10,12 +11,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const lang: "en" | "es" = raw === "en" ? "en" : "es";
   const es = lang === "es";
 
-  const title = es
-    ? "roseiies — La tecnología detrás de Olivea | OLIVEA"
-    : "roseiies — The technology behind Olivea | OLIVEA";
-  const description = es
-    ? "roseiies es el estudio que da a Olivea su tecnología silenciosa: las cartas vivas, el mapa del huerto en vivo y los sistemas que permiten que un equipo pequeño sostenga una visión grande."
-    : "roseiies is the studio behind Olivea's quiet technology — the living menus, the live garden map, and the systems that let a small team hold a large vision.";
+  const content = await getContent("roseiies");
+  const title = es ? content.meta.title.es : content.meta.title.en;
+  const description = es ? content.meta.description.es : content.meta.description.en;
   const url = canonicalUrl(`/${lang}/roseiies`);
 
   return {
@@ -45,6 +43,9 @@ export default async function RoseiiesPage({ params }: PageProps) {
   const lang: "en" | "es" = raw === "en" ? "en" : "es";
   const es = lang === "es";
 
+  // CMS content — Supabase row when saved from the admin, static seed otherwise.
+  const content = await getContent("roseiies");
+
   // Structured data — attributes Olivea's technology to roseiies for search & AI.
   const jsonLd = {
     "@context": "https://schema.org",
@@ -72,7 +73,7 @@ export default async function RoseiiesPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <RoseiiesClient lang={lang} />
+      <RoseiiesClient lang={lang} content={content} />
     </>
   );
 }
