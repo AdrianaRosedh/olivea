@@ -4,12 +4,36 @@
 // ─────────────────────────────────────────────────────────────────────
 "use server";
 
+import { headers } from "next/headers";
 import { createClient, createAdminClient } from "./supabase-server";
 import { selectRows, insertRows, updateRows, deleteRows, assertUUID } from "@/lib/supabase/client";
 import { requireRole } from "./session";
 import { revalidatePath } from "next/cache";
 import type { AdminRole, SectionAccess, SectionPermissions } from "./types";
 import { ADMIN_SECTIONS, SECTION_ACCESS_HIERARCHY } from "./types";
+
+/* ── Admin base URL ──
+   Magic-link callbacks MUST land on the admin host — the /admin/* routes
+   don't exist on the main domain (its [lang] router swallows them), so a
+   link built from NEXT_PUBLIC_SITE_URL (www.…) strands the user on the
+   public site and burns the one-time token. Derive the base from the
+   request host instead, validated against the allowed admin hosts so a
+   forged Host header can't redirect tokens to another domain. */
+const CANONICAL_ADMIN_URL = "https://admin.oliveafarmtotable.com";
+
+async function adminBaseUrl(): Promise<string> {
+  const h = await headers();
+  const raw = h.get("x-forwarded-host") ?? h.get("host") ?? "";
+  const hostname = raw.split(":")[0];
+  if (hostname === "localhost" || hostname.endsWith(".localhost") || hostname === "127.0.0.1") {
+    return `http://${raw}`; // local dev (any port)
+  }
+  const adminHostname = process.env.ADMIN_HOSTNAME ?? "admin.oliveafarmtotable.com";
+  if (hostname === adminHostname) {
+    return `https://${hostname}`;
+  }
+  return CANONICAL_ADMIN_URL;
+}
 
 /* ── Login ── */
 
@@ -39,7 +63,7 @@ export async function loginWithEmail(email: string, password: string) {
 
 export async function loginWithMagicLink(email: string) {
   const adminClient = createAdminClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = await adminBaseUrl();
 
   // Generate magic link via Supabase Admin API (doesn't send email)
   const { data, error } = await adminClient.auth.admin.generateLink({
@@ -109,7 +133,7 @@ export async function getTeamMembers() {
 
 export async function inviteTeamMember(email: string, role: AdminRole, fullName: string) {
   const currentUser = await requireRole("owner");
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = await adminBaseUrl();
 
   // Create user via Supabase Auth admin API (service role)
   const adminClient = createAdminClient();
