@@ -130,7 +130,12 @@ function rowToPressItem(row: PressItemRow, lang: Lang): PressItem | null {
 
 export async function loadPressItems(lang: Lang): Promise<PressItem[]> {
   // ── Primary: Supabase (RLS exposes only enabled rows to anon) ──
+  // Same gate the content provider uses: when Supabase env is absent
+  // (e.g. the secret-free CI build), skip straight to the MDX fallback —
+  // an anon fetch against an empty base URL hangs the prerender.
   try {
+    const { isSupabaseConfigured } = await import("@/lib/supabase/config");
+    if (!isSupabaseConfigured) return loadPressItemsFromMdx(lang);
     const { selectRows } = await import("@/lib/supabase/client");
     const rows = await selectRows<PressItemRow>("press_items", {
       role: "anon",
