@@ -67,12 +67,15 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "pages.team",           label: "Team Page",                icon: "Users",           category: "pages",   href: "/admin/content/team" },
   { key: "pages.contact",        label: "Contact",                  icon: "Mail",            category: "pages",   href: "/admin/content/contact" },
   { key: "pages.careers",        label: "Careers",                  icon: "Briefcase",       category: "pages",   href: "/admin/content/careers" },
+  { key: "pages.innovation",     label: "Innovation",               icon: "Sparkles",        category: "pages",   href: "/admin/content/innovation" },
+  { key: "pages.roseiies",       label: "roseiies",                 icon: "Globe",           category: "pages",   href: "/admin/content/roseiies" },
   // Daily Updates — high-frequency edits
   { key: "content.popups",       label: "Specials & Announcements", icon: "Bell",            category: "content", href: "/admin/popups" },
   { key: "content.banners",      label: "Site Banners",             icon: "Flag",            category: "content", href: "/admin/banners" },
   { key: "settings.promotions",  label: "Promotions",               icon: "Megaphone",       category: "content", href: "/admin/promotions" },
   { key: "content.journal",      label: "Journal",                  icon: "BookOpen",        category: "content", href: "/admin/journal" },
   { key: "content.menu",         label: "Menus & Links",            icon: "UtensilsCrossed", category: "content", href: "/admin/menu" },
+  { key: "content.pressitems",   label: "Press Coverage",           icon: "Newspaper",       category: "content", href: "/admin/press" },
   { key: "settings.hours",       label: "Operating Hours",          icon: "Clock",           category: "content", href: "/admin/hours" },
   { key: "content.media",        label: "Photos & Media",           icon: "Image",           category: "content", href: "/admin/media" },
   // Setup — rarely changed

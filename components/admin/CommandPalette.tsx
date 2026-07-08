@@ -112,6 +112,8 @@ const allItems: SearchItem[] = [
   { label: "Team Page",               href: "/admin/content/team",           icon: "Users",           description: "Public team page meta + roster",                                     category: "pages", categoryLabel: "Brand & Pages" },
   { label: "Contact",                 href: "/admin/content/contact",        icon: "Mail",            description: "Contact info, addresses, social, form labels",                       category: "pages", categoryLabel: "Brand & Pages" },
   { label: "Careers",                 href: "/admin/content/careers",        icon: "Briefcase",       description: "Careers page chrome plus active job openings",                       category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "Innovation",              href: "/admin/content/innovation",     icon: "Sparkles",        description: "The innovation page — laboratory, roseiies, and the method",         category: "pages", categoryLabel: "Brand & Pages" },
+  { label: "roseiies",                href: "/admin/content/roseiies",       icon: "Globe",           description: "The roseiies studio page — founder story, sections, principles",     category: "pages", categoryLabel: "Brand & Pages" },
   // Setup — rarely-changed
   { label: "Brand & Identity",        href: "/admin/content/global",         icon: "Globe",           description: "Site name, tagline, social URLs, default OG image, contact info",    category: "setup", categoryLabel: "Setup" },
   { label: "Mobile Navigation",       href: "/admin/content/drawer",         icon: "Menu",            description: "Items shown in the mobile drawer menu",                              category: "setup", categoryLabel: "Setup" },
@@ -122,6 +124,7 @@ const allItems: SearchItem[] = [
   // Admin user management (separate from public team page)
   { label: "Admin Users",              href: "/admin/team",                  icon: "Users",           description: "Manage who can log in to admin and what they can edit",              category: "setup", categoryLabel: "Setup" },
   { label: "Menus & Links",            href: "/admin/menu",                  icon: "UtensilsCrossed", description: "Edit the live menu embeds — tasting menu tabs, wine list, café menu", category: "daily", categoryLabel: "Daily Updates" },
+  { label: "Press Coverage",           href: "/admin/press",                 icon: "Newspaper",       description: "Awards & mentions shown on the press page",                           category: "daily", categoryLabel: "Daily Updates" },
 ];
 
 /* ─── Context for opening palette from anywhere ─── */

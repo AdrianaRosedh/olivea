@@ -50,6 +50,7 @@ export const categoryItems: Record<AdminCategory, CategoryItem[]> = {
     { label: "Promotions",               href: "/admin/promotions",        icon: "Megaphone",  description: "Time-limited offers shown across selected pages" },
     { label: "Journal",                  href: "/admin/journal",           icon: "BookOpen",   description: "Long-form articles and stories — full draft/publish workflow" },
     { label: "Menus & Links",            href: "/admin/menu",              icon: "UtensilsCrossed", description: "The live menu embeds — tasting menu tabs, wine list, café menu" },
+    { label: "Press Coverage",           href: "/admin/press",             icon: "Newspaper",  description: "Awards & mentions shown on the press page" },
     { label: "Operating Hours",          href: "/admin/hours",             icon: "Clock",      description: "Hours of operation shown on the live status badge and footer" },
     { label: "Photos & Media",           href: "/admin/media",             icon: "Image",      description: "Upload images for use anywhere on the site" },
   ],
@@ -65,6 +66,8 @@ export const categoryItems: Record<AdminCategory, CategoryItem[]> = {
     { label: "Team Page",                href: "/admin/content/team",           icon: "Users",           description: "Public team page meta + roster (JSON editor)" },
     { label: "Contact",                  href: "/admin/content/contact",        icon: "Mail",            description: "Contact info, addresses, social, form labels" },
     { label: "Careers",                  href: "/admin/content/careers",        icon: "Briefcase",       description: "Careers page chrome plus active job openings" },
+    { label: "Innovation",               href: "/admin/content/innovation",     icon: "Sparkles",        description: "The innovation page — laboratory, roseiies, and the method" },
+    { label: "roseiies",                 href: "/admin/content/roseiies",       icon: "Globe",           description: "The roseiies studio page — founder story, sections, principles" },
   ],
   // Site setup — rarely changed.
   setup: [

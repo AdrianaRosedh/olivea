@@ -8,6 +8,7 @@ const pageTitles: Record<string, string> = {
   // Main sections
   "/admin": "Dashboard",
   "/admin/menu": "Menus & Links",
+  "/admin/press": "Press Coverage",
   "/admin/audit-log": "Audit Log",
   "/admin/journal": "Journal",
   "/admin/media": "Media Library",
@@ -35,11 +36,14 @@ const pageTitles: Record<string, string> = {
   "/admin/content/drawer": "Navigation",
   "/admin/content/footer": "Footer",
   "/admin/content/global": "Global Settings",
+  "/admin/content/innovation": "Innovation",
+  "/admin/content/roseiies": "roseiies",
 };
 
 const pageDescriptions: Record<string, string> = {
   "/admin": "Welcome back. Here\u2019s what\u2019s happening.",
   "/admin/menu": "The live menu embeds \u2014 edit links without a deploy.",
+  "/admin/press": "Awards & mentions on the public press page.",
   "/admin/audit-log": "Who edited what, and when.",
   "/admin/journal": "Stories from the garden.",
   "/admin/media": "Upload and manage images.",
@@ -65,6 +69,8 @@ const pageDescriptions: Record<string, string> = {
   "/admin/content/drawer": "Main navigation drawer links.",
   "/admin/content/footer": "Footer content and links.",
   "/admin/content/global": "Site-wide settings and defaults.",
+  "/admin/content/innovation": "The innovation page content.",
+  "/admin/content/roseiies": "The roseiies studio page content.",
 };
 
 export default function AdminHeader() {
