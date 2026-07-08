@@ -12,6 +12,7 @@ import {
   Layers,
 } from "lucide-react";
 import EditableBilingual from "./EditableBilingual";
+import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -30,8 +31,8 @@ interface EditableSectionsProps {
   value: SectionItem[];
   /** Called when sections change */
   onChange: (v: SectionItem[]) => void;
-  /** Label for the section group */
-  label: string;
+  /** Label for the section group (string or bilingual) */
+  label: MaybeB;
   /** Which fields to show per section — defaults to title + body */
   fields?: ("title" | "subtitle" | "body" | "description" | "image")[];
   /** Whether new items can be added */
@@ -56,8 +57,10 @@ export default function EditableSections({
   allowReorder = true,
   collapsed: startCollapsed = true,
 }: EditableSectionsProps) {
+  const { locale, t } = useAdminLocale();
   const [open, setOpen] = useState(!startCollapsed);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const labelText = resolveLabel(label, locale);
 
   const updateItem = (idx: number, patch: Partial<SectionItem>) => {
     const updated = [...value];
@@ -68,7 +71,11 @@ export default function EditableSections({
   const removeItem = (idx: number) => {
     const item = value[idx];
     const title = item?.title?.en || item?.title?.es || item?.id || `section ${idx + 1}`;
-    if (!window.confirm(`Delete the section "${title}"? You'll need to save the page for this to take effect.`)) return;
+    const msg = t({
+      es: `¿Eliminar la sección "${title}"? Necesitas guardar la página para que surta efecto.`,
+      en: `Delete the section "${title}"? You'll need to save the page for this to take effect.`,
+    });
+    if (!window.confirm(msg)) return;
     onChange(value.filter((_, i) => i !== idx));
   };
 
@@ -97,7 +104,7 @@ export default function EditableSections({
     if (title) return title;
     const desc = item.description?.es || item.description?.en;
     if (desc) return desc.slice(0, 50) + (desc.length > 50 ? "…" : "");
-    return `Section ${idx + 1}`;
+    return t({ es: `Sección ${idx + 1}`, en: `Section ${idx + 1}` });
   };
 
   return (
@@ -110,9 +117,9 @@ export default function EditableSections({
       >
         <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
           <Layers className="w-3.5 h-3.5" />
-          {label}
+          {labelText}
           <span className="text-[10px] font-normal text-stone-400">
-            ({value.length} {value.length === 1 ? "item" : "items"})
+            ({value.length} {value.length === 1 ? t({ es: "elemento", en: "item" }) : t({ es: "elementos", en: "items" })})
           </span>
         </span>
         {open ? (
@@ -127,7 +134,7 @@ export default function EditableSections({
         <div className="px-4 pb-4 pt-1 border-t border-stone-200/60 space-y-2">
           {value.length === 0 && (
             <p className="text-sm text-stone-400 italic py-4 text-center">
-              No sections yet
+              {t({ es: "Aún no hay secciones", en: "No sections yet" })}
             </p>
           )}
 
@@ -164,7 +171,7 @@ export default function EditableSections({
                       <button
                         onClick={(e) => { e.stopPropagation(); moveItem(idx, -1); }}
                         className="p-1 rounded hover:bg-stone-100 text-stone-400 text-[10px]"
-                        title="Move up"
+                        title={t({ es: "Subir", en: "Move up" })}
                       >
                         ↑
                       </button>
@@ -173,7 +180,7 @@ export default function EditableSections({
                       <button
                         onClick={(e) => { e.stopPropagation(); moveItem(idx, 1); }}
                         className="p-1 rounded hover:bg-stone-100 text-stone-400 text-[10px]"
-                        title="Move down"
+                        title={t({ es: "Bajar", en: "Move down" })}
                       >
                         ↓
                       </button>
@@ -182,7 +189,7 @@ export default function EditableSections({
                       <button
                         onClick={(e) => { e.stopPropagation(); removeItem(idx); }}
                         className="p-1 rounded hover:bg-red-50 text-stone-400 hover:text-red-500"
-                        title="Delete"
+                        title={t({ es: "Eliminar", en: "Delete" })}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -200,46 +207,46 @@ export default function EditableSections({
                   <div className="px-4 pb-4 pt-2 border-t border-stone-100 space-y-4">
                     {fields.includes("title") && (
                       <EditableBilingual
-                        label="Title"
+                        label={{ es: "Título", en: "Title" }}
                         as="h3"
                         value={item.title ?? { es: "", en: "" }}
                         onChange={(v) => updateItem(idx, { title: v })}
                         className="text-base font-semibold text-stone-800"
-                        placeholder="Section title..."
+                        placeholder={t({ es: "Título de la sección…", en: "Section title..." })}
                       />
                     )}
 
                     {fields.includes("subtitle") && (
                       <EditableBilingual
-                        label="Subtitle"
+                        label={{ es: "Subtítulo", en: "Subtitle" }}
                         as="p"
                         value={item.subtitle ?? { es: "", en: "" }}
                         onChange={(v) => updateItem(idx, { subtitle: v })}
                         className="text-sm text-stone-600"
-                        placeholder="Subtitle..."
+                        placeholder={t({ es: "Subtítulo…", en: "Subtitle..." })}
                       />
                     )}
 
                     {fields.includes("body") && (
                       <EditableBilingual
-                        label="Body"
+                        label={{ es: "Cuerpo", en: "Body" }}
                         as="p"
                         value={item.body ?? { es: "", en: "" }}
                         onChange={(v) => updateItem(idx, { body: v })}
                         className="text-sm text-stone-600"
-                        placeholder="Body text..."
+                        placeholder={t({ es: "Texto del cuerpo…", en: "Body text..." })}
                         multiline
                       />
                     )}
 
                     {fields.includes("description") && (
                       <EditableBilingual
-                        label="Description"
+                        label={{ es: "Descripción", en: "Description" }}
                         as="p"
                         value={item.description ?? { es: "", en: "" }}
                         onChange={(v) => updateItem(idx, { description: v })}
                         className="text-sm text-stone-600"
-                        placeholder="Description..."
+                        placeholder={t({ es: "Descripción…", en: "Description..." })}
                         multiline
                       />
                     )}
@@ -247,7 +254,7 @@ export default function EditableSections({
                     {fields.includes("image") && (
                       <div className="space-y-1.5">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-                          Image
+                          {t({ es: "Imagen", en: "Image" })}
                         </span>
                         <input
                           type="text"
@@ -275,7 +282,7 @@ export default function EditableSections({
               className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-stone-300 text-stone-500 text-xs font-semibold uppercase tracking-wider hover:border-[var(--olivea-olive)] hover:text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/[0.03] transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Add Section
+              {t({ es: "Agregar sección", en: "Add Section" })}
             </button>
           )}
         </div>

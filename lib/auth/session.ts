@@ -29,6 +29,7 @@ export async function getSession(): Promise<AdminUser | null> {
     last_active_at: string | null;
     created_at: string;
     section_permissions: Record<string, string> | null;
+    locale: string | null;
   }>("admin_users", user.id, { role: "service_role" });
 
   if (!profile) return null;
@@ -42,6 +43,7 @@ export async function getSession(): Promise<AdminUser | null> {
     lastActiveAt: profile.last_active_at ?? undefined,
     createdAt: profile.created_at,
     sectionPermissions: (profile.section_permissions as SectionPermissions | null) ?? undefined,
+    locale: profile.locale === "en" ? "en" : "es",
   };
 }
 

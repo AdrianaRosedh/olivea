@@ -12,6 +12,7 @@ import { canAccessSection } from "@/lib/auth/types";
 import type { SectionAccess } from "@/lib/auth/types";
 import { Shield } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAdminLocale } from "@/lib/admin/i18n";
 
 interface SectionGuardProps {
   /** Section key from ADMIN_SECTIONS, e.g. "pages.farmtotable" */
@@ -28,6 +29,7 @@ export default function SectionGuard({
   children,
 }: SectionGuardProps) {
   const { user } = useAuth();
+  const { t } = useAdminLocale();
 
   // If no user (shouldn't happen — layout enforces auth), show nothing
   if (!user) return null;
@@ -50,11 +52,13 @@ export default function SectionGuard({
         >
           <Shield size={48} className="mx-auto mb-4 text-[#5e7658]/20" />
           <h1 className="text-lg font-semibold text-[#2d3b29] mb-2">
-            Acceso restringido
+            {t({ es: "Acceso restringido", en: "Access restricted" })}
           </h1>
           <p className="text-sm text-[#6b7a65] leading-relaxed">
-            No tienes permisos para ver esta sección.
-            Contacta al administrador del equipo para solicitar acceso.
+            {t({
+              es: "No tienes permisos para ver esta sección. Contacta al administrador del equipo para solicitar acceso.",
+              en: "You don't have permission to view this section. Contact the team administrator to request access.",
+            })}
           </p>
         </motion.div>
       </div>

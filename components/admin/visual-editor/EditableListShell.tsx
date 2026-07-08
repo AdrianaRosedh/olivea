@@ -6,16 +6,17 @@
 
 import type { ReactNode } from "react";
 import { ChevronUp, ChevronDown, Trash2, Plus } from "lucide-react";
+import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
 
 interface EditableListShellProps<T> {
-  label: string;
+  label: MaybeB;
   items: T[];
   onChange: (items: T[]) => void;
   /** Renders one item's editable fields */
   renderItem: (item: T, update: (patch: Partial<T> | T) => void, index: number) => ReactNode;
   /** Factory for a new empty item */
   makeItem: () => T;
-  addLabel?: string;
+  addLabel?: MaybeB;
 }
 
 export default function EditableListShell<T>({
@@ -24,8 +25,11 @@ export default function EditableListShell<T>({
   onChange,
   renderItem,
   makeItem,
-  addLabel = "Add item",
+  addLabel,
 }: EditableListShellProps<T>) {
+  const { locale, t } = useAdminLocale();
+  const labelText = resolveLabel(label, locale);
+  const addLabelText = resolveLabel(addLabel, locale) || t({ es: "Agregar elemento", en: "Add item" });
   const update = (i: number, patch: Partial<T> | T) => {
     const next = [...items];
     next[i] =
@@ -49,7 +53,7 @@ export default function EditableListShell<T>({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="w-1 h-5 rounded-full bg-[var(--olivea-olive)]" />
-        <span className="text-xs font-bold uppercase tracking-wider text-stone-500">{label}</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-stone-500">{labelText}</span>
       </div>
 
       {items.map((item, i) => (
@@ -61,7 +65,7 @@ export default function EditableListShell<T>({
                 onClick={() => move(i, -1)}
                 disabled={i === 0}
                 className="p-0.5 text-stone-400 hover:text-[var(--olivea-olive)] disabled:opacity-30 transition-colors"
-                title="Move up"
+                title={t({ es: "Subir", en: "Move up" })}
               >
                 <ChevronUp className="w-3.5 h-3.5" />
               </button>
@@ -70,7 +74,7 @@ export default function EditableListShell<T>({
                 onClick={() => move(i, 1)}
                 disabled={i === items.length - 1}
                 className="p-0.5 text-stone-400 hover:text-[var(--olivea-olive)] disabled:opacity-30 transition-colors"
-                title="Move down"
+                title={t({ es: "Bajar", en: "Move down" })}
               >
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
@@ -82,7 +86,7 @@ export default function EditableListShell<T>({
               type="button"
               onClick={() => remove(i)}
               className="self-start p-2 rounded-lg text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
-              title="Remove"
+              title={t({ es: "Quitar", en: "Remove" })}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -96,7 +100,7 @@ export default function EditableListShell<T>({
         className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-stone-300 text-stone-500 text-xs font-medium hover:border-[var(--olivea-olive)]/40 hover:text-[var(--olivea-olive)] transition-colors"
       >
         <Plus className="w-3.5 h-3.5" />
-        {addLabel}
+        {addLabelText}
       </button>
     </div>
   );

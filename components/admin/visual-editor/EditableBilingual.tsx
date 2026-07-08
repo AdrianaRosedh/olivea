@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Languages } from "lucide-react";
+import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -18,8 +19,8 @@ interface EditableBilingualProps {
   multiline?: boolean;
   /** Placeholder when content is empty */
   placeholder?: string;
-  /** Label shown in the editing tooltip */
-  label?: string;
+  /** Label shown in the editing tooltip (string or bilingual) */
+  label?: MaybeB;
 }
 
 /* ── Component ────────────────────────────────────────────────────── */
@@ -30,11 +31,14 @@ export default function EditableBilingual({
   as: Tag = "p",
   className = "",
   multiline = false,
-  placeholder = "Click to edit...",
+  placeholder,
   label,
 }: EditableBilingualProps) {
+  const { locale, t } = useAdminLocale();
   const [editing, setEditing] = useState(false);
   const [lang, setLang] = useState<"es" | "en">("es");
+  const labelText = resolveLabel(label, locale) || Tag;
+  const ph = placeholder ?? t({ es: "Clic para editar…", en: "Click to edit..." });
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -93,13 +97,13 @@ export default function EditableBilingual({
         {/* Edit hint */}
         <div className="absolute -top-6 left-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[var(--olivea-olive)] text-white text-[10px] font-semibold uppercase tracking-wider shadow-sm">
-            {label || Tag}
+            {labelText}
             <Languages className="w-2.5 h-2.5" />
           </span>
         </div>
 
         <Tag className={`${className} ${isEmpty ? "text-stone-400 italic" : ""}`}>
-          {isEmpty ? placeholder : displayText}
+          {isEmpty ? ph : displayText}
         </Tag>
       </div>
     );
@@ -116,7 +120,7 @@ export default function EditableBilingual({
       {/* Label + lang toggle */}
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--olivea-olive)]">
-          {label || Tag}
+          {labelText}
         </span>
         <div className="flex items-center rounded-md bg-stone-100 p-0.5">
           {(["es", "en"] as const).map((l) => (
@@ -144,7 +148,7 @@ export default function EditableBilingual({
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
           className={inputClassName}
-          placeholder={placeholder}
+          placeholder={ph}
           rows={4}
         />
       ) : (
@@ -155,13 +159,13 @@ export default function EditableBilingual({
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
           className={inputClassName}
-          placeholder={placeholder}
+          placeholder={ph}
         />
       )}
 
       {/* Other language preview */}
       <div className="text-[11px] text-stone-400 italic pl-1">
-        {lang === "es" ? "EN" : "ES"}: {value[lang === "es" ? "en" : "es"] || "(empty)"}
+        {lang === "es" ? "EN" : "ES"}: {value[lang === "es" ? "en" : "es"] || t({ es: "(vacío)", en: "(empty)" })}
       </div>
     </div>
   );

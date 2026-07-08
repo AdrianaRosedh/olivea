@@ -32,6 +32,7 @@ import {
 import SectionGuard from "@/components/admin/SectionGuard";
 import { getPageContent, savePageContent } from "@/lib/supabase/actions";
 import { useAuth } from "@/components/admin/AuthProvider";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -106,6 +107,7 @@ function CardHeader({
   hint: string;
   liveHref: string;
 }) {
+  const { t } = useAdminLocale();
   return (
     <div className="px-5 py-4 border-b border-stone-200/60 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
@@ -124,7 +126,7 @@ function CardHeader({
         className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-[11px] font-semibold hover:bg-stone-200 transition-colors shrink-0"
       >
         <ExternalLink className="w-3 h-3" />
-        View live
+        {t(STR.viewLive)}
       </a>
     </div>
   );
@@ -169,6 +171,7 @@ function UrlInput({
   onChange: (v: string) => void;
   disabled: boolean;
 }) {
+  const { t } = useAdminLocale();
   const valid = isValidEmbedUrl(value);
   return (
     <div className="flex items-center gap-1.5 min-w-0">
@@ -193,7 +196,7 @@ function UrlInput({
         target="_blank"
         rel="noopener noreferrer"
         aria-disabled={!valid}
-        title={valid ? "Open link" : "Enter a valid https:// URL"}
+        title={valid ? t({ es: "Abrir enlace", en: "Open link" }) : t({ es: "Escribe una URL https:// válida", en: "Enter a valid https:// URL" })}
         className={`p-2 rounded-lg border transition-colors shrink-0 ${
           valid
             ? "border-stone-300 text-stone-500 hover:bg-stone-100"
@@ -210,6 +213,7 @@ function UrlInput({
 
 function MenusAndLinks() {
   const { canEdit } = useAuth();
+  const { t } = useAdminLocale();
 
   const [ftt, setFtt] = useState<Row | null>(null);
   const [cafe, setCafe] = useState<Row | null>(null);
@@ -218,7 +222,7 @@ function MenusAndLinks() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
-  const [loadNote, setLoadNote] = useState<string | null>(null);
+  const [loadNote, setLoadNote] = useState<{ es: string; en: string } | null>(null);
   const [newTabCount, setNewTabCount] = useState(0);
 
   const load = useCallback(async () => {
@@ -239,7 +243,7 @@ function MenusAndLinks() {
         setOrigFtt(JSON.stringify(c));
       } else {
         setFtt(null);
-        setLoadNote("Could not load live content — check the connection and reload.");
+        setLoadNote({ es: "No se pudo cargar el contenido en vivo — revisa la conexión y recarga.", en: "Could not load live content — check the connection and reload." });
       }
       if (cafeRow) {
         const c = clean(cafeRow);
@@ -250,7 +254,7 @@ function MenusAndLinks() {
       console.error("Load failed:", err);
       setFtt(null);
       setCafe(null);
-      setLoadNote("Could not load live content — check the connection and reload.");
+      setLoadNote({ es: "No se pudo cargar el contenido en vivo — revisa la conexión y recarga.", en: "Could not load live content — check the connection and reload." });
     }
     setLoading(false);
   }, []);
@@ -355,7 +359,7 @@ function MenusAndLinks() {
     return (
       <div className="flex items-center justify-center min-h-[400px] text-stone-400">
         <Loader2 className="w-6 h-6 animate-spin mr-2" />
-        Loading menus…
+        {t({ es: "Cargando menús…", en: "Loading menus…" })}
       </div>
     );
   }
@@ -368,15 +372,15 @@ function MenusAndLinks() {
           <div className="flex items-center gap-3">
             <UtensilsCrossed className="w-5 h-5 text-[var(--olivea-olive)]" />
             <div>
-              <h1 className="text-base font-semibold text-stone-800">Menus & Links</h1>
+              <h1 className="text-base font-semibold text-stone-800">{t({ es: "Menús y Enlaces", en: "Menus & Links" })}</h1>
               <p className="text-[11px] text-stone-400">
                 {!canEdit
-                  ? "Read-only — you need Editor access to make changes"
+                  ? t(STR.readOnlyEditor)
                   : invalidCount > 0
-                    ? `${invalidCount} invalid URL${invalidCount > 1 ? "s" : ""} — links must start with https://`
+                    ? t({ es: ` URL inválida — deben empezar con https://`, en: ` invalid URL — links must start with https://` })
                     : isDirty
-                      ? "Unsaved changes — click Save to publish"
-                      : "Edits go live on the public site within 60 seconds of saving"}
+                      ? t(STR.unsavedChanges)
+                      : t(STR.liveWithin60s)}
               </p>
             </div>
           </div>
@@ -388,13 +392,13 @@ function MenusAndLinks() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-stone-500 text-xs font-medium hover:bg-stone-100 transition-colors"
               >
                 <Undo2 className="w-3.5 h-3.5" />
-                Discard
+                {t(STR.discard)}
               </button>
             )}
             <button
               onClick={load}
               className="p-2 rounded-lg text-stone-400 hover:bg-stone-100 transition-colors"
-              title="Reload from server"
+              title={t(STR.reloadFromServer)}
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
@@ -409,7 +413,7 @@ function MenusAndLinks() {
                 }`}
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {saving ? "Saving…" : "Save"}
+                {saving ? t(STR.saving) : t(STR.save)}
               </button>
             )}
           </div>
@@ -417,17 +421,17 @@ function MenusAndLinks() {
 
         {status === "saved" && (
           <div className="mt-2 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm text-center">
-            Changes saved — live within a minute
+            {t(STR.savedLiveSoon)}
           </div>
         )}
         {status === "error" && (
           <div className="mt-2 px-4 py-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
-            Save failed — try again, or reload and re-apply your change
+            {t(STR.saveFailed)}
           </div>
         )}
         {loadNote && (
           <div className="mt-2 px-4 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-sm text-center">
-            {loadNote}
+            {t(loadNote)}
           </div>
         )}
       </div>
@@ -438,14 +442,14 @@ function MenusAndLinks() {
           <div className="rounded-2xl border border-stone-200/80 bg-white/60 overflow-hidden">
             <CardHeader
               icon={<UtensilsCrossed className="w-4 h-4 text-[var(--olivea-olive)]" />}
-              title="Farm To Table — Live Menu Tabs"
+              title={t({ es: "Farm To Table — Pestañas del Menú en Vivo", en: "Farm To Table — Live Menu Tabs" })}
               hint="The tabs inside the “Live menu” popup: tasting menu, pairing, wine list…"
               liveHref="/es/farmtotable"
             />
             <div className="p-4 space-y-3">
               {tabs.length === 0 && (
                 <p className="text-sm text-stone-400 italic px-1 py-2">
-                  No menu tabs yet — add the first one below.
+                  {t({ es: "Aún no hay pestañas — agrega la primera abajo.", en: "No menu tabs yet — add the first one below." })}
                 </p>
               )}
               {tabs.map((tab, i) => (
@@ -460,7 +464,7 @@ function MenusAndLinks() {
                         onClick={() => moveTab(i, -1)}
                         disabled={!canEdit || i === 0}
                         className="p-0.5 text-stone-400 hover:text-[var(--olivea-olive)] disabled:opacity-30 disabled:hover:text-stone-400 transition-colors"
-                        title="Move up"
+                        title={t(STR.moveUp)}
                       >
                         <ChevronUp className="w-3.5 h-3.5" />
                       </button>
@@ -468,7 +472,7 @@ function MenusAndLinks() {
                         onClick={() => moveTab(i, 1)}
                         disabled={!canEdit || i === tabs.length - 1}
                         className="p-0.5 text-stone-400 hover:text-[var(--olivea-olive)] disabled:opacity-30 disabled:hover:text-stone-400 transition-colors"
-                        title="Move down"
+                        title={t(STR.moveDown)}
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
                       </button>
@@ -497,7 +501,7 @@ function MenusAndLinks() {
                       <button
                         onClick={() => removeTab(i)}
                         className="p-2 rounded-lg text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
-                        title="Remove tab"
+                        title={t({ es: "Quitar pestaña", en: "Remove tab" })}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -520,7 +524,7 @@ function MenusAndLinks() {
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-stone-300 text-stone-500 text-xs font-medium hover:border-[var(--olivea-olive)]/40 hover:text-[var(--olivea-olive)] transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Add tab
+                  {t({ es: "Agregar pestaña", en: "Add tab" })}
                 </button>
               )}
             </div>
@@ -532,7 +536,7 @@ function MenusAndLinks() {
           <div className="rounded-2xl border border-stone-200/80 bg-white/60 overflow-hidden">
             <CardHeader
               icon={<Coffee className="w-4 h-4 text-[var(--olivea-olive)]" />}
-              title="Olivea Café — Live Menu"
+              title={t({ es: "Olivea Café — Menú en Vivo", en: "Olivea Café — Live Menu" })}
               hint="The single “View live menu” button on the café page"
               liveHref="/es/cafe"
             />

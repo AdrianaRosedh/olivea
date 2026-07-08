@@ -9,6 +9,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import EditableBilingual from "./EditableBilingual";
+import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -24,8 +25,8 @@ interface EditableFAQProps {
   value: FaqEntry[];
   /** Called when FAQ changes */
   onChange: (v: FaqEntry[]) => void;
-  /** Label */
-  label?: string;
+  /** Label (string or bilingual) */
+  label?: MaybeB;
   /** Whether section starts collapsed */
   collapsed?: boolean;
 }
@@ -38,6 +39,8 @@ export default function EditableFAQ({
   label = "FAQ",
   collapsed: startCollapsed = true,
 }: EditableFAQProps) {
+  const { locale, t } = useAdminLocale();
+  const labelText = resolveLabel(label, locale);
   const [open, setOpen] = useState(!startCollapsed);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
 
@@ -50,7 +53,11 @@ export default function EditableFAQ({
   const removeItem = (idx: number) => {
     const q = value[idx]?.question?.en || value[idx]?.question?.es || "this question";
     const preview = q.length > 60 ? q.slice(0, 60) + "…" : q;
-    if (!window.confirm(`Delete the FAQ "${preview}"? You'll need to save the page for this to take effect.`)) return;
+    const msg = t({
+      es: `¿Eliminar la pregunta "${preview}"? Necesitas guardar la página para que surta efecto.`,
+      en: `Delete the FAQ "${preview}"? You'll need to save the page for this to take effect.`,
+    });
+    if (!window.confirm(msg)) return;
     onChange(value.filter((_, i) => i !== idx));
     if (expandedIdx === idx) setExpandedIdx(null);
   };
@@ -82,9 +89,9 @@ export default function EditableFAQ({
       >
         <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
           <HelpCircle className="w-3.5 h-3.5" />
-          {label}
+          {labelText}
           <span className="text-[10px] font-normal text-stone-400">
-            ({value.length} {value.length === 1 ? "question" : "questions"})
+            ({value.length} {value.length === 1 ? t({ es: "pregunta", en: "question" }) : t({ es: "preguntas", en: "questions" })})
           </span>
         </span>
         {open ? (
@@ -99,14 +106,14 @@ export default function EditableFAQ({
         <div className="px-4 pb-4 pt-1 border-t border-stone-200/60 space-y-2">
           {value.length === 0 && (
             <p className="text-sm text-stone-400 italic py-4 text-center">
-              No questions yet
+              {t({ es: "Aún no hay preguntas", en: "No questions yet" })}
             </p>
           )}
 
           {value.map((item, idx) => {
             const isExpanded = expandedIdx === idx;
             const preview =
-              item.question?.es || item.question?.en || `Question ${idx + 1}`;
+              item.question?.es || item.question?.en || t({ es: `Pregunta `, en: `Question ` });
 
             return (
               <div
@@ -158,20 +165,20 @@ export default function EditableFAQ({
                 {isExpanded && (
                   <div className="px-4 pb-4 pt-2 border-t border-stone-100 space-y-4">
                     <EditableBilingual
-                      label="Question"
+                      label={{ es: "Pregunta", en: "Question" }}
                       as="h4"
                       value={item.question}
                       onChange={(v) => updateItem(idx, { question: v })}
                       className="text-sm font-semibold text-stone-800"
-                      placeholder="Enter question..."
+                      placeholder={t({ es: "Escribe la pregunta…", en: "Enter question..." })}
                     />
                     <EditableBilingual
-                      label="Answer"
+                      label={{ es: "Respuesta", en: "Answer" }}
                       as="p"
                       value={item.answer}
                       onChange={(v) => updateItem(idx, { answer: v })}
                       className="text-sm text-stone-600"
-                      placeholder="Enter answer..."
+                      placeholder={t({ es: "Escribe la respuesta…", en: "Enter answer..." })}
                       multiline
                     />
                   </div>
@@ -186,7 +193,7 @@ export default function EditableFAQ({
             className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-stone-300 text-stone-500 text-xs font-semibold uppercase tracking-wider hover:border-[var(--olivea-olive)] hover:text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/[0.03] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            Add Question
+            {t({ es: "Agregar pregunta", en: "Add Question" })}
           </button>
         </div>
       )}

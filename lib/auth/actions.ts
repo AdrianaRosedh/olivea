@@ -250,6 +250,7 @@ export async function removeTeamMember(userId: string) {
 export async function updateProfile(data: {
   fullName?: string;
   avatarUrl?: string;
+  locale?: "es" | "en";
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -258,6 +259,7 @@ export async function updateProfile(data: {
   const updates: Record<string, unknown> = {};
   if (data.fullName) updates.full_name = data.fullName;
   if (data.avatarUrl !== undefined) updates.avatar_url = data.avatarUrl;
+  if (data.locale === "es" || data.locale === "en") updates.locale = data.locale;
 
   if (Object.keys(updates).length > 0) {
     assertUUID(user.id, "userId");

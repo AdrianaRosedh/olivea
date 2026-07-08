@@ -15,29 +15,32 @@ import { createContext, useContext, useState, useCallback, useMemo, type ReactNo
 */
 export type AdminCategory = "dashboard" | "daily" | "pages" | "setup";
 
+/** Bilingual admin string (resolved via useAdminLocale().t) */
+type B = { es: string; en: string };
+
 export interface CategoryItem {
-  label: string;
+  label: B;
   href: string;
   icon: string; // lucide icon name — resolved in the component
-  description: string;
+  description: B;
 }
 
-export const categoryMeta: Record<AdminCategory, { label: string; description: string }> = {
+export const categoryMeta: Record<AdminCategory, { label: B; description: B }> = {
   dashboard: {
-    label: "Today",
-    description: "What's live right now, plus quick actions",
+    label: { es: "Hoy", en: "Today" },
+    description: { es: "Lo que está en vivo ahora, más acciones rápidas", en: "What's live right now, plus quick actions" },
   },
   daily: {
-    label: "Daily Updates",
-    description: "Things you post or toggle often — specials, banners, journal, hours",
+    label: { es: "Actualizaciones", en: "Daily Updates" },
+    description: { es: "Lo que publicas o activas seguido — especiales, banners, cuaderno, horarios", en: "Things you post or toggle often — specials, banners, journal, hours" },
   },
   pages: {
-    label: "Brand & Pages",
-    description: "Editorial content for every page on the public site",
+    label: { es: "Marca y Páginas", en: "Brand & Pages" },
+    description: { es: "El contenido editorial de cada página del sitio público", en: "Editorial content for every page on the public site" },
   },
   setup: {
-    label: "Setup",
-    description: "Brand identity, navigation, footer, legal — rarely changes",
+    label: { es: "Configuración", en: "Setup" },
+    description: { es: "Identidad de marca, navegación, footer, legal — cambia poco", en: "Brand identity, navigation, footer, legal — rarely changes" },
   },
 };
 
@@ -45,38 +48,38 @@ export const categoryItems: Record<AdminCategory, CategoryItem[]> = {
   dashboard: [], // Dashboard has its own layout
   // Daily/weekly cadence — the stuff that drives visitors today.
   daily: [
-    { label: "Specials & Announcements", href: "/admin/popups",            icon: "Bell",       description: "Pop-up messages shown to visitors (today's special, event reminder)" },
-    { label: "Site Banners",             href: "/admin/banners",           icon: "Flag",       description: "Top-of-page banners (sale, holiday hours, urgent notice)" },
-    { label: "Promotions",               href: "/admin/promotions",        icon: "Megaphone",  description: "Time-limited offers shown across selected pages" },
-    { label: "Journal",                  href: "/admin/journal",           icon: "BookOpen",   description: "Long-form articles and stories — full draft/publish workflow" },
-    { label: "Menus & Links",            href: "/admin/menu",              icon: "UtensilsCrossed", description: "The live menu embeds — tasting menu tabs, wine list, café menu" },
-    { label: "Press Coverage",           href: "/admin/press",             icon: "Newspaper",  description: "Awards & mentions shown on the press page" },
-    { label: "Operating Hours",          href: "/admin/hours",             icon: "Clock",      description: "Hours of operation shown on the live status badge and footer" },
-    { label: "Photos & Media",           href: "/admin/media",             icon: "Image",      description: "Upload images for use anywhere on the site" },
+    { href: "/admin/popups",  icon: "Bell", label: { es: "Especiales y Anuncios", en: "Specials & Announcements" }, description: { es: "Mensajes emergentes para visitantes (especial del día, recordatorio de evento)", en: "Pop-up messages shown to visitors (today's special, event reminder)" } },
+    { href: "/admin/banners", icon: "Flag", label: { es: "Banners del Sitio", en: "Site Banners" }, description: { es: "Barras arriba de la página (promoción, horario especial, aviso urgente)", en: "Top-of-page banners (sale, holiday hours, urgent notice)" } },
+    { href: "/admin/promotions", icon: "Megaphone", label: { es: "Promociones", en: "Promotions" }, description: { es: "Ofertas por tiempo limitado en páginas seleccionadas", en: "Time-limited offers shown across selected pages" } },
+    { href: "/admin/journal", icon: "BookOpen", label: { es: "Cuaderno", en: "Journal" }, description: { es: "Artículos e historias — flujo completo de borrador a publicado", en: "Long-form articles and stories — full draft/publish workflow" } },
+    { href: "/admin/menu", icon: "UtensilsCrossed", label: { es: "Menús y Enlaces", en: "Menus & Links" }, description: { es: "Los menús en vivo — pestañas del degustación, carta de vinos, menú del café", en: "The live menu embeds — tasting menu tabs, wine list, café menu" } },
+    { href: "/admin/press", icon: "Newspaper", label: { es: "Prensa y Reconocimientos", en: "Press Coverage" }, description: { es: "Premios y menciones que aparecen en la página de prensa", en: "Awards & mentions shown on the press page" } },
+    { href: "/admin/hours", icon: "Clock", label: { es: "Horarios", en: "Operating Hours" }, description: { es: "Horarios de operación del distintivo en vivo y el pie de página", en: "Hours of operation shown on the live status badge and footer" } },
+    { href: "/admin/media", icon: "Image", label: { es: "Fotos y Medios", en: "Photos & Media" }, description: { es: "Sube imágenes para usar en cualquier parte del sitio", en: "Upload images for use anywhere on the site" } },
   ],
   // Page editors — the editorial content per public page.
   pages: [
-    { label: "Homepage",                 href: "/admin/content/homepage",       icon: "Video",           description: "Hero video, headline, and section cards on the home page" },
-    { label: "Casa Olivea",              href: "/admin/content/casa",           icon: "Home",            description: "Farm-stay hotel page — hero, sections, gallery" },
-    { label: "Casa FAQ",                 href: "/admin/content/casa-faq",       icon: "HelpCircle",      description: "Casa Olivea questions & answers (separate editor with reorder)" },
-    { label: "Olivea Farm to Table",     href: "/admin/content/farm-to-table",  icon: "UtensilsCrossed", description: "MICHELIN restaurant page — hero, sections, FAQ" },
-    { label: "Olivea Café",              href: "/admin/content/cafe",           icon: "Coffee",          description: "Daytime café & padel page — hero, sections, FAQ" },
-    { label: "Sustainability",           href: "/admin/content/sustainability", icon: "Leaf",            description: "Philosophy and sustainability practices" },
-    { label: "Press",                    href: "/admin/content/press",          icon: "Newspaper",       description: "Press chrome — hero text and tagline (awards live in MDX files)" },
-    { label: "Team Page",                href: "/admin/content/team",           icon: "Users",           description: "Public team page meta + roster (JSON editor)" },
-    { label: "Contact",                  href: "/admin/content/contact",        icon: "Mail",            description: "Contact info, addresses, social, form labels" },
-    { label: "Careers",                  href: "/admin/content/careers",        icon: "Briefcase",       description: "Careers page chrome plus active job openings" },
-    { label: "Innovation",               href: "/admin/content/innovation",     icon: "Sparkles",        description: "The innovation page — laboratory, roseiies, and the method" },
-    { label: "roseiies",                 href: "/admin/content/roseiies",       icon: "Globe",           description: "The roseiies studio page — founder story, sections, principles" },
+    { href: "/admin/content/homepage", icon: "Video", label: { es: "Página de Inicio", en: "Homepage" }, description: { es: "Video principal, titular y tarjetas de sección del inicio", en: "Hero video, headline, and section cards on the home page" } },
+    { href: "/admin/content/casa", icon: "Home", label: { es: "Casa Olivea", en: "Casa Olivea" }, description: { es: "Página del hospedaje — hero, secciones, galería", en: "Farm-stay hotel page — hero, sections, gallery" } },
+    { href: "/admin/content/casa-faq", icon: "HelpCircle", label: { es: "Preguntas de Casa", en: "Casa FAQ" }, description: { es: "Preguntas y respuestas de Casa Olivea (editor con reordenamiento)", en: "Casa Olivea questions & answers (separate editor with reorder)" } },
+    { href: "/admin/content/farm-to-table", icon: "UtensilsCrossed", label: { es: "Olivea Farm to Table", en: "Olivea Farm to Table" }, description: { es: "Página del restaurante MICHELIN — hero, secciones, preguntas", en: "MICHELIN restaurant page — hero, sections, FAQ" } },
+    { href: "/admin/content/cafe", icon: "Coffee", label: { es: "Olivea Café", en: "Olivea Café" }, description: { es: "Página del café y pádel — hero, secciones, preguntas", en: "Daytime café & padel page — hero, sections, FAQ" } },
+    { href: "/admin/content/sustainability", icon: "Leaf", label: { es: "Filosofía", en: "Sustainability" }, description: { es: "Filosofía y prácticas de sostenibilidad", en: "Philosophy and sustainability practices" } },
+    { href: "/admin/content/press", icon: "Newspaper", label: { es: "Página de Prensa", en: "Press" }, description: { es: "Textos de la página de prensa — titular y lema", en: "Press chrome — hero text and tagline" } },
+    { href: "/admin/content/team", icon: "Users", label: { es: "Página del Equipo", en: "Team Page" }, description: { es: "Meta de la página pública del equipo + roster (editor JSON)", en: "Public team page meta + roster (JSON editor)" } },
+    { href: "/admin/content/contact", icon: "Mail", label: { es: "Contacto", en: "Contact" }, description: { es: "Información de contacto, direcciones, redes, etiquetas del formulario", en: "Contact info, addresses, social, form labels" } },
+    { href: "/admin/content/careers", icon: "Briefcase", label: { es: "Trabaja con Nosotros", en: "Careers" }, description: { es: "Página de carreras y vacantes activas", en: "Careers page chrome plus active job openings" } },
+    { href: "/admin/content/innovation", icon: "Sparkles", label: { es: "Innovación", en: "Innovation" }, description: { es: "La página de innovación — laboratorio, roseiies y el método", en: "The innovation page — laboratory, roseiies, and the method" } },
+    { href: "/admin/content/roseiies", icon: "Globe", label: { es: "roseiies", en: "roseiies" }, description: { es: "La página del estudio roseiies — fundadora, secciones, principios", en: "The roseiies studio page — founder story, sections, principles" } },
   ],
   // Site setup — rarely changed.
   setup: [
-    { label: "Brand & Identity",         href: "/admin/content/global",   icon: "Globe",       description: "Site name, tagline, social URLs, default OG image, contact info" },
-    { label: "Mobile Navigation",        href: "/admin/content/drawer",   icon: "Menu",        description: "Items shown in the mobile drawer menu" },
-    { label: "Footer",                   href: "/admin/content/footer",   icon: "PanelBottom", description: "Footer copy and link groups" },
-    { label: "Legal Pages",              href: "/admin/content/legal",    icon: "Scale",       description: "Privacy policy, terms, cookie statement" },
-    { label: "404 Page",                 href: "/admin/content/not-found",icon: "AlertCircle", description: "Message shown when a visitor hits a missing page" },
-    { label: "Audit Log",                href: "/admin/audit-log",        icon: "ScrollText",  description: "Who edited what, and when" },
+    { href: "/admin/content/global", icon: "Globe", label: { es: "Marca e Identidad", en: "Brand & Identity" }, description: { es: "Nombre del sitio, lema, redes sociales, imagen OG, contacto", en: "Site name, tagline, social URLs, default OG image, contact info" } },
+    { href: "/admin/content/drawer", icon: "Menu", label: { es: "Navegación Móvil", en: "Mobile Navigation" }, description: { es: "Elementos del menú móvil desplegable", en: "Items shown in the mobile drawer menu" } },
+    { href: "/admin/content/footer", icon: "PanelBottom", label: { es: "Pie de Página", en: "Footer" }, description: { es: "Textos y grupos de enlaces del pie de página", en: "Footer copy and link groups" } },
+    { href: "/admin/content/legal", icon: "Scale", label: { es: "Páginas Legales", en: "Legal Pages" }, description: { es: "Aviso de privacidad, términos y cookies", en: "Privacy policy, terms, cookie statement" } },
+    { href: "/admin/content/not-found", icon: "AlertCircle", label: { es: "Página 404", en: "404 Page" }, description: { es: "Mensaje cuando un visitante llega a una página inexistente", en: "Message shown when a visitor hits a missing page" } },
+    { href: "/admin/audit-log", icon: "ScrollText", label: { es: "Registro de Cambios", en: "Audit Log" }, description: { es: "Quién editó qué, y cuándo", en: "Who edited what, and when" } },
   ],
 };
 

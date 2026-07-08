@@ -11,6 +11,8 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { categoryItems, categoryMeta } from "./AdminDockContext";
+import { useAdminLocale, type B } from "@/lib/admin/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -81,50 +83,45 @@ const categoryIcons: Record<string, LucideIcon> = {
   settings: Settings,
 };
 
-/* ─── Search items ─── */
+/* ─── Search items ───
+   Derived from the dock registry (AdminDockContext) so the palette,
+   dock, and hub cards always agree — bilingual by construction. */
 interface SearchItem {
-  label: string;
+  label: B;
   href: string;
   icon: string;
-  description: string;
+  description: B;
   category: string;
-  categoryLabel: string;
+  categoryLabel: B;
 }
 
 const allItems: SearchItem[] = [
-  // Today (dashboard)
-  { label: "Today",                   href: "/admin",                        icon: "LayoutDashboard", description: "What's live right now and recent activity",                          category: "dashboard", categoryLabel: "Today" },
-  // Daily Updates — high-frequency edits
-  { label: "Specials & Announcements", href: "/admin/popups",                icon: "Bell",            description: "Pop-up messages (today's special, event reminder)",                  category: "daily", categoryLabel: "Daily Updates" },
-  { label: "Site Banners",            href: "/admin/banners",                icon: "Flag",            description: "Top-of-page banners (sale, holiday hours, urgent notice)",          category: "daily", categoryLabel: "Daily Updates" },
-  { label: "Promotions",              href: "/admin/promotions",             icon: "Megaphone",       description: "Time-limited offers across selected pages",                          category: "daily", categoryLabel: "Daily Updates" },
-  { label: "Journal",                 href: "/admin/journal",                icon: "BookOpen",        description: "Long-form articles — full draft/publish workflow",                   category: "daily", categoryLabel: "Daily Updates" },
-  { label: "Operating Hours",         href: "/admin/hours",                  icon: "Clock",           description: "Hours shown on the live status badge and footer",                    category: "daily", categoryLabel: "Daily Updates" },
-  { label: "Photos & Media",          href: "/admin/media",                  icon: "Image",           description: "Upload images for use anywhere on the site",                         category: "daily", categoryLabel: "Daily Updates" },
-  // Brand & Pages — editorial content per public page
-  { label: "Homepage",                href: "/admin/content/homepage",       icon: "Video",           description: "Hero video, headline, and section cards",                            category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Casa Olivea",             href: "/admin/content/casa",           icon: "Home",            description: "Farm-stay hotel page",                                               category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Casa FAQ",                href: "/admin/content/casa-faq",       icon: "HelpCircle",      description: "Casa Olivea questions & answers (separate editor)",                  category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Olivea Farm to Table",    href: "/admin/content/farm-to-table",  icon: "UtensilsCrossed", description: "MICHELIN restaurant page",                                           category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Olivea Café",             href: "/admin/content/cafe",           icon: "Coffee",          description: "Daytime café & padel page",                                          category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Sustainability",          href: "/admin/content/sustainability", icon: "Leaf",            description: "Philosophy and sustainability practices",                            category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Press",                   href: "/admin/content/press",          icon: "Newspaper",       description: "Press chrome (awards live in MDX files)",                            category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Team Page",               href: "/admin/content/team",           icon: "Users",           description: "Public team page meta + roster",                                     category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Contact",                 href: "/admin/content/contact",        icon: "Mail",            description: "Contact info, addresses, social, form labels",                       category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Careers",                 href: "/admin/content/careers",        icon: "Briefcase",       description: "Careers page chrome plus active job openings",                       category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "Innovation",              href: "/admin/content/innovation",     icon: "Sparkles",        description: "The innovation page — laboratory, roseiies, and the method",         category: "pages", categoryLabel: "Brand & Pages" },
-  { label: "roseiies",                href: "/admin/content/roseiies",       icon: "Globe",           description: "The roseiies studio page — founder story, sections, principles",     category: "pages", categoryLabel: "Brand & Pages" },
-  // Setup — rarely-changed
-  { label: "Brand & Identity",        href: "/admin/content/global",         icon: "Globe",           description: "Site name, tagline, social URLs, default OG image, contact info",    category: "setup", categoryLabel: "Setup" },
-  { label: "Mobile Navigation",       href: "/admin/content/drawer",         icon: "Menu",            description: "Items shown in the mobile drawer menu",                              category: "setup", categoryLabel: "Setup" },
-  { label: "Footer",                  href: "/admin/content/footer",         icon: "PanelBottom",     description: "Footer copy and link groups",                                        category: "setup", categoryLabel: "Setup" },
-  { label: "Legal Pages",             href: "/admin/content/legal",          icon: "Scale",           description: "Privacy policy, terms, cookie statement",                            category: "setup", categoryLabel: "Setup" },
-  { label: "404 Page",                href: "/admin/content/not-found",      icon: "AlertCircle",     description: "Message shown when a visitor hits a missing page",                   category: "setup", categoryLabel: "Setup" },
-  { label: "Audit Log",               href: "/admin/audit-log",              icon: "ScrollText",      description: "Who edited what, and when",                                          category: "setup", categoryLabel: "Setup" },
-  // Admin user management (separate from public team page)
-  { label: "Admin Users",              href: "/admin/team",                  icon: "Users",           description: "Manage who can log in to admin and what they can edit",              category: "setup", categoryLabel: "Setup" },
-  { label: "Menus & Links",            href: "/admin/menu",                  icon: "UtensilsCrossed", description: "Edit the live menu embeds — tasting menu tabs, wine list, café menu", category: "daily", categoryLabel: "Daily Updates" },
-  { label: "Press Coverage",           href: "/admin/press",                 icon: "Newspaper",       description: "Awards & mentions shown on the press page",                           category: "daily", categoryLabel: "Daily Updates" },
+  {
+    label: { es: "Hoy", en: "Today" },
+    href: "/admin",
+    icon: "LayoutDashboard",
+    description: { es: "Lo que está en vivo ahora y actividad reciente", en: "What's live right now and recent activity" },
+    category: "dashboard",
+    categoryLabel: categoryMeta.dashboard.label,
+  },
+  ...(["daily", "pages", "setup"] as const).flatMap((cat) =>
+    categoryItems[cat].map((it) => ({
+      label: it.label,
+      href: it.href,
+      icon: it.icon,
+      description: it.description,
+      category: cat,
+      categoryLabel: categoryMeta[cat].label,
+    }))
+  ),
+  {
+    label: { es: "Usuarios del Admin", en: "Admin Users" },
+    href: "/admin/team",
+    icon: "Users",
+    description: { es: "Administra quién entra al panel y qué puede editar", en: "Manage who can log in to admin and what they can edit" },
+    category: "setup",
+    categoryLabel: categoryMeta.setup.label,
+  },
 ];
 
 /* ─── Context for opening palette from anywhere ─── */
@@ -183,16 +180,17 @@ function CommandPalette({
   const listRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const { t } = useAdminLocale();
 
-  // Filter items
+  // Filter items — search matches BOTH languages so "vinos" and "wine"
+  // both find Menús y Enlaces regardless of the UI language.
   const filtered = useMemo(() => {
     if (!query.trim()) return allItems;
     const q = query.toLowerCase();
+    const hit = (b: B) =>
+      b.es.toLowerCase().includes(q) || b.en.toLowerCase().includes(q);
     return allItems.filter(
-      (item) =>
-        item.label.toLowerCase().includes(q) ||
-        item.description.toLowerCase().includes(q) ||
-        item.categoryLabel.toLowerCase().includes(q)
+      (item) => hit(item.label) || hit(item.description) || hit(item.categoryLabel)
     );
   }, [query]);
 
@@ -201,12 +199,12 @@ function CommandPalette({
     const groups: Record<string, { item: SearchItem; flatIdx: number }[]> = {};
     for (let i = 0; i < filtered.length; i++) {
       const item = filtered[i];
-      const key = item.categoryLabel;
+      const key = t(item.categoryLabel);
       if (!groups[key]) groups[key] = [];
       groups[key].push({ item, flatIdx: i });
     }
     return { grouped: groups, flatList: filtered };
-  }, [filtered]);
+  }, [filtered, t]);
 
   // Reset state on open
   useEffect(() => {
@@ -311,7 +309,7 @@ function CommandPalette({
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search pages, settings, content..."
+                  placeholder={t({ es: "Buscar páginas, configuración, contenido…", en: "Search pages, settings, content…" })}
                   className="
                     flex-1 text-sm text-[var(--olivea-ink)] bg-transparent
                     outline-none placeholder:text-[var(--olivea-olive)]/30
@@ -335,7 +333,7 @@ function CommandPalette({
                 {flatList.length === 0 ? (
                   <div className="px-5 py-8 text-center">
                     <p className="text-sm text-[var(--olivea-olive)]/40">
-                      No results for &ldquo;{query}&rdquo;
+                      {t({ es: "Sin resultados para", en: "No results for" })} &ldquo;{query}&rdquo;
                     </p>
                   </div>
                 ) : (
@@ -384,10 +382,10 @@ function CommandPalette({
                                     : "text-[var(--olivea-ink)]/70"
                                 }`}
                               >
-                                {item.label}
+                                {t(item.label)}
                               </div>
                               <div className="text-[11px] text-[var(--olivea-olive)]/40 truncate">
-                                {item.description}
+                                {t(item.description)}
                               </div>
                             </div>
                             {isSelected && (

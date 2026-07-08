@@ -11,11 +11,13 @@ import {
   User,
   Save,
   Check,
+  Languages,
 } from "lucide-react";
-import type { AdminUser, AdminRole } from "@/lib/auth/types";
+import type { AdminUser, AdminRole, AdminLocale } from "@/lib/auth/types";
 import { uploadImage } from "@/lib/supabase/storage-actions";
 import { updateProfile } from "@/lib/auth/actions";
 import { compressImage } from "@/lib/utils/compress-image";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 
 /* ─── Role badge ─── */
 function RoleBadge({ role }: { role: AdminRole }) {
@@ -164,6 +166,7 @@ export default function ProfilePanel({
   onClose: () => void;
   onSave: (updated: AdminUser) => void;
 }) {
+  const { locale, setLocale, t } = useAdminLocale();
   const [fullName, setFullName] = useState(user.fullName);
   const [email, setEmail] = useState(user.email);
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl);
@@ -273,7 +276,9 @@ export default function ProfilePanel({
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--olivea-olive)]/[0.06] flex-shrink-0">
-              <h2 className="text-sm font-semibold text-[var(--olivea-ink)]">Profile</h2>
+              <h2 className="text-sm font-semibold text-[var(--olivea-ink)]">
+                {t({ es: "Perfil", en: "Profile" })}
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 rounded-xl text-[var(--olivea-clay)] hover:text-[var(--olivea-ink)] hover:bg-[var(--olivea-cream)]/50 transition-all"
@@ -319,16 +324,46 @@ export default function ProfilePanel({
               >
                 <ProfileField
                   icon={User}
-                  label="Full Name"
+                  label={t({ es: "Nombre completo", en: "Full Name" })}
                   value={fullName}
                   onChange={setFullName}
                 />
                 <ProfileField
                   icon={Mail}
-                  label="Email"
+                  label={t({ es: "Correo electrónico", en: "Email" })}
                   value={email}
                   onChange={setEmail}
                 />
+
+                {/* Language — per-user admin UI language, saved immediately */}
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
+                    <Languages size={12} />
+                    {t(STR.language)}
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(
+                      [
+                        { value: "es", label: STR.spanishMx },
+                        { value: "en", label: STR.english },
+                      ] as { value: AdminLocale; label: { es: string; en: string } }[]
+                    ).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setLocale(opt.value)}
+                        className={`rounded-xl px-3 py-2.5 text-sm font-medium border transition-all ${
+                          locale === opt.value
+                            ? "bg-[var(--olivea-olive)] text-white border-transparent shadow-sm"
+                            : "bg-white/70 text-[var(--olivea-ink)]/70 border-[var(--olivea-olive)]/[0.12] hover:bg-[var(--olivea-cream)]/50"
+                        }`}
+                      >
+                        {t(opt.label)}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-[var(--olivea-clay)]/70">{t(STR.languageHint)}</p>
+                </div>
               </motion.div>
 
               {/* Info card */}
@@ -346,14 +381,23 @@ export default function ProfilePanel({
                   <Shield size={14} className="text-[var(--olivea-olive)]/60 mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="text-xs font-medium text-[var(--olivea-ink)]/70">
-                      Role: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                      {t({ es: "Rol", en: "Role" })}: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </div>
                     <p className="text-[11px] text-[var(--olivea-clay)] mt-1 leading-relaxed">
                       {user.role === "owner"
-                        ? "Full access to all settings, team management, and content."
+                        ? t({
+                            es: "Acceso total a configuración, equipo y contenido.",
+                            en: "Full access to all settings, team management, and content.",
+                          })
                         : user.role === "editor"
-                          ? "Can edit menus, pages, and journal articles."
-                          : "Read-only access to the admin portal."}
+                          ? t({
+                              es: "Puede editar menús, páginas y artículos del cuaderno.",
+                              en: "Can edit menus, pages, and journal articles.",
+                            })
+                          : t({
+                              es: "Acceso de solo lectura al panel.",
+                              en: "Read-only access to the admin portal.",
+                            })}
                     </p>
                   </div>
                 </div>
@@ -386,12 +430,12 @@ export default function ProfilePanel({
                 {saved ? (
                   <>
                     <Check size={15} />
-                    Saved
+                    {t({ es: "Guardado", en: "Saved" })}
                   </>
                 ) : (
                   <>
                     <Save size={15} />
-                    Save Changes
+                    {t(STR.saveChanges)}
                   </>
                 )}
               </button>

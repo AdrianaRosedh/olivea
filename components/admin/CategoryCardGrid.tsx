@@ -36,6 +36,7 @@ import {
   type AdminCategory,
   type CategoryItem,
 } from "./AdminDockContext";
+import { useAdminLocale } from "@/lib/admin/i18n";
 
 /* ── Cinematic easing curves ── */
 const cinematic: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -127,6 +128,7 @@ function resolveIcon(name: string): React.ElementType {
 function CategoryCard({ item }: { item: CategoryItem }) {
   const Icon = resolveIcon(item.icon);
   const pathname = usePathname();
+  const { t } = useAdminLocale();
   const isCurrentPage = pathname === item.href;
 
   return (
@@ -171,10 +173,10 @@ function CategoryCard({ item }: { item: CategoryItem }) {
         {/* Text */}
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-[var(--olivea-ink)] group-hover:text-[var(--olivea-olive)] transition-colors">
-            {item.label}
+            {t(item.label)}
           </h3>
           <p className="text-xs text-[var(--olivea-clay)] mt-1 leading-relaxed">
-            {item.description}
+            {t(item.description)}
           </p>
         </div>
 
@@ -192,6 +194,7 @@ function CategoryCard({ item }: { item: CategoryItem }) {
 export default function CategoryCardGrid({ category }: { category: AdminCategory }) {
   const meta = categoryMeta[category];
   const items = categoryItems[category];
+  const { t } = useAdminLocale();
 
   return (
     <motion.div
@@ -206,9 +209,9 @@ export default function CategoryCardGrid({ category }: { category: AdminCategory
         className="mb-8"
       >
         <h1 className="text-2xl font-semibold text-[var(--olivea-ink)] tracking-tight">
-          {meta.label}
+          {t(meta.label)}
         </h1>
-        <p className="text-sm text-[var(--olivea-clay)] mt-1">{meta.description}</p>
+        <p className="text-sm text-[var(--olivea-clay)] mt-1">{t(meta.description)}</p>
       </motion.div>
 
       {/* Card grid */}

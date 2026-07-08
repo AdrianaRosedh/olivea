@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ImageIcon, Upload, X, ExternalLink } from "lucide-react";
+import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -14,8 +15,8 @@ interface EditableImageProps {
   onChange: (src: string) => void;
   /** Image display className (controls size, rounding, etc.) */
   className?: string;
-  /** Label shown on hover */
-  label?: string;
+  /** Label shown on hover (string or bilingual) */
+  label?: MaybeB;
   /** Aspect ratio hint */
   aspect?: "hero" | "square" | "wide" | "auto";
   /** Max height in px — prevents hero from dominating the viewport */
@@ -29,10 +30,12 @@ export default function EditableImage({
   alt = "",
   onChange,
   className = "",
-  label = "Image",
+  label,
   aspect = "auto",
   maxHeight,
 }: EditableImageProps) {
+  const { locale, t } = useAdminLocale();
+  const labelText = resolveLabel(label, locale) || t({ es: "Imagen", en: "Image" });
   const [editing, setEditing] = useState(false);
   const [urlInput, setUrlInput] = useState(src);
   const [imgError, setImgError] = useState(false);
@@ -68,7 +71,7 @@ export default function EditableImage({
       <div className={`relative rounded-2xl border-2 border-[var(--olivea-olive)]/30 bg-white p-4 space-y-3 ${className}`}>
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--olivea-olive)]">
-            {label}
+            {labelText}
           </span>
           <button onClick={handleCancel} className="p-1 rounded-md hover:bg-stone-100 text-stone-400">
             <X className="w-3.5 h-3.5" />
@@ -93,7 +96,7 @@ export default function EditableImage({
               <div className="absolute inset-0 flex items-center justify-center bg-stone-100">
                 <div className="text-center space-y-1">
                   <ImageIcon className="w-8 h-8 text-stone-300 mx-auto" />
-                  <p className="text-xs text-stone-400">Preview unavailable</p>
+                  <p className="text-xs text-stone-400">{t({ es: "Vista previa no disponible", en: "Preview unavailable" })}</p>
                 </div>
               </div>
             )}
@@ -103,7 +106,7 @@ export default function EditableImage({
         {/* URL input */}
         <div className="space-y-1.5">
           <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wide">
-            Image Path
+            {t({ es: "Ruta de la imagen", en: "Image Path" })}
           </label>
           <input
             type="text"
@@ -124,13 +127,13 @@ export default function EditableImage({
             onClick={handleSave}
             className="px-3 py-1.5 rounded-lg bg-[var(--olivea-olive)] text-white text-xs font-semibold hover:bg-[var(--olivea-clay)] transition-colors"
           >
-            Save
+            {t({ es: "Guardar", en: "Save" })}
           </button>
           <button
             onClick={handleCancel}
             className="px-3 py-1.5 rounded-lg bg-stone-100 text-stone-600 text-xs font-semibold hover:bg-stone-200 transition-colors"
           >
-            Cancel
+            {t({ es: "Cancelar", en: "Cancel" })}
           </button>
         </div>
       </div>
@@ -173,7 +176,7 @@ export default function EditableImage({
             </div>
           )}
           {!hasImage && (
-            <span className="text-xs text-stone-400">No image set</span>
+            <span className="text-xs text-stone-400">{t({ es: "Sin imagen", en: "No image set" })}</span>
           )}
         </div>
       )}
@@ -182,7 +185,7 @@ export default function EditableImage({
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 text-stone-800 text-sm font-medium shadow-lg">
           <Upload className="w-4 h-4" />
-          Change {label}
+          {t({ es: "Cambiar", en: "Change" })} {labelText}
         </div>
       </div>
     </div>

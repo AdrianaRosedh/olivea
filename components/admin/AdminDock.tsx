@@ -14,34 +14,42 @@ import {
   Users,
 } from "lucide-react";
 import ProfilePanel from "./ProfilePanel";
-import { useDock, categoryFromPath, type AdminCategory } from "./AdminDockContext";
+import {
+  useDock,
+  categoryFromPath,
+  categoryMeta,
+  categoryItems,
+  type AdminCategory,
+} from "./AdminDockContext";
 import { usePalette } from "./CommandPalette";
 import { useAuth } from "./AuthProvider";
 import { mockUser } from "@/lib/admin/mock-user";
 import type { AdminUser } from "@/lib/auth/types";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 
 /* ─── Category definitions ─── */
 interface CategoryDef {
   key: AdminCategory;
-  label: string;
   icon: React.ElementType;
   href: string; // landing route for this category
 }
 
 const categories: CategoryDef[] = [
-  { key: "dashboard", label: "Today",         icon: LayoutDashboard, href: "/admin" },
-  { key: "daily",     label: "Daily Updates", icon: Layers,          href: "/admin/content-hub" },
-  { key: "pages",     label: "Brand & Pages", icon: FileText,        href: "/admin/pages" },
-  { key: "setup",     label: "Setup",         icon: Settings,        href: "/admin/site-settings" },
+  { key: "dashboard", icon: LayoutDashboard, href: "/admin" },
+  { key: "daily",     icon: Layers,          href: "/admin/content-hub" },
+  { key: "pages",     icon: FileText,        href: "/admin/pages" },
+  { key: "setup",     icon: Settings,        href: "/admin/site-settings" },
 ];
 
 /* ─── Dock icon button ─── */
 function DockIcon({
   cat,
+  label,
   isActive,
   expanded,
 }: {
   cat: CategoryDef;
+  label: string;
   isActive: boolean;
   expanded: boolean;
 }) {
@@ -80,7 +88,7 @@ function DockIcon({
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="text-sm font-medium whitespace-nowrap overflow-hidden"
           >
-            {cat.label}
+            {label}
           </motion.span>
         )}
       </AnimatePresence>
@@ -96,10 +104,50 @@ function DockIcon({
           shadow-[0_4px_16px_rgba(94,118,88,0.12)]
           border border-[var(--olivea-olive)]/[0.06]
         ">
-          {cat.label}
+          {label}
         </div>
       )}
     </Link>
+  );
+}
+
+/* ─── Inline child pages for the active category ───
+   When the dock is expanded, the active category's pages are listed
+   right in the dock — one click to any editor, no hub detour. */
+function CategoryChildren({ cat }: { cat: AdminCategory }) {
+  const pathname = usePathname();
+  const { t } = useAdminLocale();
+  const items = categoryItems[cat];
+  if (!items.length) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      className="overflow-hidden"
+    >
+      <div className="ml-[13px] border-l border-[var(--olivea-olive)]/[0.10] pl-2 py-1 space-y-0.5">
+        {items.map((item) => {
+          const active = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              title={t(item.description)}
+              className={`block rounded-lg px-2.5 py-1.5 text-[12px] leading-snug truncate transition-colors ${
+                active
+                  ? "bg-[var(--olivea-olive)]/[0.10] text-[var(--olivea-olive)] font-medium"
+                  : "text-[var(--olivea-ink)]/55 hover:text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/[0.04]"
+              }`}
+            >
+              {t(item.label)}
+            </Link>
+          );
+        })}
+      </div>
+    </motion.div>
   );
 }
 
@@ -109,6 +157,7 @@ export default function AdminDock() {
   const { expanded, toggle, setActiveCategory, activeCategory } = useDock();
   const { open: openPalette } = usePalette();
   const { user: authUser, signOut: handleSignOut } = useAuth();
+  const { t } = useAdminLocale();
   const [profileOpen, setProfileOpen] = useState(false);
   // Use real auth user if available, fall back to mockUser for dev
   const [user, setUser] = useState<AdminUser>(authUser ?? mockUser);
@@ -213,7 +262,7 @@ export default function AdminDock() {
                 exit={{ opacity: 0, width: 0 }}
                 className="flex items-center gap-2 overflow-hidden"
               >
-                <span className="text-xs whitespace-nowrap">Search</span>
+                <span className="text-xs whitespace-nowrap">{t(STR.search)}</span>
                 <kbd className="text-[10px] text-[var(--olivea-olive)]/50 bg-[var(--olivea-cream)]/60 px-1.5 py-0.5 rounded border border-[var(--olivea-olive)]/10">
                   {"\u2318"}K
                 </kbd>
@@ -223,15 +272,20 @@ export default function AdminDock() {
         </button>
       </div>
 
-      {/* ── Category icons ── */}
-      <div className={`flex-1 flex flex-col gap-1 ${expanded ? "px-3" : "px-2"} py-4`}>
+      {/* ── Category icons (+ inline pages of the active category) ── */}
+      <div className={`flex-1 flex flex-col gap-1 ${expanded ? "px-3" : "px-2"} py-4 overflow-y-auto`}>
         {categories.map((cat) => (
-          <DockIcon
-            key={cat.key}
-            cat={cat}
-            isActive={isActive(cat.key)}
-            expanded={expanded}
-          />
+          <div key={cat.key}>
+            <DockIcon
+              cat={cat}
+              label={t(categoryMeta[cat.key].label)}
+              isActive={isActive(cat.key)}
+              expanded={expanded}
+            />
+            <AnimatePresence>
+              {expanded && isActive(cat.key) && <CategoryChildren cat={cat.key} />}
+            </AnimatePresence>
+          </div>
         ))}
       </div>
 
@@ -267,7 +321,7 @@ export default function AdminDock() {
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="text-sm font-medium whitespace-nowrap overflow-hidden"
               >
-                Team
+                {t(STR.team)}
               </motion.span>
             )}
           </AnimatePresence>
@@ -280,7 +334,7 @@ export default function AdminDock() {
               shadow-[0_4px_16px_rgba(94,118,88,0.12)]
               border border-[var(--olivea-olive)]/[0.06]
             ">
-              Team
+              {t(STR.team)}
             </div>
           )}
         </Link>
@@ -346,7 +400,7 @@ export default function AdminDock() {
             <span
               role="button"
               tabIndex={0}
-              aria-label="Sign out"
+              aria-label={t(STR.signOut)}
               onClick={(e) => {
                 e.stopPropagation();
                 handleSignOut();

@@ -90,6 +90,9 @@ export const ADMIN_SECTIONS: AdminSection[] = [
 /** Per-section permission overrides stored as JSON */
 export type SectionPermissions = Record<string, SectionAccess>;
 
+/** Admin UI language — es = Mexican Spanish (default), en = English */
+export type AdminLocale = "es" | "en";
+
 export interface AdminUser {
   id: string;
   fullName: string;
@@ -99,6 +102,8 @@ export interface AdminUser {
   lastActiveAt?: string;
   createdAt?: string;
   sectionPermissions?: SectionPermissions;
+  /** Preferred admin UI language (per user) */
+  locale?: AdminLocale;
 }
 
 /* ── Permission helpers ── */

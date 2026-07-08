@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, createContext, useContext } from "react";
-import { Save, Loader2, RefreshCw, Undo2, ChevronDown, ChevronRight, Settings, ExternalLink } from "lucide-react";
+import { Save, Loader2, RefreshCw, Undo2, ChevronDown, ChevronRight, Settings, ExternalLink, Globe2 } from "lucide-react";
 import { getPageContent, savePageContent } from "@/lib/supabase/actions";
 import { useAuth } from "@/components/admin/AuthProvider";
+import { useAdminLocale, STR } from "@/lib/admin/i18n";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -71,6 +72,7 @@ export function useEditor(): EditorContextValue {
 
 function MetaSection({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const { t } = useAdminLocale();
   return (
     <div className="rounded-xl border border-stone-200/80 bg-white/50 overflow-hidden">
       <button
@@ -80,16 +82,17 @@ function MetaSection({ children }: { children: React.ReactNode }) {
       >
         <span className="flex items-center gap-2">
           <Settings className="w-3.5 h-3.5" />
-          Search & Social Preview
+          {t({ es: "Vista en Google y Redes", en: "Search & Social Preview" })}
         </span>
         {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
       </button>
       {open && (
         <div className="px-4 pb-4 pt-2 space-y-4 border-t border-stone-200/60">
           <p className="text-[11px] text-stone-500 leading-relaxed">
-            This is what people see when this page appears in Google or is shared on social media.
-            The <strong className="text-stone-700">title</strong> is the clickable headline; the{" "}
-            <strong className="text-stone-700">description</strong> is the short blurb below it.
+            {t({
+              es: "Esto es lo que la gente ve cuando esta página aparece en Google o se comparte en redes. El título es el encabezado clicable; la descripción es el texto corto debajo.",
+              en: "This is what people see when this page appears in Google or is shared on social media. The title is the clickable headline; the description is the short blurb below it.",
+            })}
           </p>
           {children}
         </div>
@@ -127,6 +130,7 @@ export default function VisualPageEditor({
   children,
 }: VisualPageEditorProps) {
   const { canEdit: userCanEdit } = useAuth();
+  const { t } = useAdminLocale();
   const [data, setData] = useState<Record<string, unknown>>({});
   const [originalData, setOriginalData] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
@@ -206,7 +210,7 @@ export default function VisualPageEditor({
     return (
       <div className="flex items-center justify-center min-h-[400px] text-stone-400">
         <Loader2 className="w-6 h-6 animate-spin mr-2" />
-        Loading content...
+        {t(STR.loading)}
       </div>
     );
   }
@@ -223,10 +227,10 @@ export default function VisualPageEditor({
                 <h1 className="text-base font-semibold text-stone-800">{title}</h1>
                 <p className="text-[11px] text-stone-400">
                   {!userCanEdit
-                    ? "Read-only — you need Editor access to make changes"
+                    ? t(STR.readOnlyEditor)
                     : isDirty
-                      ? "Unsaved changes — click Save to publish"
-                      : "Edits go live on the public site within 60 seconds of saving"}
+                      ? t(STR.unsavedChanges)
+                      : t(STR.liveWithin60s)}
                 </p>
               </div>
             </div>
@@ -239,10 +243,10 @@ export default function VisualPageEditor({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[var(--olivea-olive)] text-xs font-medium hover:bg-[var(--olivea-cream)]/50 transition-colors"
-                  title={`Open ${livePath} in a new tab`}
+                  title={`${t(STR.viewLivePage)}: ${livePath}`}
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  View live page
+                  {t(STR.viewLivePage)}
                 </a>
               )}
 
@@ -253,7 +257,7 @@ export default function VisualPageEditor({
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-stone-500 text-xs font-medium hover:bg-stone-100 transition-colors"
                 >
                   <Undo2 className="w-3.5 h-3.5" />
-                  Discard
+                  {t(STR.discard)}
                 </button>
               )}
 
@@ -261,7 +265,7 @@ export default function VisualPageEditor({
               <button
                 onClick={load}
                 className="p-2 rounded-lg text-stone-400 hover:bg-stone-100 transition-colors"
-                title="Reload from server"
+                title={t(STR.reloadFromServer)}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
@@ -278,21 +282,47 @@ export default function VisualPageEditor({
                   }`}
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  {saving ? "Saving..." : "Save"}
+                  {saving ? t(STR.saving) : t(STR.save)}
                 </button>
               )}
             </div>
           </div>
 
+          {/* ── Site impact — exactly what this editor changes on the website.
+              Both language URLs as distinct pills; answers "where will I see this?" */}
+          {livePath && (
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5 px-4 py-2 rounded-xl bg-[var(--olivea-cream)]/30 border border-[var(--olivea-olive)]/[0.06] text-[11px] text-stone-500">
+              <Globe2 className="w-3 h-3 text-[var(--olivea-olive)]/60 shrink-0" />
+              <span className="font-medium text-stone-600 shrink-0">{t(STR.affects)}:</span>
+              {(["es", "en"] as const).map((l) => (
+                <a
+                  key={l}
+                  href={`/${l}${livePath}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={t(STR.viewLivePage)}
+                  className="inline-flex items-center gap-1 font-mono px-1.5 py-0.5 rounded-md bg-white/70 border border-[var(--olivea-olive)]/10 text-[var(--olivea-olive)] hover:bg-white hover:border-[var(--olivea-olive)]/25 transition-colors"
+                >
+                  <span className="uppercase text-[9px] font-bold tracking-wider text-[var(--olivea-olive)]/50">{l}</span>
+                  oliveafarmtotable.com/{l}
+                  {livePath}
+                </a>
+              ))}
+              <span className="text-stone-400 shrink-0">
+                · {t({ es: "en vivo ~1 min después de guardar", en: "live ~1 min after saving" })}
+              </span>
+            </div>
+          )}
+
           {/* Status toast */}
           {status === "saved" && (
             <div className="mt-2 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm text-center">
-              Changes saved successfully
+              {t(STR.savedOk)}
             </div>
           )}
           {status === "error" && (
             <div className="mt-2 px-4 py-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
-              Save failed — check your service role key
+              {t(STR.saveFailed)}
             </div>
           )}
         </div>
