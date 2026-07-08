@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 import SectionGuard from "@/components/admin/SectionGuard";
 import { Clock, Plus, Trash2, GripVertical, Save, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -30,14 +31,14 @@ const venueOptions = [
 ] as const;
 
 /* ── Days (schema.org weekday names) ── */
-const DAYS: { full: string; short: string }[] = [
-  { full: "Monday", short: "Mon" },
-  { full: "Tuesday", short: "Tue" },
-  { full: "Wednesday", short: "Wed" },
-  { full: "Thursday", short: "Thu" },
-  { full: "Friday", short: "Fri" },
-  { full: "Saturday", short: "Sat" },
-  { full: "Sunday", short: "Sun" },
+const DAYS: { full: string; short: B }[] = [
+  { full: "Monday", short: { es: "Lun", en: "Mon" } },
+  { full: "Tuesday", short: { es: "Mar", en: "Tue" } },
+  { full: "Wednesday", short: { es: "Mié", en: "Wed" } },
+  { full: "Thursday", short: { es: "Jue", en: "Thu" } },
+  { full: "Friday", short: { es: "Vie", en: "Fri" } },
+  { full: "Saturday", short: { es: "Sáb", en: "Sat" } },
+  { full: "Sunday", short: { es: "Dom", en: "Sun" } },
 ];
 
 /* ── Easing ── */
@@ -49,6 +50,7 @@ export default function HoursPage() {
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">("idle");
+  const { t } = useAdminLocale();
 
   const loadHours = useCallback(async () => {
     try {
@@ -89,8 +91,11 @@ export default function HoursPage() {
 
   const removeItem = (idx: number) => {
     const item = hours[idx];
-    const venueLabel = venueOptions.find((v) => v.value === item?.venue)?.label ?? item?.venue ?? "this entry";
-    if (!window.confirm(`Delete hours for "${venueLabel}"? This will be removed from the public site after you save.`)) return;
+    const venueLabel = venueOptions.find((v) => v.value === item?.venue)?.label ?? item?.venue ?? t({ es: "esta entrada", en: "this entry" });
+    if (!window.confirm(t({
+      es: `¿Eliminar los horarios de "${venueLabel}"? Se quitarán del sitio público después de guardar.`,
+      en: `Delete hours for "${venueLabel}"? This will be removed from the public site after you save.`,
+    }))) return;
     setHours(hours.filter((_, i) => i !== idx));
     setDirty(true);
   };
@@ -162,10 +167,10 @@ export default function HoursPage() {
           </div>
           <div>
             <h1 className="text-xl font-semibold text-[var(--olivea-ink)] tracking-tight">
-              Hours & Availability
+              {t({ es: "Horarios y Disponibilidad", en: "Hours & Availability" })}
             </h1>
             <p className="text-xs text-[var(--olivea-clay)]">
-              Operating hours displayed on the contact page and footer
+              {t({ es: "Horarios de operación que se muestran en la página de contacto y el pie de página", en: "Operating hours displayed on the contact page and footer" })}
             </p>
           </div>
         </div>
@@ -182,19 +187,19 @@ export default function HoursPage() {
           `}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? "Saving…" : "Save"}
+          {saving ? t(STR.saving) : t(STR.save)}
         </button>
       </div>
 
       {/* ── Status toasts ── */}
       {saveStatus === "saved" && (
         <div className="rounded-xl bg-emerald-50/80 ring-1 ring-emerald-200 px-4 py-2 text-sm text-emerald-700 text-center">
-          Hours saved successfully
+          {t({ es: "Horarios guardados correctamente", en: "Hours saved successfully" })}
         </div>
       )}
       {saveStatus === "error" && (
         <div className="rounded-xl bg-red-50/80 ring-1 ring-red-200 px-4 py-2 text-sm text-red-700 text-center">
-          Save failed — check your connection and try again
+          {t({ es: "No se pudo guardar — revisa tu conexión e inténtalo de nuevo", en: "Save failed — check your connection and try again" })}
         </div>
       )}
 
@@ -226,12 +231,12 @@ export default function HoursPage() {
 
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {idx > 0 && (
-                  <button onClick={() => moveItem(idx, -1)} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 text-xs" title="Move up">↑</button>
+                  <button onClick={() => moveItem(idx, -1)} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 text-xs" title={t(STR.moveUp)}>↑</button>
                 )}
                 {idx < hours.length - 1 && (
-                  <button onClick={() => moveItem(idx, 1)} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 text-xs" title="Move down">↓</button>
+                  <button onClick={() => moveItem(idx, 1)} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 text-xs" title={t(STR.moveDown)}>↓</button>
                 )}
-                <button onClick={() => removeItem(idx)} className="p-1.5 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500" title="Delete">
+                <button onClick={() => removeItem(idx)} className="p-1.5 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500" title={t(STR.delete)}>
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -240,7 +245,7 @@ export default function HoursPage() {
             {/* ── Label (bilingual) ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Label (ES)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">{t({ es: "Etiqueta (ES)", en: "Label (ES)" })}</label>
                 <input
                   type="text"
                   value={item.label.es}
@@ -250,7 +255,7 @@ export default function HoursPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Label (EN)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">{t({ es: "Etiqueta (EN)", en: "Label (EN)" })}</label>
                 <input
                   type="text"
                   value={item.label.en}
@@ -264,7 +269,7 @@ export default function HoursPage() {
             {/* ── Schedule (bilingual) ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Schedule (Spanish)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">{t({ es: "Horario (Español)", en: "Schedule (Spanish)" })}</label>
                 <input
                   type="text"
                   value={item.schedule.es}
@@ -274,7 +279,7 @@ export default function HoursPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Schedule (English)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">{t({ es: "Horario (Inglés)", en: "Schedule (English)" })}</label>
                 <input
                   type="text"
                   value={item.schedule.en}
@@ -285,17 +290,17 @@ export default function HoursPage() {
               </div>
             </div>
             <p className="text-[11px] text-stone-400 leading-relaxed pl-1">
-              Tip: separate days with a dot ( · ) and use en-dash for time ranges (5–8 not 5-8). Example: <code className="text-stone-500">Wed 5–8 · Fri 2:30–8:30 · Sun 2–7</code>
+              {t({ es: "Consejo: separa los días con un punto ( · ) y usa una raya para los rangos de horario (5–8 y no 5-8). Ejemplo: ", en: "Tip: separate days with a dot ( · ) and use en-dash for time ranges (5–8 not 5-8). Example: " })}<code className="text-stone-500">Wed 5–8 · Fri 2:30–8:30 · Sun 2–7</code>
             </p>
 
             {/* ── Structured hours (drives Google & AI opening hours in JSON-LD) ── */}
             <div className="space-y-2 pt-3 border-t border-stone-100">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Structured hours · for Google &amp; AI</label>
-                <button onClick={() => addSlot(idx)} className="text-[11px] font-semibold text-[var(--olivea-olive)] hover:underline">+ Add time block</button>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">{t({ es: "Horarios estructurados · para Google e IA", en: "Structured hours · for Google & AI" })}</label>
+                <button onClick={() => addSlot(idx)} className="text-[11px] font-semibold text-[var(--olivea-olive)] hover:underline">{t({ es: "+ Agregar bloque de horario", en: "+ Add time block" })}</button>
               </div>
               {(item.slots ?? []).length === 0 && (
-                <p className="text-[11px] text-stone-400 italic">No structured hours yet — search engines fall back to the display text above.</p>
+                <p className="text-[11px] text-stone-400 italic">{t({ es: "Aún no hay horarios estructurados — los buscadores usarán el texto visible de arriba.", en: "No structured hours yet — search engines fall back to the display text above." })}</p>
               )}
               {(item.slots ?? []).map((slot, sIdx) => (
                 <div key={sIdx} className="rounded-lg bg-stone-50/80 ring-1 ring-stone-100 p-3 space-y-2">
@@ -308,17 +313,17 @@ export default function HoursPage() {
                           onClick={() => updateSlot(idx, sIdx, { days: on ? slot.days.filter((x) => x !== d.full) : [...slot.days, d.full] })}
                           className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${on ? "bg-[var(--olivea-olive)] text-white" : "bg-white text-stone-500 ring-1 ring-stone-200 hover:ring-[var(--olivea-olive)]/40"}`}
                         >
-                          {d.short}
+                          {t(d.short)}
                         </button>
                       );
                     })}
                   </div>
                   <div className="flex items-center gap-2">
                     <input type="time" value={slot.opens} onChange={(e) => updateSlot(idx, sIdx, { opens: e.target.value })} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 focus:border-[var(--olivea-olive)] outline-none" />
-                    <span className="text-stone-400 text-sm">to</span>
+                    <span className="text-stone-400 text-sm">{t({ es: "a", en: "to" })}</span>
                     <input type="time" value={slot.closes} onChange={(e) => updateSlot(idx, sIdx, { closes: e.target.value })} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 focus:border-[var(--olivea-olive)] outline-none" />
                     <div className="flex-1" />
-                    <button onClick={() => removeSlot(idx, sIdx)} className="p-1.5 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500" title="Remove time block">
+                    <button onClick={() => removeSlot(idx, sIdx)} className="p-1.5 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500" title={t({ es: "Quitar bloque de horario", en: "Remove time block" })}>
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -334,7 +339,7 @@ export default function HoursPage() {
           className="w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border-2 border-dashed border-stone-200 text-stone-500 text-xs font-semibold uppercase tracking-wider hover:border-[var(--olivea-olive)] hover:text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/[0.03] transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add Venue Hours
+          {t({ es: "Agregar horarios de sede", en: "Add Venue Hours" })}
         </button>
       </div>
     </motion.div>

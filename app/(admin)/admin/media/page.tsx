@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import SectionGuard from "@/components/admin/SectionGuard";
+import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 import { Image as ImageIcon, Upload, Trash2, Loader2, Copy, Check, FolderOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -15,13 +16,15 @@ interface MediaFile {
   publicUrl: string;
 }
 
-/* ── Folder list ── */
-const folders = [
-  { id: "general", label: "General" },
-  { id: "journal", label: "Journal" },
-  { id: "team", label: "Team" },
-  { id: "pages", label: "Pages" },
-  { id: "menu", label: "Menu" },
+/* ── Folder list ──
+   Folder `id` values are storage paths (data — never translated); only the
+   display `label` is bilingual, resolved via t() where it renders. */
+const folders: { id: string; label: B }[] = [
+  { id: "general", label: { es: "General", en: "General" } },
+  { id: "journal", label: { es: "Cuaderno", en: "Journal" } },
+  { id: "team", label: { es: "Equipo", en: "Team" } },
+  { id: "pages", label: { es: "Páginas", en: "Pages" } },
+  { id: "menu", label: { es: "Menú", en: "Menu" } },
 ];
 
 /* ── Easing ── */
@@ -34,6 +37,7 @@ export default function MediaPage() {
   const [uploading, setUploading] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useAdminLocale();
 
   const loadFiles = useCallback(async (folder: string) => {
     setLoading(true);
@@ -76,7 +80,7 @@ export default function MediaPage() {
   };
 
   const handleDelete = async (file: MediaFile) => {
-    if (!confirm(`Delete ${file.name}?`)) return;
+    if (!confirm(t({ es: `¿Eliminar ${file.name}?`, en: `Delete ${file.name}?` }))) return;
     try {
       const { deleteImage } = await import("@/lib/supabase/storage-actions");
       await deleteImage(file.publicUrl);
@@ -108,10 +112,10 @@ export default function MediaPage() {
           </div>
           <div>
             <h1 className="text-xl font-semibold text-[var(--olivea-ink)] tracking-tight">
-              Media Library
+              {t({ es: "Biblioteca de Medios", en: "Media Library" })}
             </h1>
             <p className="text-xs text-[var(--olivea-clay)]">
-              Upload and manage images used across the site
+              {t({ es: "Sube y administra las imágenes que se usan en todo el sitio", en: "Upload and manage images used across the site" })}
             </p>
           </div>
         </div>
@@ -122,7 +126,7 @@ export default function MediaPage() {
           ${uploading ? "opacity-50 pointer-events-none" : ""}
         `}>
           {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          {uploading ? "Uploading…" : "Upload Image"}
+          {uploading ? t({ es: "Subiendo…", en: "Uploading…" }) : t({ es: "Subir imagen", en: "Upload Image" })}
           <input
             ref={fileInputRef}
             type="file"
@@ -148,7 +152,7 @@ export default function MediaPage() {
             `}
           >
             <FolderOpen className="w-3.5 h-3.5" />
-            {f.label}
+            {t(f.label)}
           </button>
         ))}
       </div>
@@ -161,8 +165,8 @@ export default function MediaPage() {
       ) : files.length === 0 ? (
         <div className="rounded-2xl bg-white/40 border-2 border-dashed border-stone-200 p-12 text-center">
           <ImageIcon className="w-10 h-10 text-stone-300 mx-auto mb-3" />
-          <p className="text-sm text-stone-500">No images in this folder yet</p>
-          <p className="text-xs text-stone-400 mt-1">Upload an image to get started</p>
+          <p className="text-sm text-stone-500">{t({ es: "Aún no hay imágenes en esta carpeta", en: "No images in this folder yet" })}</p>
+          <p className="text-xs text-stone-400 mt-1">{t({ es: "Sube una imagen para comenzar", en: "Upload an image to get started" })}</p>
         </div>
       ) : (
         <motion.div
@@ -200,7 +204,7 @@ export default function MediaPage() {
                     <button
                       onClick={() => copyUrl(file.publicUrl)}
                       className="p-2 rounded-full bg-white/90 text-stone-700 hover:bg-white transition-colors"
-                      title="Copy URL"
+                      title={t({ es: "Copiar URL", en: "Copy URL" })}
                     >
                       {copiedUrl === file.publicUrl ? (
                         <Check className="w-4 h-4 text-green-600" />
@@ -211,7 +215,7 @@ export default function MediaPage() {
                     <button
                       onClick={() => handleDelete(file)}
                       className="p-2 rounded-full bg-white/90 text-red-500 hover:bg-red-50 transition-colors"
-                      title="Delete"
+                      title={t(STR.delete)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

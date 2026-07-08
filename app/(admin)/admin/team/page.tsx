@@ -43,13 +43,11 @@ import type {
 } from "@/lib/auth/types";
 import {
   ROLE_HIERARCHY,
-  ROLE_LABELS,
-  ROLE_DESCRIPTIONS,
   SECTION_ACCESS_HIERARCHY,
-  SECTION_ACCESS_LABELS,
   ADMIN_SECTIONS,
   defaultSectionAccess,
 } from "@/lib/auth/types";
+import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 
 /* ── Animation variants ── */
 
@@ -95,11 +93,87 @@ const sectionRow = {
 const CATEGORIES = ["pages", "content", "settings"] as const;
 type Category = (typeof CATEGORIES)[number];
 
-const CATEGORY_META: Record<Category, { label: string; icon: typeof FileText; description: string }> = {
-  pages:    { label: "Pages",    icon: FileText, description: "Homepage, Farm to Table, Casa, and more" },
-  content:  { label: "Content",  icon: Layers,   description: "Journal, popups, banners, FAQ, media" },
-  settings: { label: "Settings", icon: Settings,  description: "Global, navigation, footer, hours" },
+const CATEGORY_META: Record<Category, { label: B; icon: typeof FileText; description: B }> = {
+  pages:    { label: { es: "Páginas", en: "Pages" },          icon: FileText, description: { es: "Inicio, Farm to Table, Casa y más", en: "Homepage, Farm to Table, Casa, and more" } },
+  content:  { label: { es: "Contenido", en: "Content" },      icon: Layers,   description: { es: "Cuaderno, anuncios, banners, preguntas y medios", en: "Journal, popups, banners, FAQ, media" } },
+  settings: { label: { es: "Configuración", en: "Settings" }, icon: Settings, description: { es: "Global, navegación, pie de página y horarios", en: "Global, navigation, footer, hours" } },
 };
+
+/* ── Bilingual label maps ──
+   ROLE_LABELS / ROLE_DESCRIPTIONS / SECTION_ACCESS_LABELS and the section
+   labels live in lib/auth/types.ts — a shared server/client module that
+   can't call the render-time t() hook, and which this page may not edit.
+   We mirror them here as { es, en } objects and resolve with t(...) in the
+   JSX, exactly like components/admin/AdminHeader.tsx does. */
+
+const ROLE_LABELS_B: Record<AdminRole, B> = {
+  owner:   { es: "Dueño",   en: "Owner" },
+  manager: { es: "Manager", en: "Manager" },
+  editor:  { es: "Editor",  en: "Editor" },
+  host:    { es: "Host",    en: "Host" },
+};
+
+const ROLE_DESCRIPTIONS_B: Record<AdminRole, B> = {
+  owner:   { es: "Acceso total a todo — contenido, equipo, configuración y facturación", en: "Full access to everything — content, team, settings, billing" },
+  manager: { es: "Editar y eliminar contenido, gestionar la configuración; sin gestión de equipo", en: "Edit & delete content, manage settings, no team management" },
+  editor:  { es: "Solo editar contenido — sin eliminar ni configuración", en: "Edit content only — no delete, no settings" },
+  host:    { es: "Acceso solo de lectura con funciones de chat", en: "View-only access with chat capabilities" },
+};
+
+/* Section-access tier names (Maestro / Editor / Lector / Oculto) */
+const SECTION_ACCESS_LABELS_B: Record<SectionAccess, B> = {
+  maestro: { es: "Maestro", en: "Maestro" },
+  editor:  { es: "Editor",  en: "Editor" },
+  viewer:  { es: "Lector",  en: "Viewer" },
+  hidden:  { es: "Oculto",  en: "Hidden" },
+};
+
+/* Short verb-style labels shown on the per-section permission buttons */
+const ACCESS_BTN: Record<SectionAccess, B> = {
+  maestro: { es: "Maestro", en: "Maestro" },
+  editor:  { es: "Editar",  en: "Edit" },
+  viewer:  { es: "Ver",     en: "View" },
+  hidden:  { es: "Oculto",  en: "Hidden" },
+};
+
+const INHERIT_LABEL: B = { es: "Heredar", en: "Inherit" };
+
+/* Bilingual names for each admin section, keyed by the stable section key
+   in ADMIN_SECTIONS (whose own label field is English-only). */
+const SECTION_LABELS_B: Record<string, B> = {
+  "pages.homepage":       { es: "Página de Inicio",     en: "Homepage" },
+  "pages.casa":           { es: "Casa Olivea",          en: "Casa Olivea" },
+  "content.casafaq":      { es: "Preguntas de Casa",    en: "Casa FAQ" },
+  "pages.farmtotable":    { es: "Olivea Farm to Table", en: "Olivea Farm to Table" },
+  "pages.cafe":           { es: "Olivea Café",          en: "Olivea Café" },
+  "pages.sustainability": { es: "Sustentabilidad",      en: "Sustainability" },
+  "pages.press":          { es: "Prensa",               en: "Press" },
+  "pages.team":           { es: "Página del Equipo",    en: "Team Page" },
+  "pages.contact":        { es: "Contacto",             en: "Contact" },
+  "pages.careers":        { es: "Trabaja con Nosotros", en: "Careers" },
+  "pages.innovation":     { es: "Innovación",           en: "Innovation" },
+  "pages.roseiies":       { es: "roseiies",             en: "roseiies" },
+  "content.popups":       { es: "Especiales y Anuncios", en: "Specials & Announcements" },
+  "content.banners":      { es: "Banners del Sitio",    en: "Site Banners" },
+  "settings.promotions":  { es: "Promociones",          en: "Promotions" },
+  "content.journal":      { es: "Cuaderno",             en: "Journal" },
+  "content.menu":         { es: "Menús y Enlaces",      en: "Menus & Links" },
+  "content.pressitems":   { es: "Cobertura de Prensa",  en: "Press Coverage" },
+  "settings.hours":       { es: "Horarios de Operación", en: "Operating Hours" },
+  "content.media":        { es: "Fotos y Medios",       en: "Photos & Media" },
+  "settings.global":      { es: "Marca e Identidad",    en: "Brand & Identity" },
+  "settings.navigation":  { es: "Navegación Móvil",     en: "Mobile Navigation" },
+  "settings.footer":      { es: "Pie de Página",        en: "Footer" },
+  "pages.legal":          { es: "Páginas Legales",      en: "Legal Pages" },
+  "pages.notfound":       { es: "Página 404",           en: "404 Page" },
+  "settings.audit":       { es: "Registro de Cambios",  en: "Audit Log" },
+};
+
+/* Resolve a section's bilingual label, falling back to the English label
+   baked into ADMIN_SECTIONS if a key is ever missing above. */
+function sectionLabel(key: string, fallback: string): B {
+  return SECTION_LABELS_B[key] ?? { es: fallback, en: fallback };
+}
 
 /* ── Confirm modal ── */
 
@@ -107,7 +181,7 @@ function ConfirmModal({
   open,
   title,
   message,
-  confirmLabel = "Confirm",
+  confirmLabel,
   onConfirm,
   onCancel,
   variant = "danger",
@@ -120,6 +194,7 @@ function ConfirmModal({
   onCancel: () => void;
   variant?: "danger" | "warning";
 }) {
+  const { t } = useAdminLocale();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -194,7 +269,7 @@ function ConfirmModal({
                       focus:outline-none focus:ring-2 focus:ring-[#5e7658]/15
                       transition-all duration-200"
                   >
-                    Cancel
+                    {t(STR.cancel)}
                   </button>
                   <button
                     onClick={onConfirm}
@@ -206,7 +281,7 @@ function ConfirmModal({
                         : "bg-amber-500 hover:bg-amber-600 focus:ring-amber-300 shadow-[0_2px_12px_rgba(245,158,11,0.25)]"
                       }`}
                   >
-                    {confirmLabel}
+                    {confirmLabel ?? t({ es: "Confirmar", en: "Confirm" })}
                   </button>
                 </motion.div>
               </div>
@@ -275,6 +350,7 @@ function Avatar({
 /* ── Role badge (inline with name, like Roseiies) ── */
 
 function RoleBadge({ role }: { role: AdminRole }) {
+  const { t } = useAdminLocale();
   const styles: Record<AdminRole, string> = {
     owner: "bg-[#c9a96e]/12 text-[#c9a96e] border-[#c9a96e]/20",
     manager: "bg-violet-50 text-violet-700 border-violet-200/60",
@@ -296,7 +372,7 @@ function RoleBadge({ role }: { role: AdminRole }) {
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${styles[role]}`}
     >
       <Icon size={10} />
-      {ROLE_LABELS[role]}
+      {t(ROLE_LABELS_B[role])}
     </span>
   );
 }
@@ -320,6 +396,7 @@ function InviteModal({
   const [activeCat, setActiveCat] = useState<Category>("pages");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const { t } = useAdminLocale();
 
   function setAccess(sectionKey: string, access: SectionAccess) {
     const inherited = defaultSectionAccess(role);
@@ -401,10 +478,12 @@ function InviteModal({
                   >
                     <UserPlus size={18} className="text-[#5e7658]" />
                   </motion.div>
-                  Agregar miembro
+                  {t({ es: "Agregar miembro", en: "Add member" })}
                 </h2>
                 <p className="text-[11px] text-[#6b7a65] mt-0.5">
-                  {step === 1 ? "Información básica y rol global" : "Personaliza el acceso por sección"}
+                  {step === 1
+                    ? t({ es: "Información básica y rol global", en: "Basic info and global role" })
+                    : t({ es: "Personaliza el acceso por sección", en: "Customize access by section" })}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -438,7 +517,7 @@ function InviteModal({
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label htmlFor="invite-name" className="block text-[11px] font-medium text-[#2d3b29] mb-1.5">
-                          Nombre completo
+                          {t({ es: "Nombre completo", en: "Full name" })}
                         </label>
                         <input
                           id="invite-name"
@@ -455,7 +534,7 @@ function InviteModal({
                       </div>
                       <div>
                         <label htmlFor="invite-email" className="block text-[11px] font-medium text-[#2d3b29] mb-1.5">
-                          Correo electrónico
+                          {t({ es: "Correo electrónico", en: "Email" })}
                         </label>
                         <input
                           id="invite-email"
@@ -463,7 +542,7 @@ function InviteModal({
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          placeholder="maria@ejemplo.com"
+                          placeholder={t({ es: "maria@ejemplo.com", en: "maria@example.com" })}
                           className="w-full px-3 py-2.5 rounded-xl text-sm bg-white border border-[#5e7658]/15
                             text-[#2d3b29] placeholder:text-[#6b7a65]/40
                             focus:outline-none focus:ring-2 focus:ring-[#5e7658]/20 focus:border-[#5e7658]/30
@@ -474,7 +553,7 @@ function InviteModal({
 
                     {/* Role selector */}
                     <div>
-                      <label className="block text-[11px] font-medium text-[#2d3b29] mb-2">Rol global</label>
+                      <label className="block text-[11px] font-medium text-[#2d3b29] mb-2">{t({ es: "Rol global", en: "Global role" })}</label>
                       <div className="grid grid-cols-3 gap-2">
                         {ROLE_HIERARCHY.filter((r) => r !== "owner").map((r) => (
                           <button
@@ -497,8 +576,8 @@ function InviteModal({
                             >
                               {role === r && <Check size={10} className="text-white" />}
                             </div>
-                            <span className="text-xs font-semibold text-[#2d3b29]">{ROLE_LABELS[r]}</span>
-                            <p className="text-[9px] text-[#6b7a65] leading-tight">{ROLE_DESCRIPTIONS[r]}</p>
+                            <span className="text-xs font-semibold text-[#2d3b29]">{t(ROLE_LABELS_B[r])}</span>
+                            <p className="text-[9px] text-[#6b7a65] leading-tight">{t(ROLE_DESCRIPTIONS_B[r])}</p>
                           </button>
                         ))}
                       </div>
@@ -507,15 +586,19 @@ function InviteModal({
                     {/* Preview: what this role gets */}
                     <div className="bg-[#f4f5f0]/60 rounded-xl p-3 border border-[#5e7658]/[0.06]">
                       <p className="text-[10px] font-semibold text-[#6b7a65] uppercase tracking-wider mb-1.5">
-                        Acceso predeterminado
+                        {t({ es: "Acceso predeterminado", en: "Default access" })}
                       </p>
                       <p className="text-[11px] text-[#6b7a65]/80 leading-relaxed">
-                        Con el rol <span className="font-semibold text-[#2d3b29]">{ROLE_LABELS[role]}</span>,
-                        todas las secciones tendrán acceso{" "}
+                        {t({ es: "Con el rol ", en: "With the " })}
+                        <span className="font-semibold text-[#2d3b29]">{t(ROLE_LABELS_B[role])}</span>
+                        {t({ es: ", todas las secciones tendrán acceso ", en: " role, all sections will have " })}
                         <span className="font-semibold text-[#5e7658]">
-                          {SECTION_ACCESS_LABELS[defaultSectionAccess(role)]}
-                        </span>{" "}
-                        por defecto. En el siguiente paso podrás personalizar el acceso por sección.
+                          {t(SECTION_ACCESS_LABELS_B[defaultSectionAccess(role)])}
+                        </span>
+                        {t({
+                          es: " por defecto. En el siguiente paso podrás personalizar el acceso por sección.",
+                          en: " access by default. In the next step you can customize access per section.",
+                        })}
                       </p>
                     </div>
                   </motion.div>
@@ -529,10 +612,16 @@ function InviteModal({
                   >
                     {/* Description */}
                     <p className="text-[11px] text-[#6b7a65]/70 mb-4 leading-relaxed">
-                      Cada sección tiene su propio nivel de acceso. Elige exactamente qué
-                      puede ver o editar <span className="font-semibold text-[#2d3b29]">{fullName || "este miembro"}</span> — o
-                      deja en <span className="font-medium text-[#5e7658]">Heredar</span> para
-                      seguir el rol <span className="font-medium">{ROLE_LABELS[role]}</span>.
+                      {t({
+                        es: "Cada sección tiene su propio nivel de acceso. Elige exactamente qué puede ver o editar ",
+                        en: "Each section has its own access level. Choose exactly what ",
+                      })}
+                      <span className="font-semibold text-[#2d3b29]">{fullName || t({ es: "este miembro", en: "this member" })}</span>
+                      {t({ es: " — o deja en ", en: " can view or edit — or leave it on " })}
+                      <span className="font-medium text-[#5e7658]">{t(INHERIT_LABEL)}</span>
+                      {t({ es: " para seguir el rol ", en: " to follow the " })}
+                      <span className="font-medium">{t(ROLE_LABELS_B[role])}</span>
+                      {t({ es: ".", en: " role." })}
                     </p>
 
                     {/* Category pill tabs */}
@@ -558,7 +647,7 @@ function InviteModal({
                             `}
                           >
                             <CatIcon size={13} strokeWidth={isActive ? 2 : 1.5} />
-                            {meta.label}
+                            {t(meta.label)}
                             {overrides > 0 && (
                               <span className={`
                                 text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-0.5
@@ -588,7 +677,7 @@ function InviteModal({
                             className="flex items-center gap-3 py-3 px-4 hover:bg-[#f4f5f0]/40 transition-colors"
                           >
                             <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate">
-                              {section.label}
+                              {t(sectionLabel(section.key, section.label))}
                             </span>
                             <div className="flex">
                               {SECTION_ACCESS_HIERARCHY.map((access) => {
@@ -615,10 +704,10 @@ function InviteModal({
                                     `}
                                   >
                                     {access === "maestro"
-                                      ? isInheritedActive ? "Heredar" : "Maestro"
-                                      : access === "viewer" ? "Ver"
-                                      : access === "editor" ? "Editar"
-                                      : "Oculto"}
+                                      ? isInheritedActive ? t(INHERIT_LABEL) : t(ACCESS_BTN.maestro)
+                                      : access === "viewer" ? t(ACCESS_BTN.viewer)
+                                      : access === "editor" ? t(ACCESS_BTN.editor)
+                                      : t(ACCESS_BTN.hidden)}
                                   </button>
                                 );
                               })}
@@ -646,13 +735,13 @@ function InviteModal({
                       className="flex-1 py-2.5 rounded-xl text-sm font-medium
                         border border-[#5e7658]/15 text-[#6b7a65] hover:bg-white transition-all duration-200"
                     >
-                      Cancelar
+                      {t(STR.cancel)}
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         if (!fullName.trim() || !email.trim()) {
-                          setError("Nombre y correo son requeridos");
+                          setError(t({ es: "Nombre y correo son requeridos", en: "Name and email are required" }));
                           return;
                         }
                         setError("");
@@ -662,7 +751,7 @@ function InviteModal({
                         bg-[#5e7658] text-white hover:bg-[#4a6046]
                         transition-all duration-200 shadow-[0_2px_8px_rgba(94,118,88,0.2)]"
                     >
-                      Siguiente — Permisos
+                      {t({ es: "Siguiente — Permisos", en: "Next — Permissions" })}
                     </button>
                   </>
                 ) : (
@@ -673,7 +762,7 @@ function InviteModal({
                       className="py-2.5 px-5 rounded-xl text-sm font-medium
                         border border-[#5e7658]/15 text-[#6b7a65] hover:bg-white transition-all duration-200"
                     >
-                      Atrás
+                      {t({ es: "Atrás", en: "Back" })}
                     </button>
                     <button
                       type="button"
@@ -686,11 +775,11 @@ function InviteModal({
                         flex items-center justify-center gap-2"
                     >
                       {isPending ? (
-                        "Enviando..."
+                        t({ es: "Enviando…", en: "Sending…" })
                       ) : (
                         <>
                           <UserPlus size={14} />
-                          Enviar invitación
+                          {t({ es: "Enviar invitación", en: "Send invitation" })}
                         </>
                       )}
                     </button>
@@ -722,6 +811,7 @@ function DetailPanel({
   onRemove: () => void;
   isPending: boolean;
 }) {
+  const { t, locale } = useAdminLocale();
   const isOwner = member.role === "owner";
   const isSelf = member.id === currentUserId;
   const perms = member.sectionPermissions ?? {};
@@ -772,14 +862,14 @@ function DetailPanel({
             <p className="text-xs text-[#6b7a65] mt-1">{member.email}</p>
             <p className="text-[10px] text-[#6b7a65]/60 flex items-center gap-1 mt-1">
               <Clock size={9} />
-              Última actividad:{" "}
+              {t({ es: "Última actividad:", en: "Last active:" })}{" "}
               {member.lastActiveAt
-                ? new Date(member.lastActiveAt).toLocaleDateString("es-MX", {
+                ? new Date(member.lastActiveAt).toLocaleDateString(locale === "en" ? "en-US" : "es-MX", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
                   })
-                : "Nunca"}
+                : t({ es: "Nunca", en: "Never" })}
             </p>
           </div>
 
@@ -795,7 +885,7 @@ function DetailPanel({
                 transition-all duration-200 flex-shrink-0"
             >
               <Trash2 size={12} />
-              Erase
+              {t(STR.remove)}
             </button>
           )}
         </div>
@@ -804,7 +894,7 @@ function DetailPanel({
         {!isOwner && !isSelf && (
           <div className="mt-4">
             <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6b7a65] mb-2">
-              Global Role
+              {t({ es: "Rol global", en: "Global role" })}
             </label>
             <div className="flex gap-1.5">
               {ROLE_HIERARCHY.filter((r) => r !== "owner").map((r) => (
@@ -821,7 +911,7 @@ function DetailPanel({
                     disabled:opacity-40 disabled:cursor-not-allowed
                   `}
                 >
-                  {ROLE_LABELS[r]}
+                  {t(ROLE_LABELS_B[r])}
                 </button>
               ))}
             </div>
@@ -839,7 +929,7 @@ function DetailPanel({
         {/* Heading */}
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a65]">
-            Acceso a Secciones
+            {t({ es: "Acceso a Secciones", en: "Section Access" })}
           </h3>
           {Object.keys(perms).length > 0 && !isOwner && (
             <button
@@ -848,15 +938,17 @@ function DetailPanel({
               className="text-[10px] font-medium text-[#5e7658] hover:text-[#4a6046]
                 px-2 py-1 rounded-lg hover:bg-[#5e7658]/5 transition-all"
             >
-              Reset all
+              {t({ es: "Restablecer todo", en: "Reset all" })}
             </button>
           )}
         </div>
         <p className="text-[11px] text-[#6b7a65]/70 mb-5 leading-relaxed">
-          Cada sección tiene su propio nivel de acceso. Abajo, elige exactamente
-          qué secciones puede ver o editar — o deja en{" "}
-          <span className="font-medium text-[#5e7658]">Heredar</span> para
-          seguir el rol global.
+          {t({
+            es: "Cada sección tiene su propio nivel de acceso. Abajo, elige exactamente qué secciones puede ver o editar — o deja en ",
+            en: "Each section has its own access level. Below, choose exactly which sections can be viewed or edited — or leave it on ",
+          })}
+          <span className="font-medium text-[#5e7658]">{t(INHERIT_LABEL)}</span>
+          {t({ es: " para seguir el rol global.", en: " to follow the global role." })}
         </p>
 
         {/* ─── Category pill tabs (like Roseiies app tabs) ─── */}
@@ -881,7 +973,7 @@ function DetailPanel({
                 `}
               >
                 <CatIcon size={13} strokeWidth={isActive ? 2 : 1.5} />
-                {meta.label}
+                {t(meta.label)}
                 {overrides > 0 && (
                   <span className={`
                     text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-0.5
@@ -903,11 +995,11 @@ function DetailPanel({
               return <CatIcon size={18} className="text-[#5e7658]" />;
             })()}
             <span className="text-sm font-semibold text-[#2d3b29]">
-              {CATEGORY_META[activeCat].label}
+              {t(CATEGORY_META[activeCat].label)}
             </span>
             {isOwner && (
               <span className="text-[10px] text-[#6b7a65]/60 ml-auto">
-                Heredado del propietario
+                {t({ es: "Heredado del propietario", en: "Inherited from owner" })}
               </span>
             )}
           </div>
@@ -917,7 +1009,7 @@ function DetailPanel({
         {/* Column headers */}
         <div className="flex items-center gap-3 px-3 py-2 mb-1">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6b7a65]/50 flex-1">
-            Secciones
+            {t({ es: "Secciones", en: "Sections" })}
           </span>
           <div className="flex">
             {SECTION_ACCESS_HIERARCHY.map((access) => (
@@ -925,7 +1017,7 @@ function DetailPanel({
                 key={access}
                 className="w-[52px] text-center text-[9px] font-semibold uppercase tracking-wider text-[#6b7a65]/40"
               >
-                {access === "viewer" ? "Ver" : access === "editor" ? "Editar" : access === "maestro" ? "Heredar" : "Oculto"}
+                {access === "viewer" ? t(ACCESS_BTN.viewer) : access === "editor" ? t(ACCESS_BTN.editor) : access === "maestro" ? t(INHERIT_LABEL) : t(ACCESS_BTN.hidden)}
               </span>
             ))}
           </div>
@@ -954,7 +1046,7 @@ function DetailPanel({
                       hover:text-[#5e7658] hover:underline underline-offset-2
                       transition-colors duration-200 flex items-center gap-1.5 group/link"
                   >
-                    {section.label}
+                    {t(sectionLabel(section.key, section.label))}
                     <ExternalLink
                       size={10}
                       className="opacity-0 group-hover/link:opacity-50 transition-opacity flex-shrink-0"
@@ -962,7 +1054,7 @@ function DetailPanel({
                   </Link>
                 ) : (
                   <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate">
-                    {section.label}
+                    {t(sectionLabel(section.key, section.label))}
                   </span>
                 )}
 
@@ -996,10 +1088,10 @@ function DetailPanel({
                         `}
                       >
                         {access === "maestro"
-                          ? isInheritedActive ? "Heredar" : "Maestro"
-                          : access === "viewer" ? "Ver"
-                          : access === "editor" ? "Editar"
-                          : "Oculto"}
+                          ? isInheritedActive ? t(INHERIT_LABEL) : t(ACCESS_BTN.maestro)
+                          : access === "viewer" ? t(ACCESS_BTN.viewer)
+                          : access === "editor" ? t(ACCESS_BTN.editor)
+                          : t(ACCESS_BTN.hidden)}
                       </button>
                     );
                   })}
@@ -1023,6 +1115,7 @@ export default function TeamPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState<{ id: string; name: string } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const { t } = useAdminLocale();
 
   const loadMembers = useCallback(async () => {
     try {
@@ -1083,9 +1176,12 @@ export default function TeamPage() {
           transition={{ duration: 0.6, ease: cinematic }}
         >
           <Shield size={48} className="mx-auto mb-4 text-[#5e7658]/20" />
-          <h1 className="text-xl font-semibold text-[#2d3b29] mb-2">Access Restricted</h1>
+          <h1 className="text-xl font-semibold text-[#2d3b29] mb-2">{t({ es: "Acceso restringido", en: "Access Restricted" })}</h1>
           <p className="text-sm text-[#6b7a65]">
-            Only the account owner can manage team members and permissions.
+            {t({
+              es: "Solo el propietario de la cuenta puede gestionar a los miembros del equipo y sus permisos.",
+              en: "Only the account owner can manage team members and permissions.",
+            })}
           </p>
         </motion.div>
       </div>
@@ -1099,9 +1195,9 @@ export default function TeamPage() {
         {/* Header */}
         <div className="px-4 py-4 border-b border-[#5e7658]/[0.06]">
           <div className="flex items-center justify-between">
-            <h1 className="text-sm font-semibold text-[#2d3b29]">Equipo</h1>
+            <h1 className="text-sm font-semibold text-[#2d3b29]">{t(STR.team)}</h1>
             <span className="text-[10px] text-[#6b7a65] bg-[#f4f5f0] px-2 py-0.5 rounded-full font-medium">
-              {members.length} miembros
+              {members.length} {t({ es: "miembros", en: "members" })}
             </span>
           </div>
         </div>
@@ -1117,7 +1213,7 @@ export default function TeamPage() {
               transition-all duration-200"
           >
             <UserPlus size={14} />
-            Agregar miembro
+            {t({ es: "Agregar miembro", en: "Add member" })}
           </button>
         </div>
 
@@ -1171,14 +1267,14 @@ export default function TeamPage() {
                         </span>
                         {member.id === currentUser?.id && (
                           <span className="text-[8px] text-[#6b7a65] bg-[#f4f5f0] px-1 py-0.5 rounded font-medium flex-shrink-0">
-                            Tú
+                            {t({ es: "Tú", en: "You" })}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         {member.role === "owner" ? (
                           <span className="text-[10px] font-semibold text-[#c9a96e]">
-                            {ROLE_LABELS[member.role]}
+                            {t(ROLE_LABELS_B[member.role])}
                           </span>
                         ) : (
                           <span className="text-[10px] text-[#6b7a65]">
@@ -1188,7 +1284,7 @@ export default function TeamPage() {
                       </div>
                       {!isSelected && sectionCount > 0 && (
                         <span className="text-[9px] text-[#5e7658]/60 mt-0.5 block">
-                          {sectionCount} override{sectionCount !== 1 ? "s" : ""}
+                          {sectionCount} {t({ es: "ajuste", en: "override" })}{sectionCount !== 1 ? "s" : ""}
                         </span>
                       )}
                     </div>
@@ -1222,7 +1318,7 @@ export default function TeamPage() {
               <div className="text-center">
                 <Users size={40} className="mx-auto mb-3 text-[#5e7658]/15" />
                 <p className="text-sm text-[#6b7a65]/50">
-                  Selecciona un miembro del equipo para gestionar permisos
+                  {t({ es: "Selecciona un miembro del equipo para gestionar permisos", en: "Select a team member to manage permissions" })}
                 </p>
               </div>
             </motion.div>
@@ -1240,9 +1336,12 @@ export default function TeamPage() {
       {/* Confirm remove modal */}
       <ConfirmModal
         open={!!confirmRemove}
-        title="Eliminar miembro"
-        message={`¿Estás segura de que quieres eliminar a ${confirmRemove?.name ?? "este miembro"} del equipo? Esta acción no se puede deshacer.`}
-        confirmLabel="Eliminar"
+        title={t({ es: "Eliminar miembro", en: "Remove member" })}
+        message={t({
+          es: `¿Estás segura de que quieres eliminar a ${confirmRemove?.name ?? "este miembro"} del equipo? Esta acción no se puede deshacer.`,
+          en: `Are you sure you want to remove ${confirmRemove?.name ?? "this member"} from the team? This can't be undone.`,
+        })}
+        confirmLabel={t(STR.delete)}
         variant="danger"
         onConfirm={executeRemove}
         onCancel={() => setConfirmRemove(null)}

@@ -5,6 +5,7 @@ import SectionGuard from "@/components/admin/SectionGuard";
 import { Bell, Plus, Pencil, Trash2, ChevronUp, X } from "lucide-react";
 import { getPopups, savePopup, deletePopup, togglePopup } from "@/lib/supabase/actions";
 import type { PopupItem, PopupFrequency } from "@/lib/content/types";
+import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 
 /* ─── Helpers ─── */
 
@@ -159,6 +160,7 @@ function BilingualInput({
 function PopupPreview({ form }: { form: PopupItem }) {
   const [lang, setLang] = useState<"es" | "en">("es");
   const [imgOk, setImgOk] = useState(true);
+  const { t: tr } = useAdminLocale();
 
   const t = form.translations[lang];
   const badge = (t.badge || "").trim() || (lang === "es" ? "Nuevo" : "New");
@@ -172,7 +174,7 @@ function PopupPreview({ form }: { form: PopupItem }) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider">
-          Live preview
+          {tr({ es: "Vista previa", en: "Live preview" })}
         </span>
         <div className="inline-flex rounded-full bg-white/70 ring-1 ring-black/10 p-0.5 text-[11px] font-semibold">
           {(["es", "en"] as const).map((l) => (
@@ -250,9 +252,18 @@ function PopupPreview({ form }: { form: PopupItem }) {
 
       <p className="text-[11px] leading-relaxed text-[var(--olivea-ink)]/50">
         {form.kind === "announcement"
-          ? "Announcements don’t show a cover image. "
-          : "Journal popups show the cover image above. "}
-        Only the highest-priority enabled popup appears on the site.
+          ? tr({
+              es: "Los anuncios no muestran imagen de portada. ",
+              en: "Announcements don’t show a cover image. ",
+            })
+          : tr({
+              es: "Las ventanas tipo Cuaderno muestran la imagen de portada arriba. ",
+              en: "Journal popups show the cover image above. ",
+            })}
+        {tr({
+          es: "Solo aparece en el sitio la ventana activa de mayor prioridad.",
+          en: "Only the highest-priority enabled popup appears on the site.",
+        })}
       </p>
     </div>
   );
@@ -272,6 +283,7 @@ function PopupForm({
   saving: boolean;
 }) {
   const [form, setForm] = useState<PopupItem>(popup);
+  const { t } = useAdminLocale();
 
   const inputClass =
     "rounded-xl bg-white/80 ring-1 ring-black/10 px-4 py-2.5 text-sm focus:ring-2 focus:ring-[var(--olivea-olive)]/40 outline-none w-full";
@@ -320,7 +332,7 @@ function PopupForm({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="col-span-2">
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            ID (slug)
+            {t({ es: "ID (slug)", en: "ID (slug)" })}
           </label>
           <input
             type="text"
@@ -333,20 +345,20 @@ function PopupForm({
         </div>
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            Kind
+            {t({ es: "Tipo", en: "Kind" })}
           </label>
           <select
             value={form.kind}
             onChange={(e) => updateField("kind", e.target.value as PopupItem["kind"])}
             className={inputClass}
           >
-            <option value="journal">Journal</option>
-            <option value="announcement">Announcement</option>
+            <option value="journal">{t({ es: "Cuaderno", en: "Journal" })}</option>
+            <option value="announcement">{t({ es: "Anuncio", en: "Announcement" })}</option>
           </select>
         </div>
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            Priority
+            {t({ es: "Prioridad", en: "Priority" })}
           </label>
           <input
             type="number"
@@ -359,23 +371,23 @@ function PopupForm({
 
       {/* ── Translations ── */}
       <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">Translations</h4>
+        <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">{t({ es: "Traducciones", en: "Translations" })}</h4>
         <BilingualInput
-          label="Badge"
+          label={t({ es: "Insignia", en: "Badge" })}
           esValue={form.translations.es.badge}
           enValue={form.translations.en.badge}
           onEsChange={(v) => updateTranslation("es", "badge", v)}
           onEnChange={(v) => updateTranslation("en", "badge", v)}
         />
         <BilingualInput
-          label="Title"
+          label={t({ es: "Título", en: "Title" })}
           esValue={form.translations.es.title}
           enValue={form.translations.en.title}
           onEsChange={(v) => updateTranslation("es", "title", v)}
           onEnChange={(v) => updateTranslation("en", "title", v)}
         />
         <BilingualInput
-          label="Excerpt"
+          label={t({ es: "Extracto", en: "Excerpt" })}
           esValue={form.translations.es.excerpt}
           enValue={form.translations.en.excerpt}
           onEsChange={(v) => updateTranslation("es", "excerpt", v)}
@@ -383,7 +395,7 @@ function PopupForm({
           textarea
         />
         <BilingualInput
-          label="Link (href)"
+          label={t({ es: "Enlace (href)", en: "Link (href)" })}
           esValue={form.translations.es.href ?? ""}
           enValue={form.translations.en.href ?? ""}
           onEsChange={(v) => updateTranslation("es", "href", v)}
@@ -393,10 +405,10 @@ function PopupForm({
 
       {/* ── Media ── */}
       <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">Media</h4>
+        <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">{t({ es: "Medios", en: "Media" })}</h4>
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            Cover Image Source
+            {t({ es: "Origen de la imagen de portada", en: "Cover Image Source" })}
           </label>
           <input
             type="text"
@@ -407,7 +419,7 @@ function PopupForm({
           />
         </div>
         <BilingualInput
-          label="Cover Alt Text"
+          label={t({ es: "Texto alternativo de portada", en: "Cover Alt Text" })}
           esValue={form.media?.coverAlt?.es ?? ""}
           enValue={form.media?.coverAlt?.en ?? ""}
           onEsChange={(v) =>
@@ -421,11 +433,11 @@ function PopupForm({
 
       {/* ── Rules ── */}
       <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">Display Rules</h4>
+        <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">{t({ es: "Reglas de visualización", en: "Display Rules" })}</h4>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-              Starts At
+              {t({ es: "Inicia el", en: "Starts At" })}
             </label>
             <input
               type="datetime-local"
@@ -436,7 +448,7 @@ function PopupForm({
           </div>
           <div>
             <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-              Ends At
+              {t({ es: "Termina el", en: "Ends At" })}
             </label>
             <input
               type="datetime-local"
@@ -448,22 +460,22 @@ function PopupForm({
         </div>
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            Frequency
+            {t({ es: "Frecuencia", en: "Frequency" })}
           </label>
           <select
             value={form.rules.frequency}
             onChange={(e) => updateRules({ frequency: e.target.value as PopupFrequency })}
             className={inputClass + " max-w-xs"}
           >
-            <option value="onceEver">Once Ever</option>
-            <option value="oncePerPopupId">Once Per Popup</option>
-            <option value="oncePerDays">Once Per N Days</option>
+            <option value="onceEver">{t({ es: "Una sola vez", en: "Once Ever" })}</option>
+            <option value="oncePerPopupId">{t({ es: "Una vez por ventana", en: "Once Per Popup" })}</option>
+            <option value="oncePerDays">{t({ es: "Una vez cada N días", en: "Once Per N Days" })}</option>
           </select>
         </div>
         {form.rules.frequency === "oncePerDays" && (
           <div>
             <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-              Days
+              {t({ es: "Días", en: "Days" })}
             </label>
             <input
               type="number"
@@ -476,7 +488,7 @@ function PopupForm({
         )}
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            Include Paths (comma-separated)
+            {t({ es: "Rutas incluidas (separadas por comas)", en: "Include Paths (comma-separated)" })}
           </label>
           <input
             type="text"
@@ -495,7 +507,7 @@ function PopupForm({
         </div>
         <div>
           <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            Exclude Paths (comma-separated)
+            {t({ es: "Rutas excluidas (separadas por comas)", en: "Exclude Paths (comma-separated)" })}
           </label>
           <input
             type="text"
@@ -521,14 +533,14 @@ function PopupForm({
           disabled={saving || !form.id}
           className="rounded-full px-5 py-2 text-xs tracking-widest uppercase font-semibold bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] disabled:opacity-50 transition-colors"
         >
-          {saving ? "Saving..." : "Save Popup"}
+          {saving ? t(STR.saving) : t({ es: "Guardar ventana", en: "Save Popup" })}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-full px-5 py-2 text-xs tracking-widest uppercase font-semibold bg-white/60 text-[var(--olivea-ink)] ring-1 ring-black/10 hover:bg-white/80 transition-colors"
         >
-          Cancel
+          {t(STR.cancel)}
         </button>
       </div>
     </form>
@@ -544,12 +556,13 @@ function PopupForm({
 export default function PopupsPage() {
   const [popups, setPopups] = useState<PopupItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<B | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const { t } = useAdminLocale();
 
   const load = useCallback(async () => {
     try {
@@ -557,7 +570,11 @@ export default function PopupsPage() {
       const data = await getPopups();
       setPopups((data as unknown as PopupItem[]) ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load popups");
+      setError(
+        err instanceof Error
+          ? { es: err.message, en: err.message }
+          : { es: "No se pudieron cargar las ventanas", en: "Failed to load popups" }
+      );
     } finally {
       setLoading(false);
     }
@@ -575,21 +592,29 @@ export default function PopupsPage() {
       setExpandedId(null);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save popup");
+      setError(
+        err instanceof Error
+          ? { es: err.message, en: err.message }
+          : { es: "No se pudo guardar la ventana", en: "Failed to save popup" }
+      );
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm(`Delete popup "${id}"? This cannot be undone.`)) return;
+    if (!window.confirm(t({ es: `¿Eliminar la ventana "${id}"? Esta acción no se puede deshacer.`, en: `Delete popup "${id}"? This cannot be undone.` }))) return;
     setDeletingId(id);
     try {
       await deletePopup(id);
       if (expandedId === id) setExpandedId(null);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete popup");
+      setError(
+        err instanceof Error
+          ? { es: err.message, en: err.message }
+          : { es: "No se pudo eliminar la ventana", en: "Failed to delete popup" }
+      );
     } finally {
       setDeletingId(null);
     }
@@ -603,7 +628,11 @@ export default function PopupsPage() {
         prev.map((p) => (p.id === id ? { ...p, enabled } : p))
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to toggle popup");
+      setError(
+        err instanceof Error
+          ? { es: err.message, en: err.message }
+          : { es: "No se pudo cambiar el estado de la ventana", en: "Failed to toggle popup" }
+      );
     } finally {
       setTogglingId(null);
     }
@@ -617,10 +646,15 @@ export default function PopupsPage() {
         <div className="flex items-center gap-3">
           <Bell size={20} className="text-[var(--olivea-olive)]" />
           <h1 className="text-lg font-semibold text-[var(--olivea-ink)]">
-            Site Popups
+            {t({ es: "Ventanas emergentes del sitio", en: "Site Popups" })}
           </h1>
           <span className="text-xs text-[var(--olivea-clay)]">
-            {popups.length} popup{popups.length !== 1 ? "s" : ""}
+            {popups.length}{" "}
+            {t(
+              popups.length === 1
+                ? { es: "ventana", en: "popup" }
+                : { es: "ventanas", en: "popups" }
+            )}
           </span>
         </div>
         <button
@@ -631,19 +665,19 @@ export default function PopupsPage() {
           className="flex items-center gap-2 rounded-full px-5 py-2 text-xs tracking-widest uppercase font-semibold bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-clay)] transition-colors"
         >
           <Plus size={14} />
-          New Popup
+          {t({ es: "Nueva ventana", en: "New Popup" })}
         </button>
       </div>
 
       {/* ── Error ── */}
       {error && (
         <div className="rounded-2xl bg-red-50/80 backdrop-blur-md ring-1 ring-red-200/60 shadow-sm p-4 text-sm text-red-700 flex items-center justify-between">
-          <span>{error}</span>
+          <span>{t(error)}</span>
           <button
             onClick={() => setError(null)}
             className="text-xs underline hover:no-underline ml-4"
           >
-            Dismiss
+            {t({ es: "Descartar", en: "Dismiss" })}
           </button>
         </div>
       )}
@@ -652,7 +686,7 @@ export default function PopupsPage() {
       {creating && (
         <div className="rounded-2xl bg-white/60 backdrop-blur-md ring-1 ring-black/8 shadow-lg p-6">
           <h2 className="text-lg font-semibold text-[var(--olivea-ink)] mb-4">
-            Create New Popup
+            {t({ es: "Crear nueva ventana", en: "Create New Popup" })}
           </h2>
           <PopupForm
             popup={emptyPopup()}
@@ -667,7 +701,7 @@ export default function PopupsPage() {
       {loading && (
         <div className="rounded-2xl bg-white/60 backdrop-blur-md ring-1 ring-black/8 shadow-lg p-12 text-center">
           <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[var(--olivea-olive)] border-r-transparent" />
-          <p className="mt-3 text-sm text-[var(--olivea-clay)]">Loading popups...</p>
+          <p className="mt-3 text-sm text-[var(--olivea-clay)]">{t({ es: "Cargando ventanas…", en: "Loading popups..." })}</p>
         </div>
       )}
 
@@ -676,7 +710,7 @@ export default function PopupsPage() {
         <div className="rounded-2xl bg-white/60 backdrop-blur-md ring-1 ring-black/8 shadow-lg p-12 text-center">
           <Bell size={32} className="mx-auto text-[var(--olivea-clay)]/30 mb-3" />
           <p className="text-sm text-[var(--olivea-clay)]">
-            No popups configured yet. Create your first one above.
+            {t({ es: "Aún no hay ventanas configuradas. Crea la primera arriba.", en: "No popups configured yet. Create your first one above." })}
           </p>
         </div>
       )}
@@ -720,16 +754,20 @@ export default function PopupsPage() {
                             : "bg-amber-50 text-amber-700 ring-1 ring-amber-200/60"
                         }`}
                       >
-                        {popup.kind}
+                        {t(
+                          popup.kind === "journal"
+                            ? { es: "Cuaderno", en: "Journal" }
+                            : { es: "Anuncio", en: "Announcement" }
+                        )}
                       </span>
                       {!popup.enabled && (
                         <span className="text-[10px] text-[var(--olivea-clay)]/60 uppercase tracking-wider">
-                          Disabled
+                          {t({ es: "Desactivado", en: "Disabled" })}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-4 text-[11px] text-[var(--olivea-clay)]">
-                      <span>Priority: {popup.priority ?? "--"}</span>
+                      <span>{t({ es: "Prioridad", en: "Priority" })}: {popup.priority ?? "--"}</span>
                       <span>
                         {formatDate(popup.rules.startsAt)} - {formatDate(popup.rules.endsAt)}
                       </span>
@@ -748,7 +786,7 @@ export default function PopupsPage() {
                         setCreating(false);
                       }}
                       className="rounded-full p-2 text-[var(--olivea-clay)] hover:bg-white/60 hover:text-[var(--olivea-ink)] transition-colors"
-                      title={isExpanded ? "Collapse" : "Edit"}
+                      title={isExpanded ? t({ es: "Contraer", en: "Collapse" }) : t(STR.edit)}
                     >
                       {isExpanded ? <ChevronUp size={16} /> : <Pencil size={16} />}
                     </button>
@@ -757,7 +795,7 @@ export default function PopupsPage() {
                       onClick={() => handleDelete(popup.id)}
                       disabled={deletingId === popup.id}
                       className="rounded-full p-2 text-[var(--olivea-clay)] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
-                      title="Delete"
+                      title={t(STR.delete)}
                     >
                       <Trash2 size={16} />
                     </button>

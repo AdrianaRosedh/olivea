@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import type { JournalPost, JournalPostAuthor, JournalPostGalleryImage } from "@/lib/content/types";
 import ImageUpload from "@/components/admin/ImageUpload";
+import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 
 /* ═══════════════════════════════════════════════════════════════════ */
 /*  BLOCK TYPES                                                       */
@@ -77,17 +78,17 @@ interface ContentBlock {
   layout?: ImageLayout;
 }
 
-const BLOCK_LABELS: Record<BlockType, { label: string; icon: React.ElementType }> = {
-  paragraph: { label: "Paragraph", icon: Type },
-  heading2: { label: "Heading 2", icon: Heading2 },
-  heading3: { label: "Heading 3", icon: Heading3 },
-  image: { label: "Image", icon: ImageIcon },
-  quote: { label: "Pull Quote", icon: Quote },
-  youtube: { label: "YouTube", icon: Youtube },
-  embed: { label: "Embed", icon: Code2 },
-  gallery: { label: "Gallery", icon: Images },
-  divider: { label: "Divider", icon: Minus },
-  html: { label: "Custom HTML", icon: Code2 },
+const BLOCK_LABELS: Record<BlockType, { label: B; icon: React.ElementType }> = {
+  paragraph: { label: { es: "Párrafo", en: "Paragraph" }, icon: Type },
+  heading2: { label: { es: "Encabezado 2", en: "Heading 2" }, icon: Heading2 },
+  heading3: { label: { es: "Encabezado 3", en: "Heading 3" }, icon: Heading3 },
+  image: { label: { es: "Imagen", en: "Image" }, icon: ImageIcon },
+  quote: { label: { es: "Cita destacada", en: "Pull Quote" }, icon: Quote },
+  youtube: { label: { es: "YouTube", en: "YouTube" }, icon: Youtube },
+  embed: { label: { es: "Insertado", en: "Embed" }, icon: Code2 },
+  gallery: { label: { es: "Galería", en: "Gallery" }, icon: Images },
+  divider: { label: { es: "Separador", en: "Divider" }, icon: Minus },
+  html: { label: { es: "HTML personalizado", en: "Custom HTML" }, icon: Code2 },
 };
 
 function newBlock(type: BlockType): ContentBlock {
@@ -286,6 +287,7 @@ function AddBlockMenu({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useAdminLocale();
 
   useEffect(() => {
     if (!open) return;
@@ -297,12 +299,12 @@ function AddBlockMenu({
   }, [open]);
 
   const groups = [
-    { label: "Text", items: ["paragraph", "heading2", "heading3", "quote"] as BlockType[] },
+    { label: t({ es: "Texto", en: "Text" }), items: ["paragraph", "heading2", "heading3", "quote"] as BlockType[] },
     // NOTE: "gallery" was removed from this menu — in-body gallery divs have
     // no styling on the public page. The photo carousel is edited in the
     // article settings panel (post.gallery → PhotoCarousel after the body).
-    { label: "Media", items: ["image", "youtube", "embed"] as BlockType[] },
-    { label: "Layout", items: ["divider", "html"] as BlockType[] },
+    { label: t({ es: "Medios", en: "Media" }), items: ["image", "youtube", "embed"] as BlockType[] },
+    { label: t({ es: "Diseño", en: "Layout" }), items: ["divider", "html"] as BlockType[] },
   ];
 
   return (
@@ -312,7 +314,7 @@ function AddBlockMenu({
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-[var(--olivea-clay)] hover:text-[var(--olivea-ink)] bg-white/50 hover:bg-white/80 ring-1 ring-black/5 hover:ring-black/10 transition-all"
       >
         <Plus size={14} />
-        Add block
+        {t({ es: "Agregar bloque", en: "Add block" })}
       </button>
 
       <AnimatePresence>
@@ -338,7 +340,7 @@ function AddBlockMenu({
                       className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--olivea-ink)]/70 hover:text-[var(--olivea-ink)] hover:bg-[var(--olivea-cream)]/40 transition-colors"
                     >
                       <Icon size={16} className="text-[var(--olivea-olive)]" />
-                      {label}
+                      {t(label)}
                     </button>
                   );
                 })}
@@ -367,6 +369,7 @@ function BlockEditor({
   showBothLangs: boolean;
 }) {
   const { type } = block;
+  const { t } = useAdminLocale();
   const { icon: Icon, label } = BLOCK_LABELS[type];
 
   const updateContent = (lang: "es" | "en", value: string) => {
@@ -415,7 +418,7 @@ function BlockEditor({
         </div>
         <Icon size={14} className="text-[var(--olivea-olive)]/60" />
         <span className="text-[11px] font-medium text-[var(--olivea-clay)]/60 uppercase tracking-wider">
-          {label}
+          {t(label)}
         </span>
         <div className="flex-1" />
         <button
@@ -433,11 +436,11 @@ function BlockEditor({
           <div className={`flex gap-3 ${showBothLangs ? "" : ""}`}>
             {showBothLangs ? (
               <>
-                {renderTextInput("es", "Escribe aquí...", 4)}
-                {renderTextInput("en", "Write here...", 4)}
+                {renderTextInput("es", t({ es: "Escribe aquí…", en: "Write here..." }), 4)}
+                {renderTextInput("en", t({ es: "Escribe aquí…", en: "Write here..." }), 4)}
               </>
             ) : (
-              renderTextInput("es", "Escribe aquí / Write here...", 4)
+              renderTextInput("es", t({ es: "Escribe aquí…", en: "Write here..." }), 4)
             )}
           </div>
         )}
@@ -447,11 +450,11 @@ function BlockEditor({
           <div className={`flex gap-3`}>
             {showBothLangs ? (
               <>
-                {renderTitleInput("es", "Título...")}
-                {renderTitleInput("en", "Heading...")}
+                {renderTitleInput("es", t({ es: "Título…", en: "Heading..." }))}
+                {renderTitleInput("en", t({ es: "Título…", en: "Heading..." }))}
               </>
             ) : (
-              renderTitleInput("es", "Título / Heading...")
+              renderTitleInput("es", t({ es: "Título…", en: "Heading..." }))
             )}
           </div>
         )}
@@ -462,11 +465,11 @@ function BlockEditor({
             <div className={`flex gap-3`}>
               {showBothLangs ? (
                 <>
-                  {renderTextInput("es", "Cita...", 2)}
-                  {renderTextInput("en", "Quote...", 2)}
+                  {renderTextInput("es", t({ es: "Cita…", en: "Quote..." }), 2)}
+                  {renderTextInput("en", t({ es: "Cita…", en: "Quote..." }), 2)}
                 </>
               ) : (
-                renderTextInput("es", "Cita / Quote...", 2)
+                renderTextInput("es", t({ es: "Cita…", en: "Quote..." }), 2)
               )}
             </div>
           </div>
@@ -477,13 +480,13 @@ function BlockEditor({
           <div className="space-y-3">
             {/* Layout selector */}
             <div>
-              <div className={S.label}>Layout</div>
+              <div className={S.label}>{t({ es: "Disposición", en: "Layout" })}</div>
               <div className="flex gap-1.5 mt-1.5">
                 {([
-                  { value: "j-wide" as ImageLayout, label: "Wide (editorial)" },
-                  { value: "float-left" as ImageLayout, label: "Float left" },
-                  { value: "float-right" as ImageLayout, label: "Float right" },
-                  { value: "default" as ImageLayout, label: "Inline" },
+                  { value: "j-wide" as ImageLayout, label: t({ es: "Ancha (editorial)", en: "Wide (editorial)" }) },
+                  { value: "float-left" as ImageLayout, label: t({ es: "Flotante izquierda", en: "Float left" }) },
+                  { value: "float-right" as ImageLayout, label: t({ es: "Flotante derecha", en: "Float right" }) },
+                  { value: "default" as ImageLayout, label: t({ es: "En línea", en: "Inline" }) },
                 ]).map((opt) => (
                   <button
                     key={opt.value}
@@ -501,7 +504,7 @@ function BlockEditor({
             </div>
 
             <ImageUpload
-              label="Image"
+              label={t({ es: "Imagen", en: "Image" })}
               value={block.media ?? ""}
               onChange={(v) => onChange({ ...block, media: v })}
               folder="journal"
@@ -515,7 +518,7 @@ function BlockEditor({
                       type="text"
                       value={block.caption?.es ?? ""}
                       onChange={(e) => updateCaption("es", e.target.value)}
-                      placeholder="Pie de foto..."
+                      placeholder={t({ es: "Pie de foto…", en: "Caption..." })}
                       className={S.input}
                     />
                   </div>
@@ -525,19 +528,19 @@ function BlockEditor({
                       type="text"
                       value={block.caption?.en ?? ""}
                       onChange={(e) => updateCaption("en", e.target.value)}
-                      placeholder="Caption..."
+                      placeholder={t({ es: "Pie de foto…", en: "Caption..." })}
                       className={S.input}
                     />
                   </div>
                 </>
               ) : (
                 <div className="flex-1">
-                  <div className={S.label}>Caption / Alt text</div>
+                  <div className={S.label}>{t({ es: "Pie de foto / Texto alternativo", en: "Caption / Alt text" })}</div>
                   <input
                     type="text"
                     value={block.caption?.es ?? ""}
                     onChange={(e) => updateCaption("es", e.target.value)}
-                    placeholder="Pie de foto / Caption..."
+                    placeholder={t({ es: "Pie de foto…", en: "Caption..." })}
                     className={`${S.input} mt-1`}
                   />
                 </div>
@@ -550,7 +553,7 @@ function BlockEditor({
         {type === "youtube" && (
           <div className="space-y-3">
             <div>
-              <div className={S.label}>YouTube URL</div>
+              <div className={S.label}>{t({ es: "URL de YouTube", en: "YouTube URL" })}</div>
               <input
                 type="text"
                 value={block.media ?? ""}
@@ -575,11 +578,11 @@ function BlockEditor({
         {type === "embed" && (
           <div className="space-y-3">
             <div>
-              <div className={S.label}>Embed Code / URL</div>
+              <div className={S.label}>{t({ es: "Código para insertar / URL", en: "Embed Code / URL" })}</div>
               <textarea
                 value={block.media ?? ""}
                 onChange={(e) => onChange({ ...block, media: e.target.value })}
-                placeholder="Paste embed code (Instagram, Twitter, etc.)..."
+                placeholder={t({ es: "Pega el código para insertar (Instagram, Twitter, etc.)…", en: "Paste embed code (Instagram, Twitter, etc.)..." })}
                 rows={3}
                 className={`${S.textarea} mt-1 font-mono text-xs`}
               />
@@ -590,7 +593,7 @@ function BlockEditor({
         {/* GALLERY */}
         {type === "gallery" && (
           <div className="space-y-3">
-            <div className={S.label}>Gallery Images</div>
+            <div className={S.label}>{t({ es: "Imágenes de la galería", en: "Gallery Images" })}</div>
             {(block.gallery ?? []).map((img, i) => (
               <div key={i} className="flex items-center gap-2">
                 <input
@@ -601,7 +604,7 @@ function BlockEditor({
                     g[i] = { ...g[i], src: e.target.value };
                     onChange({ ...block, gallery: g });
                   }}
-                  placeholder="Image URL..."
+                  placeholder={t({ es: "URL de la imagen…", en: "Image URL..." })}
                   className={`${S.input} flex-1`}
                 />
                 <input
@@ -612,7 +615,7 @@ function BlockEditor({
                     g[i] = { ...g[i], alt: e.target.value };
                     onChange({ ...block, gallery: g });
                   }}
-                  placeholder="Alt text..."
+                  placeholder={t({ es: "Texto alternativo…", en: "Alt text..." })}
                   className={`${S.input} w-40`}
                 />
                 <button
@@ -633,7 +636,7 @@ function BlockEditor({
               }}
               className="flex items-center gap-1.5 text-xs text-[var(--olivea-olive)] hover:text-[var(--olivea-ink)] transition-colors"
             >
-              <Plus size={13} /> Add image
+              <Plus size={13} /> {t({ es: "Agregar imagen", en: "Add image" })}
             </button>
           </div>
         )}
@@ -656,7 +659,7 @@ function BlockEditor({
                     <textarea
                       value={block.content.es}
                       onChange={(e) => updateContent("es", e.target.value)}
-                      placeholder="<div>HTML español...</div>"
+                      placeholder={t({ es: "<div>HTML en español…</div>", en: "<div>Spanish HTML...</div>" })}
                       rows={4}
                       className={`${S.textarea} font-mono text-xs`}
                     />
@@ -666,7 +669,7 @@ function BlockEditor({
                     <textarea
                       value={block.content.en}
                       onChange={(e) => updateContent("en", e.target.value)}
-                      placeholder="<div>English HTML...</div>"
+                      placeholder={t({ es: "<div>HTML en inglés…</div>", en: "<div>English HTML...</div>" })}
                       rows={4}
                       className={`${S.textarea} font-mono text-xs`}
                     />
@@ -677,7 +680,7 @@ function BlockEditor({
                   <textarea
                     value={block.content.es}
                     onChange={(e) => updateContent("es", e.target.value)}
-                    placeholder="<div>Custom HTML...</div>"
+                    placeholder={t({ es: "<div>HTML personalizado…</div>", en: "<div>Custom HTML...</div>" })}
                     rows={4}
                     className={`${S.textarea} font-mono text-xs`}
                   />
@@ -705,6 +708,7 @@ function LivePreview({
   previewLang: "es" | "en";
 }) {
   const html = useMemo(() => blocksToHtml(blocks, previewLang), [blocks, previewLang]);
+  const { t } = useAdminLocale();
 
   return (
     <article className="max-w-2xl mx-auto px-8 py-10">
@@ -720,7 +724,7 @@ function LivePreview({
 
       {/* Title */}
       <h1 className="text-3xl font-serif font-medium text-[var(--olivea-ink)] mb-4 leading-tight">
-        {post.title[previewLang] || "Untitled"}
+        {post.title[previewLang] || t({ es: "Sin título", en: "Untitled" })}
       </h1>
 
       {/* Meta */}
@@ -729,8 +733,8 @@ function LivePreview({
         <span className="w-1 h-1 rounded-full bg-[var(--olivea-clay)]/30" />
         <span>
           {post.publishedAt
-            ? new Date(post.publishedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
-            : "Draft"}
+            ? new Date(post.publishedAt).toLocaleDateString(previewLang === "es" ? "es-MX" : "en-US", { month: "long", day: "numeric", year: "numeric" })
+            : t({ es: "Borrador", en: "Draft" })}
         </span>
         {post.tags.length > 0 && (
           <>
@@ -772,7 +776,7 @@ function LivePreview({
           "[&_figure.float-left]:float-left [&_figure.float-left]:mr-4 [&_figure.float-left]:w-40 [&_figure.float-left]:h-40",
           "[&_figure.float-right]:float-right [&_figure.float-right]:ml-4 [&_figure.float-right]:w-40 [&_figure.float-right]:h-40",
         ].join(" ")}
-        dangerouslySetInnerHTML={{ __html: sanitizeEditorHtml(html || "<p><em>Start writing to see the preview here...</em></p>") }}
+        dangerouslySetInnerHTML={{ __html: sanitizeEditorHtml(html || t({ es: "<p><em>Empieza a escribir para ver la vista previa aquí…</em></p>", en: "<p><em>Start writing to see the preview here...</em></p>" })) }}
       />
     </article>
   );
@@ -789,6 +793,7 @@ function AuthorsEditor({
   authors: JournalPostAuthor[];
   onChange: (a: JournalPostAuthor[]) => void;
 }) {
+  const { t } = useAdminLocale();
   const addAuthor = () => onChange([...authors, { id: "", name: "" }]);
   const removeAuthor = (idx: number) => {
     const next = authors.filter((_, i) => i !== idx);
@@ -803,10 +808,13 @@ function AuthorsEditor({
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
-        <Users size={12} /> Authors
+        <Users size={12} /> {t({ es: "Autores", en: "Authors" })}
       </label>
       <p className="text-[10px] text-[var(--olivea-clay)]/60 -mt-1">
-        Add one or more authors. Use the ID to link to author profile pages (e.g. &quot;adrianarose&quot;).
+        {t({
+          es: "Agrega uno o más autores. Usa el ID para enlazar a las páginas de perfil del autor (p. ej. \"adrianarose\").",
+          en: "Add one or more authors. Use the ID to link to author profile pages (e.g. \"adrianarose\").",
+        })}
       </p>
       {authors.map((author, i) => (
         <div key={i} className="flex items-center gap-2">
@@ -814,14 +822,14 @@ function AuthorsEditor({
             type="text"
             value={author.name}
             onChange={(e) => updateAuthor(i, "name", e.target.value)}
-            placeholder="Author name..."
+            placeholder={t({ es: "Nombre del autor…", en: "Author name..." })}
             className={`${S.input} flex-1`}
           />
           <input
             type="text"
             value={author.id ?? ""}
             onChange={(e) => updateAuthor(i, "id", e.target.value)}
-            placeholder="ID (optional)"
+            placeholder={t({ es: "ID (opcional)", en: "ID (optional)" })}
             className={`${S.input} w-32`}
           />
           <button
@@ -836,7 +844,7 @@ function AuthorsEditor({
         onClick={addAuthor}
         className="flex items-center gap-1.5 text-xs text-[var(--olivea-olive)] hover:text-[var(--olivea-ink)] transition-colors"
       >
-        <UserPlus size={13} /> Add author
+        <UserPlus size={13} /> {t({ es: "Agregar autor", en: "Add author" })}
       </button>
     </div>
   );
@@ -853,6 +861,7 @@ function ArticleGalleryEditor({
   gallery: JournalPostGalleryImage[];
   onChange: (g: JournalPostGalleryImage[]) => void;
 }) {
+  const { t } = useAdminLocale();
   const move = (i: number, dir: -1 | 1) => {
     const j = i + dir;
     if (j < 0 || j >= gallery.length) return;
@@ -864,10 +873,13 @@ function ArticleGalleryEditor({
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
-        <Images size={12} /> Photo carousel
+        <Images size={12} /> {t({ es: "Carrusel de fotos", en: "Photo carousel" })}
       </label>
       <p className="text-[10px] text-[var(--olivea-clay)]/60 -mt-1">
-        The swipeable carousel shown after the article body. Order here = order in the carousel.
+        {t({
+          es: "El carrusel deslizable que se muestra después del cuerpo del artículo. El orden aquí = el orden en el carrusel.",
+          en: "The swipeable carousel shown after the article body. Order here = order in the carousel.",
+        })}
       </p>
       {gallery.map((img, i) => (
         <div key={i} className="flex items-center gap-2">
@@ -877,7 +889,7 @@ function ArticleGalleryEditor({
               onClick={() => move(i, -1)}
               disabled={i === 0}
               className="p-0.5 text-[var(--olivea-clay)]/40 hover:text-[var(--olivea-olive)] disabled:opacity-30 transition-colors"
-              title="Move up"
+              title={t(STR.moveUp)}
             >
               <ChevronDown size={12} className="rotate-180" />
             </button>
@@ -885,7 +897,7 @@ function ArticleGalleryEditor({
               onClick={() => move(i, 1)}
               disabled={i === gallery.length - 1}
               className="p-0.5 text-[var(--olivea-clay)]/40 hover:text-[var(--olivea-olive)] disabled:opacity-30 transition-colors"
-              title="Move down"
+              title={t(STR.moveDown)}
             >
               <ChevronDown size={12} />
             </button>
@@ -919,7 +931,7 @@ function ArticleGalleryEditor({
               g[i] = { ...g[i], alt: e.target.value };
               onChange(g);
             }}
-            placeholder="Alt text..."
+            placeholder={t({ es: "Texto alternativo…", en: "Alt text..." })}
             className={`${S.input} w-36`}
           />
           <button
@@ -932,7 +944,7 @@ function ArticleGalleryEditor({
       ))}
       {/* Upload a new image straight into the carousel */}
       <ImageUpload
-        label="Add image (upload or pick from media)"
+        label={t({ es: "Agregar imagen (sube o elige de medios)", en: "Add image (upload or pick from media)" })}
         value=""
         onChange={(src) => {
           if (src) onChange([...gallery, { src, alt: "" }]);
@@ -948,6 +960,7 @@ function ArticleGalleryEditor({
 /* ═══════════════════════════════════════════════════════════════════ */
 
 function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) => void }) {
+  const { t } = useAdminLocale();
   const [input, setInput] = useState("");
   const addTag = () => {
     const tag = input.trim().toLowerCase();
@@ -957,7 +970,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) 
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
-        <Tag size={12} /> Tags
+        <Tag size={12} /> {t({ es: "Etiquetas", en: "Tags" })}
       </label>
       <div className="flex flex-wrap gap-1.5">
         {tags.map((tag) => (
@@ -979,7 +992,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) 
             if (e.key === "Enter") { e.preventDefault(); addTag(); }
             if (e.key === "Backspace" && !input && tags.length > 0) onChange(tags.slice(0, -1));
           }}
-          placeholder="Add tag..."
+          placeholder={t({ es: "Agregar etiqueta…", en: "Add tag..." })}
           className="flex-1 min-w-[80px] px-2 py-1 text-xs bg-transparent text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/40 focus:outline-none"
         />
       </div>
@@ -1020,6 +1033,7 @@ export default function JournalEditor({
   const [showPreview, setShowPreview] = useState(true);
   const [showBothLangs, setShowBothLangs] = useState(true);
   const [showMeta, setShowMeta] = useState(false);
+  const { t } = useAdminLocale();
 
   // Sync state when post changes
   useEffect(() => {
@@ -1177,11 +1191,11 @@ export default function JournalEditor({
                   <ArrowLeft size={16} />
                 </button>
                 <h2 className="text-sm font-semibold text-[var(--olivea-ink)]">
-                  {isNew ? "New Article" : "Edit Article"}
+                  {isNew ? t({ es: "Nuevo artículo", en: "New Article" }) : t({ es: "Editar artículo", en: "Edit Article" })}
                 </h2>
                 {post.status === "published" && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 text-[10px] font-medium border border-emerald-200/60">
-                    <Check size={10} /> Live
+                    <Check size={10} /> {t({ es: "En vivo", en: "Live" })}
                   </span>
                 )}
               </div>
@@ -1190,7 +1204,7 @@ export default function JournalEditor({
                 {/* Toggle side-by-side langs */}
                 <button
                   onClick={() => setShowBothLangs(!showBothLangs)}
-                  title={showBothLangs ? "Single language" : "Side-by-side ES/EN"}
+                  title={showBothLangs ? t({ es: "Un solo idioma", en: "Single language" }) : t({ es: "ES/EN lado a lado", en: "Side-by-side ES/EN" })}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                     showBothLangs
                       ? "bg-[var(--olivea-cream)]/60 text-[var(--olivea-olive)] border-[var(--olivea-olive)]/10"
@@ -1211,7 +1225,7 @@ export default function JournalEditor({
                   }`}
                 >
                   <Eye size={13} />
-                  Preview
+                  {t({ es: "Vista previa", en: "Preview" })}
                 </button>
 
                 {/* Save */}
@@ -1224,7 +1238,7 @@ export default function JournalEditor({
                   }`}
                 >
                   {saved ? <Check size={13} /> : <Save size={13} />}
-                  {saved ? "Saved" : "Save"}
+                  {saved ? t({ es: "Guardado", en: "Saved" }) : t(STR.save)}
                 </button>
 
                 {/* Publish / Unpublish */}
@@ -1233,7 +1247,7 @@ export default function JournalEditor({
                     onClick={handleUnpublish}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200/60 hover:bg-amber-100/60 transition-all"
                   >
-                    <EyeOff size={13} /> Unpublish
+                    <EyeOff size={13} /> {t({ es: "Despublicar", en: "Unpublish" })}
                   </button>
                 ) : (
                   <button
@@ -1245,7 +1259,7 @@ export default function JournalEditor({
                         : "bg-[var(--olivea-cream)]/60 text-[var(--olivea-clay)] cursor-not-allowed"
                     }`}
                   >
-                    <Send size={13} /> Publish
+                    <Send size={13} /> {t({ es: "Publicar", en: "Publish" })}
                   </button>
                 )}
               </div>
@@ -1264,7 +1278,7 @@ export default function JournalEditor({
                     >
                       <span className="flex items-center gap-2">
                         <Globe size={14} className="text-[var(--olivea-olive)]" />
-                        Article Settings
+                        {t({ es: "Configuración del artículo", en: "Article Settings" })}
                       </span>
                       <ChevronDown size={14} className={`transition-transform ${showMeta ? "rotate-180" : ""}`} />
                     </button>
@@ -1286,7 +1300,7 @@ export default function JournalEditor({
 
                             {/* Cover image */}
                             <div className="space-y-2">
-                              <label className={S.label}>Cover Image</label>
+                              <label className={S.label}>{t({ es: "Imagen de portada", en: "Cover Image" })}</label>
                               {coverImage ? (
                                 <div className="relative rounded-xl overflow-hidden h-32 bg-[var(--olivea-cream)]/30 ring-1 ring-black/5 group">
                                   <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${coverImage})` }} />
@@ -1295,7 +1309,7 @@ export default function JournalEditor({
                                       onClick={() => setCoverImage(undefined)}
                                       className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-white/90 text-xs font-medium text-[var(--olivea-ink)]"
                                     >
-                                      Remove
+                                      {t(STR.remove)}
                                     </button>
                                   </div>
                                 </div>
@@ -1305,7 +1319,7 @@ export default function JournalEditor({
                                     type="text"
                                     value=""
                                     onChange={(e) => setCoverImage(e.target.value)}
-                                    placeholder="Enter image URL or upload..."
+                                    placeholder={t({ es: "Ingresa la URL de la imagen o súbela…", en: "Enter image URL or upload..." })}
                                     className={S.input}
                                     onBlur={(e) => { if (e.target.value) setCoverImage(e.target.value); }}
                                   />
@@ -1313,12 +1327,12 @@ export default function JournalEditor({
                               )}
                               {coverImage && (
                                 <div>
-                                  <label className={S.label}>Cover Alt Text</label>
+                                  <label className={S.label}>{t({ es: "Texto alternativo de portada", en: "Cover Alt Text" })}</label>
                                   <input
                                     type="text"
                                     value={coverAlt ?? ""}
                                     onChange={(e) => setCoverAlt(e.target.value || undefined)}
-                                    placeholder="Describe the cover image for accessibility..."
+                                    placeholder={t({ es: "Describe la imagen de portada para accesibilidad…", en: "Describe the cover image for accessibility..." })}
                                     className={`${S.input} mt-1`}
                                   />
                                 </div>
@@ -1327,7 +1341,7 @@ export default function JournalEditor({
 
                             {/* Slug */}
                             <div className="space-y-1.5">
-                              <label className={S.label}>URL Slug</label>
+                              <label className={S.label}>{t({ es: "Slug de URL", en: "URL Slug" })}</label>
                               <div className="flex items-center gap-0 rounded-xl overflow-hidden border border-[var(--olivea-olive)]/[0.08] bg-white/60">
                                 <span className="px-3 py-2.5 text-xs text-[var(--olivea-clay)]/50 bg-[var(--olivea-cream)]/30 border-r border-[var(--olivea-olive)]/[0.06] whitespace-nowrap">
                                   /journal/
@@ -1362,7 +1376,7 @@ export default function JournalEditor({
                             type="text"
                             value={title.es}
                             onChange={(e) => setTitle({ ...title, es: e.target.value })}
-                            placeholder="Título del artículo..."
+                            placeholder={t({ es: "Título del artículo…", en: "Article title..." })}
                             className={`${S.input} text-xl font-serif !py-3`}
                           />
                         </div>
@@ -1372,7 +1386,7 @@ export default function JournalEditor({
                             type="text"
                             value={title.en}
                             onChange={(e) => setTitle({ ...title, en: e.target.value })}
-                            placeholder="Article title..."
+                            placeholder={t({ es: "Título del artículo…", en: "Article title..." })}
                             className={`${S.input} text-xl font-serif !py-3`}
                           />
                         </div>
@@ -1383,7 +1397,7 @@ export default function JournalEditor({
                           type="text"
                           value={title.es}
                           onChange={(e) => setTitle({ ...title, es: e.target.value })}
-                          placeholder="Título / Title..."
+                          placeholder={t({ es: "Título del artículo…", en: "Article title..." })}
                           className={`${S.input} text-xl font-serif !py-3`}
                         />
                       </div>
@@ -1399,7 +1413,7 @@ export default function JournalEditor({
                           <textarea
                             value={excerpt.es}
                             onChange={(e) => setExcerpt({ ...excerpt, es: e.target.value })}
-                            placeholder="Breve descripción..."
+                            placeholder={t({ es: "Breve descripción…", en: "Brief description..." })}
                             rows={2}
                             className={`${S.textarea}`}
                           />
@@ -1409,7 +1423,7 @@ export default function JournalEditor({
                           <textarea
                             value={excerpt.en}
                             onChange={(e) => setExcerpt({ ...excerpt, en: e.target.value })}
-                            placeholder="Brief description..."
+                            placeholder={t({ es: "Breve descripción…", en: "Brief description..." })}
                             rows={2}
                             className={`${S.textarea}`}
                           />
@@ -1420,7 +1434,7 @@ export default function JournalEditor({
                         <textarea
                           value={excerpt.es}
                           onChange={(e) => setExcerpt({ ...excerpt, es: e.target.value })}
-                          placeholder="Breve descripción / Brief description..."
+                          placeholder={t({ es: "Breve descripción…", en: "Brief description..." })}
                           rows={2}
                           className={S.textarea}
                         />
@@ -1466,7 +1480,7 @@ export default function JournalEditor({
                   {/* Preview lang toggle */}
                   <div className="flex items-center gap-2 px-5 py-2.5 border-b border-black/[0.03] bg-white/40 flex-shrink-0">
                     <Eye size={13} className="text-[var(--olivea-clay)]/50" />
-                    <span className="text-[11px] font-medium text-[var(--olivea-clay)]/60 uppercase tracking-wider">Preview</span>
+                    <span className="text-[11px] font-medium text-[var(--olivea-clay)]/60 uppercase tracking-wider">{t({ es: "Vista previa", en: "Preview" })}</span>
                     <div className="flex-1" />
                     {(["es", "en"] as const).map((l) => (
                       <button
@@ -1495,8 +1509,8 @@ export default function JournalEditor({
 
             {/* ── Footer ── */}
             <div className="px-5 py-2.5 border-t border-black/[0.03] flex items-center justify-between text-[10px] text-[var(--olivea-clay)]/50 flex-shrink-0 bg-white/60">
-              <span>{blocks.length} blocks · {wordCount} words</span>
-              <span>Last saved: {post ? new Date(post.updatedAt).toLocaleString() : "Never"}</span>
+              <span>{blocks.length} {t({ es: "bloques", en: "blocks" })} · {wordCount} {t({ es: "palabras", en: "words" })}</span>
+              <span>{t({ es: "Último guardado:", en: "Last saved:" })} {post ? new Date(post.updatedAt).toLocaleString() : t({ es: "Nunca", en: "Never" })}</span>
             </div>
           </motion.div>
         </>

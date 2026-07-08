@@ -23,6 +23,7 @@ import {
   unpublishJournalPost,
 } from "@/lib/supabase/content-actions";
 import type { JournalPost, JournalStatus } from "@/lib/content/types";
+import { useAdminLocale, type B } from "@/lib/admin/i18n";
 
 // Editor is heavy (~1.4k LOC + WYSIWYG/MDX deps). Split into its own chunk so
 // the journal LIST view loads fast; the editor chunk fetches in parallel and
@@ -34,23 +35,24 @@ const JournalEditor = dynamic(() => import("@/components/admin/JournalEditor"), 
 
 /* ─── Status badge ─── */
 function StatusBadge({ status }: { status: JournalStatus }) {
+  const { t } = useAdminLocale();
   const config: Record<
     JournalStatus,
     { icon: React.ElementType; label: string; className: string }
   > = {
     draft: {
       icon: FileText,
-      label: "Draft",
+      label: t({ es: "Borrador", en: "Draft" }),
       className: "bg-amber-50 text-amber-600 border-amber-200/60",
     },
     published: {
       icon: CheckCircle2,
-      label: "Published",
+      label: t({ es: "Publicado", en: "Published" }),
       className: "bg-emerald-50 text-emerald-600 border-emerald-200/60",
     },
     archived: {
       icon: Archive,
-      label: "Archived",
+      label: t({ es: "Archivado", en: "Archived" }),
       className: "bg-gray-50 text-gray-500 border-gray-200/60",
     },
   };
@@ -68,30 +70,30 @@ function StatusBadge({ status }: { status: JournalStatus }) {
 }
 
 /* ─── Date formatter ─── */
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+function formatDate(iso: string, locale: "es" | "en" = "en") {
+  return new Date(iso).toLocaleDateString(locale === "es" ? "es-MX" : "en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
 }
 
-function timeAgo(iso: string) {
+function timeAgo(iso: string): B {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  if (days === 0) return "Today";
-  if (days === 1) return "Yesterday";
-  if (days < 7) return `${days}d ago`;
-  if (days < 30) return `${Math.floor(days / 7)}w ago`;
-  return formatDate(iso);
+  if (days === 0) return { es: "Hoy", en: "Today" };
+  if (days === 1) return { es: "Ayer", en: "Yesterday" };
+  if (days < 7) return { es: `hace ${days} d`, en: `${days}d ago` };
+  if (days < 30) return { es: `hace ${Math.floor(days / 7)} sem`, en: `${Math.floor(days / 7)}w ago` };
+  return { es: formatDate(iso, "es"), en: formatDate(iso, "en") };
 }
 
 /* ─── Filter tabs ─── */
-const statusFilters: { key: JournalStatus | "all"; label: string; icon: React.ElementType }[] = [
-  { key: "all", label: "All Articles", icon: FileText },
-  { key: "draft", label: "Drafts", icon: PenLine },
-  { key: "published", label: "Published", icon: CheckCircle2 },
-  { key: "archived", label: "Archived", icon: Archive },
+const statusFilters: { key: JournalStatus | "all"; label: B; icon: React.ElementType }[] = [
+  { key: "all", label: { es: "Todos los artículos", en: "All Articles" }, icon: FileText },
+  { key: "draft", label: { es: "Borradores", en: "Drafts" }, icon: PenLine },
+  { key: "published", label: { es: "Publicados", en: "Published" }, icon: CheckCircle2 },
+  { key: "archived", label: { es: "Archivados", en: "Archived" }, icon: Archive },
 ];
 
 /* ─── Stat card ─── */
@@ -147,6 +149,7 @@ export default function JournalPage() {
   const [statusFilter, setStatusFilter] = useState<JournalStatus | "all">("all");
   const [editingPost, setEditingPost] = useState<JournalPost | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const { t } = useAdminLocale();
 
   useEffect(() => {
     getJournalPosts()
@@ -288,7 +291,7 @@ export default function JournalPage() {
         {statusFilters.map((f) => (
           <StatCard
             key={f.key}
-            label={f.label}
+            label={t(f.label)}
             count={statusCounts[f.key]}
             icon={f.icon}
             active={statusFilter === f.key}
@@ -311,7 +314,7 @@ export default function JournalPage() {
           "
         >
           <Plus size={16} />
-          New Article
+          {t({ es: "Nuevo artículo", en: "New Article" })}
         </button>
       </div>
 
@@ -323,7 +326,7 @@ export default function JournalPage() {
         />
         <input
           type="text"
-          placeholder="Search articles by title, author, or tag..."
+          placeholder={t({ es: "Busca artículos por título, autor o etiqueta…", en: "Search articles by title, author, or tag..." })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="
@@ -373,12 +376,14 @@ export default function JournalPage() {
               <FileText size={24} className="text-[var(--olivea-clay)]/40" />
             </div>
             <p className="text-sm font-medium text-[var(--olivea-ink)]/60 mb-1">
-              {search ? "No articles match your search" : "No articles yet"}
+              {search
+                ? t({ es: "Ningún artículo coincide con tu búsqueda", en: "No articles match your search" })
+                : t({ es: "Aún no hay artículos", en: "No articles yet" })}
             </p>
             <p className="text-xs text-[var(--olivea-clay)]">
               {search
-                ? "Try adjusting your search terms or clearing filters."
-                : "Create your first article to get started."}
+                ? t({ es: "Prueba ajustando los términos de búsqueda o quita los filtros.", en: "Try adjusting your search terms or clearing filters." })
+                : t({ es: "Crea tu primer artículo para comenzar.", en: "Create your first article to get started." })}
             </p>
             {!search && (
               <button
@@ -386,7 +391,7 @@ export default function JournalPage() {
                 className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--olivea-olive)] text-white text-sm font-medium shadow-sm hover:shadow-md transition-all"
               >
                 <Plus size={15} />
-                New Article
+                {t({ es: "Nuevo artículo", en: "New Article" })}
               </button>
             )}
           </motion.div>
@@ -442,7 +447,7 @@ export default function JournalPage() {
                 {/* Content */}
                 <div className="p-4">
                   <h3 className="text-[14px] font-semibold text-[var(--olivea-ink)] line-clamp-2 leading-snug mb-1.5">
-                    {post.title.es || "Untitled"}
+                    {post.title.es || t({ es: "Sin título", en: "Untitled" })}
                   </h3>
 
                   {post.title.en && post.title.en !== post.title.es && (
@@ -482,7 +487,7 @@ export default function JournalPage() {
                     <span>{post.authors?.length ? post.authors.map((a) => a.name).join(" & ") : post.author}</span>
                     <span className="flex items-center gap-1">
                       <Clock size={10} />
-                      {timeAgo(post.updatedAt)}
+                      {t(timeAgo(post.updatedAt))}
                     </span>
                   </div>
                 </div>
@@ -508,7 +513,7 @@ export default function JournalPage() {
                 />
               </div>
               <span className="text-sm font-medium text-[var(--olivea-clay)] group-hover:text-[var(--olivea-ink)] transition-colors">
-                New Article
+                {t({ es: "Nuevo artículo", en: "New Article" })}
               </span>
             </motion.button>
           </div>
