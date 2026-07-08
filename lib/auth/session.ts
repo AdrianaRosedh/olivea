@@ -6,6 +6,7 @@
 
 import { createClient } from "./supabase-server";
 import { selectOne } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { redirect } from "next/navigation";
 import type { AdminUser, AdminRole, SectionPermissions } from "./types";
 
@@ -14,6 +15,11 @@ import type { AdminUser, AdminRole, SectionPermissions } from "./types";
  * Returns null if not logged in or no admin profile exists.
  */
 export async function getSession(): Promise<AdminUser | null> {
+  // Fail closed when Supabase env isn't configured (secret-free preview/CI, or
+  // a missing key): no client can be created, so treat it as "no session" and
+  // let callers redirect to login — never crash, never fall back to a mock user.
+  if (!isSupabaseConfigured) return null;
+
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
