@@ -501,8 +501,10 @@ function InviteModal({
               </div>
             </div>
 
-            {/* Content — scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 py-5" style={{ scrollbarWidth: "none" }}>
+            {/* Content — scrollable. min-h-0 lets this flex child shrink below
+                its content so overflow-y actually scrolls (Páginas has 12
+                sections); scrollbar left visible so it reads as scrollable. */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
               <AnimatePresence mode="wait">
                 {step === 1 ? (
                   <motion.div
@@ -920,11 +922,9 @@ function DetailPanel({
       </div>
 
       {/* ─── Section permissions (scrollable) ─── */}
-      <div
-        className="flex-1 overflow-y-auto px-6 py-5 team-sections-scroll"
-        style={{ scrollbarWidth: "none" }}
-      >
-        <style>{`.team-sections-scroll::-webkit-scrollbar { display: none; }`}</style>
+      {/* min-h-0 lets this flex child shrink below its content so overflow-y
+          scrolls (12 page sections overflow the panel); scrollbar visible. */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
 
         {/* Heading */}
         <div className="flex items-center justify-between mb-1">
