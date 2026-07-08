@@ -1,10 +1,9 @@
 // app/api/banner/route.ts
 //
-// Edge runtime: this endpoint does no database I/O and no Node APIs.
-// Content is bundled at build time via a static JSON import, so response
-// time is bounded by handler execution + CDN latency.
-//
-// To update banner content: edit lib/content/data/banners.ts and redeploy.
+// Banners are managed at /admin/banners (Supabase `banners` table) — the
+// loader below reads Supabase first (60s revalidate) and only falls back
+// to the static seed in lib/content/data/banners.ts when Supabase is
+// unavailable/unconfigured. No deploy needed for banner changes.
 export const runtime = "edge";
 
 import { NextResponse } from "next/server";
@@ -95,15 +94,19 @@ const STATIC_BANNER: ActiveBannerFile | null = isActiveBannerFile(staticBannerDa
   ? staticBannerData
   : null;
 
-// Try Supabase first (runtime), fall back to static import
-async function loadActiveBanner(): Promise<ActiveBannerFile | null> {
+// Try Supabase first (runtime), fall back to static import.
+// Returns ALL enabled candidates (newest first) — the handler picks the
+// first one whose time window + path rules pass for the current request.
+// (Previously limit=1: an expired-but-still-enabled banner shadowed any
+// valid banner behind it, and nothing showed.)
+async function loadActiveBanners(): Promise<ActiveBannerFile[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (url && key) {
     try {
       const res = await fetch(
-        `${url}/rest/v1/banners?enabled=eq.true&order=created_at.desc&limit=1`,
+        `${url}/rest/v1/banners?enabled=eq.true&order=created_at.desc&limit=10`,
         {
           headers: { apikey: key, Authorization: `Bearer ${key}` },
           next: { revalidate: 60 },
@@ -111,20 +114,23 @@ async function loadActiveBanner(): Promise<ActiveBannerFile | null> {
       );
       if (res.ok) {
         const rows = await res.json();
-        if (rows.length > 0) {
-          const b = rows[0];
-          const mapped = {
-            enabled: b.enabled,
-            id: b.id,
-            type: b.type,
-            translations: b.translations,
-            startsAt: b.starts_at,
-            endsAt: b.ends_at,
-            dismissible: b.dismissible ?? true,
-            includePaths: b.include_paths,
-            excludePaths: b.exclude_paths,
-          };
-          if (isActiveBannerFile(mapped)) return mapped;
+        if (Array.isArray(rows) && rows.length > 0) {
+          const mapped = rows
+            .map((b) => ({
+              enabled: b.enabled,
+              id: b.id,
+              type: b.type,
+              translations: b.translations,
+              // DB NULL (= "always on" / "everywhere") must become undefined,
+              // or isActiveBannerFile rejects the row and the banner vanishes.
+              startsAt: b.starts_at ?? undefined,
+              endsAt: b.ends_at ?? undefined,
+              dismissible: b.dismissible ?? true,
+              includePaths: b.include_paths ?? undefined,
+              excludePaths: b.exclude_paths ?? undefined,
+            }))
+            .filter(isActiveBannerFile);
+          if (mapped.length > 0) return mapped;
         }
       }
     } catch {
@@ -132,7 +138,7 @@ async function loadActiveBanner(): Promise<ActiveBannerFile | null> {
     }
   }
 
-  return STATIC_BANNER;
+  return STATIC_BANNER ? [STATIC_BANNER] : [];
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
@@ -158,11 +164,15 @@ export async function GET(req: Request) {
   const lang: Lang = url.searchParams.get("lang") === "en" ? "en" : "es";
   const currentPath = url.searchParams.get("path") ?? "/";
 
-  const active = await loadActiveBanner();
-  if (!active || !active.enabled) return nullBanner();
-
-  if (!passesTimeWindow(active.startsAt, active.endsAt)) return nullBanner();
-  if (!passesPathRules(active.includePaths, active.excludePaths, currentPath)) return nullBanner();
+  // First enabled banner (newest first) whose schedule + path rules pass.
+  const candidates = await loadActiveBanners();
+  const active = candidates.find(
+    (b) =>
+      b.enabled &&
+      passesTimeWindow(b.startsAt, b.endsAt) &&
+      passesPathRules(b.includePaths, b.excludePaths, currentPath)
+  );
+  if (!active) return nullBanner();
 
   const t = active.translations[lang];
   const banner: BannerPayload = {

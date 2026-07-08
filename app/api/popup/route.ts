@@ -1,12 +1,14 @@
 // app/api/popup/route.ts
 //
-// Edge runtime: content is bundled statically (no runtime file I/O), and the
-// rate limit is a per-isolate best-effort guard. On edge, state is fragmented
-// across more isolates than on Node lambdas, but the endpoint is CDN-cached
-// with s-maxage=60, so most traffic never reaches a handler — this limit only
-// catches obviously-scripted abuse behind the cache.
+// Popups are managed at /admin/popups (Supabase `popups` table) — the loader
+// below reads Supabase first (60s revalidate) and only falls back to the
+// static seed in lib/content/data/popups.ts when Supabase is unavailable/
+// unconfigured. No deploy needed for popup changes.
 //
-// To update popup content: edit content/popups/active.json and redeploy.
+// Edge runtime: the rate limit is a per-isolate best-effort guard. On edge,
+// state is fragmented across more isolates than on Node lambdas, but the
+// endpoint is CDN-cached with s-maxage=60, so most traffic never reaches a
+// handler — this limit only catches obviously-scripted abuse behind the cache.
 export const runtime = "edge";
 
 import { NextResponse } from "next/server";
@@ -141,15 +143,19 @@ const STATIC_POPUP: ActivePopupFile | null = isActivePopupFile(activePopupData)
   ? activePopupData
   : null;
 
-// Try Supabase first (runtime), fall back to static import
-async function loadActivePopup(): Promise<ActivePopupFile | null> {
+// Try Supabase first (runtime), fall back to static import.
+// Returns ALL enabled candidates (highest priority first) — the handler
+// picks the first one whose time window + path rules pass for the current
+// request. (Previously limit=1: an expired-but-still-enabled popup
+// shadowed any valid popup behind it, and nothing showed.)
+async function loadActivePopups(): Promise<ActivePopupFile[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (url && key) {
     try {
       const res = await fetch(
-        `${url}/rest/v1/popups?enabled=eq.true&order=priority.desc&limit=1`,
+        `${url}/rest/v1/popups?enabled=eq.true&order=priority.desc&limit=10`,
         {
           headers: { apikey: key, Authorization: `Bearer ${key}` },
           next: { revalidate: 60 },
@@ -157,18 +163,19 @@ async function loadActivePopup(): Promise<ActivePopupFile | null> {
       );
       if (res.ok) {
         const rows = await res.json();
-        if (rows.length > 0) {
-          const p = rows[0];
-          const mapped = {
-            enabled: p.enabled,
-            id: p.id,
-            kind: p.kind,
-            priority: p.priority,
-            translations: p.translations,
-            media: p.media,
-            rules: p.rules,
-          };
-          if (isActivePopupFile(mapped)) return mapped;
+        if (Array.isArray(rows) && rows.length > 0) {
+          const mapped = rows
+            .map((p) => ({
+              enabled: p.enabled,
+              id: p.id,
+              kind: p.kind,
+              priority: p.priority,
+              translations: p.translations,
+              media: p.media,
+              rules: p.rules,
+            }))
+            .filter(isActivePopupFile);
+          if (mapped.length > 0) return mapped;
         }
       }
     } catch {
@@ -176,7 +183,7 @@ async function loadActivePopup(): Promise<ActivePopupFile | null> {
     }
   }
 
-  return STATIC_POPUP;
+  return STATIC_POPUP ? [STATIC_POPUP] : [];
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
@@ -211,11 +218,15 @@ export async function GET(req: Request) {
   const lang: Lang = url.searchParams.get("lang") === "en" ? "en" : "es";
   const currentPath = url.searchParams.get("path") ?? "/";
 
-  const active = await loadActivePopup();
-  if (!active || !active.enabled) return nullPopup();
-
-  if (!passesTimeWindow(active.rules.startsAt, active.rules.endsAt)) return nullPopup();
-  if (!passesPathRules(active.rules.includePaths, active.rules.excludePaths, currentPath)) return nullPopup();
+  // First enabled popup (highest priority first) whose schedule + path rules pass.
+  const candidates = await loadActivePopups();
+  const active = candidates.find(
+    (p) =>
+      p.enabled &&
+      passesTimeWindow(p.rules.startsAt, p.rules.endsAt) &&
+      passesPathRules(p.rules.includePaths, p.rules.excludePaths, currentPath)
+  );
+  if (!active) return nullPopup();
 
   const t = active.translations[lang];
   if (!t) return nullPopup();

@@ -350,7 +350,15 @@ export default function BannersPage() {
     setSaving(true);
     setActionError(null);
     try {
-      await saveBanner(draft as unknown as Record<string, unknown>);
+      // Postgres rejects "" for timestamptz — empty schedule means "always
+      // on", which the DB stores as NULL. (Without this, creating a banner
+      // with no dates failed with a 400 every time.)
+      const row: Record<string, unknown> = {
+        ...draft,
+        starts_at: draft.starts_at || null,
+        ends_at: draft.ends_at || null,
+      };
+      await saveBanner(row);
       setShowNew(false);
       setExpandedId(null);
       await load();
