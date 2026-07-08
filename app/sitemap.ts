@@ -55,7 +55,6 @@ async function getJournalEntries(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = [
     "", // homepage
-    "/about",
     "/cafe",
     "/press",
     "/carreras",

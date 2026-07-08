@@ -34,7 +34,6 @@ const ITEMS: Item[] = [
   { path: "/roseiies", en: "roseiies", es: "roseiies" },
   { path: "/contact", en: "Contact", es: "Contacto" },
   { path: "/carreras", en: "Careers", es: "Carreras" },
-  { path: "/about", en: "About", es: "Nosotros" },
   { path: "/legal", en: "Privacy & Terms", es: "Privacidad y términos" },
 ];
 

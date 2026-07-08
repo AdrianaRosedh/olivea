@@ -368,9 +368,9 @@ export default function MobileDrawer({
                     </motion.div>
 
                     <MotionLink
-                      href={`/${lang}/about`}
+                      href={`/${lang}/legal`}
                       variants={item}
-                      onClick={(e) => handleAnchorClick(e, `/${lang}/about`)}
+                      onClick={(e) => handleAnchorClick(e, `/${lang}/legal`)}
                       className="text-xs text-(--olivea-shell) opacity-80 hover:opacity-100 hover:underline text-center transform-gpu will-change-transform"
                     >
                       Copyright © {new Date().getFullYear()} Casa Olivea AC.
