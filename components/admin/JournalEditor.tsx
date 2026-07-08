@@ -42,6 +42,7 @@ import {
   Users,
 } from "lucide-react";
 import type { JournalPost, JournalPostAuthor, JournalPostGalleryImage } from "@/lib/content/types";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 /* ═══════════════════════════════════════════════════════════════════ */
 /*  BLOCK TYPES                                                       */
@@ -134,8 +135,12 @@ function blocksToHtml(blocks: ContentBlock[], lang: "es" | "en"): string {
         case "embed":
           return b.media ? `<div class="embed-block">${b.media}</div>` : "";
         case "gallery":
-          if (!b.gallery?.length) return "";
-          return `<div class="gallery">${b.gallery.map((img) => `<img src="${img.src}" alt="${img.alt}" />`).join("")}</div>`;
+          // Legacy block — no longer emitted into the body: the public page
+          // has no styles for an in-body gallery div. The photo carousel
+          // lives on post.gallery (article settings) and renders after the
+          // body via PhotoCarousel. Legacy body galleries are migrated into
+          // post.gallery when a post is opened (see extractLegacyGalleries).
+          return "";
         case "divider":
           return "<hr />";
         case "html":
@@ -224,6 +229,30 @@ function stripTags(html: string): string {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
+/** Migrate legacy in-body `<div class="gallery">…</div>` markup (written by
+ *  the old gallery block — unstyled on the public page) into carousel
+ *  images. Returns the cleaned HTML and the extracted images so they can be
+ *  merged into post.gallery, where PhotoCarousel actually reads them. */
+function extractLegacyGalleries(html: string): {
+  cleaned: string;
+  images: JournalPostGalleryImage[];
+} {
+  if (!html || !html.includes('class="gallery"')) return { cleaned: html, images: [] };
+  const images: JournalPostGalleryImage[] = [];
+  const cleaned = html.replace(
+    /<div class="gallery">([\s\S]*?)<\/div>/g,
+    (_m, inner: string) => {
+      for (const imgTag of inner.match(/<img[^>]*>/g) ?? []) {
+        const src = imgTag.match(/src="([^"]*)"/)?.[1] ?? "";
+        const alt = imgTag.match(/alt="([^"]*)"/)?.[1] ?? "";
+        if (src) images.push({ src, alt });
+      }
+      return "";
+    }
+  );
+  return { cleaned: cleaned.replace(/\n{3,}/g, "\n\n").trim(), images };
+}
+
 function extractYouTubeId(url: string): string | null {
   const match = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
@@ -269,7 +298,10 @@ function AddBlockMenu({
 
   const groups = [
     { label: "Text", items: ["paragraph", "heading2", "heading3", "quote"] as BlockType[] },
-    { label: "Media", items: ["image", "gallery", "youtube", "embed"] as BlockType[] },
+    // NOTE: "gallery" was removed from this menu — in-body gallery divs have
+    // no styling on the public page. The photo carousel is edited in the
+    // article settings panel (post.gallery → PhotoCarousel after the body).
+    { label: "Media", items: ["image", "youtube", "embed"] as BlockType[] },
     { label: "Layout", items: ["divider", "html"] as BlockType[] },
   ];
 
@@ -468,26 +500,12 @@ function BlockEditor({
               </div>
             </div>
 
-            <div>
-              <div className={S.label}>Image URL</div>
-              <input
-                type="text"
-                value={block.media ?? ""}
-                onChange={(e) => onChange({ ...block, media: e.target.value })}
-                placeholder="/images/journal/my-photo.jpg"
-                className={`${S.input} mt-1`}
-              />
-            </div>
-            {block.media && (
-              <div className={`rounded-xl overflow-hidden bg-[var(--olivea-cream)]/30 ring-1 ring-black/5 ${
-                (block.layout ?? "j-wide") === "j-wide" ? "h-48" : "h-32 w-48"
-              }`}>
-                <div
-                  className="w-full h-full bg-cover bg-center"
-                  style={{ backgroundImage: `url(${block.media})` }}
-                />
-              </div>
-            )}
+            <ImageUpload
+              label="Image"
+              value={block.media ?? ""}
+              onChange={(v) => onChange({ ...block, media: v })}
+              folder="journal"
+            />
             <div className={`flex gap-3`}>
               {showBothLangs ? (
                 <>
@@ -835,16 +853,53 @@ function ArticleGalleryEditor({
   gallery: JournalPostGalleryImage[];
   onChange: (g: JournalPostGalleryImage[]) => void;
 }) {
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= gallery.length) return;
+    const g = [...gallery];
+    [g[i], g[j]] = [g[j], g[i]];
+    onChange(g);
+  };
+
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
-        <Images size={12} /> Photo Gallery
+        <Images size={12} /> Photo carousel
       </label>
       <p className="text-[10px] text-[var(--olivea-clay)]/60 -mt-1">
-        End-of-article photo carousel. Add images for a swipeable gallery after the article body.
+        The swipeable carousel shown after the article body. Order here = order in the carousel.
       </p>
       {gallery.map((img, i) => (
         <div key={i} className="flex items-center gap-2">
+          {/* Reorder */}
+          <div className="flex flex-col shrink-0">
+            <button
+              onClick={() => move(i, -1)}
+              disabled={i === 0}
+              className="p-0.5 text-[var(--olivea-clay)]/40 hover:text-[var(--olivea-olive)] disabled:opacity-30 transition-colors"
+              title="Move up"
+            >
+              <ChevronDown size={12} className="rotate-180" />
+            </button>
+            <button
+              onClick={() => move(i, 1)}
+              disabled={i === gallery.length - 1}
+              className="p-0.5 text-[var(--olivea-clay)]/40 hover:text-[var(--olivea-olive)] disabled:opacity-30 transition-colors"
+              title="Move down"
+            >
+              <ChevronDown size={12} />
+            </button>
+          </div>
+          {/* Thumbnail */}
+          {img.src ? (
+            <div
+              className="w-12 h-12 shrink-0 rounded-lg bg-cover bg-center ring-1 ring-black/5"
+              style={{ backgroundImage: `url(${img.src})` }}
+              title={img.src}
+            />
+          ) : (
+            <div className="w-12 h-12 shrink-0 rounded-lg bg-[var(--olivea-cream)]/40 ring-1 ring-black/5" />
+          )}
           <input
             type="text"
             value={img.src}
@@ -854,7 +909,7 @@ function ArticleGalleryEditor({
               onChange(g);
             }}
             placeholder="/images/journal/..."
-            className={`${S.input} flex-1`}
+            className={`${S.input} flex-1 font-mono text-xs`}
           />
           <input
             type="text"
@@ -865,7 +920,7 @@ function ArticleGalleryEditor({
               onChange(g);
             }}
             placeholder="Alt text..."
-            className={`${S.input} w-40`}
+            className={`${S.input} w-36`}
           />
           <button
             onClick={() => onChange(gallery.filter((_, idx) => idx !== i))}
@@ -875,12 +930,15 @@ function ArticleGalleryEditor({
           </button>
         </div>
       ))}
-      <button
-        onClick={() => onChange([...gallery, { src: "", alt: "" }])}
-        className="flex items-center gap-1.5 text-xs text-[var(--olivea-olive)] hover:text-[var(--olivea-ink)] transition-colors"
-      >
-        <Plus size={13} /> Add gallery image
-      </button>
+      {/* Upload a new image straight into the carousel */}
+      <ImageUpload
+        label="Add image (upload or pick from media)"
+        value=""
+        onChange={(src) => {
+          if (src) onChange([...gallery, { src, alt: "" }]);
+        }}
+        folder="journal"
+      />
     </div>
   );
 }
@@ -980,14 +1038,22 @@ export default function JournalEditor({
       } else {
         setAuthors([{ name: "Adriana Rose", id: "adrianarose" }]);
       }
-      // Load gallery
-      setArticleGallery(post.gallery ? [...post.gallery] : []);
+      // Load gallery — and migrate any legacy in-body gallery divs into it
+      // (the old gallery block wrote unstyled <div class="gallery"> markup
+      // into the body; the carousel actually reads post.gallery).
+      const esLegacy = extractLegacyGalleries(post.body.es);
+      const enLegacy = extractLegacyGalleries(post.body.en);
+      const gallery = post.gallery ? [...post.gallery] : [];
+      for (const img of [...esLegacy.images, ...enLegacy.images]) {
+        if (!gallery.some((g) => g.src === img.src)) gallery.push(img);
+      }
+      setArticleGallery(gallery);
       setSaved(false);
       // Convert existing HTML body to blocks
-      const parsed = htmlToBlocks(post.body.es);
+      const parsed = htmlToBlocks(esLegacy.cleaned);
       // Fill in EN content where blocks exist
-      if (post.body.en) {
-        const enParts = post.body.en.split(/\n\n+/).filter(Boolean);
+      if (enLegacy.cleaned) {
+        const enParts = enLegacy.cleaned.split(/\n\n+/).filter(Boolean);
         parsed.forEach((block, i) => {
           if (enParts[i]) {
             block.content.en = enParts[i].replace(/<\/?p>/g, "");
