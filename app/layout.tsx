@@ -147,6 +147,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* DNS-only hints for origins that may load later but are likely */}
         <link rel="dns-prefetch" href="https://maps.googleapis.com" />
         <link rel="dns-prefetch" href="https://maps.gstatic.com" />
+        {/* Live-menu embeds (Farmpop) are click-gated. DNS-prefetch the embed
+            origins so the iframe — and its custom font — resolve without a
+            fallback-font flash the moment the menu opens. Full preconnect is
+            warmed on trigger intent inside the Farmpop component. */}
+        <link rel="dns-prefetch" href="https://roseiies.com" />
+        <link rel="dns-prefetch" href="https://www.canva.com" />
 
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-M3JEDWZ732"

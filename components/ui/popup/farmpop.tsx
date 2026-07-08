@@ -52,6 +52,55 @@ type MenuTab = {
   icon?: ReactNode;
 };
 
+/**
+ * Known downstream origins the menu embeds pull their CSS + custom fonts from.
+ * roseiies serves the live menu HTML from roseiies.com but its Next.js assets
+ * (stylesheet + self-hosted woff2) load from the tenant app origin — a separate
+ * host the browser only discovers after parsing the embed. Warming it up front
+ * means the menu's custom font paints on first frame instead of flashing a
+ * system fallback. Harmless no-op if roseiies changes infra.
+ */
+const EMBED_ASSET_ORIGINS: ReadonlyArray<{ href: string; cors: boolean }> = [
+  { href: "https://roseiies-tenant.vercel.app", cors: true },
+];
+
+/**
+ * Open TCP+TLS to the embed origins (and their font hosts) the moment the user
+ * shows intent to open the menu — hover/focus/click — so the iframe and its
+ * custom font are already downloading before it mounts. Idempotent: each origin
+ * is warmed at most once per page. `cors` adds crossorigin so the connection is
+ * reused by the anonymous-CORS font fetch; without it, it warms the document
+ * navigation. Fonts need the CORS variant, so asset origins get both.
+ */
+function warmEmbedConnections(urls: string[]): void {
+  if (typeof document === "undefined") return;
+
+  const add = (href: string, cors: boolean) => {
+    const sel = `link[rel="preconnect"][href="${href}"]${cors ? "[data-cors]" : ":not([data-cors])"}`;
+    if (document.head.querySelector(sel)) return;
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = href;
+    if (cors) {
+      link.crossOrigin = "anonymous";
+      link.setAttribute("data-cors", "");
+    }
+    document.head.appendChild(link);
+  };
+
+  // Origins straight from the tab URLs (roseiies.com / www.canva.com …): the
+  // document navigation, so a plain preconnect.
+  for (const u of urls) {
+    try {
+      add(new URL(u).origin, false);
+    } catch {
+      /* ignore malformed URLs */
+    }
+  }
+  // Known font/CSS asset hosts — warm the CORS connection the font fetch uses.
+  for (const { href, cors } of EMBED_ASSET_ORIGINS) add(href, cors);
+}
+
 type FarmpopProps = {
   canvaUrl?: string; // single Canva URL (ignored if tabs provided)
   tabs?: MenuTab[]; // list of tabbed menus
@@ -189,7 +238,16 @@ export default function Farmpop({
     }
   }, [tabList, openDelayMs]);
 
-  const openPopup = useCallback(() => setOpen(true), []);
+  // Warm the embed + font connections on intent so the custom font is already
+  // downloading before the iframe mounts (no fallback-font flash on open).
+  const warm = useCallback(
+    () => warmEmbedConnections(tabList.map((t) => t.url)),
+    [tabList]
+  );
+  const openPopup = useCallback(() => {
+    warm();
+    setOpen(true);
+  }, [warm]);
   const closePopup = useCallback(() => setOpen(false), []);
 
   // Gentle switch: prev → active; prev clears on transition end
@@ -549,11 +607,15 @@ export default function Farmpop({
   return (
     <>
       {trigger ? (
-        <span onClick={openPopup}>{trigger}</span>
+        <span onClick={openPopup} onPointerEnter={warm} onFocus={warm}>
+          {trigger}
+        </span>
       ) : (
         <button
           type="button"
           onClick={openPopup}
+          onPointerEnter={warm}
+          onFocus={warm}
           className={[
             "px-5 py-3 rounded-xl border border-black/15",
             "hover:bg-black hover:text-white transition",
