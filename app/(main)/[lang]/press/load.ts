@@ -70,10 +70,93 @@ function normalizeCover(v: unknown): PressItem["cover"] {
 }
 
 /* =========================
-   PRESS ITEMS (MDX)
-   ========================= */
+   PRESS ITEMS
+   =========================
+   Primary source: the press_items table in Supabase (managed from
+   /admin/press — add/edit/toggle items without a deploy). When the
+   table is unreachable or empty, the legacy MDX files below serve
+   as the fallback so the page never breaks. */
 
-export function loadPressItems(lang: Lang): PressItem[] {
+type PressItemRow = {
+  id: string;
+  kind: "award" | "mention";
+  published_at: string;
+  issuer: string;
+  target: PressItem["for"];
+  title: Record<string, string> | null;
+  section: Record<string, string> | null;
+  tags: string[] | null;
+  links: { label: string | Record<string, string>; href: string }[] | null;
+  blurb: Record<string, string> | null;
+  cover: { src?: string; alt?: string } | null;
+  starred: boolean | null;
+};
+
+function pickLang(v: Record<string, string> | null | undefined, lang: Lang): string {
+  if (!v) return "";
+  return v[lang] || v[lang === "es" ? "en" : "es"] || "";
+}
+
+function rowToPressItem(row: PressItemRow, lang: Lang): PressItem | null {
+  const title = pickLang(row.title, lang);
+  if (!row.id || !title) return null;
+
+  const links = (row.links ?? [])
+    .map((l) => ({
+      label: typeof l.label === "string" ? l.label : pickLang(l.label, lang),
+      href: l.href,
+    }))
+    .filter((l) => l.label && isValidHref(l.href));
+  if (links.length === 0) return null;
+
+  const section = pickLang(row.section, lang);
+  const cover = normalizeCover(row.cover ?? undefined);
+
+  return {
+    kind: row.kind,
+    id: row.id,
+    publishedAt: String(row.published_at).slice(0, 10),
+    issuer: row.issuer,
+    for: row.target,
+    title,
+    section: section || undefined,
+    tags: Array.isArray(row.tags) && row.tags.length > 0 ? row.tags : undefined,
+    links,
+    blurb: pickLang(row.blurb, lang),
+    cover,
+    starred: row.kind === "award" && row.starred === true,
+  };
+}
+
+export async function loadPressItems(lang: Lang): Promise<PressItem[]> {
+  // ── Primary: Supabase (RLS exposes only enabled rows to anon) ──
+  try {
+    const { selectRows } = await import("@/lib/supabase/client");
+    const rows = await selectRows<PressItemRow>("press_items", {
+      role: "anon",
+      query: "order=published_at.desc",
+      revalidate: 60,
+    });
+    const items = rows
+      .map((r) => rowToPressItem(r, lang))
+      .filter((x): x is PressItem => x !== null);
+    if (items.length > 0) {
+      items.sort((a, b) => {
+        const ta = Date.parse(a.publishedAt + "T00:00:00Z");
+        const tb = Date.parse(b.publishedAt + "T00:00:00Z");
+        return tb - ta || a.title.localeCompare(b.title);
+      });
+      return items;
+    }
+  } catch {
+    // Supabase unavailable — fall through to the MDX files.
+  }
+
+  return loadPressItemsFromMdx(lang);
+}
+
+/* Legacy MDX loader — fallback when the DB is empty or unreachable. */
+export function loadPressItemsFromMdx(lang: Lang): PressItem[] {
   const dir = path.join(
     process.cwd(),
     "app",

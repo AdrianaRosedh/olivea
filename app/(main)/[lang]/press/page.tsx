@@ -30,7 +30,7 @@ export default async function PressPage({
   const p = await params;
   const lang: Lang = p.lang === "en" ? "en" : "es";
 
-  const items = loadPressItems(lang);
+  const items = await loadPressItems(lang);
   const manifest = loadPressManifest();
 
   return (
