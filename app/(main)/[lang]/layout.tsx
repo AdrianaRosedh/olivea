@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import StructuredDataServer from "@/components/seo/StructuredDataServer";
 import SitemapNav from "@/components/seo/SitemapNav";
 import LayoutShell from "@/components/layout/LayoutShell";
+import HiringPill from "@/components/ui/HiringPill";
 import {
   loadLocale,
   type Lang,
@@ -93,6 +94,8 @@ export default async function LangLayout({
       <LayoutShell lang={lang} dictionary={dict}>
         {children}
       </LayoutShell>
+      {/* "We're hiring" pill — auto-shows when a role is live (HR-toggleable) */}
+      <HiringPill lang={lang} />
     </div>
   );
 }

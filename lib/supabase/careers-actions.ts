@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import {
   selectRows,
+  selectOne,
   insertRows,
   updateRows,
   deleteRows,
@@ -326,4 +327,42 @@ export async function getLiveJobOpenings(): Promise<JobOpening[]> {
   } catch {
     return [];
   }
+}
+
+/**
+ * Public: the HR "we're hiring" pill setting from careers_content.openings.
+ * "auto" (default) → pill shows only when a role is live; "on" → always;
+ * "off" → never. Anon read with 60s ISR; falls back to "auto" on any failure.
+ */
+export async function getHiringPromo(): Promise<"auto" | "on" | "off"> {
+  if (!isSupabaseConfigured) return "auto";
+  try {
+    const row = await selectOne<{ openings: { hiringPromo?: string } | null }>(
+      "careers_content",
+      "careers",
+      { role: "anon", revalidate: 60 }
+    );
+    const p = row?.openings?.hiringPromo;
+    return p === "on" || p === "off" ? p : "auto";
+  } catch {
+    return "auto";
+  }
+}
+
+/**
+ * Admin: set the "we're hiring" pill mode. Merges hiringPromo into the
+ * careers_content.openings jsonb without disturbing the rest of that object
+ * (or the other careers content columns).
+ */
+export async function setHiringPromo(value: "auto" | "on" | "off"): Promise<void> {
+  await requireSession();
+  if (!isSupabaseConfigured) return;
+  const row = await selectOne<{ openings: Record<string, unknown> | null }>(
+    "careers_content",
+    "careers",
+    { role: "service_role" }
+  );
+  const openings = { ...(row?.openings ?? {}), hiringPromo: value };
+  await upsertRows("careers_content", { id: "careers", openings }, { onConflict: "id" });
+  revalidateCareers();
 }

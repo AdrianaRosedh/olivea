@@ -16,6 +16,7 @@ import {
   EyeOff,
   X,
   MessageSquarePlus,
+  Megaphone,
   Search,
 } from "lucide-react";
 import {
@@ -26,6 +27,8 @@ import {
   getJobApplications,
   updateApplicationStatus,
   addApplicationNote,
+  getHiringPromo,
+  setHiringPromo,
   type JobOpening,
   type JobApplication,
   type ApplicationNote,
@@ -213,7 +216,27 @@ function OpeningsTab({
 }) {
   const [editing, setEditing] = useState<Partial<JobOpening> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [promo, setPromo] = useState<"auto" | "on" | "off">("auto");
   const { t } = useAdminLocale();
+
+  // Load the current "we're hiring" pill mode.
+  useEffect(() => {
+    getHiringPromo().then(setPromo).catch(() => {});
+  }, []);
+
+  const changePromo = async (value: "auto" | "on" | "off") => {
+    const prev = promo;
+    setPromo(value); // optimistic
+    try {
+      await setHiringPromo(value);
+      toast(t({ es: "Aviso de contratación actualizado", en: "Hiring promo updated" }), "success");
+    } catch {
+      setPromo(prev);
+      toast(t({ es: "No se pudo actualizar", en: "Failed to update" }), "error");
+    }
+  };
+
+  const liveCount = openings.filter((o) => o.status === "live").length;
 
   const openNew = () =>
     setEditing({
@@ -295,8 +318,59 @@ function OpeningsTab({
     }
   };
 
+  const showingNow = promo === "on" || (promo === "auto" && liveCount > 0);
+
   return (
     <div className="space-y-4">
+      {/* "We're hiring" pill control — promotes openings on the public site */}
+      <div className="rounded-2xl border border-[var(--olivea-olive)]/[0.08] bg-[var(--olivea-cream)]/30 p-4">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-white/60 border border-[var(--olivea-olive)]/[0.08] flex items-center justify-center shrink-0">
+            <Megaphone className="w-4 h-4 text-[var(--olivea-olive)]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-[var(--olivea-ink)]">
+              {t({ es: "Aviso “Estamos contratando”", en: "“We’re hiring” pill" })}
+            </h3>
+            <p className="text-[11px] text-[var(--olivea-clay)] mt-0.5 leading-relaxed">
+              {t({
+                es: "Una invitación flotante en el sitio público que lleva a Trabaja con Nosotros.",
+                en: "A floating invite on the public site that links to the careers page.",
+              })}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {([
+                { v: "auto", es: "Automático", en: "Auto" },
+                { v: "on", es: "Siempre visible", en: "Always on" },
+                { v: "off", es: "Oculto", en: "Off" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.v}
+                  onClick={() => changePromo(opt.v)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    promo === opt.v
+                      ? "bg-[var(--olivea-olive)] text-white shadow-sm"
+                      : "bg-white/60 text-[var(--olivea-clay)] hover:bg-white"
+                  }`}
+                >
+                  {t({ es: opt.es, en: opt.en })}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] mt-2.5 flex items-center gap-1.5">
+              <span className={`inline-block w-1.5 h-1.5 rounded-full ${showingNow ? "bg-emerald-500" : "bg-stone-300"}`} />
+              <span className="text-[var(--olivea-clay)]">
+                {showingNow
+                  ? t({ es: "Visible ahora en el sitio", en: "Showing on the site now" })
+                  : promo === "off"
+                    ? t({ es: "Oculto por elección", en: "Hidden by choice" })
+                    : t({ es: "Se mostrará cuando publiques una vacante", en: "Will show once you publish a live opening" })}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-[var(--olivea-clay)]">

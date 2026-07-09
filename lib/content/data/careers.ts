@@ -179,6 +179,7 @@ const careers: CareersContent = {
   ],
   openings: {
     title: { es: "Vacantes", en: "Openings" },
+    hiringPromo: "auto",
     openApplication: {
       label: { es: "Aplicación abierta", en: "Open application" },
       description: {

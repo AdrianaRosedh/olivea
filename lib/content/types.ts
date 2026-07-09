@@ -303,6 +303,9 @@ export interface CareersContent {
   }>;
   openings: {
     title: Bilingual;
+    /** Controls the public "we're hiring" pill: "auto" (show when a role is
+        live), "on" (always show), "off" (never). Defaults to "auto". */
+    hiringPromo?: "auto" | "on" | "off";
     openApplication: {
       label: Bilingual;
       description: Bilingual;
