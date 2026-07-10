@@ -105,6 +105,6 @@ export const config = {
     // are intentionally NOT skipped so the proxy can serve a crawl-blocking
     // robots.txt on olivea.ai. On every other host the proxy just falls through
     // and the app's own robots.ts / sitemap.ts generators serve as before.
-    "/((?!_next/static|_next/image|favicon|images|manifest|api).*)",
+    "/((?!_next/static|_next/image|favicon|images|brand|manifest|api).*)",
   ],
 };

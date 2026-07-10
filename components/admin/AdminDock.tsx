@@ -211,19 +211,15 @@ export default function AdminDock() {
     >
       {/* ── Logo area ── */}
       <div className={`flex items-center gap-3 h-16 border-b border-[var(--olivea-olive)]/[0.06] ${expanded ? "px-4" : "justify-center"}`}>
-        <div
-          className="w-9 h-9 flex-shrink-0"
-          style={{
-            backgroundColor: "var(--olivea-olive)",
-            WebkitMaskImage: "url(/brand/OliveaFTTIcon.svg)",
-            maskImage: "url(/brand/OliveaFTTIcon.svg)",
-            WebkitMaskRepeat: "no-repeat",
-            maskRepeat: "no-repeat",
-            WebkitMaskPosition: "center",
-            maskPosition: "center",
-            WebkitMaskSize: "contain",
-            maskSize: "contain",
-          }}
+        {/* The green alebrije — the brand mark used across the site (Navbar,
+            team). Rendered as a plain <img> so it shows in its own colors; the
+            previous CSS-mask of OliveaFTTIcon.svg went blank because that SVG
+            fills with `currentColor`, which resolves to nothing in a mask. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/brand/alebrije-1-Green.svg"
+          alt="Olivea"
+          className="w-9 h-9 object-contain flex-shrink-0"
         />
         <AnimatePresence>
           {expanded && (
