@@ -24,6 +24,9 @@ type Props = {
   grant: string | null;
   landingToken: string;
   initialError?: string;
+  /** When true (fresh scan/mint), push ?s=<grant> into the address bar so a
+   *  copied link is the expiring one; the bare QR URL re-mints each scan. */
+  syncUrl?: boolean;
   lang?: "es" | "en";
 };
 type Phase = "form" | "loading" | "ready" | "dead";
@@ -72,8 +75,25 @@ const t = (lang: "es" | "en") =>
         errGeneric: "Couldn't open the document. Please try again.",
       };
 
-export default function SecureDocumentViewer({ grant, initialError, lang = "es" }: Props) {
+export default function SecureDocumentViewer({
+  grant,
+  landingToken,
+  initialError,
+  syncUrl,
+  lang = "es",
+}: Props) {
   const s = t(lang);
+
+  // Fresh mint → reflect the rotating grant in the URL without a server redirect.
+  useEffect(() => {
+    if (syncUrl && grant) {
+      try {
+        window.history.replaceState(null, "", `/d/${landingToken}?s=${grant}`);
+      } catch {
+        /* non-fatal */
+      }
+    }
+  }, [syncUrl, grant, landingToken]);
   // No grant (doc disabled/revoked/expired/not found at the landing) → dead.
   const [phase, setPhase] = useState<Phase>(grant ? "form" : "dead");
   const [name, setName] = useState("");

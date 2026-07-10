@@ -10,7 +10,6 @@
 // present we render the sign-in viewer for that grant.
 // ─────────────────────────────────────────────────────────────────────
 
-import { redirect } from "next/navigation";
 import SecureDocumentViewer from "./SecureDocumentViewer";
 import { mintDocumentGrant } from "./grant";
 
@@ -26,17 +25,30 @@ export default async function SecureDocumentPage({
   const { token } = await params;
   const { s } = await searchParams;
 
-  if (!s) {
-    // Fresh scan → mint a rotating grant and redirect to it.
-    const g = await mintDocumentGrant(token);
-    if (g.status === "ok" && g.atoken) {
-      redirect(`/d/${encodeURIComponent(token)}?s=${g.atoken}`);
-    }
-    // Doc not found / disabled / revoked / expired → dead state, no redirect loop.
+  // Existing rotating link → use its grant as-is.
+  if (s) {
+    return <SecureDocumentViewer grant={s} landingToken={token} lang="es" />;
+  }
+
+  // Fresh scan (no ?s) → mint a rotating grant and render the viewer with it.
+  // We do NOT use redirect() here: in the streamed production build the redirect
+  // fires after the response starts and is silently dropped (200, no Location).
+  // Instead the viewer syncs ?s=<grant> into the address bar on the client, so a
+  // copied link is still the expiring one while the QR URL re-mints each scan.
+  const g = await mintDocumentGrant(token);
+  if (g.status === "ok" && g.atoken) {
     return (
-      <SecureDocumentViewer grant={null} landingToken={token} initialError={g.status} lang="es" />
+      <SecureDocumentViewer
+        grant={g.atoken}
+        landingToken={token}
+        syncUrl
+        lang="es"
+      />
     );
   }
 
-  return <SecureDocumentViewer grant={s} landingToken={token} lang="es" />;
+  // Doc not found / disabled / revoked / expired → dead state.
+  return (
+    <SecureDocumentViewer grant={null} landingToken={token} initialError={g.status} lang="es" />
+  );
 }
