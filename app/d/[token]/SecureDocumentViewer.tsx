@@ -472,8 +472,8 @@ function SecurePage({
   lang: "es" | "en";
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [rendered, setRendered] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
@@ -493,17 +493,16 @@ function SecurePage({
           }
         }
       },
-      { rootMargin: "300px" },
+      { rootMargin: "400px" },
     );
     obs.observe(node);
     return () => obs.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!shouldRender) return;
+    if (!shouldRender || imgSrc) return;
     const doc = docRef.current;
-    const canvas = canvasRef.current;
-    if (!doc || !canvas) return;
+    if (!doc) return;
     let cancelled = false;
     (async () => {
       try {
@@ -517,14 +516,35 @@ function SecurePage({
         const base = page.getViewport({ scale: 1 });
         const scale = (targetWidth / base.width) * dpr;
         const viewport = page.getViewport({ scale });
+        // Render to an OFFSCREEN canvas, bake the watermark, flatten to a JPEG,
+        // then RELEASE the canvas. Keeping 14 live canvases at DPR 3 blows iOS
+        // Safari's canvas-memory cap → blank pages; an <img> is ~10x cheaper and
+        // renders reliably on memory-constrained iPhones.
+        const canvas = document.createElement("canvas");
         canvas.width = Math.ceil(viewport.width);
         canvas.height = Math.ceil(viewport.height);
         const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        if (!ctx) {
+          canvas.width = canvas.height = 0;
+          return;
+        }
         await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-        if (cancelled) return;
+        if (cancelled) {
+          canvas.width = canvas.height = 0;
+          return;
+        }
         drawWatermark(ctx, canvas.width, canvas.height, watermarkLines);
-        setRendered(true);
+        let url: string | null = null;
+        try {
+          url = canvas.toDataURL("image/jpeg", 0.9);
+        } catch {
+          url = null;
+        }
+        // Free the canvas backing store immediately (iOS memory reclaim).
+        canvas.width = 0;
+        canvas.height = 0;
+        if (cancelled || !url) return;
+        setImgSrc(url);
       } catch (err) {
         if (cancelled) return;
         console.warn("[SecureDocumentViewer] page render failed:", pageNumber, err);
@@ -533,7 +553,7 @@ function SecurePage({
     return () => {
       cancelled = true;
     };
-  }, [shouldRender, pageNumber, docRef, watermarkLines]);
+  }, [shouldRender, imgSrc, pageNumber, docRef, watermarkLines]);
 
   return (
     <div
@@ -544,23 +564,30 @@ function SecurePage({
         borderRadius: 8,
         overflow: "hidden",
         background: "#fff",
-        boxShadow: "0 4px 24px -8px rgba(0,0,0,0.5)",
+        boxShadow: "0 4px 20px -10px rgba(47,58,43,0.3)",
         position: "relative",
         aspectRatio: `${meta.width} / ${meta.height}`,
       }}
     >
-      <canvas
-        ref={canvasRef}
-        aria-label={lang === "es" ? `Página ${pageNumber}` : `Page ${pageNumber}`}
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "block",
-          pointerEvents: "none",
-          transition: "opacity 0.2s",
-          opacity: rendered ? 1 : 0,
-        }}
-      />
+      {imgSrc && (
+        <img
+          src={imgSrc}
+          alt={lang === "es" ? `Página ${pageNumber}` : `Page ${pageNumber}`}
+          draggable={false}
+          onLoad={() => setLoaded(true)}
+          onContextMenu={(e) => e.preventDefault()}
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+            pointerEvents: "none",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+            transition: "opacity 0.25s",
+            opacity: loaded ? 1 : 0,
+          }}
+        />
+      )}
     </div>
   );
 }
