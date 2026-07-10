@@ -24,6 +24,9 @@
     }
   },
   "scripts": {
+    "postinstall": "node scripts/copy-pdf-worker.mjs",
+    "predev": "node scripts/copy-pdf-worker.mjs",
+    "prebuild": "node scripts/copy-pdf-worker.mjs",
     "dev": "next dev --hostname olivea-localhost --port 3000",
     "dev:local": "cross-env HOST=olivea-localhost PORT=3000 next dev",
     "build": "next build",
@@ -71,6 +74,7 @@
     "negotiator": "^1.0.0",
     "next": "16.2.9",
     "next-mdx-remote": "^6.0.0",
+    "pdfjs-dist": "^5.7.284",
     "punycode.js": "^2.3.1",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",

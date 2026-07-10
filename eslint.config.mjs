@@ -14,6 +14,7 @@ export default defineConfig([
     "node_modules/**",
     ".claude/**",         // Claude local state + git worktrees — never lint these
     "next-env.d.ts",
+    "public/pdf.worker.min.mjs", // generated pdf.js worker (copied on install) — vendored/minified
   ]),
 
   ...nextVitals,

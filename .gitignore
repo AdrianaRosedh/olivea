@@ -54,3 +54,6 @@ Olivea_Playbook_*.pdf
 /test-results/
 /playwright-report/
 /e2e/.auth/
+
+# generated pdf.js worker (copied on install/build by scripts/copy-pdf-worker.mjs)
+public/pdf.worker.min.mjs
