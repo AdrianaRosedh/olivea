@@ -24,6 +24,45 @@ import {
 
 const WORKER_PATH = "/pdf.worker.min.mjs";
 
+// OLIVEA brand palette (matches the printed poster).
+const CREAM = "#f5f2ea";
+const OLIVE = "#2f3a2b";
+const OLIVE_MUTED = "#6b7360";
+const LINE = "#e4ddcf";
+const SERIF = "Georgia, 'Times New Roman', serif";
+
+function OliveaWordmark({ sub = true }: { sub?: boolean }) {
+  return (
+    <div style={{ textAlign: "center" }}>
+      <div
+        style={{
+          fontFamily: SERIF,
+          fontSize: 22,
+          fontWeight: 700,
+          letterSpacing: "0.4em",
+          color: OLIVE,
+          paddingLeft: "0.4em",
+        }}
+      >
+        OLIVEA
+      </div>
+      {sub && (
+        <div
+          style={{
+            fontSize: 9.5,
+            letterSpacing: "0.28em",
+            textTransform: "uppercase",
+            color: OLIVE_MUTED,
+            marginTop: 3,
+          }}
+        >
+          Farm Hospitality
+        </div>
+      )}
+    </div>
+  );
+}
+
 type Props = {
   grant: string | null;
   landingToken: string;
@@ -40,6 +79,7 @@ const t = (lang: "es" | "en") =>
   lang === "es"
     ? {
         title: "Documento protegido",
+        docTitle: "Reglamento Interior de Trabajo",
         intro: "Escribe tu nombre y el código para ver el documento.",
         name: "Nombre completo",
         passcode: "Código de acceso",
@@ -61,6 +101,7 @@ const t = (lang: "es" | "en") =>
       }
     : {
         title: "Protected document",
+        docTitle: "Internal Work Regulations",
         intro: "Enter your name and the code to view the document.",
         name: "Full name",
         passcode: "Access code",
@@ -183,8 +224,8 @@ export default function SecureDocumentViewer({
       style={{
         minHeight: "100dvh",
         width: "100%",
-        background: "#171717",
-        color: "rgba(255,255,255,0.9)",
+        background: CREAM,
+        color: OLIVE,
         WebkitUserSelect: phase === "ready" ? "none" : "auto",
         userSelect: phase === "ready" ? "none" : "auto",
         WebkitTouchCallout: "none",
@@ -196,7 +237,8 @@ export default function SecureDocumentViewer({
           .secure-doc-print-note { display: block !important; }
         }
         .secure-doc-print-note { display: none; }
-        .sd-input::placeholder { color: rgba(255,255,255,0.35); }
+        .sd-input::placeholder { color: ${OLIVE_MUTED}; opacity: 0.6; }
+        .sd-input:focus { border-color: ${OLIVE} !important; }
       `}</style>
       <div className="secure-doc-print-note" style={{ padding: 24, color: "#000" }}>
         {s.printBlocked}
@@ -209,15 +251,38 @@ export default function SecureDocumentViewer({
           zIndex: 10,
           display: "flex",
           alignItems: "center",
+          justifyContent: "space-between",
           gap: 8,
-          background: "rgba(23,23,23,0.9)",
+          background: "rgba(245,242,234,0.92)",
           backdropFilter: "blur(8px)",
-          padding: "12px 16px",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          padding: "12px 18px",
+          borderBottom: `1px solid ${LINE}`,
         }}
       >
-        <ShieldIcon />
-        <span style={{ fontSize: 14, fontWeight: 500 }}>{s.protected}</span>
+        <div
+          style={{
+            fontFamily: SERIF,
+            fontSize: 15,
+            fontWeight: 700,
+            letterSpacing: "0.34em",
+            color: OLIVE,
+            paddingLeft: "0.34em",
+          }}
+        >
+          OLIVEA
+        </div>
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 12,
+            color: OLIVE_MUTED,
+          }}
+        >
+          <ShieldIcon />
+          {s.protected}
+        </span>
       </div>
 
       {phase === "form" && (
@@ -226,23 +291,28 @@ export default function SecureDocumentViewer({
             onSubmit={handleSubmit}
             style={{
               width: "100%",
-              maxWidth: 360,
+              maxWidth: 380,
               display: "flex",
               flexDirection: "column",
-              gap: 14,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 16,
-              padding: 24,
+              gap: 15,
+              background: "#ffffff",
+              border: `1px solid ${LINE}`,
+              borderRadius: 18,
+              padding: "30px 26px",
+              boxShadow: "0 8px 30px -14px rgba(47,58,43,0.25)",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <ShieldIcon large />
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", textAlign: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 6 }}>
+              <OliveaWordmark />
+              <div style={{ height: 1, width: 44, background: LINE, margin: "2px 0" }} />
+              <div style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 700, color: OLIVE, textAlign: "center", lineHeight: 1.25 }}>
+                {s.docTitle}
+              </div>
+              <div style={{ fontSize: 12.5, color: OLIVE_MUTED, textAlign: "center", lineHeight: 1.5 }}>
                 {s.intro}
               </div>
             </div>
-            <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: OLIVE_MUTED, letterSpacing: "0.02em" }}>
               {s.name}
               <input
                 className="sd-input"
@@ -252,7 +322,7 @@ export default function SecureDocumentViewer({
                 style={inputStyle}
               />
             </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: OLIVE_MUTED, letterSpacing: "0.02em" }}>
               {s.passcode}
               <input
                 className="sd-input"
@@ -265,21 +335,23 @@ export default function SecureDocumentViewer({
               />
             </label>
             {formError && (
-              <div style={{ fontSize: 13, color: "#fca5a5" }}>{formError}</div>
+              <div style={{ fontSize: 13, color: "#a3341f", lineHeight: 1.4 }}>{formError}</div>
             )}
             <button
               type="submit"
               disabled={submitting}
               style={{
-                marginTop: 4,
-                padding: "12px 16px",
-                borderRadius: 10,
+                marginTop: 6,
+                padding: "13px 16px",
+                borderRadius: 11,
                 border: "none",
-                background: submitting ? "rgba(255,255,255,0.2)" : "#e7e5e4",
-                color: "#171717",
+                background: submitting ? OLIVE_MUTED : OLIVE,
+                color: CREAM,
                 fontWeight: 600,
                 fontSize: 14,
+                letterSpacing: "0.04em",
                 cursor: submitting ? "default" : "pointer",
+                transition: "background 0.15s",
               }}
             >
               {submitting ? s.submitting : s.submit}
@@ -289,15 +361,16 @@ export default function SecureDocumentViewer({
       )}
 
       {phase === "loading" && (
-        <div style={{ display: "grid", placeItems: "center", minHeight: "60vh", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>
+        <div style={{ display: "grid", placeItems: "center", minHeight: "60vh", fontSize: 14, color: OLIVE_MUTED }}>
           {s.loading}
         </div>
       )}
 
       {phase === "dead" && (
         <div style={{ display: "grid", placeItems: "center", minHeight: "60vh", padding: 24, textAlign: "center" }}>
-          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.75)", maxWidth: 320 }}>
-            {deadMessage}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, maxWidth: 340 }}>
+            <OliveaWordmark />
+            <div style={{ fontSize: 14, color: OLIVE }}>{deadMessage}</div>
           </div>
         </div>
       )}
@@ -335,16 +408,16 @@ export default function SecureDocumentViewer({
             zIndex: 20,
             display: "grid",
             placeItems: "center",
-            background: "rgba(23,23,23,0.8)",
+            background: "rgba(245,242,234,0.82)",
             backdropFilter: "blur(40px)",
             textAlign: "center",
             padding: 32,
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-            <ShieldIcon large />
-            <div style={{ fontSize: 14, fontWeight: 500 }}>{s.protected}</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{s.hiddenNote}</div>
+            <OliveaWordmark />
+            <div style={{ fontSize: 13, fontWeight: 500, color: OLIVE, marginTop: 4 }}>{s.protected}</div>
+            <div style={{ fontSize: 12, color: OLIVE_MUTED }}>{s.hiddenNote}</div>
           </div>
         </div>
       )}
@@ -353,11 +426,11 @@ export default function SecureDocumentViewer({
 }
 
 const inputStyle: React.CSSProperties = {
-  padding: "10px 12px",
+  padding: "11px 13px",
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(0,0,0,0.25)",
-  color: "#fff",
+  border: `1px solid ${LINE}`,
+  background: "#fbfaf6",
+  color: OLIVE,
   fontSize: 16, // 16px avoids iOS zoom-on-focus
   outline: "none",
 };
@@ -703,7 +776,7 @@ function ShieldIcon({ large = false }: { large?: boolean }) {
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ color: "rgba(255,255,255,0.7)" }}
+      style={{ color: OLIVE_MUTED }}
       aria-hidden
     >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
