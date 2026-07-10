@@ -18,6 +18,7 @@ import React, { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import {
   openSecureDocument,
+  reportRenderDebug,
   type OpenSecureDocResult,
   type ClientFingerprint,
 } from "./actions";
@@ -213,6 +214,59 @@ export default function SecureDocumentViewer({
       window.removeEventListener("focus", sync);
     };
   }, []);
+
+  // TEMP diagnostics: capture client errors + report the render outcome once,
+  // so a blank-on-device case can be diagnosed from the server log.
+  const errBufRef = useRef<string[]>([]);
+  useEffect(() => {
+    const onErr = (e: ErrorEvent) =>
+      errBufRef.current.push(`err:${e.message}`.slice(0, 200));
+    const onRej = (e: PromiseRejectionEvent) =>
+      errBufRef.current.push(`rej:${String(e.reason)}`.slice(0, 200));
+    window.addEventListener("error", onErr);
+    window.addEventListener("unhandledrejection", onRej);
+    return () => {
+      window.removeEventListener("error", onErr);
+      window.removeEventListener("unhandledrejection", onRej);
+    };
+  }, []);
+
+  const reportedRef = useRef(false);
+  useEffect(() => {
+    if (phase !== "ready" || reportedRef.current) return;
+    reportedRef.current = true;
+    const timer = setTimeout(() => {
+      try {
+        const imgs = Array.from(
+          document.querySelectorAll<HTMLImageElement>(".secure-doc-root img"),
+        ).map((im) => ({
+          complete: im.complete,
+          nW: im.naturalWidth,
+          nH: im.naturalHeight,
+          dispW: Math.round(im.getBoundingClientRect().width),
+          dispH: Math.round(im.getBoundingClientRect().height),
+          opacity: im.style.opacity,
+          srcType: im.src.startsWith("blob:") ? "blob" : im.src.slice(0, 12),
+        }));
+        const nav = navigator as Navigator & { deviceMemory?: number };
+        void reportRenderDebug({
+          when: "render-report",
+          pages: pages.length,
+          canvases: document.querySelectorAll(".secure-doc-root canvas").length,
+          imgCount: imgs.length,
+          imgs,
+          errors: errBufRef.current.slice(0, 12),
+          dpr: window.devicePixelRatio,
+          mem: nav.deviceMemory ?? null,
+          ua: navigator.userAgent.slice(0, 90),
+          viewport: { w: window.innerWidth, h: window.innerHeight },
+        });
+      } catch {
+        /* ignore */
+      }
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [phase, pages.length]);
 
   const watermarkLines = openedDoc ? buildWatermarkLines(openedDoc, lang) : [];
 
@@ -472,9 +526,17 @@ function SecurePage({
   lang: "es" | "en";
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const urlRef = useRef<string | null>(null);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+
+  // Revoke the blob URL when the page unmounts (free image memory).
+  useEffect(() => {
+    return () => {
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const node = containerRef.current;
@@ -510,19 +572,21 @@ function SecurePage({
         if (cancelled) return;
         const dpr =
           typeof window !== "undefined" && window.devicePixelRatio
-            ? Math.min(window.devicePixelRatio, 2)
+            ? Math.min(window.devicePixelRatio, 1.5)
             : 1.5;
-        const targetWidth = 1100;
+        const targetWidth = 820;
         const base = page.getViewport({ scale: 1 });
         const scale = (targetWidth / base.width) * dpr;
         const viewport = page.getViewport({ scale });
-        // Render to an OFFSCREEN canvas, bake the watermark, flatten to a JPEG,
-        // then RELEASE the canvas. Keeping 14 live canvases at DPR 3 blows iOS
-        // Safari's canvas-memory cap → blank pages; an <img> is ~10x cheaper and
-        // renders reliably on memory-constrained iPhones.
+        // Render to an OFFSCREEN canvas, bake the watermark, flatten to a
+        // BLOB-URL image, then RELEASE the canvas. Blob URLs render far more
+        // reliably on iOS than giant base64 data URLs, and freeing the canvas
+        // keeps all pages well under Safari's memory caps.
         const canvas = document.createElement("canvas");
-        canvas.width = Math.ceil(viewport.width);
-        canvas.height = Math.ceil(viewport.height);
+        const cw = Math.ceil(viewport.width);
+        const ch = Math.ceil(viewport.height);
+        canvas.width = cw;
+        canvas.height = ch;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           canvas.width = canvas.height = 0;
@@ -533,18 +597,21 @@ function SecurePage({
           canvas.width = canvas.height = 0;
           return;
         }
-        drawWatermark(ctx, canvas.width, canvas.height, watermarkLines);
-        let url: string | null = null;
-        try {
-          url = canvas.toDataURL("image/jpeg", 0.9);
-        } catch {
-          url = null;
-        }
+        drawWatermark(ctx, cw, ch, watermarkLines);
+        const blob = await new Promise<Blob | null>((resolve) => {
+          try {
+            canvas.toBlob((b) => resolve(b), "image/jpeg", 0.85);
+          } catch {
+            resolve(null);
+          }
+        });
         // Free the canvas backing store immediately (iOS memory reclaim).
         canvas.width = 0;
         canvas.height = 0;
-        if (cancelled || !url) return;
-        setImgSrc(url);
+        if (cancelled || !blob) return;
+        const objUrl = URL.createObjectURL(blob);
+        urlRef.current = objUrl;
+        setImgSrc(objUrl);
       } catch (err) {
         if (cancelled) return;
         console.warn("[SecureDocumentViewer] page render failed:", pageNumber, err);
