@@ -85,6 +85,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "pages.legal",          label: "Legal Pages",              icon: "Scale",           category: "settings", href: "/admin/content/legal" },
   { key: "pages.notfound",       label: "404 Page",                 icon: "AlertCircle",     category: "settings", href: "/admin/content/not-found" },
   { key: "settings.audit",       label: "Audit Log",                icon: "ScrollText",      category: "settings", href: "/admin/audit-log" },
+  { key: "settings.securedocs",  label: "Document Access",          icon: "Fingerprint",     category: "settings", href: "/admin/secure-docs" },
 ];
 
 /** Per-section permission overrides stored as JSON */

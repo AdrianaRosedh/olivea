@@ -167,6 +167,7 @@ const SECTION_LABELS_B: Record<string, B> = {
   "pages.legal":          { es: "Páginas Legales",      en: "Legal Pages" },
   "pages.notfound":       { es: "Página 404",           en: "404 Page" },
   "settings.audit":       { es: "Registro de Cambios",  en: "Audit Log" },
+  "settings.securedocs":  { es: "Acceso a Documentos",  en: "Document Access" },
 };
 
 /* Resolve a section's bilingual label, falling back to the English label
