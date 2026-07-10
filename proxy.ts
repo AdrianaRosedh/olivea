@@ -46,6 +46,14 @@ export default function proxy(request: NextRequest) {
   // oliveafarmtotable.com (unaffected by this branch).
   const isOliveaAi = hostname === "olivea.ai" || hostname === "www.olivea.ai";
   if (isOliveaAi) {
+    // Block ALL search-engine crawling of olivea.ai — it must never be indexed
+    // or appear in search results. (Pages are also noindex; this is belt+braces.)
+    if (pathname === "/robots.txt") {
+      return new NextResponse("User-agent: *\nDisallow: /\n", {
+        status: 200,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
+    }
     const docAllowed =
       pathname === "/d" ||
       pathname.startsWith("/d/") ||
@@ -93,7 +101,10 @@ export default function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and static assets
-    "/((?!_next/static|_next/image|favicon|images|manifest|robots|sitemap|api).*)",
+    // Skip Next.js internals and static assets. NOTE: robots.txt & sitemap.xml
+    // are intentionally NOT skipped so the proxy can serve a crawl-blocking
+    // robots.txt on olivea.ai. On every other host the proxy just falls through
+    // and the app's own robots.ts / sitemap.ts generators serve as before.
+    "/((?!_next/static|_next/image|favicon|images|manifest|api).*)",
   ],
 };
