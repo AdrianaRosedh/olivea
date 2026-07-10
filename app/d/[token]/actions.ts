@@ -48,25 +48,6 @@ function svcHeaders(): Record<string, string> {
   };
 }
 
-// TEMP: client-render diagnostics for the blank-on-iOS investigation.
-export async function reportRenderDebug(payload: unknown): Promise<void> {
-  try {
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
-    await fetch(`${SUPABASE_URL}/rest/v1/secure_document_debug`, {
-      method: "POST",
-      headers: {
-        ...svcHeaders(),
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify({ payload }),
-      cache: "no-store",
-    });
-  } catch {
-    /* best-effort */
-  }
-}
-
 export type ClientFingerprint = Record<string, unknown> & { hash?: string };
 
 export async function openSecureDocument(

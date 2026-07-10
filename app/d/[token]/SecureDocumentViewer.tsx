@@ -18,7 +18,6 @@ import React, { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import {
   openSecureDocument,
-  reportRenderDebug,
   type OpenSecureDocResult,
   type ClientFingerprint,
 } from "./actions";
@@ -214,59 +213,6 @@ export default function SecureDocumentViewer({
       window.removeEventListener("focus", sync);
     };
   }, []);
-
-  // TEMP diagnostics: capture client errors + report the render outcome once,
-  // so a blank-on-device case can be diagnosed from the server log.
-  const errBufRef = useRef<string[]>([]);
-  useEffect(() => {
-    const onErr = (e: ErrorEvent) =>
-      errBufRef.current.push(`err:${e.message}`.slice(0, 200));
-    const onRej = (e: PromiseRejectionEvent) =>
-      errBufRef.current.push(`rej:${String(e.reason)}`.slice(0, 200));
-    window.addEventListener("error", onErr);
-    window.addEventListener("unhandledrejection", onRej);
-    return () => {
-      window.removeEventListener("error", onErr);
-      window.removeEventListener("unhandledrejection", onRej);
-    };
-  }, []);
-
-  const reportedRef = useRef(false);
-  useEffect(() => {
-    if (phase !== "ready" || reportedRef.current) return;
-    reportedRef.current = true;
-    const timer = setTimeout(() => {
-      try {
-        const imgs = Array.from(
-          document.querySelectorAll<HTMLImageElement>(".secure-doc-root img"),
-        ).map((im) => ({
-          complete: im.complete,
-          nW: im.naturalWidth,
-          nH: im.naturalHeight,
-          dispW: Math.round(im.getBoundingClientRect().width),
-          dispH: Math.round(im.getBoundingClientRect().height),
-          opacity: im.style.opacity,
-          srcType: im.src.startsWith("blob:") ? "blob" : im.src.slice(0, 12),
-        }));
-        const nav = navigator as Navigator & { deviceMemory?: number };
-        void reportRenderDebug({
-          when: "render-report",
-          pages: pages.length,
-          canvases: document.querySelectorAll(".secure-doc-root canvas").length,
-          imgCount: imgs.length,
-          imgs,
-          errors: errBufRef.current.slice(0, 12),
-          dpr: window.devicePixelRatio,
-          mem: nav.deviceMemory ?? null,
-          ua: navigator.userAgent.slice(0, 90),
-          viewport: { w: window.innerWidth, h: window.innerHeight },
-        });
-      } catch {
-        /* ignore */
-      }
-    }, 6000);
-    return () => clearTimeout(timer);
-  }, [phase, pages.length]);
 
   const watermarkLines = openedDoc ? buildWatermarkLines(openedDoc, lang) : [];
 
