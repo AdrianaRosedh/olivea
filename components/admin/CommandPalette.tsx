@@ -13,6 +13,8 @@ import {
 import { useRouter } from "next/navigation";
 import { categoryItems, categoryMeta } from "./AdminDockContext";
 import { useAdminLocale, type B } from "@/lib/admin/i18n";
+import { useAuth } from "@/components/admin/AuthProvider";
+import { canSeeNavHref } from "@/lib/auth/types";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -181,18 +183,23 @@ function CommandPalette({
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { t } = useAdminLocale();
+  const { user } = useAuth();
 
   // Filter items — search matches BOTH languages so "vinos" and "wine"
-  // both find Menús y Enlaces regardless of the UI language.
+  // both find Menús y Enlaces regardless of the UI language. Allowlist-only
+  // destinations (e.g. secure docs) are dropped for users without access.
   const filtered = useMemo(() => {
-    if (!query.trim()) return allItems;
+    const visible = allItems.filter(
+      (it) => !user || canSeeNavHref(user.role, it.href, user.sectionPermissions),
+    );
+    if (!query.trim()) return visible;
     const q = query.toLowerCase();
     const hit = (b: B) =>
       b.es.toLowerCase().includes(q) || b.en.toLowerCase().includes(q);
-    return allItems.filter(
+    return visible.filter(
       (item) => hit(item.label) || hit(item.description) || hit(item.categoryLabel)
     );
-  }, [query]);
+  }, [query, user]);
 
   // Group by category, preserving flat index for keyboard navigation
   const { grouped, flatList } = useMemo(() => {

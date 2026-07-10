@@ -8,7 +8,8 @@ import { createClient } from "./supabase-server";
 import { selectOne } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { redirect } from "next/navigation";
-import type { AdminUser, AdminRole, SectionPermissions } from "./types";
+import type { AdminUser, AdminRole, SectionPermissions, SectionAccess } from "./types";
+import { canAccessSection } from "./types";
 
 /**
  * Get the current authenticated admin user.
@@ -77,6 +78,24 @@ export async function requireRole(requiredRole: AdminRole): Promise<AdminUser> {
 
   if (userLevel > requiredLevel) {
     redirect("/admin?error=insufficient_permissions");
+  }
+  return session;
+}
+
+/**
+ * Require access to a specific admin section at a minimum level. This is the
+ * server-side gate behind restricted surfaces (e.g. the secure-document log):
+ * it enforces the per-user allowlist even if the client UI is bypassed. For a
+ * DENY-BY-DEFAULT section, only allow-listed users (and owners) pass.
+ * Redirects to /admin if the caller isn't permitted.
+ */
+export async function requireSectionAccess(
+  sectionKey: string,
+  minAccess: SectionAccess = "viewer",
+): Promise<AdminUser> {
+  const session = await requireSession();
+  if (!canAccessSection(session.role, sectionKey, minAccess, session.sectionPermissions)) {
+    redirect("/admin?error=section_forbidden");
   }
   return session;
 }

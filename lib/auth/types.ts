@@ -124,13 +124,36 @@ export function defaultSectionAccess(role: AdminRole): SectionAccess {
   }
 }
 
+/**
+ * Sections that are DENY-BY-DEFAULT (allowlist-only). Unlike normal sections,
+ * NO role grants access on its own — a user must be explicitly allow-listed
+ * (given an override of viewer/editor/maestro on the team page). Owners are the
+ * exception: they always retain access so they can curate the allowlist and
+ * can never lock themselves out. Used for sensitive surfaces like the
+ * secure-document forensic log (names, IPs, geo, device fingerprints).
+ */
+export const RESTRICTED_SECTIONS: ReadonlySet<string> = new Set([
+  "settings.securedocs",
+]);
+
+export function isRestrictedSection(sectionKey: string): boolean {
+  return RESTRICTED_SECTIONS.has(sectionKey);
+}
+
 /** Get effective access level for a section (override or role default) */
 export function getSectionAccess(
   role: AdminRole,
   sectionKey: string,
   overrides?: SectionPermissions
 ): SectionAccess {
-  return overrides?.[sectionKey] ?? defaultSectionAccess(role);
+  const override = overrides?.[sectionKey];
+  if (RESTRICTED_SECTIONS.has(sectionKey)) {
+    // Allowlist-only: an explicit override wins; otherwise owners keep access
+    // and everyone else is hidden (deny by default).
+    if (override) return override;
+    return role === "owner" ? "maestro" : "hidden";
+  }
+  return override ?? defaultSectionAccess(role);
 }
 
 /** Check if user can access a section at minimum level */
@@ -142,6 +165,28 @@ export function canAccessSection(
 ): boolean {
   const access = getSectionAccess(role, sectionKey, overrides);
   return SECTION_ACCESS_HIERARCHY.indexOf(access) <= SECTION_ACCESS_HIERARCHY.indexOf(minAccess);
+}
+
+/** href → section key, for nav-level visibility checks. */
+const HREF_TO_SECTION: Record<string, string> = Object.fromEntries(
+  ADMIN_SECTIONS.map((s) => [s.href, s.key]),
+);
+
+/**
+ * Should a nav destination (dock item, hub card, palette result) be VISIBLE to
+ * this user? Restricted (allowlist-only) sections are hidden from users who
+ * aren't allow-listed, so the feature isn't even advertised. Everything else
+ * stays visible — access to those is still enforced on entry by SectionGuard
+ * and the server actions.
+ */
+export function canSeeNavHref(
+  role: AdminRole,
+  href: string,
+  overrides?: SectionPermissions
+): boolean {
+  const key = HREF_TO_SECTION[href];
+  if (!key || !RESTRICTED_SECTIONS.has(key)) return true;
+  return canAccessSection(role, key, "viewer", overrides);
 }
 
 /** Can this role edit content (pages, popups, banners, etc.)? */

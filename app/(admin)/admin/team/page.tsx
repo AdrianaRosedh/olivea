@@ -26,6 +26,7 @@ import {
   FileText,
   Layers,
   Settings,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "@/components/admin/AuthProvider";
 import {
@@ -46,6 +47,8 @@ import {
   SECTION_ACCESS_HIERARCHY,
   ADMIN_SECTIONS,
   defaultSectionAccess,
+  getSectionAccess,
+  isRestrictedSection,
 } from "@/lib/auth/types";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 
@@ -667,7 +670,7 @@ function InviteModal({
                     {/* Section permission matrix */}
                     <div className="border border-[#5e7658]/[0.06] rounded-2xl overflow-hidden divide-y divide-[#5e7658]/[0.04]">
                       {activeSections.map((section, i) => {
-                        const currentAccess = sectionPerms[section.key] ?? defaultSectionAccess(role);
+                        const currentAccess = getSectionAccess(role, section.key, sectionPerms);
                         const isInherited = !sectionPerms[section.key];
 
                         return (
@@ -679,7 +682,10 @@ function InviteModal({
                             animate="visible"
                             className="flex items-center gap-3 py-3 px-4 hover:bg-[#f4f5f0]/40 transition-colors"
                           >
-                            <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate">
+                            <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate inline-flex items-center gap-1.5">
+                              {isRestrictedSection(section.key) && (
+                                <Lock className="w-3 h-3 text-amber-500 shrink-0" aria-label={t({ es: "Solo lista de acceso", en: "Allowlist only" })} />
+                              )}
                               {t(sectionLabel(section.key, section.label))}
                             </span>
                             <div className="flex">
@@ -1027,7 +1033,7 @@ function DetailPanel({
         {/* Section rows */}
         <div className="border border-[#5e7658]/[0.06] rounded-2xl overflow-hidden divide-y divide-[#5e7658]/[0.04]">
           {activeSections.map((section, i) => {
-            const currentAccess = perms[section.key] ?? defaultSectionAccess(member.role);
+            const currentAccess = getSectionAccess(member.role, section.key, perms);
             const isInherited = !perms[section.key];
 
             return (
@@ -1047,6 +1053,9 @@ function DetailPanel({
                       hover:text-[#5e7658] hover:underline underline-offset-2
                       transition-colors duration-200 flex items-center gap-1.5 group/link"
                   >
+                    {isRestrictedSection(section.key) && (
+                      <Lock className="w-3 h-3 text-amber-500 shrink-0" aria-label={t({ es: "Solo lista de acceso", en: "Allowlist only" })} />
+                    )}
                     {t(sectionLabel(section.key, section.label))}
                     <ExternalLink
                       size={10}
@@ -1054,7 +1063,10 @@ function DetailPanel({
                     />
                   </Link>
                 ) : (
-                  <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate">
+                  <span className="text-[13px] text-[#2d3b29] flex-1 min-w-0 truncate inline-flex items-center gap-1.5">
+                    {isRestrictedSection(section.key) && (
+                      <Lock className="w-3 h-3 text-amber-500 shrink-0" aria-label={t({ es: "Solo lista de acceso", en: "Allowlist only" })} />
+                    )}
                     {t(sectionLabel(section.key, section.label))}
                   </span>
                 )}

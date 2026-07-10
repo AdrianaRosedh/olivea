@@ -8,9 +8,12 @@
 // (getAuditLog → requireRole("manager")).
 // ─────────────────────────────────────────────────────────────────────
 
-import { requireRole } from "@/lib/auth/session";
+import { requireSectionAccess } from "@/lib/auth/session";
 import { selectRows } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+
+/** Section key for the allowlist that gates secure-document access. */
+const SECURE_DOCS_SECTION = "settings.securedocs";
 
 export interface SecureDocAccessEntry {
   id: string;
@@ -51,8 +54,9 @@ interface DocRow {
 }
 
 export async function getSecureDocAccessLog(limit = 500): Promise<SecureDocAccessEntry[]> {
-  // Sensitive forensic data — managers and owners only.
-  await requireRole("manager");
+  // Sensitive forensic data — allowlist-only (deny by default, even for
+  // managers). Enforced server-side so hiding the UI isn't the only gate.
+  await requireSectionAccess(SECURE_DOCS_SECTION, "viewer");
   if (!isSupabaseConfigured) return [];
 
   const [views, docs] = await Promise.all([

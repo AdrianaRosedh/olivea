@@ -38,6 +38,8 @@ import {
   type CategoryItem,
 } from "./AdminDockContext";
 import { useAdminLocale } from "@/lib/admin/i18n";
+import { useAuth } from "@/components/admin/AuthProvider";
+import { canSeeNavHref } from "@/lib/auth/types";
 
 /* ── Cinematic easing curves ── */
 const cinematic: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -194,8 +196,12 @@ function CategoryCard({ item }: { item: CategoryItem }) {
 /* ── Category card grid page ── */
 export default function CategoryCardGrid({ category }: { category: AdminCategory }) {
   const meta = categoryMeta[category];
-  const items = categoryItems[category];
   const { t } = useAdminLocale();
+  const { user } = useAuth();
+  // Hide allowlist-only destinations (e.g. secure docs) from users not granted them.
+  const items = categoryItems[category].filter(
+    (it) => !user || canSeeNavHref(user.role, it.href, user.sectionPermissions),
+  );
 
   return (
     <motion.div

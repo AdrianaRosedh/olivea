@@ -25,6 +25,7 @@ import { usePalette } from "./CommandPalette";
 import { useAuth } from "./AuthProvider";
 import { mockUser } from "@/lib/admin/mock-user";
 import type { AdminUser } from "@/lib/auth/types";
+import { canSeeNavHref } from "@/lib/auth/types";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
 
 /* ─── Category definitions ─── */
@@ -117,7 +118,11 @@ function DockIcon({
 function CategoryChildren({ cat }: { cat: AdminCategory }) {
   const pathname = usePathname();
   const { t } = useAdminLocale();
-  const items = categoryItems[cat];
+  const { user } = useAuth();
+  // Hide allowlist-only destinations (e.g. secure docs) from users without access.
+  const items = categoryItems[cat].filter(
+    (it) => !user || canSeeNavHref(user.role, it.href, user.sectionPermissions),
+  );
   if (!items.length) return null;
 
   return (
