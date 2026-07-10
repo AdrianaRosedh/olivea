@@ -3,6 +3,7 @@
 
 import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
 import {
   SharedTransitionProvider,
@@ -41,6 +42,14 @@ const LiveGarden = dynamic(
 );
 
 /* ========== Conditional shells ========== */
+
+/** The floating LiveGarden button shows site-wide EXCEPT on the secure
+ *  document pages (/d/*), which must stay branding-free. */
+function ConditionalLiveGarden() {
+  const pathname = usePathname();
+  if (pathname === "/d" || pathname?.startsWith("/d/")) return null;
+  return <LiveGarden />;
+}
 
 /** Load & render reservation modal only when it's open (saves a chunk on idle pages). */
 const ConditionalReservationModal = () => {
@@ -143,7 +152,7 @@ export function AppProviders({ children }: AppProvidersProps) {
 
               {children}
               <ConditionalReservationModal />
-              <LiveGarden />
+              <ConditionalLiveGarden />
             </ClientProviders>
           </ScrollProvider>
         </ReservationProvider>
