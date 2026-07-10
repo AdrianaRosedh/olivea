@@ -23,8 +23,11 @@ import {
   FileText,
 } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
+import { useAuth } from "@/components/admin/AuthProvider";
+import { canAccessSection } from "@/lib/auth/types";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
 import { getSecureDocAccessLog, type SecureDocAccessEntry } from "./actions";
+import DocumentsManager from "./DocumentsManager";
 
 /* ── Helpers (module scope — no t() here) ─────────────────────────── */
 
@@ -267,25 +270,9 @@ function SecureDocsAccessLog() {
   const distinctNames = new Set(entries.map((e) => (e.viewerName ?? "").trim().toLowerCase()).filter(Boolean)).size;
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--olivea-cream)]/60 border border-[var(--olivea-olive)]/[0.08] flex items-center justify-center">
-            <Fingerprint className="w-5 h-5 text-[var(--olivea-olive)]" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-[var(--olivea-ink)]">
-              {t({ es: "Acceso a Documentos", en: "Document Access" })}
-            </h1>
-            <p className="text-sm text-[var(--olivea-clay)]">
-              {t({
-                es: "Quién abrió cada documento seguro — nombre, ubicación, dispositivo y huella.",
-                en: "Who opened each secure document — name, location, device, and fingerprint.",
-              })}
-            </p>
-          </div>
-        </div>
+    <div>
+      {/* Refresh */}
+      <div className="flex items-center justify-end mb-4">
         <button
           onClick={load}
           disabled={isPending}
@@ -386,10 +373,63 @@ function SecureDocsAccessLog() {
   );
 }
 
-export default function SecureDocsAccessLogPage() {
+/* ── Console shell: Documents + Access Log tabs ───────────────────── */
+
+function SecureDocsConsole() {
+  const { t } = useAdminLocale();
+  const { user } = useAuth();
+  const [tab, setTab] = useState<"documents" | "log">("documents");
+  // Editors can modify documents; viewers see them read-only. Server re-checks.
+  const canModify = user
+    ? canAccessSection(user.role, "settings.securedocs", "editor", user.sectionPermissions)
+    : false;
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-10 h-10 rounded-xl bg-[var(--olivea-cream)]/60 border border-[var(--olivea-olive)]/[0.08] flex items-center justify-center">
+          <Fingerprint className="w-5 h-5 text-[var(--olivea-olive)]" />
+        </div>
+        <div>
+          <h1 className="text-xl font-semibold text-[var(--olivea-ink)]">
+            {t({ es: "Documentos Seguros", en: "Secure Documents" })}
+          </h1>
+          <p className="text-sm text-[var(--olivea-clay)]">
+            {t({ es: "Gestiona documentos y revisa quién los abrió.", en: "Manage documents and review who opened them." })}
+          </p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex items-center gap-1 mb-6 border-b border-stone-200/70">
+        {([
+          ["documents", { es: "Documentos", en: "Documents" }, FileText] as const,
+          ["log", { es: "Registro de Acceso", en: "Access Log" }, Fingerprint] as const,
+        ]).map(([key, label, Icon]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              tab === key
+                ? "border-[var(--olivea-olive)] text-[var(--olivea-ink)]"
+                : "border-transparent text-stone-500 hover:text-stone-700"
+            }`}
+          >
+            <Icon className="w-4 h-4" /> {t(label)}
+          </button>
+        ))}
+      </div>
+
+      {tab === "documents" ? <DocumentsManager canModify={canModify} /> : <SecureDocsAccessLog />}
+    </div>
+  );
+}
+
+export default function SecureDocsPage() {
   return (
     <SectionGuard sectionKey="settings.securedocs" minAccess="viewer">
-      <SecureDocsAccessLog />
+      <SecureDocsConsole />
     </SectionGuard>
   );
 }

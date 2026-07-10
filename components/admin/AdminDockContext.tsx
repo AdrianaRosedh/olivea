@@ -80,7 +80,7 @@ export const categoryItems: Record<AdminCategory, CategoryItem[]> = {
     { href: "/admin/content/legal", icon: "Scale", label: { es: "Páginas Legales", en: "Legal Pages" }, description: { es: "Aviso de privacidad, términos y cookies", en: "Privacy policy, terms, cookie statement" } },
     { href: "/admin/content/not-found", icon: "AlertCircle", label: { es: "Página 404", en: "404 Page" }, description: { es: "Mensaje cuando un visitante llega a una página inexistente", en: "Message shown when a visitor hits a missing page" } },
     { href: "/admin/audit-log", icon: "ScrollText", label: { es: "Registro de Cambios", en: "Audit Log" }, description: { es: "Quién editó qué, y cuándo", en: "Who edited what, and when" } },
-    { href: "/admin/secure-docs", icon: "Fingerprint", label: { es: "Acceso a Documentos", en: "Document Access" }, description: { es: "Quién abrió cada documento seguro: nombre, ubicación, dispositivo y huella", en: "Who opened each secure document: name, location, device, and fingerprint" } },
+    { href: "/admin/secure-docs", icon: "Fingerprint", label: { es: "Documentos Seguros", en: "Secure Documents" }, description: { es: "Sube documentos con QR, código y expiración; revisa quién los abrió", en: "Upload documents with QR, passcode & expiry; review who opened them" } },
   ],
 };
 
