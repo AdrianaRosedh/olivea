@@ -277,8 +277,19 @@ export default function AdminDock() {
         </button>
       </div>
 
-      {/* ── Category icons (+ inline pages of the active category) ── */}
-      <div className={`flex-1 flex flex-col gap-1 ${expanded ? "px-3" : "px-2"} py-4 overflow-y-auto`}>
+      {/* ── Category icons (+ inline pages of the active category) ──
+          Collapsed: overflow-visible so the hover tooltips (rendered to the
+          RIGHT of the 72px dock) aren't clipped — and, crucially, don't create
+          a phantom horizontal scrollbar (overflow-y:auto otherwise forces
+          overflow-x to compute to auto, and the off-dock tooltips widen it).
+          Expanded: no tooltips, but the inline page list can be tall, so scroll
+          vertically with the scrollbar hidden for a clean chrome look. */}
+      <style>{`.dock-scroll{scrollbar-width:none}.dock-scroll::-webkit-scrollbar{display:none}`}</style>
+      <div
+        className={`dock-scroll flex-1 flex flex-col gap-1 ${expanded ? "px-3" : "px-2"} py-4 ${
+          expanded ? "overflow-y-auto overflow-x-hidden" : "overflow-visible"
+        }`}
+      >
         {categories.map((cat) => (
           <div key={cat.key}>
             <DockIcon
