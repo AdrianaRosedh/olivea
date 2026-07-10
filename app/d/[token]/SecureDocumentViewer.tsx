@@ -16,7 +16,11 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import { openSecureDocument, type OpenSecureDocResult } from "./actions";
+import {
+  openSecureDocument,
+  type OpenSecureDocResult,
+  type ClientFingerprint,
+} from "./actions";
 
 const WORKER_PATH = "/pdf.worker.min.mjs";
 
@@ -121,7 +125,8 @@ export default function SecureDocumentViewer({
       return;
     }
     setSubmitting(true);
-    const res = await openSecureDocument(grant, name, passcode);
+    const fp = await collectFingerprint().catch(() => null);
+    const res = await openSecureDocument(grant, name, passcode, fp);
     setSubmitting(false);
     if (!res.ok) {
       setFormError(errorText(res, s));
@@ -493,6 +498,157 @@ function base64ToBytes(b64: string): Uint8Array {
   const out = new Uint8Array(len);
   for (let i = 0; i < len; i++) out[i] = bin.charCodeAt(i);
   return out;
+}
+
+// ── Passive device fingerprint (no permission prompts) ─────────────────
+// Everything here is collected silently from the browser. The `hash` is a
+// durable device id built from STABLE signals only, so the same phone signing
+// in under different names is linkable even if cookies are cleared.
+async function sha256Hex(str: string): Promise<string> {
+  try {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  } catch {
+    return "";
+  }
+}
+
+function canvasFingerprint(): string {
+  try {
+    const c = document.createElement("canvas");
+    c.width = 240;
+    c.height = 60;
+    const ctx = c.getContext("2d");
+    if (!ctx) return "";
+    ctx.textBaseline = "top";
+    ctx.font = "14px 'Arial'";
+    ctx.fillStyle = "#f60";
+    ctx.fillRect(125, 1, 62, 20);
+    ctx.fillStyle = "#069";
+    ctx.fillText("Olivea·Reglamento·◊", 2, 15);
+    ctx.fillStyle = "rgba(102,204,0,0.7)";
+    ctx.fillText("Olivea·Reglamento·◊", 4, 17);
+    return c.toDataURL();
+  } catch {
+    return "";
+  }
+}
+
+function webglInfo(): { vendor: string | null; renderer: string | null } {
+  try {
+    const c = document.createElement("canvas");
+    const gl = (c.getContext("webgl") ||
+      c.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+    if (!gl) return { vendor: null, renderer: null };
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+    return {
+      vendor: dbg
+        ? String(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL))
+        : String(gl.getParameter(gl.VENDOR)),
+      renderer: dbg
+        ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL))
+        : String(gl.getParameter(gl.RENDERER)),
+    };
+  } catch {
+    return { vendor: null, renderer: null };
+  }
+}
+
+async function collectFingerprint(): Promise<ClientFingerprint> {
+  const nav = navigator as Navigator & {
+    deviceMemory?: number;
+    connection?: {
+      effectiveType?: string;
+      downlink?: number;
+      rtt?: number;
+    };
+    userAgentData?: {
+      brands?: unknown;
+      mobile?: boolean;
+      platform?: string;
+      getHighEntropyValues?: (h: string[]) => Promise<Record<string, unknown>>;
+    };
+  };
+  const s = window.screen;
+  const gl = webglInfo();
+  const canvas = canvasFingerprint();
+  const canvasHash = canvas ? await sha256Hex(canvas) : null;
+
+  let uaData: Record<string, unknown> | null = null;
+  try {
+    if (nav.userAgentData) {
+      uaData = {
+        brands: nav.userAgentData.brands ?? null,
+        mobile: nav.userAgentData.mobile ?? null,
+        platform: nav.userAgentData.platform ?? null,
+      };
+      if (nav.userAgentData.getHighEntropyValues) {
+        const he = await nav.userAgentData.getHighEntropyValues([
+          "model",
+          "platformVersion",
+          "architecture",
+          "bitness",
+          "fullVersionList",
+        ]);
+        uaData = { ...uaData, ...he };
+      }
+    }
+  } catch {
+    /* best-effort */
+  }
+
+  const data: ClientFingerprint = {
+    ua: nav.userAgent,
+    platform: nav.platform ?? null,
+    language: nav.language ?? null,
+    languages: Array.isArray(nav.languages) ? nav.languages : null,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone ?? null,
+    tzOffsetMin: new Date().getTimezoneOffset(),
+    screen: {
+      w: s.width,
+      h: s.height,
+      availW: s.availWidth,
+      availH: s.availHeight,
+      colorDepth: s.colorDepth,
+      dpr: window.devicePixelRatio ?? null,
+    },
+    viewport: { w: window.innerWidth, h: window.innerHeight },
+    cores: nav.hardwareConcurrency ?? null,
+    memoryGB: nav.deviceMemory ?? null,
+    touchPoints: nav.maxTouchPoints ?? 0,
+    gpuVendor: gl.vendor,
+    gpuRenderer: gl.renderer,
+    canvasHash,
+    cookieEnabled: nav.cookieEnabled,
+    connection: nav.connection
+      ? {
+          effectiveType: nav.connection.effectiveType ?? null,
+          downlink: nav.connection.downlink ?? null,
+          rtt: nav.connection.rtt ?? null,
+        }
+      : null,
+    uaData,
+    referrer: document.referrer || null,
+  };
+
+  // Durable device id — STABLE signals only (no viewport/connection, which vary).
+  const stable = JSON.stringify([
+    data.ua,
+    data.platform,
+    data.languages,
+    data.timezone,
+    data.screen,
+    data.cores,
+    data.memoryGB,
+    data.gpuVendor,
+    data.gpuRenderer,
+    data.canvasHash,
+    uaData,
+  ]);
+  data.hash = await sha256Hex(stable);
+  return data;
 }
 
 function buildWatermarkLines(grant: Grant, lang: "es" | "en"): string[] {

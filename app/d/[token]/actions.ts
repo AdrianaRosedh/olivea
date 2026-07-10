@@ -48,10 +48,13 @@ function svcHeaders(): Record<string, string> {
   };
 }
 
+export type ClientFingerprint = Record<string, unknown> & { hash?: string };
+
 export async function openSecureDocument(
   grant: string,
   name: string,
   passcode: string,
+  fingerprint?: ClientFingerprint | null,
 ): Promise<OpenSecureDocResult> {
   try {
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -75,11 +78,23 @@ export async function openSecureDocument(
     }
 
     const hdrs = await headers();
-    const ip =
-      hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      hdrs.get("x-real-ip") ??
-      null;
+    const fwd = hdrs.get("x-forwarded-for") ?? "";
+    const ip = fwd.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
     const ua = hdrs.get("user-agent") ?? null;
+    const acceptLanguage = hdrs.get("accept-language") ?? null;
+    const referer = hdrs.get("referer") ?? null;
+    // Vercel edge geo (from the IP — no client permission needed). Present on
+    // production; null locally. `forwarded` keeps the full proxy chain.
+    const rawCity = hdrs.get("x-vercel-ip-city");
+    const geo = {
+      country: hdrs.get("x-vercel-ip-country"),
+      region: hdrs.get("x-vercel-ip-country-region"),
+      city: rawCity ? decodeURIComponent(rawCity) : null,
+      latitude: hdrs.get("x-vercel-ip-latitude"),
+      longitude: hdrs.get("x-vercel-ip-longitude"),
+      timezone: hdrs.get("x-vercel-ip-timezone"),
+      forwarded: fwd || null,
+    };
 
     // 1. Verify grant (rotating link) + passcode + name, and LOG the view.
     const rpcRes = await fetch(
@@ -94,6 +109,11 @@ export async function openSecureDocument(
           _session: sid,
           _ip: ip,
           _ua: ua,
+          _client: fingerprint ?? null,
+          _geo: geo,
+          _fp_hash: fingerprint?.hash ?? null,
+          _accept_language: acceptLanguage,
+          _referer: referer,
         }),
         cache: "no-store",
       },
