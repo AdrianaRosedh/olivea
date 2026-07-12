@@ -226,14 +226,18 @@ export default async function StructuredDataServer() {
       "@id": ENTITY_IDS.restaurant,
       name: "Olivea Farm To Table",
       alternateName: "Olivea FTT",
-      description: "MICHELIN-starred tasting-menu restaurant with farm stay and café on the same property. Farm hospitality in Valle de Guadalupe, Baja California.",
+      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. The fine-dining heart of Olivea; the casual daytime café (Olivea Café) and the farm stay (Casa Olivea) share the same property.",
+      // ✅ Google's dining-style hints. schema.org has no "fine dining" type, so
+      // the tier is carried by priceRange ($$$$), the description, cuisine, and
+      // these keywords — kept unambiguous so Search/AI never read it as casual.
+      keywords: "fine dining, alta cocina, MICHELIN Star, tasting menu, menú degustación, prix fixe, farm-to-table, del huerto, reservation only, Valle de Guadalupe",
       url: canonicalUrl("/es/farmtotable"),
       mainEntityOfPage: canonicalUrl("/es/farmtotable"),
       telephone: "+52-6463836402",
       image: canonicalUrl("/images/seo/farm-og.jpg"),
       address: commonAddress,
       geo,
-      servesCuisine: ["Farm-to-table", "Baja California", "Mexican", "Tasting menu"],
+      servesCuisine: ["Fine dining", "Tasting menu", "Farm-to-table", "Contemporary Mexican", "Baja California"],
       // ✅ menu — the property Google documents for food establishments (menu URL)
       menu: canonicalUrl("/es/menu"),
       // ✅ containsPlace + parentOrganization for entity graph
@@ -242,7 +246,9 @@ export default async function StructuredDataServer() {
         { "@id": ENTITY_IDS.cafe },
       ],
       parentOrganization: { "@id": ENTITY_IDS.organization },
-      priceRange: "$$$",
+      // Fine dining — top price tier. Was "$$$" (upscale-casual), which
+      // undersold a One-MICHELIN-Star prix-fixe tasting-menu restaurant.
+      priceRange: "$$$$",
       hasMap: GOOGLE_MAPS.restaurant,
       sameAs: [GOOGLE_MAPS.restaurant, MICHELIN.restaurant],
       acceptsReservations: true,
@@ -291,7 +297,7 @@ export default async function StructuredDataServer() {
       additionalType: "https://schema.org/Resort",
       "@id": ENTITY_IDS.hotel,
       name: "Casa Olivea",
-      description: "Farm stay integrated with a working garden and MICHELIN-starred restaurant in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
+      description: "The complete Olivea experience — a farm stay that brings together the One-MICHELIN-Star Olivea Farm To Table restaurant, the casual Olivea Café, and the working garden into a single stay in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
       url: canonicalUrl("/es/casa"),
       mainEntityOfPage: canonicalUrl("/es/casa"),
       telephone: "+52-6463882369",
@@ -320,7 +326,8 @@ export default async function StructuredDataServer() {
       "@type": "CafeOrCoffeeShop",
       "@id": ENTITY_IDS.cafe,
       name: "Olivea Café",
-      description: "Specialty coffee, house bread, and farm breakfast in Valle de Guadalupe, Baja California. Part of the Olivea farm hospitality ecosystem — where the garden is the essence.",
+      description: "Casual, walk-in specialty coffee house — house coffee, artisan bread, and farm breakfast in Valle de Guadalupe, Baja California. Olivea's relaxed daytime experience, and the casual counterpart to the One-MICHELIN-Star Olivea Farm To Table restaurant on the same working-garden property.",
+      keywords: "casual, café, specialty coffee, breakfast, walk-in, no reservation, cafetería",
       url: canonicalUrl("/es/cafe"),
       mainEntityOfPage: canonicalUrl("/es/cafe"),
       telephone: "+52-6463882369",
