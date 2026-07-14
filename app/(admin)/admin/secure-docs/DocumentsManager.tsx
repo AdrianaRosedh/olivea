@@ -236,11 +236,11 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
     setExpiryInput(toDatetimeLocal(doc.expiresAt));
     setEditingExpiry(true);
   };
-  const saveExpiry = async (never: boolean) => {
-    const value = never ? null : expiryInput ? new Date(expiryInput).toISOString() : null;
+  const commitExpiry = async (value: string | null) => {
     await run(() => updateSecureDocument(doc.id, { expiresAt: value }));
     setEditingExpiry(false);
   };
+  const plusDays = (n: number) => commitExpiry(new Date(Date.now() + n * 86_400_000).toISOString());
 
   return (
     <div className="rounded-2xl border border-stone-200/70 bg-white/60 p-4">
@@ -304,27 +304,42 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
 
       {canModify && editingExpiry && (
         <div className="mt-3 rounded-xl border border-stone-200 bg-stone-50/60 p-3">
-          <div className="text-[11px] font-medium text-stone-600 mb-2">{t({ es: "Cambiar vencimiento", en: "Change expiry" })}</div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-medium text-stone-600">{t({ es: "Cambiar vencimiento", en: "Change expiry" })}</span>
+            <button onClick={() => setEditingExpiry(false)} className="text-[11px] text-stone-400 hover:text-stone-600">
+              {t(STR.cancel)}
+            </button>
+          </div>
+
+          {/* Quick options */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button onClick={() => commitExpiry(null)} disabled={busy}
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 disabled:opacity-50">
+              {t({ es: "Nunca expira", en: "Never" })}
+            </button>
+            {([[30, { es: "30 días", en: "30 days" }], [90, { es: "90 días", en: "90 days" }], [180, { es: "6 meses", en: "6 months" }], [365, { es: "1 año", en: "1 year" }]] as const).map(([days, label]) => (
+              <button key={days} onClick={() => plusDays(days)} disabled={busy}
+                className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-white border border-stone-200 text-stone-600 hover:bg-stone-100 disabled:opacity-50">
+                +{t(label)}
+              </button>
+            ))}
+          </div>
+
+          {/* Exact date via the calendar picker */}
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <span className="text-[11px] text-stone-500">{t({ es: "o una fecha exacta:", en: "or an exact date:" })}</span>
             <input
               type="datetime-local"
               value={expiryInput}
               onChange={(e) => setExpiryInput(e.target.value)}
               className="text-xs px-2 py-1.5 rounded-lg border border-stone-300 bg-white text-stone-700 outline-none focus:ring-1 focus:ring-[var(--olivea-olive)]"
             />
-            <button onClick={() => saveExpiry(false)} disabled={busy || !expiryInput}
+            <button onClick={() => commitExpiry(expiryInput ? new Date(expiryInput).toISOString() : null)} disabled={busy || !expiryInput}
               className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-[var(--olivea-olive)] text-white hover:shadow-sm disabled:opacity-50">
-              {t({ es: "Guardar fecha", en: "Save date" })}
-            </button>
-            <button onClick={() => saveExpiry(true)} disabled={busy}
-              className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 disabled:opacity-50">
-              {t({ es: "Nunca expira", en: "Never expires" })}
-            </button>
-            <button onClick={() => setEditingExpiry(false)}
-              className="px-2.5 py-1.5 rounded-lg text-[11px] text-stone-500 hover:bg-stone-100">
-              {t(STR.cancel)}
+              {t({ es: "Guardar", en: "Save" })}
             </button>
           </div>
+
           <p className="text-[10px] text-stone-400 mt-2">{t({ es: "El QR y el enlace no cambian.", en: "The QR and link stay the same." })}</p>
         </div>
       )}
