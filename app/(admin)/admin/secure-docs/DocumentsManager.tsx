@@ -24,6 +24,7 @@ import {
   Lock,
   Eye,
   Power,
+  CalendarClock,
 } from "lucide-react";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
 import {
@@ -38,6 +39,14 @@ import { SECURE_DOC_BASE_URL } from "./constants";
 
 function docUrl(token: string): string {
   return `${SECURE_DOC_BASE_URL}/d/${token}`;
+}
+
+/** ISO → value for a <input type="datetime-local"> in the viewer's local time. */
+function toDatetimeLocal(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 type DocStatus = { label: { es: string; en: string }; cls: string };
@@ -165,7 +174,7 @@ function CreateForm({ onDone }: { onDone: () => void }) {
         </label>
 
         <label className="block">
-          <span className="text-[11px] uppercase tracking-wider text-stone-500">{t({ es: "Expira (opcional)", en: "Expires (optional)" })}</span>
+          <span className="text-[11px] uppercase tracking-wider text-stone-500">{t({ es: "Expira (vacío = nunca)", en: "Expires (empty = never)" })}</span>
           <input name="expiresAt" type="datetime-local" className="mt-1 w-full text-sm px-3 py-2 rounded-lg border border-stone-300 bg-white/70 outline-none focus:ring-1 focus:ring-[var(--olivea-olive)]" />
         </label>
 
@@ -203,6 +212,8 @@ function CreateForm({ onDone }: { onDone: () => void }) {
 function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify: boolean; onChanged: () => void }) {
   const { locale, t } = useAdminLocale();
   const [busy, setBusy] = useState(false);
+  const [editingExpiry, setEditingExpiry] = useState(false);
+  const [expiryInput, setExpiryInput] = useState("");
   const st = statusOf(doc);
 
   const run = async (fn: () => Promise<unknown>) => {
@@ -221,6 +232,16 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
     run(() => deleteSecureDocument(doc.id));
   };
 
+  const openExpiry = () => {
+    setExpiryInput(toDatetimeLocal(doc.expiresAt));
+    setEditingExpiry(true);
+  };
+  const saveExpiry = async (never: boolean) => {
+    const value = never ? null : expiryInput ? new Date(expiryInput).toISOString() : null;
+    await run(() => updateSecureDocument(doc.id, { expiresAt: value }));
+    setEditingExpiry(false);
+  };
+
   return (
     <div className="rounded-2xl border border-stone-200/70 bg-white/60 p-4">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -236,7 +257,11 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
             {doc.recipient && <span>{t({ es: "Marca de agua", en: "Watermark" })}: {doc.recipient}</span>}
             <span className="inline-flex items-center gap-1"><Eye className="w-3 h-3" /> {doc.viewCount} {t({ es: "vistas", en: "views" })}</span>
             <span>{doc.accessMode === "single_session" ? t({ es: "Una sesión", en: "Single session" }) : t({ es: "Varios lectores", en: "Multi-viewer" })}</span>
-            {doc.expiresAt && <span>{t({ es: "Expira", en: "Expires" })}: {new Date(doc.expiresAt).toLocaleString(locale === "es" ? "es-MX" : "en-US", { dateStyle: "medium", timeStyle: "short" })}</span>}
+            <span>
+              {doc.expiresAt
+                ? `${t({ es: "Expira", en: "Expires" })}: ${new Date(doc.expiresAt).toLocaleString(locale === "es" ? "es-MX" : "en-US", { dateStyle: "medium", timeStyle: "short" })}`
+                : t({ es: "Nunca expira", en: "Never expires" })}
+            </span>
           </div>
         </div>
       </div>
@@ -266,10 +291,41 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 disabled:opacity-50">
             <KeyRound className="w-3 h-3" /> {doc.hasPasscode ? t({ es: "Cambiar código", en: "Change passcode" }) : t({ es: "Poner código", en: "Set passcode" })}
           </button>
+          <button onClick={openExpiry} disabled={busy}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 disabled:opacity-50">
+            <CalendarClock className="w-3 h-3" /> {t({ es: "Vencimiento", en: "Expiry" })}
+          </button>
           <button onClick={remove} disabled={busy}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 ml-auto">
             <Trash2 className="w-3 h-3" /> {t(STR.delete)}
           </button>
+        </div>
+      )}
+
+      {canModify && editingExpiry && (
+        <div className="mt-3 rounded-xl border border-stone-200 bg-stone-50/60 p-3">
+          <div className="text-[11px] font-medium text-stone-600 mb-2">{t({ es: "Cambiar vencimiento", en: "Change expiry" })}</div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="datetime-local"
+              value={expiryInput}
+              onChange={(e) => setExpiryInput(e.target.value)}
+              className="text-xs px-2 py-1.5 rounded-lg border border-stone-300 bg-white text-stone-700 outline-none focus:ring-1 focus:ring-[var(--olivea-olive)]"
+            />
+            <button onClick={() => saveExpiry(false)} disabled={busy || !expiryInput}
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-[var(--olivea-olive)] text-white hover:shadow-sm disabled:opacity-50">
+              {t({ es: "Guardar fecha", en: "Save date" })}
+            </button>
+            <button onClick={() => saveExpiry(true)} disabled={busy}
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 disabled:opacity-50">
+              {t({ es: "Nunca expira", en: "Never expires" })}
+            </button>
+            <button onClick={() => setEditingExpiry(false)}
+              className="px-2.5 py-1.5 rounded-lg text-[11px] text-stone-500 hover:bg-stone-100">
+              {t(STR.cancel)}
+            </button>
+          </div>
+          <p className="text-[10px] text-stone-400 mt-2">{t({ es: "El QR y el enlace no cambian.", en: "The QR and link stay the same." })}</p>
         </div>
       )}
     </div>
