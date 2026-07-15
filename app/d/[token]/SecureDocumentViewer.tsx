@@ -81,6 +81,8 @@ const t = (lang: "es" | "en") =>
         title: "Documento protegido",
         docTitle: "Reglamento Interior de Trabajo",
         intro: "Escribe tu nombre y el código para ver el documento.",
+        logNotice:
+          "Por tu seguridad, cada acceso a este documento queda registrado: nombre, fecha, dispositivo y ubicación aproximada.",
         name: "Nombre completo",
         passcode: "Código de acceso",
         submit: "Ver documento",
@@ -103,6 +105,8 @@ const t = (lang: "es" | "en") =>
         title: "Protected document",
         docTitle: "Internal Work Regulations",
         intro: "Enter your name and the code to view the document.",
+        logNotice:
+          "For your security, each access to this document is logged: name, date, device, and approximate location.",
         name: "Full name",
         passcode: "Access code",
         submit: "View document",
@@ -356,6 +360,18 @@ export default function SecureDocumentViewer({
             >
               {submitting ? s.submitting : s.submit}
             </button>
+            <p
+              style={{
+                marginTop: 16,
+                fontSize: 11,
+                lineHeight: 1.5,
+                color: OLIVE_MUTED,
+                textAlign: "center",
+                opacity: 0.85,
+              }}
+            >
+              {s.logNotice}
+            </p>
           </form>
         </div>
       )}

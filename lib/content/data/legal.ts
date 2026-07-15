@@ -161,8 +161,18 @@ To exercise them, send your request to hola@casaolivea.com stating your name and
     section("cookies", 9,
       { es: "9. Cookies y analítica", en: "9. Cookies and analytics" },
       {
-        es: `Usamos cookies y tecnologías similares para que el sitio funcione (por ejemplo, recordar tu idioma) y para entender de forma agregada cómo se usa (analítica). Puedes deshabilitar las cookies desde la configuración de tu navegador; algunas funciones podrían no operar correctamente.`,
-        en: `We use cookies and similar technologies to make the site work (for example, remembering your language) and to understand, in aggregate, how it is used (analytics). You can disable cookies in your browser settings; some features may not work correctly.`,
+        es: `Usamos cookies y tecnologías similares en dos categorías:
+
+•  Esenciales: necesarias para que el sitio funcione, como recordar tu idioma y tu propia elección de cookies. Siempre están activas.
+•  Analíticas y de medición: nos ayudan a entender de forma agregada cómo se usa el sitio (Google Analytics). Solo se activan si das tu consentimiento.
+
+La primera vez que entras verás un aviso donde puedes Aceptar o elegir Solo esenciales. De forma predeterminada, las cookies no esenciales permanecen desactivadas hasta que las aceptas (utilizamos el Modo de Consentimiento de Google). Puedes cambiar o retirar tu consentimiento en cualquier momento desde el enlace «Cookies» en el pie de página, o desde la configuración de tu navegador.`,
+        en: `We use cookies and similar technologies in two categories:
+
+•  Essential: needed for the site to work, such as remembering your language and your own cookie choice. These are always on.
+•  Analytics and measurement: help us understand, in aggregate, how the site is used (Google Analytics). These load only if you consent.
+
+On your first visit you'll see a notice where you can Accept or choose Essential only. By default, non-essential cookies stay off until you accept them (we use Google Consent Mode). You can change or withdraw your consent at any time from the "Cookies" link in the footer, or through your browser settings.`,
       }),
 
     section("cambios-privacidad", 10,
