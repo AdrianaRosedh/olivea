@@ -333,6 +333,14 @@ export default function Footer({ dict, socials }: FooterProps) {
             <nav aria-label="Footer navigation" className="flex items-center gap-3 whitespace-nowrap">
               <TextLink href={`/${lang}/carreras`}>{dict.footer.careers}</TextLink>
               <TextLink href={`/${lang}/legal`}>{dict.footer.legal}</TextLink>
+              {/* Reopens the cookie-consent banner so consent can be changed/withdrawn */}
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event("olivea:cookie-prefs"))}
+                className="group relative inline-flex items-center opacity-80 hover:opacity-100 transition-[opacity,transform,color] duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40"
+              >
+                <span className="text-(--olivea-olive)">Cookies</span>
+              </button>
               {/* roseiies — brand wordmark masked in Olivea green, slightly emphasized */}
               <Link
                 href={`/${lang}/roseiies`}

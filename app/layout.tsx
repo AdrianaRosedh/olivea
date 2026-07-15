@@ -8,6 +8,7 @@ import PathTracker from "@/components/PathTracker";
 import { SITE, canonicalUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
 import VhSetter from "@/components/ui/VhSetter";
+import CookieConsent from "@/components/legal/CookieConsent";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -162,6 +163,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+            // Google Consent Mode v2 — deny by default so NO analytics/ad cookie
+            // drops until the visitor consents via the cookie banner (GDPR).
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              analytics_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              wait_for_update: 500
+            });
+            // Returning visitor who already accepted → restore their consent.
+            try {
+              if (document.cookie.indexOf('olivea_consent=granted') !== -1) {
+                gtag('consent', 'update', {
+                  ad_storage: 'granted', analytics_storage: 'granted',
+                  ad_user_data: 'granted', ad_personalization: 'granted'
+                });
+              }
+            } catch (e) {}
             gtag('js', new Date());
             gtag('config', 'G-M3JEDWZ732');
           `}
@@ -189,6 +208,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PathTracker />
         <AppProviders>{children}</AppProviders>
 
+        <CookieConsent />
         <Analytics />
       </body>
     </html>
