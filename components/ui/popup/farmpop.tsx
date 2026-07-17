@@ -319,21 +319,6 @@ export default function Farmpop({
       }
     : {};
 
-  const tabGlyph = (t: MenuTab): ReactNode => {
-    if (t.icon) return t.icon;
-    if (t.emoji) return (
-      <span className="text-[16px] leading-none">{t.emoji}</span>
-    );
-    const map: Record<string, string> = {
-      menu: "🍽️",
-      maridaje: "🌿",
-      licores: "🥃",
-      vinos: "🍷",
-      bebidas: "🍹",
-    };
-    return <span className="text-[16px] leading-none">{map[t.id] ?? "📄"}</span>;
-  };
-
   const RailTile = ({ t }: { t: MenuTab }) => {
     const active = activeId === t.id;
     return (
@@ -357,12 +342,9 @@ export default function Farmpop({
               active ? "bg-white" : "bg-transparent group-hover:bg-black/20",
             ].join(" ")}
           />
-          <div className="flex items-center gap-2">
-            <span aria-hidden>{tabGlyph(t)}</span>
-            <span className="text-[12.5px] uppercase tracking-[0.18em]">
-              {t.label}
-            </span>
-          </div>
+          <span className="text-[12.5px] uppercase tracking-[0.18em]">
+            {t.label}
+          </span>
         </div>
       </button>
     );
