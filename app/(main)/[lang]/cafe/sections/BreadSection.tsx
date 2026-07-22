@@ -11,7 +11,7 @@ export default function BreadSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang);
   const caption = t(data.caption, lang);
   const imgSrc = data.image?.src ?? "/images/cafe/pan.jpg";
-  const imgAlt = t(data.image?.alt, lang) || "Bread and pastry at Olivea Cafe";
+  const imgAlt = t(data.image?.alt, lang) || "Bread and pastry at Olivea Café";
   const paragraphs = (data.paragraphs ?? []) as Array<{
     id: { en: string; es: string };
     en: string;

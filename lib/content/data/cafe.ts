@@ -15,7 +15,7 @@ const cafe: CafeContent = {
     },
     ogImage: "/images/seo/cafe-og.jpg",
     keywords: [
-      "Olivea Cafe",
+      "Olivea Café",
       "coffee",
       "Valle de Guadalupe",
       "breakfast",

@@ -10,10 +10,10 @@ import { t } from "./md";
 
 export default function HeroSection({ data, lang }: SectionProps) {
   const imgSrc = data.image?.src ?? "/images/cafe/hero.jpg";
-  const imgAlt = t(data.image?.alt, lang) || "Olivea Cafe";
+  const imgAlt = t(data.image?.alt, lang) || "Olivea Café";
   const logoSrc = data.logo?.src ?? "/brand/herocafe.svg";
-  const logoAlt = t(data.logo?.alt, lang) || "Olivea Cafe";
-  const heading = t(data.heading, lang) || "Olivea Cafe";
+  const logoAlt = t(data.logo?.alt, lang) || "Olivea Café";
+  const heading = t(data.heading, lang) || "Olivea Café";
   const slogan = t(data.slogan, lang) || "Where The Garden Is The Essence";
   const cta1 = t(data.cta1, lang) || "RESERVE";
   const cta1Aria = t(data.cta1Aria, lang) || "Reserve";

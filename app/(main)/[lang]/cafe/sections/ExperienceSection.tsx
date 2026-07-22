@@ -13,7 +13,7 @@ export default function ExperienceSection({ data, lang }: SectionProps) {
   const subtitle = t(data.subtitle, lang);
   const origin = t(data.origin, lang);
   const imgSrc = data.image?.src ?? "/images/cafe/cafe.jpg";
-  const imgAlt = t(data.image?.alt, lang) || "Olivea Cafe atmosphere";
+  const imgAlt = t(data.image?.alt, lang) || "Olivea Café atmosphere";
   const caption = t(data.caption, lang);
   const fieldNote = t(data.fieldNote, lang);
   const coffee = (data.coffee ?? []) as Array<{ id: { en: string; es: string }; en: string; es: string }>;
