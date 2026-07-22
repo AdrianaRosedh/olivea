@@ -39,7 +39,7 @@ export default function ArticleEn() {
       <section aria-label="Casa Olivea">
         <h2>Casa Olivea — Farm Stay</h2>
         <p>
-          Wake up inside the garden. Casa Olivea is a farm stay integrated
+          Wake up beside the garden. Casa Olivea is a farm stay integrated
           with the working garden and connected to Olivea Farm To Table — a
           MICHELIN-starred restaurant — and Olivea Café. Fourteen suites
           designed by Ange Joy, each with a private terrace overlooking the

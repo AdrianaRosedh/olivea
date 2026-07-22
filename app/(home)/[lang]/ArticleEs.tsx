@@ -40,7 +40,7 @@ export default function ArticleEs() {
       <section aria-label="Casa Olivea">
         <h2>Casa Olivea — Hospedaje del Huerto</h2>
         <p>
-          Despierta dentro del huerto. Casa Olivea es un hospedaje integrado
+          Despierta junto al huerto. Casa Olivea es un hospedaje integrado
           al huerto y conectado a Olivea Farm To Table — un restaurante con
           estrella MICHELIN — y Olivea Café. Catorce suites diseñadas por
           Ange Joy, cada una con terraza privada con vista al huerto, los
