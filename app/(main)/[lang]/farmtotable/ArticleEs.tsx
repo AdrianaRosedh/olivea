@@ -224,7 +224,7 @@ export default function ArticleEs() {
         <h3>Maridajes y descorche</h3>
         <p>
           Un recorrido de vinos del Valle y un <em>maridaje sin alcohol</em>.
-          Descorche: <strong>$350 MXN por botella</strong>.
+          Descorche: <strong>$500 MXN por botella</strong>.
         </p>
 
         <h3>Preferencias y alergias</h3>
@@ -311,7 +311,7 @@ export default function ArticleEs() {
         <h3>¿Tienen descorche?</h3>
         <p>
           Sí — el descorche está disponible en{" "}
-          <strong>$350 MXN por botella</strong>.
+          <strong>$500 MXN por botella</strong>.
         </p>
 
         <h3>¿Hay código de vestimenta?</h3>

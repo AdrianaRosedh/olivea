@@ -218,7 +218,7 @@ export default function ArticleEn() {
         <h3>Pairings &amp; Corkage</h3>
         <p>
           A wine journey through the Valley and a <em>non-alcoholic pairing</em>.
-          Corkage: <strong>$350 MXN per bottle</strong>.
+          Corkage: <strong>$500 MXN per bottle</strong>.
         </p>
 
         <h3>Preferences &amp; Allergies</h3>
@@ -304,7 +304,7 @@ export default function ArticleEn() {
         <h3>Do you offer corkage?</h3>
         <p>
           Yes — corkage is available at{" "}
-          <strong>$350 MXN per bottle</strong>.
+          <strong>$500 MXN per bottle</strong>.
         </p>
 
         <h3>Is there a dress code?</h3>
