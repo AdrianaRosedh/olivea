@@ -87,6 +87,8 @@ export default function ArticleEn() {
         <p>No — breakfast is not included with your stay. Guests are welcome to enjoy breakfast at Olivea Café each morning (not included).</p>
         <h3>Do you allow children or pets?</h3>
         <p>Casa Olivea is adults-only (18+). Dogs are welcomed in designated areas.</p>
+        <h3>Do the rooms have a TV?</h3>
+        <p>No, and it's deliberate. There are no televisions in the suites. Casa Olivea is made for disconnecting: slow mornings, long dinners, the quiet of the garden, and the night sky over Valle de Guadalupe. We'd rather give you room to be present than a screen to fill it.</p>
         <h3>Can I use the paddle courts?</h3>
         <p>Yes — guests may use the paddle courts during daylight hours, until sunset, with reservation.</p>
         <h3>Do you offer airport pickup?</h3>

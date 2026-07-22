@@ -87,6 +87,8 @@ export default function ArticleEs() {
         <p>No — el desayuno no está incluido en la estancia. Los huéspedes pueden disfrutarlo en Olivea Café cada mañana (no incluido).</p>
         <h3>¿Aceptan niños o mascotas?</h3>
         <p>Casa Olivea es solo para adultos (18+). Los perros son bienvenidos en áreas designadas.</p>
+        <h3>¿Las habitaciones tienen televisión?</h3>
+        <p>No, y es intencional. Las suites no tienen televisión. Casa Olivea está pensada para desconectar: mañanas sin prisa, sobremesas largas, el silencio del huerto y el cielo nocturno del Valle de Guadalupe. Preferimos darte espacio para estar presente, no una pantalla para llenarlo.</p>
         <h3>¿Puedo usar las canchas de pádel?</h3>
         <p>Sí — los huéspedes pueden usar las canchas durante horas de luz, hasta el atardecer, con reservación.</p>
         <h3>¿Ofrecen transporte al aeropuerto?</h3>
