@@ -2,8 +2,8 @@
 
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal from "@/components/scroll/Reveal";
+import Sub from "@/components/scroll/Sub";
 import StatChips from "@/components/mdx/StatChips";
-import { motion } from "framer-motion";
 import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 import type { SectionProps } from "./types";
 import { t } from "./md";
@@ -52,20 +52,15 @@ export default function RoomsSection({ data, lang }: SectionProps) {
         </Reveal>
       </div>
 
-      {/* Prose */}
-      <div className="mt-10 max-w-[720px]">
+      {/* Prose — rendered as <div> (not <p>) so it escapes the [data-scope=main] p
+          Lora-serif rule and inherits the Sub's Plus Jakarta Sans / md:text-lg, exactly like FTT. */}
+      <Sub id="rooms-body" preset="blur-up" delay={0.05} className="mt-10">
         {paragraphs.map((p, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, delay: i * 0.12 }}
-          >
-            <p className={i > 0 ? "mt-4" : undefined}>{t(p, lang)}</p>
-          </motion.div>
+          <div key={i} className={i > 0 ? "mt-5" : undefined}>
+            {t(p, lang)}
+          </div>
         ))}
-      </div>
+      </Sub>
 
       {/* Info chips — matches ExperienceSection */}
       {stats.length > 0 && (
@@ -87,16 +82,9 @@ export default function RoomsSection({ data, lang }: SectionProps) {
       />
 
       {lightParagraph && (
-        <motion.div
-          id="luz"
-          className="mt-10 max-w-[700px]"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-        >
-          <p>{lightParagraph}</p>
-        </motion.div>
+        <Sub id="luz" preset="up" delay={0.05} className="mt-12">
+          {lightParagraph}
+        </Sub>
       )}
     </StickyBlock>
   );
