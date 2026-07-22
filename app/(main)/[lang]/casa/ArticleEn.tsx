@@ -17,9 +17,10 @@ export default function ArticleEn() {
       {/* ── Rooms ── */}
       <section id="rooms" aria-labelledby="rooms-heading">
         <h2 id="rooms-heading">Our Suites</h2>
-        <p>Fourteen suites — each named after an aromatic plant or tree — offer space, warmth, and a sense of return. This is where your rhythm resets.</p>
+        <p>Fourteen suites, set inside a working garden — each named for an aromatic plant or tree, each opening to the huerto, the olive rows, and the desert light of Baja California. You do not book a room here; you stay the night in the garden that feeds the kitchen.</p>
         <p>King-size beds, blackout curtains, and natural fiber textures invite deep rest. All rooms are designed for two adults — quiet, light-filled, and considered.</p>
         <p>Light shifts throughout the day. In the morning, it filters softly through curtains. In the evening, it settles — warm, indirect, grounding.</p>
+        <p>Your evening is Olivea Farm To Table — a <strong>MICHELIN</strong>-starred tasting menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, inside the huerto, to wake in the rows the next morning.</p>
       </section>
 
       {/* ── Design ── */}

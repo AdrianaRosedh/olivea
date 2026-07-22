@@ -42,7 +42,10 @@ export default function ArticleEn() {
         <p>
           Olivea Farm To Table is a <strong>tasting menu</strong> shaped by the
           garden. The kitchen reads climate and soil; the table translates that
-          landscape into memory through time, technique, and restraint.
+          landscape into memory through time, technique, and restraint.{" "}
+          <strong>Every evening begins in the garden itself</strong> — a walk
+          through the rows where the meal was grown, so the first course arrives
+          already familiar.
         </p>
 
         <dl>
@@ -77,7 +80,9 @@ export default function ArticleEn() {
           decisions. Sustainability is practiced as daily discipline — measured,
           specific, and grounded in the realities of the land. The experience
           unfolds slowly, designed for adults who can dedicate{" "}
-          <strong>~3 hours</strong> to the table.
+          <strong>~3 hours</strong> to the table. The evening need not end
+          there: the suites of <strong>Casa Olivea</strong> open onto the same
+          garden — dine, walk a few steps, and wake inside the huerto.
         </p>
       </section>
 

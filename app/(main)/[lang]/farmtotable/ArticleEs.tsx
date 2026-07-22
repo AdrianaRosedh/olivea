@@ -46,7 +46,10 @@ export default function ArticleEs() {
           Olivea Farm To Table es un <strong>menú degustación</strong> nacido
           del huerto. La cocina interpreta la tierra y el clima; la mesa traduce
           ese paisaje en memoria, a través del tiempo, la técnica y la
-          contención.
+          contención.{" "}
+          <strong>Cada noche empieza en el huerto</strong> — un recorrido por
+          las hileras donde creció la cena, para que el primer plato llegue como
+          algo ya conocido.
         </p>
 
         <dl>
@@ -82,7 +85,9 @@ export default function ArticleEs() {
           nuestras decisiones. La sustentabilidad se practica como disciplina
           diaria — medida, concreta y anclada a la realidad del territorio. La
           experiencia se vive con calma, pensada para adultos que pueden dedicar{" "}
-          <strong>~3 horas</strong> a la mesa.
+          <strong>~3 horas</strong> a la mesa. Y la noche no tiene que terminar
+          en la mesa: las habitaciones de <strong>Casa Olivea</strong> dan al
+          mismo huerto — cena, camina unos pasos y amanece dentro del huerto.
         </p>
       </section>
 
