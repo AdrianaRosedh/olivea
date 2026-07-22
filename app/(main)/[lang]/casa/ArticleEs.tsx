@@ -17,10 +17,10 @@ export default function ArticleEs() {
       {/* ── Habitaciones ── */}
       <section id="habitaciones" aria-labelledby="habitaciones-heading">
         <h2 id="habitaciones-heading">Habitaciones</h2>
-        <p>Catorce habitaciones dentro de un huerto vivo, cada una con el nombre de una planta aromática o un árbol, cada una abierta al huerto, los olivos y la luz del desierto de Baja California. Aquí no se reserva un cuarto: se pasa la noche en el huerto que nutre la cocina.</p>
+        <p>Catorce habitaciones parte del ecosistema del huerto, cada una con el nombre de una planta aromática o un árbol, cada una abierta al huerto, los olivos y la luz del desierto de Baja California. Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.</p>
         <p>Camas king-size, cortinas blackout y texturas de fibras naturales invitan al descanso profundo. Todas las habitaciones están diseñadas para dos adultos, silenciosas, llenas de luz y pensadas con cuidado.</p>
         <p>La luz cambia a lo largo del día. Por la mañana, se filtra suave a través de las cortinas. Por la noche, se asienta, cálida, indirecta, que conecta con la tierra.</p>
-        <p>La cena es Olivea Farm To Table, un menú degustación con estrella <strong>MICHELIN</strong> que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, dentro del huerto, para amanecer entre las hileras.</p>
+        <p>La cena es Olivea Farm To Table, un menú degustación con estrella <strong>MICHELIN</strong> que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, junto al huerto, para amanecer frente a él.</p>
       </section>
 
       {/* ── Diseño ── */}
@@ -29,7 +29,7 @@ export default function ArticleEs() {
         <p><em>Diseño concebido por Ange Joy, fundadora de Olivea.</em></p>
         <p>La luz guía la arquitectura. Por la mañana, suave e indirecta. Por la tarde, cálida y envolvente. Cada superficie evita el reflejo, favoreciendo la calma.</p>
         <p>Usamos piedra, madera, algodón y barro — materiales que envejecen bien y conservan calidez. Nada llama la atención. Todo invita al tacto.</p>
-        <p>Agua en vidrio. Amenidades rellenables. Energía solar. La sustentabilidad está integrada — no señalizada.</p>
+        <p>Botellas de agua reutilizables. Amenidades rellenables. Energía solar. La sustentabilidad está integrada — no señalizada.</p>
       </section>
 
       {/* ── Patio ── */}
@@ -58,7 +58,7 @@ export default function ArticleEs() {
         <h3>Confort</h3>
         <p>Cortinas blackout, ventilación natural y control de temperatura — cada detalle pensado para proteger tu descanso.</p>
         <h3>Detalles de habitación</h3>
-        <p>Agua filtrada en vidrio, amenidades rellenables y nuestro aroma de casa — botánico, equilibrado y discreto.</p>
+        <p>Agua filtrada en botellas reutilizables, amenidades rellenables y nuestro aroma de casa — botánico, equilibrado y discreto.</p>
         <h3>Diseño accesible</h3>
         <p>Todas las habitaciones de Casa Olivea están ubicadas en planta baja, asegurando acceso fácil sin escalones ni cambios de nivel.</p>
         <h3>Conserjería</h3>

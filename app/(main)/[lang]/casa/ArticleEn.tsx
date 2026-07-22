@@ -17,10 +17,10 @@ export default function ArticleEn() {
       {/* ── Rooms ── */}
       <section id="rooms" aria-labelledby="rooms-heading">
         <h2 id="rooms-heading">Our Suites</h2>
-        <p>Fourteen suites, set inside a working garden, each named for an aromatic plant or tree, each opening to the huerto, the olive rows, and the desert light of Baja California. You do not book a room here; you stay the night in the garden that feeds the kitchen.</p>
+        <p>Fourteen suites, part of the garden ecosystem, each named for an aromatic plant or tree, each opening to the huerto, the olive rows, and the desert light of Baja California. You do not book a room here; you stay within the ecosystem the garden feeds.</p>
         <p>King-size beds, blackout curtains, and natural fiber textures invite deep rest. All rooms are designed for two adults, quiet, light-filled, and considered.</p>
         <p>Light shifts throughout the day. In the morning, it filters softly through curtains. In the evening, it settles, warm, indirect, grounding.</p>
-        <p>Your evening is Olivea Farm To Table, a <strong>MICHELIN</strong>-starred tasting menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, inside the huerto, to wake in the rows the next morning.</p>
+        <p>Your evening is Olivea Farm To Table, a <strong>MICHELIN</strong>-starred tasting menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, beside the garden, to wake to it the next morning.</p>
       </section>
 
       {/* ── Design ── */}
@@ -29,7 +29,7 @@ export default function ArticleEn() {
         <p><em>Design conceived by Ange Joy, founder of Olivea.</em></p>
         <p>Light leads the architecture. In the morning, it's soft and indirect. By afternoon, warm and grounding. Every surface avoids glare, favoring calm.</p>
         <p>We use stone, wood, cotton, and clay — materials that age well and hold warmth. Nothing calls attention. Everything invites touch.</p>
-        <p>Glass water. Refillable amenities. Solar power. Sustainability is embedded — not signposted.</p>
+        <p>Reusable water bottles. Refillable amenities. Solar power. Sustainability is embedded — not signposted.</p>
       </section>
 
       {/* ── Courtyard ── */}
@@ -58,7 +58,7 @@ export default function ArticleEn() {
         <h3>Comfort</h3>
         <p>Blackout curtains, natural airflow, and climate control — every detail designed to protect your rest.</p>
         <h3>Room Details</h3>
-        <p>Filtered water in glass, refillable amenities, and our own house scent — botanical, balanced, and understated.</p>
+        <p>Filtered water in reusable bottles, refillable amenities, and our own house scent — botanical, balanced, and understated.</p>
         <h3>Accessible Design</h3>
         <p>All rooms at Casa Olivea are located on the ground floor, ensuring easy access without steps or level changes.</p>
         <h3>Concierge</h3>

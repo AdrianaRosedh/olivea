@@ -82,7 +82,7 @@ export default function ArticleEn() {
           unfolds slowly, designed for adults who can dedicate{" "}
           <strong>~3 hours</strong> to the table. The evening need not end
           there: the suites of <strong>Casa Olivea</strong> open onto the same
-          garden — dine, walk a few steps, and wake inside the huerto.
+          garden — dine, walk a few steps, and wake to the garden.
         </p>
       </section>
 

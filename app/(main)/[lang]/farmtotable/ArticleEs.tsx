@@ -87,7 +87,7 @@ export default function ArticleEs() {
           experiencia se vive con calma, pensada para adultos que pueden dedicar{" "}
           <strong>~3 horas</strong> a la mesa. Y la noche no tiene que terminar
           en la mesa: las habitaciones de <strong>Casa Olivea</strong> dan al
-          mismo huerto — cena, camina unos pasos y amanece dentro del huerto.
+          mismo huerto — cena, camina unos pasos y amanece frente al huerto.
         </p>
       </section>
 
