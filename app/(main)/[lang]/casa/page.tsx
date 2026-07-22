@@ -38,8 +38,8 @@ export async function generateMetadata({
 
   const fallbackTitle = isEs ? "Casa OLIVEA | Hospedaje del Huerto en Valle de Guadalupe" : "Casa OLIVEA | Farm Stay in Valle de Guadalupe";
   const fallbackDescription = isEs
-    ? "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro del huerto. Donde el huerto es la esencia."
-    : "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay inside the farm. Where the garden is the essence.";
+    ? "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate junto al huerto. Donde el huerto es la esencia."
+    : "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay beside the garden. Where the garden is the essence.";
 
   const title = dict.casa?.meta?.title ?? fallbackTitle;
   const description = dict.casa?.meta?.description ?? fallbackDescription;

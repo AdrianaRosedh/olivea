@@ -10,8 +10,8 @@ const casa: CasaContent = {
       en: "Casa OLIVEA | Farm Stay in Valle de Guadalupe",
     },
     description: {
-      es: "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro del huerto. Donde el huerto es la esencia.",
-      en: "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay inside the farm. Where the garden is the essence.",
+      es: "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate junto al huerto. Donde el huerto es la esencia.",
+      en: "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay beside the garden. Where the garden is the essence.",
     },
     ogImage: "/images/seo/casa-og.jpg",
     keywords: [
@@ -45,7 +45,7 @@ const casa: CasaContent = {
       },
       answer: {
         es: "Casa Olivea es un hospedaje integrado al huerto y conectado a Olivea Farm To Table, ideal para vivir la hospitalidad del huerto: hospedaje, gastronomía y naturaleza en el mismo lugar.",
-        en: "Casa Olivea is a farm stay integrated with the garden and connected to Olivea Farm To Table — ideal for experiencing farm hospitality: stay, dine, and wake up inside the garden.",
+        en: "Casa Olivea is a farm stay integrated with the garden and connected to Olivea Farm To Table — ideal for experiencing farm hospitality: stay, dine, and wake up beside the garden.",
       },
       sortOrder: 0,
     },
@@ -87,6 +87,19 @@ const casa: CasaContent = {
         en: "Besides Casa Olivea, the property includes Olivea Farm To Table, a MICHELIN-starred restaurant, and Olivea Café, serving specialty coffee and breakfast. All three share the same working garden.",
       },
       sortOrder: 3,
+    },
+    {
+      id: "casa-faq-5",
+      page: "casa",
+      question: {
+        es: "¿Las habitaciones de Casa Olivea tienen televisión?",
+        en: "Do the rooms at Casa Olivea have TVs?",
+      },
+      answer: {
+        es: "No, y es intencional. Las suites de Casa Olivea no tienen televisión. El hospedaje está pensado para desconectar: mañanas sin prisa, sobremesas largas en Olivea Farm To Table, el silencio del huerto y el cielo nocturno del Valle de Guadalupe. Preferimos darte espacio para estar presente, no una pantalla para llenarlo.",
+        en: "No, and it's deliberate. There are no televisions in the suites at Casa Olivea. The farm stay is made for disconnecting: slow mornings, long dinners at Olivea Farm To Table, the quiet of the garden, and the night sky over Valle de Guadalupe. We'd rather give you room to be present than a screen to fill it.",
+      },
+      sortOrder: 4,
     },
   ],
 };
