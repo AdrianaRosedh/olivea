@@ -186,7 +186,9 @@ export default function JournalPage() {
 
   const handleCreate = () => {
     const newPost: JournalPost = {
-      id: `j-new-${Date.now()}`,
+      // Must be a real UUID: journal_posts.id is a uuid column and
+      // saveJournalPost() runs assertUUID() before touching Supabase.
+      id: crypto.randomUUID(),
       title: { es: "", en: "" },
       slug: "",
       excerpt: { es: "", en: "" },
@@ -230,6 +232,10 @@ export default function JournalPage() {
       // Rollback optimistic update
       setPosts(snapshot);
       setEditingPost(prevEditing);
+      // Re-throw so the editor can surface the failure. Without this the
+      // rollback is silent and the post just vanishes from the list while
+      // the editor still reports "Saved".
+      throw e;
     }
   };
 
@@ -250,6 +256,7 @@ export default function JournalPage() {
       // Rollback
       setPosts(snapshot);
       setEditingPost(post);
+      throw e; // surfaced by the editor instead of reverting silently
     }
   };
 
@@ -270,6 +277,7 @@ export default function JournalPage() {
       // Rollback
       setPosts(snapshot);
       setEditingPost(post);
+      throw e; // surfaced by the editor instead of reverting silently
     }
   };
 

@@ -1015,9 +1015,9 @@ export default function JournalEditor({
   post: JournalPost | null;
   open: boolean;
   onClose: () => void;
-  onSave: (updated: JournalPost) => void;
-  onPublish: (post: JournalPost) => void;
-  onUnpublish: (post: JournalPost) => void;
+  onSave: (updated: JournalPost) => void | Promise<void>;
+  onPublish: (post: JournalPost) => void | Promise<void>;
+  onUnpublish: (post: JournalPost) => void | Promise<void>;
 }) {
   const [previewLang, setPreviewLang] = useState<"es" | "en">("es");
   const [title, setTitle] = useState<{ es: string; en: string }>({ es: "", en: "" });
@@ -1030,6 +1030,9 @@ export default function JournalEditor({
   const [articleGallery, setArticleGallery] = useState<JournalPostGalleryImage[]>([]);
   const [blocks, setBlocks] = useState<ContentBlock[]>([newBlock("paragraph")]);
   const [saved, setSaved] = useState(false);
+  // Bilingual so the message re-translates if the admin switches locale.
+  const [saveError, setSaveError] = useState<B | null>(null);
+  const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [showBothLangs, setShowBothLangs] = useState(true);
   const [showMeta, setShowMeta] = useState(false);
@@ -1063,6 +1066,7 @@ export default function JournalEditor({
       }
       setArticleGallery(gallery);
       setSaved(false);
+      setSaveError(null);
       // Convert existing HTML body to blocks
       const parsed = htmlToBlocks(esLegacy.cleaned);
       // Fill in EN content where blocks exist
@@ -1078,10 +1082,12 @@ export default function JournalEditor({
     }
   }, [post]);
 
-  // Auto-generate slug from Spanish title
+  // Auto-generate slug from the Spanish title, falling back to English so an
+  // English-only draft still gets a slug (the column is UNIQUE and NOT NULL).
   useEffect(() => {
-    if (post && !post.slug && title.es) {
-      const generated = title.es
+    const source = title.es || title.en;
+    if (post && !post.slug && source) {
+      const generated = source
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -1090,7 +1096,7 @@ export default function JournalEditor({
         .slice(0, 80);
       setSlug(generated);
     }
-  }, [title.es, post]);
+  }, [title.es, title.en, post]);
 
   const getCurrentPost = useCallback((): JournalPost | null => {
     if (!post) return null;
@@ -1115,23 +1121,72 @@ export default function JournalEditor({
     };
   }, [post, title, excerpt, blocks, slug, coverImage, coverAlt, tags, authors, articleGallery]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updated = getCurrentPost();
-    if (updated) {
-      onSave(updated);
+    if (!updated) return;
+
+    // journal_posts.slug is UNIQUE and NOT NULL. An untitled draft would
+    // save with an empty slug and the next one would violate the constraint,
+    // so require a title rather than letting the save fail downstream.
+    if (!updated.slug.trim()) {
+      setSaveError({
+        es: "Agrega un título antes de guardar.",
+        en: "Add a title before saving.",
+      });
+      return;
+    }
+
+    setSaving(true);
+    setSaveError(null);
+    try {
+      // Must await: onSave persists to Supabase and rolls back on failure.
+      // Reporting "Saved" without awaiting is how a failed create looked
+      // like the post erasing itself.
+      await onSave(updated);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      setSaveError(
+        msg
+          ? { es: msg, en: msg }
+          : { es: "No se pudo guardar.", en: "Could not save." }
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     const updated = getCurrentPost();
-    if (updated) onPublish(updated);
+    if (!updated) return;
+    setSaveError(null);
+    try {
+      await onPublish(updated);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      setSaveError(
+        msg
+          ? { es: msg, en: msg }
+          : { es: "No se pudo publicar.", en: "Could not publish." }
+      );
+    }
   };
 
-  const handleUnpublish = () => {
+  const handleUnpublish = async () => {
     const updated = getCurrentPost();
-    if (updated) onUnpublish(updated);
+    if (!updated) return;
+    setSaveError(null);
+    try {
+      await onUnpublish(updated);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      setSaveError(
+        msg
+          ? { es: msg, en: msg }
+          : { es: "No se pudo despublicar.", en: "Could not unpublish." }
+      );
+    }
   };
 
   const addBlock = (type: BlockType, afterIndex?: number) => {
@@ -1231,14 +1286,21 @@ export default function JournalEditor({
                 {/* Save */}
                 <button
                   onClick={handleSave}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                    saved
-                      ? "bg-emerald-50 text-emerald-600 border-emerald-200/60"
-                      : "text-[var(--olivea-ink)]/60 hover:text-[var(--olivea-ink)] hover:bg-[var(--olivea-cream)]/50 border-[var(--olivea-olive)]/[0.06]"
+                  disabled={saving}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border disabled:opacity-60 ${
+                    saveError
+                      ? "bg-red-50 text-red-600 border-red-200/60"
+                      : saved
+                        ? "bg-emerald-50 text-emerald-600 border-emerald-200/60"
+                        : "text-[var(--olivea-ink)]/60 hover:text-[var(--olivea-ink)] hover:bg-[var(--olivea-cream)]/50 border-[var(--olivea-olive)]/[0.06]"
                   }`}
                 >
-                  {saved ? <Check size={13} /> : <Save size={13} />}
-                  {saved ? t({ es: "Guardado", en: "Saved" }) : t(STR.save)}
+                  {saved && !saveError ? <Check size={13} /> : <Save size={13} />}
+                  {saving
+                    ? t({ es: "Guardando…", en: "Saving…" })
+                    : saved && !saveError
+                      ? t({ es: "Guardado", en: "Saved" })
+                      : t(STR.save)}
                 </button>
 
                 {/* Publish / Unpublish */}
@@ -1264,6 +1326,17 @@ export default function JournalEditor({
                 )}
               </div>
             </div>
+
+            {/* Save failed — the post was rolled back, so say so instead of
+                letting it silently disappear from the list. */}
+            {saveError && (
+              <div
+                role="alert"
+                className="mx-6 mt-3 rounded-lg border border-red-200/70 bg-red-50 px-3 py-2 text-xs text-red-700"
+              >
+                {t(saveError)}
+              </div>
+            )}
 
             {/* ── Body: Editor + Preview ── */}
             <div className="flex-1 flex overflow-hidden">
