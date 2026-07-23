@@ -1004,6 +1004,80 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) 
 /*  MAIN JOURNAL EDITOR                                               */
 /* ═══════════════════════════════════════════════════════════════════ */
 
+/** Google truncates snippets near this length. The excerpt IS the meta
+ *  description (lib/journal/seo.ts: fm.seo?.description ?? fm.excerpt). */
+const META_MAX = 155;
+
+/** Live character budget for an excerpt, since it doubles as the meta description. */
+function ExcerptMeter({ value }: { value: string }) {
+  const { t } = useAdminLocale();
+  const n = value.length;
+  const over = n > META_MAX;
+  return (
+    <div className="mt-1 flex items-center gap-2 text-[10px]">
+      <span
+        className={`tabular-nums font-medium ${
+          over ? "text-red-600" : n === 0 ? "text-[var(--olivea-clay)]/60" : "text-[var(--olivea-ink)]/45"
+        }`}
+      >
+        {n}/{META_MAX}
+      </span>
+      {over && (
+        <span className="text-red-600">
+          {t({ es: "se truncará en Google", en: "will truncate in Google" })}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Approximates the Google result so the excerpt gets written for the SERP. */
+function SnippetPreview({
+  title,
+  slug,
+  excerpt,
+  lang,
+}: {
+  title: string;
+  slug: string;
+  excerpt: string;
+  lang: "es" | "en";
+}) {
+  const { t } = useAdminLocale();
+  return (
+    <div className="mt-3 rounded-xl border border-black/5 bg-white/70 px-3.5 py-3">
+      <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
+        {t({ es: "Así se verá en Google", en: "How this looks in Google" })}
+      </div>
+      <div className="truncate text-[13px] leading-snug text-[#1a0dab]">
+        {title || t({ es: "Sin título", en: "Untitled" })}
+      </div>
+      <div className="truncate text-[11px] text-[#0b6b2f]">
+        oliveafarmtotable.com › {lang} › journal › {slug || "…"}
+      </div>
+      <div className="mt-0.5 text-[11px] leading-relaxed text-[#4d5156]">
+        {excerpt ? (
+          excerpt.length > META_MAX ? (
+            <>
+              {excerpt.slice(0, META_MAX)}
+              <span className="text-red-500/70">{excerpt.slice(META_MAX)}</span>
+            </>
+          ) : (
+            excerpt
+          )
+        ) : (
+          <span className="italic text-[var(--olivea-clay)]">
+            {t({
+              es: "Sin extracto: Google inventará el texto.",
+              en: "No excerpt: Google will invent the text.",
+            })}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function JournalEditor({
   post,
   open,
@@ -1211,7 +1285,68 @@ export default function JournalEditor({
   };
 
   const isNew = post ? post.title.es === "" && post.title.en === "" : true;
-  const canPublish = title.es.length > 0 && blocks.some((b) => b.content.es.length > 0 || b.media);
+  // Publish preflight. Build B objects here and translate at render time —
+  // calling t() inside useMemo would freeze the admin locale into the result.
+  const preflight = useMemo(() => {
+    const hasBody = (l: "es" | "en") =>
+      blocks.some((b) => (b.content[l]?.trim().length ?? 0) > 0 || b.media);
+
+    const blockers: B[] = [];
+    const warnings: B[] = [];
+
+    if (!title.es.trim())
+      blockers.push({ es: "Falta el título en español.", en: "Spanish title is missing." });
+    if (!title.en.trim())
+      blockers.push({ es: "Falta el título en inglés.", en: "English title is missing." });
+    if (!hasBody("es"))
+      blockers.push({ es: "Falta el contenido en español.", en: "Spanish content is missing." });
+    // Without this the /en page publishes with a headline and an empty body:
+    // listPublishedSlugs() is language-agnostic and body_en has no fallback.
+    if (!hasBody("en"))
+      blockers.push({
+        es: "Falta el contenido en inglés — la página /en se publicaría vacía.",
+        en: "English content is missing — the /en page would publish empty.",
+      });
+    if (!excerpt.es.trim())
+      blockers.push({
+        es: "Falta el extracto en español (es la meta description).",
+        en: "Spanish excerpt is missing (it is the meta description).",
+      });
+    if (!excerpt.en.trim())
+      blockers.push({
+        es: "Falta el extracto en inglés (es la meta description).",
+        en: "English excerpt is missing (it is the meta description).",
+      });
+
+    if (!coverImage)
+      warnings.push({
+        es: "Sin imagen de portada: al compartir el enlace no habrá imagen.",
+        en: "No cover image: shared links will have no image.",
+      });
+    if (excerpt.es.length > META_MAX)
+      warnings.push({
+        es: "El extracto en español supera 155 caracteres y se truncará.",
+        en: "Spanish excerpt is over 155 characters and will truncate.",
+      });
+    if (excerpt.en.length > META_MAX)
+      warnings.push({
+        es: "El extracto en inglés supera 155 caracteres y se truncará.",
+        en: "English excerpt is over 155 characters and will truncate.",
+      });
+
+    const noAlt = blocks.filter(
+      (b) => b.type === "image" && b.media && !(b.caption?.es?.trim() || b.caption?.en?.trim())
+    ).length;
+    if (noAlt > 0)
+      warnings.push({
+        es: `${noAlt} imagen(es) sin texto alternativo.`,
+        en: `${noAlt} image(s) missing alt text.`,
+      });
+
+    return { blockers, warnings };
+  }, [title, excerpt, blocks, coverImage]);
+
+  const canPublish = preflight.blockers.length === 0;
   const wordCount = blocks.reduce((sum, b) => sum + (b.content.es || "").split(/\s+/).filter(Boolean).length, 0);
 
   return (
@@ -1335,6 +1470,32 @@ export default function JournalEditor({
                 className="mx-6 mt-3 rounded-lg border border-red-200/70 bg-red-50 px-3 py-2 text-xs text-red-700"
               >
                 {t(saveError)}
+              </div>
+            )}
+
+            {/* Publish preflight. Shown for published posts too — a live article
+                missing an English body or an excerpt is a problem right now. */}
+            {(preflight.blockers.length > 0 || preflight.warnings.length > 0) && (
+              <div className="mx-6 mt-3 rounded-xl border border-black/5 bg-[var(--olivea-cream)]/40 px-4 py-3">
+                <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
+                  {preflight.blockers.length > 0
+                    ? t({ es: "Falta antes de publicar", en: "Needed before publishing" })
+                    : t({ es: "Sugerencias", en: "Suggestions" })}
+                </div>
+                <ul className="space-y-1">
+                  {preflight.blockers.map((b, i) => (
+                    <li key={`b${i}`} className="flex items-start gap-2 text-[11px] text-red-700">
+                      <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                      {t(b)}
+                    </li>
+                  ))}
+                  {preflight.warnings.map((w, i) => (
+                    <li key={`w${i}`} className="flex items-start gap-2 text-[11px] text-amber-700">
+                      <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                      {t(w)}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -1490,6 +1651,7 @@ export default function JournalEditor({
                             rows={2}
                             className={`${S.textarea}`}
                           />
+                          <ExcerptMeter value={excerpt.es} />
                         </div>
                         <div className="flex-1">
                           <div className={S.langTag}>EN</div>
@@ -1500,6 +1662,7 @@ export default function JournalEditor({
                             rows={2}
                             className={`${S.textarea}`}
                           />
+                          <ExcerptMeter value={excerpt.en} />
                         </div>
                       </>
                     ) : (
@@ -1511,9 +1674,18 @@ export default function JournalEditor({
                           rows={2}
                           className={S.textarea}
                         />
+                        <ExcerptMeter value={excerpt.es} />
                       </div>
                     )}
                   </div>
+
+                  {/* The excerpt is the meta description — show the result. */}
+                  <SnippetPreview
+                    lang={previewLang}
+                    title={title[previewLang]}
+                    slug={slug}
+                    excerpt={excerpt[previewLang]}
+                  />
 
                   {/* ── Content blocks ── */}
                   <div className="space-y-3">
