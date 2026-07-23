@@ -23,7 +23,7 @@
     "error": "Error loading menu:",
     "meta": {
       "title": "OLIVEA Café",
-      "description": "Specialty coffee, house bread and a calm courtyard. Breakfast from the garden at Olivea Café in Valle de Guadalupe, Baja California.",
+      "description": "Specialty coffee, house bread and breakfast from the garden. Padel courts and a calm courtyard at Olivea Café in Valle de Guadalupe, Baja California.",
       "keywords": [
         "Olivea Café",
         "coffee",
@@ -59,7 +59,7 @@
     "description": "One MICHELIN Star & MICHELIN Green Star tasting menu shaped by a living garden in Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant with farm stay and café on the same property in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
+      "description": "MICHELIN Star and Green Star tasting menu in Valle de Guadalupe, Baja California. Nine courses shaped by the garden, beginning with a walk through it.",
       "ogImage": "/images/seo/farm-og.jpg"
     }
   },
@@ -200,7 +200,7 @@
   "metadata": {
     "description": "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café in Valle de Guadalupe, Baja California.",
     "siteName": "OLIVEA Farm Hospitality",
-    "twitter": "@yourhandle",
+    "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/default-og.jpg"
   },
   "drawer": {
