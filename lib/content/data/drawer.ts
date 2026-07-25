@@ -73,8 +73,8 @@ const drawer: DrawerContent = {
     },
   ],
   copyright: {
-    es: "© 2026 Inmobilaria MYA by DH. Todos los derechos reservados.",
-    en: "© 2026 Inmobilaria MYA by DH. All rights reserved.",
+    es: "© 2026 Inmobiliaria MYA by DH. Todos los derechos reservados.",
+    en: "© 2026 Inmobiliaria MYA by DH. All rights reserved.",
   },
   seeMore: { es: "Ver Más", en: "See More" },
   hide: { es: "Ocultar", en: "Hide" },
