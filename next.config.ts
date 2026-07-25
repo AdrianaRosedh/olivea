@@ -183,6 +183,16 @@ const nextConfig: NextConfig = {
         destination: PUBLIC_URL,
         permanent: true,
       },
+
+      // Vanity aliases for Olivea Café Wine Bar → canonical /cafe page.
+      // Marketing-friendly URLs (Instagram, print, QR) that 308 to the real
+      // page so equity consolidates to /cafe and there's no duplicate content.
+      { source: "/winebar", destination: "/es/cafe", permanent: true },
+      { source: "/cafewinebar", destination: "/es/cafe", permanent: true },
+      { source: "/en/winebar", destination: "/en/cafe", permanent: true },
+      { source: "/es/winebar", destination: "/es/cafe", permanent: true },
+      { source: "/en/cafewinebar", destination: "/en/cafe", permanent: true },
+      { source: "/es/cafewinebar", destination: "/es/cafe", permanent: true },
     ];
   },
 };
