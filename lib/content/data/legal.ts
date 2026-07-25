@@ -16,8 +16,8 @@ const legal: LegalContent = {
       en: "Privacy & Terms | OLIVEA",
     },
     description: {
-      es: "Aviso de Privacidad y Términos y Condiciones de Casa Olivea A.C. — Olivea Farm To Table, Casa Olivea y Olivea Café Wine Bar en Valle de Guadalupe.",
-      en: "Privacy Notice and Terms & Conditions of Casa Olivea A.C. — Olivea Farm To Table, Casa Olivea and Olivea Café Wine Bar in Valle de Guadalupe.",
+      es: "Aviso de Privacidad y Términos y Condiciones de Inmobilaria MYA by DH. — Olivea Farm To Table, Casa Olivea y Olivea Café Wine Bar en Valle de Guadalupe.",
+      en: "Privacy Notice and Terms & Conditions of Inmobilaria MYA by DH. — Olivea Farm To Table, Casa Olivea and Olivea Café Wine Bar in Valle de Guadalupe.",
     },
     ogImage: "/images/seo/seo-og.jpg",
     keywords: ["aviso de privacidad", "privacy", "términos", "terms", "hospedaje", "PROFECO", "ARCO", "Olivea", "Casa Olivea"],
@@ -27,8 +27,8 @@ const legal: LegalContent = {
     en: "Privacy & Terms",
   },
   description: {
-    es: "Aviso de Privacidad y Términos y Condiciones de Casa Olivea A.C. · Última actualización: 29 de junio de 2026.",
-    en: "Privacy Notice and Terms & Conditions of Casa Olivea A.C. · Last updated: June 29, 2026.",
+    es: "Aviso de Privacidad y Términos y Condiciones de Inmobilaria MYA by DH. · Última actualización: 29 de junio de 2026.",
+    en: "Privacy Notice and Terms & Conditions of Inmobilaria MYA by DH. · Last updated: June 29, 2026.",
   },
   sections: [
     // ─────────────── PRIVACY (Aviso de Privacidad) ───────────────
@@ -39,11 +39,11 @@ const legal: LegalContent = {
     section("responsable", 1,
       { es: "1. Responsable de tus datos", en: "1. Who is responsible for your data" },
       {
-        es: `Casa Olivea A.C. («Olivea», «nosotros») es responsable del tratamiento de tus datos personales, conforme a la legislación mexicana de protección de datos personales en posesión de los particulares vigente (incluida la reforma de 2025) y demás normativa aplicable.
+        es: `Inmobilaria MYA by DH. («Olivea», «nosotros») es responsable del tratamiento de tus datos personales, conforme a la legislación mexicana de protección de datos personales en posesión de los particulares vigente (incluida la reforma de 2025) y demás normativa aplicable.
 
 Domicilio: Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, C.P. 22766, México.
 Contacto en materia de privacidad: hola@casaolivea.com · +52 646 388 2369.`,
-        en: `Casa Olivea A.C. ("Olivea," "we," "us") is responsible for the processing of your personal data, in accordance with Mexico's current law on the protection of personal data held by private parties (including the 2025 reform) and other applicable rules.
+        en: `Inmobilaria MYA by DH. ("Olivea," "we," "us") is responsible for the processing of your personal data, in accordance with Mexico's current law on the protection of personal data held by private parties (including the 2025 reform) and other applicable rules.
 
 Address: Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, Mexico.
 Privacy contact: hola@casaolivea.com · +52 646 388 2369.`,
@@ -218,8 +218,8 @@ On your first visit you'll see a notice where you can Accept or choose Essential
     section("propiedad-intelectual", 16,
       { es: "5. Propiedad intelectual", en: "5. Intellectual property" },
       {
-        es: `Los textos, imágenes, diseño, marcas y logotipos —incluyendo «Olivea», «Olivea Farm To Table», «Casa Olivea» y «Olivea Café Wine Bar»— son propiedad de Casa Olivea A.C. o se utilizan con autorización. Las referencias a la Guía MICHELIN y otras marcas pertenecen a sus respectivos titulares. No está permitido reproducirlos sin autorización previa por escrito.`,
-        en: `The texts, images, design, trademarks, and logos —including "Olivea," "Olivea Farm To Table," "Casa Olivea," and "Olivea Café Wine Bar"— are the property of Casa Olivea A.C. or used with permission. References to the MICHELIN Guide and other trademarks belong to their respective owners. They may not be reproduced without prior written authorization.`,
+        es: `Los textos, imágenes, diseño, marcas y logotipos —incluyendo «Olivea», «Olivea Farm To Table», «Casa Olivea» y «Olivea Café Wine Bar»— son propiedad de Inmobilaria MYA by DH. o se utilizan con autorización. Las referencias a la Guía MICHELIN y otras marcas pertenecen a sus respectivos titulares. No está permitido reproducirlos sin autorización previa por escrito.`,
+        en: `The texts, images, design, trademarks, and logos —including "Olivea," "Olivea Farm To Table," "Casa Olivea," and "Olivea Café Wine Bar"— are the property of Inmobilaria MYA by DH. or used with permission. References to the MICHELIN Guide and other trademarks belong to their respective owners. They may not be reproduced without prior written authorization.`,
       }),
 
     section("enlaces", 17,
@@ -232,8 +232,8 @@ On your first visit you'll see a notice where you can Accept or choose Essential
     section("responsabilidad", 18,
       { es: "7. Limitación de responsabilidad", en: "7. Limitation of liability" },
       {
-        es: `Procuramos que la información del Sitio sea correcta y esté actualizada, pero se ofrece «tal cual», sin garantía de que esté libre de errores o interrupciones. En la medida que lo permita la ley aplicable, Casa Olivea A.C. no será responsable por daños o perjuicios derivados del uso del Sitio.`,
-        en: `We strive to keep the Site's information accurate and current, but it is provided "as is," without warranty that it is free of errors or interruptions. To the extent permitted by applicable law, Casa Olivea A.C. shall not be liable for any damages arising from use of the Site.`,
+        es: `Procuramos que la información del Sitio sea correcta y esté actualizada, pero se ofrece «tal cual», sin garantía de que esté libre de errores o interrupciones. En la medida que lo permita la ley aplicable, Inmobilaria MYA by DH. no será responsable por daños o perjuicios derivados del uso del Sitio.`,
+        en: `We strive to keep the Site's information accurate and current, but it is provided "as is," without warranty that it is free of errors or interruptions. To the extent permitted by applicable law, Inmobilaria MYA by DH. shall not be liable for any damages arising from use of the Site.`,
       }),
 
     section("ley-aplicable", 19,
@@ -247,10 +247,10 @@ On your first visit you'll see a notice where you can Accept or choose Essential
       { es: "Contacto", en: "Contact" },
       {
         es: `¿Dudas sobre privacidad o estos términos? Escríbenos:
-Casa Olivea A.C. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, C.P. 22766, México.
+Inmobilaria MYA by DH. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, C.P. 22766, México.
 hola@casaolivea.com · +52 646 388 2369.`,
         en: `Questions about privacy or these terms? Contact us:
-Casa Olivea A.C. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, Mexico.
+Inmobilaria MYA by DH. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, Mexico.
 hola@casaolivea.com · +52 646 388 2369.`,
       }),
   ],

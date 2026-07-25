@@ -36,8 +36,8 @@ export const SECTIONS: Section[] = [
     id: "cafe",
     slug: "cafe",
     labels: {
-      es: { short: "Café",         full: "Olivea Café Wine Bar" },
-      en: { short: "Café",         full: "Olivea Café Wine Bar" },
+      es: { short: "Café Wine Bar",         full: "Olivea Café Wine Bar" },
+      en: { short: "Café Wine Bar",         full: "Olivea Café Wine Bar" },
     },
   },
 ];
