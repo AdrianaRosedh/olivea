@@ -113,7 +113,11 @@ export default function ArticleEn() {
         <h3>Are pets welcome?</h3>
         <p>Yes — café and padel areas are pet friendly.</p>
         <h3>Do you have a wine bar?</h3>
-        <p>Yes. As the day softens, the café becomes a wine bar, leading with Valle de Guadalupe and Baja California wines alongside our own house wine and tapas from the garden.</p>
+        <p>Yes. As the day softens, the café becomes a wine bar, leading with Valle de Guadalupe and Baja California wines alongside our own house wine and tapas from the garden. Walk in, no reservation needed.</p>
+        <h3>Do you offer corkage?</h3>
+        <p>Yes — corkage is $500 MXN per bottle, or $900 MXN for a magnum.</p>
+        <h3>Can I order wine by the glass?</h3>
+        <p>Yes. Much of the list is poured by the glass, so you can taste your way through Valle de Guadalupe.</p>
       </section>
     </article>
   );

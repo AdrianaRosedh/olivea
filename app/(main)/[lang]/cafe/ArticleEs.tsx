@@ -112,7 +112,11 @@ export default function ArticleEs() {
         <h3>¿Las mascotas son bienvenidas?</h3>
         <p>Sí — las áreas de café y pádel son pet friendly.</p>
         <h3>¿Tienen wine bar?</h3>
-        <p>Sí. Cuando el día baja, el café se vuelve wine bar, con Valle de Guadalupe y Baja California a la cabeza, nuestro vino de la casa y tapas del huerto.</p>
+        <p>Sí. Cuando el día baja, el café se vuelve wine bar, con Valle de Guadalupe y Baja California a la cabeza, nuestro vino de la casa y tapas del huerto. Sin reservación: llega directo.</p>
+        <h3>¿Ofrecen descorche?</h3>
+        <p>Sí — el descorche es $500 MXN por botella, o $900 MXN por mágnum.</p>
+        <h3>¿Puedo pedir vino por copa?</h3>
+        <p>Sí. Buena parte de la carta se sirve por copa, para recorrer el Valle de Guadalupe.</p>
       </section>
     </article>
   );
