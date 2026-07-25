@@ -41,7 +41,7 @@ export default function ArticleEn() {
         <p>
           Wake up beside the garden. Casa Olivea is a farm stay integrated
           with the working garden and connected to Olivea Farm To Table — a
-          MICHELIN-starred restaurant — and Olivea Café. Fourteen suites
+          MICHELIN-starred restaurant — and Olivea Café Wine Bar. Fourteen suites
           designed by Ange Joy, each with a private terrace overlooking the
           garden, olive trees, and the surrounding Baja California desert
           landscape. Breakfast is available at the café (not included).
@@ -68,16 +68,16 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Café ── */}
-      <section aria-label="Olivea Café">
-        <h2>Olivea Café — Specialty Coffee, Brunch &amp; Pádel</h2>
+      <section aria-label="Olivea Café Wine Bar">
+        <h2>Olivea Café Wine Bar — Specialty Coffee, Breakfast &amp; Valle de Guadalupe Wine</h2>
         <p>
-          Specialty coffee, house bread, and breakfast next to the garden.
-          Open daily for morning and afternoon service. The café also offers
-          pádel courts, wine bar, and casual dinner service. A calm, unhurried
-          space to spend the day at Olivea.
+          Specialty coffee, house bread, and garden breakfast by day. As the
+          afternoon softens, the café becomes a wine bar, pouring Valle de
+          Guadalupe and Baja California wine alongside tapas from the garden.
+          Pádel courts too — a calm, unhurried space to spend the day at Olivea.
         </p>
         <p>
-          <Link href="/en/cafe">Explore Olivea Café →</Link>
+          <Link href="/en/cafe">Explore Olivea Café Wine Bar →</Link>
         </p>
       </section>
 

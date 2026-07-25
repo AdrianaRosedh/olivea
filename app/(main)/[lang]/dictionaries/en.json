@@ -4,7 +4,7 @@
     "description": "Farm-to-table hospitality in Valle de Guadalupe—our story, philosophy, and the people behind the vision.",
     "meta": {
       "title": "Team Olivea | Farm-to-Table Hospitality in Valle de Guadalupe",
-      "description": "Learn how Olivea brings the Valley’s light, soil and producers to the table—our team, values and design approach in Ensenada, Baja California.",
+      "description": "Learn how Olivea brings Valle de Guadalupe’s light, soil and producers to the table—our team, values and design approach in Ensenada, Baja California.",
       "keywords": [
         "Olivea",
         "about",
@@ -18,12 +18,12 @@
     }
   },
   "cafe": {
-    "title": "Olivea Café",
+    "title": "Olivea Café Wine Bar",
     "description": "House coffee, bread and unhurried mornings in Valle de Guadalupe.",
     "error": "Error loading menu:",
     "meta": {
-      "title": "OLIVEA Café",
-      "description": "Specialty coffee, house bread and breakfast from the garden. Padel courts and a calm courtyard at Olivea Café in Valle de Guadalupe, Baja California.",
+      "title": "OLIVEA Café Wine Bar | Coffee & Wine in Valle de Guadalupe",
+      "description": "Specialty coffee and garden breakfast by day, Valle de Guadalupe wine by evening — at Olivea Café Wine Bar in Baja California.",
       "keywords": [
         "Olivea Café",
         "coffee",
@@ -69,7 +69,7 @@
     "metaTitle": "Contact",
     "metaDescription": "Address, phone numbers, and contact details for Olivea Farm To Table, Casa Olivea, and Olivea Café in Valle de Guadalupe.",
     "kicker": "Contact",
-    "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café",
+    "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café Wine Bar",
     "actions": {
       "maps": "Maps",
       "email": "Email",
@@ -81,7 +81,7 @@
     },
     "sections": {
       "farmToTableTitle": "Olivea Farm To Table",
-      "cafeTitle": "Olivea Café",
+      "cafeTitle": "Olivea Café Wine Bar",
       "casaTitle": "Casa Olivea"
     },
     "hours": {
@@ -123,7 +123,7 @@
     "error": "Error loading journal:",
     "by": "by",
     "meta": {
-      "title": "Olivea Journal | Stories from the Valley",
+      "title": "Olivea Journal | Stories from Valle de Guadalupe",
       "description": "Dispatches from the garden and kitchen—technique, producers and seasonal notes from Valle de Guadalupe.",
       "keywords": [
         "Olivea Journal",
@@ -207,7 +207,7 @@
     "main": {
       "farmtotable": "Olivea Farm To Table",
       "casa": "Casa Olivea",
-      "cafe": "Olivea Café"
+      "cafe": "Olivea Café Wine Bar"
     },
     "more": {
       "journal": "Journal",

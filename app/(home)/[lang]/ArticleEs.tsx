@@ -42,7 +42,7 @@ export default function ArticleEs() {
         <p>
           Despierta junto al huerto. Casa Olivea es un hospedaje integrado
           al huerto y conectado a Olivea Farm To Table — un restaurante con
-          estrella MICHELIN — y Olivea Café. Catorce suites diseñadas por
+          estrella MICHELIN — y Olivea Café Wine Bar. Catorce suites diseñadas por
           Ange Joy, cada una con terraza privada con vista al huerto, los
           olivos y el paisaje desértico de Baja California. El desayuno está
           disponible en el café (no incluido).
@@ -69,16 +69,16 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Café ── */}
-      <section aria-label="Olivea Café">
-        <h2>Olivea Café — Café de Especialidad, Brunch y Pádel</h2>
+      <section aria-label="Olivea Café Wine Bar">
+        <h2>Olivea Café Wine Bar — Café de Especialidad, Desayuno y Vino del Valle de Guadalupe</h2>
         <p>
-          Café de especialidad, pan de casa y desayunos junto al huerto.
-          Abierto todos los días para servicio de mañana y tarde. El café
-          también ofrece canchas de pádel, wine bar y cena casual. Un espacio
-          tranquilo y sin prisa para pasar el día en Olivea.
+          Café de especialidad, pan de casa y desayuno del huerto de día.
+          Cuando la tarde baja, el café se vuelve wine bar, con vinos del Valle
+          de Guadalupe y Baja California y tapas del huerto. También canchas de
+          pádel — un espacio tranquilo y sin prisa para pasar el día en Olivea.
         </p>
         <p>
-          <Link href="/es/cafe">Explorar Olivea Café →</Link>
+          <Link href="/es/cafe">Explorar Olivea Café Wine Bar →</Link>
         </p>
       </section>
 

@@ -6,11 +6,11 @@ import Image from "next/image";
 export default function ArticleEs() {
   return (
     <article aria-label="Olivea Café" className="ssr-article" lang="es" itemScope itemType="https://schema.org/CafeOrCoffeeShop">
-      <meta itemProp="name" content="Olivea Café" />
+      <meta itemProp="name" content="Olivea Café Wine Bar" />
       <meta itemProp="servesCuisine" content="Café de Especialidad, Desayuno del Huerto, Pan de Casa" />
 
       <header>
-        <h1>Olivea Café</h1>
+        <h1>Olivea Café Wine Bar</h1>
         <p><em>Donde el huerto es la esencia</em></p>
         <Image src="/images/cafe/hero.jpg" alt="Olivea Café — café de especialidad y desayuno del huerto en Valle de Guadalupe" width={1200} height={630} priority className="ssr-article-hero" />
       </header>
@@ -19,7 +19,7 @@ export default function ArticleEs() {
       <section id="experiencia-es" aria-labelledby="exp-heading-es">
         <h2 id="exp-heading-es">El ritmo diario de Olivea</h2>
         <p>Café lento. Comida lenta. Energía calmada — práctica cotidiana, disciplina suave.</p>
-        <p>Olivea Café es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.</p>
+        <p>Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma sobre un café, la noche se asienta con una copa de vino del Valle de Guadalupe, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.</p>
 
         <dl>
           <dt>Horario</dt><dd>Diario · 7:30 am – 5:30 pm</dd>
@@ -36,7 +36,7 @@ export default function ArticleEs() {
           <p>En Olivea, la sustentabilidad es eficiencia: respeto hecho práctico. El café comparte ingredientes, trabajo de fermentación y un ciclo continuo con Farm To Table — huerto → cocina → composta → regreso a la tierra.</p>
         </aside>
 
-        <p>Olivea Café se vive con calma. Por las tardes, ofrecemos una selección pequeña de cocteles, vino y tapas — una continuación suave del día. A futuro, se explora un formato de wine bar nocturno, construido con paciencia e intención, coherente con el ecosistema Olivea.</p>
+        <p>Cuando la luz de la tarde baja, el café se vuelve wine bar. La carta abre con Valle de Guadalupe y Baja California — los productores que son, literalmente, nuestros vecinos — junto a nuestro vino de la casa y algunas botellas seleccionadas de otras regiones, servidas con tapas del huerto. El café y el vino comparten una misma ética: lento, preciso, arraigado a la tierra. Del huerto a la mesa, del Valle de Guadalupe a la copa — una continuación calmada del día, del primer espresso de la mañana a la última copa de la noche.</p>
       </section>
 
       {/* ── Desayuno ── */}
@@ -80,8 +80,8 @@ export default function ArticleEs() {
         <p>Espresso y filtrado afinados para claridad y balance. El tueste en casa vive como una fase futura, incorporada cuando el sistema esté listo.</p>
         <h3>Matcha · jarabes del huerto</h3>
         <p>Matcha ceremonial, preparado con técnica. Jarabes estacionales que evolucionan con el huerto — expresivos, con claridad.</p>
-        <h3>Tardes · selección pequeña</h3>
-        <p>Por las tardes, una selección pequeña de cocteles, vino y tapas — continuidad suave del día, diseñada para sentirse calmada y coherente con Olivea.</p>
+        <h3>Wine Bar · Valle de Guadalupe</h3>
+        <p>Cuando el día baja, el café se vuelve wine bar — Valle de Guadalupe y Baja California por copa, nuestro vino de la casa y tapas del huerto. Del huerto a la mesa, del Valle de Guadalupe a la copa.</p>
       </section>
 
       {/* ── FAQ ── */}
@@ -111,8 +111,8 @@ export default function ArticleEs() {
         <p>Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café — café, música y un flujo relajado entre el juego y la mesa.</p>
         <h3>¿Las mascotas son bienvenidas?</h3>
         <p>Sí — las áreas de café y pádel son pet friendly.</p>
-        <h3>¿Qué se vive por las tardes en el café?</h3>
-        <p>Por las tardes, ofrecemos una selección pequeña de cocteles, vino y tapas como continuidad relajada del día.</p>
+        <h3>¿Tienen wine bar?</h3>
+        <p>Sí. Cuando el día baja, el café se vuelve wine bar, con Valle de Guadalupe y Baja California a la cabeza, nuestro vino de la casa y tapas del huerto.</p>
       </section>
     </article>
   );

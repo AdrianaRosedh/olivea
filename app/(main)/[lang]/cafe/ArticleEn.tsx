@@ -6,11 +6,11 @@ import Image from "next/image";
 export default function ArticleEn() {
   return (
     <article aria-label="Olivea Café" className="ssr-article" itemScope itemType="https://schema.org/CafeOrCoffeeShop">
-      <meta itemProp="name" content="Olivea Café" />
+      <meta itemProp="name" content="Olivea Café Wine Bar" />
       <meta itemProp="servesCuisine" content="Specialty Coffee, Farm Breakfast, House Bread" />
 
       <header>
-        <h1>Olivea Café</h1>
+        <h1>Olivea Café Wine Bar</h1>
         <p><em>Where The Garden Is The Essence</em></p>
         <Image src="/images/cafe/hero.jpg" alt="Olivea Café — specialty coffee and farm breakfast in Valle de Guadalupe" width={1200} height={630} priority className="ssr-article-hero" />
       </header>
@@ -19,7 +19,7 @@ export default function ArticleEn() {
       <section id="experience" aria-labelledby="exp-heading">
         <h2 id="exp-heading">The Daily Rhythm of Olivea</h2>
         <p>Slow coffee. Slow food. Calm energy — built as practice, as daily discipline.</p>
-        <p>Olivea Café is the most relaxed expression of the Olivea ecosystem — where mornings unfold slowly, movement stays human, and the garden remains the source. It carries the same leaders, the same standards, and the same philosophy as Casa Olivea and Olivea Farm To Table.</p>
+        <p>Olivea Café Wine Bar is the most relaxed expression of the Olivea ecosystem — where mornings unfold slowly over coffee, evenings settle in over a glass of Valle de Guadalupe wine, movement stays human, and the garden remains the source. It carries the same leaders, the same standards, and the same philosophy as Casa Olivea and Olivea Farm To Table.</p>
 
         <dl>
           <dt>Hours</dt><dd>Daily · 7:30 am – 5:30 pm</dd>
@@ -36,7 +36,7 @@ export default function ArticleEn() {
           <p>At Olivea, sustainability is efficiency: respect made practical. The café shares ingredients, fermentation work, and a continuous return loop with Farm To Table — garden → kitchen → compost → back to the soil.</p>
         </aside>
 
-        <p>Olivea Café is calm by design. In the afternoons, we serve a small selection of cocktails, wine, and tapas — a soft continuation of the day. Looking forward, an evening wine-bar format is being explored, built slowly and intentionally, consistent with the Olivea ecosystem.</p>
+        <p>As the afternoon light softens, the café becomes a wine bar. The list leads with Valle de Guadalupe and Baja California — the growers who are, quite literally, our neighbors — alongside our own house wine and a few considered bottles from farther afield, poured next to tapas drawn from the garden. Coffee and wine share one ethos here: slow, precise, rooted in place. Farm to table, Valle de Guadalupe to the glass — a calm continuation of the day, from the morning's first espresso to the evening's last pour.</p>
       </section>
 
       {/* ── Breakfast ── */}
@@ -81,8 +81,8 @@ export default function ArticleEn() {
         <p>Espresso and filter are tuned for clarity and balance. In-house roasting is part of a future phase, introduced once the system is ready.</p>
         <h3>Matcha · Garden Jarabes</h3>
         <p>Ceremonial matcha, prepared with technique. Seasonal syrups and jarabes evolve with the garden — expressive, while staying clear.</p>
-        <h3>Afternoons · Small List</h3>
-        <p>Afternoons offer a small selection of cocktails, wine, and tapas — a relaxed continuation of the day, designed to remain calm and coherent with Olivea.</p>
+        <h3>Wine Bar · Valle de Guadalupe</h3>
+        <p>As the day softens, the café becomes a wine bar — Valle de Guadalupe and Baja California by the glass, our own house wine, and tapas drawn from the garden. Farm to table, Valle de Guadalupe to the glass.</p>
       </section>
 
       {/* ── FAQ ── */}
@@ -112,8 +112,8 @@ export default function ArticleEn() {
         <p>Courtside, guests enjoy food and beverages from Olivea Café — coffee, music, and a relaxed flow between play and the table.</p>
         <h3>Are pets welcome?</h3>
         <p>Yes — café and padel areas are pet friendly.</p>
-        <h3>What happens in the afternoons?</h3>
-        <p>Afternoons offer a small list of cocktails, wine, and tapas as a relaxed continuation of the day.</p>
+        <h3>Do you have a wine bar?</h3>
+        <p>Yes. As the day softens, the café becomes a wine bar, leading with Valle de Guadalupe and Baja California wines alongside our own house wine and tapas from the garden.</p>
       </section>
     </article>
   );

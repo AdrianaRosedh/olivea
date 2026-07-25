@@ -18,12 +18,12 @@
     }
   },
   "cafe": {
-    "title": "Olivea Café",
+    "title": "Olivea Café Wine Bar",
     "description": "Café de casa, pan propio y mañanas serenas en Valle de Guadalupe.",
     "error": "Error al cargar el menú:",
     "meta": {
-      "title": "OLIVEA Café",
-      "description": "Café de especialidad, pan de casa y desayuno del huerto. Canchas de pádel y patio tranquilo en Olivea Café, Valle de Guadalupe, Baja California.",
+      "title": "OLIVEA Café Wine Bar | Café y Vino en Valle de Guadalupe",
+      "description": "Café de especialidad y desayuno del huerto de día, vino del Valle de Guadalupe de noche — en Olivea Café Wine Bar, Baja California.",
       "keywords": [
         "Olivea Café",
         "café",
@@ -69,7 +69,7 @@
   "metaTitle": "Contacto",
   "metaDescription": "Dirección, teléfonos y contacto de Olivea Farm To Table, Casa Olivea y Olivea Café en Valle de Guadalupe.",
   "kicker": "Contacto",
-  "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café",
+  "subtitle": "Olivea Farm To Table • Casa Olivea • Olivea Café Wine Bar",
   "actions": {
     "maps": "Mapa",
     "email": "Email",
@@ -81,7 +81,7 @@
   },
   "sections": {
     "farmToTableTitle": "Olivea Farm To Table",
-    "cafeTitle": "Olivea Café",
+    "cafeTitle": "Olivea Café Wine Bar",
     "casaTitle": "Casa Olivea"
   },
   "hours": {
@@ -207,7 +207,7 @@
     "main": {
       "farmtotable": "Olivea Farm To Table",
       "casa": "Casa Olivea",
-      "cafe": "Olivea Café"
+      "cafe": "Olivea Café Wine Bar"
     },
     "more": {
       "journal": "Diario",

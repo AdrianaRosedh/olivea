@@ -323,11 +323,11 @@ export default async function StructuredDataServer() {
 
     // ─── Café ───────────────────────────────────────────────────
     {
-      "@type": "CafeOrCoffeeShop",
+      "@type": ["CafeOrCoffeeShop", "BarOrPub"],
       "@id": ENTITY_IDS.cafe,
-      name: "Olivea Café",
-      description: "Casual, walk-in specialty coffee house — house coffee, artisan bread, and farm breakfast in Valle de Guadalupe, Baja California. Olivea's relaxed daytime experience, and the casual counterpart to the One-MICHELIN-Star Olivea Farm To Table restaurant on the same working-garden property.",
-      keywords: "casual, café, specialty coffee, breakfast, walk-in, no reservation, cafetería",
+      name: "Olivea Café Wine Bar",
+      description: "Café and wine bar on Olivea's working-garden property in Valle de Guadalupe, Baja California. Specialty coffee, artisan bread, and farm breakfast by day; Valle de Guadalupe and Baja California wine, house wine, and tapas as the day softens. The relaxed counterpart to the One-MICHELIN-Star Olivea Farm To Table restaurant.",
+      keywords: "café, wine bar, specialty coffee, Valle de Guadalupe wine, Baja California wine, breakfast, walk-in, cafetería",
       url: canonicalUrl("/es/cafe"),
       mainEntityOfPage: canonicalUrl("/es/cafe"),
       telephone: "+52-6463882369",

@@ -112,8 +112,8 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     url: pageUrl,
     name:
       L === "es"
-        ? "Olivea Café | Café de especialidad y desayunos"
-        : "Olivea Café | Farm Breakfast & Specialty Coffee",
+        ? "Olivea Café Wine Bar | Café, desayuno y vino en Valle de Guadalupe"
+        : "Olivea Café Wine Bar | Coffee, Breakfast & Wine in Valle de Guadalupe",
     description:
       L === "es"
         ? "Café de especialidad, pan de casa y desayunos junto al huerto de Olivea en Valle de Guadalupe."
@@ -130,7 +130,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     "@id": `${pageUrl}#breadcrumb`,
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "OLIVEA", item: canonicalUrl(`/${L}`) },
-      { "@type": "ListItem", position: 2, name: "Olivea Café", item: pageUrl },
+      { "@type": "ListItem", position: 2, name: "Olivea Café Wine Bar", item: pageUrl },
     ],
   };
 
