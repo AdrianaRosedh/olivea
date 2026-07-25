@@ -5,14 +5,14 @@ import Image from "next/image";
 
 export default function ArticleEs() {
   return (
-    <article aria-label="Olivea Café" className="ssr-article" lang="es" itemScope itemType="https://schema.org/CafeOrCoffeeShop">
+    <article aria-label="Olivea Café Wine Bar" className="ssr-article" lang="es" itemScope itemType="https://schema.org/CafeOrCoffeeShop">
       <meta itemProp="name" content="Olivea Café Wine Bar" />
       <meta itemProp="servesCuisine" content="Café de Especialidad, Desayuno del Huerto, Pan de Casa" />
 
       <header>
         <h1>Olivea Café Wine Bar</h1>
         <p><em>Donde el huerto es la esencia</em></p>
-        <Image src="/images/cafe/hero.jpg" alt="Olivea Café — café de especialidad y desayuno del huerto en Valle de Guadalupe" width={1200} height={630} priority className="ssr-article-hero" />
+        <Image src="/images/cafe/hero.jpg" alt="Olivea Café Wine Bar — café de especialidad y desayuno del huerto en Valle de Guadalupe" width={1200} height={630} priority className="ssr-article-hero" />
       </header>
 
       {/* ── Experiencia ── */}
@@ -42,10 +42,10 @@ export default function ArticleEs() {
       {/* ── Desayuno ── */}
       <section id="desayuno-es" aria-labelledby="desayuno-heading-es">
         <h2 id="desayuno-heading-es">Desayuno hogareño y preciso</h2>
-        <p>El desayuno en Olivea Café se vive con calma. La intención es el ritmo: platos que se sienten cálidos y familiares, con ejecución limpia y cuidada.</p>
+        <p>El desayuno en Olivea Café Wine Bar se vive con calma. La intención es el ritmo: platos que se sienten cálidos y familiares, con ejecución limpia y cuidada.</p>
         <p>El estilo es mayormente salado, con alma mexicana — comida sencilla, hecha con cariño, guiada por lo que el huerto y la temporada están ofreciendo.</p>
         <p>Compartimos ingredientes y preparaciones con Olivea Farm To Table cuando aporta coherencia al sistema. Un ecosistema: eficiencia práctica, continuidad real.</p>
-        <p>En Casa Olivea, el día comienza en Olivea Café. Quienes visitan por el día también son bienvenidos — el café funciona como puerta de entrada al ritmo Olivea.</p>
+        <p>En Casa Olivea, el día comienza en Olivea Café Wine Bar. Quienes visitan por el día también son bienvenidos — el café funciona como puerta de entrada al ritmo Olivea.</p>
       </section>
 
       {/* ── Pan ── */}
@@ -53,7 +53,7 @@ export default function ArticleEs() {
         <h2 id="pan-heading-es">Pan como rito</h2>
         <p>La harina es estructura. La elegimos por sabor y desempeño en fermentación — una miga ligera y completa, pensada para sentirse limpia y equilibrada.</p>
         <p>Las recetas se componen para claridad: capas limpias, sazón balanceada y textura intencional. La meta es precisión que se siente suave.</p>
-        <p>Olivea Café comparte liderazgo con Farm To Table — guiado por el Chef Daniel Nates — junto con un chef dedicado a pan y pastelería que sostiene ambas cocinas. Coherencia por encima de uniformidad: una visión, muchas expresiones.</p>
+        <p>Olivea Café Wine Bar comparte liderazgo con Farm To Table — guiado por el Chef Daniel Nates — junto con un chef dedicado a pan y pastelería que sostiene ambas cocinas. Coherencia por encima de uniformidad: una visión, muchas expresiones.</p>
         <p>El pan acompaña naturalmente el café lento de la mañana y sostiene el mismo estándar que vive en todo Olivea. La fermentación es inteligencia del tiempo: extiende la temporada con elegancia, preserva momentos en su punto, y mantiene continuidad — integrando lo que queda al ciclo del sistema a través de la composta.</p>
       </section>
 
@@ -69,7 +69,7 @@ export default function ArticleEs() {
         <h3>Palas y pelotas</h3>
         <p>Las palas están disponibles en renta. Los huéspedes de Casa Olivea disfrutan palas como parte de su estancia. Las pelotas nuevas están disponibles para compra.</p>
         <h3>Comunidad y flujo</h3>
-        <p>Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo. Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café. Las áreas de café y pádel son pet friendly.</p>
+        <p>Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo. Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café Wine Bar. Las áreas de café y pádel son pet friendly.</p>
       </section>
 
       {/* ── Menú ── */}
@@ -87,14 +87,14 @@ export default function ArticleEs() {
       {/* ── FAQ ── */}
       <section id="faq-es" aria-labelledby="faq-heading-es">
         <h2 id="faq-heading-es">Para tener en cuenta</h2>
-        <h3>¿Para quién es Olivea Café?</h3>
+        <h3>¿Para quién es Olivea Café Wine Bar?</h3>
         <p>En Casa Olivea, el día comienza aquí. Quienes visitan por el día también son bienvenidos — el café es una puerta de entrada al ritmo Olivea.</p>
-        <h3>¿Cuál es el horario de Olivea Café?</h3>
+        <h3>¿Cuál es el horario de Olivea Café Wine Bar?</h3>
         <p>Olivea Café Wine Bar abre todos los días de 7:30 am a 6:15 pm. La cocina va de 8 am a 4 pm, con el menú disponible durante el día, y el vino se sirve a partir de las 10 am.</p>
         <h3>¿Qué estilo de desayuno ofrecen?</h3>
         <p>El desayuno es mayormente salado, con alma mexicana — pensado para sentirse calmado, nutritivo e intencional.</p>
         <h3>¿Cómo funciona el desayuno para huéspedes de Casa Olivea?</h3>
-        <p>El desayuno no está incluido en la estancia, pero los huéspedes pueden disfrutarlo en Olivea Café cada mañana.</p>
+        <p>El desayuno no está incluido en la estancia, pero los huéspedes pueden disfrutarlo en Olivea Café Wine Bar cada mañana.</p>
         <h3>¿De dónde proviene el café?</h3>
         <p>El café proviene exclusivamente de México, trabajado con técnica y constancia.</p>
         <h3>¿Sirven matcha?</h3>
@@ -108,7 +108,7 @@ export default function ArticleEs() {
         <h3>¿Tienen algún día comunitario de pádel?</h3>
         <p>Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo.</p>
         <h3>¿Cómo se vive la experiencia alrededor de las canchas?</h3>
-        <p>Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café — café, música y un flujo relajado entre el juego y la mesa.</p>
+        <p>Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café Wine Bar — café, música y un flujo relajado entre el juego y la mesa.</p>
         <h3>¿Las mascotas son bienvenidas?</h3>
         <p>Sí — las áreas de café y pádel son pet friendly.</p>
         <h3>¿Tienen wine bar?</h3>

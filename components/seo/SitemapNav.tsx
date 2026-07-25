@@ -24,7 +24,7 @@ const ITEMS: Item[] = [
   { path: "", en: "Home", es: "Inicio" },
   { path: "/farmtotable", en: "Olivea Farm To Table", es: "Olivea Farm To Table" },
   { path: "/casa", en: "Casa Olivea", es: "Casa Olivea" },
-  { path: "/cafe", en: "Olivea Café", es: "Olivea Café" },
+  { path: "/cafe", en: "Olivea Café Wine Bar", es: "Olivea Café Wine Bar" },
   { path: "/menu", en: "Menu", es: "Menú" },
   { path: "/sustainability", en: "Philosophy & Sustainability", es: "Filosofía y sostenibilidad" },
   { path: "/team", en: "Team", es: "Equipo" },

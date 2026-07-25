@@ -536,7 +536,7 @@ function MenusAndLinks() {
           <div className="rounded-2xl border border-stone-200/80 bg-white/60 overflow-hidden">
             <CardHeader
               icon={<Coffee className="w-4 h-4 text-[var(--olivea-olive)]" />}
-              title={t({ es: "Olivea Café — Menú en Vivo", en: "Olivea Café — Live Menu" })}
+              title={t({ es: "Olivea Café Wine Bar — Menú en Vivo", en: "Olivea Café Wine Bar — Live Menu" })}
               hint="The single “View live menu” button on the café page"
               liveHref="/es/cafe"
             />

@@ -127,7 +127,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           },
           {
             q: "¿Puedo hospedarme o desayunar en la misma propiedad?",
-            a: "Sí. Casa Olivea es el hospedaje del huerto integrado al restaurante, y Olivea Café ofrece café de especialidad y desayunos cada mañana. Las tres experiencias comparten el mismo huerto.",
+            a: "Sí. Casa Olivea es el hospedaje del huerto integrado al restaurante, y Olivea Café Wine Bar ofrece café de especialidad y desayunos cada mañana. Las tres experiencias comparten el mismo huerto.",
           },
         ]
       : [
@@ -149,7 +149,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           },
           {
             q: "Can I stay or have breakfast on the same property?",
-            a: "Yes. Casa Olivea is the farm stay integrated with the restaurant, and Olivea Café serves specialty coffee and breakfast every morning. All three experiences share the same working garden.",
+            a: "Yes. Casa Olivea is the farm stay integrated with the restaurant, and Olivea Café Wine Bar serves specialty coffee and breakfast every morning. All three experiences share the same working garden.",
           },
         ];
 

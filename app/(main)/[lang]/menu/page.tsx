@@ -20,8 +20,8 @@ export async function generateMetadata({
 
   const title = isEs ? "Menú | OLIVEA" : "Menu | OLIVEA";
   const description = isEs
-    ? "Menú de temporada de Olivea Farm To Table y Olivea Café — cocina arraigada al huerto en Valle de Guadalupe."
-    : "Seasonal menu for Olivea Farm To Table and Olivea Café — garden-rooted cuisine in Valle de Guadalupe.";
+    ? "Menú de temporada de Olivea Farm To Table y Olivea Café Wine Bar — cocina arraigada al huerto en Valle de Guadalupe."
+    : "Seasonal menu for Olivea Farm To Table and Olivea Café Wine Bar — garden-rooted cuisine in Valle de Guadalupe.";
 
   const path = `/${lang}/menu`;
   const url = canonicalUrl(path);

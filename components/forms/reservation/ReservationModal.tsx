@@ -236,7 +236,7 @@ function CafePane({ lang, isMobile }: { lang: "es" | "en"; isMobile: boolean }) 
           <div className="relative h-11 md:h-16 w-16 md:w-24">
             <Image
               src="/brand/oliveaCafe.svg"
-              alt="Olivea Café"
+              alt="Olivea Café Wine Bar"
               fill
               className="object-contain"
               sizes="96px"
@@ -247,7 +247,7 @@ function CafePane({ lang, isMobile }: { lang: "es" | "en"; isMobile: boolean }) 
             className={`font-jakarta font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
             style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
           >
-            Olivea Café
+            Olivea Café Wine Bar
           </span>
         </div>
       )}

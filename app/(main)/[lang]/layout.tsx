@@ -63,7 +63,7 @@ export default async function LangLayout({
   const nav = [
     { name: "Casa Olivea", url: canonicalUrl(`/${prefix}/casa`) },
     { name: "Olivea Farm To Table", url: canonicalUrl(`/${prefix}/farmtotable`) },
-    { name: "Olivea Café", url: canonicalUrl(`/${prefix}/cafe`) },
+    { name: "Olivea Café Wine Bar", url: canonicalUrl(`/${prefix}/cafe`) },
     { name: isEs ? "Filosofía" : "Philosophy", url: canonicalUrl(`/${prefix}/sustainability`) },
     { name: isEs ? "Cuaderno" : "Journal", url: canonicalUrl(`/${prefix}/journal`) },
     { name: isEs ? "Prensa" : "Press", url: canonicalUrl(`/${prefix}/press`) },

@@ -226,7 +226,7 @@ export default async function StructuredDataServer() {
       "@id": ENTITY_IDS.restaurant,
       name: "Olivea Farm To Table",
       alternateName: "Olivea FTT",
-      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. The fine-dining heart of Olivea; the casual daytime café (Olivea Café) and the farm stay (Casa Olivea) share the same property.",
+      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. The fine-dining heart of Olivea; the casual daytime café (Olivea Café Wine Bar) and the farm stay (Casa Olivea) share the same property.",
       // ✅ Google's dining-style hints. schema.org has no "fine dining" type, so
       // the tier is carried by priceRange ($$$$), the description, cuisine, and
       // these keywords — kept unambiguous so Search/AI never read it as casual.
@@ -297,7 +297,7 @@ export default async function StructuredDataServer() {
       additionalType: "https://schema.org/Resort",
       "@id": ENTITY_IDS.hotel,
       name: "Casa Olivea",
-      description: "The complete Olivea experience — a farm stay that brings together the One-MICHELIN-Star Olivea Farm To Table restaurant, the casual Olivea Café, and the working garden into a single stay in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
+      description: "The complete Olivea experience — a farm stay that brings together the One-MICHELIN-Star Olivea Farm To Table restaurant, the casual Olivea Café Wine Bar, and the working garden into a single stay in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
       url: canonicalUrl("/es/casa"),
       mainEntityOfPage: canonicalUrl("/es/casa"),
       telephone: "+52-6463882369",

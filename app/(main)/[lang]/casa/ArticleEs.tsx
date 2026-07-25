@@ -44,10 +44,10 @@ export default function ArticleEs() {
       <section id="mananas" aria-labelledby="mananas-heading">
         <h2 id="mananas-heading">Mañanas en Olivea</h2>
         <h3>Desayuno</h3>
-        <p>Los huéspedes pueden comenzar el día en Olivea Café, donde la cocina sirve un desayuno continental de temporada — pan de casa, verduras de nuestro huerto y una selección de preparaciones locales e internas, frescas y enraizadas en el huerto.</p>
+        <p>Los huéspedes pueden comenzar el día en Olivea Café Wine Bar, donde la cocina sirve un desayuno continental de temporada — pan de casa, verduras de nuestro huerto y una selección de preparaciones locales e internas, frescas y enraizadas en el huerto.</p>
         <p>El desayuno en el café no está incluido en la estancia.</p>
-        <h3>Café y Olivea Café</h3>
-        <p>Para huéspedes que buscan una experiencia matutina más amplia o expresiva, Olivea Café ofrece un menú de desayuno expandido junto con una selección completa de bebidas de café preparadas. Bebidas a base de espresso, preparaciones especiales y platos adicionales de desayuno están disponibles directamente en el café.</p>
+        <h3>Café y Olivea Café Wine Bar</h3>
+        <p>Para huéspedes que buscan una experiencia matutina más amplia o expresiva, Olivea Café Wine Bar ofrece un menú de desayuno expandido junto con una selección completa de bebidas de café preparadas. Bebidas a base de espresso, preparaciones especiales y platos adicionales de desayuno están disponibles directamente en el café.</p>
       </section>
 
       {/* ── Servicios ── */}
@@ -73,7 +73,7 @@ export default function ArticleEs() {
         <h3>Check-In / Check-Out</h3>
         <p>Check-in desde las 3:00 pm. Check-out a las 11:00 am.</p>
         <h3>Inclusiones</h3>
-        <p>Canchas de pádel, acceso a la alberca y limpieza diaria forman parte de la estancia. El desayuno está disponible en Olivea Café (no incluido).</p>
+        <p>Canchas de pádel, acceso a la alberca y limpieza diaria forman parte de la estancia. El desayuno está disponible en Olivea Café Wine Bar (no incluido).</p>
         <h3>Cómo llegar</h3>
         <p>No ofrecemos servicio de transporte al aeropuerto, pero con gusto coordinamos con conductores locales de confianza o te ayudamos a organizar el traslado.</p>
         <h3>Conserjería</h3>
@@ -84,7 +84,7 @@ export default function ArticleEs() {
       <section id="faq-es" aria-labelledby="faq-heading-es">
         <h2 id="faq-heading-es">Antes de reservar</h2>
         <h3>¿El desayuno está incluido?</h3>
-        <p>No — el desayuno no está incluido en la estancia. Los huéspedes pueden disfrutarlo en Olivea Café cada mañana (no incluido).</p>
+        <p>No — el desayuno no está incluido en la estancia. Los huéspedes pueden disfrutarlo en Olivea Café Wine Bar cada mañana (no incluido).</p>
         <h3>¿Aceptan niños o mascotas?</h3>
         <p>Casa Olivea es solo para adultos (18+). Los perros son bienvenidos en áreas designadas.</p>
         <h3>¿Las habitaciones tienen televisión?</h3>

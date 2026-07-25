@@ -11,7 +11,7 @@ import { t, tm } from "./md";
 export default function MenuSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang) || "The menu";
   const imgSrc = data.image?.src ?? "/images/cafe/garden2.jpg";
-  const imgAlt = t(data.image?.alt, lang) || "Olivea Café — menu and atmosphere";
+  const imgAlt = t(data.image?.alt, lang) || "Olivea Café Wine Bar — menu and atmosphere";
   const description = data.description
     ? tm(data.description, lang)
     : null;

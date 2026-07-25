@@ -28,8 +28,8 @@ export default function ArticleMenu({ lang }: { lang: Lang }) {
         <p>
           <em>
             {isEs
-              ? "Menú de temporada de Olivea Farm To Table y Olivea Café — cocina arraigada al huerto en Valle de Guadalupe, Baja California."
-              : "Seasonal menu for Olivea Farm To Table and Olivea Café — garden-rooted cuisine in Valle de Guadalupe, Baja California."}
+              ? "Menú de temporada de Olivea Farm To Table y Olivea Café Wine Bar — cocina arraigada al huerto en Valle de Guadalupe, Baja California."
+              : "Seasonal menu for Olivea Farm To Table and Olivea Café Wine Bar — garden-rooted cuisine in Valle de Guadalupe, Baja California."}
           </em>
         </p>
       </header>
@@ -56,8 +56,8 @@ export default function ArticleMenu({ lang }: { lang: Lang }) {
       </section>
 
       {/* ── Café ── */}
-      <section aria-label="Olivea Café">
-        <h2>Olivea Café</h2>
+      <section aria-label="Olivea Café Wine Bar">
+        <h2>Olivea Café Wine Bar</h2>
         <p>
           {isEs
             ? "Café de especialidad, pan de casa, desayunos y brunch junto al huerto. También ofrece servicio de tarde con wine bar y cena casual."

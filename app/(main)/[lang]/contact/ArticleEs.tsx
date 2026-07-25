@@ -17,7 +17,7 @@ export default function ArticleEs() {
         <h1>Contacto — OLIVEA</h1>
         <p>
           <em>
-            Olivea Farm To Table · Casa Olivea · Olivea Café — Valle de
+            Olivea Farm To Table · Casa Olivea · Olivea Café Wine Bar — Valle de
             Guadalupe, Baja California.
           </em>
         </p>
@@ -82,7 +82,7 @@ export default function ArticleEs() {
 
       {/* ── Casa Olivea & Café ── */}
       <section aria-label="Horario y teléfono de Casa Olivea y Café">
-        <h2>Casa Olivea &amp; Olivea Café</h2>
+        <h2>Casa Olivea &amp; Olivea Café Wine Bar</h2>
         <dl>
           <dt>Horario</dt>
           <dd>Mié–Lun 7:30–2:30 · Mar 7:30–9:30</dd>

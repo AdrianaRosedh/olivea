@@ -48,7 +48,7 @@ export default function ArticlePress({
               <p>
                 {item.issuer} · {item.publishedAt}
                 {item.for !== "olivea" && (
-                  <> · {item.for === "restaurant" ? "Olivea Farm To Table" : item.for === "hotel" ? "Casa Olivea" : "Olivea Café"}</>
+                  <> · {item.for === "restaurant" ? "Olivea Farm To Table" : item.for === "hotel" ? "Casa Olivea" : "Olivea Café Wine Bar"}</>
                 )}
               </p>
               {item.blurb && <p>{item.blurb}</p>}

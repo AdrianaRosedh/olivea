@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
       const CONFIGURATION = {
         locations: [
           {
-            title: "Olivea Café",
+            title: "Olivea Café Wine Bar",
             address1: "Carretera Ensenada-Tecate Km 92.5",
             address2: "${t.address2Short}",
             coords: { lat: 31.9908168, lng: -116.6421964 },

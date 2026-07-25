@@ -11,7 +11,7 @@ export default function BreakfastSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang);
   const caption = t(data.caption, lang);
   const imgSrc = data.image?.src ?? "/images/cafe/breakfast6.jpg";
-  const imgAlt = t(data.image?.alt, lang) || "Breakfast at Olivea Café";
+  const imgAlt = t(data.image?.alt, lang) || "Breakfast at Olivea Café Wine Bar";
   const paragraphs = (data.paragraphs ?? []) as Array<{
     id: { en: string; es: string };
     en: string;

@@ -44,10 +44,10 @@ export default function ArticleEn() {
       <section id="mornings" aria-labelledby="mornings-heading">
         <h2 id="mornings-heading">Mornings at Olivea</h2>
         <h3>Breakfast</h3>
-        <p>Guests are welcome to start the day at Olivea Café, where the kitchen serves a seasonal continental breakfast — house-made bread, vegetables from our garden, and a selection of local and in-house preparations, fresh and rooted in the garden.</p>
+        <p>Guests are welcome to start the day at Olivea Café Wine Bar, where the kitchen serves a seasonal continental breakfast — house-made bread, vegetables from our garden, and a selection of local and in-house preparations, fresh and rooted in the garden.</p>
         <p>Breakfast at the café is not included in your stay.</p>
-        <h3>Coffee &amp; Olivea Café</h3>
-        <p>For guests seeking a broader or more expressive morning experience, Olivea Café offers an expanded breakfast menu alongside a full selection of crafted coffee drinks. Espresso-based beverages, specialty preparations, and additional breakfast plates are available directly at the café.</p>
+        <h3>Coffee &amp; Olivea Café Wine Bar</h3>
+        <p>For guests seeking a broader or more expressive morning experience, Olivea Café Wine Bar offers an expanded breakfast menu alongside a full selection of crafted coffee drinks. Espresso-based beverages, specialty preparations, and additional breakfast plates are available directly at the café.</p>
       </section>
 
       {/* ── Services ── */}
@@ -73,7 +73,7 @@ export default function ArticleEn() {
         <h3>Check-In / Check-Out</h3>
         <p>Check-in from 3:00 pm. Check-out by 11:00 am.</p>
         <h3>Inclusions</h3>
-        <p>Paddle courts, pool access, and daily housekeeping are part of your stay. Breakfast is available at Olivea Café (not included).</p>
+        <p>Paddle courts, pool access, and daily housekeeping are part of your stay. Breakfast is available at Olivea Café Wine Bar (not included).</p>
         <h3>Getting Here</h3>
         <p>We don't offer airport pickup, but we're happy to coordinate with trusted local drivers or help you arrange transport.</p>
         <h3>Concierge</h3>
@@ -84,7 +84,7 @@ export default function ArticleEn() {
       <section id="faq" aria-labelledby="faq-heading">
         <h2 id="faq-heading">Before You Book</h2>
         <h3>Is breakfast included?</h3>
-        <p>No — breakfast is not included with your stay. Guests are welcome to enjoy breakfast at Olivea Café each morning (not included).</p>
+        <p>No — breakfast is not included with your stay. Guests are welcome to enjoy breakfast at Olivea Café Wine Bar each morning (not included).</p>
         <h3>Do you allow children or pets?</h3>
         <p>Casa Olivea is adults-only (18+). Dogs are welcomed in designated areas.</p>
         <h3>Do the rooms have a TV?</h3>

@@ -148,7 +148,7 @@ const SECTION_LABELS_B: Record<string, B> = {
   "pages.casa":           { es: "Casa Olivea",          en: "Casa Olivea" },
   "content.casafaq":      { es: "Preguntas de Casa",    en: "Casa FAQ" },
   "pages.farmtotable":    { es: "Olivea Farm to Table", en: "Olivea Farm to Table" },
-  "pages.cafe":           { es: "Olivea Café",          en: "Olivea Café" },
+  "pages.cafe":           { es: "Olivea Café Wine Bar",          en: "Olivea Café Wine Bar" },
   "pages.sustainability": { es: "Sustentabilidad",      en: "Sustainability" },
   "pages.press":          { es: "Prensa",               en: "Press" },
   "pages.team":           { es: "Página del Equipo",    en: "Team Page" },

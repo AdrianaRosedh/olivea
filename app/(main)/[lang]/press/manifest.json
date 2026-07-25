@@ -17,7 +17,7 @@
       "usageTitle": "Uso editorial",
       "usageBody": "Material disponible para uso editorial en cobertura de Olivea. Crédito requerido cuando aplique. Para usos comerciales, contáctanos.",
       "boilerplate30": "Olivea es un ecosistema gastronómico y de hospitalidad arraigado al huerto en Valle de Guadalupe.",
-      "boilerplate80": "Olivea integra Olivea Farm To Table, Casa Olivea y Olivea Café en una experiencia 360° arraigada al huerto, el territorio y la sustentabilidad."
+      "boilerplate80": "Olivea integra Olivea Farm To Table, Casa Olivea y Olivea Café Wine Bar en una experiencia 360° arraigada al huerto, el territorio y la sustentabilidad."
     },
     "en": {
       "headline": "Press Room",
@@ -25,7 +25,7 @@
       "usageTitle": "Editorial use",
       "usageBody": "Assets provided for editorial coverage of Olivea. Credit required where applicable. For commercial usage, please contact us.",
       "boilerplate30": "Olivea is a garden-rooted hospitality and culinary ecosystem in Valle de Guadalupe.",
-      "boilerplate80": "Olivea integrates Olivea Farm To Table, Casa Olivea, and Olivea Café into a 360° experience shaped by terroir, technique, and sustainability."
+      "boilerplate80": "Olivea integrates Olivea Farm To Table, Casa Olivea, and Olivea Café Wine Bar into a 360° experience shaped by terroir, technique, and sustainability."
     }
   },
 
@@ -74,7 +74,7 @@
     {
       "id": "cafe-olivea-cafe-01",
       "category": "cafe",
-      "title": { "es": "Olivea Café", "en": "Olivea Café" },
+      "title": { "es": "Olivea Café Wine Bar", "en": "Olivea Café Wine Bar" },
       "web": "/images/press/media/web/cafe.jpg",
       "hires": "/images/press/media/hires/cafe.jpg",
       "credit": "Technicolor | Creative Studio"

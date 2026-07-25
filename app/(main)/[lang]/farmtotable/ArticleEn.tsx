@@ -170,7 +170,7 @@ export default function ArticleEn() {
 
         <h3>The Continuous Cycle</h3>
         <p>
-          The cycle is continuous: garden → Olivea Farm To Table → Olivea Café →
+          The cycle is continuous: garden → Olivea Farm To Table → Olivea Café Wine Bar →
           fermentation → compost → back to the garden. Nothing stands alone;
           everything returns.
         </p>

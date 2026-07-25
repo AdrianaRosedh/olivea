@@ -61,7 +61,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "pages.casa",           label: "Casa Olivea",              icon: "Home",            category: "pages",   href: "/admin/content/casa" },
   { key: "content.casafaq",      label: "Casa FAQ",                 icon: "HelpCircle",      category: "pages",   href: "/admin/content/casa-faq" },
   { key: "pages.farmtotable",    label: "Olivea Farm to Table",     icon: "UtensilsCrossed", category: "pages",   href: "/admin/content/farm-to-table" },
-  { key: "pages.cafe",           label: "Olivea Café",              icon: "Coffee",          category: "pages",   href: "/admin/content/cafe" },
+  { key: "pages.cafe",           label: "Olivea Café Wine Bar",              icon: "Coffee",          category: "pages",   href: "/admin/content/cafe" },
   { key: "pages.sustainability", label: "Sustainability",           icon: "Leaf",            category: "pages",   href: "/admin/content/sustainability" },
   { key: "pages.press",          label: "Press",                    icon: "Newspaper",       category: "pages",   href: "/admin/content/press" },
   { key: "pages.team",           label: "Team Page",                icon: "Users",           category: "pages",   href: "/admin/content/team" },

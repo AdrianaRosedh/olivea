@@ -123,7 +123,7 @@ export const TEAM: LeaderProfile[] = [
         href: "https://oliveafarmtotable.com/casa",
       },
       {
-        label: { es: "Olivea Café", en: "Olivea Cafe" },
+        label: { es: "Olivea Café Wine Bar", en: "Olivea Cafe" },
         href: "https://oliveafarmtotable.com/cafe",
       },
       {
@@ -406,8 +406,8 @@ export const TEAM: LeaderProfile[] = [
     showIn: ["restaurant", "cafe"],
 
     bio: {
-      es: "Supervisor de Patisserie en Olivea, Jesús lidera panadería y postres con disciplina, elegancia y una ambición creativa incansable. Es un líder por ejemplo: dinámico, enfocado y dispuesto al trabajo duro. También pieza clave en Olivea Café, piensa constantemente en cómo unificar restaurante y café como expresiones distintas de una misma visión. Le entusiasma el desafío de llevar el huerto a terrenos tradicionales, reinterpretando lo clásico desde el territorio. Su hambre por crear y aprender lo convierte en una fuerza expansiva dentro del ecosistema.",
-      en: "Head of Patisserie at Olivea, Jesús leads bread and desserts with discipline, elegance, and relentless creative ambition. A leader by example, he is dynamic, focused, and unafraid of hard work. Also a key figure in Olivea Café, he constantly thinks about unifying restaurant and café as different expressions of the same vision. He is energized by the challenge of bringing the garden into traditionally structured forms, reinterpreting the familiar through the territory. His hunger to create and learn makes him an expansive force within the ecosystem.",
+      es: "Supervisor de Patisserie en Olivea, Jesús lidera panadería y postres con disciplina, elegancia y una ambición creativa incansable. Es un líder por ejemplo: dinámico, enfocado y dispuesto al trabajo duro. También pieza clave en Olivea Café Wine Bar, piensa constantemente en cómo unificar restaurante y café como expresiones distintas de una misma visión. Le entusiasma el desafío de llevar el huerto a terrenos tradicionales, reinterpretando lo clásico desde el territorio. Su hambre por crear y aprender lo convierte en una fuerza expansiva dentro del ecosistema.",
+      en: "Head of Patisserie at Olivea, Jesús leads bread and desserts with discipline, elegance, and relentless creative ambition. A leader by example, he is dynamic, focused, and unafraid of hard work. Also a key figure in Olivea Café Wine Bar, he constantly thinks about unifying restaurant and café as different expressions of the same vision. He is energized by the challenge of bringing the garden into traditionally structured forms, reinterpreting the familiar through the territory. His hunger to create and learn makes him an expansive force within the ecosystem.",
     },
     avatar: "/images/team/jesus.jpg",
     gallery: [

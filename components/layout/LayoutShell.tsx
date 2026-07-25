@@ -321,7 +321,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
   const mobilePageTitle = useMemo(() => {
     if (identity === "farmtotable") return { es: "Olivea Farm To Table", en: "Olivea Farm To Table" };
     if (identity === "casa") return { es: "Casa Olivea", en: "Casa Olivea" };
-    if (identity === "cafe") return { es: "Olivea Café", en: "Olivea Café" };
+    if (identity === "cafe") return { es: "Olivea Café Wine Bar", en: "Olivea Café Wine Bar" };
     return { es: "Secciones", en: "Sections" };
   }, [identity]);
 
@@ -364,7 +364,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
           <ul>
             <li><a href={`/${pathLang}/farmtotable`}>Olivea Farm To Table</a></li>
             <li><a href={`/${pathLang}/casa`}>Casa Olivea</a></li>
-            <li><a href={`/${pathLang}/cafe`}>Olivea Café</a></li>
+            <li><a href={`/${pathLang}/cafe`}>Olivea Café Wine Bar</a></li>
             <li><a href={`/${pathLang}/sustainability`}>{pathLang === "en" ? "Sustainability" : "Sostenibilidad"}</a></li>
             <li><a href={`/${pathLang}/journal`}>{pathLang === "en" ? "Journal" : "Bitácora"}</a></li>
           </ul>

@@ -177,7 +177,7 @@ export default function ArticleEs() {
 
         <h3>El ciclo continuo</h3>
         <p>
-          El ciclo es continuo: huerto → Olivea Farm To Table → Olivea Café →
+          El ciclo es continuo: huerto → Olivea Farm To Table → Olivea Café Wine Bar →
           fermentación → composta → regreso al huerto. Nada existe aislado;
           todo regresa.
         </p>
