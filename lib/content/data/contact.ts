@@ -10,8 +10,8 @@ const contact: ContactContent = {
       en: "Contact | OLIVEA",
     },
     description: {
-      es: "Dirección, teléfonos y datos de contacto de Olivea Farm To Table, Casa Olivea y Olivea Café en Valle de Guadalupe.",
-      en: "Address, phone numbers, and contact details for Olivea Farm To Table, Casa Olivea, and Olivea Café in Valle de Guadalupe.",
+      es: "Dirección, teléfonos y datos de contacto de Olivea Farm To Table, Casa Olivea y Olivea Café Wine Bar en Valle de Guadalupe.",
+      en: "Address, phone numbers, and contact details for Olivea Farm To Table, Casa Olivea, and Olivea Café Wine Bar in Valle de Guadalupe.",
     },
     ogImage: "/images/seo/seo-og.jpg",
   },
@@ -20,8 +20,8 @@ const contact: ContactContent = {
     en: "Contact",
   },
   subtitle: {
-    es: "Olivea Farm To Table • Casa Olivea • Olivea Café",
-    en: "Olivea Farm To Table • Casa Olivea • Olivea Café",
+    es: "Olivea Farm To Table • Casa Olivea • Olivea Café Wine Bar",
+    en: "Olivea Farm To Table • Casa Olivea • Olivea Café Wine Bar",
   },
   actions: {
     maps: { es: "Mapa", en: "Maps" },
@@ -38,8 +38,8 @@ const contact: ContactContent = {
       en: "Olivea Farm To Table",
     },
     cafeTitle: {
-      es: "Olivea Café",
-      en: "Olivea Café",
+      es: "Olivea Café Wine Bar",
+      en: "Olivea Café Wine Bar",
     },
     casaTitle: {
       es: "Casa Olivea",

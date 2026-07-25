@@ -41,7 +41,7 @@ const global: GlobalSettings = {
     {
       id: "h2",
       venue: "cafe",
-      label: { es: "Olivea Café", en: "Olivea Café" },
+      label: { es: "Olivea Café Wine Bar", en: "Olivea Café Wine Bar" },
       schedule: {
         es: "Mié–Lun 7:30–2:30 · Mar 7:30–9:30",
         en: "Wed–Mon 7:30–2:30 · Tue 7:30–9:30",

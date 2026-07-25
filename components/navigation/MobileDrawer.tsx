@@ -373,7 +373,7 @@ export default function MobileDrawer({
                       onClick={(e) => handleAnchorClick(e, `/${lang}/legal`)}
                       className="text-xs text-(--olivea-shell) opacity-80 hover:opacity-100 hover:underline text-center transform-gpu will-change-transform"
                     >
-                      Copyright © {new Date().getFullYear()} Casa Olivea AC.
+                      Copyright © {new Date().getFullYear()} Inmobilaria MYA by DH.
                       <br />
                       {rightsText}
                     </MotionLink>

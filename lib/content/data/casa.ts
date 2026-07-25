@@ -83,8 +83,8 @@ const casa: CasaContent = {
         en: "What else is on the Olivea property?",
       },
       answer: {
-        es: "Además de Casa Olivea, la propiedad incluye Olivea Farm To Table, un restaurante con estrella MICHELIN, y Olivea Café, con café de especialidad y desayunos. Las tres experiencias comparten el huerto.",
-        en: "Besides Casa Olivea, the property includes Olivea Farm To Table, a MICHELIN-starred restaurant, and Olivea Café, serving specialty coffee and breakfast. All three share the same working garden.",
+        es: "Además de Casa Olivea, la propiedad incluye Olivea Farm To Table, un restaurante con estrella MICHELIN, y Olivea Café Wine Bar, con café de especialidad y desayunos. Las tres experiencias comparten el huerto.",
+        en: "Besides Casa Olivea, the property includes Olivea Farm To Table, a MICHELIN-starred restaurant, and Olivea Café Wine Bar, serving specialty coffee and breakfast. All three share the same working garden.",
       },
       sortOrder: 3,
     },

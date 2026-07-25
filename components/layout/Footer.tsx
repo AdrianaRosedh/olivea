@@ -392,7 +392,7 @@ export default function Footer({ dict, socials }: FooterProps) {
           ].join(" ")}
         >
           <span className="cursor-default transition-colors hover:text-(--olivea-olive)">
-            <span className="whitespace-nowrap">© {new Date().getFullYear()} Casa Olivea A.C.</span>
+            <span className="whitespace-nowrap">© {new Date().getFullYear()} Inmobilaria MYA by DH.</span>
             <span className="mx-1 inline-block align-middle opacity-60">•</span>
             <span className="wrap-break-words">{rightsText}</span>
           </span>

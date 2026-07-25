@@ -16,8 +16,8 @@ const legal: LegalContent = {
       en: "Privacy & Terms | OLIVEA",
     },
     description: {
-      es: "Aviso de Privacidad y Términos y Condiciones de Casa Olivea A.C. — Olivea Farm To Table, Casa Olivea y Olivea Café en Valle de Guadalupe.",
-      en: "Privacy Notice and Terms & Conditions of Casa Olivea A.C. — Olivea Farm To Table, Casa Olivea and Olivea Café in Valle de Guadalupe.",
+      es: "Aviso de Privacidad y Términos y Condiciones de Casa Olivea A.C. — Olivea Farm To Table, Casa Olivea y Olivea Café Wine Bar en Valle de Guadalupe.",
+      en: "Privacy Notice and Terms & Conditions of Casa Olivea A.C. — Olivea Farm To Table, Casa Olivea and Olivea Café Wine Bar in Valle de Guadalupe.",
     },
     ogImage: "/images/seo/seo-og.jpg",
     keywords: ["aviso de privacidad", "privacy", "términos", "terms", "hospedaje", "PROFECO", "ARCO", "Olivea", "Casa Olivea"],
@@ -218,8 +218,8 @@ On your first visit you'll see a notice where you can Accept or choose Essential
     section("propiedad-intelectual", 16,
       { es: "5. Propiedad intelectual", en: "5. Intellectual property" },
       {
-        es: `Los textos, imágenes, diseño, marcas y logotipos —incluyendo «Olivea», «Olivea Farm To Table», «Casa Olivea» y «Olivea Café»— son propiedad de Casa Olivea A.C. o se utilizan con autorización. Las referencias a la Guía MICHELIN y otras marcas pertenecen a sus respectivos titulares. No está permitido reproducirlos sin autorización previa por escrito.`,
-        en: `The texts, images, design, trademarks, and logos —including "Olivea," "Olivea Farm To Table," "Casa Olivea," and "Olivea Café"— are the property of Casa Olivea A.C. or used with permission. References to the MICHELIN Guide and other trademarks belong to their respective owners. They may not be reproduced without prior written authorization.`,
+        es: `Los textos, imágenes, diseño, marcas y logotipos —incluyendo «Olivea», «Olivea Farm To Table», «Casa Olivea» y «Olivea Café Wine Bar»— son propiedad de Casa Olivea A.C. o se utilizan con autorización. Las referencias a la Guía MICHELIN y otras marcas pertenecen a sus respectivos titulares. No está permitido reproducirlos sin autorización previa por escrito.`,
+        en: `The texts, images, design, trademarks, and logos —including "Olivea," "Olivea Farm To Table," "Casa Olivea," and "Olivea Café Wine Bar"— are the property of Casa Olivea A.C. or used with permission. References to the MICHELIN Guide and other trademarks belong to their respective owners. They may not be reproduced without prior written authorization.`,
       }),
 
     section("enlaces", 17,

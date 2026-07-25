@@ -23,7 +23,7 @@ const drawer: DrawerContent = {
     },
     {
       id: "nav-cafe",
-      label: { es: "Olivea Café", en: "Olivea Café" },
+      label: { es: "Olivea Café Wine Bar", en: "Olivea Café Wine Bar" },
       href: "/cafe",
       section: "main",
       sortOrder: 2,
@@ -73,8 +73,8 @@ const drawer: DrawerContent = {
     },
   ],
   copyright: {
-    es: "© 2026 Casa Olivea AC. Todos los derechos reservados.",
-    en: "© 2026 Casa Olivea AC. All rights reserved.",
+    es: "© 2026 Inmobilaria MYA by DH. Todos los derechos reservados.",
+    en: "© 2026 Inmobilaria MYA by DH. All rights reserved.",
   },
   seeMore: { es: "Ver Más", en: "See More" },
   hide: { es: "Ocultar", en: "Hide" },
