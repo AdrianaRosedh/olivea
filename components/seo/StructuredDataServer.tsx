@@ -344,8 +344,7 @@ export default async function StructuredDataServer() {
       containedInPlace: { "@id": ENTITY_IDS.restaurant },
       parentOrganization: { "@id": ENTITY_IDS.organization },
       openingHoursSpecification: toSpecs("cafe") ?? [
-        { "@type": "OpeningHoursSpecification", dayOfWeek: ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday"], opens: "07:30", closes: "14:30" },
-        { "@type": "OpeningHoursSpecification", dayOfWeek: "Tuesday", opens: "07:30", closes: "09:30" },
+        { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "07:30", closes: "18:15" },
       ],
     },
   ];

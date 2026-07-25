@@ -22,7 +22,7 @@ export default function ArticleEs() {
         <p>Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma sobre un café, la noche se asienta con una copa de vino del Valle de Guadalupe, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.</p>
 
         <dl>
-          <dt>Horario</dt><dd>Diario · 7:30 am – 5:30 pm</dd>
+          <dt>Horario</dt><dd>Diario · 7:30 am – 6:15 pm</dd>
           <dt>Café</dt><dd>Origen México · técnica cuidada</dd>
           <dt>Cocina</dt><dd>Conectada a Farm To Table · sistema compartido</dd>
           <dt>Ritmo</dt><dd>Desayuno · pádel · volver a la calma</dd>
@@ -90,7 +90,7 @@ export default function ArticleEs() {
         <h3>¿Para quién es Olivea Café?</h3>
         <p>En Casa Olivea, el día comienza aquí. Quienes visitan por el día también son bienvenidos — el café es una puerta de entrada al ritmo Olivea.</p>
         <h3>¿Cuál es el horario de Olivea Café?</h3>
-        <p>Olivea Café abre todos los días de 7:30 am a 5:30 pm.</p>
+        <p>Olivea Café Wine Bar abre todos los días de 7:30 am a 6:15 pm. La cocina va de 8 am a 4 pm, con el menú disponible durante el día, y el vino se sirve a partir de las 10 am.</p>
         <h3>¿Qué estilo de desayuno ofrecen?</h3>
         <p>El desayuno es mayormente salado, con alma mexicana — pensado para sentirse calmado, nutritivo e intencional.</p>
         <h3>¿Cómo funciona el desayuno para huéspedes de Casa Olivea?</h3>
