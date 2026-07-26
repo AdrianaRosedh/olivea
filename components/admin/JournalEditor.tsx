@@ -53,6 +53,7 @@ import type { JournalPost, JournalPostAuthor, JournalPostGalleryImage } from "@/
 import ImageUpload from "@/components/admin/ImageUpload";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 import { SLUG_TAKEN_PREFIX } from "@/lib/admin/journal-errors";
+import { useScrollLock } from "@/lib/hooks/useScrollLock";
 
 /* ═══════════════════════════════════════════════════════════════════ */
 /*  BLOCK TYPES                                                       */
@@ -1406,6 +1407,10 @@ export default function JournalEditor({
   const [showPreview, setShowPreview] = useState(false);
   const [showBothLangs, setShowBothLangs] = useState(false);
   const [showMeta, setShowMeta] = useState(false);
+  // Locks html AND body — globals.css makes <html> the scroller, so locking
+  // body alone left the page scrolling behind the editor.
+  useScrollLock(open);
+
   /** Which block should take the caret after a split/merge, and where. */
   const [focusTarget, setFocusTarget] = useState<{ id: string; at: "start" | "end" } | null>(null);
   /** Manual override for the preflight list (auto-expands once there's content). */
@@ -1420,18 +1425,6 @@ export default function JournalEditor({
    *  autosave effect can tell a settled render from the stale first pass. */
   const syncedBlocksRef = useRef<ContentBlock[] | null>(null);
   const { t } = useAdminLocale();
-
-  // Lock the page behind the editor. Without this, scrolling past the end of a
-  // column chained to the admin list underneath and the page moved instead.
-  useEffect(() => {
-    if (!open) return;
-    const body = document.body;
-    const previous = body.style.overflow;
-    body.style.overflow = "hidden";
-    return () => {
-      body.style.overflow = previous;
-    };
-  }, [open]);
 
   // Sync state when post changes
   useEffect(() => {
