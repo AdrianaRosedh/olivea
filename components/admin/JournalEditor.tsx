@@ -87,6 +87,18 @@ interface ContentBlock {
   layout?: ImageLayout;
 }
 
+/** Offered by the slash menu. "paragraph" is omitted — you are already in one. */
+const SLASH_TYPES: BlockType[] = [
+  "heading2",
+  "heading3",
+  "image",
+  "quote",
+  "youtube",
+  "embed",
+  "divider",
+  "html",
+];
+
 const BLOCK_LABELS: Record<BlockType, { label: B; icon: React.ElementType }> = {
   paragraph: { label: { es: "Párrafo", en: "Paragraph" }, icon: Type },
   heading2: { label: { es: "Encabezado 2", en: "Heading 2" }, icon: Heading2 },
@@ -413,6 +425,7 @@ function BlockEditor({
   onFocused,
   onSplit,
   onMergeBack,
+  onConvert,
 }: {
   block: ContentBlock;
   onChange: (updated: ContentBlock) => void;
@@ -428,6 +441,8 @@ function BlockEditor({
   onSplit?: (lang: "es" | "en", rest: string) => void;
   /** Backspace at the start of an already-empty block. */
   onMergeBack?: () => void;
+  /** Replace this block with one of another type (slash menu). */
+  onConvert?: (type: BlockType) => void;
 }) {
   const { type } = block;
   const { t } = useAdminLocale();
@@ -437,6 +452,24 @@ function BlockEditor({
   // newlines, so Enter must stay literal there.
   const splittable = type === "paragraph" || type === "heading2" || type === "heading3";
   const primaryLang: "es" | "en" = showBothLangs ? "es" : activeLang;
+
+  /** A paragraph whose whole content is "/" (plus an optional query) opens the
+   *  block menu inline, so a block type can be chosen without leaving the
+   *  keyboard or hunting for the button at the end of the document. */
+  const slashQuery = (() => {
+    if (type !== "paragraph") return null;
+    const m = /^\/([\p{L}]*)$/u.exec(block.content[showBothLangs ? "es" : activeLang] ?? "");
+    return m ? m[1].toLowerCase() : null;
+  })();
+  const slashMatches =
+    slashQuery === null
+      ? []
+      : SLASH_TYPES.filter(
+          (bt) =>
+            !slashQuery ||
+            t(BLOCK_LABELS[bt].label).toLowerCase().includes(slashQuery) ||
+            bt.toLowerCase().includes(slashQuery)
+        );
   const primaryRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
   const setPrimaryRef = (el: HTMLTextAreaElement | HTMLInputElement | null) => {
     primaryRef.current = el;
@@ -460,6 +493,17 @@ function BlockEditor({
     e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
     lang: "es" | "en"
   ) => {
+    // While the slash menu is open, Enter/Tab commits the top match.
+    if (slashQuery !== null && (e.key === "Enter" || e.key === "Tab") && slashMatches[0]) {
+      e.preventDefault();
+      onConvert?.(slashMatches[0]);
+      return;
+    }
+    if (slashQuery !== null && e.key === "Escape") {
+      e.preventDefault();
+      updateContent(showBothLangs ? "es" : activeLang, "");
+      return;
+    }
     if (!splittable) return;
     // isComposing guard: never interrupt an IME candidate selection.
     if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -485,6 +529,26 @@ function BlockEditor({
     onChange({ ...block, content: { ...block.content, [lang]: value } });
   };
 
+  /** The other language's version of this block, surfaced on focus while
+   *  writing single-language. Recovers the context that side-by-side gave
+   *  without paying half the writing width for it. */
+  const otherLang: "es" | "en" = activeLang === "es" ? "en" : "es";
+  const renderGhost = () => {
+    const text = block.content[otherLang]?.trim();
+    if (showBothLangs || !text) return null;
+    return (
+      <div className="pointer-events-none mt-1.5 flex items-start gap-2 opacity-0 transition-opacity duration-200 group-focus-within:opacity-100">
+        <span className="mt-[3px] shrink-0 rounded bg-[var(--olivea-olive)]/10 px-1.5 py-[1px] text-[9px] font-bold uppercase tracking-wider text-[var(--olivea-olive)]/70">
+          {otherLang}
+        </span>
+        <span className="font-serif text-[13px] italic leading-relaxed text-[var(--olivea-clay)]/70">
+          {text}
+        </span>
+      </div>
+    );
+  };
+
+
   const updateCaption = (lang: "es" | "en", value: string) => {
     onChange({
       ...block,
@@ -504,6 +568,7 @@ function BlockEditor({
         minRows={rows}
         className={S.prose}
       />
+      {renderGhost()}
     </div>
   );
 
@@ -523,6 +588,7 @@ function BlockEditor({
             : "font-serif text-[18px] font-semibold"
         }`}
       />
+      {renderGhost()}
     </div>
   );
 
@@ -551,16 +617,53 @@ function BlockEditor({
       <div className="pb-1">
         {/* PARAGRAPH */}
         {type === "paragraph" && (
-          <div className={`flex gap-3 ${showBothLangs ? "" : ""}`}>
-            {showBothLangs ? (
-              <>
-                {renderTextInput("es", t({ es: "Escribe aquí…", en: "Write here..." }), 4)}
-                {renderTextInput("en", t({ es: "Escribe aquí…", en: "Write here..." }), 4)}
-              </>
-            ) : (
-              renderTextInput(activeLang, t({ es: "Escribe aquí…", en: "Write here..." }), 4)
+          <>
+            <div className={`flex gap-3 ${showBothLangs ? "" : ""}`}>
+              {showBothLangs ? (
+                <>
+                  {renderTextInput("es", t({ es: "Escribe aquí…", en: "Write here..." }), 4)}
+                  {renderTextInput("en", t({ es: "Escribe aquí…", en: "Write here..." }), 4)}
+                </>
+              ) : (
+                renderTextInput(activeLang, t({ es: "Escribe aquí…", en: "Write here..." }), 4)
+              )}
+            </div>
+
+            {/* Slash menu — inline, under the paragraph it was typed in. */}
+            {slashQuery !== null && (
+              <div className="mt-1 w-72 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/10">
+                <div className="px-3 pt-2 pb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--olivea-clay)]/55">
+                  {slashMatches.length
+                    ? t({ es: "Insertar bloque", en: "Insert block" })
+                    : t({ es: "Sin resultados", en: "No matches" })}
+                </div>
+                {slashMatches.map((bt, i) => {
+                  const { label, icon: BIcon } = BLOCK_LABELS[bt];
+                  return (
+                    <button
+                      key={bt}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        onConvert?.(bt);
+                      }}
+                      className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--olivea-cream)]/60 ${
+                        i === 0 ? "bg-[var(--olivea-cream)]/40" : ""
+                      }`}
+                    >
+                      <BIcon size={14} className="text-[var(--olivea-olive)]/70" />
+                      <span className="text-[var(--olivea-ink)]">{t(label)}</span>
+                      {i === 0 && (
+                        <span className="ml-auto text-[9px] uppercase tracking-wider text-[var(--olivea-clay)]/50">
+                          ↵
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             )}
-          </div>
+          </>
         )}
 
         {/* HEADING */}
@@ -1617,6 +1720,15 @@ export default function JournalEditor({
 
   const clearFocusTarget = useCallback(() => setFocusTarget(null), []);
 
+  /** Slash menu: swap this block for another type, keeping its id and position
+   *  so focus and ordering survive the change. */
+  const convertBlock = useCallback((id: string, type: BlockType) => {
+    setBlocks((prev) =>
+      prev.map((b) => (b.id === id ? { ...newBlock(type), id: b.id } : b))
+    );
+    setFocusTarget({ id, at: "start" });
+  }, []);
+
   const isNew = post ? post.title.es === "" && post.title.en === "" : true;
   // Publish preflight. Build B objects here and translate at render time —
   // calling t() inside useMemo would freeze the admin locale into the result.
@@ -2152,6 +2264,7 @@ export default function JournalEditor({
                             onFocused={clearFocusTarget}
                             onSplit={(lang, rest) => splitBlock(block.id, lang, rest)}
                             onMergeBack={() => mergeBack(block.id)}
+                            onConvert={(bt) => convertBlock(block.id, bt)}
                           />
                         </Reorder.Item>
                       ))}
