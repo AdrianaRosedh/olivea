@@ -57,6 +57,103 @@ import { SLUG_TAKEN_PREFIX } from "@/lib/admin/journal-errors";
 import { useScrollLock } from "@/lib/hooks/useScrollLock";
 import { listAuthorProfiles } from "@/lib/journal/authors";
 
+/** Parse a CSS object-position pair into percentages; centre if absent. */
+function parseFocal(value?: string): { x: number; y: number } {
+  const m = /(-?[\d.]+)%\s+(-?[\d.]+)%/.exec(value ?? "");
+  if (!m) return { x: 50, y: 50 };
+  return { x: Number(m[1]), y: Number(m[2]) };
+}
+const clampPct = (n: number) => Math.min(100, Math.max(0, n));
+
+/**
+ * Drag-to-reposition for the cover image.
+ *
+ * The article hero crops the cover to a short wide band with object-fit:cover,
+ * which centres by default — so a subject near the top or bottom of the photo
+ * gets cut. This sets the object-position the hero renders with, previewed at
+ * the hero's real aspect ratio so what you frame is what ships.
+ */
+function CoverFocalPicker({
+  src,
+  value,
+  onChange,
+}: {
+  src: string;
+  value?: string;
+  onChange: (v: string) => void;
+}) {
+  const { t } = useAdminLocale();
+  const boxRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ px: number; py: number; x: number; y: number } | null>(null);
+  const pos = parseFocal(value);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Record the drag first: setPointerCapture throws for an unknown pointer id
+    // and would otherwise abort the handler before the drag ever starts.
+    dragRef.current = { px: e.clientX, py: e.clientY, x: pos.x, y: pos.y };
+    try {
+      boxRef.current?.setPointerCapture(e.pointerId);
+    } catch {
+      /* capture is an optimisation, not a requirement */
+    }
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current;
+    const el = boxRef.current;
+    if (!d || !el) return;
+    const r = el.getBoundingClientRect();
+    // Dragging the photo down should reveal more of its top, so the focal
+    // point moves the opposite way to the pointer.
+    onChange(
+      `${Math.round(clampPct(d.x - ((e.clientX - d.px) / r.width) * 100))}% ` +
+        `${Math.round(clampPct(d.y - ((e.clientY - d.py) / r.height) * 100))}%`
+    );
+  };
+  const endDrag = () => {
+    dragRef.current = null;
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <div
+        ref={boxRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        className="relative w-full cursor-grab touch-none select-none overflow-hidden rounded-xl ring-1 ring-black/10 active:cursor-grabbing"
+        style={{ aspectRatio: "1200 / 630" }}
+        title={t({ es: "Arrastra para encuadrar", en: "Drag to reframe" })}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt=""
+          draggable={false}
+          className="pointer-events-none h-full w-full object-cover"
+          style={{ objectPosition: `${pos.x}% ${pos.y}%` }}
+        />
+        <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-white/20" />
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] text-[var(--olivea-clay)]/60">
+          {t({
+            es: "Arrastra la imagen para elegir qué parte se ve en la portada.",
+            en: "Drag the image to choose what the cover shows.",
+          })}
+        </p>
+        <button
+          type="button"
+          onClick={() => onChange("50% 50%")}
+          className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--olivea-olive)] transition-colors hover:bg-[var(--olivea-cream)]/70"
+        >
+          {t({ es: "Centrar", en: "Centre" })}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Author name field with suggestions from the real roster (team + author
  * extras). Picking one fills the name AND the id together — the id has to match
@@ -1476,6 +1573,7 @@ function contentSignature(p: JournalPost): string {
     slug: p.slug,
     coverImage: p.coverImage ?? null,
     coverAlt: p.coverAlt ?? null,
+    coverPosition: p.coverPosition ?? null,
     tags: p.tags,
     authors: p.authors ?? null,
     gallery: p.gallery ?? null,
@@ -1503,6 +1601,7 @@ export default function JournalEditor({
   const [slug, setSlug] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>();
   const [coverAlt, setCoverAlt] = useState<string | undefined>();
+  const [coverPosition, setCoverPosition] = useState<string | undefined>();
   const [tags, setTags] = useState<string[]>([]);
   const [authors, setAuthors] = useState<JournalPostAuthor[]>([{ name: "Adriana Rose", id: "adrianarose" }]);
   const [articleGallery, setArticleGallery] = useState<JournalPostGalleryImage[]>([]);
@@ -1543,6 +1642,7 @@ export default function JournalEditor({
       setSlug(post.slug);
       setCoverImage(post.coverImage);
       setCoverAlt(post.coverAlt);
+      setCoverPosition(post.coverPosition);
       setTags([...post.tags]);
       // Load authors — fall back to single author string
       if (post.authors?.length) {
@@ -1617,13 +1717,14 @@ export default function JournalEditor({
       slug,
       coverImage,
       coverAlt,
+      coverPosition,
       author: authorStr,
       authors: authors.filter((a) => a.name.trim()),
       gallery: articleGallery.filter((g) => g.src.trim()),
       tags,
       updatedAt: new Date().toISOString(),
     };
-  }, [post, title, excerpt, blocks, slug, coverImage, coverAlt, tags, authors, articleGallery]);
+  }, [post, title, excerpt, blocks, slug, coverImage, coverAlt, coverPosition, tags, authors, articleGallery]);
 
   const clearDraft = useCallback((id?: string) => {
     const key = id ?? post?.id;
@@ -2211,6 +2312,13 @@ export default function JournalEditor({
                                 folder="journal"
                                 aspectRatio="aspect-[1200/630]"
                               />
+                              {coverImage && (
+                                <CoverFocalPicker
+                                  src={coverImage}
+                                  value={coverPosition}
+                                  onChange={setCoverPosition}
+                                />
+                              )}
                               {coverImage && (
                                 <div>
                                   <label className={S.label}>{t({ es: "Texto alternativo de portada", en: "Cover Alt Text" })}</label>

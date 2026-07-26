@@ -22,6 +22,7 @@ interface JournalRow {
   body_en: string;
   cover_image: string | null;
   cover_alt: string | null;
+  cover_position: string | null;
   author: string;
   authors: { id?: string; name: string }[] | null;
   gallery: { src: string; alt: string }[] | null;
@@ -56,6 +57,7 @@ export interface SupabaseJournalPost {
   body: string;           // HTML string
   coverImage?: string;
   coverAlt?: string;
+  coverPosition?: string;
   author: string;
   authors?: { id?: string; name: string }[];
   gallery?: { src: string; alt: string }[];
@@ -151,6 +153,7 @@ export async function loadPublishedJournalPost(
       body,
       coverImage: r.cover_image ?? undefined,
       coverAlt: r.cover_alt ?? undefined,
+      coverPosition: r.cover_position ?? undefined,
       author: r.author || "Olivea",
       authors: Array.isArray(r.authors) && r.authors.length > 0 ? r.authors : undefined,
       gallery: Array.isArray(r.gallery) && r.gallery.length > 0 ? r.gallery : undefined,

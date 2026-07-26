@@ -243,7 +243,11 @@ export async function loadJournalBySlug(
       pillar: "vision", // default pillar for CMS posts
       tags: supaPost.tags,
       cover: supaPost.coverImage
-        ? { src: supaPost.coverImage, alt: supaPost.coverAlt || supaPost.title }
+        ? {
+            src: supaPost.coverImage,
+            alt: supaPost.coverAlt || supaPost.title,
+            position: supaPost.coverPosition,
+          }
         : undefined,
       // Multi-author support: pass through authors array from Supabase
       ...(supaPost.authors?.length

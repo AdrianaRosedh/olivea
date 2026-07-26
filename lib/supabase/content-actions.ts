@@ -38,6 +38,7 @@ interface JournalRow {
   body_es: string;
   body_en: string;
   cover_image: string | null;
+  cover_position?: string | null;
   cover_alt: string | null;
   author: string;
   authors: { id?: string; name: string }[] | null;
@@ -118,6 +119,7 @@ export async function saveJournalPost(post: JournalPost): Promise<JournalPost> {
     body_en: post.body.en,
     cover_image: post.coverImage ?? null,
     cover_alt: post.coverAlt ?? null,
+    cover_position: post.coverPosition ?? null,
     author: authorName,
     authors: post.authors?.length ? post.authors : null,
     gallery: post.gallery?.length ? post.gallery : null,

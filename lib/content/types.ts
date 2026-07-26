@@ -266,6 +266,8 @@ export interface JournalPost {
   body: BilingualRich;
   coverImage?: string;
   coverAlt?: string;
+  /** CSS object-position for the cover crop, e.g. "50% 30%". Undefined = centred. */
+  coverPosition?: string;
   author: string;
   /** Multi-author support — takes precedence over `author` when present */
   authors?: JournalPostAuthor[];
@@ -570,6 +572,8 @@ export interface JournalArticle {
   cover: {
     src: string;
     alt: string;
+    /** CSS object-position for the hero crop. Undefined = centred. */
+    position?: string;
   };
   seo: JournalArticleSeo;
   body: string;              // MDX content

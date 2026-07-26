@@ -82,6 +82,8 @@ export const JournalFrontmatterSchema = z.object({
     .object({
       src: z.string().min(1),
       alt: z.string().min(1),
+      /** CSS object-position for the hero crop, e.g. "50% 30%". */
+      position: z.string().optional(),
     })
     .optional(),
 

@@ -225,7 +225,12 @@ export default async function JournalPostPage({
                   fill
                   sizes="(max-width: 768px) 100vw, 860px"
                   priority
-                  style={{ objectFit: "cover" }}
+                  style={{
+                    objectFit: "cover",
+                    // Editor-chosen focal point; the band crop would otherwise
+                    // centre on the image and cut faces near the top or bottom.
+                    objectPosition: post.fm.cover.position ?? "50% 50%",
+                  }}
                 />
               </div>
             </CoverLead>
