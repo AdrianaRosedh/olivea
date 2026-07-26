@@ -34,6 +34,7 @@ export default async function JournalEntries({ lang }: { lang: Lang }) {
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover group-hover:opacity-90 transition"
+                  style={{ objectPosition: post.cover.position ?? "50% 50%" }}
                   loading="lazy"
                 />
               </div>

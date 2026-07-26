@@ -289,7 +289,9 @@ export async function listJournalIndex(
     publishedAt: p.publishedAt.slice(0, 10),
     pillar: "vision" as const,
     tags: p.tags,
-    cover: p.coverImage ? { src: p.coverImage, alt: p.title } : undefined,
+    cover: p.coverImage
+      ? { src: p.coverImage, alt: p.title, position: p.coverPosition }
+      : undefined,
     author: p.author,
     readingMinutes: p.readingMinutes,
   }));

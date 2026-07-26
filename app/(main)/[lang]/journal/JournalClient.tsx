@@ -22,7 +22,7 @@ type Post = {
   pillar: string;
   tags?: string[];
   readingMinutes: number;
-  cover?: { src: string; alt: string };
+  cover?: { src: string; alt: string; position?: string };
 
   // ✅ matches schema
   author?: AuthorLike;
@@ -308,6 +308,7 @@ export default function JournalClient({
                                   fill
                                   sizes="(max-width: 1024px) 100vw, 60vw"
                                   className="object-cover transition duration-700 group-hover:scale-[1.02]"
+                                  style={{ objectPosition: featured.cover.position ?? "50% 50%" }}
                                   priority
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-black/12 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
@@ -418,6 +419,7 @@ export default function JournalClient({
                                   fill
                                   sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                                   className="object-cover transition duration-700 group-hover:scale-[1.02]"
+                                  style={{ objectPosition: p.cover.position ?? "50% 50%" }}
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-black/8 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
                               </>

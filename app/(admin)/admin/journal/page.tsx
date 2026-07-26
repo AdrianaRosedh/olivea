@@ -452,8 +452,11 @@ export default function JournalPage() {
                 <div className="relative h-40 bg-gradient-to-br from-[var(--olivea-cream)]/30 to-[var(--olivea-cream)]/10 overflow-hidden">
                   {post.coverImage ? (
                     <div
-                      className="w-full h-full bg-cover bg-center group-hover:scale-[1.03] transition-transform duration-500"
-                      style={{ backgroundImage: `url(${post.coverImage})` }}
+                      className="w-full h-full bg-cover group-hover:scale-[1.03] transition-transform duration-500"
+                      style={{
+                        backgroundImage: `url(${post.coverImage})`,
+                        backgroundPosition: post.coverPosition ?? "50% 50%",
+                      }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

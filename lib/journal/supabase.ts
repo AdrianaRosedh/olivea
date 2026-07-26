@@ -41,6 +41,7 @@ export interface SupabaseJournalItem {
   title: string;
   excerpt: string;
   coverImage?: string;
+  coverPosition?: string;
   author: string;
   tags: string[];
   publishedAt: string;
@@ -97,7 +98,7 @@ export async function listPublishedJournalPosts(
   try {
     const rows = await selectRows<JournalRow>("journal_posts", {
       role: "anon",
-      query: `select=id,slug,title_es,title_en,excerpt_es,excerpt_en,body_${lang},cover_image,author,tags,published_at,updated_at&status=eq.published&order=published_at.desc`,
+      query: `select=id,slug,title_es,title_en,excerpt_es,excerpt_en,body_${lang},cover_image,cover_position,author,tags,published_at,updated_at&status=eq.published&order=published_at.desc`,
       revalidate: 60, // ISR: revalidate every 60s, compatible with static generation
     });
 
@@ -109,6 +110,7 @@ export async function listPublishedJournalPosts(
         title: (r[langField(lang, "title")] as string) || r.title_es || "Untitled",
         excerpt: (r[langField(lang, "excerpt")] as string) || r.excerpt_es || "",
         coverImage: r.cover_image ?? undefined,
+        coverPosition: r.cover_position ?? undefined,
         author: r.author || "Olivea",
         tags: r.tags ?? [],
         publishedAt: r.published_at!,
