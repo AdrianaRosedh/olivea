@@ -1940,9 +1940,9 @@ export default function JournalEditor({
             )}
 
             {/* ── Body: Editor + Preview ── */}
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex min-h-0 overflow-hidden">
               {/* Editor column */}
-              <div className={`flex-1 overflow-y-auto overscroll-contain bg-[var(--olivea-cream)]/25 ${showPreview ? "border-r border-black/5" : ""}`}>
+              <div className={`flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain bg-[var(--olivea-cream)]/25 ${showPreview ? "border-r border-black/5" : ""}`}>
                 <div className="mx-auto w-full max-w-[900px] px-6 pt-7 pb-24">
                   <div className="rounded-2xl bg-white ring-1 ring-black/[0.06] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_8px_24px_-16px_rgba(0,0,0,0.10)] px-7 py-7 md:px-9 md:py-9 space-y-5">
                   {/* Metadata section (collapsible) */}
@@ -2168,7 +2168,7 @@ export default function JournalEditor({
 
               {/* Preview column */}
               {showPreview && (
-                <div className="w-[45%] min-w-[380px] flex flex-col bg-[var(--olivea-cream)]/10 overflow-hidden">
+                <div className="w-[45%] min-w-[380px] flex flex-col min-h-0 bg-[var(--olivea-cream)]/10 overflow-hidden">
                   {/* Preview lang toggle */}
                   <div className="flex items-center gap-2 px-5 py-2.5 border-b border-black/[0.03] bg-white/40 flex-shrink-0">
                     <Eye size={13} className="text-[var(--olivea-clay)]/50" />
@@ -2188,7 +2188,7 @@ export default function JournalEditor({
                       </button>
                     ))}
                   </div>
-                  <div className="flex-1 overflow-y-auto overscroll-contain">
+                  <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
                     <LivePreview
                       post={getCurrentPost() ?? post}
                       blocks={blocks}
