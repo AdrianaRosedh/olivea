@@ -172,27 +172,47 @@ export default function Footer({ dict, socials }: FooterProps) {
       }))
     : FALLBACK_SOCIALS;
 
-  const TextLink = ({ href, children }: { href: string; children: ReactNode }) => (
-    <Link
-      href={href}
-      className={[
-        "group relative inline-flex items-center",
-        "opacity-80 hover:opacity-100",
-        "transition-[opacity,transform,color] duration-200",
-        "hover:-translate-y-px",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40",
-      ].join(" ")}
-    >
-      <span className="text-(--olivea-olive)">{children}</span>
-      <span
-        className="pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(94,118,88,0.0), rgba(94,118,88,0.65), rgba(94,118,88,0.0))",
-        }}
-      />
-    </Link>
-  );
+  // Shared footer text-link. Renders a <button> when given onClick (e.g. the
+  // cookie-preferences trigger) and a <Link> otherwise, so every footer item
+  // shares the exact same styling, hover lift, and animated underline.
+  const TextLink = ({
+    href,
+    onClick,
+    children,
+  }: {
+    href?: string;
+    onClick?: () => void;
+    children: ReactNode;
+  }) => {
+    const className = [
+      "group relative inline-flex items-center",
+      "opacity-80 hover:opacity-100",
+      "transition-[opacity,transform,color] duration-200",
+      "hover:-translate-y-px",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40",
+    ].join(" ");
+    const inner = (
+      <>
+        <span className="text-(--olivea-olive)">{children}</span>
+        <span
+          className="pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(94,118,88,0.0), rgba(94,118,88,0.65), rgba(94,118,88,0.0))",
+          }}
+        />
+      </>
+    );
+    return onClick ? (
+      <button type="button" onClick={onClick} className={className}>
+        {inner}
+      </button>
+    ) : (
+      <Link href={href ?? "#"} className={className}>
+        {inner}
+      </Link>
+    );
+  };
 
   return (
     <footer
@@ -334,13 +354,9 @@ export default function Footer({ dict, socials }: FooterProps) {
               <TextLink href={`/${lang}/carreras`}>{dict.footer.careers}</TextLink>
               <TextLink href={`/${lang}/legal`}>{dict.footer.legal}</TextLink>
               {/* Reopens the cookie-consent banner so consent can be changed/withdrawn */}
-              <button
-                type="button"
-                onClick={() => window.dispatchEvent(new Event("olivea:cookie-prefs"))}
-                className="group relative inline-flex items-center opacity-80 hover:opacity-100 transition-[opacity,transform,color] duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40"
-              >
-                <span className="text-(--olivea-olive)">Cookies</span>
-              </button>
+              <TextLink onClick={() => window.dispatchEvent(new Event("olivea:cookie-prefs"))}>
+                Cookies
+              </TextLink>
               {/* roseiies — brand wordmark masked in Olivea green, slightly emphasized */}
               <Link
                 href={`/${lang}/roseiies`}
