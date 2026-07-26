@@ -99,6 +99,18 @@ export default function PopupHost() {
     initialFocusRef: closeRef,
   });
 
+  // The card is aria-modal, so the page behind it shouldn't scroll. Without
+  // this, scroll gestures over the popup moved the page underneath instead.
+  useEffect(() => {
+    if (!open) return;
+    const body = document.body;
+    const previous = body.style.overflow;
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.overflow = previous;
+    };
+  }, [open]);
+
   // Fetch active popup (single file via /api/popup, rule-aware using path)
   useEffect(() => {
     const controller = new AbortController();

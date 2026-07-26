@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  forwardRef,
+} from "react";
 
 /** Client-side HTML sanitizer for editor preview — strips script/event-handler XSS vectors */
 function sanitizeEditorHtml(html: string): string {
@@ -459,14 +467,14 @@ function BlockEditor({
   const renderTextInput = (lang: "es" | "en", placeholder: string, rows = 3) => (
     <div className="flex-1 min-w-0">
       <div className={S.langTag}>{lang.toUpperCase()}</div>
-      <textarea
+      <AutoGrowTextarea
         ref={lang === primaryLang ? setPrimaryRef : undefined}
         onKeyDown={(e) => handleKeyDown(e, lang)}
         value={block.content[lang]}
         onChange={(e) => updateContent(lang, e.target.value)}
         placeholder={placeholder}
-        rows={rows}
-        className={S.textarea}
+        minRows={rows}
+        className={`${S.textarea} !text-[15px]`}
       />
     </div>
   );
@@ -1086,6 +1094,28 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) 
  *  description (lib/journal/seo.ts: fm.seo?.description ?? fm.excerpt). */
 const META_MAX = 155;
 
+/** Textarea that grows with its content. The fixed `rows` + `resize-none`
+ *  combination meant a long paragraph scrolled inside a 3-4 line window, so you
+ *  could never see what you had actually written. */
+const AutoGrowTextarea = forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement> & { minRows?: number }
+>(function AutoGrowTextarea({ minRows = 3, value, ...rest }, ref) {
+  const inner = useRef<HTMLTextAreaElement | null>(null);
+  const setRefs = (el: HTMLTextAreaElement | null) => {
+    inner.current = el;
+    if (typeof ref === "function") ref(el);
+    else if (ref) (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = el;
+  };
+  useLayoutEffect(() => {
+    const el = inner.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+  return <textarea ref={setRefs} rows={minRows} value={value} {...rest} />;
+});
+
 /** Live character budget for an excerpt, since it doubles as the meta description. */
 function ExcerptMeter({ value }: { value: string }) {
   const { t } = useAdminLocale();
@@ -1255,6 +1285,18 @@ export default function JournalEditor({
    *  autosave effect can tell a settled render from the stale first pass. */
   const syncedBlocksRef = useRef<ContentBlock[] | null>(null);
   const { t } = useAdminLocale();
+
+  // Lock the page behind the editor. Without this, scrolling past the end of a
+  // column chained to the admin list underneath and the page moved instead.
+  useEffect(() => {
+    if (!open) return;
+    const body = document.body;
+    const previous = body.style.overflow;
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.overflow = previous;
+    };
+  }, [open]);
 
   // Sync state when post changes
   useEffect(() => {
@@ -1868,7 +1910,7 @@ export default function JournalEditor({
             {/* ── Body: Editor + Preview ── */}
             <div className="flex-1 flex overflow-hidden">
               {/* Editor column */}
-              <div className={`flex-1 overflow-y-auto ${showPreview ? "border-r border-black/5" : ""}`}>
+              <div className={`flex-1 overflow-y-auto overscroll-contain ${showPreview ? "border-r border-black/5" : ""}`}>
                 <div className="max-w-3xl mx-auto px-6 py-6 space-y-5">
                   {/* Metadata section (collapsible) */}
                   <div className="rounded-2xl bg-[var(--olivea-cream)]/20 ring-1 ring-black/5 overflow-hidden">
@@ -2112,7 +2154,7 @@ export default function JournalEditor({
                       </button>
                     ))}
                   </div>
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto overscroll-contain">
                     <LivePreview
                       post={getCurrentPost() ?? post}
                       blocks={blocks}
