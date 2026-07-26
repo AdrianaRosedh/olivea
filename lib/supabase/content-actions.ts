@@ -60,6 +60,7 @@ function mapJournalRow(r: JournalRow): JournalPost {
     body: { es: r.body_es ?? "", en: r.body_en ?? "" },
     coverImage: r.cover_image ?? undefined,
     coverAlt: r.cover_alt ?? undefined,
+    coverPosition: r.cover_position ?? undefined,
     author: r.author ?? "Unknown",
     authors: Array.isArray(r.authors) && r.authors.length > 0 ? r.authors : undefined,
     gallery: Array.isArray(r.gallery) && r.gallery.length > 0 ? r.gallery : undefined,
