@@ -318,6 +318,15 @@ function AddBlockMenu({
         {t({ es: "Agregar bloque", en: "Add block" })}
       </button>
 
+      {/* Enter now creates paragraphs, so the button is only needed for images,
+          quotes and embeds. Say so, or nobody discovers it. */}
+      <span className="pointer-events-none absolute left-full ml-3 self-center whitespace-nowrap text-[10px] text-[var(--olivea-clay)]/45 hidden lg:block">
+        {t({
+          es: "o presiona Enter para un párrafo nuevo",
+          en: "or press Enter for a new paragraph",
+        })}
+      </span>
+
       <AnimatePresence>
         {open && (
           <motion.div
@@ -364,6 +373,10 @@ function BlockEditor({
   onDelete,
   showBothLangs,
   activeLang,
+  focusAt,
+  onFocused,
+  onSplit,
+  onMergeBack,
 }: {
   block: ContentBlock;
   onChange: (updated: ContentBlock) => void;
@@ -372,10 +385,65 @@ function BlockEditor({
   /** Which language single-language mode edits. Was hardcoded to "es", which
    *  made English unreachable unless side-by-side was on. */
   activeLang: "es" | "en";
+  /** Set when this block should take the caret, and where to put it. */
+  focusAt?: "start" | "end" | null;
+  onFocused?: () => void;
+  /** Enter pressed: `rest` is the text after the caret, to carry into a new block. */
+  onSplit?: (lang: "es" | "en", rest: string) => void;
+  /** Backspace at the start of an already-empty block. */
+  onMergeBack?: () => void;
 }) {
   const { type } = block;
   const { t } = useAdminLocale();
   const { icon: Icon, label } = BLOCK_LABELS[type];
+
+  // Only prose blocks behave like a document. Quote and custom HTML keep real
+  // newlines, so Enter must stay literal there.
+  const splittable = type === "paragraph" || type === "heading2" || type === "heading3";
+  const primaryLang: "es" | "en" = showBothLangs ? "es" : activeLang;
+  const primaryRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
+  const setPrimaryRef = (el: HTMLTextAreaElement | HTMLInputElement | null) => {
+    primaryRef.current = el;
+  };
+
+  useEffect(() => {
+    if (!focusAt) return;
+    const el = primaryRef.current;
+    if (!el) return;
+    el.focus();
+    const pos = focusAt === "end" ? el.value.length : 0;
+    try {
+      el.setSelectionRange(pos, pos);
+    } catch {
+      /* inputs that don't support selection ranges */
+    }
+    onFocused?.();
+  }, [focusAt, onFocused]);
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+    lang: "es" | "en"
+  ) => {
+    if (!splittable) return;
+    // isComposing guard: never interrupt an IME candidate selection.
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      const el = e.currentTarget;
+      const pos = el.selectionStart ?? el.value.length;
+      updateContent(lang, el.value.slice(0, pos));
+      onSplit?.(lang, el.value.slice(pos));
+      return;
+    }
+    if (e.key === "Backspace") {
+      const el = e.currentTarget;
+      const atStart = (el.selectionStart ?? 0) === 0 && (el.selectionEnd ?? 0) === 0;
+      const empty = !block.content.es.trim() && !block.content.en.trim();
+      if (atStart && empty) {
+        e.preventDefault();
+        onMergeBack?.();
+      }
+    }
+  };
 
   const updateContent = (lang: "es" | "en", value: string) => {
     onChange({ ...block, content: { ...block.content, [lang]: value } });
@@ -392,6 +460,8 @@ function BlockEditor({
     <div className="flex-1 min-w-0">
       <div className={S.langTag}>{lang.toUpperCase()}</div>
       <textarea
+        ref={lang === primaryLang ? setPrimaryRef : undefined}
+        onKeyDown={(e) => handleKeyDown(e, lang)}
         value={block.content[lang]}
         onChange={(e) => updateContent(lang, e.target.value)}
         placeholder={placeholder}
@@ -405,6 +475,8 @@ function BlockEditor({
     <div className="flex-1 min-w-0">
       <div className={S.langTag}>{lang.toUpperCase()}</div>
       <input
+        ref={lang === primaryLang ? setPrimaryRef : undefined}
+        onKeyDown={(e) => handleKeyDown(e, lang)}
         type="text"
         value={block.content[lang]}
         onChange={(e) => updateContent(lang, e.target.value)}
@@ -1169,6 +1241,8 @@ export default function JournalEditor({
   const [showPreview, setShowPreview] = useState(false);
   const [showBothLangs, setShowBothLangs] = useState(false);
   const [showMeta, setShowMeta] = useState(false);
+  /** Which block should take the caret after a split/merge, and where. */
+  const [focusTarget, setFocusTarget] = useState<{ id: string; at: "start" | "end" } | null>(null);
   /** Manual override for the preflight list (auto-expands once there's content). */
   const [preflightOpen, setPreflightOpen] = useState(false);
   /** A newer local snapshot found on open — offered for restore, never auto-applied. */
@@ -1437,6 +1511,37 @@ export default function JournalEditor({
       return next.length > 0 ? next : [newBlock("paragraph")];
     });
   };
+
+  /** Enter in a prose block: text after the caret becomes the next paragraph,
+   *  the way a document editor behaves — instead of clicking "Agregar bloque"
+   *  and picking a type for every paragraph. */
+  const splitBlock = useCallback((id: string, lang: "es" | "en", rest: string) => {
+    const nb = newBlock("paragraph");
+    nb.content = { ...nb.content, [lang]: rest };
+    setFocusTarget({ id: nb.id, at: "start" });
+    // Functional form so this composes with the updateContent() that ran first.
+    setBlocks((prev) => {
+      const i = prev.findIndex((b) => b.id === id);
+      if (i === -1) return [...prev, nb];
+      const next = [...prev];
+      next.splice(i + 1, 0, nb);
+      return next;
+    });
+  }, []);
+
+  /** Backspace at the start of an empty block removes it and puts the caret at
+   *  the end of the previous one. Never removes the first block. */
+  const mergeBack = useCallback(
+    (id: string) => {
+      const i = blocks.findIndex((b) => b.id === id);
+      if (i <= 0) return;
+      setFocusTarget({ id: blocks[i - 1].id, at: "end" });
+      setBlocks((prev) => prev.filter((b) => b.id !== id));
+    },
+    [blocks]
+  );
+
+  const clearFocusTarget = useCallback(() => setFocusTarget(null), []);
 
   const isNew = post ? post.title.es === "" && post.title.en === "" : true;
   // Publish preflight. Build B objects here and translate at render time —
@@ -1968,6 +2073,10 @@ export default function JournalEditor({
                             onDelete={() => deleteBlock(block.id)}
                             showBothLangs={showBothLangs}
                             activeLang={previewLang}
+                            focusAt={focusTarget?.id === block.id ? focusTarget.at : null}
+                            onFocused={clearFocusTarget}
+                            onSplit={(lang, rest) => splitBlock(block.id, lang, rest)}
+                            onMergeBack={() => mergeBack(block.id)}
                           />
                         </Reorder.Item>
                       ))}
