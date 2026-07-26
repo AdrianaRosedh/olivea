@@ -292,7 +292,7 @@ const S = {
   docTitle:
     "w-full bg-transparent border-0 px-0 py-1 font-serif text-[30px] leading-tight text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/45 focus:outline-none",
   docExcerpt:
-    "w-full bg-transparent border-0 px-0 py-1 text-[15px] leading-relaxed text-[var(--olivea-clay)] placeholder:text-[var(--olivea-clay)]/45 focus:outline-none resize-none",
+    "w-full bg-transparent border-0 px-0 py-1 font-serif text-[17px] italic leading-relaxed text-[var(--olivea-clay)] placeholder:text-[var(--olivea-clay)]/45 focus:outline-none resize-none",
 };
 
 /* ═══════════════════════════════════════════════════════════════════ */
@@ -530,7 +530,7 @@ function BlockEditor({
     <div className="group relative rounded-2xl transition-colors hover:bg-white/35 focus-within:bg-white/45">
       {/* Block header — recedes until the block is hovered or focused, so a
           page of paragraphs reads as prose rather than a stack of forms. */}
-      <div className="flex items-center gap-2 px-4 pt-2 pb-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+      <div className="flex items-center gap-2 pt-2 pb-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
         <div className="cursor-grab active:cursor-grabbing p-1 rounded text-[var(--olivea-clay)]/30 hover:text-[var(--olivea-clay)] transition-colors">
           <GripVertical size={14} />
         </div>
@@ -548,7 +548,7 @@ function BlockEditor({
       </div>
 
       {/* Block content */}
-      <div className="p-4">
+      <div className="pb-1">
         {/* PARAGRAPH */}
         {type === "paragraph" && (
           <div className={`flex gap-3 ${showBothLangs ? "" : ""}`}>
@@ -1185,8 +1185,8 @@ function SnippetPreview({
 }) {
   const { t } = useAdminLocale();
   return (
-    <div className="mt-3 rounded-xl border border-black/5 bg-white/70 px-3.5 py-3">
-      <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
+    <div className="mt-4 border-t border-black/[0.06] pt-3">
+      <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--olivea-clay)]/55">
         {t({ es: "Así se verá en Google", en: "How this looks in Google" })}
       </div>
       <div className="truncate text-[13px] leading-snug text-[#1a0dab]">
@@ -1942,7 +1942,7 @@ export default function JournalEditor({
             {/* ── Body: Editor + Preview ── */}
             <div className="flex-1 flex min-h-0 overflow-hidden">
               {/* Editor column */}
-              <div className={`flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain bg-[var(--olivea-cream)]/25 ${showPreview ? "border-r border-black/5" : ""}`}>
+              <div className={`flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain bg-[var(--olivea-cream)]/70 ${showPreview ? "border-r border-black/5" : ""}`}>
                 <div className="mx-auto w-full max-w-[900px] px-6 pt-7 pb-24">
                   <div className="rounded-2xl bg-white ring-1 ring-black/[0.06] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_8px_24px_-16px_rgba(0,0,0,0.10)] px-7 py-7 md:px-9 md:py-9 space-y-5">
                   {/* Metadata section (collapsible) */}
