@@ -286,13 +286,13 @@ const S = {
   // Document-style surfaces: no boxes while writing, a soft plane on focus.
   // The editor should read like the article it produces, not like a form.
   prose:
-    "w-full -mx-3 px-3 py-2 rounded-lg bg-transparent border-0 text-[15px] leading-[1.75] text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/30 focus:outline-none focus:bg-white/70 transition-colors resize-none",
+    "w-full -mx-3 px-3 py-2 rounded-lg bg-transparent border-0 text-[15px] leading-[1.75] text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/45 focus:outline-none focus:bg-white/70 transition-colors resize-none",
   proseHeading:
-    "w-full -mx-3 px-3 py-1.5 rounded-lg bg-transparent border-0 text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/30 focus:outline-none focus:bg-white/70 transition-colors",
+    "w-full -mx-3 px-3 py-1.5 rounded-lg bg-transparent border-0 text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/45 focus:outline-none focus:bg-white/70 transition-colors",
   docTitle:
-    "w-full bg-transparent border-0 px-0 py-1 font-serif text-[30px] leading-tight text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/25 focus:outline-none",
+    "w-full bg-transparent border-0 px-0 py-1 font-serif text-[30px] leading-tight text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/45 focus:outline-none",
   docExcerpt:
-    "w-full bg-transparent border-0 px-0 py-1 text-[15px] leading-relaxed text-[var(--olivea-clay)] placeholder:text-[var(--olivea-clay)]/30 focus:outline-none resize-none",
+    "w-full bg-transparent border-0 px-0 py-1 text-[15px] leading-relaxed text-[var(--olivea-clay)] placeholder:text-[var(--olivea-clay)]/45 focus:outline-none resize-none",
 };
 
 /* ═══════════════════════════════════════════════════════════════════ */
@@ -1924,8 +1924,9 @@ export default function JournalEditor({
             {/* ── Body: Editor + Preview ── */}
             <div className="flex-1 flex overflow-hidden">
               {/* Editor column */}
-              <div className={`flex-1 overflow-y-auto overscroll-contain ${showPreview ? "border-r border-black/5" : ""}`}>
-                <div className="max-w-3xl mx-auto px-6 py-6 space-y-5">
+              <div className={`flex-1 overflow-y-auto overscroll-contain bg-[var(--olivea-cream)]/25 ${showPreview ? "border-r border-black/5" : ""}`}>
+                <div className="mx-auto w-full max-w-[900px] px-6 py-7">
+                  <div className="rounded-2xl bg-white ring-1 ring-black/[0.06] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_8px_24px_-16px_rgba(0,0,0,0.10)] px-7 py-7 md:px-9 md:py-9 space-y-5">
                   {/* Metadata section (collapsible) */}
                   <div className="rounded-2xl bg-[var(--olivea-cream)]/20 ring-1 ring-black/5 overflow-hidden">
                     <button
@@ -2144,6 +2145,7 @@ export default function JournalEditor({
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
 
               {/* Preview column */}
