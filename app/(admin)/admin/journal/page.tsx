@@ -438,7 +438,7 @@ export default function JournalPage() {
                 transition={{ duration: 0.2 }}
                 onClick={() => handleEdit(post)}
                 className="
-                  group text-left rounded-2xl overflow-hidden
+                  group flex flex-col text-left rounded-2xl overflow-hidden
                   border border-[var(--olivea-olive)]/[0.06]
                   bg-white/50 backdrop-blur-sm
                   shadow-[0_1px_3px_rgba(94,118,88,0.04)]
@@ -479,7 +479,7 @@ export default function JournalPage() {
                 </div>
 
                 {/* Content */}
-                <div className="p-4">
+                <div className="flex flex-1 flex-col p-4">
                   <h3 className="text-[14px] font-semibold text-[var(--olivea-ink)] line-clamp-2 leading-snug mb-1.5">
                     {post.title.es || t({ es: "Sin título", en: "Untitled" })}
                   </h3>
@@ -517,7 +517,7 @@ export default function JournalPage() {
                   )}
 
                   {/* Meta row */}
-                  <div className="flex items-center justify-between text-[11px] text-[var(--olivea-clay)]/60 pt-3 border-t border-[var(--olivea-olive)]/[0.04]">
+                  <div className="mt-auto flex items-center justify-between text-[11px] text-[var(--olivea-clay)]/60 pt-3 border-t border-[var(--olivea-olive)]/[0.04]">
                     <span>{post.authors?.length ? post.authors.map((a) => a.name).join(" & ") : post.author}</span>
                     <span className="flex items-center gap-1">
                       <Clock size={10} />
