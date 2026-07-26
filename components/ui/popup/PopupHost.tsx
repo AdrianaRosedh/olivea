@@ -233,6 +233,7 @@ export default function PopupHost() {
               exit="exit"
               role="dialog"
               aria-modal="true"
+              data-lenis-prevent
               onClick={(e) => e.stopPropagation()}
               className={[
                 "relative w-full md:max-w-160",

@@ -355,7 +355,7 @@ function AddBlockMenu({
   ];
 
   return (
-    <div ref={ref} className="relative flex justify-center">
+    <div ref={ref} className="relative flex flex-col items-center gap-1.5">
       <button
         ref={btnRef}
         onClick={toggle}
@@ -367,7 +367,7 @@ function AddBlockMenu({
 
       {/* Enter now creates paragraphs, so the button is only needed for images,
           quotes and embeds. Say so, or nobody discovers it. */}
-      <span className="pointer-events-none absolute left-full ml-3 self-center whitespace-nowrap text-[10px] text-[var(--olivea-clay)]/45 hidden lg:block">
+      <span className="pointer-events-none whitespace-nowrap text-[10px] text-[var(--olivea-clay)]/45">
         {t({
           es: "o presiona Enter para un párrafo nuevo",
           en: "or press Enter for a new paragraph",
@@ -1815,6 +1815,7 @@ export default function JournalEditor({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ type: "spring", stiffness: 350, damping: 32 }}
+            data-lenis-prevent
             className="fixed inset-3 z-[61] bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl ring-1 ring-black/10 flex flex-col overflow-hidden"
           >
             {/* ── Header ── */}
