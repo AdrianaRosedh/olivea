@@ -250,6 +250,11 @@ export default function JournalPage() {
     setPosts((prev) => prev.map((p) => (p.id === post.id ? published : p)));
     setEditingPost(published);
     try {
+      // Persist the editor's content BEFORE flipping status.
+      // publishJournalPost() only writes the status columns, so publishing
+      // without this would push the last *saved* revision live and silently
+      // discard everything typed since — the author's edits disappear on reload.
+      await saveJournalPost(post);
       await publishJournalPost(post.id);
     } catch (e) {
       console.error("Failed to publish journal post:", e);
@@ -271,6 +276,9 @@ export default function JournalPage() {
     setPosts((prev) => prev.map((p) => (p.id === post.id ? draft : p)));
     setEditingPost(draft);
     try {
+      // Same as publish: save content first so unpublishing doesn't throw away
+      // edits made since the last save.
+      await saveJournalPost(post);
       await unpublishJournalPost(post.id);
     } catch (e) {
       console.error("Failed to unpublish journal post:", e);
