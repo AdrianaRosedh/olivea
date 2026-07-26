@@ -1,6 +1,6 @@
 // lib/journal/authors.ts
 import type { Lang } from "@/app/(main)/[lang]/dictionaries";
-import { getLeader, loadLeader, type LeaderProfile } from "@/app/(main)/[lang]/team/teamData";
+import { getLeader, getSortedTeam, loadLeader, type LeaderProfile } from "@/app/(main)/[lang]/team/teamData";
 import { AUTHOR_EXTRAS } from "@/content/journal/authorExtras";
 import type { AuthorExtra } from "@/content/journal/authorExtras";
 
@@ -77,6 +77,36 @@ export function getAuthorProfile(id: string): ResolvedAuthorProfile | null {
   if (extra) return fromExtras(id, extra);
 
   return null;
+}
+
+/**
+ * Every author that can be credited, for pickers in the admin.
+ *
+ * The admin took the author name and id as free text, so a typo in either
+ * silently broke the link to the author's profile page — the id has to match a
+ * TEAM member or an AUTHOR_EXTRAS key exactly. Offering the real list makes the
+ * correct pairing the easy path.
+ *
+ * Synchronous and static on purpose: this feeds a client-side picker, and the
+ * static roster is the same source getAuthorProfile() resolves against.
+ */
+export function listAuthorProfiles(): Array<{
+  id: string;
+  name: string;
+  source: "team" | "extras";
+}> {
+  const team = getSortedTeam().map((m) => ({
+    id: m.id,
+    name: m.name,
+    source: "team" as const,
+  }));
+  const extras = Object.values(AUTHOR_EXTRAS).map((e) => ({
+    id: e.id,
+    name: e.name,
+    source: "extras" as const,
+  }));
+  const seen = new Set(team.map((t) => t.id));
+  return [...team, ...extras.filter((e) => !seen.has(e.id))];
 }
 
 /** Async variant: prefers DB-stored team roster, falls back to TEAM/AUTHOR_EXTRAS. */

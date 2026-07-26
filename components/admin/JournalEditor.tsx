@@ -47,6 +47,7 @@ import {
   ChevronDown,
   Columns2,
   UserPlus,
+  Link as LinkIcon,
   Users,
 } from "lucide-react";
 import type { JournalPost, JournalPostAuthor, JournalPostGalleryImage } from "@/lib/content/types";
@@ -54,6 +55,84 @@ import ImageUpload from "@/components/admin/ImageUpload";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 import { SLUG_TAKEN_PREFIX } from "@/lib/admin/journal-errors";
 import { useScrollLock } from "@/lib/hooks/useScrollLock";
+import { listAuthorProfiles } from "@/lib/journal/authors";
+
+/**
+ * Author name field with suggestions from the real roster (team + author
+ * extras). Picking one fills the name AND the id together — the id has to match
+ * a profile exactly or the byline silently stops linking, and typing both by
+ * hand made that easy to get wrong. Free text is still allowed for one-off
+ * guest authors who have no profile.
+ */
+function AuthorNameField({
+  value,
+  onChangeName,
+  onPick,
+}: {
+  value: string;
+  onChangeName: (v: string) => void;
+  onPick: (p: { id: string; name: string }) => void;
+}) {
+  const { t } = useAdminLocale();
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const roster = useMemo(() => listAuthorProfiles(), []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
+
+  const q = value.trim().toLowerCase();
+  const matches = roster.filter(
+    (p) => !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)
+  );
+
+  return (
+    <div ref={wrapRef} className="relative flex-1 min-w-0">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          onChangeName(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder={t({ es: "Nombre del autor…", en: "Author name..." })}
+        className={`${S.input} w-full`}
+        autoComplete="off"
+      />
+      {open && matches.length > 0 && (
+        <div className="absolute left-0 top-full z-30 mt-1 min-w-full w-max max-w-[min(360px,80vw)] max-h-64 overflow-y-auto overscroll-contain rounded-xl bg-white p-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/10">
+          {matches.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onPick(p);
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[var(--olivea-cream)]/70"
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--olivea-olive)]/12 text-[10px] font-semibold text-[var(--olivea-olive)]">
+                {p.name.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="text-[13px] text-[var(--olivea-ink)]">{p.name}</span>
+              <span className="ml-auto pl-3 font-mono text-[10px] text-[var(--olivea-clay)]/55">
+                {p.id}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ═══════════════════════════════════════════════════════════════════ */
 /*  BLOCK TYPES                                                       */
@@ -730,6 +809,17 @@ function BlockEditor({
               value={block.media ?? ""}
               onChange={(v) => onChange({ ...block, media: v })}
               folder="journal"
+              hint={
+                (block.layout ?? "j-wide") === "j-wide"
+                  ? t({
+                      es: "Recomendado: 1600 px de ancho, altura libre (horizontal). Se muestra a todo el ancho de la columna.",
+                      en: "Recommended: 1600 px wide, any height (landscape). Displays at the full column width.",
+                    })
+                  : t({
+                      es: "Recomendado: 800 px de ancho, altura libre. Se muestra a media columna.",
+                      en: "Recommended: 800 px wide, any height. Displays at half column width.",
+                    })
+              }
             />
             <div className={`flex gap-3`}>
               {showBothLangs ? (
@@ -1027,6 +1117,8 @@ function AuthorsEditor({
     onChange(next);
   };
 
+  const roster = listAuthorProfiles();
+
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
@@ -1040,20 +1132,33 @@ function AuthorsEditor({
       </p>
       {authors.map((author, i) => (
         <div key={i} className="flex items-center gap-2">
-          <input
-            type="text"
+          <AuthorNameField
             value={author.name}
-            onChange={(e) => updateAuthor(i, "name", e.target.value)}
-            placeholder={t({ es: "Nombre del autor…", en: "Author name..." })}
-            className={`${S.input} flex-1`}
+            onChangeName={(v) => updateAuthor(i, "name", v)}
+            onPick={(p) => onChange(
+              authors.map((a, idx) => (idx === i ? { id: p.id, name: p.name } : a))
+            )}
           />
-          <input
-            type="text"
-            value={author.id ?? ""}
-            onChange={(e) => updateAuthor(i, "id", e.target.value)}
-            placeholder={t({ es: "ID (opcional)", en: "ID (optional)" })}
-            className={`${S.input} w-32`}
-          />
+          {roster.some((p) => p.id === author.id) ? (
+            <span
+              className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-[var(--olivea-olive)]/10 px-2 py-1.5 font-mono text-[10px] text-[var(--olivea-olive)]"
+              title={t({
+                es: "Perfil enlazado. Se completó solo al elegir el autor.",
+                en: "Linked profile. Filled automatically when the author was picked.",
+              })}
+            >
+              <LinkIcon size={10} />
+              {author.id}
+            </span>
+          ) : (
+            <input
+              type="text"
+              value={author.id ?? ""}
+              onChange={(e) => updateAuthor(i, "id", e.target.value)}
+              placeholder={t({ es: "ID (opcional)", en: "ID (optional)" })}
+              className={`${S.input} !w-32 shrink-0`}
+            />
+          )}
           <button
             onClick={() => removeAuthor(i)}
             className="p-1.5 rounded-lg text-[var(--olivea-clay)]/40 hover:text-red-500 hover:bg-red-50 transition-all"
@@ -1172,6 +1277,10 @@ function ArticleGalleryEditor({
           if (src) onChange([...gallery, { src, alt: "" }]);
         }}
         folder="journal"
+        hint={t({
+          es: "Recomendado: 1050 × 1200 px (vertical 7:8). Las tarjetas del carrusel son verticales y recortan el centro.",
+          en: "Recommended: 1050 × 1200 px (portrait 7:8). Carousel cards are portrait and crop to the centre.",
+        })}
       />
     </div>
   );
@@ -2082,6 +2191,14 @@ export default function JournalEditor({
                             {/* Cover image */}
                             <div className="space-y-2">
                               <label className={S.label}>{t({ es: "Imagen de portada", en: "Cover Image" })}</label>
+                              {/* Doubles as the Open Graph image, so the OG ratio wins:
+                                  the article hero crops it to a wide band anyway. */}
+                              <p className="text-[10px] text-[var(--olivea-clay)]/60 -mt-1">
+                                {t({
+                                  es: "Recomendado: 1200 × 630 px (horizontal). Se usa como portada del artículo y como imagen al compartir el enlace.",
+                                  en: "Recommended: 1200 × 630 px (landscape). Used as the article cover and as the link-share image.",
+                                })}
+                              </p>
                               {coverImage ? (
                                 <div className="relative rounded-xl overflow-hidden h-32 bg-[var(--olivea-cream)]/30 ring-1 ring-black/5 group">
                                   <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${coverImage})` }} />
