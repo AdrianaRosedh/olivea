@@ -77,10 +77,12 @@ function CoverFocalPicker({
   src,
   value,
   onChange,
+  onRemove,
 }: {
   src: string;
   value?: string;
   onChange: (v: string) => void;
+  onRemove: () => void;
 }) {
   const { t } = useAdminLocale();
   const boxRef = useRef<HTMLDivElement>(null);
@@ -142,13 +144,22 @@ function CoverFocalPicker({
             en: "Drag the image to choose what the cover shows.",
           })}
         </p>
-        <button
-          type="button"
-          onClick={() => onChange("50% 50%")}
-          className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--olivea-olive)] transition-colors hover:bg-[var(--olivea-cream)]/70"
-        >
-          {t({ es: "Centrar", en: "Centre" })}
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onChange("50% 50%")}
+            className="rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--olivea-olive)] transition-colors hover:bg-[var(--olivea-cream)]/70"
+          >
+            {t({ es: "Centrar", en: "Centre" })}
+          </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--olivea-clay)] transition-colors hover:bg-red-50 hover:text-red-600"
+          >
+            {t({ es: "Cambiar imagen", en: "Replace image" })}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2306,17 +2317,22 @@ export default function JournalEditor({
                                   the controlled input could never hold what you typed.
                                   ImageUpload gives drag-and-drop, click-to-upload,
                                   preview, remove, and a paste-URL fallback. */}
-                              <ImageUpload
-                                value={coverImage ?? ""}
-                                onChange={(url) => setCoverImage(url || undefined)}
-                                folder="journal"
-                                aspectRatio="aspect-[1200/630]"
-                              />
-                              {coverImage && (
+                              {coverImage ? (
                                 <CoverFocalPicker
                                   src={coverImage}
                                   value={coverPosition}
                                   onChange={setCoverPosition}
+                                  onRemove={() => {
+                                    setCoverImage(undefined);
+                                    setCoverPosition(undefined);
+                                  }}
+                                />
+                              ) : (
+                                <ImageUpload
+                                  value=""
+                                  onChange={(url) => setCoverImage(url || undefined)}
+                                  folder="journal"
+                                  aspectRatio="aspect-[1200/630]"
                                 />
                               )}
                               {coverImage && (
