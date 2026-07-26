@@ -2199,30 +2199,18 @@ export default function JournalEditor({
                                   en: "Recommended: 1200 × 630 px (landscape). Used as the article cover and as the link-share image.",
                                 })}
                               </p>
-                              {coverImage ? (
-                                <div className="relative rounded-xl overflow-hidden h-32 bg-[var(--olivea-cream)]/30 ring-1 ring-black/5 group">
-                                  <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${coverImage})` }} />
-                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                    <button
-                                      onClick={() => setCoverImage(undefined)}
-                                      className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-white/90 text-xs font-medium text-[var(--olivea-ink)]"
-                                    >
-                                      {t(STR.remove)}
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="space-y-2">
-                                  <input
-                                    type="text"
-                                    value=""
-                                    onChange={(e) => setCoverImage(e.target.value)}
-                                    placeholder={t({ es: "Ingresa la URL de la imagen o súbela…", en: "Enter image URL or upload..." })}
-                                    className={S.input}
-                                    onBlur={(e) => { if (e.target.value) setCoverImage(e.target.value); }}
-                                  />
-                                </div>
-                              )}
+                              {/* Was a hand-rolled URL box that could not upload — the
+                                  one image field without a dropzone, despite being the
+                                  most important one. It also had value="" hardcoded, so
+                                  the controlled input could never hold what you typed.
+                                  ImageUpload gives drag-and-drop, click-to-upload,
+                                  preview, remove, and a paste-URL fallback. */}
+                              <ImageUpload
+                                value={coverImage ?? ""}
+                                onChange={(url) => setCoverImage(url || undefined)}
+                                folder="journal"
+                                aspectRatio="aspect-[1200/630]"
+                              />
                               {coverImage && (
                                 <div>
                                   <label className={S.label}>{t({ es: "Texto alternativo de portada", en: "Cover Alt Text" })}</label>
