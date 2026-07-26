@@ -363,11 +363,15 @@ function BlockEditor({
   onChange,
   onDelete,
   showBothLangs,
+  activeLang,
 }: {
   block: ContentBlock;
   onChange: (updated: ContentBlock) => void;
   onDelete: () => void;
   showBothLangs: boolean;
+  /** Which language single-language mode edits. Was hardcoded to "es", which
+   *  made English unreachable unless side-by-side was on. */
+  activeLang: "es" | "en";
 }) {
   const { type } = block;
   const { t } = useAdminLocale();
@@ -412,8 +416,9 @@ function BlockEditor({
 
   return (
     <div className="group relative rounded-2xl bg-white/50 ring-1 ring-black/5 hover:ring-black/10 transition-all">
-      {/* Block header */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-black/[0.03]">
+      {/* Block header — recedes until the block is hovered or focused, so a
+          page of paragraphs reads as prose rather than a stack of forms. */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-black/[0.03] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
         <div className="cursor-grab active:cursor-grabbing p-1 rounded text-[var(--olivea-clay)]/30 hover:text-[var(--olivea-clay)] transition-colors">
           <GripVertical size={14} />
         </div>
@@ -441,7 +446,7 @@ function BlockEditor({
                 {renderTextInput("en", t({ es: "Escribe aquí…", en: "Write here..." }), 4)}
               </>
             ) : (
-              renderTextInput("es", t({ es: "Escribe aquí…", en: "Write here..." }), 4)
+              renderTextInput(activeLang, t({ es: "Escribe aquí…", en: "Write here..." }), 4)
             )}
           </div>
         )}
@@ -455,7 +460,7 @@ function BlockEditor({
                 {renderTitleInput("en", t({ es: "Título…", en: "Heading..." }))}
               </>
             ) : (
-              renderTitleInput("es", t({ es: "Título…", en: "Heading..." }))
+              renderTitleInput(activeLang, t({ es: "Título…", en: "Heading..." }))
             )}
           </div>
         )}
@@ -470,7 +475,7 @@ function BlockEditor({
                   {renderTextInput("en", t({ es: "Cita…", en: "Quote..." }), 2)}
                 </>
               ) : (
-                renderTextInput("es", t({ es: "Cita…", en: "Quote..." }), 2)
+                renderTextInput(activeLang, t({ es: "Cita…", en: "Quote..." }), 2)
               )}
             </div>
           </div>
@@ -539,8 +544,8 @@ function BlockEditor({
                   <div className={S.label}>{t({ es: "Pie de foto / Texto alternativo", en: "Caption / Alt text" })}</div>
                   <input
                     type="text"
-                    value={block.caption?.es ?? ""}
-                    onChange={(e) => updateCaption("es", e.target.value)}
+                    value={block.caption?.[activeLang] ?? ""}
+                    onChange={(e) => updateCaption(activeLang, e.target.value)}
                     placeholder={t({ es: "Pie de foto…", en: "Caption..." })}
                     className={`${S.input} mt-1`}
                   />
@@ -679,8 +684,8 @@ function BlockEditor({
               ) : (
                 <div className="flex-1">
                   <textarea
-                    value={block.content.es}
-                    onChange={(e) => updateContent("es", e.target.value)}
+                    value={block.content[activeLang]}
+                    onChange={(e) => updateContent(activeLang, e.target.value)}
                     placeholder={t({ es: "<div>HTML personalizado…</div>", en: "<div>Custom HTML...</div>" })}
                     rows={4}
                     className={`${S.textarea} font-mono text-xs`}
@@ -1159,9 +1164,13 @@ export default function JournalEditor({
   // Bilingual so the message re-translates if the admin switches locale.
   const [saveError, setSaveError] = useState<B | null>(null);
   const [saving, setSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
-  const [showBothLangs, setShowBothLangs] = useState(true);
+  // Default off: side-by-side + preview left roughly 20% of the window for
+  // actual writing. Both are one click away in the toolbar.
+  const [showPreview, setShowPreview] = useState(false);
+  const [showBothLangs, setShowBothLangs] = useState(false);
   const [showMeta, setShowMeta] = useState(false);
+  /** Manual override for the preflight list (auto-expands once there's content). */
+  const [preflightOpen, setPreflightOpen] = useState(false);
   /** A newer local snapshot found on open — offered for restore, never auto-applied. */
   const [recovery, setRecovery] = useState<DraftSnapshot | null>(null);
   const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
@@ -1492,6 +1501,14 @@ export default function JournalEditor({
   }, [title, excerpt, blocks, coverImage]);
 
   const canPublish = preflight.blockers.length === 0;
+
+  // A blank draft fails every check by definition — listing them all as errors
+  // before a word is written just teaches the author to ignore the panel.
+  const isBlankDraft =
+    !title.es.trim() &&
+    !title.en.trim() &&
+    !blocks.some((b) => b.content.es.trim() || b.content.en.trim() || b.media);
+  const preflightShowsDetail = preflightOpen || !isBlankDraft;
   const wordCount = blocks.reduce((sum, b) => sum + (b.content.es || "").split(/\s+/).filter(Boolean).length, 0);
 
   return (
@@ -1536,6 +1553,29 @@ export default function JournalEditor({
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Which language you're editing. Lives here, not only in the
+                    preview pane — single-language mode edits this language, and
+                    the preview is hidden by default. */}
+                {!showBothLangs && (
+                  <div className="flex items-center gap-0.5 rounded-lg border border-[var(--olivea-olive)]/10 bg-white/50 p-0.5">
+                    {(["es", "en"] as const).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => setPreviewLang(l)}
+                        aria-pressed={previewLang === l}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase transition-all ${
+                          previewLang === l
+                            ? "bg-[var(--olivea-olive)] text-white"
+                            : "text-[var(--olivea-clay)] hover:bg-white/70"
+                        }`}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {/* Toggle side-by-side langs */}
                 <button
                   onClick={() => setShowBothLangs(!showBothLangs)}
@@ -1666,26 +1706,57 @@ export default function JournalEditor({
             {/* Publish preflight. Shown for published posts too — a live article
                 missing an English body or an excerpt is a problem right now. */}
             {(preflight.blockers.length > 0 || preflight.warnings.length > 0) && (
-              <div className="mx-6 mt-3 rounded-xl border border-black/5 bg-[var(--olivea-cream)]/40 px-4 py-3">
-                <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
-                  {preflight.blockers.length > 0
-                    ? t({ es: "Falta antes de publicar", en: "Needed before publishing" })
-                    : t({ es: "Sugerencias", en: "Suggestions" })}
-                </div>
-                <ul className="space-y-1">
-                  {preflight.blockers.map((b, i) => (
-                    <li key={`b${i}`} className="flex items-start gap-2 text-[11px] text-red-700">
-                      <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                      {t(b)}
-                    </li>
-                  ))}
-                  {preflight.warnings.map((w, i) => (
-                    <li key={`w${i}`} className="flex items-start gap-2 text-[11px] text-amber-700">
-                      <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-                      {t(w)}
-                    </li>
-                  ))}
-                </ul>
+              <div className="mx-6 mt-3 rounded-xl border border-black/5 bg-[var(--olivea-cream)]/40 px-4 py-2.5">
+                {/* On a blank draft everything is trivially "missing", so the
+                    list stays collapsed and neutral until there's work to judge.
+                    Click to open it early. */}
+                <button
+                  type="button"
+                  onClick={() => setPreflightOpen((v) => !v)}
+                  className="flex w-full items-center gap-2 text-left"
+                >
+                  <span
+                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                      !preflightShowsDetail
+                        ? "bg-[var(--olivea-clay)]/40"
+                        : preflight.blockers.length > 0
+                          ? "bg-red-500"
+                          : "bg-amber-500"
+                    }`}
+                  />
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
+                    {preflight.blockers.length > 0
+                      ? t({ es: "Falta antes de publicar", en: "Needed before publishing" })
+                      : t({ es: "Sugerencias", en: "Suggestions" })}
+                  </span>
+                  <span className="text-[10px] tabular-nums text-[var(--olivea-clay)]/60">
+                    {preflight.blockers.length + preflight.warnings.length}
+                  </span>
+                  <span className="flex-1" />
+                  <ChevronDown
+                    size={13}
+                    className={`text-[var(--olivea-clay)]/50 transition-transform ${
+                      preflightShowsDetail ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {preflightShowsDetail && (
+                  <ul className="mt-1.5 space-y-1">
+                    {preflight.blockers.map((b, i) => (
+                      <li key={`b${i}`} className="flex items-start gap-2 text-[11px] text-red-700">
+                        <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                        {t(b)}
+                      </li>
+                    ))}
+                    {preflight.warnings.map((w, i) => (
+                      <li key={`w${i}`} className="flex items-start gap-2 text-[11px] text-amber-700">
+                        <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                        {t(w)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
 
@@ -1819,8 +1890,8 @@ export default function JournalEditor({
                       <div className="flex-1">
                         <input
                           type="text"
-                          value={title.es}
-                          onChange={(e) => setTitle({ ...title, es: e.target.value })}
+                          value={title[previewLang]}
+                          onChange={(e) => setTitle({ ...title, [previewLang]: e.target.value })}
                           placeholder={t({ es: "Título del artículo…", en: "Article title..." })}
                           className={`${S.input} text-xl font-serif !py-3`}
                         />
@@ -1858,13 +1929,13 @@ export default function JournalEditor({
                     ) : (
                       <div className="flex-1">
                         <textarea
-                          value={excerpt.es}
-                          onChange={(e) => setExcerpt({ ...excerpt, es: e.target.value })}
+                          value={excerpt[previewLang]}
+                          onChange={(e) => setExcerpt({ ...excerpt, [previewLang]: e.target.value })}
                           placeholder={t({ es: "Breve descripción…", en: "Brief description..." })}
                           rows={2}
                           className={S.textarea}
                         />
-                        <ExcerptMeter value={excerpt.es} />
+                        <ExcerptMeter value={excerpt[previewLang]} />
                       </div>
                     )}
                   </div>
@@ -1896,6 +1967,7 @@ export default function JournalEditor({
                             onChange={(updated) => updateBlock(block.id, updated)}
                             onDelete={() => deleteBlock(block.id)}
                             showBothLangs={showBothLangs}
+                            activeLang={previewLang}
                           />
                         </Reorder.Item>
                       ))}
