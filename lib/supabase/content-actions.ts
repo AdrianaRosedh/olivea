@@ -23,6 +23,9 @@ function revalidateJournal(slug?: string) {
   // Cover all post pages: publish/unpublish only know the id, and tags,
   // authors and translation links can change which pages exist.
   revalidatePath("/[lang]/journal/[slug]", "page");
+  // Author profile pages list the same cards, so a cover or its focal point
+  // changing there would otherwise stay stale until the ISR window expired.
+  revalidatePath("/[lang]/journal/author/[id]", "page");
   revalidatePath("/admin/journal");
 }
 
