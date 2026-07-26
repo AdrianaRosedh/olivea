@@ -24,6 +24,7 @@ import {
 } from "@/lib/supabase/content-actions";
 import type { JournalPost, JournalStatus } from "@/lib/content/types";
 import { useAdminLocale, type B } from "@/lib/admin/i18n";
+import { SLUG_TAKEN_PREFIX } from "@/lib/admin/journal-errors";
 
 // Editor is heavy (~1.4k LOC + WYSIWYG/MDX deps). Split into its own chunk so
 // the journal LIST view loads fast; the editor chunk fetches in parallel and
@@ -209,7 +210,18 @@ export default function JournalPage() {
     setEditorOpen(true);
   };
 
+  // journal_posts.slug is UNIQUE. Catch a clash here, where every slug is
+  // already in memory, so the author gets an actionable message instead of a
+  // raw constraint error from Postgres. Throws before anything is mutated.
+  const assertSlugFree = (candidate: JournalPost) => {
+    const clash = posts.find(
+      (p) => p.id !== candidate.id && p.slug === candidate.slug
+    );
+    if (clash) throw new Error(`${SLUG_TAKEN_PREFIX}${candidate.slug}`);
+  };
+
   const handleSave = async (updated: JournalPost) => {
+    assertSlugFree(updated);
     // Snapshot for rollback
     const snapshot = [...posts];
     const prevEditing = editingPost;
@@ -240,6 +252,8 @@ export default function JournalPage() {
   };
 
   const handlePublish = async (post: JournalPost) => {
+    // Publish now saves content first, so the same UNIQUE constraint applies.
+    assertSlugFree(post);
     const snapshot = [...posts];
     const published: JournalPost = {
       ...post,
@@ -266,6 +280,7 @@ export default function JournalPage() {
   };
 
   const handleUnpublish = async (post: JournalPost) => {
+    assertSlugFree(post);
     const snapshot = [...posts];
     const draft: JournalPost = {
       ...post,

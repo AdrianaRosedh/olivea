@@ -44,6 +44,7 @@ import {
 import type { JournalPost, JournalPostAuthor, JournalPostGalleryImage } from "@/lib/content/types";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
+import { SLUG_TAKEN_PREFIX } from "@/lib/admin/journal-errors";
 
 /* ═══════════════════════════════════════════════════════════════════ */
 /*  BLOCK TYPES                                                       */
@@ -1078,6 +1079,28 @@ function SnippetPreview({
   );
 }
 
+/** Turns a thrown save/publish error into something an editor can act on.
+ *  Returns B objects rather than calling t(), so the message re-translates
+ *  if the admin switches locale. */
+function describeSaveError(e: unknown, fallback: B): B {
+  const msg = e instanceof Error ? e.message : "";
+  if (msg.startsWith(SLUG_TAKEN_PREFIX)) {
+    const taken = msg.slice(SLUG_TAKEN_PREFIX.length);
+    return {
+      es: `La URL "${taken}" ya la usa otro artículo. Cambia el título o el slug.`,
+      en: `The URL "${taken}" is already used by another article. Change the title or slug.`,
+    };
+  }
+  // Safety net for a clash that races past the local check.
+  if (/duplicate key|23505|unique constraint/i.test(msg)) {
+    return {
+      es: "Ya existe un artículo con esa URL. Cambia el título o el slug.",
+      en: "An article with that URL already exists. Change the title or slug.",
+    };
+  }
+  return msg ? { es: msg, en: msg } : fallback;
+}
+
 /** Local (not server) draft snapshot, so a crash or closed tab can't lose work.
  *  Deliberately NOT an autosave to Supabase: that would overwrite the saved
  *  revision with work the author may still want to discard. */
@@ -1349,11 +1372,8 @@ export default function JournalEditor({
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "";
       setSaveError(
-        msg
-          ? { es: msg, en: msg }
-          : { es: "No se pudo guardar.", en: "Could not save." }
+        describeSaveError(e, { es: "No se pudo guardar.", en: "Could not save." })
       );
     } finally {
       setSaving(false);
@@ -1368,11 +1388,8 @@ export default function JournalEditor({
       await onPublish(updated);
       clearDraft(updated.id);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "";
       setSaveError(
-        msg
-          ? { es: msg, en: msg }
-          : { es: "No se pudo publicar.", en: "Could not publish." }
+        describeSaveError(e, { es: "No se pudo publicar.", en: "Could not publish." })
       );
     }
   };
@@ -1385,11 +1402,8 @@ export default function JournalEditor({
       await onUnpublish(updated);
       clearDraft(updated.id);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "";
       setSaveError(
-        msg
-          ? { es: msg, en: msg }
-          : { es: "No se pudo despublicar.", en: "Could not unpublish." }
+        describeSaveError(e, { es: "No se pudo despublicar.", en: "Could not unpublish." })
       );
     }
   };
