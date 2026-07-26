@@ -43,6 +43,15 @@ export default function EditorPreviewClient() {
         >
           Open editor
         </button>
+        {/* Tall filler so the PAGE is genuinely scrollable. Without this a
+            scroll-lock test passes trivially — the page had nowhere to go. */}
+        <div id="filler">
+          {Array.from({ length: 60 }, (_, i) => (
+            <p key={i} className="py-3 text-sm text-[var(--olivea-clay)]">
+              Background row {i + 1} — this page must not move while the editor is open.
+            </p>
+          ))}
+        </div>
         <JournalEditor
           post={MOCK}
           open={open}
