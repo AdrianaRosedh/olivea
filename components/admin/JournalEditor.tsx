@@ -305,8 +305,23 @@ function AddBlockMenu({
   onAdd: (type: BlockType) => void;
 }) {
   const [open, setOpen] = useState(false);
+  /** The button sits at the end of the document, so there is usually no room
+   *  below it — the menu was opening downward and getting clipped by the
+   *  scroll container, with nothing to scroll to (it is absolutely
+   *  positioned). Flip it upward when it would not fit. */
+  const [dropUp, setDropUp] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const { t } = useAdminLocale();
+
+  const MENU_H = 340;
+  const toggle = () => {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setDropUp(window.innerHeight - r.bottom < MENU_H && r.top > MENU_H);
+    }
+    setOpen((v) => !v);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -329,7 +344,8 @@ function AddBlockMenu({
   return (
     <div ref={ref} className="relative flex justify-center">
       <button
-        onClick={() => setOpen(!open)}
+        ref={btnRef}
+        onClick={toggle}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-[var(--olivea-clay)] hover:text-[var(--olivea-ink)] bg-white/50 hover:bg-white/80 ring-1 ring-black/5 hover:ring-black/10 transition-all"
       >
         <Plus size={14} />
@@ -348,11 +364,13 @@ function AddBlockMenu({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            initial={{ opacity: 0, y: dropUp ? 8 : -8, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.97 }}
+            exit={{ opacity: 0, y: dropUp ? 4 : -4, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full mt-2 z-30 w-64 rounded-2xl bg-white shadow-xl ring-1 ring-black/10 p-2 overflow-hidden"
+            className={`absolute ${
+              dropUp ? "bottom-full mb-2" : "top-full mt-2"
+            } z-30 w-64 max-h-[min(340px,60vh)] overflow-y-auto overscroll-contain rounded-2xl bg-white shadow-xl ring-1 ring-black/10 p-2`}
           >
             {groups.map((g) => (
               <div key={g.label}>
@@ -1925,7 +1943,7 @@ export default function JournalEditor({
             <div className="flex-1 flex overflow-hidden">
               {/* Editor column */}
               <div className={`flex-1 overflow-y-auto overscroll-contain bg-[var(--olivea-cream)]/25 ${showPreview ? "border-r border-black/5" : ""}`}>
-                <div className="mx-auto w-full max-w-[900px] px-6 py-7">
+                <div className="mx-auto w-full max-w-[900px] px-6 pt-7 pb-24">
                   <div className="rounded-2xl bg-white ring-1 ring-black/[0.06] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_8px_24px_-16px_rgba(0,0,0,0.10)] px-7 py-7 md:px-9 md:py-9 space-y-5">
                   {/* Metadata section (collapsible) */}
                   <div className="rounded-2xl bg-[var(--olivea-cream)]/20 ring-1 ring-black/5 overflow-hidden">
