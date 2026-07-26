@@ -1078,6 +1078,35 @@ function SnippetPreview({
   );
 }
 
+/** Local (not server) draft snapshot, so a crash or closed tab can't lose work.
+ *  Deliberately NOT an autosave to Supabase: that would overwrite the saved
+ *  revision with work the author may still want to discard. */
+const DRAFT_KEY = (id: string) => `olivea:journal-draft:${id}`;
+const DRAFT_DEBOUNCE_MS = 1500;
+
+type DraftSnapshot = {
+  savedAt: string;
+  post: JournalPost;
+  /** Blocks are stored natively — round-tripping through HTML loses es/en pairing. */
+  blocks: ContentBlock[];
+};
+
+/** Identity of the editor-owned content. Excludes updatedAt, which changes on
+ *  every keystroke and would make everything look permanently dirty. */
+function contentSignature(p: JournalPost): string {
+  return JSON.stringify({
+    title: p.title,
+    excerpt: p.excerpt,
+    body: p.body,
+    slug: p.slug,
+    coverImage: p.coverImage ?? null,
+    coverAlt: p.coverAlt ?? null,
+    tags: p.tags,
+    authors: p.authors ?? null,
+    gallery: p.gallery ?? null,
+  });
+}
+
 export default function JournalEditor({
   post,
   open,
@@ -1110,6 +1139,15 @@ export default function JournalEditor({
   const [showPreview, setShowPreview] = useState(true);
   const [showBothLangs, setShowBothLangs] = useState(true);
   const [showMeta, setShowMeta] = useState(false);
+  /** A newer local snapshot found on open — offered for restore, never auto-applied. */
+  const [recovery, setRecovery] = useState<DraftSnapshot | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  /** Signature of the revision currently persisted server-side. Empty until the
+   *  synced state has settled (see the autosave effect). */
+  const baselineRef = useRef<string>("");
+  /** The exact blocks array the sync effect installed, used by reference so the
+   *  autosave effect can tell a settled render from the stale first pass. */
+  const syncedBlocksRef = useRef<ContentBlock[] | null>(null);
   const { t } = useAdminLocale();
 
   // Sync state when post changes
@@ -1152,7 +1190,14 @@ export default function JournalEditor({
           }
         });
       }
-      setBlocks(parsed.length > 0 ? parsed : [newBlock("paragraph")]);
+      const nextBlocks = parsed.length > 0 ? parsed : [newBlock("paragraph")];
+      syncedBlocksRef.current = nextBlocks;
+      setBlocks(nextBlocks);
+      // Left empty on purpose: the autosave effect adopts the baseline once the
+      // synced state has settled, so the html→blocks→html round trip isn't
+      // mistaken for an author edit.
+      baselineRef.current = "";
+      setDraftSavedAt(null);
     }
   }, [post]);
 
@@ -1195,6 +1240,88 @@ export default function JournalEditor({
     };
   }, [post, title, excerpt, blocks, slug, coverImage, coverAlt, tags, authors, articleGallery]);
 
+  const clearDraft = useCallback((id?: string) => {
+    const key = id ?? post?.id;
+    if (!key) return;
+    try {
+      localStorage.removeItem(DRAFT_KEY(key));
+    } catch {
+      /* private mode / quota — nothing to clean up */
+    }
+    setDraftSavedAt(null);
+    setRecovery(null);
+  }, [post]);
+
+  // On open, surface a local snapshot that diverges from the server revision.
+  // Runs after the sync effect above, so baselineRef is already current.
+  useEffect(() => {
+    if (!open || !post) return;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY(post.id));
+      if (!raw) {
+        setRecovery(null);
+        return;
+      }
+      const snap = JSON.parse(raw) as DraftSnapshot;
+      if (snap?.post && contentSignature(snap.post) !== contentSignature(post)) {
+        setRecovery(snap);
+      } else {
+        // Snapshot matches what's saved — it has served its purpose.
+        localStorage.removeItem(DRAFT_KEY(post.id));
+        setRecovery(null);
+      }
+    } catch {
+      setRecovery(null);
+    }
+  }, [open, post]);
+
+  // Debounced local snapshot while typing.
+  useEffect(() => {
+    if (!open || !post) return;
+    const current = getCurrentPost();
+    if (!current) return;
+    if (!baselineRef.current) {
+      // Adopt the baseline on the first render where the synced state has
+      // landed (blocks compared by reference). Before that the derived content
+      // is stale and would look like a spurious edit.
+      if (blocks === syncedBlocksRef.current) {
+        baselineRef.current = contentSignature(current);
+      }
+      return;
+    }
+    // Unchanged from the saved revision — nothing worth recovering.
+    if (contentSignature(current) === baselineRef.current) return;
+    const timer = setTimeout(() => {
+      try {
+        const savedAt = new Date().toISOString();
+        const snap: DraftSnapshot = { savedAt, post: current, blocks };
+        localStorage.setItem(DRAFT_KEY(post.id), JSON.stringify(snap));
+        setDraftSavedAt(savedAt);
+      } catch {
+        /* quota exceeded or storage blocked — autosave is best-effort */
+      }
+    }, DRAFT_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [open, post, getCurrentPost, blocks]);
+
+  const restoreDraft = useCallback(() => {
+    if (!recovery?.post) return;
+    const p = recovery.post;
+    setTitle({ ...p.title });
+    setExcerpt({ ...p.excerpt });
+    setSlug(p.slug);
+    setCoverImage(p.coverImage);
+    setCoverAlt(p.coverAlt);
+    setTags([...p.tags]);
+    setAuthors(
+      p.authors?.length ? [...p.authors] : [{ name: p.author || "Olivea" }]
+    );
+    setArticleGallery(p.gallery ? [...p.gallery] : []);
+    // Blocks come back verbatim, so es/en pairing survives intact.
+    if (recovery.blocks?.length) setBlocks(recovery.blocks);
+    setRecovery(null);
+  }, [recovery]);
+
   const handleSave = async () => {
     const updated = getCurrentPost();
     if (!updated) return;
@@ -1217,6 +1344,8 @@ export default function JournalEditor({
       // Reporting "Saved" without awaiting is how a failed create looked
       // like the post erasing itself.
       await onSave(updated);
+      // Persisted — the local snapshot is no longer the newer copy.
+      clearDraft(updated.id);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (e) {
@@ -1237,6 +1366,7 @@ export default function JournalEditor({
     setSaveError(null);
     try {
       await onPublish(updated);
+      clearDraft(updated.id);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       setSaveError(
@@ -1253,6 +1383,7 @@ export default function JournalEditor({
     setSaveError(null);
     try {
       await onUnpublish(updated);
+      clearDraft(updated.id);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       setSaveError(
@@ -1418,6 +1549,16 @@ export default function JournalEditor({
                   {t({ es: "Vista previa", en: "Preview" })}
                 </button>
 
+                {/* Unsaved work is safe locally — say so, so Save still feels needed. */}
+                {draftSavedAt && !saved && (
+                  <span
+                    className="hidden md:inline text-[10px] text-[var(--olivea-clay)]/70"
+                    title={new Date(draftSavedAt).toLocaleString()}
+                  >
+                    {t({ es: "Borrador local guardado", en: "Draft kept locally" })}
+                  </span>
+                )}
+
                 {/* Save */}
                 <button
                   onClick={handleSave}
@@ -1470,6 +1611,41 @@ export default function JournalEditor({
                 className="mx-6 mt-3 rounded-lg border border-red-200/70 bg-red-50 px-3 py-2 text-xs text-red-700"
               >
                 {t(saveError)}
+              </div>
+            )}
+
+            {/* Local draft recovery. Offered, never auto-applied — restoring
+                silently would overwrite whatever the author sees on screen. */}
+            {recovery && (
+              <div className="mx-6 mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300/60 bg-amber-50/70 px-4 py-3">
+                <div className="text-[11px] leading-relaxed text-amber-900">
+                  <span className="font-semibold">
+                    {t({ es: "Cambios sin guardar", en: "Unsaved changes found" })}
+                  </span>
+                  {" — "}
+                  {t({
+                    es: "recuperados de este navegador",
+                    en: "recovered from this browser",
+                  })}
+                  {": "}
+                  {new Date(recovery.savedAt).toLocaleString()}
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={restoreDraft}
+                    className="rounded-lg bg-amber-600 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-amber-700"
+                  >
+                    {t({ es: "Restaurar", en: "Restore" })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => clearDraft()}
+                    className="rounded-lg border border-amber-300 px-3 py-1.5 text-[11px] font-medium text-amber-900 transition hover:bg-amber-100"
+                  >
+                    {t({ es: "Descartar", en: "Discard" })}
+                  </button>
+                </div>
               </div>
             )}
 
