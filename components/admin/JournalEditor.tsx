@@ -283,6 +283,16 @@ const S = {
     "text-[11px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]",
   langTag:
     "text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60 mb-1",
+  // Document-style surfaces: no boxes while writing, a soft plane on focus.
+  // The editor should read like the article it produces, not like a form.
+  prose:
+    "w-full -mx-3 px-3 py-2 rounded-lg bg-transparent border-0 text-[15px] leading-[1.75] text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/30 focus:outline-none focus:bg-white/70 transition-colors resize-none",
+  proseHeading:
+    "w-full -mx-3 px-3 py-1.5 rounded-lg bg-transparent border-0 text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/30 focus:outline-none focus:bg-white/70 transition-colors",
+  docTitle:
+    "w-full bg-transparent border-0 px-0 py-1 font-serif text-[30px] leading-tight text-[var(--olivea-ink)] placeholder:text-[var(--olivea-clay)]/25 focus:outline-none",
+  docExcerpt:
+    "w-full bg-transparent border-0 px-0 py-1 text-[15px] leading-relaxed text-[var(--olivea-clay)] placeholder:text-[var(--olivea-clay)]/30 focus:outline-none resize-none",
 };
 
 /* ═══════════════════════════════════════════════════════════════════ */
@@ -466,7 +476,7 @@ function BlockEditor({
 
   const renderTextInput = (lang: "es" | "en", placeholder: string, rows = 3) => (
     <div className="flex-1 min-w-0">
-      <div className={S.langTag}>{lang.toUpperCase()}</div>
+      {showBothLangs && <div className={S.langTag}>{lang.toUpperCase()}</div>}
       <AutoGrowTextarea
         ref={lang === primaryLang ? setPrimaryRef : undefined}
         onKeyDown={(e) => handleKeyDown(e, lang)}
@@ -474,14 +484,14 @@ function BlockEditor({
         onChange={(e) => updateContent(lang, e.target.value)}
         placeholder={placeholder}
         minRows={rows}
-        className={`${S.textarea} !text-[15px]`}
+        className={S.prose}
       />
     </div>
   );
 
   const renderTitleInput = (lang: "es" | "en", placeholder: string) => (
     <div className="flex-1 min-w-0">
-      <div className={S.langTag}>{lang.toUpperCase()}</div>
+      {showBothLangs && <div className={S.langTag}>{lang.toUpperCase()}</div>}
       <input
         ref={lang === primaryLang ? setPrimaryRef : undefined}
         onKeyDown={(e) => handleKeyDown(e, lang)}
@@ -489,16 +499,20 @@ function BlockEditor({
         value={block.content[lang]}
         onChange={(e) => updateContent(lang, e.target.value)}
         placeholder={placeholder}
-        className={`${S.input} ${type === "heading2" ? "text-lg font-semibold" : "text-base font-medium"}`}
+        className={`${S.proseHeading} ${
+          type === "heading2"
+            ? "font-serif text-[22px] font-semibold"
+            : "font-serif text-[18px] font-semibold"
+        }`}
       />
     </div>
   );
 
   return (
-    <div className="group relative rounded-2xl bg-white/50 ring-1 ring-black/5 hover:ring-black/10 transition-all">
+    <div className="group relative rounded-2xl transition-colors hover:bg-white/35 focus-within:bg-white/45">
       {/* Block header — recedes until the block is hovered or focused, so a
           page of paragraphs reads as prose rather than a stack of forms. */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-black/[0.03] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+      <div className="flex items-center gap-2 px-4 pt-2 pb-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
         <div className="cursor-grab active:cursor-grabbing p-1 rounded text-[var(--olivea-clay)]/30 hover:text-[var(--olivea-clay)] transition-colors">
           <GripVertical size={14} />
         </div>
@@ -2019,7 +2033,7 @@ export default function JournalEditor({
                             value={title.es}
                             onChange={(e) => setTitle({ ...title, es: e.target.value })}
                             placeholder={t({ es: "Título del artículo…", en: "Article title..." })}
-                            className={`${S.input} text-xl font-serif !py-3`}
+                            className={S.docTitle}
                           />
                         </div>
                         <div className="flex-1">
@@ -2029,7 +2043,7 @@ export default function JournalEditor({
                             value={title.en}
                             onChange={(e) => setTitle({ ...title, en: e.target.value })}
                             placeholder={t({ es: "Título del artículo…", en: "Article title..." })}
-                            className={`${S.input} text-xl font-serif !py-3`}
+                            className={S.docTitle}
                           />
                         </div>
                       </>
@@ -2040,7 +2054,7 @@ export default function JournalEditor({
                           value={title[previewLang]}
                           onChange={(e) => setTitle({ ...title, [previewLang]: e.target.value })}
                           placeholder={t({ es: "Título del artículo…", en: "Article title..." })}
-                          className={`${S.input} text-xl font-serif !py-3`}
+                          className={S.docTitle}
                         />
                       </div>
                     )}
@@ -2057,7 +2071,7 @@ export default function JournalEditor({
                             onChange={(e) => setExcerpt({ ...excerpt, es: e.target.value })}
                             placeholder={t({ es: "Breve descripción…", en: "Brief description..." })}
                             rows={2}
-                            className={`${S.textarea}`}
+                            className={S.docExcerpt}
                           />
                           <ExcerptMeter value={excerpt.es} />
                         </div>
@@ -2068,7 +2082,7 @@ export default function JournalEditor({
                             onChange={(e) => setExcerpt({ ...excerpt, en: e.target.value })}
                             placeholder={t({ es: "Breve descripción…", en: "Brief description..." })}
                             rows={2}
-                            className={`${S.textarea}`}
+                            className={S.docExcerpt}
                           />
                           <ExcerptMeter value={excerpt.en} />
                         </div>
@@ -2080,7 +2094,7 @@ export default function JournalEditor({
                           onChange={(e) => setExcerpt({ ...excerpt, [previewLang]: e.target.value })}
                           placeholder={t({ es: "Breve descripción…", en: "Brief description..." })}
                           rows={2}
-                          className={S.textarea}
+                          className={S.docExcerpt}
                         />
                         <ExcerptMeter value={excerpt[previewLang]} />
                       </div>
