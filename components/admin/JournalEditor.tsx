@@ -1136,8 +1136,13 @@ function LivePreview({
       {post.coverImage && (
         <div className="w-full h-56 rounded-2xl overflow-hidden mb-8 bg-[var(--olivea-cream)]/30 ring-1 ring-black/5">
           <div
-            className="w-full h-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${post.coverImage})` }}
+            className="w-full h-full bg-cover"
+            style={{
+              backgroundImage: `url(${post.coverImage})`,
+              // Mirror the focal point the hero will use. bg-center hardcoded
+              // 50% 50%, so repositioning never showed up in the preview.
+              backgroundPosition: post.coverPosition ?? "50% 50%",
+            }}
           />
         </div>
       )}
