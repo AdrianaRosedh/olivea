@@ -21,16 +21,16 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
     }
   }, []);
 
-  if (!mounted) return null;
-
+  // Do NOT gate `children` on `mounted`.
+  //
+  // Returning null until the effect ran meant the server rendered nothing for
+  // the entire app: article pages came back with a 372-byte <body> and 69% of
+  // the payload as RSC script, so the browser could not see a single heading or
+  // image until JS had downloaded, parsed and hydrated. Only the mobile-only
+  // widget needs to wait for the UA check.
   return (
     <>
-
-
-      {/* 3) Trigger audio feedback on mobile when sections come into view */}
-      {isMobile && <MobileAudioFeedback />}
-
-      {/* 4) Finally, render the rest of your app */}
+      {mounted && isMobile && <MobileAudioFeedback />}
       {children}
     </>
   );

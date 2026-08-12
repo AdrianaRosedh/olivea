@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { SITE, canonicalUrl } from "@/lib/site";
 import { type Lang } from "@/lib/i18n";
+import { Suspense } from "react";
 import MenuDeepLinkClient from "./MenuDeepLinkClient";
 import ArticleMenu from "./ArticleMenu";
 
@@ -60,7 +61,11 @@ export default async function MenuPage({
           The client component redirects to /farmtotable#menu,
           but crawlers need content on this URL. */}
       <ArticleMenu lang={L} />
-      <MenuDeepLinkClient lang={lang} />
+      {/* useSearchParams() needs a boundary now that the tree actually renders
+          on the server; without it the whole page opts out of prerendering. */}
+      <Suspense fallback={null}>
+        <MenuDeepLinkClient lang={lang} />
+      </Suspense>
     </>
   );
 }
