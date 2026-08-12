@@ -7,15 +7,15 @@ import {
   useEditor,
   MetaSection,
   EditableBilingual,
-  EditableJSON,
 } from "@/components/admin/visual-editor";
+import TeamRosterEditor, { type RosterMember } from "@/components/admin/TeamRosterEditor";
 
 function TeamVisual() {
   const { get, set } = useEditor();
   const meta = get("meta") as
     | { title?: { es: string; en: string }; description?: { es: string; en: string } }
     | undefined;
-  const members = (get("members") as unknown[]) ?? [];
+  const members = (get("members") as RosterMember[]) ?? [];
 
   return (
     <div className="space-y-8">
@@ -56,35 +56,31 @@ function TeamVisual() {
         />
       </section>
 
-      {/* Roster — JSON-editable. Each entry mirrors LeaderProfile. */}
+      {/* Roster — the live team. Was a raw JSON textarea: one stray comma took
+          down the whole roster, and nothing surfaced which fields existed. */}
       <section className="rounded-2xl bg-white/40 ring-1 ring-black/5 p-6 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
-            Roster ({members.length} members)
+            Roster ({members.length})
           </h3>
           <span className="text-[11px] text-stone-400">
-            Leave empty to use the built-in fallback list
+            Empty = built-in fallback list
           </span>
         </div>
         <p className="text-xs text-stone-500 leading-relaxed">
-          Each member entry is JSON with these fields:{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">id</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">name</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">role: {"{ es, en }"}</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">bio: {"{ es, en }"}</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">avatar</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">gallery: string[]</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">priority</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">tile: &quot;hero&quot; | &quot;md&quot;</code>,{" "}
-          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">links</code>.
+          Order here is the order on the team page. Each member automatically
+          gets their own profile page at{" "}
+          <code className="rounded bg-stone-100 px-1 py-0.5 text-[10px]">
+            /team/&lt;id&gt;
+          </code>
+          .
         </p>
-        <EditableJSON
-          label="Members"
+        <TeamRosterEditor
           value={members}
           onChange={(v) => set("members", v)}
-          rows={20}
         />
       </section>
+
     </div>
   );
 }
