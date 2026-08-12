@@ -5,6 +5,7 @@ import { SITE, canonicalUrl } from "@/lib/site";
 import TeamClient, { type TeamDict } from "./TeamClient";
 import { loadTeam } from "./teamData";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
+import TeamArticle from "./TeamArticle";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -118,6 +119,11 @@ export default async function TeamPage({ params }: PageProps) {
   return (
     <main className="w-full px-6 sm:px-10 py-10">
       <FaqJsonLd id={faqId} items={faq} />
+
+      {/* Server-rendered roster for crawlers and no-JS clients; hidden once
+          React hydrates. The visible page is a tab UI, so without this the
+          eleven bios never appear in the HTML. */}
+      <TeamArticle members={members} lang={lang as "es" | "en"} />
       <TeamClient lang={lang} team={team} members={members} />
     </main>
   );
