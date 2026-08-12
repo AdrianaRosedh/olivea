@@ -14,6 +14,7 @@ import PhotoCarousel from "../PhotoCarousel";
 
 import { getDictionary, type Lang } from "@/app/(main)/[lang]/dictionaries";
 import { sanitizeHtml } from "@/lib/utils/sanitize-html";
+import { optimizeHtmlImages } from "@/lib/utils/optimize-html-images";
 import {
   listJournalSlugs,
   loadJournalBySlug,
@@ -419,7 +420,11 @@ export default async function JournalPostPage({
               ].join(" ")}
             >
               {post.htmlBody ? (
-                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.htmlBody) }} />
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: optimizeHtmlImages(sanitizeHtml(post.htmlBody)),
+                  }}
+                />
               ) : (
                 post.content
               )}
