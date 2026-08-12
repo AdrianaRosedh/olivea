@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import EditableBilingual from "./EditableBilingual";
 import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -68,14 +69,20 @@ export default function EditableSections({
     onChange(updated);
   };
 
-  const removeItem = (idx: number) => {
+  const confirm = useConfirm();
+
+  const removeItem = async (idx: number) => {
     const item = value[idx];
     const title = item?.title?.en || item?.title?.es || item?.id || `section ${idx + 1}`;
-    const msg = t({
-      es: `¿Eliminar la sección "${title}"? Necesitas guardar la página para que surta efecto.`,
-      en: `Delete the section "${title}"? You'll need to save the page for this to take effect.`,
+    const ok = await confirm({
+      tone: "danger",
+      title: { es: `¿Eliminar la sección "${title}"?`, en: `Delete the section "${title}"?` },
+      body: {
+        es: "Necesitas guardar la página para que surta efecto.",
+        en: "You'll need to save the page for this to take effect.",
+      },
     });
-    if (!window.confirm(msg)) return;
+    if (!ok) return;
     onChange(value.filter((_, i) => i !== idx));
   };
 

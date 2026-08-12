@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import EditableBilingual from "./EditableBilingual";
 import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -50,14 +51,20 @@ export default function EditableFAQ({
     onChange(updated);
   };
 
-  const removeItem = (idx: number) => {
+  const confirm = useConfirm();
+
+  const removeItem = async (idx: number) => {
     const q = value[idx]?.question?.en || value[idx]?.question?.es || "this question";
     const preview = q.length > 60 ? q.slice(0, 60) + "…" : q;
-    const msg = t({
-      es: `¿Eliminar la pregunta "${preview}"? Necesitas guardar la página para que surta efecto.`,
-      en: `Delete the FAQ "${preview}"? You'll need to save the page for this to take effect.`,
+    const ok = await confirm({
+      tone: "danger",
+      title: { es: `¿Eliminar la pregunta "${preview}"?`, en: `Delete the FAQ "${preview}"?` },
+      body: {
+        es: "Necesitas guardar la página para que surta efecto.",
+        en: "You'll need to save the page for this to take effect.",
+      },
     });
-    if (!window.confirm(msg)) return;
+    if (!ok) return;
     onChange(value.filter((_, i) => i !== idx));
     if (expandedIdx === idx) setExpandedIdx(null);
   };

@@ -10,10 +10,13 @@ import {
   Star,
   Pencil,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { useAdminLocale, type B } from "@/lib/admin/i18n";
 import { useScrollLock } from "@/lib/hooks/useScrollLock";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 type I18nText = { es: string; en: string };
 type TeamLink = { href: string; label: I18nText; highlight?: boolean };
@@ -100,6 +103,7 @@ export default function TeamRosterEditor({
   onChange: (v: RosterMember[]) => void;
 }) {
   const { t } = useAdminLocale();
+  const confirm = useConfirm();
   const [openId, setOpenId] = useState<string | null>(null);
   const members = Array.isArray(value) ? value : [];
 
@@ -119,14 +123,21 @@ export default function TeamRosterEditor({
     commit(next);
   };
 
-  const remove = (i: number) => {
+  const remove = async (i: number) => {
     const m = members[i];
-    const ok = window.confirm(
-      t({
-        es: `¿Quitar a ${m.name || "este miembro"} del equipo? Desaparecerá de la página pública y su perfil dejará de existir al guardar.`,
-        en: `Remove ${m.name || "this member"} from the team? They disappear from the public page and their profile page stops existing once you save.`,
-      })
-    );
+    const who = m.name || t({ es: "este miembro", en: "this member" });
+    const ok = await confirm({
+      tone: "danger",
+      title: {
+        es: `¿Quitar a ${who} del equipo?`,
+        en: `Remove ${who} from the team?`,
+      },
+      body: {
+        es: "Desaparecerá de la página pública y su página de perfil dejará de existir en cuanto guardes.",
+        en: "They disappear from the public team page, and their profile page stops existing as soon as you save.",
+      },
+      confirmLabel: { es: "Quitar", en: "Remove" },
+    });
     if (!ok) return;
     commit(members.filter((_, idx) => idx !== i));
   };
@@ -217,6 +228,81 @@ export default function TeamRosterEditor({
           hint={t({
             es: "Recomendado: 800 × 800 px (cuadrada). Se recorta en círculo.",
             en: "Recommended: 800 × 800 px (square). Cropped to a circle.",
+          })}
+        />
+      </Section>
+
+      <Section title={t({ es: "Galería del perfil", en: "Profile gallery" })}>
+        <p className="-mt-1 text-[10px] leading-relaxed text-[var(--olivea-clay)]/60">
+          {t({
+            es: "Las fotos que se muestran en su página de perfil. El orden aquí es el orden en que aparecen.",
+            en: "The photos shown on their profile page. The order here is the order they appear in.",
+          })}
+        </p>
+        {(m.gallery ?? []).length > 0 && (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {(m.gallery ?? []).map((src, gi) => {
+              const gallery = m.gallery ?? [];
+              const swap = (j: number) => {
+                if (j < 0 || j >= gallery.length) return;
+                const next = [...gallery];
+                [next[gi], next[j]] = [next[j], next[gi]];
+                update(i, { gallery: next });
+              };
+              return (
+                <div
+                  key={`${src}-${gi}`}
+                  className="group relative aspect-square overflow-hidden rounded-lg bg-[var(--olivea-cream)]/40 ring-1 ring-black/[0.06]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-full w-full object-cover" />
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/45 px-1 py-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                    <button
+                      type="button"
+                      onClick={() => swap(gi - 1)}
+                      disabled={gi === 0}
+                      aria-label={t({ es: "Mover antes", en: "Move earlier" })}
+                      className="rounded p-0.5 text-white/90 transition-colors hover:text-white disabled:opacity-25"
+                    >
+                      <ChevronLeft size={13} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        update(i, { gallery: gallery.filter((_, x) => x !== gi) })
+                      }
+                      aria-label={t({ es: "Quitar foto", en: "Remove photo" })}
+                      className="rounded p-0.5 text-white/90 transition-colors hover:text-red-300"
+                    >
+                      <X size={13} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => swap(gi + 1)}
+                      disabled={gi === gallery.length - 1}
+                      aria-label={t({ es: "Mover después", en: "Move later" })}
+                      className="rounded p-0.5 text-white/90 transition-colors hover:text-white disabled:opacity-25"
+                    >
+                      <ChevronRight size={13} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {/* value="" so the dropzone always shows: this adds to the gallery
+            rather than replacing a single image. */}
+        <ImageUpload
+          value=""
+          onChange={(url) =>
+            url && update(i, { gallery: [...(m.gallery ?? []), url] })
+          }
+          folder="team"
+          aspectRatio="aspect-[4/3]"
+          hint={t({
+            es: "Recomendado: 1200 px de ancho. Se agrega al final de la galería.",
+            en: "Recommended: 1200 px wide. Added to the end of the gallery.",
           })}
         />
       </Section>
@@ -439,7 +525,7 @@ export default function TeamRosterEditor({
             className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
           />
           <aside
-            className="relative flex h-full w-full max-w-[560px] flex-col bg-[#f7f8f4] shadow-2xl"
+            className="relative flex h-full w-full flex-col bg-[#f7f8f4] shadow-2xl sm:max-w-[min(860px,62vw)]"
             onKeyDown={(e) => e.key === "Escape" && setOpenId(null)}
           >
             <header className="flex shrink-0 items-center gap-3 border-b border-black/[0.06] px-5 py-3">
@@ -473,8 +559,8 @@ export default function TeamRosterEditor({
             <footer className="flex shrink-0 items-center justify-between border-t border-black/[0.06] px-5 py-3">
               <button
                 type="button"
-                onClick={() => {
-                  remove(editing);
+                onClick={async () => {
+                  await remove(editing);
                   setOpenId(null);
                 }}
                 className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium text-[var(--olivea-clay)] transition-colors hover:bg-red-50 hover:text-red-600"

@@ -5,6 +5,7 @@ import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 import SectionGuard from "@/components/admin/SectionGuard";
 import { Clock, Plus, Trash2, GripVertical, Save, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 /* ── Types ── */
 
@@ -51,6 +52,7 @@ export default function HoursPage() {
   const [dirty, setDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">("idle");
   const { t } = useAdminLocale();
+  const confirm = useConfirm();
 
   const loadHours = useCallback(async () => {
     try {
@@ -89,13 +91,21 @@ export default function HoursPage() {
     setDirty(true);
   };
 
-  const removeItem = (idx: number) => {
+  const removeItem = async (idx: number) => {
     const item = hours[idx];
     const venueLabel = venueOptions.find((v) => v.value === item?.venue)?.label ?? item?.venue ?? t({ es: "esta entrada", en: "this entry" });
-    if (!window.confirm(t({
-      es: `¿Eliminar los horarios de "${venueLabel}"? Se quitarán del sitio público después de guardar.`,
-      en: `Delete hours for "${venueLabel}"? This will be removed from the public site after you save.`,
-    }))) return;
+    const ok = await confirm({
+      tone: "danger",
+      title: {
+        es: `¿Eliminar los horarios de "${venueLabel}"?`,
+        en: `Delete hours for "${venueLabel}"?`,
+      },
+      body: {
+        es: "Se quitarán del sitio público en cuanto guardes.",
+        en: "They are removed from the public site as soon as you save.",
+      },
+    });
+    if (!ok) return;
     setHours(hours.filter((_, i) => i !== idx));
     setDirty(true);
   };

@@ -6,6 +6,7 @@ import { Bell, Plus, Pencil, Trash2, ChevronUp, X } from "lucide-react";
 import { getPopups, savePopup, deletePopup, togglePopup } from "@/lib/supabase/actions";
 import type { PopupItem, PopupFrequency } from "@/lib/content/types";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 /* ─── Helpers ─── */
 
@@ -554,6 +555,7 @@ function PopupForm({
 /* ─── Main Page ─── */
 
 export default function PopupsPage() {
+  const confirm = useConfirm();
   const [popups, setPopups] = useState<PopupItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<B | null>(null);
@@ -603,7 +605,12 @@ export default function PopupsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm(t({ es: `¿Eliminar la ventana "${id}"? Esta acción no se puede deshacer.`, en: `Delete popup "${id}"? This cannot be undone.` }))) return;
+    const ok = await confirm({
+      tone: "danger",
+      title: { es: `¿Eliminar la ventana "${id}"?`, en: `Delete popup "${id}"?` },
+      body: { es: "Esta acción no se puede deshacer.", en: "This cannot be undone." },
+    });
+    if (!ok) return;
     setDeletingId(id);
     try {
       await deletePopup(id);

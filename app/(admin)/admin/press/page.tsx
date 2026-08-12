@@ -29,6 +29,7 @@ import {
 } from "@/lib/supabase/actions";
 import type { Bilingual } from "@/lib/content/types";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 /* ── Types (mirror the press_items table) ── */
 
@@ -376,6 +377,7 @@ function PressItemForm({
 /* ── Page ── */
 
 function PressAdmin() {
+  const confirm = useConfirm();
   const { canEdit, canDelete } = useAuth();
   const { t } = useAdminLocale();
   const [rows, setRows] = useState<PressRow[]>([]);
@@ -410,15 +412,18 @@ function PressAdmin() {
   };
 
   const handleDelete = async (row: PressRow) => {
-    if (
-      !window.confirm(
-        t({
-          es: `¿Eliminar “${row.title?.es || row.id}”? Esta acción no se puede deshacer.`,
-          en: `Delete “${row.title?.es || row.id}”? This cannot be undone.`,
-        })
-      )
-    )
-      return;
+    const ok = await confirm({
+      tone: "danger",
+      title: {
+        es: `¿Eliminar “${row.title?.es || row.id}”?`,
+        en: `Delete “${row.title?.es || row.id}”?`,
+      },
+      body: {
+        es: "Esta acción no se puede deshacer.",
+        en: "This cannot be undone.",
+      },
+    });
+    if (!ok) return;
     try {
       await deletePressItem(row.id);
       setRows((rs) => rs.filter((r) => r.id !== row.id));

@@ -36,6 +36,7 @@ import {
   type SecureDocument,
 } from "./actions";
 import { SECURE_DOC_BASE_URL } from "./constants";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 function docUrl(token: string): string {
   return `${SECURE_DOC_BASE_URL}/d/${token}`;
@@ -210,6 +211,7 @@ function CreateForm({ onDone }: { onDone: () => void }) {
 /* ── Document card ────────────────────────────────────────────────── */
 
 function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify: boolean; onChanged: () => void }) {
+  const confirm = useConfirm();
   const { locale, t } = useAdminLocale();
   const [busy, setBusy] = useState(false);
   const [editingExpiry, setEditingExpiry] = useState(false);
@@ -227,8 +229,16 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
     run(() => setDocumentPasscode(doc.id, v.trim() || null));
   };
 
-  const remove = () => {
-    if (!window.confirm(t({ es: "¿Eliminar este documento y su archivo? No se puede deshacer.", en: "Delete this document and its file? This cannot be undone." }))) return;
+  const remove = async () => {
+    const ok = await confirm({
+      tone: "danger",
+      title: { es: "¿Eliminar este documento?", en: "Delete this document?" },
+      body: {
+        es: "Se borra el registro y su archivo. No se puede deshacer.",
+        en: "The record and its file are deleted. This cannot be undone.",
+      },
+    });
+    if (!ok) return;
     run(() => deleteSecureDocument(doc.id));
   };
 

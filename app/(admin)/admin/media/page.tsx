@@ -5,6 +5,7 @@ import SectionGuard from "@/components/admin/SectionGuard";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 import { Image as ImageIcon, Upload, Trash2, Loader2, Copy, Check, FolderOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 /* ── Types ── */
 
@@ -38,6 +39,7 @@ export default function MediaPage() {
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useAdminLocale();
+  const confirm = useConfirm();
 
   const loadFiles = useCallback(async (folder: string) => {
     setLoading(true);
@@ -80,7 +82,15 @@ export default function MediaPage() {
   };
 
   const handleDelete = async (file: MediaFile) => {
-    if (!confirm(t({ es: `¿Eliminar ${file.name}?`, en: `Delete ${file.name}?` }))) return;
+    const ok = await confirm({
+      tone: "danger",
+      title: { es: `¿Eliminar ${file.name}?`, en: `Delete ${file.name}?` },
+      body: {
+        es: "El archivo se borra del almacenamiento y cualquier página que lo use quedará sin imagen.",
+        en: "The file is deleted from storage; any page still using it loses its image.",
+      },
+    });
+    if (!ok) return;
     try {
       const { deleteImage } = await import("@/lib/supabase/storage-actions");
       await deleteImage(file.publicUrl);

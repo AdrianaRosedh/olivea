@@ -6,6 +6,7 @@ import { DockProvider } from "@/components/admin/AdminDockContext";
 import { AuthProvider } from "@/components/admin/AuthProvider";
 import { PaletteProvider } from "@/components/admin/CommandPalette";
 import { AdminLocaleProvider } from "@/lib/admin/i18n";
+import { ConfirmProvider } from "@/components/admin/ConfirmDialog";
 import { getSession } from "@/lib/auth/session";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mockUser } from "@/lib/admin/mock-user";
@@ -57,6 +58,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <AuthProvider initialUser={resolvedUser}>
       <AdminLocaleProvider initialLocale={resolvedUser.locale ?? "es"}>
+      <ConfirmProvider>
       <DockProvider>
         <PaletteProvider>
         <div
@@ -94,6 +96,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         </PaletteProvider>
       </DockProvider>
+      </ConfirmProvider>
       </AdminLocaleProvider>
     </AuthProvider>
   );
