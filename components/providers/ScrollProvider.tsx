@@ -103,8 +103,22 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     // Always keep --scroll-per working (even without Lenis)
     setScrollPerFromWindowScroll();
 
-    // MOBILE / reduced-motion path: no Lenis, no RAF loop
-    if (!isDesktop() || !motionOK()) {
+    // The admin is a CMS, not a showcase: smooth scrolling buys nothing there
+    // and actively breaks it. Lenis intercepts wheel events globally, so any
+    // scrollable panel inside the admin — the journal editor, the roster
+    // slide-over — stopped responding to the wheel while the scrollbar still
+    // worked, and each one had to opt out with data-lenis-prevent. Skipping
+    // Lenis on /admin removes the whole class of bug rather than patching it
+    // per component.
+    //
+    // Checked at mount rather than via usePathname so the public site keeps a
+    // single long-lived Lenis instance across client navigations; the admin is
+    // served from its own subdomain, so it never transitions in or out of this
+    // path without a full load.
+    const isAdmin = window.location.pathname.startsWith("/admin");
+
+    // ADMIN / MOBILE / reduced-motion path: no Lenis, no RAF loop
+    if (isAdmin || !isDesktop() || !motionOK()) {
       const onScroll = () => setScrollPerFromWindowScroll();
       window.addEventListener("scroll", onScroll, { passive: true });
 
