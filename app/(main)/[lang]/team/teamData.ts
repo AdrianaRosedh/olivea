@@ -79,6 +79,21 @@ export type LeaderProfile = {
    TEAM (11 members)
 ========================================================= */
 
+/**
+ * ⚠️ FALLBACK ONLY — this is no longer the live roster.
+ *
+ * The public team roster now lives in Supabase: team_content.members.
+ * loadTeam() reads that first and only falls back to this array when the
+ * column is null or empty, so editing the profiles below changes nothing on
+ * the site. Edit the roster in the CMS instead.
+ *
+ * Kept deliberately: it is a working copy of the roster, so the team page and
+ * every /team/<id> page still render if Supabase is unavailable.
+ *
+ * getLeader()/getSortedTeam() are the synchronous variants and read this array
+ * directly — prefer the async loadLeader()/loadSortedTeam() anywhere the live
+ * roster matters.
+ */
 export const TEAM: LeaderProfile[] = [
   {
     id: "ange",
