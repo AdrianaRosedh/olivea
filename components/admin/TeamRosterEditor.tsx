@@ -2,17 +2,18 @@
 
 import { useState } from "react";
 import {
-  ChevronDown,
-  GripVertical,
   Trash2,
   UserPlus,
   ArrowUp,
   ArrowDown,
   Plus,
   Star,
+  Pencil,
+  X,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { useAdminLocale, type B } from "@/lib/admin/i18n";
+import { useScrollLock } from "@/lib/hooks/useScrollLock";
 
 type I18nText = { es: string; en: string };
 type TeamLink = { href: string; label: I18nText; highlight?: boolean };
@@ -131,7 +132,11 @@ export default function TeamRosterEditor({
   };
 
   const add = () => {
-    const id = `nuevo-${Date.now().toString(36).slice(-4)}`;
+    // Deterministic rather than time-based: Date.now() in the component body
+    // is an impure call, and a counted slug reads better anyway.
+    let n = members.length + 1;
+    while (members.some((m) => m.id === `nuevo-${n}`)) n += 1;
+    const id = `nuevo-${n}`;
     commit([
       ...members,
       { id, name: "", role: empty(), bio: empty(), links: [], tile: "md" },
@@ -139,308 +144,280 @@ export default function TeamRosterEditor({
     setOpenId(id);
   };
 
-  return (
-    <div className="space-y-2">
-      {members.map((m, i) => {
-        const open = openId === m.id;
-        return (
-          <div
-            key={`${m.id}-${i}`}
-            className="overflow-hidden rounded-xl bg-white/60 ring-1 ring-black/[0.06]"
-          >
-            {/* Collapsed row */}
-            <div className="flex items-center gap-2 px-3 py-2">
-              <GripVertical size={14} className="shrink-0 text-[var(--olivea-clay)]/25" />
-              {m.avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={m.avatar}
-                  alt=""
-                  className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-black/5"
-                />
-              ) : (
-                <div className="h-9 w-9 shrink-0 rounded-full bg-[var(--olivea-cream)]/60 ring-1 ring-black/5" />
-              )}
+  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <section className="space-y-3">
+      <h4 className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--olivea-clay)]/70">
+        {title}
+      </h4>
+      {children}
+    </section>
+  );
 
+  const renderFields = (i: number, m: RosterMember) => (
+    <div className="space-y-7">
+      <Section title={t({ es: "Identidad", en: "Identity" })}>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="space-y-1">
+            <div className={S.label}>{t({ es: "Nombre", en: "Name" })}</div>
+            <input
+              type="text"
+              value={m.name}
+              onChange={(e) => update(i, { name: e.target.value })}
+              className={S.input}
+            />
+          </div>
+          <div className="space-y-1">
+            <div className={S.label}>{t({ es: "ID · su página", en: "ID · their page" })}</div>
+            <input
+              type="text"
+              value={m.id}
+              onChange={(e) =>
+                update(i, { id: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") })
+              }
+              className={`${S.input} font-mono text-xs`}
+            />
+            <p className="text-[10px] text-[var(--olivea-clay)]/55">
+              oliveafarmtotable.com/team/{m.id || "…"}
+            </p>
+          </div>
+        </div>
+        <Bilingual
+          label={t({ es: "Puesto", en: "Role" })}
+          value={m.role ?? empty()}
+          onChange={(v) => update(i, { role: v })}
+        />
+        <Bilingual
+          label={t({ es: "Organización", en: "Organisation" })}
+          value={m.org ?? empty()}
+          onChange={(v) => update(i, { org: v })}
+        />
+        <Bilingual
+          label={t({ es: "Etiqueta", en: "Tag" })}
+          value={m.tag ?? empty()}
+          onChange={(v) => update(i, { tag: v })}
+        />
+      </Section>
+
+      <Section title={t({ es: "Biografía", en: "Bio" })}>
+        <Bilingual
+          label={t({ es: "Texto", en: "Text" })}
+          value={m.bio ?? empty()}
+          onChange={(v) => update(i, { bio: v })}
+          multiline
+          rows={7}
+        />
+      </Section>
+
+      <Section title={t({ es: "Foto", en: "Photo" })}>
+        <ImageUpload
+          value={m.avatar ?? ""}
+          onChange={(url) => update(i, { avatar: url || undefined })}
+          folder="team"
+          aspectRatio="aspect-square"
+          hint={t({
+            es: "Recomendado: 800 × 800 px (cuadrada). Se recorta en círculo.",
+            en: "Recommended: 800 × 800 px (square). Cropped to a circle.",
+          })}
+        />
+      </Section>
+
+      <Section title={t({ es: "Dónde aparece", en: "Where they appear" })}>
+        <div className="flex flex-wrap gap-1.5">
+          {CATEGORIES.map((c) => {
+            const on = (m.showIn ?? []).includes(c);
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() =>
+                  update(i, {
+                    showIn: on
+                      ? (m.showIn ?? []).filter((x) => x !== c)
+                      : [...(m.showIn ?? []), c],
+                  })
+                }
+                className={`rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                  on
+                    ? "bg-[var(--olivea-olive)]/12 text-[var(--olivea-olive)]"
+                    : "bg-white/70 text-[var(--olivea-clay)]/60 hover:bg-white"
+                }`}
+              >
+                {t(CATEGORY_LABEL[c])}
+              </button>
+            );
+          })}
+        </div>
+        <label className="flex items-center gap-2 text-[11px] text-[var(--olivea-clay)]">
+          <input
+            type="checkbox"
+            checked={!!m.alwaysShow}
+            onChange={(e) => update(i, { alwaysShow: e.target.checked })}
+          />
+          {t({ es: "Mostrar en todos los filtros", en: "Show in every filter" })}
+        </label>
+        <div className="space-y-1">
+          <div className={S.label}>{t({ es: "Tamaño en la cuadrícula", en: "Grid tile" })}</div>
+          <div className="flex gap-1.5">
+            {(["hero", "md"] as const).map((size) => (
+              <button
+                key={size}
+                type="button"
+                onClick={() => update(i, { tile: size })}
+                className={`rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                  (m.tile ?? "md") === size
+                    ? "bg-[var(--olivea-olive)]/12 text-[var(--olivea-olive)]"
+                    : "bg-white/70 text-[var(--olivea-clay)]/60 hover:bg-white"
+                }`}
+              >
+                {size === "hero"
+                  ? t({ es: "Destacado", en: "Featured" })
+                  : t({ es: "Normal", en: "Normal" })}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <Section title={t({ es: "Enlaces del perfil", en: "Profile links" })}>
+        {(m.links ?? []).map((link, li) => (
+          <div key={li} className="space-y-1.5 rounded-lg bg-white/50 p-2.5 ring-1 ring-black/[0.04]">
+            <div className="grid gap-2 md:grid-cols-2">
+              <input
+                type="text"
+                value={link.label?.es ?? ""}
+                onChange={(e) =>
+                  update(i, {
+                    links: (m.links ?? []).map((l, x) =>
+                      x === li ? { ...l, label: { ...empty(), ...l.label, es: e.target.value } } : l
+                    ),
+                  })
+                }
+                placeholder={t({ es: "Texto (ES)", en: "Label (ES)" })}
+                className={S.input}
+              />
+              <input
+                type="text"
+                value={link.label?.en ?? ""}
+                onChange={(e) =>
+                  update(i, {
+                    links: (m.links ?? []).map((l, x) =>
+                      x === li ? { ...l, label: { ...empty(), ...l.label, en: e.target.value } } : l
+                    ),
+                  })
+                }
+                placeholder={t({ es: "Texto (EN)", en: "Label (EN)" })}
+                className={S.input}
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={link.href}
+                onChange={(e) =>
+                  update(i, {
+                    links: (m.links ?? []).map((l, x) =>
+                      x === li ? { ...l, href: e.target.value } : l
+                    ),
+                  })
+                }
+                placeholder="https://…"
+                className={`${S.input} flex-1`}
+              />
               <button
                 type="button"
-                onClick={() => setOpenId(open ? null : m.id)}
-                className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                onClick={() =>
+                  update(i, { links: (m.links ?? []).filter((_, x) => x !== li) })
+                }
+                className="rounded p-1.5 text-[var(--olivea-clay)]/40 transition-colors hover:bg-red-50 hover:text-red-600"
               >
-                <span className="truncate text-sm font-medium text-[var(--olivea-ink)]">
-                  {m.name || t({ es: "(sin nombre)", en: "(unnamed)" })}
-                </span>
-                <span className="truncate text-[11px] text-[var(--olivea-clay)]/70">
-                  {m.role?.es || m.role?.en}
-                </span>
-                {m.alwaysShow && (
-                  <Star size={11} className="shrink-0 text-[var(--olivea-olive)]/60" />
-                )}
-                <span className="ml-auto shrink-0 font-mono text-[10px] text-[var(--olivea-clay)]/45">
-                  /{m.id}
-                </span>
+                <Trash2 size={13} />
               </button>
-
-              <div className="flex shrink-0 items-center gap-0.5">
-                <button
-                  type="button"
-                  onClick={() => move(i, -1)}
-                  disabled={i === 0}
-                  className="rounded p-1 text-[var(--olivea-clay)]/40 transition-colors hover:text-[var(--olivea-ink)] disabled:opacity-25"
-                >
-                  <ArrowUp size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => move(i, 1)}
-                  disabled={i === members.length - 1}
-                  className="rounded p-1 text-[var(--olivea-clay)]/40 transition-colors hover:text-[var(--olivea-ink)] disabled:opacity-25"
-                >
-                  <ArrowDown size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => remove(i)}
-                  className="rounded p-1 text-[var(--olivea-clay)]/40 transition-colors hover:bg-red-50 hover:text-red-600"
-                >
-                  <Trash2 size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpenId(open ? null : m.id)}
-                  className="rounded p-1 text-[var(--olivea-clay)]/40 transition-colors hover:text-[var(--olivea-ink)]"
-                >
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform ${open ? "rotate-180" : ""}`}
-                  />
-                </button>
-              </div>
             </div>
-
-            {/* Expanded editor */}
-            {open && (
-              <div className="space-y-4 border-t border-black/[0.04] px-4 py-4">
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="space-y-1">
-                    <div className={S.label}>{t({ es: "Nombre", en: "Name" })}</div>
-                    <input
-                      type="text"
-                      value={m.name}
-                      onChange={(e) => update(i, { name: e.target.value })}
-                      className={S.input}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <div className={S.label}>
-                      {t({ es: "ID · su página", en: "ID · their page" })}
-                    </div>
-                    <input
-                      type="text"
-                      value={m.id}
-                      onChange={(e) =>
-                        update(i, {
-                          id: e.target.value
-                            .toLowerCase()
-                            .replace(/[^a-z0-9-]/g, ""),
-                        })
-                      }
-                      className={`${S.input} font-mono text-xs`}
-                    />
-                    <p className="text-[10px] text-[var(--olivea-clay)]/55">
-                      oliveafarmtotable.com/team/{m.id || "…"}
-                    </p>
-                  </div>
-                </div>
-
-                <Bilingual
-                  label={t({ es: "Puesto", en: "Role" })}
-                  value={m.role ?? empty()}
-                  onChange={(v) => update(i, { role: v })}
-                />
-                <Bilingual
-                  label={t({ es: "Organización", en: "Organisation" })}
-                  value={m.org ?? empty()}
-                  onChange={(v) => update(i, { org: v })}
-                />
-                <Bilingual
-                  label={t({ es: "Etiqueta", en: "Tag" })}
-                  value={m.tag ?? empty()}
-                  onChange={(v) => update(i, { tag: v })}
-                />
-                <Bilingual
-                  label={t({ es: "Biografía", en: "Bio" })}
-                  value={m.bio ?? empty()}
-                  onChange={(v) => update(i, { bio: v })}
-                  multiline
-                  rows={6}
-                />
-
-                <div className="space-y-1">
-                  <div className={S.label}>{t({ es: "Foto", en: "Photo" })}</div>
-                  <ImageUpload
-                    value={m.avatar ?? ""}
-                    onChange={(url) => update(i, { avatar: url || undefined })}
-                    folder="team"
-                    aspectRatio="aspect-square"
-                    hint={t({
-                      es: "Recomendado: 800 × 800 px (cuadrada). Se recorta en círculo en la lista.",
-                      en: "Recommended: 800 × 800 px (square). Cropped to a circle in the list.",
-                    })}
-                  />
-                </div>
-
-                {/* Visibility */}
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <div className={S.label}>
-                      {t({ es: "Aparece en", en: "Appears in" })}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {CATEGORIES.map((c) => {
-                        const on = (m.showIn ?? []).includes(c);
-                        return (
-                          <button
-                            key={c}
-                            type="button"
-                            onClick={() =>
-                              update(i, {
-                                showIn: on
-                                  ? (m.showIn ?? []).filter((x) => x !== c)
-                                  : [...(m.showIn ?? []), c],
-                              })
-                            }
-                            className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                              on
-                                ? "bg-[var(--olivea-olive)]/12 text-[var(--olivea-olive)]"
-                                : "bg-white/60 text-[var(--olivea-clay)]/60 hover:bg-white"
-                            }`}
-                          >
-                            {t(CATEGORY_LABEL[c])}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <label className="flex items-center gap-2 pt-1 text-[11px] text-[var(--olivea-clay)]">
-                      <input
-                        type="checkbox"
-                        checked={!!m.alwaysShow}
-                        onChange={(e) => update(i, { alwaysShow: e.target.checked })}
-                      />
-                      {t({
-                        es: "Mostrar en todos los filtros",
-                        en: "Show in every filter",
-                      })}
-                    </label>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className={S.label}>
-                      {t({ es: "Tamaño en la cuadrícula", en: "Grid tile" })}
-                    </div>
-                    <div className="flex gap-1.5">
-                      {(["hero", "md"] as const).map((size) => (
-                        <button
-                          key={size}
-                          type="button"
-                          onClick={() => update(i, { tile: size })}
-                          className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                            (m.tile ?? "md") === size
-                              ? "bg-[var(--olivea-olive)]/12 text-[var(--olivea-olive)]"
-                              : "bg-white/60 text-[var(--olivea-clay)]/60 hover:bg-white"
-                          }`}
-                        >
-                          {size === "hero"
-                            ? t({ es: "Destacado", en: "Featured" })
-                            : t({ es: "Normal", en: "Normal" })}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Links */}
-                <div className="space-y-1.5">
-                  <div className={S.label}>
-                    {t({ es: "Enlaces del perfil", en: "Profile links" })}
-                  </div>
-                  {(m.links ?? []).map((link, li) => (
-                    <div key={li} className="grid gap-2 md:grid-cols-[1fr_1fr_auto]">
-                      <input
-                        type="text"
-                        value={link.label?.es ?? ""}
-                        onChange={(e) =>
-                          update(i, {
-                            links: (m.links ?? []).map((l, x) =>
-                              x === li
-                                ? { ...l, label: { ...empty(), ...l.label, es: e.target.value } }
-                                : l
-                            ),
-                          })
-                        }
-                        placeholder={t({ es: "Texto (ES)", en: "Label (ES)" })}
-                        className={S.input}
-                      />
-                      <input
-                        type="text"
-                        value={link.label?.en ?? ""}
-                        onChange={(e) =>
-                          update(i, {
-                            links: (m.links ?? []).map((l, x) =>
-                              x === li
-                                ? { ...l, label: { ...empty(), ...l.label, en: e.target.value } }
-                                : l
-                            ),
-                          })
-                        }
-                        placeholder={t({ es: "Texto (EN)", en: "Label (EN)" })}
-                        className={S.input}
-                      />
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="text"
-                          value={link.href}
-                          onChange={(e) =>
-                            update(i, {
-                              links: (m.links ?? []).map((l, x) =>
-                                x === li ? { ...l, href: e.target.value } : l
-                              ),
-                            })
-                          }
-                          placeholder="https://…"
-                          className={`${S.input} min-w-40`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            update(i, {
-                              links: (m.links ?? []).filter((_, x) => x !== li),
-                            })
-                          }
-                          className="rounded p-1.5 text-[var(--olivea-clay)]/40 transition-colors hover:bg-red-50 hover:text-red-600"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      update(i, {
-                        links: [...(m.links ?? []), { href: "", label: empty() }],
-                      })
-                    }
-                    className="flex items-center gap-1.5 text-[11px] text-[var(--olivea-olive)] transition-colors hover:text-[var(--olivea-ink)]"
-                  >
-                    <Plus size={12} /> {t({ es: "Agregar enlace", en: "Add link" })}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
-        );
-      })}
+        ))}
+        <button
+          type="button"
+          onClick={() => update(i, { links: [...(m.links ?? []), { href: "", label: empty() }] })}
+          className="flex items-center gap-1.5 text-[11px] text-[var(--olivea-olive)] transition-colors hover:text-[var(--olivea-ink)]"
+        >
+          <Plus size={12} /> {t({ es: "Agregar enlace", en: "Add link" })}
+        </button>
+      </Section>
+    </div>
+  );
+
+  const editing = members.findIndex((m) => m.id === openId);
+  const active = editing >= 0 ? members[editing] : null;
+  useScrollLock(!!active);
+
+  return (
+    <div className="space-y-2">
+      {members.map((m, i) => (
+        <div
+          key={`${m.id}-${i}`}
+          className="flex items-center gap-3 rounded-xl bg-white/60 px-3 py-2 ring-1 ring-black/[0.06] transition-colors hover:bg-white/85"
+        >
+          {m.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={m.avatar}
+              alt=""
+              className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-black/5"
+            />
+          ) : (
+            <div className="h-9 w-9 shrink-0 rounded-full bg-[var(--olivea-cream)]/60 ring-1 ring-black/5" />
+          )}
+
+          <button
+            type="button"
+            onClick={() => setOpenId(m.id)}
+            className="flex min-w-0 flex-1 items-center gap-2 text-left"
+          >
+            <span className="truncate text-sm font-medium text-[var(--olivea-ink)]">
+              {m.name || t({ es: "(sin nombre)", en: "(unnamed)" })}
+            </span>
+            <span className="truncate text-[11px] text-[var(--olivea-clay)]/70">
+              {m.role?.es || m.role?.en}
+            </span>
+            {m.alwaysShow && (
+              <Star size={11} className="shrink-0 text-[var(--olivea-olive)]/60" />
+            )}
+            <span className="ml-auto hidden shrink-0 font-mono text-[10px] text-[var(--olivea-clay)]/45 sm:block">
+              /{m.id}
+            </span>
+          </button>
+
+          {/* Reorder only. Delete lives in the panel, away from the arrows —
+              it sat between them before, one slip from removing someone. */}
+          <div className="flex shrink-0 items-center">
+            <button
+              type="button"
+              onClick={() => move(i, -1)}
+              disabled={i === 0}
+              aria-label={t({ es: "Subir", en: "Move up" })}
+              className="rounded p-1 text-[var(--olivea-clay)]/40 transition-colors hover:text-[var(--olivea-ink)] disabled:opacity-20"
+            >
+              <ArrowUp size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={() => move(i, 1)}
+              disabled={i === members.length - 1}
+              aria-label={t({ es: "Bajar", en: "Move down" })}
+              className="rounded p-1 text-[var(--olivea-clay)]/40 transition-colors hover:text-[var(--olivea-ink)] disabled:opacity-20"
+            >
+              <ArrowDown size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpenId(m.id)}
+              className="ml-1 flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[var(--olivea-olive)] transition-colors hover:bg-[var(--olivea-cream)]/70"
+            >
+              <Pencil size={11} /> {t({ es: "Editar", en: "Edit" })}
+            </button>
+          </div>
+        </div>
+      ))}
 
       <button
         type="button"
@@ -449,6 +426,72 @@ export default function TeamRosterEditor({
       >
         <UserPlus size={13} /> {t({ es: "Agregar miembro", en: "Add member" })}
       </button>
+
+      {/* Slide-over. The form is far too tall to inline: it pushed the list
+          down by ~1700px, so you scrolled past everyone to reach it and lost
+          the ordering context the list exists to give you. */}
+      {active && (
+        <div className="fixed inset-0 z-50 flex justify-end" data-lenis-prevent>
+          <button
+            type="button"
+            aria-label={t({ es: "Cerrar", en: "Close" })}
+            onClick={() => setOpenId(null)}
+            className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
+          />
+          <aside
+            className="relative flex h-full w-full max-w-[560px] flex-col bg-[#f7f8f4] shadow-2xl"
+            onKeyDown={(e) => e.key === "Escape" && setOpenId(null)}
+          >
+            <header className="flex shrink-0 items-center gap-3 border-b border-black/[0.06] px-5 py-3">
+              {active.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={active.avatar} alt="" className="h-9 w-9 rounded-full object-cover ring-1 ring-black/5" />
+              ) : (
+                <div className="h-9 w-9 rounded-full bg-[var(--olivea-cream)]/60 ring-1 ring-black/5" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-semibold text-[var(--olivea-ink)]">
+                  {active.name || t({ es: "Nuevo miembro", en: "New member" })}
+                </div>
+                <div className="truncate font-mono text-[10px] text-[var(--olivea-clay)]/60">
+                  /team/{active.id}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpenId(null)}
+                className="rounded-full p-2 text-[var(--olivea-clay)] transition-colors hover:bg-black/5"
+              >
+                <X size={16} />
+              </button>
+            </header>
+
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
+              {renderFields(editing, active)}
+            </div>
+
+            <footer className="flex shrink-0 items-center justify-between border-t border-black/[0.06] px-5 py-3">
+              <button
+                type="button"
+                onClick={() => {
+                  remove(editing);
+                  setOpenId(null);
+                }}
+                className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium text-[var(--olivea-clay)] transition-colors hover:bg-red-50 hover:text-red-600"
+              >
+                <Trash2 size={12} /> {t({ es: "Quitar del equipo", en: "Remove from team" })}
+              </button>
+              <button
+                type="button"
+                onClick={() => setOpenId(null)}
+                className="rounded-lg bg-[var(--olivea-olive)] px-4 py-1.5 text-[11px] font-medium text-white transition-opacity hover:opacity-90"
+              >
+                {t({ es: "Listo", en: "Done" })}
+              </button>
+            </footer>
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
