@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 /** Canonical tabs used across the app */
 export type ReservationType = "restaurant" | "hotel" | "cafe";
@@ -38,20 +38,27 @@ export function ReservationProvider({ children }: { children: React.ReactNode })
   const [reservationType, _setType] = useState<ReservationType>("restaurant");
   const [isOpen, setIsOpen] = useState(false);
 
-  const setReservationType = (t: ReservationType | LegacyType) => {
+  // Wrapped so they are stable across renders. They only call setState, so the
+  // stale copies the memo captured behaved identically — but the moment one of
+  // them reads a prop or piece of state, that stops being true silently. Making
+  // them stable lets the memo below list its real dependencies.
+  const setReservationType = useCallback((t: ReservationType | LegacyType) => {
     _setType(toCanonical(t));
-  };
+  }, []);
 
-  const open = (t?: ReservationType | LegacyType) => {
+  const open = useCallback((t?: ReservationType | LegacyType) => {
     if (t) _setType(toCanonical(t));
     setIsOpen(true);
-  };
+  }, []);
 
-  const close = () => setIsOpen(false);
+  const close = useCallback(() => setIsOpen(false), []);
 
   // Back-compat names
-  const openReservationModal = (t?: ReservationType | LegacyType) => open(t);
-  const closeReservationModal = () => close();
+  const openReservationModal = useCallback(
+    (t?: ReservationType | LegacyType) => open(t),
+    [open]
+  );
+  const closeReservationModal = useCallback(() => close(), [close]);
 
   const value = useMemo<ReservationContextValue>(
     () => ({
@@ -63,7 +70,7 @@ export function ReservationProvider({ children }: { children: React.ReactNode })
       reservationType,
       setReservationType,
     }),
-    [isOpen, reservationType]
+    [isOpen, reservationType, open, close, openReservationModal, closeReservationModal, setReservationType]
   );
 
   return <ReservationContext.Provider value={value}>{children}</ReservationContext.Provider>;

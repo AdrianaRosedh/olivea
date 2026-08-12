@@ -599,6 +599,11 @@ function SecurePage({
       }}
     >
       {imgSrc && (
+        // Deliberately a plain <img>: these are private, token-gated document
+        // pages. Routing them through /_next/image would hand the bytes to the
+        // shared image optimizer and its cache, which is exactly what a secure
+        // document must not do.
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={imgSrc}
           alt={lang === "es" ? `Página ${pageNumber}` : `Page ${pageNumber}`}

@@ -225,6 +225,14 @@ export function useBackgroundColorDetection(opts: Options = {}) {
     }
 
     propose(false);
+    // sampleAt / decide / propose are intentionally omitted. They are plain
+    // functions in the hook body, so the rule flags them, but everything they
+    // close over is either a ref (stable by construction) or one of the props
+    // already listed here — so this callback is recreated exactly when their
+    // behaviour can actually change. Wrapping all three in useCallback would
+    // satisfy the rule without changing a thing, at the cost of churn in a
+    // hook that samples pixels on scroll.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threshold, deadband, mediaFallback, sampleUnderNavPx, stableSamples]);
 
   useEffect(() => {
