@@ -155,7 +155,6 @@ NEXT_PUBLIC_SUPABASE_URL=      # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY= # Supabase anon (public) key
 SUPABASE_SERVICE_ROLE_KEY=     # server-only — admin mutations
 RESEND_API_KEY=                # magic-link auth emails
-ADMIN_AUTH_BYPASS=             # dev-only mock admin session; never set in prod
 ```
 
 ---

@@ -21,12 +21,6 @@ export function registerNodeMetrics() {
     );
   }
 
-  if (process.env.ADMIN_AUTH_BYPASS && process.env.NODE_ENV === "production") {
-    console.error(
-      "[env] ADMIN_AUTH_BYPASS is set in production — the admin portal auth is bypassed. Unset it immediately."
-    );
-  }
-
   if (process.env.NODE_ENV === "development") {
     console.log("Node.js metrics instrumentation initialized");
   }
