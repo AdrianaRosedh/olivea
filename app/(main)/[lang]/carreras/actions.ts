@@ -18,6 +18,10 @@ const formSchema = z.object({
   // Set when the applicant came from a specific posting. Empty for the open
   // application, so it is validated as a UUID only when actually present.
   openingId: z.union([z.string().uuid(), z.literal("")]).optional(),
+  // The posting's own title, carried separately from the editable "role"
+  // field so the email subject and the cover note quote what was actually
+  // advertised rather than whatever the applicant typed over it.
+  openingTitle: z.string().max(200).optional(),
   q1: z.string().min(10, "Respuesta muy corta"),
   q2: z.string().min(10, "Respuesta muy corta"),
   q3: z.string().min(6, "Respuesta muy corta"),
@@ -97,6 +101,9 @@ export async function handleSubmit(
 
   // 4) Save application to Supabase
   const coverNote = [
+    // First line when it exists, so the pipeline's note preview leads with
+    // the posting rather than with Q1.
+    data.openingTitle ? `Vacante: ${data.openingTitle}` : "",
     data.q1 ? `Q1: ${data.q1}` : "",
     data.q2 ? `Q2: ${data.q2}` : "",
     data.q3 ? `Q3: ${data.q3}` : "",
@@ -129,6 +136,7 @@ export async function handleSubmit(
     await sendCareersEmail({
       to,
       replyTo: data.email,
+      openingTitle: data.openingTitle || undefined,
       applicant: {
         name: data.name,
         email: data.email,

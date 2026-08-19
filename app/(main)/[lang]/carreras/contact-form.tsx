@@ -23,6 +23,11 @@ const copy = (lang: Lang) => ({
   role: lang === "es" ? "Rol deseado (opcional)" : "Desired role (optional)",
   applyingFor: lang === "es" ? "Aplicando a la vacante" : "Applying for the role",
   clearRole: lang === "es" ? "Quitar" : "Clear",
+  fromPosting: lang === "es" ? "de la vacante" : "from the role",
+  linkedNote:
+    lang === "es"
+      ? "Tu solicitud quedará ligada a esta vacante."
+      : "Your application will be linked to this role.",
   links: lang === "es" ? "Links (opcional)" : "Links (optional)",
   notes: lang === "es" ? "Notas (opcional)" : "Notes (optional)",
   submit: lang === "es" ? "Enviar" : "Send",
@@ -136,19 +141,40 @@ export default function ContactForm({ lang }: { lang: Lang }) {
   const [applyingFor, setApplyingFor] = useState<{
     openingId: string;
     roleTitle: string;
+    area: string;
+    type: string;
   } | null>(null);
 
   useEffect(() => {
     const onApply = (e: Event) => {
       const detail = (e as CustomEvent).detail as
-        | { openingId?: string; roleTitle?: string }
+        | { openingId?: string; roleTitle?: string; area?: string; type?: string }
         | undefined;
       if (!detail?.openingId || !detail.roleTitle) return;
-      setApplyingFor({ openingId: detail.openingId, roleTitle: detail.roleTitle });
+      setApplyingFor({
+        openingId: detail.openingId,
+        roleTitle: detail.roleTitle,
+        area: detail.area ?? "",
+        type: detail.type ?? "",
+      });
     };
     window.addEventListener("olivea:apply-for-role", onApply);
     return () => window.removeEventListener("olivea:apply-for-role", onApply);
   }, []);
+
+  // The posting's employment type is a sensible default for "how much can you
+  // work" — someone applying to a full-time role is presumably available
+  // full-time. Still editable; it is the applicant's answer, not the role's.
+  // "internship" has no counterpart in the availability list, so it prefills
+  // nothing rather than guessing.
+  const AVAILABILITY_FROM_TYPE: Record<string, string> = {
+    "full-time": "full",
+    "part-time": "part",
+    seasonal: "seasonal",
+  };
+  const prefilledAvailability = applyingFor
+    ? (AVAILABILITY_FROM_TYPE[applyingFor.type] ?? "")
+    : "";
 
   const widgetIdRef = useRef<string | null>(null);
 
@@ -248,6 +274,9 @@ export default function ContactForm({ lang }: { lang: Lang }) {
       <input type="hidden" name="startedAt" value={startedAt} />
       <input type="hidden" name="turnstileToken" value={turnstileToken} />
       <input type="hidden" name="openingId" value={applyingFor?.openingId ?? ""} />
+      {/* Separate from the editable "role" field so the email subject and the
+          pipeline note quote what was advertised, not what was typed over it. */}
+      <input type="hidden" name="openingTitle" value={applyingFor?.roleTitle ?? ""} />
 
       {applyingFor && (
         <div className="flex items-start gap-3 rounded-2xl bg-(--olivea-olive)/8 px-4 py-3 ring-1 ring-(--olivea-olive)/20">
@@ -262,6 +291,9 @@ export default function ContactForm({ lang }: { lang: Lang }) {
             <div className="mt-0.5 text-[15px] font-semibold text-(--olivea-ink)">
               {applyingFor.roleTitle}
             </div>
+            <p className="mt-1 text-[12.5px] leading-snug text-(--olivea-ink)/60">
+              {c.linkedNote}
+            </p>
           </div>
           <button
             type="button"
@@ -288,13 +320,37 @@ export default function ContactForm({ lang }: { lang: Lang }) {
           <input name="languages" type="text" className={inputClass} placeholder={c.placeholders.languages} />
         </Field>
         <Field name="area" label={c.area} error={state.errors?.area}>
-          <select name="area" className={inputClass} defaultValue="">
-            <option value="" disabled>{lang === "es" ? "Selecciona…" : "Select…"}</option>
-            {c.areas.map((a) => <option key={a.v} value={a.v}>{a.l}</option>)}
-          </select>
+          {/* The select's options are the six operational areas. A posting can
+              carry any area HR types — the live one is "Marketing", which is
+              not among them — so applying from a posting used to force a
+              wrong answer and hand HR a Marketing application filed under
+              FOH. From a posting, the area comes from the posting itself. */}
+          {applyingFor && applyingFor.area ? (
+            <div
+              className={`${inputClass} flex items-center justify-between gap-2 bg-(--olivea-olive)/6`}
+            >
+              <span className="truncate">{applyingFor.area}</span>
+              <span className="shrink-0 text-[11px] uppercase tracking-[0.16em] text-(--olivea-olive)/75">
+                {c.fromPosting}
+              </span>
+              <input type="hidden" name="area" value={applyingFor.area} />
+            </div>
+          ) : (
+            <select name="area" className={inputClass} defaultValue="">
+              <option value="" disabled>{lang === "es" ? "Selecciona…" : "Select…"}</option>
+              {c.areas.map((a) => <option key={a.v} value={a.v}>{a.l}</option>)}
+            </select>
+          )}
         </Field>
         <Field name="availability" label={c.availability} error={state.errors?.availability}>
-          <select name="availability" className={inputClass} defaultValue="">
+          {/* Keyed so choosing a posting re-seeds the default, while leaving
+              the applicant free to change it afterwards. */}
+          <select
+            key={`avail-${applyingFor?.openingId ?? "open"}`}
+            name="availability"
+            className={inputClass}
+            defaultValue={prefilledAvailability}
+          >
             <option value="" disabled>{lang === "es" ? "Selecciona…" : "Select…"}</option>
             {c.availabilityOptions.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
           </select>

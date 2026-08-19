@@ -82,14 +82,23 @@ export async function sendCareersEmail(opts: {
     notes?: string;
     ip: string;
   };
+  /** Set only when the application came from a published posting. */
+  openingTitle?: string;
 }) {
   const html = careersApplicationEmail(opts.applicant);
+
+  // Name the posting in the subject when there is one. This is the first
+  // thing HR sees, and "(Marketing)" does not tell them which role was
+  // advertised when several are live at once.
+  const subject = opts.openingTitle
+    ? `Nueva aplicación — ${opts.applicant.name} · ${opts.openingTitle}`
+    : `Nueva aplicación — ${opts.applicant.name} (${opts.applicant.area})`;
 
   const { error } = await resend.emails.send({
     from: FROM_CAREERS,
     to: opts.to,
     replyTo: opts.replyTo,
-    subject: `Nueva aplicación — ${opts.applicant.name} (${opts.applicant.area})`,
+    subject,
     html,
   });
 

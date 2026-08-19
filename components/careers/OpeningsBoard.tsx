@@ -313,7 +313,13 @@ function OpeningDialog({
     // window-event convention the footer uses for the cookie panel.
     window.dispatchEvent(
       new CustomEvent("olivea:apply-for-role", {
-        detail: { openingId: opening.id, roleTitle: title, area: opening.area },
+        detail: {
+          openingId: opening.id,
+          roleTitle: title,
+          area: opening.area,
+          // Seeds the availability default; the form maps it to its own list.
+          type: opening.type,
+        },
       })
     );
     window.setTimeout(() => {
