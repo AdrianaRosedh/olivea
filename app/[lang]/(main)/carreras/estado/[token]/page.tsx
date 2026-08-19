@@ -174,13 +174,17 @@ export default async function ApplicationStatusPage({ params }: Params) {
                       }
                     />
 
-                    <div className={now ? "" : "opacity-70"}>
+                    {/* Three weights, not two: what you've cleared should read
+                        as cleared, not blur into what hasn't happened yet. */}
+                    <div>
                       <div
                         className={
                           "text-[15.5px] " +
                           (now
                             ? "font-semibold text-(--olivea-ink)"
-                            : "text-(--olivea-ink)/70")
+                            : done
+                              ? "text-(--olivea-ink)/85"
+                              : "text-(--olivea-ink)/45")
                         }
                       >
                         {label}
