@@ -70,8 +70,19 @@ export default function HiringPillClient({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.96 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed left-4 z-40 max-w-[min(20rem,calc(100vw-2rem))]"
-          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+          /* z-210 clears the fixed footer (z-200). At z-40 the footer painted
+             over the pill even where they only partly overlapped. */
+          className="fixed left-4 z-210 max-w-[min(20rem,calc(100vw-2rem))]"
+          style={{
+            // Clear the fixed footer, which is 48-52px of the bottom of the
+            // viewport on desktop and absent on mobile. Footer publishes its
+            // measured height as --footer-h for exactly this; the pill was
+            // pinned at 1rem and sat 47px inside the footer band.
+            // Fallback 0 because there is no footer on mobile, where a
+            // non-zero default would strand the pill above the fold.
+            bottom:
+              "calc(var(--footer-h, 0px) + 1rem + env(safe-area-inset-bottom, 0px))",
+          }}
         >
           <Link
             href={href}
