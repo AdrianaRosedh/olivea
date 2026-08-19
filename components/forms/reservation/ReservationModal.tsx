@@ -7,7 +7,7 @@ import {
   useCallback,
   type WheelEventHandler,
 } from "react";
-import { X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, Maximize2, Minimize2 } from "lucide-react";
 import {
   motion,
   type Variants,
@@ -35,6 +35,9 @@ const OpentableWidget = dynamic(() => import("./OpentableWidget"), {
 
 /* ── Shared constants ────────────────────────────────────────────── */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/** Remembers the desktop full-screen choice across sessions. */
+const FULLSCREEN_KEY = "olivea:reservation-fullscreen";
 
 const OPENTABLE_URL =
   "https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website";
@@ -516,6 +519,45 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   const backdropT: Transition = { duration: reduce ? 0 : 0.28, ease: EASE };
 
+  // Desktop-only full screen. The booking engines are dense — Cloudbeds' room
+  // grid and OpenTable's slot picker both benefit from the extra room — so let
+  // the panel grow to the viewport. Mobile already has its own full-screen
+  // sheets (MobileHotelSheet / MobileRestaurantSheet) and is left alone.
+  //
+  // This toggles CSS classes ONLY. The pane subtree must not change shape or
+  // React remounts the iframes and the guest loses a half-finished booking.
+  const [expanded, setExpanded] = useState(false);
+
+  // Animate the resize only when the user actually clicks the toggle. The
+  // stored preference can only be read after mount (no localStorage during SSR,
+  // and a useState initializer would desync hydration), so a remembered
+  // "expanded" always arrives one render late — and React batches it with any
+  // flag set in the same effect. Gating on the restore therefore still plays a
+  // pointless windowed -> full-screen morph on every open. Gating on the click
+  // is the only thing that separates the two cases.
+  const [animateResize, setAnimateResize] = useState(false);
+
+  // Remember the choice — someone who wants the big widget wants it next time.
+  useEffect(() => {
+    try {
+      setExpanded(localStorage.getItem(FULLSCREEN_KEY) === "1");
+    } catch {
+      /* private mode / storage disabled — default to windowed */
+    }
+  }, []);
+
+  const toggleExpanded = useCallback(() => {
+    setAnimateResize(true);
+    setExpanded((prev) => {
+      try {
+        localStorage.setItem(FULLSCREEN_KEY, prev ? "0" : "1");
+      } catch {
+        /* non-fatal: the toggle still works for this session */
+      }
+      return !prev;
+    });
+  }, []);
+
   // Controlled presence
   const [present, setPresent] = useState(false);
   useEffect(() => {
@@ -541,7 +583,9 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       {/* Panel */}
       <motion.div
         className={`fixed inset-0 z-1300 flex ${
-          isMobile ? "items-end justify-center" : "items-center justify-center p-4"
+          isMobile
+            ? "items-end justify-center"
+            : `items-center justify-center ${expanded ? "p-0" : "p-4"}`
         }`}
         style={{ willChange: "transform, opacity", contain: "layout paint style" }}
         variants={panelVariants}
@@ -556,9 +600,15 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
       >
         <div
           className={`bg-(--olivea-cream) flex flex-col overflow-hidden ${
+            reduce || !animateResize
+              ? ""
+              : "transition-[width,height,border-radius] duration-300 ease-out"
+          } ${
             isMobile
               ? "w-full h-full rounded-none"
-              : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
+              : expanded
+                ? "w-full h-full max-w-none rounded-none"
+                : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
           }`}
         >
           {/* Header */}
@@ -573,13 +623,43 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             >
               {lang === "es" ? "Reservaciones" : "Reservations"}
             </h2>
-            <button
-              onClick={closeReservationModal}
-              aria-label={lang === "es" ? "Cerrar" : "Close"}
-              className="ml-auto p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
-            >
-              <X size={20} />
-            </button>
+            <div className="ml-auto flex items-center gap-1">
+              {!isMobile && (
+                <button
+                  type="button"
+                  onClick={toggleExpanded}
+                  aria-pressed={expanded}
+                  aria-label={
+                    expanded
+                      ? lang === "es"
+                        ? "Salir de pantalla completa"
+                        : "Exit full screen"
+                      : lang === "es"
+                        ? "Pantalla completa"
+                        : "Full screen"
+                  }
+                  title={
+                    expanded
+                      ? lang === "es"
+                        ? "Salir de pantalla completa"
+                        : "Exit full screen"
+                      : lang === "es"
+                        ? "Pantalla completa"
+                        : "Full screen"
+                  }
+                  className="p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+                >
+                  {expanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                </button>
+              )}
+              <button
+                onClick={closeReservationModal}
+                aria-label={lang === "es" ? "Cerrar" : "Close"}
+                className="p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
