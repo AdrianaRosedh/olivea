@@ -7,11 +7,16 @@
 // in HiringPill.tsx; this only handles presentation + per-session dismissal.
 // ─────────────────────────────────────────────────────────────────────
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Briefcase, X } from "lucide-react";
+import {
+  subscribeConsentSettled,
+  getConsentSettled,
+  getConsentSettledServer,
+} from "@/components/legal/consentFlag";
 
 const DISMISS_KEY = "olivea:hiring-pill-dismissed";
 
@@ -31,15 +36,31 @@ export default function HiringPillClient({
   // Don't nag on the careers page itself — they're already there.
   const onCareersPage = pathname?.includes("/carreras") ?? false;
 
+  // The cookie banner occupies this same bottom-left corner. Wait for the
+  // visitor to answer it rather than stacking two notices on them; published
+  // by CookieConsent, which is the only thing that knows both whether a choice
+  // is stored and whether the panel is open right now.
+  const consentSettled = useSyncExternalStore(
+    subscribeConsentSettled,
+    getConsentSettled,
+    getConsentSettledServer
+  );
+
   // Reveal after mount (skip if dismissed this session), with a short delay so
   // it settles in after the page rather than competing with first paint.
+  //
+  // The delay is measured from the moment consent is settled, not from mount,
+  // so accepting cookies doesn't snap the pill into the space the banner just
+  // vacated — it arrives the same unhurried way it does for a returning
+  // visitor.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (onCareersPage) return;
+    if (!consentSettled) return;
     if (sessionStorage.getItem(DISMISS_KEY) === "1") return;
     const t = window.setTimeout(() => setShow(true), 1200);
     return () => window.clearTimeout(t);
-  }, [onCareersPage]);
+  }, [onCareersPage, consentSettled]);
 
   const dismiss = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -64,7 +85,10 @@ export default function HiringPillClient({
 
   return (
     <AnimatePresence>
-      {show && (
+      {/* consentSettled is checked here too, not just in the effect above:
+          the footer's Cookies link can reopen the banner at any time, and the
+          pill should step back out of the corner when it does. */}
+      {show && consentSettled && (
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}

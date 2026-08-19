@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
+import { setConsentSettled } from "@/components/legal/consentFlag";
 
 const CONSENT_COOKIE = "olivea_consent";
 const CONSENT_DAYS = 180;
@@ -71,6 +72,21 @@ export default function CookieConsent() {
   // consent banner would just be clutter.
   const hidden =
     pathname?.startsWith("/admin") || pathname === "/d" || pathname?.startsWith("/d/");
+
+  // Tell the rest of the app whether the bottom-left corner is spoken for.
+  // The "we're hiring" pill sits in the same corner and waits on this, so a
+  // first-time visitor is asked one thing at a time.
+  //
+  // Settled means: nothing to answer. Either a choice is already stored, or
+  // this page never shows the banner at all. Reopening it via the footer's
+  // Cookies link flips it back to unsettled.
+  useEffect(() => {
+    if (hidden) {
+      setConsentSettled(true);
+      return;
+    }
+    setConsentSettled(open ? false : !!Cookies.get(CONSENT_COOKIE));
+  }, [hidden, open]);
 
   if (hidden || !open) return null;
 
