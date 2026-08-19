@@ -79,7 +79,19 @@ export default function CookieConsent() {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-x-0 bottom-0 z-[9998] flex justify-center px-4 pb-4 pointer-events-none sm:justify-start sm:px-6 sm:pb-6"
+            // Sit clear of the fixed footer rather than on top of it.
+      //
+      // --footer-h is published by Footer from a ResizeObserver, so this tracks
+      // the real height instead of a hardcoded guess (77px desktop, and it
+      // grows when the links wrap). The fallback is 0 on purpose: LayoutShell
+      // renders the footer only when !isMobileLike, so on phones there is no
+      // footer to clear and a non-zero fallback would strand the banner high
+      // above the fold. Footer removes the variable on unmount.
+      style={{
+        paddingBottom:
+          "calc(var(--footer-h, 0px) + 1rem + env(safe-area-inset-bottom))",
+      }}
+      className="fixed inset-x-0 bottom-0 z-[9998] flex justify-center px-4 pointer-events-none sm:justify-start sm:px-6"
     >
       <div
         role="dialog"

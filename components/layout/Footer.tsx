@@ -66,6 +66,30 @@ export default function Footer({ dict, socials }: FooterProps) {
 
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+
+  // The footer is position:fixed, so it covers whatever sits at the bottom of
+  // the viewport — the cookie banner was landing on top of it. Its height is
+  // not a constant either: 77px on desktop, 133px on mobile where the links
+  // wrap, and it changes again if links are added. Publishing the measured
+  // height lets anything anchored to the bottom clear it without hardcoding a
+  // number that silently goes stale.
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty(
+        "--footer-h",
+        `${Math.round(el.getBoundingClientRect().height)}px`
+      );
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty("--footer-h");
+    };
+  }, []);
 
   const [lift, setLift] = useState(0);
 
@@ -216,6 +240,7 @@ export default function Footer({ dict, socials }: FooterProps) {
 
   return (
     <footer
+      ref={footerRef}
       className={[
         "fixed bottom-0 left-0 w-full z-200",
         "bg-transparent backdrop-blur-md",
