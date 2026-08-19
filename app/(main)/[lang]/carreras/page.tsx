@@ -82,7 +82,7 @@ export default async function CarrerasPage({ params }: Params) {
           addressCountry: "MX",
         },
       },
-      url: canonicalUrl(`/${L}/carreras?vacante=${openingSlug(o)}`),
+      url: canonicalUrl(`/${L}/carreras?vacante=${openingSlug(o, L)}`),
     };
   });
 

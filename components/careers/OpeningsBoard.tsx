@@ -167,9 +167,9 @@ export default function OpeningsBoard({
     (o: PublicOpening, trigger?: HTMLElement | null) => {
       lastTrigger.current = trigger ?? null;
       setActiveId(o.id);
-      syncUrl(openingSlug(o));
+      syncUrl(openingSlug(o, lang));
     },
-    [syncUrl]
+    [syncUrl, lang]
   );
 
   const close = useCallback(() => {
@@ -213,7 +213,7 @@ export default function OpeningsBoard({
           return (
             <a
               key={o.id}
-              href={`?vacante=${openingSlug(o)}`}
+              href={`?vacante=${openingSlug(o, lang)}`}
               onClick={(e) => {
                 // Let modified clicks open a real tab.
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;

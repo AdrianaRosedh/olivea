@@ -31,7 +31,7 @@ export default async function HiringPill({ lang }: { lang: "es" | "en" }) {
   // several roles there is nothing to preselect — jump to the list instead.
   const href =
     count === 1
-      ? `/${lang}/carreras?vacante=${openingSlug(openings[0])}`
+      ? `/${lang}/carreras?vacante=${openingSlug(openings[0], lang)}`
       : count > 1
         ? `/${lang}/carreras#vacantes`
         : `/${lang}/carreras`;

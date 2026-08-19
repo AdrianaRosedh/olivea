@@ -22,9 +22,18 @@ export function slugify(title: string): string {
     .slice(0, 60);
 }
 
-/** The canonical token for an opening. Falls back to the id if untitled. */
-export function openingSlug(o: SlugSource): string {
-  return slugify(o.titleEs) || slugify(o.titleEn) || o.id;
+/**
+ * The URL token for an opening, in the language of the page linking to it —
+ * an English visitor should be sharing /en/carreras?vacante=content-creator,
+ * not the Spanish slug. Falls back to the other language, then to the id.
+ *
+ * Both languages' slugs always resolve (see findOpeningByToken), so links
+ * stay valid across a language switch and after this change.
+ */
+export function openingSlug(o: SlugSource, lang: "es" | "en" = "es"): string {
+  const preferred = lang === "en" ? o.titleEn : o.titleEs;
+  const fallback = lang === "en" ? o.titleEs : o.titleEn;
+  return slugify(preferred) || slugify(fallback) || o.id;
 }
 
 /**
@@ -44,8 +53,8 @@ export function findOpeningByToken<T extends SlugSource>(
     openings.find(
       (o) =>
         o.id === token ||
-        openingSlug(o) === want ||
-        slugify(o.titleEn) === want
+        openingSlug(o, "es") === want ||
+        openingSlug(o, "en") === want
     ) ?? null
   );
 }
