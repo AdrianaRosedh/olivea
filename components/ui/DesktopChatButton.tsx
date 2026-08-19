@@ -1,10 +1,22 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 import { MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { cn } from "@/lib/utils";
+import {
+  subscribeModalOpen,
+  getModalOpen,
+  getModalOpenServer,
+} from "@/components/ui/modalFlag";
 
 interface DesktopChatButtonProps {
   lang: "en" | "es";
@@ -27,6 +39,13 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
   const [hovered, setHovered] = useState(false);
   const [extraBottom, setExtraBottom] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  // Server snapshot is false so the client's first render matches the server.
+  const modalOpen = useSyncExternalStore(
+    subscribeModalOpen,
+    getModalOpen,
+    getModalOpenServer
+  );
 
   const blobRadius = useMemo(() => seededBlobRadius("olivea-chat"), []);
 
@@ -184,6 +203,16 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
 
   const BASE_BOTTOM = 92;
   const BASE_RIGHT = 32;
+
+  // Step aside while a modal is open.
+  //
+  // This sits at z-1400 outside the page wrapper, so it outranks the
+  // reservation modal's panel (z-1300) and drew on top of the booking form —
+  // an undimmed launcher straddling the corner of the panel. Same treatment
+  // the Live Garden orb gets, via the same flag.
+  //
+  // After every hook above, so the hook order never changes.
+  if (modalOpen) return null;
 
   return (
     <div
