@@ -20,6 +20,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Clock3, Layers, MapPin, X } from "lucide-react";
 import { useScrollLock } from "@/lib/hooks/useScrollLock";
@@ -272,6 +273,22 @@ function OpeningDialog({
   const c = COPY[lang];
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // Rendered into document.body rather than in place.
+  //
+  // SubtleContentFade wraps the page in a motion.div with willChange:"opacity"
+  // (SubtleContentFade.tsx:244), which creates a stacking context — so z-1400
+  // only ranked the dialog *within* that wrapper. The navbar sits in its own
+  // root-level <nav class="fixed z-50">, and a root-level 50 beats the whole
+  // wrapped subtree however high the number inside it goes. On a short
+  // landscape tablet, where the dialog is tall enough to reach the top of the
+  // viewport, the navbar drew straight over the dialog's header.
+  //
+  // z-index cannot escape a stacking context, so raising it again would not
+  // have helped. A portal puts the dialog in the root context where z-1400
+  // means what it says. Same approach farmpop and the team panel already use.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useScrollLock(!!opening);
 
   useEffect(() => {
@@ -309,7 +326,7 @@ function OpeningDialog({
   const v = opening ? view(opening, lang) : null;
   const posted = opening ? formatPosted(opening.publishedAt, lang) : null;
 
-  return (
+  const dialog = (
     <AnimatePresence>
       {opening && v && (
         /* The container must be the motion component, not a plain div:
@@ -445,4 +462,6 @@ function OpeningDialog({
       )}
     </AnimatePresence>
   );
+
+  return mounted ? createPortal(dialog, document.body) : null;
 }
