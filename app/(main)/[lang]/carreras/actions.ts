@@ -5,6 +5,11 @@ import { headers } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendCareersEmail } from "@/lib/email/send";
 import { submitApplication } from "@/lib/supabase/careers-actions";
+import {
+  uploadResume,
+  sniffResumeType,
+  RESUME_MAX_BYTES,
+} from "@/lib/supabase/resume-storage";
 
 const formSchema = z.object({
   name: z.string().min(2, "Nombre requerido"),
@@ -71,7 +76,13 @@ export async function handleSubmit(
     return { errors: { form: "Demasiadas solicitudes. Intenta en un momento." } };
   }
 
-  const raw = Object.fromEntries(formData.entries());
+  // The CV is a File, not a string — pull it out before zod sees the rest.
+  const cvEntry = formData.get("cv");
+  const cvFile = cvEntry instanceof File && cvEntry.size > 0 ? cvEntry : null;
+
+  const raw = Object.fromEntries(
+    [...formData.entries()].filter(([k]) => k !== "cv")
+  );
   const parsed = formSchema.safeParse(raw);
 
   if (!parsed.success) {
@@ -99,6 +110,26 @@ export async function handleSubmit(
   const ok = await verifyTurnstile(data.turnstileToken, ip);
   if (!ok.ok) return { errors: { turnstileToken: "No se pudo verificar. Intenta de nuevo." } };
 
+  // ── Optional CV ───────────────────────────────────────────────────
+  //
+  // Deliberately after the honeypot, timing and Turnstile checks: those are
+  // cheap, and there is no reason to read up to 5 MB into memory for a
+  // request we are about to reject. Everything is re-checked server-side —
+  // a file input's accept attribute and the browser's reported MIME type are
+  // both claims, not guarantees, so the bytes themselves decide.
+  let cv: { bytes: Uint8Array; name: string; kind: "pdf" | "docx" } | null = null;
+  if (cvFile) {
+    if (cvFile.size > RESUME_MAX_BYTES) {
+      return { errors: { cv: "El archivo supera 5 MB." } };
+    }
+    const bytes = new Uint8Array(await cvFile.arrayBuffer());
+    const kind = sniffResumeType(bytes);
+    if (!kind) {
+      return { errors: { cv: "Formato no válido. Adjunta un PDF o DOCX." } };
+    }
+    cv = { bytes, name: cvFile.name || "cv", kind };
+  }
+
   // 4) Save application to Supabase
   const coverNote = [
     // First line when it exists, so the pipeline's note preview leads with
@@ -116,6 +147,16 @@ export async function handleSubmit(
     .filter(Boolean)
     .join("\n\n");
 
+  // Store the CV before the row, so the row can point at it. A storage
+  // failure must not cost us the application: the email still carries the
+  // attachment, so we log and carry on rather than rejecting the applicant.
+  let resumePath: string | undefined;
+  if (cv) {
+    const stored = await uploadResume(cv.bytes, cv.name, cv.kind, data.email);
+    if ("path" in stored) resumePath = stored.path;
+    else console.error("[careers] CV not stored:", stored.error);
+  }
+
   try {
     await submitApplication({
       name: data.name,
@@ -124,6 +165,7 @@ export async function handleSubmit(
       area: data.area,
       coverNote,
       openingId: data.openingId || undefined,
+      resumePath,
     });
   } catch {
     // Non-critical — the email is the primary delivery
@@ -137,6 +179,7 @@ export async function handleSubmit(
       to,
       replyTo: data.email,
       openingTitle: data.openingTitle || undefined,
+      cv: cv ? { filename: cv.name, bytes: cv.bytes, kind: cv.kind } : undefined,
       applicant: {
         name: data.name,
         email: data.email,

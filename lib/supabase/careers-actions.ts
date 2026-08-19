@@ -16,6 +16,7 @@ import {
   assertUUID,
 } from "@/lib/supabase/client";
 import { requireSession } from "@/lib/auth/session";
+import { signedResumeUrl } from "@/lib/supabase/resume-storage";
 
 // The public careers page caches its data — bust it whenever openings change.
 function revalidateCareers() {
@@ -271,6 +272,31 @@ export async function addApplicationNote(
   });
 }
 
+/**
+ * A short-lived link to an applicant's CV, for the admin.
+ *
+ * The bucket is private, so resume_url holds a storage path rather than
+ * anything fetchable. Signing happens per click and behind requireSession, so
+ * a CV is never reachable without an admin session and a link that leaks
+ * stops working within minutes.
+ */
+export async function getResumeDownloadUrl(
+  applicationId: string
+): Promise<string | null> {
+  await requireSession();
+  assertUUID(applicationId, "applicationId");
+  if (!isSupabaseConfigured) return null;
+  const [row] = await selectRows<{ resume_url: string | null }>(
+    "job_applications",
+    {
+      role: "service_role",
+      query: `id=eq.${applicationId}&select=resume_url`,
+    }
+  );
+  if (!row?.resume_url) return null;
+  return signedResumeUrl(row.resume_url);
+}
+
 // ── Public: submit application (no auth required) ───────────────────
 
 export async function submitApplication(data: {
@@ -280,6 +306,8 @@ export async function submitApplication(data: {
   phone: string;
   area: string;
   coverNote: string;
+  /** Storage path in the private applicant-cvs bucket, never a URL. */
+  resumePath?: string;
 }): Promise<{ error: string | null }> {
   if (!isSupabaseConfigured) return { error: "Applications are not available" };
 
@@ -302,6 +330,7 @@ export async function submitApplication(data: {
     assertUUID(data.openingId, "openingId");
     row.opening_id = data.openingId;
   }
+  if (data.resumePath) row.resume_url = data.resumePath;
 
   try {
     await insertRows("job_applications", row);

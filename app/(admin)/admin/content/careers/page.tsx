@@ -28,6 +28,7 @@ import {
   updateApplicationStatus,
   addApplicationNote,
   getHiringPromo,
+  getResumeDownloadUrl,
   setHiringPromo,
   type JobOpening,
   type JobApplication,
@@ -689,6 +690,7 @@ function ApplicationsTab({
   const [noteText, setNoteText] = useState("");
   const [addingNote, setAddingNote] = useState(false);
   const { t } = useAdminLocale();
+  const [resumeBusy, setResumeBusy] = useState<string | null>(null);
 
   const filtered = applications.filter((a) => {
     const matchSearch =
@@ -909,18 +911,31 @@ function ApplicationsTab({
                         </div>
                       )}
 
-                      {/* Resume link */}
+                      {/* Resume. resume_url holds a storage path, not a URL —
+                          the bucket is private — so the link is signed on
+                          click and expires in minutes. */}
                       {app.resumeUrl && (
                         <div>
                           <span className={cls.label}>{t({ es: "Currículum", en: "Resume" })}</span>
-                          <a
-                            href={app.resumeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-1 inline-block text-sm text-[var(--olivea-olive)] underline"
+                          <button
+                            type="button"
+                            disabled={resumeBusy === app.id}
+                            onClick={async () => {
+                              setResumeBusy(app.id);
+                              try {
+                                const url = await getResumeDownloadUrl(app.id);
+                                if (url) window.open(url, "_blank", "noopener,noreferrer");
+                                else alert(t({ es: "No se pudo abrir el currículum.", en: "Could not open the resume." }));
+                              } finally {
+                                setResumeBusy(null);
+                              }
+                            }}
+                            className="mt-1 inline-block text-sm text-[var(--olivea-olive)] underline disabled:opacity-50"
                           >
-                            {t({ es: "Ver currículum →", en: "View resume →" })}
-                          </a>
+                            {resumeBusy === app.id
+                              ? t({ es: "Abriendo…", en: "Opening…" })
+                              : t({ es: "Ver currículum →", en: "View resume →" })}
+                          </button>
                         </div>
                       )}
 

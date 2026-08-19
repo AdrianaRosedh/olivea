@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { type Lang } from "@/lib/i18n";
 import { handleSubmit, type ApplicationErrors } from "./actions";
 import { CAREER_AREAS, areaLabel, canonicalArea } from "@/lib/careers/areas";
+import { RESUME_ACCEPT } from "@/lib/supabase/resume-storage";
 type State = { success?: boolean; errors?: ApplicationErrors };
 
 const initialState: State = { success: false, errors: {} };
@@ -30,6 +31,10 @@ const copy = (lang: Lang) => ({
       ? "Tu solicitud quedará ligada a esta vacante."
       : "Your application will be linked to this role.",
   links: lang === "es" ? "Links (opcional)" : "Links (optional)",
+  cv: lang === "es" ? "CV (opcional)" : "CV (optional)",
+  cvHint: lang === "es" ? "PDF o DOCX, máx. 5 MB" : "PDF or DOCX, max 5 MB",
+  cvChoose: lang === "es" ? "Adjuntar archivo" : "Attach a file",
+  cvRemove: lang === "es" ? "Quitar" : "Remove",
   notes: lang === "es" ? "Notas (opcional)" : "Notes (optional)",
   submit: lang === "es" ? "Enviar" : "Send",
   sending: lang === "es" ? "Enviando..." : "Sending...",
@@ -127,6 +132,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
     setStartedAt(String(Date.now()));
   }, []);
 
+  const [cvName, setCvName] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
 
@@ -371,6 +377,40 @@ export default function ContactForm({ lang }: { lang: Lang }) {
           <input name="links" type="text" className={inputClass} placeholder={c.placeholders.links} />
         </Field>
       </div>
+
+      {/* Optional CV. Kept out of the required set on purpose — plenty of
+          strong hospitality candidates do not have one to hand, and the three
+          questions below tell us more than a CV does. */}
+      <Field name="cv" label={c.cv} error={state.errors?.cv}>
+        <div className={`${inputClass} flex items-center gap-3`}>
+          <label className="cursor-pointer rounded-lg bg-(--olivea-olive)/10 px-3 py-1.5 text-[13px] font-medium text-(--olivea-olive) transition-colors hover:bg-(--olivea-olive)/16 focus-within:ring-2 focus-within:ring-(--olivea-olive)/40">
+            {c.cvChoose}
+            <input
+              type="file"
+              name="cv"
+              accept={RESUME_ACCEPT}
+              className="sr-only"
+              onChange={(e) => setCvName(e.target.files?.[0]?.name ?? null)}
+            />
+          </label>
+          <span className="min-w-0 flex-1 truncate text-[13.5px] text-(--olivea-ink)/70">
+            {cvName ?? c.cvHint}
+          </span>
+          {cvName && (
+            <button
+              type="button"
+              onClick={() => {
+                setCvName(null);
+                const el = document.querySelector<HTMLInputElement>('input[name="cv"]');
+                if (el) el.value = "";
+              }}
+              className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
+            >
+              {c.cvRemove}
+            </button>
+          )}
+        </div>
+      </Field>
 
       <div className="rounded-2xl bg-white/40 ring-1 ring-black/8 p-4 md:p-5 space-y-5">
         <Field name="q1" label={c.q1} error={state.errors?.q1}>

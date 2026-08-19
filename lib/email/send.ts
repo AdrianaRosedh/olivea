@@ -84,6 +84,8 @@ export async function sendCareersEmail(opts: {
   };
   /** Set only when the application came from a published posting. */
   openingTitle?: string;
+  /** The applicant's CV, when they attached one. */
+  cv?: { filename: string; bytes: Uint8Array; kind: "pdf" | "docx" };
 }) {
   const html = careersApplicationEmail(opts.applicant);
 
@@ -100,6 +102,19 @@ export async function sendCareersEmail(opts: {
     replyTo: opts.replyTo,
     subject,
     html,
+    // The CV rides along with the notification, so HR can read it without
+    // signing into the admin. It is also stored, but this is the copy that
+    // reaches them first.
+    ...(opts.cv
+      ? {
+          attachments: [
+            {
+              filename: opts.cv.filename,
+              content: Buffer.from(opts.cv.bytes),
+            },
+          ],
+        }
+      : {}),
   });
 
   if (error) {
