@@ -370,8 +370,11 @@ function OpeningDialog({
                   type="button"
                   onClick={onClose}
                   aria-label={c.close}
-                  /* 44px on touch — 36 was under the minimum tap target. */
-                  className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 sm:-mr-1 sm:-mt-1 sm:h-9 sm:w-9"
+                  /* 36px for a mouse, 44px for a finger.
+                     Keyed to pointer-coarse, not a width breakpoint: this was
+                     `h-11 w-11 sm:h-9 sm:w-9`, and every iPad is wider than
+                     sm, so tablets — touch devices — got the 35px target. */
+                  className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 pointer-coarse:-mr-2 pointer-coarse:-mt-2 pointer-coarse:h-11 pointer-coarse:w-11"
                 >
                   <X className="h-4.5 w-4.5" />
                 </button>
