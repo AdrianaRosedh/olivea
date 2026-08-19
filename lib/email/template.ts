@@ -182,6 +182,66 @@ function divider() {
    EMAIL TEMPLATES
    ══════════════════════════════════════════════════════════════════════ */
 
+/**
+ * Confirmation to the applicant.
+ *
+ * Applying used to land in silence — the form thanked you on screen and that
+ * was the last Olivea said. This is the first thing many candidates will get
+ * from the brand, so it is short, warm, and concrete about what happens next.
+ * Written in the language they applied in.
+ */
+export function applicationReceivedEmail(opts: {
+  name: string;
+  lang: "es" | "en";
+  /** Present only when they applied to a published posting. */
+  openingTitle?: string;
+}) {
+  const es = opts.lang === "es";
+  const firstName = escapeHtml((opts.name || "").trim().split(/\s+/)[0] || "");
+  const role = opts.openingTitle ? escapeHtml(opts.openingTitle) : null;
+
+  const greeting = es
+    ? `Hola${firstName ? ` ${firstName}` : ""},`
+    : `Hi${firstName ? ` ${firstName}` : ""},`;
+
+  const lead = role
+    ? es
+      ? `Recibimos tu solicitud para <strong style="color:#2d3b29;">${role}</strong>. Gracias por el tiempo que le dedicaste.`
+      : `We\u2019ve received your application for <strong style="color:#2d3b29;">${role}</strong>. Thank you for the time you put into it.`
+    : es
+      ? "Recibimos tu solicitud. Gracias por el tiempo que le dedicaste."
+      : "We\u2019ve received your application. Thank you for the time you put into it.";
+
+  const next = es
+    ? "La lee una persona, no un filtro autom\u00e1tico. Si tu perfil encaja, te escribimos en 3\u20137 d\u00edas para una llamada breve. Si no es esta vez, tambi\u00e9n te avisamos."
+    : "A person reads it, not an automated filter. If your profile fits, we\u2019ll write within 3\u20137 days to arrange a short call. If it isn\u2019t this time, we\u2019ll tell you that too.";
+
+  const closing = es
+    ? "Mientras tanto, no hace falta que hagas nada."
+    : "In the meantime, there\u2019s nothing you need to do.";
+
+  const sign = es
+    ? "Equipo Olivea \u00b7 Valle de Guadalupe, Baja California"
+    : "The Olivea team \u00b7 Valle de Guadalupe, Baja California";
+
+  return layout({
+    preheader: es
+      ? "Recibimos tu solicitud \u2014 te escribimos en 3\u20137 d\u00edas."
+      : "We received your application \u2014 we\u2019ll be in touch within 3\u20137 days.",
+    body: `
+      <h1 style="margin:0 0 18px;font-size:22px;font-weight:600;color:#2d3b29;letter-spacing:-0.01em;">
+        ${es ? "Solicitud recibida" : "Application received"}
+      </h1>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.75;color:#6b7a65;">${greeting}</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.75;color:#6b7a65;">${lead}</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.75;color:#6b7a65;">${next}</p>
+      <p style="margin:0;font-size:15px;line-height:1.75;color:#6b7a65;">${closing}</p>
+      ${divider()}
+      <p style="margin:0;font-size:13px;line-height:1.7;color:#6b7a65;">${sign}</p>
+    `,
+  });
+}
+
 /** Magic link sign-in email */
 export function magicLinkEmail(opts: { magicLinkUrl: string; email: string }) {
   const body = `

@@ -9,6 +9,7 @@ import {
   magicLinkEmail,
   inviteEmail,
   careersApplicationEmail,
+  applicationReceivedEmail,
   passwordResetEmail,
 } from "./template";
 
@@ -143,5 +144,38 @@ export async function sendPasswordResetEmail(opts: {
   if (error) {
     console.error("[email] Failed to send password reset:", error);
     throw new Error(`Email send failed: ${error.message}`);
+  }
+}
+
+/**
+ * Confirmation to the applicant.
+ *
+ * Never throws. HR's notification is the delivery that matters; if this one
+ * fails the application has still been received, and telling the applicant
+ * their submission failed would be a lie. Logged instead.
+ */
+export async function sendApplicationReceivedEmail(opts: {
+  to: string;
+  name: string;
+  lang: "es" | "en";
+  openingTitle?: string;
+}): Promise<void> {
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_CAREERS,
+      to: opts.to,
+      subject:
+        opts.lang === "es"
+          ? "Recibimos tu solicitud — Olivea"
+          : "We received your application — Olivea",
+      html: applicationReceivedEmail({
+        name: opts.name,
+        lang: opts.lang,
+        openingTitle: opts.openingTitle,
+      }),
+    });
+    if (error) console.error("[email] applicant confirmation failed:", error);
+  } catch (e) {
+    console.error("[email] applicant confirmation threw:", e);
   }
 }

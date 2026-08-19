@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { headers } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
-import { sendCareersEmail } from "@/lib/email/send";
+import { sendCareersEmail, sendApplicationReceivedEmail } from "@/lib/email/send";
 import { submitApplication } from "@/lib/supabase/careers-actions";
 import {
   uploadResume,
@@ -27,6 +27,8 @@ const formSchema = z.object({
   // field so the email subject and the cover note quote what was actually
   // advertised rather than whatever the applicant typed over it.
   openingTitle: z.string().max(200).optional(),
+  // Which language they applied in, so the confirmation matches.
+  lang: z.enum(["es", "en"]).optional(),
   q1: z.string().min(10, "Respuesta muy corta"),
   q2: z.string().min(10, "Respuesta muy corta"),
   q3: z.string().min(6, "Respuesta muy corta"),
@@ -199,6 +201,16 @@ export async function handleSubmit(
   } catch {
     return { errors: { form: "No se pudo enviar. Intenta más tarde." } };
   }
+
+  // Confirm to the applicant. Deliberately last and deliberately unawaited
+  // for its result: HR already has the application, so a failure here must
+  // not turn a successful submission into an error on their screen.
+  await sendApplicationReceivedEmail({
+    to: data.email,
+    name: data.name,
+    lang: data.lang ?? "es",
+    openingTitle: data.openingTitle || undefined,
+  });
 
   return { success: true };
 }

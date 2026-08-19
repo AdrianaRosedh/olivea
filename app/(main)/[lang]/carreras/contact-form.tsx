@@ -35,6 +35,11 @@ const copy = (lang: Lang) => ({
   cvHint: lang === "es" ? "PDF o DOCX, máx. 5 MB" : "PDF or DOCX, max 5 MB",
   cvChoose: lang === "es" ? "Adjuntar archivo" : "Attach a file",
   cvRemove: lang === "es" ? "Quitar" : "Remove",
+  draftRestored:
+    lang === "es"
+      ? "Retomamos tu borrador. Se guarda en este dispositivo mientras escribes."
+      : "We picked up your draft. It saves on this device as you type.",
+  draftDiscard: lang === "es" ? "Empezar de nuevo" : "Start over",
   notes: lang === "es" ? "Notas (opcional)" : "Notes (optional)",
   submit: lang === "es" ? "Enviar" : "Send",
   sending: lang === "es" ? "Enviando..." : "Sending...",
@@ -109,6 +114,10 @@ function Field({
   );
 }
 
+const DRAFT_KEY = "olivea:careers-draft";
+// Must be re-issued per submission; a stale one fails the anti-spam gate.
+const DRAFT_SKIP = new Set(["cv", "turnstileToken", "startedAt", "website"]);
+
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl border border-black/10 bg-white/70 " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/25 " +
@@ -133,6 +142,8 @@ export default function ContactForm({ lang }: { lang: Lang }) {
   }, []);
 
   const [cvName, setCvName] = useState<string | null>(null);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
 
@@ -241,6 +252,113 @@ export default function ContactForm({ lang }: { lang: Lang }) {
     };
   }, []);
 
+  // ── Save and resume ───────────────────────────────────────────────
+  //
+  // The form asks three essay questions. On a phone that is a lot of typing
+  // to lose to a mistap, a call, or a browser reclaiming memory in the
+  // background — and losing it once is enough for most people not to start
+  // again. The answers live in localStorage until the application is sent.
+  //
+  // Fields are read and written through the DOM rather than by making every
+  // input controlled: the form is uncontrolled by design, and rewiring a
+  // dozen fields to state would be a much larger change for the same result.
+  //
+  // Never saved: the CV (a File cannot be serialised, and caching someone's
+  // personal document in their browser is not ours to decide), the Turnstile
+  // token, the honeypot, and the timing stamp — all of which must be freshly
+  // issued per submission or they defeat the anti-spam checks.
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Record<string, string>;
+
+      if (draft.__openingId && draft.__roleTitle) {
+        setApplyingFor({
+          openingId: draft.__openingId,
+          roleTitle: draft.__roleTitle,
+          area: draft.__area ?? "",
+          type: draft.__type ?? "",
+        });
+      }
+
+      let filled = 0;
+      for (const [key, value] of Object.entries(draft)) {
+        if (key.startsWith("__") || !value) continue;
+        const el = form.elements.namedItem(key);
+        if (
+          el instanceof HTMLInputElement ||
+          el instanceof HTMLTextAreaElement ||
+          el instanceof HTMLSelectElement
+        ) {
+          if (el.type === "file" || el.type === "hidden") continue;
+          el.value = value;
+          filled++;
+        }
+      }
+      if (filled > 0) setDraftRestored(true);
+    } catch {
+      /* corrupt or unavailable storage — start clean rather than fail */
+    }
+  }, []);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+    let timer = 0;
+    const save = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        try {
+          const out: Record<string, string> = {};
+          for (const [key, value] of new FormData(form).entries()) {
+            if (typeof value !== "string") continue; // the CV
+            if (DRAFT_SKIP.has(key)) continue;
+            if (value) out[key] = value;
+          }
+          // Keep the posting link, which lives in React state rather than in
+          // a field the DOM pass above can restore.
+          if (applyingFor) {
+            out.__openingId = applyingFor.openingId;
+            out.__roleTitle = applyingFor.roleTitle;
+            out.__area = applyingFor.area;
+            out.__type = applyingFor.type;
+          }
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(out));
+        } catch {
+          /* private mode or quota — losing the draft is not worth an error */
+        }
+      }, 400);
+    };
+    form.addEventListener("input", save);
+    form.addEventListener("change", save);
+    return () => {
+      window.clearTimeout(timer);
+      form.removeEventListener("input", save);
+      form.removeEventListener("change", save);
+    };
+  }, [applyingFor]);
+
+  // Sent — the draft has served its purpose.
+  useEffect(() => {
+    if (!state.success) return;
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {}
+  }, [state.success]);
+
+  const discardDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {}
+    formRef.current?.reset();
+    setApplyingFor(null);
+    setCvName(null);
+    setDraftRestored(false);
+  };
+
   // reset turnstile if server returned errors
   useEffect(() => {
     const wid = widgetIdRef.current;
@@ -264,7 +382,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
   }
 
   return (
-    <form action={runAction} className="space-y-5">
+    <form ref={formRef} action={runAction} className="space-y-5">
       {/* honeypot */}
       <div className="hidden" aria-hidden="true">
         <label>
@@ -273,12 +391,32 @@ export default function ContactForm({ lang }: { lang: Lang }) {
         </label>
       </div>
 
+      <input type="hidden" name="lang" value={lang} />
       <input type="hidden" name="startedAt" value={startedAt} />
       <input type="hidden" name="turnstileToken" value={turnstileToken} />
       <input type="hidden" name="openingId" value={applyingFor?.openingId ?? ""} />
       {/* Separate from the editable "role" field so the email subject and the
           pipeline note quote what was advertised, not what was typed over it. */}
       <input type="hidden" name="openingTitle" value={applyingFor?.roleTitle ?? ""} />
+
+      {draftRestored && (
+        <div className="flex items-start gap-3 rounded-2xl bg-white/45 px-4 py-3 ring-1 ring-black/8">
+          <span
+            className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-olive)/60"
+            aria-hidden
+          />
+          <p className="min-w-0 flex-1 text-[13.5px] leading-snug text-(--olivea-ink)/70">
+            {c.draftRestored}
+          </p>
+          <button
+            type="button"
+            onClick={discardDraft}
+            className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
+          >
+            {c.draftDiscard}
+          </button>
+        </div>
+      )}
 
       {applyingFor && (
         <div className="flex items-start gap-3 rounded-2xl bg-(--olivea-olive)/8 px-4 py-3 ring-1 ring-(--olivea-olive)/20">
