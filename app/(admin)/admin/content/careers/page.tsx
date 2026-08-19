@@ -27,6 +27,7 @@ import {
   toggleJobOpeningStatus,
   getJobApplications,
   updateApplicationStatus,
+  publishApplicationOutcome,
   addApplicationNote,
   getHiringPromo,
   getResumeDownloadUrl,
@@ -693,6 +694,7 @@ function ApplicationsTab({
   const { t } = useAdminLocale();
   const [resumeBusy, setResumeBusy] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [publishBusy, setPublishBusy] = useState<string | null>(null);
 
   const filtered = applications.filter((a) => {
     const matchSearch =
@@ -1001,6 +1003,73 @@ function ApplicationsTab({
                           ))}
                         </div>
                       </div>
+
+                      {/* What the applicant can actually see. Moving someone to
+                          "rejected" is an internal decision; it only reaches
+                          their status page when someone releases it here. */}
+                      {app.status === "rejected" && (
+                        <div
+                          className={
+                            "rounded-xl p-3 " +
+                            (app.outcomePublishedAt
+                              ? "bg-[var(--olivea-cream)]/30"
+                              : "bg-amber-50/70 ring-1 ring-amber-200/70")
+                          }
+                        >
+                          <span className={cls.label}>
+                            {t({ es: "El candidato ve", en: "The applicant sees" })}
+                          </span>
+                          {app.outcomePublishedAt ? (
+                            <p className="mt-1 text-sm text-[var(--olivea-ink)]/80">
+                              {t({
+                                es: "«No seguimos adelante esta vez» — publicado.",
+                                en: "“We didn’t move forward this time” — published.",
+                              })}
+                            </p>
+                          ) : (
+                            <>
+                              <p className="mt-1 text-sm text-[var(--olivea-ink)]/80">
+                                {t({
+                                  es: "«En revisión». Aún no sabe que no seguimos adelante.",
+                                  en: "“In review”. They don’t know yet that we didn’t move forward.",
+                                })}
+                              </p>
+                              <button
+                                type="button"
+                                disabled={publishBusy === app.id}
+                                onClick={async () => {
+                                  const ok = window.confirm(
+                                    t({
+                                      es: "El candidato verá que no seguimos adelante en cuanto abra su enlace. ¿Publicar el resultado?",
+                                      en: "The applicant will see that we didn’t move forward as soon as they open their link. Publish the outcome?",
+                                    })
+                                  );
+                                  if (!ok) return;
+                                  setPublishBusy(app.id);
+                                  try {
+                                    await publishApplicationOutcome(app.id);
+                                    setApplications((apps) =>
+                                      apps.map((a) =>
+                                        a.id === app.id
+                                          ? { ...a, outcomePublishedAt: new Date().toISOString() }
+                                          : a
+                                      )
+                                    );
+                                    toast(t({ es: "Resultado publicado", en: "Outcome published" }), "success");
+                                  } finally {
+                                    setPublishBusy(null);
+                                  }
+                                }}
+                                className="mt-2 rounded-full px-4 py-1.5 text-xs font-semibold bg-[var(--olivea-olive)] text-white hover:opacity-90 disabled:opacity-50"
+                              >
+                                {publishBusy === app.id
+                                  ? t({ es: "Publicando…", en: "Publishing…" })
+                                  : t({ es: "Publicar el resultado", en: "Publish the outcome" })}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
 
                       {/* Notes */}
                       <div>

@@ -63,6 +63,8 @@ export interface JobApplication {
   resumeUrl: string | null;
   statusToken: string;
   lang: "es" | "en";
+  /** When HR released the final outcome. Null = decided internally, not yet told. */
+  outcomePublishedAt: string | null;
   status: "applied" | "reviewing" | "interview" | "offer" | "hired" | "rejected";
   notes: ApplicationNote[];
   appliedAt: string;
@@ -101,6 +103,7 @@ interface ApplicationRow {
   status_token: string;
   lang: string;
   status: string;
+  outcome_published_at: string | null;
   notes: ApplicationNote[];
   applied_at: string;
   updated_at: string;
@@ -141,6 +144,7 @@ function mapApplication(r: ApplicationRow, openingTitle?: string): JobApplicatio
     resumeUrl: r.resume_url ?? null,
     statusToken: r.status_token ?? "",
     lang: r.lang === "en" ? "en" : "es",
+    outcomePublishedAt: r.outcome_published_at ?? null,
     status: (r.status as JobApplication["status"]) ?? "applied",
     notes: Array.isArray(r.notes) ? r.notes : [],
     appliedAt: r.applied_at ?? new Date().toISOString(),
@@ -250,8 +254,13 @@ export async function updateApplicationStatus(
   if (!isSupabaseConfigured) return;
   const validStatuses = ["applied", "reviewing", "interview", "offer", "hired", "rejected"];
   if (!validStatuses.includes(status)) throw new Error(`Invalid status: ${status}`);
+  // Clearing the publish stamp on every move is deliberate: a decision that
+  // has been changed has not been communicated. Re-rejecting someone who was
+  // un-rejected must go through the publish step again rather than silently
+  // reusing the old release.
   await updateRows("job_applications", `id=eq.${id}`, {
     status,
+    outcome_published_at: null,
     updated_at: new Date().toISOString(),
   });
 }
@@ -454,7 +463,7 @@ export async function getApplicationStatus(
       "job_applications",
       {
         role: "service_role",
-        query: `status_token=eq.${encodeURIComponent(token)}&select=status,applied_at,lang,opening_id`,
+        query: `status_token=eq.${encodeURIComponent(token)}&select=status,applied_at,lang,opening_id,outcome_published_at`,
       }
     );
     const row = rows[0];
@@ -477,8 +486,15 @@ export async function getApplicationStatus(
       }
     }
 
+    // A rejection decided internally is not a rejection communicated. Until HR
+    // explicitly releases it, the applicant keeps seeing an in-progress state
+    // — nobody should learn they were turned down from a web page that got
+    // there before a person did.
+    const decided = (row.status as JobApplication["status"]) ?? "applied";
+    const held = decided === "rejected" && !row.outcome_published_at;
+
     return {
-      status: (row.status as JobApplication["status"]) ?? "applied",
+      status: held ? "reviewing" : decided,
       appliedAt: row.applied_at,
       lang: row.lang === "en" ? "en" : "es",
       roleTitle,
@@ -487,4 +503,22 @@ export async function getApplicationStatus(
     console.error("[careers] status lookup failed:", e);
     return null;
   }
+}
+
+/**
+ * Release the final outcome to the applicant.
+ *
+ * Separate from updateApplicationStatus on purpose. Moving someone to
+ * "rejected" is an internal decision; this is the moment it becomes something
+ * they can read. Keeping the two apart gives HR room to decide, discuss, and
+ * write to the person before the status page says anything.
+ */
+export async function publishApplicationOutcome(id: string): Promise<void> {
+  await requireSession();
+  assertUUID(id, "applicationId");
+  if (!isSupabaseConfigured) return;
+  await updateRows("job_applications", `id=eq.${id}`, {
+    outcome_published_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
 }
