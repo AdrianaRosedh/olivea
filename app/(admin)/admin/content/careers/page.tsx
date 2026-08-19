@@ -19,6 +19,7 @@ import {
   Megaphone,
   Search,
 } from "lucide-react";
+import { CANONICAL_BASE_URL } from "@/lib/site";
 import {
   getJobOpenings,
   saveJobOpening,
@@ -951,7 +952,10 @@ function ApplicationsTab({
                           <button
                             type="button"
                             onClick={() => {
-                              const url = `${window.location.origin}/${app.lang}/carreras/estado/${app.statusToken}`;
+                              // Not window.location.origin — the admin lives on
+                              // admin.oliveafarmtotable.com, which does not serve
+                              // the public status page.
+                              const url = `${CANONICAL_BASE_URL}/${app.lang}/carreras/estado/${app.statusToken}`;
                               navigator.clipboard
                                 .writeText(url)
                                 .then(() => {
