@@ -184,6 +184,23 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
 
+      // Cloudbeds' booking engine renders its property logo as a RELATIVE link
+      // ("/es/reservation/<code>"). Because the engine is embedded from our own
+      // origin (public/cloudbeds-immersive.html), that resolves against this
+      // site and 404s. Point it back at the widget so the logo just resets the
+      // booking engine, which is what it does on Cloudbeds' hosted page.
+      // Not permanent: this patches a third-party link, not a canonical URL.
+      {
+        source: "/en/reservation/:code",
+        destination: "/cloudbeds-immersive.html?lang=en",
+        permanent: false,
+      },
+      {
+        source: "/:lang/reservation/:code",
+        destination: "/cloudbeds-immersive.html",
+        permanent: false,
+      },
+
       // Vanity aliases for Olivea Café Wine Bar → canonical /cafe page.
       // Marketing-friendly URLs (Instagram, print, QR) that 308 to the real
       // page so equity consolidates to /cafe and there's no duplicate content.

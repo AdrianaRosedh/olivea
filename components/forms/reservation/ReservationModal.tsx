@@ -442,10 +442,11 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
 
   useEffect(() => {
     if (!isOpen) {
-      // Keep restaurant mounted so the OpenTable iframe stays alive
+      // Keep restaurant + hotel mounted so the OpenTable and Cloudbeds panes
+      // come back instantly instead of waiting on the idle remount below.
       setMounted((m) => ({
         restaurant: m.restaurant,
-        hotel: false,
+        hotel: m.hotel,
         cafe: false,
       }));
       setShowHotelOverlay(false);
