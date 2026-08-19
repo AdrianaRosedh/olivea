@@ -118,6 +118,18 @@ const DRAFT_KEY = "olivea:careers-draft";
 // Must be re-issued per submission; a stale one fails the anti-spam gate.
 const DRAFT_SKIP = new Set(["cv", "turnstileToken", "startedAt", "website"]);
 
+/**
+ * Turnstile injects its own hidden input (cf-turnstile-response) into the
+ * form, which the skip list above does not know about by name — it was
+ * landing in the draft in production, where the widget actually renders.
+ * A token is single-use and short-lived so the exposure was small, but there
+ * is no reason to keep a verification token in someone's browser storage.
+ * Matched by prefix so a future Cloudflare field is excluded too.
+ */
+function isDraftable(key: string): boolean {
+  return !DRAFT_SKIP.has(key) && !key.startsWith("cf-");
+}
+
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl border border-black/10 bg-white/70 " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/25 " +
@@ -315,7 +327,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
           const out: Record<string, string> = {};
           for (const [key, value] of new FormData(form).entries()) {
             if (typeof value !== "string") continue; // the CV
-            if (DRAFT_SKIP.has(key)) continue;
+            if (!isDraftable(key)) continue;
             if (value) out[key] = value;
           }
           // Keep the posting link, which lives in React state rather than in
