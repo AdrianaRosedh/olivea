@@ -4,7 +4,7 @@
 import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
 import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { Lang } from "@/app/(main)/[lang]/dictionaries";
+import type { Lang } from "@/app/[lang]/(main)/dictionaries";
 
 type ContactDict = {
   kicker: string;

@@ -23,7 +23,7 @@ import type {
  LeaderProfile,
  TeamLink,
  I18nText,
-} from "@/app/(main)/[lang]/team/teamData";
+} from "@/app/[lang]/(main)/team/teamData";
 
 
 /* ---------------- helpers ---------------- */

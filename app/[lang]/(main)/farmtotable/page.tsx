@@ -1,7 +1,7 @@
 // app/(main)/[lang]/farmtotable/page.tsx
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionaries";
+import { loadLocale as loadDict, type Lang } from "@/app/[lang]/(main)/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";

@@ -12,7 +12,7 @@ import ArticleDock from "@/components/journal/ArticleDock";
 import InlineImageReveal from "../InlineImageReveal";
 import PhotoCarousel from "../PhotoCarousel";
 
-import { getDictionary, type Lang } from "@/app/(main)/[lang]/dictionaries";
+import { getDictionary, type Lang } from "@/app/[lang]/(main)/dictionaries";
 import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import { optimizeHtmlImages } from "@/lib/utils/optimize-html-images";
 import {

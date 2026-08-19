@@ -7,7 +7,7 @@ import { type Lang } from "@/lib/i18n";
 import {
   loadLeader,
   type LeaderProfile,
-} from "@/app/(main)/[lang]/team/teamData";
+} from "@/app/[lang]/(main)/team/teamData";
 const normalizeLang = (raw: string): Lang => (raw === "en" ? "en" : "es");
 const safeStr = (x: unknown): string => (typeof x === "string" ? x : "");
 

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-import type { Lang } from "@/app/(main)/[lang]/dictionaries";
+import type { Lang } from "@/app/[lang]/(main)/dictionaries";
 import { listJournalIndex } from "@/lib/journal/load";
 import { absoluteUrl, SITE } from "@/lib/site";
 import {
@@ -13,7 +13,7 @@ import {
   localizedAuthorTitle,
 } from "@/lib/journal/authors";
 import { normalizeAuthors } from "@/lib/journal/author";
-import { loadLeader } from "@/app/(main)/[lang]/team/teamData";
+import { loadLeader } from "@/app/[lang]/(main)/team/teamData";
 import { localeAlternates } from "@/lib/site";
 
 function fmtDate(iso: string, lang: Lang) {

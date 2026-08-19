@@ -7,7 +7,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
-import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 
 // ✅ SEO: real crawlable <a href> nav that keeps framer-motion stagger.
 // Google can't follow onClick handlers — the primary nav must be anchors.

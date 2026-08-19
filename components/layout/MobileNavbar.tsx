@@ -9,7 +9,7 @@ import MobileDrawer from "@/components/navigation/MobileDrawer";
 import { MobileNav } from "@/components/navigation/MobileNav";
 import { useReservation } from "@/contexts/ReservationContext";
 import { reserveDefault } from "@/lib/sections";
-import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 
 type DrawerOrigin = { x: number; y: number };
 

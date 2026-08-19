@@ -8,6 +8,8 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import type { Metadata } from "next";
+import "../globals.css";
+import RootShell from "../root-shell";
 
 export const metadata: Metadata = {
   title: "Documento protegido",
@@ -18,17 +20,20 @@ export const metadata: Metadata = {
     icon: [{ url: "/documento-lock.svg", type: "image/svg+xml" }],
     apple: [{ url: "/documento-lock.svg" }],
   },
-  // Strip inherited OpenGraph/Twitter so a shared /d link preview shows no
-  // OLIVEA cover image or site branding — bare title only. (null removes the
-  // parent value; undefined would inherit it.)
+  // Kept even though this is now a root layout with no parent metadata to
+  // inherit from: null is explicit that a shared /d link must never carry an
+  // OLIVEA cover image or site branding, whatever is added above it later.
   openGraph: null,
   twitter: null,
 };
 
+// A root layout now, so it owns <html>/<body>. It used to return children
+// bare and inherit the document from app/layout.tsx, which no longer exists —
+// the root moved under [lang] to declare the page language correctly.
 export default function SecureDocLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <RootShell>{children}</RootShell>;
 }

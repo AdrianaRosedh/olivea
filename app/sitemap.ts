@@ -1,7 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
 import { canonicalUrl } from "@/lib/site";
-import { loadTeam } from "@/app/(main)/[lang]/team/teamData";
+import { loadTeam } from "@/app/[lang]/(main)/team/teamData";
 import fs from "node:fs/promises";
 import path from "node:path";
 

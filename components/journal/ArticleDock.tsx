@@ -1,6 +1,6 @@
 "use client";
 
-import type { Lang } from "@/app/(main)/[lang]/dictionaries";
+import type { Lang } from "@/app/[lang]/(main)/dictionaries";
 import type { TocItem } from "@/components/journal/ArticleTOC";
 import { useArticleDock } from "./useArticleDock";
 import { ArticleDockMobile } from "./ArticleDockMobile";

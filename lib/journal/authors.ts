@@ -1,6 +1,6 @@
 // lib/journal/authors.ts
-import type { Lang } from "@/app/(main)/[lang]/dictionaries";
-import { getLeader, getSortedTeam, loadLeader, type LeaderProfile } from "@/app/(main)/[lang]/team/teamData";
+import type { Lang } from "@/app/[lang]/(main)/dictionaries";
+import { getLeader, getSortedTeam, loadLeader, type LeaderProfile } from "@/app/[lang]/(main)/team/teamData";
 import { AUTHOR_EXTRAS } from "@/content/journal/authorExtras";
 import type { AuthorExtra } from "@/content/journal/authorExtras";
 

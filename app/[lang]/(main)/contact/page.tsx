@@ -4,8 +4,8 @@ import {
   getDictionary,
   normalizeLang,
   type Lang,
-} from "@/app/(main)/[lang]/dictionaries";
-import { applyCmsOverlay } from "@/app/(main)/[lang]/dictionaries/cms-overlay";
+} from "@/app/[lang]/(main)/dictionaries";
+import { applyCmsOverlay } from "@/app/[lang]/(main)/dictionaries/cms-overlay";
 import { getContent } from "@/lib/content";
 import ContactClient from "./ContactClient";
 

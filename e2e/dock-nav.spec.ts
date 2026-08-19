@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 
-import { SECTIONS_ES } from "../app/(main)/[lang]/farmtotable/sections.es";
-import { SECTIONS_EN } from "../app/(main)/[lang]/farmtotable/sections.en";
-import { SECTIONS_CASA_ES } from "../app/(main)/[lang]/casa/sections.es";
-import { SECTIONS_CASA_EN } from "../app/(main)/[lang]/casa/sections.en";
-import { SECTIONS_CAFE_ES } from "../app/(main)/[lang]/cafe/sections.es";
-import { SECTIONS_CAFE_EN } from "../app/(main)/[lang]/cafe/sections.en";
+import { SECTIONS_ES } from "../app/[lang]/(main)/farmtotable/sections.es";
+import { SECTIONS_EN } from "../app/[lang]/(main)/farmtotable/sections.en";
+import { SECTIONS_CASA_ES } from "../app/[lang]/(main)/casa/sections.es";
+import { SECTIONS_CASA_EN } from "../app/[lang]/(main)/casa/sections.en";
+import { SECTIONS_CAFE_ES } from "../app/[lang]/(main)/cafe/sections.es";
+import { SECTIONS_CAFE_EN } from "../app/[lang]/(main)/cafe/sections.en";
 
 // The chapter rail (DockLeft) drives scroll-highlighting and click-to-scroll
 // from these data files. Two invariants keep it from "bouncing":

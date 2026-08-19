@@ -2,7 +2,7 @@
 // this is the only way to actually look at the editor while designing it.
 // 404s outside development.
 import { notFound } from "next/navigation";
-import { TEAM } from "@/app/(main)/[lang]/team/teamData";
+import { TEAM } from "@/app/[lang]/(main)/team/teamData";
 import RosterPreviewClient from "./RosterPreviewClient";
 import type { RosterMember } from "@/components/admin/TeamRosterEditor";
 

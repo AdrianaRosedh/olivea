@@ -13,7 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useReservation } from "@/contexts/ReservationContext";
-import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import { buildCenterNavItems, reserveDefault } from "@/lib/sections";
 import { motion, AnimatePresence } from "framer-motion";

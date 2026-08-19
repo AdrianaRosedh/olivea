@@ -1,9 +1,9 @@
-// app/layout.tsx
-import "./globals.css";
+// app/[lang]/layout.tsx
+import "../globals.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { AppProviders } from "./providers";
-import { fontsClass } from "./fonts";
+import { AppProviders } from "../providers";
+import { fontsClass } from "../fonts";
 import PathTracker from "@/components/PathTracker";
 import { SITE, canonicalUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
@@ -91,27 +91,40 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/**
+ * Root layout for every localised route.
+ *
+ * It lives under [lang] rather than at app/ so it can declare the page's real
+ * language. The old root sat above the locale segment and could not see it, so
+ * it hardcoded lang="es" and a script in <head> corrected the DOM after the
+ * fact — which left the served HTML claiming every English page was Spanish.
+ *
+ * The correcting script is gone with it; the attribute is right in the markup
+ * now, so there is nothing to fix up on the client.
+ */
+export function generateStaticParams() {
+  return [{ lang: "es" }, { lang: "en" }];
+}
+
+export default async function LocaleRootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang: raw } = await params;
+  const lang = raw === "en" ? "en" : "es";
+
   return (
-    <html lang="es" className={fontsClass} suppressHydrationWarning>
+    <html lang={lang} className={fontsClass} suppressHydrationWarning>
       <head>
         {/*
           ✅ Pre-hydration PWA standalone detection.
           Runs before first paint so `pwa-safe-*` utility classes
           pick up env(safe-area-inset-*) on iOS immediately (no flash).
         */}
-        {/*
-          ✅ Set <html lang> from the URL path before first paint.
-          The root layout can't access [lang] params (it's above the
-          route groups), so we read the pathname at the earliest moment.
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=/^\\/(en|es)(?:\\/|$)/.exec(location.pathname);if(m)document.documentElement.lang=m[1];}catch(e){}})();`,
-          }}
-        />
-
-        <script
+                <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;if(s)document.documentElement.classList.add('pwa-standalone');}catch(e){}})();`,
           }}

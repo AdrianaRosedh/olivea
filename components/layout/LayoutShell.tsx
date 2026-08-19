@@ -15,7 +15,7 @@ import { getActiveSection } from "@/lib/sections";
 import SubtleContentFade from "@/components/transitions/SubtleContentFade";
 
 import { useContainerMobileLike } from "@/hooks/useContainerBreakpoint";
-import type { Lang, AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import type { Lang, AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 
 /* =========================
    Navbar split
@@ -163,23 +163,23 @@ async function loadSections(identity: Identity, lang: Lang): Promise<SectionShap
   if (identity === "farmtotable") {
     data =
       lang === "es"
-        ? ((await import("@/app/(main)/[lang]/farmtotable/sections.es"))
+        ? ((await import("@/app/[lang]/(main)/farmtotable/sections.es"))
             .SECTIONS_ES as SectionShape)
-        : ((await import("@/app/(main)/[lang]/farmtotable/sections.en"))
+        : ((await import("@/app/[lang]/(main)/farmtotable/sections.en"))
             .SECTIONS_EN as SectionShape);
   } else if (identity === "casa") {
     data =
       lang === "es"
-        ? ((await import("@/app/(main)/[lang]/casa/sections.es"))
+        ? ((await import("@/app/[lang]/(main)/casa/sections.es"))
             .SECTIONS_CASA_ES as SectionShape)
-        : ((await import("@/app/(main)/[lang]/casa/sections.en"))
+        : ((await import("@/app/[lang]/(main)/casa/sections.en"))
             .SECTIONS_CASA_EN as SectionShape);
   } else {
     data =
       lang === "es"
-        ? ((await import("@/app/(main)/[lang]/cafe/sections.es"))
+        ? ((await import("@/app/[lang]/(main)/cafe/sections.es"))
             .SECTIONS_CAFE_ES as SectionShape)
-        : ((await import("@/app/(main)/[lang]/cafe/sections.en"))
+        : ((await import("@/app/[lang]/(main)/cafe/sections.en"))
             .SECTIONS_CAFE_EN as SectionShape);
   }
 

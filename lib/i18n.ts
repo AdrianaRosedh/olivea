@@ -1,9 +1,9 @@
 // lib/i18n.ts
-import { getDictionary } from "@/app/(main)/[lang]/dictionaries";
+import { getDictionary } from "@/app/[lang]/(main)/dictionaries";
 import type {
   Lang as DictLang,
   AppDictionary as DictAppDictionary,
-} from "@/app/(main)/[lang]/dictionaries";
+} from "@/app/[lang]/(main)/dictionaries";
 
 // Re-export the types so other modules can import them from "@/lib/i18n"
 export type Lang = DictLang;

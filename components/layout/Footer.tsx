@@ -14,7 +14,7 @@ import {
   SpotifyIcon,
   PinterestIcon,
 } from "@/components/icons/SocialIcons";
-import type { AppDictionary } from "@/app/(main)/[lang]/dictionaries";
+import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 
 interface FooterProps {
   dict: AppDictionary;

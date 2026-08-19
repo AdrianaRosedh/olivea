@@ -1,18 +1,21 @@
-// app/(main)/[lang]/layout.tsx
-import "../main.css";
+// app/[lang]/(main)/layout.tsx
+import "./main.css";
 
 import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
 import StructuredDataServer from "@/components/seo/StructuredDataServer";
 import SitemapNav from "@/components/seo/SitemapNav";
 import LayoutShell from "@/components/layout/LayoutShell";
+import PopupHost from "@/components/ui/popup/PopupHost";
+import SiteBanner from "@/components/ui/banner/SiteBanner";
+import { fontsClass, lora } from "@/app/fonts";
 import HiringPill from "@/components/ui/HiringPill";
 import {
   loadLocale,
   type Lang,
   type AppDictionary,
-} from "@/app/(main)/[lang]/dictionaries";
-import { applyCmsOverlay } from "@/app/(main)/[lang]/dictionaries/cms-overlay";
+} from "@/app/[lang]/(main)/dictionaries";
+import { applyCmsOverlay } from "@/app/[lang]/(main)/dictionaries/cms-overlay";
 import ClientPrewarm from "./prewarm-client";
 import { canonicalUrl, SITE } from "@/lib/site";
 
@@ -78,8 +81,11 @@ export default async function LangLayout({
     url: nav.map((n) => n.url),
   };
 
+  // Merged from the old app/(main)/layout.tsx: that group layout wrapped this
+  // one and rendered a second data-scope="main" div around it. One element now
+  // carries the scope, the font classes and both widgets.
   return (
-    <div data-scope="main">
+    <div data-scope="main" className={`${fontsClass} ${lora.variable}`}>
       <StructuredDataServer />
       {/* ✅ Navigation schema for sitelinks */}
       <script
@@ -96,6 +102,8 @@ export default async function LangLayout({
       </LayoutShell>
       {/* "We're hiring" pill — auto-shows when a role is live (HR-toggleable) */}
       <HiringPill lang={lang} />
+      <SiteBanner />
+      <PopupHost />
     </div>
   );
 }

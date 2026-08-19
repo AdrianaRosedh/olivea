@@ -1,5 +1,5 @@
 // lib/journal/author.ts
-import type { Lang } from "@/app/(main)/[lang]/dictionaries";
+import type { Lang } from "@/app/[lang]/(main)/dictionaries";
 import { getAuthorProfile } from "@/lib/journal/authors";
 
 export type JournalAuthor = { id?: string; name: string };

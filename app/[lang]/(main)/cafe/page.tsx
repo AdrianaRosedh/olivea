@@ -1,20 +1,20 @@
-// app/(main)/[lang]/casa/page.tsx
+// app/(main)/[lang]/cafe/page.tsx
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { loadLocale as loadDict, type Lang } from "@/app/(main)/[lang]/dictionaries";
+import { loadLocale as loadDict, type Lang } from "@/app/[lang]/(main)/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent, t as tContent } from "@/lib/content";
 import ContentEs from "./ContentEs";
 import ContentEn from "./ContentEn";
-import CasaContent from "./CasaContent";
+import CafeContent from "./CafeContent";
 import type { SectionData } from "./sections/types";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
 
-type CasaMetaShape = {
-  casa?: { meta?: { title?: string; description?: string; ogImage?: string } };
+type CafeMetaShape = {
+  cafe?: { meta?: { title?: string; description?: string; ogImage?: string } };
   metadata?: { ogDefault?: string };
 };
 
@@ -31,23 +31,23 @@ export async function generateMetadata({
 
   const { lang: L, dict } = (await loadDict({ lang: raw })) as {
     lang: Lang;
-    dict: CasaMetaShape;
+    dict: CafeMetaShape;
   };
 
   const isEs = L === "es";
 
-  const fallbackTitle = isEs ? "Casa OLIVEA | Hospedaje del Huerto en Valle de Guadalupe" : "Casa OLIVEA | Farm Stay in Valle de Guadalupe";
+  const fallbackTitle = "OLIVEA Café";
   const fallbackDescription = isEs
-    ? "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate junto al huerto. Donde el huerto es la esencia."
-    : "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay beside the garden. Where the garden is the essence.";
+    ? "Café de especialidad, pan de casa y desayunos junto al huerto de Olivea en Valle de Guadalupe, Baja California. Donde el huerto es la esencia."
+    : "Specialty coffee, house bread, and breakfast next to the Olivea garden in Valle de Guadalupe, Baja California. Where the garden is the essence.";
 
-  const title = dict.casa?.meta?.title ?? fallbackTitle;
-  const description = dict.casa?.meta?.description ?? fallbackDescription;
+  const title = dict.cafe?.meta?.title ?? fallbackTitle;
+  const description = dict.cafe?.meta?.description ?? fallbackDescription;
 
   const ogImage =
-    dict.casa?.meta?.ogImage ?? dict.metadata?.ogDefault ?? "/images/seo/casa-og.jpg";
+    dict.cafe?.meta?.ogImage ?? dict.metadata?.ogDefault ?? "/images/seo/cafe-og.jpg";
 
-  const canonicalPath = `/${L}/casa`;
+  const canonicalPath = `/${L}/cafe`;
   const url = canonicalUrl(canonicalPath);
 
   return {
@@ -56,7 +56,7 @@ export async function generateMetadata({
     metadataBase: new URL(SITE.canonicalBaseUrl),
     alternates: {
       canonical: canonicalPath,
-      languages: { en: "/en/casa", es: "/es/casa" },
+      languages: { en: "/en/cafe", es: "/es/cafe" },
     },
     openGraph: {
       title,
@@ -91,21 +91,20 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const Article = L === "en" ? ArticleEn : ArticleEs;
 
   // Fetch Supabase-driven sections (falls back gracefully)
-  const casaContent = await getContent("casa");
+  const cafeContent = await getContent("cafe");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const hasSections = casaContent.sections && (casaContent.sections as any[]).length > 0;
-  const faq: FaqItem[] = casaContent.faq
+  const hasSections = cafeContent.sections && (cafeContent.sections as any[]).length > 0;
+  const faq: FaqItem[] = cafeContent.faq
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((item) => ({
       q: tContent(L, item.question),
       a: tContent(L, item.answer),
     }));
 
-  const faqId = canonicalUrl(`/${L}/casa#faq`);
+  const faqId = canonicalUrl(`/${L}/cafe#faq`);
 
-  // Hoisted by React 19 into <head> — preloads the LCP hero image
-  // and emits page-level WebPage + BreadcrumbList JSON-LD.
-  const pageUrl = canonicalUrl(`/${L}/casa`);
+  // Hoisted by React 19 into <head> — LCP hero preload + page JSON-LD.
+  const pageUrl = canonicalUrl(`/${L}/cafe`);
   const webPage = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -113,17 +112,17 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     url: pageUrl,
     name:
       L === "es"
-        ? "Casa Olivea | Hospedaje del Huerto en Valle de Guadalupe"
-        : "Casa Olivea | Farm Stay in Valle de Guadalupe",
+        ? "Olivea Café Wine Bar | Café, desayuno y vino en Valle de Guadalupe"
+        : "Olivea Café Wine Bar | Coffee, Breakfast & Wine in Valle de Guadalupe",
     description:
       L === "es"
-        ? "Hospedaje integrado al huerto y al restaurante con estrella MICHELIN en Valle de Guadalupe, Baja California."
-        : "Farm stay integrated with a working garden and MICHELIN-starred restaurant in Valle de Guadalupe, Baja California.",
+        ? "Café de especialidad, pan de casa y desayunos junto al huerto de Olivea en Valle de Guadalupe."
+        : "Specialty coffee, house bread, and farm breakfast next to the Olivea garden in Valle de Guadalupe.",
     isPartOf: { "@id": ENTITY_IDS.website },
-    about: { "@id": ENTITY_IDS.hotel },
+    about: { "@id": ENTITY_IDS.cafe },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
     inLanguage: L === "es" ? "es-MX" : "en-US",
-    ...(casaContent.updatedAt ? { dateModified: casaContent.updatedAt } : {}),
+    ...(cafeContent.updatedAt ? { dateModified: cafeContent.updatedAt } : {}),
   };
   const breadcrumb = {
     "@context": "https://schema.org",
@@ -131,7 +130,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     "@id": `${pageUrl}#breadcrumb`,
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "OLIVEA", item: canonicalUrl(`/${L}`) },
-      { "@type": "ListItem", position: 2, name: "Casa Olivea", item: pageUrl },
+      { "@type": "ListItem", position: 2, name: "Olivea Café Wine Bar", item: pageUrl },
     ],
   };
 
@@ -148,7 +147,6 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
 
-      {/* ✅ AI/SEO only: structured FAQ */}
       <FaqJsonLd id={faqId} items={faq} />
 
       {/* Server-rendered article: full semantic content for crawlers,
@@ -160,7 +158,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
         <Suspense
           fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
         >
-          <CasaContent lang={L} sections={casaContent.sections as SectionData[]} />
+          <CafeContent lang={L} sections={cafeContent.sections as SectionData[]} />
         </Suspense>
       ) : (
         <Suspense
