@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import { usePathname } from "next/navigation";
 import {
   motion,
@@ -12,7 +19,12 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
-import { setModalOpen } from "@/components/ui/modalFlag";
+import {
+  setModalOpen,
+  subscribeModalOpen,
+  getModalOpen,
+  getModalOpenServer,
+} from "@/components/ui/modalFlag";
 
 // Web Component types declared in types/roseiies.d.ts
 
@@ -127,6 +139,18 @@ function MapContainer({ isEn }: { isEn: boolean }) {
 export default function LiveGarden() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // The orb sits at z-9999, above every modal on the site. Step aside while
+  // one is open instead of floating over its content.
+  //
+  // This covers other people's modals only in practice: when the Live Garden's
+  // own panel opens it sets the same flag, but the orb is already gated on
+  // !isOpen below, so it makes no difference there.
+  const modalOpen = useSyncExternalStore(
+    subscribeModalOpen,
+    getModalOpen,
+    getModalOpenServer
+  );
   const prefersReduced = useReducedMotion();
   const pathname = usePathname();
   const isEn = useMemo(() => pathname?.startsWith("/en") ?? false, [pathname]);
@@ -295,7 +319,7 @@ export default function LiveGarden() {
 
       {/* ─── Draggable roseiies live-map orb ─────────────────── */}
       <AnimatePresence>
-        {!isOpen && (
+        {!isOpen && !modalOpen && (
           <motion.div
             key="live-orb"
             drag
