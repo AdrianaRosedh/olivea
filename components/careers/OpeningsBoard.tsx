@@ -428,7 +428,10 @@ function OpeningDialog({
               <button
                 type="button"
                 onClick={applyToRole}
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-(--olivea-olive) px-7 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] text-white ring-1 ring-white/10 transition-colors duration-300 hover:bg-(--olivea-clay) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/45 sm:w-auto"
+                /* px-7 py-3 lands at 42px, 2px under the minimum tap target.
+                   min-h rather than more padding, so the button keeps its
+                   proportions and only the touch case grows. */
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-(--olivea-olive) px-7 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] text-white ring-1 ring-white/10 transition-colors duration-300 hover:bg-(--olivea-clay) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/45 pointer-coarse:min-h-11 sm:w-auto"
               >
                 {c.apply}
                 <ArrowRight
