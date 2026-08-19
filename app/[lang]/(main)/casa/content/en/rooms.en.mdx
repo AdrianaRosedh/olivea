@@ -28,14 +28,15 @@ export default function Page() {
         className="text-lg text-oliveaText/80 leading-relaxed max-w-[720px] space-y-5"
       >
         <p>
-          Fourteen suites — each named after an aromatic plant or tree — offer
-          space, warmth, and a sense of return. This is where your rhythm
-          resets.
+          Fourteen suites, set inside a working garden — each named for an
+          aromatic plant or tree, each opening to the huerto, the olive rows,
+          and the desert light of Baja California. You do not book a room here;
+          you stay the night in the garden that feeds the kitchen.
         </p>
         <p>
-          King-size beds, blackout curtains, and natural fiber textures invite
-          deep rest. All rooms are designed for two adults — quiet, light-filled,
-          and considered.
+          King-size beds, blackout curtains, and natural-fiber textures make the
+          comfort quiet and complete — every suite for two adults, considered
+          and light-filled.
         </p>
       </motion.div>
 
@@ -65,6 +66,21 @@ export default function Page() {
           Light shifts throughout the day. In the morning, it filters softly
           through curtains. In the evening, it settles — warm, indirect,
           grounding.
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.1, delay: 0.3 }}
+        viewport={{ once: true }}
+        className="text-base text-oliveaText/80 leading-relaxed max-w-[700px] mt-8"
+      >
+        <p>
+          Your evening is Olivea Farm To Table — a MICHELIN-starred tasting menu
+          that opens with a walk through the garden, steps from your door. When
+          dinner ends there is no drive and nothing to leave: you are already
+          home, inside the huerto, to wake in the rows the next morning.
         </p>
       </motion.div>
     </StickyBlock>

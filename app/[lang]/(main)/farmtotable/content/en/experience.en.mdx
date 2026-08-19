@@ -35,7 +35,9 @@ import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
   <Sub id="origin" preset="blur-up" className="mt-10">
     Olivea Farm To Table is a <strong>tasting menu</strong> shaped by the garden.
     The kitchen reads climate and soil; the table translates that landscape into
-    memory through time, technique, and restraint.
+    memory through time, technique, and restraint. Every evening begins in the
+    garden itself — a walk through the rows where the meal was grown, so the
+    first course arrives already familiar.
   </Sub>
 
   {/* Specs */}
@@ -44,7 +46,7 @@ import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
       <StatChips
         items={[
           { label: "Format", value: "Tasting menu • 9 courses" },
-          { label: "Season", value: "Changes every 5–6 weeks • garden-led" },
+          { label: "Season", value: "Changes with the garden, not the calendar" },
           { label: "Origin", value: "Private garden • Valle de Guadalupe" },
           { label: "Duration", value: "~3 hours • designed to unfold slowly" },
         ]}
@@ -99,4 +101,14 @@ import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
     designed for adults who can dedicate <strong>~3 hours</strong>
     to the table.
   </Sub>
+
+  <Reveal preset="fade" delay={0.14}>
+    <div className="mt-10">
+      <FieldNote>
+        The evening need not end at the table. The fourteen suites of
+        <strong> Casa Olivea</strong> open onto the same garden — dine, walk a
+        few steps, and wake inside the huerto.
+      </FieldNote>
+    </div>
+  </Reveal>
 </StickyBlock>

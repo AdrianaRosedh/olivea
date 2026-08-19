@@ -52,7 +52,7 @@ export default function ArticleEn() {
           <dt>Format</dt>
           <dd>Tasting menu · 9 courses</dd>
           <dt>Season</dt>
-          <dd>Changes every 5–6 weeks · garden-led</dd>
+          <dd>Changes with the garden, not the calendar</dd>
           <dt>Origin</dt>
           <dd>Private garden · Valle de Guadalupe</dd>
           <dt>Duration</dt>

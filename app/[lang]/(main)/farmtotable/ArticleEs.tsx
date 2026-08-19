@@ -56,7 +56,7 @@ export default function ArticleEs() {
           <dt>Formato</dt>
           <dd>Menú degustación · 9 tiempos</dd>
           <dt>Temporada</dt>
-          <dd>Cambia cada 5–6 semanas · guiado por el huerto</dd>
+          <dd>Cambia con el huerto, no con el calendario</dd>
           <dt>Origen</dt>
           <dd>Huerto privado · Valle de Guadalupe</dd>
           <dt>Duración</dt>
