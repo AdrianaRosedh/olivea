@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendCareersEmail, sendApplicationReceivedEmail } from "@/lib/email/send";
 import { submitApplication } from "@/lib/supabase/careers-actions";
+import { canonicalUrl } from "@/lib/site";
 import {
   uploadResume,
   sniffResumeType,
@@ -159,8 +160,12 @@ export async function handleSubmit(
     else console.error("[careers] CV not stored:", stored.error);
   }
 
+  // The status token comes back from the insert. If the row never lands there
+  // is nothing to point a status page at, so the link is simply omitted rather
+  // than sent broken — the application still reaches HR by email.
+  let statusToken: string | undefined;
   try {
-    await submitApplication({
+    const res = await submitApplication({
       name: data.name,
       email: data.email,
       phone: data.phone,
@@ -168,7 +173,9 @@ export async function handleSubmit(
       coverNote,
       openingId: data.openingId || undefined,
       resumePath,
+      lang: data.lang ?? "es",
     });
+    statusToken = res.statusToken;
   } catch {
     // Non-critical — the email is the primary delivery
   }
@@ -211,6 +218,9 @@ export async function handleSubmit(
     name: data.name,
     lang: data.lang ?? "es",
     openingTitle: data.openingTitle || undefined,
+    statusUrl: statusToken
+      ? canonicalUrl(`/${data.lang ?? "es"}/carreras/estado/${statusToken}`)
+      : undefined,
   });
 
   return { success: true };

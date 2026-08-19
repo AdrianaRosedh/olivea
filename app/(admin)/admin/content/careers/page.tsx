@@ -691,6 +691,7 @@ function ApplicationsTab({
   const [addingNote, setAddingNote] = useState(false);
   const { t } = useAdminLocale();
   const [resumeBusy, setResumeBusy] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   const filtered = applications.filter((a) => {
     const matchSearch =
@@ -936,6 +937,43 @@ function ApplicationsTab({
                               ? t({ es: "Abriendo…", en: "Opening…" })
                               : t({ es: "Ver currículum →", en: "View resume →" })}
                           </button>
+                        </div>
+                      )}
+
+                      {/* The applicant's own status page. Sharing this instead
+                          of answering "any news?" by hand means the stage the
+                          buttons below set is the stage they see. */}
+                      {app.statusToken && (
+                        <div>
+                          <span className={cls.label}>
+                            {t({ es: "Enlace de seguimiento", en: "Tracking link" })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const url = `${window.location.origin}/${app.lang}/carreras/estado/${app.statusToken}`;
+                              navigator.clipboard
+                                .writeText(url)
+                                .then(() => {
+                                  setCopiedLink(app.id);
+                                  window.setTimeout(() => setCopiedLink(null), 2000);
+                                })
+                                .catch(() =>
+                                  alert(t({ es: "No se pudo copiar.", en: "Could not copy." }))
+                                );
+                            }}
+                            className="mt-1 inline-block text-sm text-[var(--olivea-olive)] underline"
+                          >
+                            {copiedLink === app.id
+                              ? t({ es: "¡Copiado!", en: "Copied!" })
+                              : t({ es: "Copiar enlace del candidato", en: "Copy applicant link" })}
+                          </button>
+                          <p className="mt-1 text-xs text-[var(--olivea-ink)]/50">
+                            {t({
+                              es: "Ya se lo enviamos por correo al aplicar.",
+                              en: "Already emailed to them when they applied.",
+                            })}
+                          </p>
                         </div>
                       )}
 

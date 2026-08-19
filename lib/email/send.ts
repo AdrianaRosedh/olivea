@@ -164,6 +164,8 @@ export async function sendApplicationReceivedEmail(opts: {
   name: string;
   lang: "es" | "en";
   openingTitle?: string;
+  /** Public status page for this application, when a token was issued. */
+  statusUrl?: string;
 }): Promise<void> {
   try {
     const { error } = await resend.emails.send({
@@ -177,6 +179,7 @@ export async function sendApplicationReceivedEmail(opts: {
         name: opts.name,
         lang: opts.lang,
         openingTitle: opts.openingTitle,
+        statusUrl: opts.statusUrl,
       }),
     });
     if (error) console.error("[email] applicant confirmation failed:", error);

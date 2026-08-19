@@ -61,6 +61,8 @@ export interface JobApplication {
   area: string;
   coverNote: string;
   resumeUrl: string | null;
+  statusToken: string;
+  lang: "es" | "en";
   status: "applied" | "reviewing" | "interview" | "offer" | "hired" | "rejected";
   notes: ApplicationNote[];
   appliedAt: string;
@@ -96,6 +98,8 @@ interface ApplicationRow {
   area: string;
   cover_note: string;
   resume_url: string | null;
+  status_token: string;
+  lang: string;
   status: string;
   notes: ApplicationNote[];
   applied_at: string;
@@ -135,6 +139,8 @@ function mapApplication(r: ApplicationRow, openingTitle?: string): JobApplicatio
     area: r.area ?? "",
     coverNote: r.cover_note ?? "",
     resumeUrl: r.resume_url ?? null,
+    statusToken: r.status_token ?? "",
+    lang: r.lang === "en" ? "en" : "es",
     status: (r.status as JobApplication["status"]) ?? "applied",
     notes: Array.isArray(r.notes) ? r.notes : [],
     appliedAt: r.applied_at ?? new Date().toISOString(),
@@ -308,7 +314,9 @@ export async function submitApplication(data: {
   coverNote: string;
   /** Storage path in the private applicant-cvs bucket, never a URL. */
   resumePath?: string;
-}): Promise<{ error: string | null }> {
+  /** Locale they applied in; the status page and emails follow it. */
+  lang?: "es" | "en";
+}): Promise<{ error: string | null; statusToken?: string }> {
   if (!isSupabaseConfigured) return { error: "Applications are not available" };
 
   // Validate inputs
@@ -331,10 +339,15 @@ export async function submitApplication(data: {
     row.opening_id = data.openingId;
   }
   if (data.resumePath) row.resume_url = data.resumePath;
+  row.lang = data.lang ?? "es";
 
   try {
+    // The token is generated here rather than defaulted in the database so
+    // the confirmation email can carry the link without a second round trip.
+    const statusToken = randomStatusToken();
+    row.status_token = statusToken;
     await insertRows("job_applications", row);
-    return { error: null };
+    return { error: null, statusToken };
   } catch (e) {
     console.error("[careers] Failed to submit application:", e);
     return { error: "Failed to submit application" };
@@ -395,4 +408,83 @@ export async function setHiringPromo(value: "auto" | "on" | "off"): Promise<void
   const openings = { ...(row?.openings ?? {}), hiringPromo: value };
   await upsertRows("careers_content", { id: "careers", openings }, { onConflict: "id" });
   revalidateCareers();
+}
+
+// ── Public: application status (token only, no auth) ────────────────
+
+/** What an applicant is allowed to see about their own application. */
+export interface ApplicationStatusView {
+  status: JobApplication["status"];
+  appliedAt: string;
+  lang: "es" | "en";
+  /** The posting they applied to, when they came from one. */
+  roleTitle: string | null;
+}
+
+/** 32 random bytes, base64url — the only credential guarding a status page. */
+function randomStatusToken(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+/**
+ * Look up an application by its status token.
+ *
+ * No auth, so this is reachable by anyone holding a link — which is the point,
+ * and also why it returns a hand-built view rather than the row. Name, email,
+ * phone, cover note, CV path and the internal notes never leave the server:
+ * a forwarded link should reveal a stage and a role, not a person's file.
+ *
+ * Lookup is by token alone. The row id must never be accepted here — it
+ * appears in admin URLs and would turn a shoulder-surfed screen into access.
+ */
+export async function getApplicationStatus(
+  token: string
+): Promise<ApplicationStatusView | null> {
+  if (!isSupabaseConfigured) return null;
+  // Tokens are fixed-shape base64url; reject anything else before querying so
+  // no arbitrary string reaches the filter.
+  if (!token || !/^[A-Za-z0-9_-]{20,64}$/.test(token)) return null;
+
+  try {
+    const rows = await selectRows<ApplicationRow & { opening_id: string | null }>(
+      "job_applications",
+      {
+        role: "service_role",
+        query: `status_token=eq.${encodeURIComponent(token)}&select=status,applied_at,lang,opening_id`,
+      }
+    );
+    const row = rows[0];
+    if (!row) return null;
+
+    let roleTitle: string | null = null;
+    if (row.opening_id) {
+      const [opening] = await selectRows<{ title_es: string; title_en: string }>(
+        "job_openings",
+        {
+          role: "service_role",
+          query: `id=eq.${row.opening_id}&select=title_es,title_en`,
+        }
+      );
+      if (opening) {
+        roleTitle =
+          (row.lang === "en" ? opening.title_en : opening.title_es) ||
+          opening.title_es ||
+          null;
+      }
+    }
+
+    return {
+      status: (row.status as JobApplication["status"]) ?? "applied",
+      appliedAt: row.applied_at,
+      lang: row.lang === "en" ? "en" : "es",
+      roleTitle,
+    };
+  } catch (e) {
+    console.error("[careers] status lookup failed:", e);
+    return null;
+  }
 }

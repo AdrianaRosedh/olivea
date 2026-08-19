@@ -196,6 +196,8 @@ export function applicationReceivedEmail(opts: {
   lang: "es" | "en";
   /** Present only when they applied to a published posting. */
   openingTitle?: string;
+  /** Their private status page. Omitted if no token was issued. */
+  statusUrl?: string;
 }) {
   const es = opts.lang === "es";
   const firstName = escapeHtml((opts.name || "").trim().split(/\s+/)[0] || "");
@@ -221,6 +223,20 @@ export function applicationReceivedEmail(opts: {
     ? "Mientras tanto, no hace falta que hagas nada."
     : "In the meantime, there\u2019s nothing you need to do.";
 
+  // A private link beats \"any news?\" emails in both directions: the applicant
+  // can look instead of asking, and HR isn't the only channel for an answer.
+  const statusBlock = opts.statusUrl
+    ? `
+      ${primaryButton(es ? "Ver el estado de tu solicitud" : "Check your application status", opts.statusUrl)}
+      <p style="margin:14px 0 0;font-size:13px;line-height:1.7;color:#8a9584;">
+        ${
+          es
+            ? "Este enlace es s\u00f3lo tuyo \u2014 gu\u00e1rdalo y con\u00fasltalo cuando quieras."
+            : "This link is yours alone \u2014 keep it and check back whenever you like."
+        }
+      </p>`
+    : "";
+
   const sign = es
     ? "Equipo Olivea \u00b7 Valle de Guadalupe, Baja California"
     : "The Olivea team \u00b7 Valle de Guadalupe, Baja California";
@@ -237,6 +253,7 @@ export function applicationReceivedEmail(opts: {
       <p style="margin:0 0 14px;font-size:15px;line-height:1.75;color:#6b7a65;">${lead}</p>
       <p style="margin:0 0 14px;font-size:15px;line-height:1.75;color:#6b7a65;">${next}</p>
       <p style="margin:0;font-size:15px;line-height:1.75;color:#6b7a65;">${closing}</p>
+      ${statusBlock}
       ${divider()}
       <p style="margin:0;font-size:13px;line-height:1.7;color:#6b7a65;">${sign}</p>
     `,
