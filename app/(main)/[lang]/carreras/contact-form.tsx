@@ -4,7 +4,12 @@ import React, { useActionState, useCallback, useEffect, useMemo, useRef, useStat
 import { Button } from "@/components/ui/button";
 import { type Lang } from "@/lib/i18n";
 import { handleSubmit, type ApplicationErrors } from "./actions";
-import { CAREER_AREAS, areaLabel, canonicalArea } from "@/lib/careers/areas";
+import {
+  CAREER_AREAS,
+  CAREER_AVAILABILITY,
+  areaLabel,
+  canonicalArea,
+} from "@/lib/careers/areas";
 import { RESUME_ACCEPT } from "@/lib/supabase/resume-storage";
 type State = { success?: boolean; errors?: ApplicationErrors };
 
@@ -61,12 +66,10 @@ const copy = (lang: Lang) => ({
   // Areas come from lib/careers/areas so this form and the admin's posting
   // field can never offer different sets again.
   areas: CAREER_AREAS.map((a) => ({ v: a.value, l: lang === "es" ? a.es : a.en })),
-  availabilityOptions: [
-    { v: "full", l: lang === "es" ? "Tiempo completo" : "Full-time" },
-    { v: "part", l: lang === "es" ? "Medio tiempo" : "Part-time" },
-    { v: "weekends", l: lang === "es" ? "Fines de semana" : "Weekends" },
-    { v: "seasonal", l: lang === "es" ? "Temporal" : "Seasonal" },
-  ],
+  availabilityOptions: CAREER_AVAILABILITY.map((a) => ({
+    v: a.value,
+    l: lang === "es" ? a.es : a.en,
+  })),
 });
 
 let fieldId = 0;

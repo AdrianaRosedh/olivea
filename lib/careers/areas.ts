@@ -63,3 +63,30 @@ export function canonicalArea(value: string | null | undefined): string {
   const v = value.trim().toLowerCase();
   return CAREER_AREAS.some((a) => a.value === v) ? v : value.trim();
 }
+
+/**
+ * Availability, the applicant's answer to "how much can you work".
+ *
+ * Lives here beside the areas for the same reason: the form, the posting
+ * editor and the notification email all need to turn a stored value into a
+ * name, and three private copies is exactly how "Marketing" ended up
+ * unselectable.
+ */
+export const CAREER_AVAILABILITY = [
+  { value: "full", es: "Tiempo completo", en: "Full-time" },
+  { value: "part", es: "Medio tiempo", en: "Part-time" },
+  { value: "weekends", es: "Fines de semana", en: "Weekends" },
+  { value: "seasonal", es: "Temporal", en: "Seasonal" },
+] as const;
+
+/** Label for a stored availability value; unknown values pass through. */
+export function availabilityLabel(
+  value: string | null | undefined,
+  lang: Lang
+): string {
+  if (!value) return "";
+  const found = CAREER_AVAILABILITY.find(
+    (a) => a.value === value.trim().toLowerCase()
+  );
+  return found ? found[lang] : value;
+}

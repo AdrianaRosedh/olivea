@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { SITE_URL } from "./client";
+import { areaLabel, availabilityLabel } from "@/lib/careers/areas";
 
 /* ── Shared Layout ── */
 
@@ -306,6 +307,8 @@ export function inviteEmail(opts: {
 
 /** Careers application received (sent to team) */
 export function careersApplicationEmail(opts: {
+  /** The locale the applicant used, so the whole email matches it. */
+  lang?: "es" | "en";
   name: string;
   email: string;
   phone: string;
@@ -332,45 +335,77 @@ export function careersApplicationEmail(opts: {
       <p class="email-text" style="margin: 0; font-size: 14px; color: #2d3b29; line-height: 22px;">${escapeHtml(answer).replace(/\n/g, "<br/>")}</p>
     </div>`;
 
+  // Follows the page the applicant used. Their answers arrive in that
+  // language, so the labels around them should match rather than wrapping an
+  // English application in Spanish chrome.
+  const lang = opts.lang ?? "es";
+  const es = lang === "es";
+  const L = {
+    heading: es ? "Nueva aplicación" : "New application",
+    name: es ? "Nombre" : "Name",
+    email: "Email",
+    phone: es ? "Teléfono" : "Phone",
+    area: es ? "Área" : "Area",
+    availability: es ? "Disponibilidad" : "Availability",
+    languages: es ? "Idiomas" : "Languages",
+    role: es ? "Rol" : "Role",
+    links: "Links",
+    q1: es ? "1. Excelencia" : "1. Excellence",
+    q2: es ? "2. Feedback difícil" : "2. Difficult feedback",
+    q3: es ? "3. ¿Por qué Olivea?" : "3. Why Olivea?",
+    notes: es ? "Notas adicionales" : "Additional notes",
+    auto: es
+      ? "Email enviado automáticamente desde el formulario de carreras de Olivea."
+      : "Sent automatically from the Olivea careers form.",
+  };
+
+  // area and availability are stored as values ("marketing", "full"); HR
+  // should read names, not database keys.
+  const areaName = areaLabel(opts.area, lang) || opts.area;
+  const availabilityName =
+    availabilityLabel(opts.availability, lang) || opts.availability;
+
   const body = `
     <h1 class="email-text" style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #2d3b29;">
-      Nueva aplicación
+      ${L.heading}
     </h1>
     <p class="email-muted" style="margin: 0 0 24px; font-size: 14px; color: #6b7a65;">
-      ${escapeHtml(opts.name)} — ${escapeHtml(opts.area)}
+      ${escapeHtml(opts.name)} — ${escapeHtml(areaName)}
     </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
-      ${field("Nombre", opts.name)}
-      ${field("Email", opts.email)}
-      ${field("Teléfono", opts.phone)}
-      ${field("Área", opts.area)}
-      ${field("Disponibilidad", opts.availability)}
-      ${field("Idiomas", opts.languages)}
-      ${opts.role ? field("Rol", opts.role) : ""}
-      ${opts.links ? field("Links", opts.links) : ""}
+      ${field(L.name, opts.name)}
+      ${field(L.email, opts.email)}
+      ${field(L.phone, opts.phone)}
+      ${field(L.area, areaName)}
+      ${field(L.availability, availabilityName)}
+      ${field(L.languages, opts.languages)}
+      ${opts.role ? field(L.role, opts.role) : ""}
+      ${opts.links ? field(L.links, opts.links) : ""}
     </table>
 
     ${divider()}
 
-    ${answer("1. Excelencia", opts.q1)}
-    ${answer("2. Feedback difícil", opts.q2)}
-    ${answer("3. ¿Por qué Olivea?", opts.q3)}
+    ${answer(L.q1, opts.q1)}
+    ${answer(L.q2, opts.q2)}
+    ${answer(L.q3, opts.q3)}
 
-    ${opts.notes ? `${divider()}${answer("Notas adicionales", opts.notes)}` : ""}
+    ${opts.notes ? `${divider()}${answer(L.notes, opts.notes)}` : ""}
 
     <p style="margin: 24px 0 0; font-size: 11px; color: #9ca896; text-align: right;">
       IP: ${escapeHtml(opts.ip)} · ${new Date().toISOString().split("T")[0]}
     </p>`;
 
   return layout({
-    preheader: `Nueva aplicación de ${opts.name} para ${opts.area}`,
+    preheader: es
+      ? `Nueva aplicación de ${opts.name} para ${areaName}`
+      : `New application from ${opts.name} for ${areaName}`,
     body,
     footer: `
       <table role="presentation" cellpadding="0" cellspacing="0">
         <tr>
           <td align="center" style="font-size: 11px; color: #6b7a65; line-height: 18px;">
-            Email enviado automáticamente desde el formulario de carreras de Olivea.
+            ${L.auto}
           </td>
         </tr>
       </table>`,

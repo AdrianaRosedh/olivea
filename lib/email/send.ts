@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { resend, FROM_DEFAULT, FROM_CAREERS } from "./client";
+import { areaLabel } from "@/lib/careers/areas";
 import {
   magicLinkEmail,
   inviteEmail,
@@ -85,17 +86,21 @@ export async function sendCareersEmail(opts: {
   };
   /** Set only when the application came from a published posting. */
   openingTitle?: string;
+  /** The locale the applicant used; the whole email follows it. */
+  lang?: "es" | "en";
   /** The applicant's CV, when they attached one. */
   cv?: { filename: string; bytes: Uint8Array; kind: "pdf" | "docx" };
 }) {
-  const html = careersApplicationEmail(opts.applicant);
+  const lang = opts.lang ?? "es";
+  const html = careersApplicationEmail({ ...opts.applicant, lang });
 
   // Name the posting in the subject when there is one. This is the first
   // thing HR sees, and "(Marketing)" does not tell them which role was
-  // advertised when several are live at once.
+  // advertised when several are live at once. Localised with the rest.
+  const lead = lang === "es" ? "Nueva aplicación" : "New application";
   const subject = opts.openingTitle
-    ? `Nueva aplicación — ${opts.applicant.name} · ${opts.openingTitle}`
-    : `Nueva aplicación — ${opts.applicant.name} (${opts.applicant.area})`;
+    ? `${lead} — ${opts.applicant.name} · ${opts.openingTitle}`
+    : `${lead} — ${opts.applicant.name} (${areaLabel(opts.applicant.area, lang) || opts.applicant.area})`;
 
   const { error } = await resend.emails.send({
     from: FROM_CAREERS,

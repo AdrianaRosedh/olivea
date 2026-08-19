@@ -181,6 +181,7 @@ export async function handleSubmit(
       to,
       replyTo: data.email,
       openingTitle: data.openingTitle || undefined,
+      lang: data.lang ?? "es",
       cv: cv ? { filename: cv.name, bytes: cv.bytes, kind: cv.kind } : undefined,
       applicant: {
         name: data.name,
