@@ -430,6 +430,19 @@ export interface ApplicationStatusView {
   roleTitle: string | null;
 }
 
+/**
+ * Where each terminal outcome waits while unpublished.
+ *
+ * Only outcomes appear here. The intermediate stages are process states and
+ * show immediately — it's the two endings that a person should deliver.
+ */
+const HELD_AS: Partial<
+  Record<JobApplication["status"], JobApplication["status"]>
+> = {
+  rejected: "reviewing",
+  hired: "offer",
+};
+
 /** 32 random bytes, base64url — the only credential guarding a status page. */
 function randomStatusToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
@@ -486,15 +499,20 @@ export async function getApplicationStatus(
       }
     }
 
-    // A rejection decided internally is not a rejection communicated. Until HR
-    // explicitly releases it, the applicant keeps seeing an in-progress state
-    // — nobody should learn they were turned down from a web page that got
-    // there before a person did.
+    // An outcome decided internally is not an outcome communicated. Until HR
+    // explicitly releases it, the applicant keeps seeing an in-progress stage
+    // — nobody should learn they were turned down, or that they got the job,
+    // from a web page that got there before a person did.
+    //
+    // Each terminal state parks at the last stage on its own path, so holding
+    // never moves someone backwards: a rejection reads as "in review", while
+    // a hire waits at "offer" rather than dropping to the top of the rail.
     const decided = (row.status as JobApplication["status"]) ?? "applied";
-    const held = decided === "rejected" && !row.outcome_published_at;
+    const heldAs = HELD_AS[decided];
+    const held = heldAs && !row.outcome_published_at ? heldAs : null;
 
     return {
-      status: held ? "reviewing" : decided,
+      status: held ?? decided,
       appliedAt: row.applied_at,
       lang: row.lang === "en" ? "en" : "es",
       roleTitle,

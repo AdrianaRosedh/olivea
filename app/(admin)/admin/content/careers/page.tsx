@@ -188,6 +188,46 @@ const applicationStatusLabels: Record<string, Bi> = {
   rejected: { es: "Rechazada", en: "Rejected" },
 };
 
+/**
+ * The two endings that wait for a person to deliver them.
+ *
+ * A status in this map does not reach the applicant's page when HR sets it —
+ * it waits behind an explicit Publish. Anything absent here shows immediately.
+ */
+const outcomeCopy: Record<
+  string,
+  { held: Bi; published: Bi; confirm: Bi } | undefined
+> = {
+  rejected: {
+    held: {
+      es: "«En revisión». Aún no sabe que no seguimos adelante.",
+      en: "“In review”. They don’t know yet that we didn’t move forward.",
+    },
+    published: {
+      es: "«No seguimos adelante esta vez» — publicado.",
+      en: "“We didn’t move forward this time” — published.",
+    },
+    confirm: {
+      es: "El candidato verá que no seguimos adelante en cuanto abra su enlace. ¿Publicar el resultado?",
+      en: "The applicant will see that we didn’t move forward as soon as they open their link. Publish the outcome?",
+    },
+  },
+  hired: {
+    held: {
+      es: "«Oferta». Aún no sabe que quedó contratado.",
+      en: "“Offer”. They don’t know yet that they’ve got the job.",
+    },
+    published: {
+      es: "«Te damos la bienvenida» — publicado.",
+      en: "“Welcome” — published.",
+    },
+    confirm: {
+      es: "El candidato verá que quedó contratado en cuanto abra su enlace. ¿Publicar el resultado?",
+      en: "The applicant will see that they’ve got the job as soon as they open their link. Publish the outcome?",
+    },
+  },
+};
+
 const jobTypeLabels: Record<string, Bi> = {
   "full-time": { es: "Tiempo completo", en: "Full-time" },
   "part-time": { es: "Medio tiempo", en: "Part-time" },
@@ -1005,9 +1045,10 @@ function ApplicationsTab({
                       </div>
 
                       {/* What the applicant can actually see. Moving someone to
-                          "rejected" is an internal decision; it only reaches
-                          their status page when someone releases it here. */}
-                      {app.status === "rejected" && (
+                          a final outcome is an internal decision; it only
+                          reaches their status page when someone releases it
+                          here — good news and bad news alike. */}
+                      {outcomeCopy[app.status] && (
                         <div
                           className={
                             "rounded-xl p-3 " +
@@ -1021,28 +1062,19 @@ function ApplicationsTab({
                           </span>
                           {app.outcomePublishedAt ? (
                             <p className="mt-1 text-sm text-[var(--olivea-ink)]/80">
-                              {t({
-                                es: "«No seguimos adelante esta vez» — publicado.",
-                                en: "“We didn’t move forward this time” — published.",
-                              })}
+                              {t(outcomeCopy[app.status]!.published)}
                             </p>
                           ) : (
                             <>
                               <p className="mt-1 text-sm text-[var(--olivea-ink)]/80">
-                                {t({
-                                  es: "«En revisión». Aún no sabe que no seguimos adelante.",
-                                  en: "“In review”. They don’t know yet that we didn’t move forward.",
-                                })}
+                                {t(outcomeCopy[app.status]!.held)}
                               </p>
                               <button
                                 type="button"
                                 disabled={publishBusy === app.id}
                                 onClick={async () => {
                                   const ok = window.confirm(
-                                    t({
-                                      es: "El candidato verá que no seguimos adelante en cuanto abra su enlace. ¿Publicar el resultado?",
-                                      en: "The applicant will see that we didn’t move forward as soon as they open their link. Publish the outcome?",
-                                    })
+                                    t(outcomeCopy[app.status]!.confirm)
                                   );
                                   if (!ok) return;
                                   setPublishBusy(app.id);
