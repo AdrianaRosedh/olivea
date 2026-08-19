@@ -19,10 +19,12 @@ export default function HiringPillClient({
   lang,
   count,
   role,
+  href,
 }: {
   lang: "es" | "en";
   count: number;
   role: string | null;
+  href: string;
 }) {
   const [show, setShow] = useState(false);
   const pathname = usePathname();
@@ -72,7 +74,7 @@ export default function HiringPillClient({
           style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
         >
           <Link
-            href={`/${lang}/carreras`}
+            href={href}
             className="group flex items-center gap-3 rounded-full py-2.5 pl-3 pr-4
               bg-[var(--olivea-olive)] text-[var(--olivea-cream)]
               shadow-[0_10px_30px_-8px_rgba(0,0,0,0.4)] ring-1 ring-white/10

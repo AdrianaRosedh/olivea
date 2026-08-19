@@ -21,6 +21,8 @@ const copy = (lang: Lang) => ({
   availability: lang === "es" ? "Disponibilidad" : "Availability",
   languages: lang === "es" ? "Idiomas" : "Languages",
   role: lang === "es" ? "Rol deseado (opcional)" : "Desired role (optional)",
+  applyingFor: lang === "es" ? "Aplicando a la vacante" : "Applying for the role",
+  clearRole: lang === "es" ? "Quitar" : "Clear",
   links: lang === "es" ? "Links (opcional)" : "Links (optional)",
   notes: lang === "es" ? "Notas (opcional)" : "Notes (optional)",
   submit: lang === "es" ? "Enviar" : "Send",
@@ -127,6 +129,27 @@ export default function ContactForm({ lang }: { lang: Lang }) {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
 
+  // Applying from a specific posting. OpeningsBoard dispatches this when the
+  // "Apply for this role" button is pressed, so the applicant lands on a form
+  // that already knows the role and HR's pipeline can attribute the
+  // application to the right opening instead of guessing from free text.
+  const [applyingFor, setApplyingFor] = useState<{
+    openingId: string;
+    roleTitle: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const onApply = (e: Event) => {
+      const detail = (e as CustomEvent).detail as
+        | { openingId?: string; roleTitle?: string }
+        | undefined;
+      if (!detail?.openingId || !detail.roleTitle) return;
+      setApplyingFor({ openingId: detail.openingId, roleTitle: detail.roleTitle });
+    };
+    window.addEventListener("olivea:apply-for-role", onApply);
+    return () => window.removeEventListener("olivea:apply-for-role", onApply);
+  }, []);
+
   const widgetIdRef = useRef<string | null>(null);
 
   const actionWrapper = useCallback(
@@ -224,6 +247,31 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
       <input type="hidden" name="startedAt" value={startedAt} />
       <input type="hidden" name="turnstileToken" value={turnstileToken} />
+      <input type="hidden" name="openingId" value={applyingFor?.openingId ?? ""} />
+
+      {applyingFor && (
+        <div className="flex items-start gap-3 rounded-2xl bg-(--olivea-olive)/8 px-4 py-3 ring-1 ring-(--olivea-olive)/20">
+          <span
+            className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-olive)"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-(--olivea-olive)/85">
+              {c.applyingFor}
+            </div>
+            <div className="mt-0.5 text-[15px] font-semibold text-(--olivea-ink)">
+              {applyingFor.roleTitle}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setApplyingFor(null)}
+            className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
+          >
+            {c.clearRole}
+          </button>
+        </div>
+      )}
 
       {/* … your fields stay the same … */}
       <div className="grid gap-5 md:grid-cols-2">
@@ -255,7 +303,16 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
       <div className="grid gap-5 md:grid-cols-2">
         <Field name="role" label={c.role} error={state.errors?.role}>
-          <input name="role" type="text" className={inputClass} placeholder={c.placeholders.role} />
+          {/* Keyed so picking a role from a posting remounts the input with the
+              new title prefilled, while leaving it editable afterwards. */}
+          <input
+            key={applyingFor?.openingId ?? "open-application"}
+            name="role"
+            type="text"
+            className={inputClass}
+            placeholder={c.placeholders.role}
+            defaultValue={applyingFor?.roleTitle ?? ""}
+          />
         </Field>
         <Field name="links" label={c.links} error={state.errors?.links}>
           <input name="links" type="text" className={inputClass} placeholder={c.placeholders.links} />

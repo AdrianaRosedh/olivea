@@ -324,7 +324,8 @@ export async function getLiveJobOpenings(): Promise<JobOpening[]> {
       revalidate: 60,
     });
     return rows.map(mapOpening);
-  } catch {
+  } catch (e) {
+    console.error("[careers] Failed to fetch live openings:", e);
     return [];
   }
 }

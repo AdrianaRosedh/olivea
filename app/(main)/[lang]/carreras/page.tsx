@@ -4,7 +4,10 @@ import { loadLocale } from "@/lib/i18n";
 import Reveal from "@/components/scroll/Reveal";
 import CardParallax from "@/components/mdx/CardParallax";
 import ContactForm from "./contact-form";
-import LiveOpenings from "./live-openings";
+import OpeningsBoard from "@/components/careers/OpeningsBoard";
+import { getLiveJobOpenings } from "@/lib/supabase/careers-actions";
+import { openingSlug, parseRequirements } from "@/lib/careers/slug";
+import { canonicalUrl } from "@/lib/site";
 import { getContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 
@@ -35,7 +38,53 @@ export default async function CarrerasPage({ params }: Params) {
   const p = await params;
   const { lang } = await loadLocale({ lang: p.lang });
   const L = lang as Lang;
-  const c = await getContent("careers");
+  const [c, openings] = await Promise.all([
+    getContent("careers"),
+    getLiveJobOpenings(),
+  ]);
+
+  // Google indexes job postings from JobPosting structured data, not from the
+  // card markup — without this the roles HR publishes are invisible to Google
+  // for Jobs no matter how well the page renders.
+  const jobsLd = openings.map((o) => {
+    const description = L === "es" ? o.descriptionEs : o.descriptionEn || o.descriptionEs;
+    const requirements = parseRequirements(
+      (L === "es" ? o.requirementsEs : o.requirementsEn) || o.requirementsEs
+    );
+    return {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      identifier: { "@type": "PropertyValue", name: "Olivea", value: o.id },
+      title: (L === "es" ? o.titleEs : o.titleEn) || o.titleEs,
+      description: [
+        description ? `<p>${description}</p>` : "",
+        requirements.length
+          ? `<ul>${requirements.map((r) => `<li>${r}</li>`).join("")}</ul>`
+          : "",
+      ]
+        .filter(Boolean)
+        .join(""),
+      datePosted: o.publishedAt ?? o.createdAt,
+      employmentType: o.type.toUpperCase().replace(/-/g, "_"),
+      hiringOrganization: {
+        "@type": "Organization",
+        name: "Olivea",
+        sameAs: canonicalUrl("/"),
+      },
+      jobLocation: {
+        "@type": "Place",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Carretera Ensenada-Tecate Km 92.5",
+          addressLocality: "Villa de Juárez",
+          addressRegion: "Baja California",
+          postalCode: "22766",
+          addressCountry: "MX",
+        },
+      },
+      url: canonicalUrl(`/${L}/carreras?vacante=${openingSlug(o)}`),
+    };
+  });
 
   const wrap =
     "mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-10";
@@ -236,10 +285,13 @@ export default async function CarrerasPage({ params }: Params) {
           </h2>
         </Reveal>
 
-        {/* Live job openings from Supabase */}
-        <div className="mt-6">
-          <LiveOpenings lang={L} />
-        </div>
+        {/* Live job openings from Supabase — server-rendered, so the roles are
+            in the HTML for crawlers and there's no loading flash. */}
+        {openings.length > 0 && (
+          <div className="mt-6">
+            <OpeningsBoard openings={openings} lang={L} />
+          </div>
+        )}
 
         <div className="mt-6 rounded-[28px] bg-white/18 ring-1 ring-black/8 p-7 md:p-9">
           <div className="grid gap-8 lg:grid-cols-12 items-start">
@@ -316,6 +368,15 @@ export default async function CarrerasPage({ params }: Params) {
           </div>
         </div>
       </section>
+
+      {/* React 19 hoists <script type="application/ld+json"> into <head>. */}
+      {jobsLd.map((ld) => (
+        <script
+          key={ld.identifier.value}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+        />
+      ))}
     </main>
   );
 }

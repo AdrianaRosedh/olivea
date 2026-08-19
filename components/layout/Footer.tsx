@@ -67,6 +67,10 @@ export default function Footer({ dict, socials }: FooterProps) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
+  const centerRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
 
   // The footer is position:fixed, so it covers whatever sits at the bottom of
   // the viewport — the cookie banner was landing on top of it. Its height is
@@ -88,6 +92,79 @@ export default function Footer({ dict, socials }: FooterProps) {
     return () => {
       ro.disconnect();
       document.documentElement.style.removeProperty("--footer-h");
+    };
+  }, []);
+
+  // Keep the bar on one line.
+  //
+  // At the narrowest width the footer renders at (960px — below that
+  // LayoutShell swaps in the mobile nav) the three groups want about 1060px,
+  // so the links wrapped underneath the language button and the bar silently
+  // became two rows. The social icons were the worst offender: their
+  // clamp(30px, 6.8vw, 36px) sizing is pinned to the 36px maximum everywhere
+  // above ~530px, so they never gave any width back.
+  //
+  // Rather than dropping items, scale type, icons and gaps together by a
+  // measured factor. Each group's own scrollWidth is its natural single-line
+  // width, which makes the measurement independent of how the row is laid out,
+  // and the loop converges because every pass multiplies by a factor < 1.
+  useEffect(() => {
+    const row = rowRef.current;
+    const footer = footerRef.current;
+    if (!row || !footer) return;
+
+    // Below this, type stops being readable — accept a clip instead.
+    const FLOOR = 0.72;
+    let raf = 0;
+    let lastWidth = -1;
+
+    const naturalWidth = () =>
+      [leftRef.current, centerRef.current, rightRef.current].reduce(
+        (sum, el) => sum + (el?.scrollWidth ?? 0),
+        0
+      );
+
+    const fit = () => {
+      raf = 0;
+      // Always re-measure from full density, otherwise the bar can only ever
+      // shrink and would stay tiny after the window is widened again.
+      footer.style.setProperty("--fd", "1");
+      const available = row.clientWidth;
+      if (available <= 0) return;
+
+      let d = 1;
+      for (let i = 0; i < 4; i++) {
+        const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+        const needed = naturalWidth() + gap * 2;
+        if (needed <= available) break;
+        d = Math.max(FLOOR, d * (available / needed));
+        footer.style.setProperty("--fd", String(d));
+        if (d <= FLOOR) break;
+      }
+    };
+
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(fit);
+    };
+
+    fit();
+
+    // Width only: --fd changes the bar's height, and reacting to that would
+    // feed back into itself.
+    const ro = new ResizeObserver((entries) => {
+      const w = Math.round(entries[0].contentRect.width);
+      if (w === lastWidth) return;
+      lastWidth = w;
+      schedule();
+    });
+    ro.observe(row);
+
+    // Webfonts land after first paint and change every text width.
+    document.fonts?.ready.then(schedule).catch(() => {});
+
+    return () => {
+      ro.disconnect();
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -245,12 +322,16 @@ export default function Footer({ dict, socials }: FooterProps) {
         "fixed bottom-0 left-0 w-full z-200",
         "bg-transparent backdrop-blur-md",
         "text-(--olivea-ink) font-light tracking-wide pointer-events-auto isolate",
-        // responsive type that shrinks gracefully
-        "text-[clamp(10px,1.05vw,12px)]",
       ].join(" ")}
       style={{
         // safe-area padding for iPhone bottoms (also gives breathing room)
         paddingBottom: "calc(env(safe-area-inset-bottom) + 2px)",
+        // NB: --fd is deliberately NOT declared here. The fit effect owns it
+        // via setProperty, and a value in this object would be re-applied on
+        // every React render — silently resetting the density back to 1 the
+        // next time any other state in this component changes. Consumers use
+        // var(--fd, 1) so the default still holds before the effect runs.
+        fontSize: "max(9.5px, calc(12px * var(--fd, 1)))",
       }}
     >
       {/* subtle top divider haze */}
@@ -266,33 +347,36 @@ export default function Footer({ dict, socials }: FooterProps) {
           - On small screens: stack + wrap
           - On md+: 3 columns
       */}
+      {/* One row, always. The side groups are content-sized and the middle
+          column is content-sized too, so the social dock sits at true centre
+          while the 1fr gutters absorb the difference. Nothing wraps — the fit
+          effect scales the whole bar down instead. */}
       <div
-        className={[
-          "w-full",
-          "px-2 sm:px-3",
-          "py-2",
-          "flex flex-col",
-          "gap-2",
-          "md:flex-row md:items-center md:justify-between md:gap-0",
-        ].join(" ")}
+        ref={rowRef}
+        className="grid w-full items-center px-2 sm:px-3 py-2"
+        style={{
+          // max-content floors stop a group from being squeezed narrower than
+          // its text: with a plain 1fr the side groups overflowed their tracks
+          // and printed straight over the social icons — 102px of overlap at
+          // 1024px, which looks worse than the wrap it replaced. This way the
+          // row overflows honestly instead, and the fit effect removes it.
+          gridTemplateColumns:
+            "minmax(max-content, 1fr) auto minmax(max-content, 1fr)",
+          columnGap: "max(8px, calc(16px * var(--fd, 1)))",
+        }}
       >
-        {/* LEFT: language + links
-            - Wrap on small widths
-            - Prevent overflow
-        */}
+        {/* LEFT: language + links */}
         <div
-          className={[
-            "w-full md:flex-1",
-            "flex items-center justify-between md:justify-start",
-            "gap-2",
-          ].join(" ")}
+          ref={leftRef}
+          className="flex min-w-0 items-center justify-self-start whitespace-nowrap"
         >
           <div
-            className="relative flex items-center gap-2 flex-wrap"
+            className="relative flex flex-nowrap items-center whitespace-nowrap"
             ref={dropdownRef}
             style={{
               transform: lift ? `translateY(-${lift}px)` : undefined,
               transition: "transform 200ms ease",
+              gap: "max(6px, calc(10px * var(--fd, 1)))",
             }}
           >
             {/* Language toggle */}
@@ -374,8 +458,11 @@ export default function Footer({ dict, socials }: FooterProps) {
               )}
             </AnimatePresence>
 
-            {/* Links wrap cleanly on small screens */}
-            <nav aria-label="Footer navigation" className="flex items-center gap-3 whitespace-nowrap">
+            <nav
+              aria-label="Footer navigation"
+              className="flex flex-nowrap items-center whitespace-nowrap"
+              style={{ gap: "max(7px, calc(14px * var(--fd, 1)))" }}
+            >
               <TextLink href={`/${lang}/carreras`}>{dict.footer.careers}</TextLink>
               <TextLink href={`/${lang}/legal`}>{dict.footer.legal}</TextLink>
               {/* Reopens the cookie-consent banner so consent can be changed/withdrawn */}
@@ -407,35 +494,22 @@ export default function Footer({ dict, socials }: FooterProps) {
               </Link>
             </nav>
           </div>
-
-          {/* On very small screens we show rights below instead of forcing 3 columns */}
-          <div className="hidden md:block" />
         </div>
 
-        {/* CENTER: Social Dock
-            - Wrap on small screens
-            - Centered always
-        */}
-        <div className="w-full md:flex-1 flex justify-center">
+        {/* CENTER: social dock — content-sized so it stays truly centred */}
+        <div ref={centerRef} className="flex min-w-0 items-center justify-self-center">
           <FooterSocialDock items={socialItems} />
         </div>
 
-        {/* RIGHT: rights
-            - On small screens: full width, centered, wraps
-            - On md+: right aligned
-        */}
+        {/* RIGHT: rights */}
         <div
-          className={[
-            "w-full md:flex-1",
-            "text-center md:text-right",
-            "leading-snug",
-            "opacity-80",
-          ].join(" ")}
+          ref={rightRef}
+          className="min-w-0 justify-self-end whitespace-nowrap text-right leading-snug opacity-80"
         >
           <span className="cursor-default transition-colors hover:text-(--olivea-olive)">
-            <span className="whitespace-nowrap">© {new Date().getFullYear()} Inmobiliaria MYA by DH.</span>
+            <span>© {new Date().getFullYear()} Inmobiliaria MYA by DH.</span>
             <span className="mx-1 inline-block align-middle opacity-60">•</span>
-            <span className="wrap-break-words">{rightsText}</span>
+            <span>{rightsText}</span>
           </span>
         </div>
       </div>
@@ -443,17 +517,14 @@ export default function Footer({ dict, socials }: FooterProps) {
   );
 }
 
-/** --- Footer Social Dock (wrap + responsive icon sizing) --- */
+/** --- Footer Social Dock --- */
 function FooterSocialDock({ items }: { items: SocialItem[] }) {
   return (
+    // Never wraps: with six icons, wrapping is what pushed the bar to a second
+    // line. They shrink with --fd instead.
     <div
-      className={[
-        "flex items-center justify-center",
-        "gap-1.5 sm:gap-2.5 md:gap-3",
-        "flex-wrap",
-        // keep it from becoming a single long row that overflows
-        "max-w-130 md:max-w-none",
-      ].join(" ")}
+      className="flex flex-nowrap items-center justify-center"
+      style={{ gap: "max(3px, calc(11px * var(--fd, 1)))" }}
     >
       {items.map((it) => (
         <FooterSocialIcon key={it.id} item={it} />
@@ -463,9 +534,11 @@ function FooterSocialDock({ items }: { items: SocialItem[] }) {
 }
 
 function FooterSocialIcon({ item }: { item: SocialItem }) {
-  // Responsive cell sizing: shrinks on tiny screens, grows on larger
-  const CELL = "clamp(30px, 6.8vw, 36px)";
-  const ICON = "clamp(18px, 4.6vw, 22px)";
+  // Sized off the bar's density factor rather than the viewport. The old
+  // clamp(…, 6.8vw, …) sat at its 36px ceiling for every width the footer
+  // actually renders at, so widening or narrowing the window changed nothing.
+  const CELL = "max(22px, calc(34px * var(--fd, 1)))";
+  const ICON = "max(14px, calc(21px * var(--fd, 1)))";
 
   return (
     <motion.a

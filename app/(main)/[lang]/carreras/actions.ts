@@ -15,6 +15,9 @@ const formSchema = z.object({
   languages: z.string().min(2, "Indica idiomas"),
   role: z.string().optional(),
   links: z.string().optional(),
+  // Set when the applicant came from a specific posting. Empty for the open
+  // application, so it is validated as a UUID only when actually present.
+  openingId: z.union([z.string().uuid(), z.literal("")]).optional(),
   q1: z.string().min(10, "Respuesta muy corta"),
   q2: z.string().min(10, "Respuesta muy corta"),
   q3: z.string().min(6, "Respuesta muy corta"),
@@ -113,6 +116,7 @@ export async function handleSubmit(
       phone: data.phone,
       area: data.area,
       coverNote,
+      openingId: data.openingId || undefined,
     });
   } catch {
     // Non-critical — the email is the primary delivery
