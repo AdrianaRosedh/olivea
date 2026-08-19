@@ -25,6 +25,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Clock3, Layers, MapPin, X } from "lucide-react";
 import { useScrollLock } from "@/lib/hooks/useScrollLock";
 import { findOpeningByToken, openingSlug, parseRequirements } from "@/lib/careers/slug";
+import { areaLabel } from "@/lib/careers/areas";
 import type { Lang } from "@/lib/i18n";
 
 /** Mirrors JobOpening from careers-actions without importing across the
@@ -231,7 +232,7 @@ export default function OpeningsBoard({
               </h4>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
-                <Meta icon={Layers}>{o.area}</Meta>
+                <Meta icon={Layers}>{areaLabel(o.area, lang)}</Meta>
                 <Meta icon={Clock3}>{typeLabel(o.type, lang)}</Meta>
                 <Meta icon={MapPin}>{o.location}</Meta>
               </div>
@@ -383,7 +384,7 @@ function OpeningDialog({
                     {v.title}
                   </h2>
                   <div className="mt-3.5 flex flex-wrap gap-1.5">
-                    <Meta icon={Layers}>{opening.area}</Meta>
+                    <Meta icon={Layers}>{areaLabel(opening.area, lang)}</Meta>
                     <Meta icon={Clock3}>{typeLabel(opening.type, lang)}</Meta>
                     <Meta icon={MapPin}>{opening.location}</Meta>
                   </div>

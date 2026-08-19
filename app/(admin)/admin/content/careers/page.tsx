@@ -39,6 +39,7 @@ import {
 } from "@/lib/supabase/actions";
 import staticCareers from "@/lib/content/data/careers";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
+import { CAREER_AREAS, areaLabel, isKnownArea } from "@/lib/careers/areas";
 
 /* ── Styling tokens ─────────────────────────────────────────────── */
 
@@ -411,7 +412,11 @@ function OpeningsTab({
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-[var(--olivea-clay)]">
-                    <span>{o.area || t({ es: "Sin área", en: "No area" })}</span>
+                    <span>
+                      {o.area
+                        ? t({ es: areaLabel(o.area, "es"), en: areaLabel(o.area, "en") })
+                        : t({ es: "Sin área", en: "No area" })}
+                    </span>
                     <span>·</span>
                     <span className="capitalize">{t(jobTypeLabels[o.type])}</span>
                     <span>·</span>
@@ -512,14 +517,37 @@ function OpeningsTab({
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1">
                     <p className={cls.label}>{t({ es: "Área", en: "Area" })}</p>
-                    <input
-                      className={cls.input}
-                      value={editing.area ?? ""}
-                      onChange={(e) =>
-                        setEditing((p) => ({ ...p!, area: e.target.value }))
-                      }
-                      placeholder={t({ es: "p. ej. Cocina, Servicio, Bar", en: "e.g. Kitchen, Service, Bar" })}
-                    />
+                    {/* A list, not free text. The applicant form offers these
+                        same areas, so anything typed here that was not among
+                        them — "Marketing" was — left applicants unable to
+                        answer the question correctly. */}
+                    <div className="relative">
+                      <select
+                        className={cls.select}
+                        value={editing.area ?? ""}
+                        onChange={(e) =>
+                          setEditing((p) => ({ ...p!, area: e.target.value }))
+                        }
+                      >
+                        <option value="" disabled>
+                          {t({ es: "Selecciona…", en: "Select…" })}
+                        </option>
+                        {CAREER_AREAS.map((a) => (
+                          <option key={a.value} value={a.value}>
+                            {t({ es: a.es, en: a.en })}
+                          </option>
+                        ))}
+                        {/* Keep an unrecognised existing value selectable so
+                            opening an older posting cannot silently blank it. */}
+                        {editing.area && !isKnownArea(editing.area) && (
+                          <option value={editing.area}>{editing.area}</option>
+                        )}
+                      </select>
+                      <ChevronDown
+                        size={14}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--olivea-clay)] pointer-events-none"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <p className={cls.label}>{t({ es: "Tipo", en: "Type" })}</p>
@@ -800,7 +828,13 @@ function ApplicationsTab({
                     <div className="flex items-center gap-3 text-xs text-[var(--olivea-clay)]">
                       <span>{app.email}</span>
                       <span>·</span>
-                      <span>{app.area || t({ es: "General", en: "General" })}</span>
+                      {/* Applications store the same values, so they read as
+                          names here instead of "foh". */}
+                      <span>
+                        {app.area
+                          ? t({ es: areaLabel(app.area, "es"), en: areaLabel(app.area, "en") })
+                          : t({ es: "General", en: "General" })}
+                      </span>
                       {app.openingTitle && (
                         <>
                           <span>·</span>

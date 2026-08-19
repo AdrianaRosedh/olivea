@@ -4,6 +4,7 @@ import React, { useActionState, useCallback, useEffect, useMemo, useRef, useStat
 import { Button } from "@/components/ui/button";
 import { type Lang } from "@/lib/i18n";
 import { handleSubmit, type ApplicationErrors } from "./actions";
+import { CAREER_AREAS, areaLabel, canonicalArea } from "@/lib/careers/areas";
 type State = { success?: boolean; errors?: ApplicationErrors };
 
 const initialState: State = { success: false, errors: {} };
@@ -47,14 +48,9 @@ const copy = (lang: Lang) => ({
     links: lang === "es" ? "LinkedIn, portafolio, Instagram profesional…" : "LinkedIn, portfolio, professional Instagram…",
     languages: lang === "es" ? "Ej. Español nativo, Inglés intermedio" : "e.g. Spanish native, English intermediate",
   },
-  areas: [
-    { v: "foh", l: lang === "es" ? "FOH / Servicio" : "FOH / Service" },
-    { v: "boh", l: lang === "es" ? "BOH / Cocina" : "BOH / Kitchen" },
-    { v: "garden", l: lang === "es" ? "Huerto / Grounds" : "Garden / Grounds" },
-    { v: "hotel", l: lang === "es" ? "Hotel / Casa Olivea" : "Hotel / Casa Olivea" },
-    { v: "cafe", l: lang === "es" ? "Café / Padel" : "Café / Padel" },
-    { v: "ops", l: lang === "es" ? "Operaciones" : "Operations" },
-  ],
+  // Areas come from lib/careers/areas so this form and the admin's posting
+  // field can never offer different sets again.
+  areas: CAREER_AREAS.map((a) => ({ v: a.value, l: lang === "es" ? a.es : a.en })),
   availabilityOptions: [
     { v: "full", l: lang === "es" ? "Tiempo completo" : "Full-time" },
     { v: "part", l: lang === "es" ? "Medio tiempo" : "Part-time" },
@@ -329,11 +325,12 @@ export default function ContactForm({ lang }: { lang: Lang }) {
             <div
               className={`${inputClass} flex items-center justify-between gap-2 bg-(--olivea-olive)/6`}
             >
-              <span className="truncate">{applyingFor.area}</span>
+              <span className="truncate">{areaLabel(applyingFor.area, lang)}</span>
               <span className="shrink-0 text-[11px] uppercase tracking-[0.16em] text-(--olivea-olive)/75">
                 {c.fromPosting}
               </span>
-              <input type="hidden" name="area" value={applyingFor.area} />
+              {/* Store the canonical value even if the posting handed over a label. */}
+              <input type="hidden" name="area" value={canonicalArea(applyingFor.area)} />
             </div>
           ) : (
             <select name="area" className={inputClass} defaultValue="">
