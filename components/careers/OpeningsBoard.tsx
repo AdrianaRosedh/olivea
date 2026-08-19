@@ -220,7 +220,10 @@ export default function OpeningsBoard({
                 e.preventDefault();
                 open(o, e.currentTarget);
               }}
-              className="group flex flex-col rounded-[22px] bg-white/45 p-5 text-left ring-1 ring-black/8 shadow-[0_18px_50px_-40px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/65 hover:shadow-[0_26px_60px_-40px_rgba(0,0,0,0.5)] hover:ring-black/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/45"
+              /* p-4 on phones: the page already spends 50px per side on its
+                 own gutters, so a 20px card inset left the meta chips 235px
+                 and they stacked one per line — three rows for three chips. */
+              className="group flex flex-col rounded-[22px] bg-white/45 p-4 text-left ring-1 ring-black/8 sm:p-5 shadow-[0_18px_50px_-40px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/65 hover:shadow-[0_26px_60px_-40px_rgba(0,0,0,0.5)] hover:ring-black/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/45"
             >
               <h4 className="text-[17px] leading-snug font-semibold text-(--olivea-ink) transition-colors group-hover:text-(--olivea-olive)">
                 {v.title}
@@ -315,7 +318,10 @@ function OpeningDialog({
            full-screen overlay mounted over the page, swallowing every click. */
         <motion.div
           key="opening-dialog"
-          className="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6"
+          /* z-1400 is this site's modal layer (ReservationModal uses it), and
+             it has to clear the z-1000 navbar — at z-300 the mobile header
+             painted straight over the top of the dialog. */
+          className="fixed inset-0 z-1400 flex items-center justify-center p-4 sm:p-6"
           data-lenis-prevent
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -364,7 +370,8 @@ function OpeningDialog({
                   type="button"
                   onClick={onClose}
                   aria-label={c.close}
-                  className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40"
+                  /* 44px on touch — 36 was under the minimum tap target. */
+                  className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 sm:-mr-1 sm:-mt-1 sm:h-9 sm:w-9"
                 >
                   <X className="h-4.5 w-4.5" />
                 </button>
