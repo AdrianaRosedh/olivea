@@ -14,6 +14,7 @@ import {
 } from "@/lib/journal/authors";
 import { normalizeAuthors } from "@/lib/journal/author";
 import { loadLeader } from "@/app/(main)/[lang]/team/teamData";
+import { localeAlternates } from "@/lib/site";
 
 function fmtDate(iso: string, lang: Lang) {
   try {
@@ -47,6 +48,7 @@ export async function generateMetadata({
   const lang: Lang = p.lang === "es" ? "es" : "en";
 
   return {
+    alternates: localeAlternates(lang, `/journal/author/${p.id}`),
     title: lang === "es" ? "Autor | Journal de Olivea" : "Author | Olivea Journal",
     robots: { index: true, follow: true },
   };

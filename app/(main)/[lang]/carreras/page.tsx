@@ -7,7 +7,7 @@ import ContactForm from "./contact-form";
 import OpeningsBoard from "@/components/careers/OpeningsBoard";
 import { getLiveJobOpenings } from "@/lib/supabase/careers-actions";
 import { openingSlug, parseRequirements } from "@/lib/careers/slug";
-import { canonicalUrl } from "@/lib/site";
+import { canonicalUrl, localeAlternates } from "@/lib/site";
 import { getContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 
@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const c = await getContent("careers");
 
   return {
+    alternates: localeAlternates(lang, "/carreras"),
     title: t(lang as Lang, c.meta.title),
     description: t(lang as Lang, c.meta.description),
   };

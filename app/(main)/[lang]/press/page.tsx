@@ -4,6 +4,7 @@ import PressClient from "./PressClient";
 import ArticlePress from "./ArticlePress";
 import { loadPressItems, loadPressManifest } from "./load";
 import type { Lang } from "./pressTypes";
+import { localeAlternates } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -14,6 +15,7 @@ export async function generateMetadata({
   const lang: Lang = p.lang === "en" ? "en" : "es";
 
   return {
+    alternates: localeAlternates(lang, "/press"),
     title: lang === "es" ? "Prensa | OLIVEA" : "Press | OLIVEA",
     description:
       lang === "es"

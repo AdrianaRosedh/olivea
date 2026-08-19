@@ -48,3 +48,27 @@ export function canonicalUrl(path = "/"): string {
     return path;
   }
 }
+
+/**
+ * Canonical + hreflang for a localised page.
+ *
+ * Every page that omits `alternates` inherits the root layout's, which maps
+ * to the two homepages. So a subpage that forgot it was telling search
+ * engines its Spanish equivalent was /es — the front page — and shipping no
+ * canonical at all. Five pages were doing exactly that.
+ *
+ * `subPath` is the part after the locale, with a leading slash and no locale
+ * segment: "/carreras", "/journal/mi-articulo", or "" for the homepage.
+ *
+ * x-default points at Spanish: it is the house language, and the domain's
+ * bare paths resolve there.
+ */
+export function localeAlternates(lang: Locale | string, subPath = "") {
+  const path = subPath && !subPath.startsWith("/") ? `/${subPath}` : subPath;
+  const es = `/es${path}`;
+  const en = `/en${path}`;
+  return {
+    canonical: lang === "en" ? en : es,
+    languages: { es, en, "x-default": es },
+  };
+}

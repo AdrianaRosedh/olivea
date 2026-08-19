@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from "next";
 import { getContent, t } from "@/lib/content";
 import type { Lang } from "../dictionaries";
+import { localeAlternates } from "@/lib/site";
 
 export async function generateStaticParams(): Promise<{ lang: string }[]> {
   return [{ lang: "en" }, { lang: "es" }];
@@ -17,6 +18,7 @@ export async function generateMetadata({
   const legal = await getContent("legal");
 
   return {
+    alternates: localeAlternates(lang, "/legal"),
     title: `${t(lang, legal.title)} | OLIVEA`,
     description: t(lang, legal.description),
   };
