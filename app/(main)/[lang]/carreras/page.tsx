@@ -167,25 +167,36 @@ export default async function CarrerasPage({ params }: Params) {
 
           {/* Hero image — big, premium, uses width */}
           <div className="lg:col-span-7">
-            <div className="relative overflow-hidden rounded-[34px] ring-1 ring-black/10 h-64 sm:h-80 md:h-115">
-              <CardParallax
-                src={c.hero.image.src}
-                alt={t(L, c.hero.image.alt)}
-                speed={0.14}
-                fit="cover"
-                objectPosition="50% 62%"
-                sizes="(max-width: 1024px) 100vw, 1000px"
-                loading="lazy"
-                placeholder="empty"
-                className="-inset-12 md:-inset-10"
-                surfaceClassName="h-full w-full"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/22 via-transparent to-transparent" />
+            {/* The signals used to live inside the image box. Three of them
+                stack into one column on a phone, which came to 264px inside a
+                256px frame: they covered 103% of the photo and the top card
+                was clipped by 28px. They sit below the image on mobile and
+                only float over it from md up, where three columns fit. */}
+            <div className="relative">
+              <div className="relative overflow-hidden rounded-[34px] ring-1 ring-black/10 h-64 sm:h-80 md:h-115">
+                <CardParallax
+                  src={c.hero.image.src}
+                  alt={t(L, c.hero.image.alt)}
+                  speed={0.14}
+                  fit="cover"
+                  objectPosition="50% 62%"
+                  sizes="(max-width: 1024px) 100vw, 1000px"
+                  loading="lazy"
+                  placeholder="empty"
+                  className="-inset-12 md:-inset-10"
+                  surfaceClassName="h-full w-full"
+                />
+                {/* The scrim exists to seat the floating cards — only needed
+                    while they are actually over the photo. */}
+                <div className="pointer-events-none absolute inset-0 hidden bg-linear-to-t from-black/22 via-transparent to-transparent md:block" />
+              </div>
 
-              {/* Floating signals — clean, not chunky */}
-              <div className="absolute left-5 right-5 bottom-5 grid gap-3 md:grid-cols-3">
+              <div className="mt-3 grid gap-3 md:absolute md:inset-x-5 md:bottom-5 md:mt-0 md:grid-cols-3">
                 {c.hero.signals.map((s, i) => (
-                  <div key={i} className="rounded-2xl bg-white/70 backdrop-blur-md ring-1 ring-black/10 p-4">
+                  <div
+                    key={i}
+                    className="rounded-2xl bg-white/55 p-4 ring-1 ring-black/8 md:bg-white/70 md:backdrop-blur-md md:ring-black/10"
+                  >
                     <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
                       {t(L, s.label)}
                     </div>
