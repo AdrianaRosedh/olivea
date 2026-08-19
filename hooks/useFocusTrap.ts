@@ -1,7 +1,12 @@
 import { useEffect, useRef, type RefObject } from "react";
 
+// `iframe` is deliberately included: without it a trap whose only other
+// focusable child is a close button treats that button as both first and last,
+// so Tab is preventDefault-ed straight back onto it and focus can never reach
+// the embedded document. That locked keyboard users out of the Cloudbeds
+// booking engine — including its card fields — in the mobile hotel sheet.
 const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), summary';
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"]), summary';
 
 /**
  * Trap keyboard focus inside a container while `active` is true.

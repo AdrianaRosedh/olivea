@@ -103,6 +103,33 @@
       }
 
       /* ─────────────────────────────────────────────
+         BUTTON TEXT — never repaint it.
+
+         The colour/size rules above target p/span/label/div, which also
+         match the text nodes *inside* Cloudbeds' own buttons. Cloudbeds
+         ships those buttons with an olive background and a light label, so
+         forcing --olivea-ink on the label produced olive-on-olive: the
+         checkout CTA ("Reservar" / "Continuar") rendered as a blank pill.
+         Reset to `inherit` so the label follows the button's own colour.
+
+         Must stay ABOVE the CTA section — those rules match with equal
+         specificity, so source order decides and their explicit cream wins.
+      ───────────────────────────────────────────── */
+      .olivea-shell
+        :is(
+          #cb-bookingengine,
+          .cb-bookingengine-root,
+          cb-immersive-experience,
+          reach-portal
+        )
+        :is(button, [role="button"], a.cb-button)
+        :where(p, span, li, label, a, div.cb-text, strong, em, small, h1, h2, h3, h4, h5, h6) {
+        color: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+      }
+
+      /* ─────────────────────────────────────────────
          UI HEADER / PROPERTY NAME → Jakarta Sans
          (Casa Olivea label)
       ───────────────────────────────────────────── */
