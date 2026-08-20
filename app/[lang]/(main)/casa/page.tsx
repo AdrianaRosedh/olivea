@@ -4,6 +4,8 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale as loadDict, type Lang } from "@/app/[lang]/(main)/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
+import { toFaqItems, mergeFaq, faqSectionOf } from "@/lib/seo/faq";
+import FaqProse from "@/components/seo/FaqProse";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent, t as tContent } from "@/lib/content";
 import ContentEs from "./ContentEs";
@@ -94,12 +96,23 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const casaContent = await getContent("casa");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hasSections = casaContent.sections && (casaContent.sections as any[]).length > 0;
-  const faq: FaqItem[] = casaContent.faq
+  // The FAQ the page renders — this is what the markup must describe.
+  const visibleFaq = toFaqItems(faqSectionOf(casaContent.sections)?.items, L);
+
+  // Questions written for search only. They were previously the *entire*
+  // schema while appearing nowhere on the page; they are kept because several
+  // are genuinely useful, but they are rendered into the server-side article
+  // below so the markup still describes text that exists in the document.
+  const searchOnlyFaq: FaqItem[] = casaContent.faq
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((item) => ({
       q: tContent(L, item.question),
       a: tContent(L, item.answer),
-    }));
+    }))
+    .filter((x) => x.q && x.a);
+
+  const faq: FaqItem[] = mergeFaq(visibleFaq, searchOnlyFaq);
+  const extraFaq: FaqItem[] = faq.filter((x) => !visibleFaq.includes(x));
 
   const faqId = canonicalUrl(`/${L}/casa#faq`);
 
@@ -155,6 +168,13 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
+      <div className="ssr-article">
+        <FaqProse
+          items={extraFaq}
+          heading={L === "es" ? "Preguntas frecuentes" : "Common questions"}
+          label={L === "es" ? "Preguntas frecuentes" : "Common questions"}
+        />
+      </div>
 
       {hasSections ? (
         <Suspense

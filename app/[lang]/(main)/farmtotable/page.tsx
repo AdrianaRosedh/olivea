@@ -4,6 +4,8 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale as loadDict, type Lang } from "@/app/[lang]/(main)/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
+import { toFaqItems, mergeFaq } from "@/lib/seo/faq";
+import FaqProse from "@/components/seo/FaqProse";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent } from "@/lib/content";
 import ContentEs from "./ContentEs";
@@ -102,7 +104,14 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     : null;
   const seoFaqItems = (faqSection?.seoFaq ?? []) as Array<{ q: { es: string; en: string }; a: { es: string; en: string } }>;
 
-  const faq: FaqItem[] = seoFaqItems.length > 0
+  // The eleven questions the page actually renders. These carried no markup at
+  // all while five unrelated seoFaq entries were declared as the page's FAQ.
+  const visibleFaq = toFaqItems(
+    (faqSection as { items?: Array<{ q?: { en?: string; es?: string }; a?: { en?: string; es?: string } }> } | null)?.items,
+    L
+  );
+
+  const searchOnlyFaq: FaqItem[] = seoFaqItems.length > 0
     ? seoFaqItems.map((item) => ({
         q: L === 'es' ? item.q.es : item.q.en,
         a: L === 'es' ? item.a.es : item.a.en,
@@ -152,6 +161,9 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
             a: "Yes. Casa Olivea is the farm stay integrated with the restaurant, and Olivea Café Wine Bar serves specialty coffee and breakfast every morning. All three experiences share the same working garden.",
           },
         ];
+
+  const faq: FaqItem[] = mergeFaq(visibleFaq, searchOnlyFaq);
+  const extraFaq: FaqItem[] = faq.filter((x) => !visibleFaq.includes(x));
 
   const faqId = canonicalUrl(`/${L}/farmtotable#faq`);
 
@@ -205,6 +217,13 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
+      <div className="ssr-article">
+        <FaqProse
+          items={extraFaq}
+          heading={L === "es" ? "Preguntas frecuentes" : "Common questions"}
+          label={L === "es" ? "Preguntas frecuentes" : "Common questions"}
+        />
+      </div>
 
       {hasSections ? (
         <Suspense
