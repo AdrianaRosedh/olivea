@@ -2,6 +2,7 @@
 // Server component — semantic HTML for crawlers, AI assistants, and no-JS clients.
 
 import Image from "next/image";
+import { philosophyFaq } from "./faq";
 
 export default function ArticleEn() {
   return (
@@ -178,6 +179,22 @@ export default function ArticleEn() {
           Hospitality is choreography — each movement intentional, each
           role connected to the whole.
         </p>
+      </section>
+
+      {/* ── Common questions ──
+          Carries the same text as the FAQPage markup in page.tsx, so the
+          structured data describes content that is genuinely in the HTML
+          rather than asserting answers the document never states. */}
+      <section aria-label="Common questions">
+        <h2>Common questions</h2>
+        <dl>
+          {philosophyFaq("en").map((item) => (
+            <div key={item.q}>
+              <dt>{item.q}</dt>
+              <dd>{item.a}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
     </article>
   );
