@@ -59,11 +59,13 @@ Full team: https://www.oliveafarmtotable.com/en/team
 
 ## Key facts
 
+> Hours below are maintained by hand and have drifted before. The live site renders them from `global_settings.hours` (editable at /admin/hours), which is the source of truth: https://www.oliveafarmtotable.com/en/contact
+
 - Location: Carretera Ensenada-Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California 22766, Mexico
 - Coordinates: 31.9909, -116.6421
 - Ratings: 4.8★ on Google (124 reviews) · 4.9★ on OpenTable (128 reviews)
 - Restaurant hours: Wed 5–8 PM · Fri 2:30–8:30 PM · Sun 2–7 PM
-- Café hours: Wed–Mon 7:30 AM–2:30 PM · Tue 7:30–9:30 AM
+- Café hours: Daily 7:30 AM–6:15 PM
 - Farm stay: open daily (book via the site)
 - Phone: +52 646 383 6402
 - Taglines: "OLIVEA · Hospitalidad del Huerto" (ES) / "OLIVEA · Farm Hospitality" (EN)

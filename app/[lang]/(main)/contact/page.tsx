@@ -7,6 +7,10 @@ import {
 } from "@/app/[lang]/(main)/dictionaries";
 import { applyCmsOverlay } from "@/app/[lang]/(main)/dictionaries/cms-overlay";
 import { getContent } from "@/lib/content";
+import { canonicalUrl } from "@/lib/site";
+import FaqJsonLd from "@/components/seo/FaqJsonLd";
+import FaqProse from "@/components/seo/FaqProse";
+import { contactFaq } from "./faq";
 import ContactClient from "./ContactClient";
 
 // Confirmed with ownership (June 2026): main contact is the Casa line.
@@ -80,6 +84,15 @@ export default async function ContactPage({ params }: PageProps) {
   const t = JSON.parse(JSON.stringify(dict.contact));
 
   const Article = lang === "en" ? ArticleEn : ArticleEs;
+  const contactInfo = await loadContactInfo();
+
+  // Hours come from the same overlay the page renders, so the answers cannot
+  // drift from what a visitor sees when someone edits /admin/hours.
+  const faq = contactFaq(lang, {
+    hours: t?.hours ?? {},
+    email: contactInfo.email,
+    phone: contactInfo.phone,
+  });
 
   return (
     <>
@@ -87,7 +100,15 @@ export default async function ContactPage({ params }: PageProps) {
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
-      <ContactClient lang={lang} t={t} contactInfo={await loadContactInfo()} />
+      <div className="ssr-article">
+        <FaqProse
+          items={faq}
+          heading={lang === "es" ? "Preguntas frecuentes" : "Common questions"}
+          label={lang === "es" ? "Preguntas frecuentes" : "Common questions"}
+        />
+      </div>
+      <ContactClient lang={lang} t={t} contactInfo={contactInfo} />
+      <FaqJsonLd id={canonicalUrl(`/${lang}/contact#faq`)} items={faq} />
     </>
   );
 }
