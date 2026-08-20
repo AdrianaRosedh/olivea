@@ -72,3 +72,37 @@ export function localeAlternates(lang: Locale | string, subPath = "") {
     languages: { es, en, "x-default": es },
   };
 }
+
+/**
+ * The property's postal address and coordinates.
+ *
+ * One definition, because there were already three and one of them was wrong.
+ * `global_settings.contact_info` in Supabase still holds seed placeholders for
+ * these fields — "Carretera Tecate-Ensenada Km 83" at 32.0789/-116.6123, about
+ * ten kilometres from the actual property, alongside a fake maps URL
+ * ("maps.app.goo.gl/oLiVeA") and an embed full of zeroes. Nothing consumed
+ * them, so nobody noticed; the contact page deliberately reads only `email`
+ * and `phone` from that row.
+ *
+ * Email and phone ARE real there and stay CMS-driven. Address and coordinates
+ * live here until the CMS row is cleaned up, so that generated documents and
+ * JSON-LD cannot publish a location that would send someone to the wrong gate.
+ */
+export const SITE_ADDRESS = {
+  streetAddress: "Carretera Ensenada-Tecate Km 92.5, Villa de Juárez",
+  addressLocality: "Ensenada",
+  addressRegion: "Baja California",
+  postalCode: "22766",
+  addressCountry: "MX",
+} as const;
+
+export const SITE_GEO = {
+  latitude: 31.9909261,
+  longitude: -116.6420781,
+} as const;
+
+/** Single-line address for prose and plain-text documents. */
+export function addressOneLine(): string {
+  const a = SITE_ADDRESS;
+  return `${a.streetAddress}, ${a.postalCode} ${a.addressLocality}, ${a.addressRegion}, Mexico`;
+}

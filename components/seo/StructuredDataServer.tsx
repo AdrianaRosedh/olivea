@@ -1,5 +1,5 @@
 // components/seo/StructuredDataServer.tsx
-import { canonicalUrl, SITE } from "@/lib/site";
+import { canonicalUrl, SITE, SITE_ADDRESS, SITE_GEO } from "@/lib/site";
 import { getContent } from "@/lib/content";
 
 type Recognition = {
@@ -82,20 +82,9 @@ export default async function StructuredDataServer() {
     }));
   };
 
-  const commonAddress = {
-    "@type": "PostalAddress",
-    streetAddress: "Carretera Ensenada-Tecate Km 92.5, Villa de Juárez",
-    addressLocality: "Ensenada",
-    addressRegion: "Baja California",
-    postalCode: "22766",
-    addressCountry: "MX",
-  };
+  const commonAddress = { "@type": "PostalAddress", ...SITE_ADDRESS };
 
-  const geo = {
-    "@type": "GeoCoordinates",
-    latitude: 31.9909261,
-    longitude: -116.6420781,
-  };
+  const geo = { "@type": "GeoCoordinates", ...SITE_GEO };
 
   const recognitionWorks = RECOGNITION.map((r) => ({
     "@type": "CreativeWork",
