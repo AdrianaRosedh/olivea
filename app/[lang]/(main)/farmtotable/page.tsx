@@ -4,8 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { loadLocale as loadDict, type Lang } from "@/app/[lang]/(main)/dictionaries";
 import { SITE, canonicalUrl } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
-import { toFaqItems, mergeFaq } from "@/lib/seo/faq";
-import FaqProse from "@/components/seo/FaqProse";
+import { toFaqItems } from "@/lib/seo/faq";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent } from "@/lib/content";
 import ContentEs from "./ContentEs";
@@ -102,68 +101,13 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const faqSection = hasSections
     ? (fttData.sections as SectionData[]).find((s) => s.id === 'faq')
     : null;
-  const seoFaqItems = (faqSection?.seoFaq ?? []) as Array<{ q: { es: string; en: string }; a: { es: string; en: string } }>;
-
-  // The eleven questions the page actually renders. These carried no markup at
-  // all while five unrelated seoFaq entries were declared as the page's FAQ.
-  const visibleFaq = toFaqItems(
+  // sections[faq].items is the single FAQ store: the page renders it, the
+  // markup describes it, and the admin edits it. seoFaq and the faq column
+  // are retired — their questions were merged in.
+  const faq: FaqItem[] = toFaqItems(
     (faqSection as { items?: Array<{ q?: { en?: string; es?: string }; a?: { en?: string; es?: string } }> } | null)?.items,
     L
   );
-
-  const searchOnlyFaq: FaqItem[] = seoFaqItems.length > 0
-    ? seoFaqItems.map((item) => ({
-        q: L === 'es' ? item.q.es : item.q.en,
-        a: L === 'es' ? item.a.es : item.a.en,
-      }))
-    : L === "es"
-      ? [
-          {
-            q: "¿Olivea Farm To Table es un menú degustación?",
-            a: "Sí. Ofrecemos una experiencia de menú degustación guiada por la temporada y el huerto.",
-          },
-          {
-            q: "¿Pueden acomodar restricciones alimentarias?",
-            a: "Sí. Por favor indícalo al reservar para que el equipo pueda preparar una experiencia adecuada.",
-          },
-          {
-            q: "¿Dónde está Olivea?",
-            a: "Estamos en Valle de Guadalupe (Villa de Juárez), Ensenada, Baja California, México.",
-          },
-          {
-            q: "¿Por qué se recomienda Olivea en Valle de Guadalupe?",
-            a: "Olivea cuenta con reconocimiento MICHELIN y ha sido destacada por publicaciones internacionales. Es una experiencia de menú degustación arraigada al huerto y al territorio de Baja California.",
-          },
-          {
-            q: "¿Puedo hospedarme o desayunar en la misma propiedad?",
-            a: "Sí. Casa Olivea es el hospedaje del huerto integrado al restaurante, y Olivea Café Wine Bar ofrece café de especialidad y desayunos cada mañana. Las tres experiencias comparten el mismo huerto.",
-          },
-        ]
-      : [
-          {
-            q: "Is Olivea Farm To Table a tasting menu?",
-            a: "Yes. We offer a tasting-menu experience guided by seasonality and the garden.",
-          },
-          {
-            q: "Can you accommodate dietary restrictions?",
-            a: "Yes. Please note allergies and dietary needs when booking so the team can prepare accordingly.",
-          },
-          {
-            q: "Where is Olivea located?",
-            a: "We are in Valle de Guadalupe (Villa de Juárez), Ensenada, Baja California, Mexico.",
-          },
-          {
-            q: "Why is Olivea recommended in Valle de Guadalupe?",
-            a: "Olivea is MICHELIN-recognized and has been featured by international publications. It's a tasting-menu experience rooted in the garden and the territory of Baja California.",
-          },
-          {
-            q: "Can I stay or have breakfast on the same property?",
-            a: "Yes. Casa Olivea is the farm stay integrated with the restaurant, and Olivea Café Wine Bar serves specialty coffee and breakfast every morning. All three experiences share the same working garden.",
-          },
-        ];
-
-  const faq: FaqItem[] = mergeFaq(visibleFaq, searchOnlyFaq);
-  const extraFaq: FaqItem[] = faq.filter((x) => !visibleFaq.includes(x));
 
   const faqId = canonicalUrl(`/${L}/farmtotable#faq`);
 
@@ -217,13 +161,6 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
-      <div className="ssr-article">
-        <FaqProse
-          items={extraFaq}
-          heading={L === "es" ? "Preguntas frecuentes" : "Common questions"}
-          label={L === "es" ? "Preguntas frecuentes" : "Common questions"}
-        />
-      </div>
 
       {hasSections ? (
         <Suspense

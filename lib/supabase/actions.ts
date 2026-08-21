@@ -163,42 +163,121 @@ export async function toggleBanner(id: string, enabled: boolean) {
 }
 
 // ── Casa FAQ ────────────────────────────────────────────────────────
+//
+// These used to read and write a `casa_faq` table. The public Casa page never
+// rendered it — it fed the JSON-LD and nothing else — so every edit made in
+// the Casa FAQ admin was invisible to visitors, while a different, longer FAQ
+// showed on the page. The questions have been merged into
+// casa_content.sections[faq].items, and these actions now operate on that.
+//
+// The admin UI is unchanged: it still sees {id, page, question, answer,
+// sort_order} rows. Ids are positional and regenerated on every read, because
+// the stored items carry only {q, a} — the shape the page and the schema read,
+// and the shape the café and restaurant editors write. Two people editing the
+// same FAQ at the same moment could therefore collide; that was equally true
+// of the table this replaces, and the surface is five admins.
+
+type CasaFaqRow = {
+  id: string;
+  page: string;
+  question: { es: string; en: string };
+  answer: { es: string; en: string };
+  sort_order: number;
+};
+
+type FaqStoreItem = { q?: { es?: string; en?: string }; a?: { es?: string; en?: string } };
+
+const CASA_FAQ_ID = (i: number) => `casa-faq-${i}`;
+
+async function readCasaSections(): Promise<Record<string, unknown>[]> {
+  const rows = await selectRows<{ sections: Record<string, unknown>[] }>(
+    "casa_content",
+    { role: "service_role", query: "id=eq.singleton&select=sections" }
+  );
+  return rows[0]?.sections ?? [];
+}
+
+function faqIndexOf(sections: Record<string, unknown>[]): number {
+  return sections.findIndex((s) => s?.id === "faq");
+}
+
+async function writeCasaFaqItems(items: FaqStoreItem[]): Promise<void> {
+  const sections = await readCasaSections();
+  const idx = faqIndexOf(sections);
+  const next = [...sections];
+  if (idx >= 0) next[idx] = { ...next[idx], items };
+  else next.push({ id: "faq", items });
+  await updateRows("casa_content", "id=eq.singleton", { sections: next });
+}
+
+function toRows(items: FaqStoreItem[]): CasaFaqRow[] {
+  return items.map((it, i) => ({
+    id: CASA_FAQ_ID(i),
+    page: "casa",
+    question: { es: it.q?.es ?? "", en: it.q?.en ?? "" },
+    answer: { es: it.a?.es ?? "", en: it.a?.en ?? "" },
+    sort_order: i,
+  }));
+}
+
+function toItem(row: Record<string, unknown>): FaqStoreItem {
+  const q = (row.question ?? {}) as { es?: string; en?: string };
+  const a = (row.answer ?? {}) as { es?: string; en?: string };
+  return { q: { es: q.es ?? "", en: q.en ?? "" }, a: { es: a.es ?? "", en: a.en ?? "" } };
+}
+
+async function currentItems(): Promise<FaqStoreItem[]> {
+  const sections = await readCasaSections();
+  const idx = faqIndexOf(sections);
+  return idx >= 0 ? ((sections[idx] as { items?: FaqStoreItem[] }).items ?? []) : [];
+}
+
+function revalidateCasa() {
+  revalidatePath("/es/casa");
+  revalidatePath("/en/casa");
+  revalidatePath("/admin/content/casa-faq");
+  revalidatePath("/admin/content/casa");
+}
 
 export async function getCasaFaq() {
-  return selectRows("casa_faq", {
-    role: "service_role",
-    query: "order=sort_order.asc",
-  });
+  return toRows(await currentItems());
 }
 
 export async function saveCasaFaqItem(item: Record<string, unknown>) {
   await requireEditor();
-  await upsertRows("casa_faq", item, { onConflict: "id" });
-  await logAudit({ action: "save", resourceType: "casa_faq", resourceId: String(item.id ?? "") });
-  revalidatePath("/es/casa");
-  revalidatePath("/en/casa");
-  revalidatePath("/admin/content/casa-faq");
+  const items = await currentItems();
+  const id = String(item.id ?? "");
+  const i = items.findIndex((_, n) => CASA_FAQ_ID(n) === id);
+  if (i >= 0) items[i] = toItem(item);
+  else items.push(toItem(item));
+  await writeCasaFaqItems(items);
+  await logAudit({ action: "save", resourceType: "casa_faq", resourceId: id });
+  revalidateCasa();
 }
 
 export async function deleteCasaFaqItem(id: string) {
   await requireManager();
-  await deleteRows("casa_faq", `id=eq.${encodeURIComponent(id)}`);
+  const items = await currentItems();
+  const i = items.findIndex((_, n) => CASA_FAQ_ID(n) === id);
+  if (i >= 0) {
+    items.splice(i, 1);
+    await writeCasaFaqItems(items);
+  }
   await logAudit({ action: "delete", resourceType: "casa_faq", resourceId: id });
-  revalidatePath("/es/casa");
-  revalidatePath("/en/casa");
-  revalidatePath("/admin/content/casa-faq");
+  revalidateCasa();
 }
 
-export async function reorderCasaFaq(items: { id: string; sort_order: number }[]) {
+export async function reorderCasaFaq(order: { id: string; sort_order: number }[]) {
   await requireEditor();
-  for (const item of items) {
-    await updateRows("casa_faq", `id=eq.${encodeURIComponent(item.id)}`, {
-      sort_order: item.sort_order,
-    });
-  }
-  revalidatePath("/es/casa");
-  revalidatePath("/en/casa");
-  revalidatePath("/admin/content/casa-faq");
+  const items = await currentItems();
+  const next = [...order]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((o) => items[items.findIndex((_, n) => CASA_FAQ_ID(n) === o.id)])
+    .filter(Boolean) as FaqStoreItem[];
+  // Anything the caller did not mention keeps its place at the end.
+  for (const it of items) if (!next.includes(it)) next.push(it);
+  await writeCasaFaqItems(next);
+  revalidateCasa();
 }
 
 // ── Careers Content ─────────────────────────────────────────────────

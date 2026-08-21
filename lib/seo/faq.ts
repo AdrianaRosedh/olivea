@@ -2,16 +2,12 @@
 //
 // One place to turn CMS FAQ copy into schema-ready items.
 //
-// Background: each venue page grew its own FAQ store, and the schema drifted
-// away from the page. Café declared seven questions in JSON-LD while showing a
-// different fifteen; Farm To Table declared five and showed eleven; Casa read
-// from a `casa_faq` table while the page rendered `sections[faq].items`. Across
-// the three, none of the declared questions appeared on the page they described
-// and none of the 32 written, visible answers were machine-readable at all.
-//
-// That is the worst of both: search engines discount FAQ markup that does not
-// match the page, and the real answers stay invisible to assistants. Emitting
-// from what the page actually shows fixes both halves at once.
+// Background: each venue page grew its own FAQ store and the schema drifted
+// away from the page — café declared seven questions while showing a different
+// fifteen, Farm To Table declared five and showed eleven, and Casa read from a
+// `casa_faq` table the page never rendered. Those stores have since been
+// merged into sections[faq].items, which is now the only one: the page renders
+// it, the markup describes it, and the admin edits it.
 
 import type { FaqItem } from "@/components/seo/FaqJsonLd";
 
@@ -60,20 +56,6 @@ export function toFaqItems(
       a: stripMarkdown(pick(e.a ?? e.answer, lang)),
     }))
     .filter((x) => x.q && x.a);
-}
-
-/**
- * Merge the page's visible FAQ with extra questions that exist only for search.
- *
- * Visible items come first and win on collision: if the same question is
- * worded two ways, the one a human can actually read on the page is the one
- * that should be quoted back to them. The extras are rendered into the
- * server-side article so the markup still describes text present in the HTML.
- */
-export function mergeFaq(visible: FaqItem[], extra: FaqItem[]): FaqItem[] {
-  const key = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-  const seen = new Set(visible.map((x) => key(x.q)));
-  return [...visible, ...extra.filter((x) => !seen.has(key(x.q)))];
 }
 
 /** Pull the `faq` section out of a page's CMS `sections` array. */

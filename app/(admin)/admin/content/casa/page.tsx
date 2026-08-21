@@ -12,6 +12,7 @@ import {
   EditableImage,
   EditableSections,
   EditableJSON,
+  EditableFAQ,
 } from "@/components/admin/visual-editor";
 
 interface SectionShape {
@@ -36,6 +37,24 @@ const mdxSections = [
   { name: "FAQ",            file: "faq.es.mdx / faq.en.mdx" },
 ];
 
+
+/** Section storage uses { q, a } per item. EditableFAQ uses { question, answer }.
+    These adapters map between the two without losing other fields. */
+function sectionItemsToFaqEntries(items: unknown): { question: { es: string; en: string }; answer: { es: string; en: string } }[] {
+  if (!Array.isArray(items)) return [];
+  return items.map((it) => {
+    const item = it as Record<string, unknown>;
+    return {
+      question: (item.q as { es: string; en: string }) ?? { es: "", en: "" },
+      answer: (item.a as { es: string; en: string }) ?? { es: "", en: "" },
+    };
+  });
+}
+
+function faqEntriesToSectionItems(entries: { question: { es: string; en: string }; answer: { es: string; en: string } }[]) {
+  return entries.map((e) => ({ q: e.question, a: e.answer }));
+}
+
 function CasaVisual() {
   const { get, set } = useEditor();
   const { t } = useAdminLocale();
@@ -52,6 +71,25 @@ function CasaVisual() {
   } | undefined;
 
   const sections = (get("sections") as SectionShape[]) ?? [];
+
+  // Casa's FAQ used to live in a separate casa_faq table with its own admin
+  // page. The public page never rendered that table, so edits made there were
+  // invisible to visitors. It is now the same sections[faq].items store the
+  // café and restaurant editors use, and the page and markup both read it.
+  const faqSection = sections.find((s) => s.id === "faq");
+  const faqEntries = sectionItemsToFaqEntries(faqSection?.items);
+
+  const updateFaqEntries = (entries: { question: { es: string; en: string }; answer: { es: string; en: string } }[]) => {
+    const newItems = faqEntriesToSectionItems(entries);
+    const idx = sections.findIndex((s) => s.id === "faq");
+    const newSections = [...sections];
+    if (idx >= 0) {
+      newSections[idx] = { ...newSections[idx], items: newItems } as SectionShape;
+    } else {
+      newSections.push({ id: "faq", items: newItems } as SectionShape);
+    }
+    set("sections", newSections);
+  };
 
   return (
     <div className="space-y-6">
@@ -77,10 +115,17 @@ function CasaVisual() {
         <EditableBilingual label={{ es: "Subtítulo", en: "Subheadline" }} as="p" value={hero?.subheadline ?? { es: "", en: "" }} onChange={(v) => set("hero.subheadline", v)} className="text-base text-stone-600 font-serif italic" placeholder={t({ es: "Texto del subtítulo…", en: "Subheadline text..." })} />
       </div>
 
+      {/* Structured FAQ editor — Q&A pairs that appear in the FAQ section. */}
+      <EditableFAQ
+        label={{ es: "Preguntas frecuentes", en: "FAQ — Questions & Answers" }}
+        value={faqEntries}
+        onChange={updateFaqEntries}
+        collapsed={false}
+      />
+
       {/* Visual section editor — covers title/body/image for each section.
           When admin saves sections data, the public page reads from DB and
-          overrides the MDX fallback. Use the Casa FAQ admin page (/admin/content/casa-faq)
-          for structured FAQ editing. */}
+          overrides the MDX fallback. */}
       <EditableSections
         label={{ es: "Secciones de la página (edición visual)", en: "Page Sections (visual editing)" }}
         value={sections}
