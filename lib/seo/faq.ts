@@ -11,11 +11,27 @@
 
 import type { FaqItem } from "@/components/seo/FaqJsonLd";
 
+/**
+ * A stable identifier for one stored FAQ entry.
+ *
+ * The admin editors used to address entries by array position, which is only
+ * correct while nobody else is editing: if one person removes a question while
+ * another has the list open, the second person's next save lands on whichever
+ * question slid into that slot — silently rewriting the wrong answer, with no
+ * error and no way to notice. Ids are stored with the item so a reference means
+ * the same entry regardless of where it sits.
+ */
+export function newFaqId(): string {
+  const b = crypto.getRandomValues(new Uint8Array(6));
+  return "faq_" + Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+}
+
 /** A bilingual string as the CMS stores it. */
 type Bi = { en?: string; es?: string } | undefined;
 
 /** CMS FAQ entry — `sections[faq].items` and `seoFaq` share this shape. */
 export interface CmsFaqEntry {
+  id?: string;
   q?: Bi;
   a?: Bi;
   question?: Bi;

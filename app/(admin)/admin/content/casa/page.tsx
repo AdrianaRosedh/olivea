@@ -1,6 +1,7 @@
 "use client";
 
 import { Home, FileCode2, ExternalLink } from "lucide-react";
+import { newFaqId } from "@/lib/seo/faq";
 import SectionGuard from "@/components/admin/SectionGuard";
 import casaContent from "@/lib/content/data/casa";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
@@ -40,19 +41,29 @@ const mdxSections = [
 
 /** Section storage uses { q, a } per item. EditableFAQ uses { question, answer }.
     These adapters map between the two without losing other fields. */
-function sectionItemsToFaqEntries(items: unknown): { question: { es: string; en: string }; answer: { es: string; en: string } }[] {
+type FaqEntry = {
+  id?: string;
+  question: { es: string; en: string };
+  answer: { es: string; en: string };
+};
+
+function sectionItemsToFaqEntries(items: unknown): FaqEntry[] {
   if (!Array.isArray(items)) return [];
   return items.map((it) => {
     const item = it as Record<string, unknown>;
     return {
+      id: typeof item.id === "string" ? item.id : newFaqId(),
       question: (item.q as { es: string; en: string }) ?? { es: "", en: "" },
       answer: (item.a as { es: string; en: string }) ?? { es: "", en: "" },
     };
   });
 }
 
-function faqEntriesToSectionItems(entries: { question: { es: string; en: string }; answer: { es: string; en: string } }[]) {
-  return entries.map((e) => ({ q: e.question, a: e.answer }));
+function faqEntriesToSectionItems(entries: FaqEntry[]) {
+  // Carry the id through. Dropping it here is what made entries addressable
+  // only by position: a saved list came back with fresh identities, so another
+  // editor's in-flight reference pointed at whatever had moved into that slot.
+  return entries.map((e) => ({ id: e.id ?? newFaqId(), q: e.question, a: e.answer }));
 }
 
 function CasaVisual() {
@@ -79,7 +90,7 @@ function CasaVisual() {
   const faqSection = sections.find((s) => s.id === "faq");
   const faqEntries = sectionItemsToFaqEntries(faqSection?.items);
 
-  const updateFaqEntries = (entries: { question: { es: string; en: string }; answer: { es: string; en: string } }[]) => {
+  const updateFaqEntries = (entries: FaqEntry[]) => {
     const newItems = faqEntriesToSectionItems(entries);
     const idx = sections.findIndex((s) => s.id === "faq");
     const newSections = [...sections];

@@ -6,6 +6,7 @@
 "use server";
 
 import { selectRows, selectOne, upsertRows, deleteRows, updateRows } from "./client";
+import { newFaqId } from "@/lib/seo/faq";
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "./config";
 import { logAudit } from "@/lib/auth/audit";
@@ -167,15 +168,14 @@ export async function toggleBanner(id: string, enabled: boolean) {
 // These used to read and write a `casa_faq` table. The public Casa page never
 // rendered it — it fed the JSON-LD and nothing else — so every edit made in
 // the Casa FAQ admin was invisible to visitors, while a different, longer FAQ
-// showed on the page. The questions have been merged into
-// casa_content.sections[faq].items, and these actions now operate on that.
+// showed on the page. The questions were merged into
+// casa_content.sections[faq].items, and these actions operate on that.
 //
-// The admin UI is unchanged: it still sees {id, page, question, answer,
-// sort_order} rows. Ids are positional and regenerated on every read, because
-// the stored items carry only {q, a} — the shape the page and the schema read,
-// and the shape the café and restaurant editors write. Two people editing the
-// same FAQ at the same moment could therefore collide; that was equally true
-// of the table this replaces, and the surface is five admins.
+// Entries are addressed by a stored id. They were briefly addressed by array
+// position, which is only safe while nobody else is editing: if one person
+// deletes a question while another has the list open, the second person's next
+// save lands on whichever question slid into that slot and silently rewrites
+// the wrong answer. An id refers to the same entry no matter where it moves.
 
 type CasaFaqRow = {
   id: string;
@@ -185,9 +185,11 @@ type CasaFaqRow = {
   sort_order: number;
 };
 
-type FaqStoreItem = { q?: { es?: string; en?: string }; a?: { es?: string; en?: string } };
-
-const CASA_FAQ_ID = (i: number) => `casa-faq-${i}`;
+type FaqStoreItem = {
+  id?: string;
+  q?: { es?: string; en?: string };
+  a?: { es?: string; en?: string };
+};
 
 async function readCasaSections(): Promise<Record<string, unknown>[]> {
   const rows = await selectRows<{ sections: Record<string, unknown>[] }>(
@@ -197,22 +199,24 @@ async function readCasaSections(): Promise<Record<string, unknown>[]> {
   return rows[0]?.sections ?? [];
 }
 
-function faqIndexOf(sections: Record<string, unknown>[]): number {
-  return sections.findIndex((s) => s?.id === "faq");
-}
-
 async function writeCasaFaqItems(items: FaqStoreItem[]): Promise<void> {
   const sections = await readCasaSections();
-  const idx = faqIndexOf(sections);
+  const idx = sections.findIndex((s) => s?.id === "faq");
   const next = [...sections];
   if (idx >= 0) next[idx] = { ...next[idx], items };
   else next.push({ id: "faq", items });
   await updateRows("casa_content", "id=eq.singleton", { sections: next });
 }
 
+async function currentItems(): Promise<FaqStoreItem[]> {
+  const sections = await readCasaSections();
+  const idx = sections.findIndex((s) => s?.id === "faq");
+  return idx >= 0 ? ((sections[idx] as { items?: FaqStoreItem[] }).items ?? []) : [];
+}
+
 function toRows(items: FaqStoreItem[]): CasaFaqRow[] {
   return items.map((it, i) => ({
-    id: CASA_FAQ_ID(i),
+    id: it.id ?? newFaqId(),
     page: "casa",
     question: { es: it.q?.es ?? "", en: it.q?.en ?? "" },
     answer: { es: it.a?.es ?? "", en: it.a?.en ?? "" },
@@ -220,16 +224,14 @@ function toRows(items: FaqStoreItem[]): CasaFaqRow[] {
   }));
 }
 
-function toItem(row: Record<string, unknown>): FaqStoreItem {
+function toItem(row: Record<string, unknown>, id: string): FaqStoreItem {
   const q = (row.question ?? {}) as { es?: string; en?: string };
   const a = (row.answer ?? {}) as { es?: string; en?: string };
-  return { q: { es: q.es ?? "", en: q.en ?? "" }, a: { es: a.es ?? "", en: a.en ?? "" } };
-}
-
-async function currentItems(): Promise<FaqStoreItem[]> {
-  const sections = await readCasaSections();
-  const idx = faqIndexOf(sections);
-  return idx >= 0 ? ((sections[idx] as { items?: FaqStoreItem[] }).items ?? []) : [];
+  return {
+    id,
+    q: { es: q.es ?? "", en: q.en ?? "" },
+    a: { es: a.es ?? "", en: a.en ?? "" },
+  };
 }
 
 function revalidateCasa() {
@@ -246,10 +248,18 @@ export async function getCasaFaq() {
 export async function saveCasaFaqItem(item: Record<string, unknown>) {
   await requireEditor();
   const items = await currentItems();
-  const id = String(item.id ?? "");
-  const i = items.findIndex((_, n) => CASA_FAQ_ID(n) === id);
-  if (i >= 0) items[i] = toItem(item);
-  else items.push(toItem(item));
+  const id = String(item.id ?? "").trim();
+  const i = id ? items.findIndex((x) => x.id === id) : -1;
+
+  if (i >= 0) {
+    items[i] = toItem(item, id);
+  } else {
+    // Either a new question, or one someone else deleted while this editor had
+    // it open. Appending is the safe reading of both: nothing else is
+    // overwritten, and a re-added question is visible and removable.
+    items.push(toItem(item, id || newFaqId()));
+  }
+
   await writeCasaFaqItems(items);
   await logAudit({ action: "save", resourceType: "casa_faq", resourceId: id });
   revalidateCasa();
@@ -258,11 +268,9 @@ export async function saveCasaFaqItem(item: Record<string, unknown>) {
 export async function deleteCasaFaqItem(id: string) {
   await requireManager();
   const items = await currentItems();
-  const i = items.findIndex((_, n) => CASA_FAQ_ID(n) === id);
-  if (i >= 0) {
-    items.splice(i, 1);
-    await writeCasaFaqItems(items);
-  }
+  const next = items.filter((x) => x.id !== id);
+  // A no-op means someone else already removed it — not an error worth raising.
+  if (next.length !== items.length) await writeCasaFaqItems(next);
   await logAudit({ action: "delete", resourceType: "casa_faq", resourceId: id });
   revalidateCasa();
 }
@@ -270,12 +278,20 @@ export async function deleteCasaFaqItem(id: string) {
 export async function reorderCasaFaq(order: { id: string; sort_order: number }[]) {
   await requireEditor();
   const items = await currentItems();
-  const next = [...order]
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((o) => items[items.findIndex((_, n) => CASA_FAQ_ID(n) === o.id)])
-    .filter(Boolean) as FaqStoreItem[];
-  // Anything the caller did not mention keeps its place at the end.
-  for (const it of items) if (!next.includes(it)) next.push(it);
+  const byId = new Map(items.map((it) => [it.id, it]));
+
+  const next: FaqStoreItem[] = [];
+  for (const o of [...order].sort((a, b) => a.sort_order - b.sort_order)) {
+    const hit = byId.get(o.id);
+    if (hit) {
+      next.push(hit);
+      byId.delete(o.id);
+    }
+  }
+  // Anything added by someone else since this list was loaded keeps its place
+  // at the end rather than disappearing.
+  for (const it of items) if (byId.has(it.id)) next.push(it);
+
   await writeCasaFaqItems(next);
   revalidateCasa();
 }
