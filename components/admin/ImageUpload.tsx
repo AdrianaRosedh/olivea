@@ -20,6 +20,14 @@ interface ImageUploadProps {
   aspectRatio?: string;
   /** Disable the upload */
   disabled?: boolean;
+  /**
+   * "inline" renders just a thumbnail that swaps the image on click or
+   * drop — for list rows where the full drop-zone block would dwarf the
+   * row it belongs to. Same upload, compression and validation.
+   */
+  variant?: "block" | "inline";
+  /** Square size in px for the inline variant. */
+  inlineSize?: number;
 }
 
 export default function ImageUpload({
@@ -30,6 +38,8 @@ export default function ImageUpload({
   hint,
   aspectRatio = "aspect-video",
   disabled = false,
+  variant = "block",
+  inlineSize = 48,
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -109,6 +119,66 @@ export default function ImageUpload({
     onChange("");
     setUploading(false);
   }, [value, onChange]);
+
+  if (variant === "inline") {
+    return (
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!disabled && !uploading) setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        onClick={() => {
+          if (!disabled && !uploading) inputRef.current?.click();
+        }}
+        title={
+          error ??
+          (value ? "Click or drop to replace" : "Click or drop to add an image")
+        }
+        style={{ width: inlineSize, height: inlineSize }}
+        className={`
+          group relative shrink-0 overflow-hidden rounded-lg ring-1 transition-colors
+          ${dragOver ? "ring-2 ring-[var(--olivea-olive)]" : "ring-black/5"}
+          ${error ? "ring-2 ring-red-400" : ""}
+          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${value ? "" : "bg-[var(--olivea-cream)]/40"}
+        `}
+      >
+        {value && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={value} alt="" className="h-full w-full object-cover" />
+        )}
+
+        {!uploading && !disabled && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/45 group-hover:opacity-100">
+            <Upload className="h-4 w-4 text-white" />
+          </div>
+        )}
+
+        {!value && !uploading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ImageIcon className="h-4 w-4 text-[var(--olivea-clay)]/40" />
+          </div>
+        )}
+
+        {uploading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+            <Loader2 className="h-4 w-4 animate-spin text-[var(--olivea-olive)]" />
+          </div>
+        )}
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/svg+xml,image/gif"
+          onChange={handleInputChange}
+          className="hidden"
+          disabled={disabled || uploading}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-1.5">

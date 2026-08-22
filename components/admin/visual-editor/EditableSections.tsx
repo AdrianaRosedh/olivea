@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ImageUpload from "@/components/admin/ImageUpload";
 import {
   GripVertical,
   Trash2,
@@ -263,17 +264,24 @@ export default function EditableSections({
                         <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
                           {t({ es: "Imagen", en: "Image" })}
                         </span>
-                        <input
-                          type="text"
-                          value={item.image?.src ?? ""}
-                          onChange={(e) =>
-                            updateItem(idx, {
-                              image: { ...item.image, src: e.target.value },
-                            })
-                          }
-                          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-800 focus:border-[var(--olivea-olive)] focus:ring-2 focus:ring-[var(--olivea-olive)]/20 outline-none"
-                          placeholder="/images/..."
-                        />
+                        <div className="flex items-center gap-2">
+                          {/* Click or drop on the thumbnail to set this
+                              section's image, instead of knowing its path. */}
+                          <ImageUpload
+                            variant="inline"
+                            inlineSize={56}
+                            value={item.image?.src ?? ""}
+                            onChange={(src) =>
+                              updateItem(idx, { image: { ...item.image, src } })
+                            }
+                            folder="sections"
+                          />
+                          <span className="truncate text-[11px] text-stone-400">
+                            {item.image?.src
+                              ? item.image.src.split("/").pop()
+                              : t({ es: "Sin imagen", en: "No image" })}
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>

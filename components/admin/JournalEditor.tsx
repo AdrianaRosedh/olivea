@@ -1342,27 +1342,22 @@ function ArticleGalleryEditor({
               <ChevronDown size={12} />
             </button>
           </div>
-          {/* Thumbnail */}
-          {img.src ? (
-            <div
-              className="w-12 h-12 shrink-0 rounded-lg bg-cover bg-center ring-1 ring-black/5"
-              style={{ backgroundImage: `url(${img.src})` }}
-              title={img.src}
-            />
-          ) : (
-            <div className="w-12 h-12 shrink-0 rounded-lg bg-[var(--olivea-cream)]/40 ring-1 ring-black/5" />
-          )}
-          <input
-            type="text"
+          {/* The thumbnail is the control: click or drop on it to swap the
+              image. Adding to the carousel already uploaded; replacing one
+              still required typing a server path. */}
+          <ImageUpload
+            variant="inline"
             value={img.src}
-            onChange={(e) => {
+            onChange={(src) => {
               const g = [...gallery];
-              g[i] = { ...g[i], src: e.target.value };
+              g[i] = { ...g[i], src };
               onChange(g);
             }}
-            placeholder="/images/journal/..."
-            className={`${S.input} flex-1 font-mono text-xs`}
+            folder="journal"
           />
+
+          {/* Alt text carries more weight than the path — it is what a screen
+              reader announces — so it takes the room the path input had. */}
           <input
             type="text"
             value={img.alt}
@@ -1372,7 +1367,7 @@ function ArticleGalleryEditor({
               onChange(g);
             }}
             placeholder={t({ es: "Texto alternativo…", en: "Alt text..." })}
-            className={`${S.input} w-36`}
+            className={`${S.input} flex-1`}
           />
           <button
             onClick={() => onChange(gallery.filter((_, idx) => idx !== i))}
