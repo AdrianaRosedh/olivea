@@ -161,11 +161,22 @@ async function loadActivePopups(): Promise<ActivePopupFile[]> {
 
   if (url && key) {
     try {
+      // Deliberately uncached at this layer. With `next: { revalidate: 60 }`
+      // this fetch served a stale row for well over ten minutes in
+      // production — an edit in the admin reached the database immediately and
+      // then simply did not appear, with no way for an editor to tell whether
+      // the save had worked. The same code returned fresh data instantly when
+      // run locally, which is what isolated the cache as the cause.
+      //
+      // Freshness is not free, but it is cheap here: the response carries
+      // s-maxage=60, so the CDN still absorbs the traffic and this only runs
+      // on a cache miss — roughly once a minute per region, not once a
+      // visitor.
       const res = await fetch(
         `${url}/rest/v1/popups?enabled=eq.true&order=priority.desc&limit=10`,
         {
           headers: { apikey: key, Authorization: `Bearer ${key}` },
-          next: { revalidate: 60 },
+          cache: "no-store",
         }
       );
       if (res.ok) {

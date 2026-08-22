@@ -105,11 +105,16 @@ async function loadActiveBanners(): Promise<ActiveBannerFile[]> {
 
   if (url && key) {
     try {
+      // Same reasoning as the popup route: this fetch was cached at the data
+      // layer and served edits back stale for far longer than its stated TTL,
+      // so a banner published in the admin appeared not to publish. The
+      // response still carries s-maxage=60, so the CDN absorbs the traffic
+      // and this runs on a cache miss rather than per visitor.
       const res = await fetch(
         `${url}/rest/v1/banners?enabled=eq.true&order=created_at.desc&limit=10`,
         {
           headers: { apikey: key, Authorization: `Bearer ${key}` },
-          next: { revalidate: 60 },
+          cache: "no-store",
         }
       );
       if (res.ok) {
