@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import SectionGuard from "@/components/admin/SectionGuard";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Briefcase,
@@ -1336,23 +1337,21 @@ function PageContentTab({
             }
             multiline
           />
-          <div className="space-y-1">
-            <p className={cls.label}>{t({ es: "URL de la imagen principal", en: "Hero image URL" })}</p>
-            <input
-              className={cls.input}
-              value={data.hero.image.src}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  hero: {
-                    ...data.hero,
-                    image: { ...data.hero.image, src: e.target.value },
-                  },
-                })
-              }
-              placeholder="/images/careers-hero.jpg"
-            />
-          </div>
+          <ImageUpload
+            value={data.hero.image.src}
+            onChange={(url) =>
+              setData({
+                ...data,
+                hero: { ...data.hero, image: { ...data.hero.image, src: url } },
+              })
+            }
+            folder="careers"
+            label={t({ es: "Imagen principal", en: "Hero image" })}
+            hint={t({
+              es: "Arrastra un archivo o haz clic para elegirlo.",
+              en: "Drag a file here or click to choose one.",
+            })}
+          />
         </div>
       </div>
 

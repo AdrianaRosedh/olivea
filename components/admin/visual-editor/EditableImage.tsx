@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ImageIcon, Upload, X, ExternalLink } from "lucide-react";
 import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -21,6 +22,8 @@ interface EditableImageProps {
   aspect?: "hero" | "square" | "wide" | "auto";
   /** Max height in px — prevents hero from dominating the viewport */
   maxHeight?: number;
+  /** Storage folder for uploads, e.g. "casa" or "heroes". */
+  folder?: string;
 }
 
 /* ── Component ────────────────────────────────────────────────────── */
@@ -33,6 +36,7 @@ export default function EditableImage({
   label,
   aspect = "auto",
   maxHeight,
+  folder = "general",
 }: EditableImageProps) {
   const { locale, t } = useAdminLocale();
   const labelText = resolveLabel(label, locale) || t({ es: "Imagen", en: "Image" });
@@ -103,11 +107,30 @@ export default function EditableImage({
           </div>
         )}
 
-        {/* URL input */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wide">
-            {t({ es: "Ruta de la imagen", en: "Image Path" })}
-          </label>
+        {/* Upload is the primary path. Typing a server path assumes the
+            image is already on the server, which is the step people were
+            actually stuck on. */}
+        <ImageUpload
+          value={urlInput}
+          onChange={(url) => {
+            setUrlInput(url);
+            setImgError(false);
+            onChange(url);
+            setEditing(false);
+          }}
+          folder={folder}
+          label={t({ es: "Subir imagen", en: "Upload image" })}
+          hint={t({
+            es: "Arrastra un archivo o haz clic para elegirlo. Se optimiza automáticamente.",
+            en: "Drag a file here or click to choose one. It is optimised automatically.",
+          })}
+        />
+
+        {/* Kept for images already on the site, and for pasting a URL. */}
+        <details className="group">
+          <summary className="cursor-pointer text-[10px] font-medium uppercase tracking-wide text-stone-400 hover:text-stone-600">
+            {t({ es: "o usar una ruta existente", en: "or use an existing path" })}
+          </summary>
           <input
             type="text"
             value={urlInput}
@@ -116,11 +139,10 @@ export default function EditableImage({
               if (e.key === "Enter") handleSave();
               if (e.key === "Escape") handleCancel();
             }}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 focus:border-[var(--olivea-olive)] focus:ring-2 focus:ring-[var(--olivea-olive)]/20 outline-none"
+            className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 focus:border-[var(--olivea-olive)] focus:ring-2 focus:ring-[var(--olivea-olive)]/20 outline-none"
             placeholder="/images/..."
-            autoFocus
           />
-        </div>
+        </details>
 
         <div className="flex gap-2">
           <button

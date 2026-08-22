@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import SectionGuard from "@/components/admin/SectionGuard";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { Bell, Plus, Pencil, Trash2, ChevronUp, X } from "lucide-react";
 import { getPopups, savePopup, deletePopup, togglePopup } from "@/lib/supabase/actions";
 import type { PopupItem, PopupFrequency } from "@/lib/content/types";
@@ -407,18 +408,19 @@ function PopupForm({
       {/* ── Media ── */}
       <div className="space-y-4">
         <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">{t({ es: "Medios", en: "Media" })}</h4>
-        <div>
-          <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
-            {t({ es: "Origen de la imagen de portada", en: "Cover Image Source" })}
-          </label>
-          <input
-            type="text"
-            value={form.media?.coverSrc ?? ""}
-            onChange={(e) => updateMedia({ coverSrc: e.target.value })}
-            placeholder="/images/journal/example/cover.jpg"
-            className={inputClass}
-          />
-        </div>
+        {/* Drop a file in rather than typing a path. Asking someone to know
+            where an image lives on the server is asking them to already have
+            uploaded it somewhere else first. */}
+        <ImageUpload
+          value={form.media?.coverSrc ?? ""}
+          onChange={(url) => updateMedia({ coverSrc: url })}
+          folder="popups"
+          label={t({ es: "Imagen de portada", en: "Cover Image" })}
+          hint={t({
+            es: "Arrastra una imagen o haz clic para elegir un archivo. Se optimiza automáticamente.",
+            en: "Drag an image here or click to choose a file. It is optimised automatically.",
+          })}
+        />
         <BilingualInput
           label={t({ es: "Texto alternativo de portada", en: "Cover Alt Text" })}
           esValue={form.media?.coverAlt?.es ?? ""}
