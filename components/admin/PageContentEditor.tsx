@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Save, Loader2, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { getPageContent, savePageContent } from "@/lib/supabase/actions";
 import BilingualField from "./BilingualField";
@@ -140,7 +140,9 @@ export default function PageContentEditor({
   const [data, setData] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saved" | "error" | "conflict">("idle");
+  // updated_at at load time; the save is refused if the row moved since.
+  const versionRef = useRef<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
@@ -149,7 +151,8 @@ export default function PageContentEditor({
       const row = await getPageContent(table);
       if (row && typeof row === "object") {
         // Remove internal fields
-        const { id: _id, updated_at: _u, ...rest } = row as Record<string, unknown>;
+        const { id: _id, updated_at, ...rest } = row as Record<string, unknown>;
+        versionRef.current = typeof updated_at === "string" ? updated_at : null;
         setData(rest);
       } else if (fallbackData) {
         setData(fallbackData);
@@ -167,7 +170,14 @@ export default function PageContentEditor({
     setSaving(true);
     setStatus("idle");
     try {
-      await savePageContent(table, data);
+      const result = await savePageContent(table, data, versionRef.current);
+      if (!result.ok) {
+        // Nothing written; the edits stay on screen so they can be re-applied.
+        setStatus("conflict");
+        setSaving(false);
+        return;
+      }
+      versionRef.current = result.version;
       setStatus("saved");
       setTimeout(() => setStatus("idle"), 2500);
     } catch (err) {
@@ -325,6 +335,27 @@ export default function PageContentEditor({
       {status === "error" && (
         <div className="mb-4 px-4 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
           Save failed — check your service role key
+        </div>
+      )}
+      {status === "conflict" && (
+        <div className="mb-4 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+          <p className="font-semibold">
+            Someone else saved this page while you were editing.
+          </p>
+          <p className="mt-1 text-amber-700">
+            Nothing was saved, so their work is intact. Your changes are still
+            here — copy them, reload, and apply them again.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              void load();
+              setStatus("idle");
+            }}
+            className="mt-2 rounded-full px-4 py-1.5 text-xs font-semibold bg-amber-600 text-white hover:bg-amber-700"
+          >
+            Reload and discard my changes
+          </button>
         </div>
       )}
 

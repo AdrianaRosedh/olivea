@@ -135,7 +135,11 @@ export default function VisualPageEditor({
   const [originalData, setOriginalData] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saved" | "error" | "conflict">("idle");
+  // updated_at as it was when this editor loaded. The save is refused if the
+  // row has moved since — these editors send the whole document, so writing
+  // anyway would revert whatever the other person changed.
+  const versionRef = useRef<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const originalRef = useRef<string>("");
 
@@ -150,7 +154,8 @@ export default function VisualPageEditor({
     try {
       const row = await getPageContent(table);
       if (row && typeof row === "object") {
-        const { id: _id, updated_at: _u, ...rest } = row as Record<string, unknown>;
+        const { id: _id, updated_at, ...rest } = row as Record<string, unknown>;
+        versionRef.current = typeof updated_at === "string" ? updated_at : null;
         setData(rest);
         setOriginalData(rest);
         originalRef.current = JSON.stringify(rest);
@@ -185,7 +190,18 @@ export default function VisualPageEditor({
     setSaving(true);
     setStatus("idle");
     try {
-      await savePageContent(table, data);
+      const result = await savePageContent(table, data, versionRef.current);
+
+      if (!result.ok) {
+        // Someone else saved while this was open. Nothing is written and the
+        // edits stay on screen, so the work is not lost — it just cannot be
+        // applied on top of a version this editor never saw.
+        setStatus("conflict");
+        setSaving(false);
+        return;
+      }
+
+      versionRef.current = result.version;
       setOriginalData(data);
       originalRef.current = JSON.stringify(data);
       setStatus("saved");
@@ -323,6 +339,34 @@ export default function VisualPageEditor({
           {status === "error" && (
             <div className="mt-2 px-4 py-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
               {t(STR.saveFailed)}
+            </div>
+          )}
+          {/* Nothing was written and the edits are still on screen. Reloading
+              is destructive, so it asks rather than doing it automatically. */}
+          {status === "conflict" && (
+            <div className="mt-2 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+              <p className="font-semibold">
+                {t({
+                  es: "Alguien más guardó esta página mientras la editabas.",
+                  en: "Someone else saved this page while you were editing.",
+                })}
+              </p>
+              <p className="mt-1 text-amber-700">
+                {t({
+                  es: "No se guardó nada, para no borrar su trabajo. Tus cambios siguen aquí: cópialos, recarga y vuelve a aplicarlos.",
+                  en: "Nothing was saved, so their work is intact. Your changes are still here — copy them, reload, and apply them again.",
+                })}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  void load();
+                  setStatus("idle");
+                }}
+                className="mt-2 rounded-full px-4 py-1.5 text-xs font-semibold bg-amber-600 text-white hover:bg-amber-700"
+              >
+                {t({ es: "Recargar y perder mis cambios", en: "Reload and discard my changes" })}
+              </button>
             </div>
           )}
         </div>

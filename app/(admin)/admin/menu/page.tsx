@@ -14,7 +14,7 @@
 // also revalidates the public pages and pings IndexNow.
 // ─────────────────────────────────────────────────────────────────────
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState , useRef} from "react";
 import {
   UtensilsCrossed,
   Coffee,
@@ -221,9 +221,15 @@ function MenusAndLinks() {
   const [origCafe, setOrigCafe] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saved" | "error" | "conflict">("idle");
   const [loadNote, setLoadNote] = useState<{ es: string; en: string } | null>(null);
   const [newTabCount, setNewTabCount] = useState(0);
+
+  // The menu editor writes whole farmtotable_content / cafe_content rows —
+  // the same documents the venue editors write. Without a version guard a
+  // menu save silently reverts an FAQ or hero change made meanwhile.
+  const fttVersion = useRef<string | null>(null);
+  const cafeVersion = useRef<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -233,12 +239,13 @@ function MenusAndLinks() {
         getPageContent("farmtotable_content"),
         getPageContent("cafe_content"),
       ]);
-      const clean = (r: unknown): Row => {
-        const { id: _id, updated_at: _u, ...rest } = (r ?? {}) as Row;
+      const clean = (r: unknown, into: { current: string | null }): Row => {
+        const { id: _id, updated_at, ...rest } = (r ?? {}) as Row;
+        into.current = typeof updated_at === "string" ? updated_at : null;
         return rest;
       };
       if (fttRow) {
-        const c = clean(fttRow);
+        const c = clean(fttRow, fttVersion);
         setFtt(c);
         setOrigFtt(JSON.stringify(c));
       } else {
@@ -246,7 +253,7 @@ function MenusAndLinks() {
         setLoadNote({ es: "No se pudo cargar el contenido en vivo — revisa la conexión y recarga.", en: "Could not load live content — check the connection and reload." });
       }
       if (cafeRow) {
-        const c = clean(cafeRow);
+        const c = clean(cafeRow, cafeVersion);
         setCafe(c);
         setOrigCafe(JSON.stringify(c));
       }
@@ -323,11 +330,23 @@ function MenusAndLinks() {
     setStatus("idle");
     try {
       if (fttDirty && ftt) {
-        await savePageContent("farmtotable_content", ftt);
+        const r = await savePageContent("farmtotable_content", ftt, fttVersion.current);
+        if (!r.ok) {
+          setStatus("conflict");
+          setSaving(false);
+          return;
+        }
+        fttVersion.current = r.version;
         setOrigFtt(JSON.stringify(ftt));
       }
       if (cafeDirty && cafe) {
-        await savePageContent("cafe_content", cafe);
+        const r = await savePageContent("cafe_content", cafe, cafeVersion.current);
+        if (!r.ok) {
+          setStatus("conflict");
+          setSaving(false);
+          return;
+        }
+        cafeVersion.current = r.version;
         setOrigCafe(JSON.stringify(cafe));
       }
       setStatus("saved");
@@ -427,6 +446,32 @@ function MenusAndLinks() {
         {status === "error" && (
           <div className="mt-2 px-4 py-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
             {t(STR.saveFailed)}
+          </div>
+        )}
+        {status === "conflict" && (
+          <div className="mt-2 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+            <p className="font-semibold">
+              {t({
+                es: "Alguien más guardó esta página mientras la editabas.",
+                en: "Someone else saved this page while you were editing.",
+              })}
+            </p>
+            <p className="mt-1 text-amber-700">
+              {t({
+                es: "No se guardó nada, para no borrar su trabajo. Copia tus cambios, recarga y vuelve a aplicarlos.",
+                en: "Nothing was saved, so their work is intact. Copy your changes, reload, and apply them again.",
+              })}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                void load();
+                setStatus("idle");
+              }}
+              className="mt-2 rounded-full px-4 py-1.5 text-xs font-semibold bg-amber-600 text-white hover:bg-amber-700"
+            >
+              {t({ es: "Recargar y perder mis cambios", en: "Reload and discard my changes" })}
+            </button>
           </div>
         )}
         {loadNote && (

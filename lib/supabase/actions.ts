@@ -7,6 +7,7 @@
 
 import { selectRows, selectOne, upsertRows, deleteRows, updateRows } from "./client";
 import { newFaqId } from "@/lib/seo/faq";
+import type { SaveResult } from "@/lib/admin/save-result";
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "./config";
 import { logAudit } from "@/lib/auth/audit";
@@ -422,7 +423,20 @@ export async function getPageContent(table: PageTable) {
   return row;
 }
 
-export async function savePageContent(table: PageTable, data: Record<string, unknown>) {
+/**
+ * Save a page document.
+ *
+ * `expectedVersion` is the `updated_at` the editor loaded. When supplied, the
+ * write only lands if the row still carries that value — otherwise someone
+ * saved in between, and since these editors send the whole document, going
+ * ahead would replace fields this writer never opened. Callers that omit it
+ * keep the previous last-write-wins behaviour.
+ */
+export async function savePageContent(
+  table: PageTable,
+  data: Record<string, unknown>,
+  expectedVersion?: string | null
+): Promise<SaveResult> {
   // Global settings require manager role; everything else requires editor
   if (table === "global_settings") {
     await requireManager();
@@ -433,6 +447,40 @@ export async function savePageContent(table: PageTable, data: Record<string, unk
   const fieldMap = fieldMaps[table];
   const dbData = fieldMap ? camelToSnake(data, fieldMap) : data;
 
+  if (expectedVersion) {
+    // The filter is the guard: PostgREST returns the rows it touched, so an
+    // empty result means the version moved between load and save. This is one
+    // statement, so there is no window between checking and writing.
+    const touched = await updateRows<{ updated_at: string }>(
+      table,
+      `id=eq.singleton&updated_at=eq.${encodeURIComponent(expectedVersion)}`,
+      dbData
+    );
+
+    if (touched.length === 0) {
+      const [current] = await selectRows<{ updated_at: string }>(table, {
+        role: "service_role",
+        query: "id=eq.singleton&select=updated_at",
+      });
+      return {
+        ok: false,
+        reason: "conflict",
+        savedBy: null,
+        at: current?.updated_at ?? null,
+      };
+    }
+
+    await logAudit({ action: "save", resourceType: table, resourceId: "singleton" });
+    for (const path of pageRevalidations[table] ?? []) {
+      if (path.startsWith("layout:")) {
+        revalidatePath(path.slice("layout:".length), "layout");
+      } else {
+        revalidatePath(path);
+      }
+    }
+    return { ok: true, version: touched[0]?.updated_at ?? null };
+  }
+
   await upsertRows(table, { id: "singleton", ...dbData }, { onConflict: "id" });
   await logAudit({ action: "save", resourceType: table, resourceId: "singleton" });
   for (const path of pageRevalidations[table] ?? []) {
@@ -442,6 +490,7 @@ export async function savePageContent(table: PageTable, data: Record<string, unk
       revalidatePath(path);
     }
   }
+  return { ok: true, version: null };
 
   // Notify IndexNow (Bing -> Copilot + ChatGPT Search) of the changed URLs.
   await pingIndexNowForPaths(pageRevalidations[table] ?? []);
