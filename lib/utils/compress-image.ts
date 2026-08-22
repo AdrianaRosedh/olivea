@@ -15,15 +15,37 @@ export interface CompressOptions {
   maxBytes?: number;
   /** Output MIME type (default: "image/webp") */
   outputType?: "image/jpeg" | "image/webp" | "image/png";
+  /** Files below this are left alone entirely (default: 96KB). */
+  skipBytes?: number;
 }
 
-const DEFAULTS: Required<CompressOptions> = {
+const DEFAULTS: Required<CompressOptions> & { skipBytes: number } = {
   maxWidth: 1920,
   maxHeight: 1920,
   quality: 0.82,
   maxBytes: 1 * 1024 * 1024, // 1 MB
   outputType: "image/webp",
+  skipBytes: 96 * 1024,
 };
+
+/**
+ * Budgets by what the image is for.
+ *
+ * One budget for everything meant a popup thumbnail carried a hero's
+ * allowance: a 2 MB PNG sat behind a card a few hundred pixels wide. Pixels
+ * and bytes are both capped, because a small file can still be a 4000px image
+ * the browser has to decode and scale on every view.
+ */
+export const IMAGE_BUDGETS = {
+  /** Full-bleed hero art. */
+  hero: { maxWidth: 2000, maxHeight: 2000, maxBytes: 600 * 1024, quality: 0.82 },
+  /** Cards, popups, section images — the common case. */
+  card: { maxWidth: 1200, maxHeight: 1200, maxBytes: 240 * 1024, quality: 0.8 },
+  /** Small square previews and list rows. */
+  thumb: { maxWidth: 600, maxHeight: 600, maxBytes: 120 * 1024, quality: 0.78 },
+} as const;
+
+export type ImageBudget = keyof typeof IMAGE_BUDGETS;
 
 /**
  * Compress an image file client-side using canvas.
@@ -44,16 +66,15 @@ export async function compressImage(
   }
 
   // If already small enough, skip compression
-  const { maxWidth, maxHeight, quality, maxBytes, outputType } = {
+  const { maxWidth, maxHeight, quality, maxBytes, outputType, skipBytes } = {
     ...DEFAULTS,
     ...opts,
   };
 
-  if (file.size <= maxBytes) {
-    // Still might need resize — check dimensions via image load
-    // But for truly small files (< 200KB), skip entirely
-    if (file.size < 200 * 1024) return file;
-  }
+  // Only genuinely small files skip the work. Being under maxBytes is not a
+  // reason to skip: a 1.9 MB PNG under a 2 MB ceiling is still a PNG, and
+  // re-encoding it as WebP typically takes an order of magnitude off.
+  if (file.size < skipBytes) return file;
 
   // Load into an Image element
   const img = await loadImage(file);
@@ -63,15 +84,6 @@ export async function compressImage(
     maxWidth,
     maxHeight,
   );
-
-  // If no resize needed and file is already small, return original
-  if (
-    width === img.naturalWidth &&
-    height === img.naturalHeight &&
-    file.size <= maxBytes
-  ) {
-    return file;
-  }
 
   // Draw to canvas at target dimensions
   const canvas = document.createElement("canvas");
@@ -96,6 +108,31 @@ export async function compressImage(
     currentQuality -= 0.1;
     blob = await canvasToBlob(canvas, outputType, currentQuality);
     attempts++;
+  }
+
+  // Quality alone cannot always reach the budget — a very large photograph
+  // stays heavy at 0.4. Step the dimensions down instead of giving up and
+  // uploading something over budget.
+  let scaled = 1;
+  while (blob.size > maxBytes && scaled > 0.4) {
+    scaled -= 0.2;
+    canvas.width = Math.max(1, Math.round(width * scaled));
+    canvas.height = Math.max(1, Math.round(height * scaled));
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    blob = await canvasToBlob(canvas, outputType, quality);
+  }
+
+  // Re-encoding is not always a win — an already-optimised JPEG can come out
+  // larger as WebP. Keep whichever is smaller, provided the original did not
+  // need resizing in the first place.
+  if (
+    blob.size >= file.size &&
+    width === img.naturalWidth &&
+    height === img.naturalHeight
+  ) {
+    return file;
   }
 
   // Build the output filename

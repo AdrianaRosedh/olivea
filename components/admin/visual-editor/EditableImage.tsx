@@ -119,6 +119,7 @@ export default function EditableImage({
             setEditing(false);
           }}
           folder={folder}
+          budget={aspect === "hero" ? "hero" : "card"}
           label={t({ es: "Subir imagen", en: "Upload image" })}
           hint={t({
             es: "Arrastra un archivo o haz clic para elegirlo. Se optimiza automáticamente.",

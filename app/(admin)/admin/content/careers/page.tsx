@@ -1346,6 +1346,7 @@ function PageContentTab({
               })
             }
             folder="careers"
+            budget="hero"
             label={t({ es: "Imagen principal", en: "Hero image" })}
             hint={t({
               es: "Arrastra un archivo o haz clic para elegirlo.",

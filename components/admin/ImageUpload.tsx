@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { uploadImage, deleteImage } from "@/lib/supabase/storage-actions";
-import { compressImage } from "@/lib/utils/compress-image";
+import { compressImage, IMAGE_BUDGETS, type ImageBudget } from "@/lib/utils/compress-image";
 
 interface ImageUploadProps {
   /** Current image URL (if any) */
@@ -28,6 +28,12 @@ interface ImageUploadProps {
   variant?: "block" | "inline";
   /** Square size in px for the inline variant. */
   inlineSize?: number;
+  /**
+   * How large this image is allowed to be, by what it is for.
+   * Defaults to "card", which suits popups, sections and gallery rows —
+   * pass "hero" for full-bleed art that earns the extra weight.
+   */
+  budget?: ImageBudget;
 }
 
 export default function ImageUpload({
@@ -40,6 +46,7 @@ export default function ImageUpload({
   disabled = false,
   variant = "block",
   inlineSize = 48,
+  budget = "card",
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -51,13 +58,10 @@ export default function ImageUpload({
       setError(null);
       setUploading(true);
 
-      // Compress before upload — resize large images, convert to WebP
-      const compressed = await compressImage(file, {
-        maxWidth: 1920,
-        maxHeight: 1920,
-        quality: 0.82,
-        maxBytes: 2 * 1024 * 1024, // 2MB max after compression
-      });
+      // Compress before upload — resize, convert to WebP, and hold the image
+      // to the budget for what it is. The previous call passed a 2MB ceiling
+      // for everything, which a 1.99MB PNG slipped under untouched.
+      const compressed = await compressImage(file, IMAGE_BUDGETS[budget]);
 
       const formData = new FormData();
       formData.set("file", compressed);
@@ -73,7 +77,7 @@ export default function ImageUpload({
 
       setUploading(false);
     },
-    [folder, onChange]
+    [folder, onChange, budget]
   );
 
   const handleDrop = useCallback(
