@@ -12,7 +12,7 @@ import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 /* ─── Helpers ─── */
 
-const EMPTY_TRANSLATION = { badge: "", title: "", excerpt: "", href: "" };
+const EMPTY_TRANSLATION = { badge: "", title: "", excerpt: "", href: "", ctaLabel: "" };
 
 function emptyPopup(): PopupItem {
   return {
@@ -170,6 +170,12 @@ function PopupPreview({ form }: { form: PopupItem }) {
   const title = (t.title || "").trim();
   const excerpt = (t.excerpt || "").trim();
   const href = (t.href || "").trim();
+  // Mirrors the shipped default: journal popups read, everything else learns more.
+  const ctaLabel =
+    (t.ctaLabel || "").trim() ||
+    (form.kind === "journal"
+      ? lang === "es" ? "Leer" : "Read"
+      : lang === "es" ? "Ver más" : "Learn more");
   // The real card only renders a cover for "journal" kind.
   const coverSrc = (form.media?.coverSrc || "").trim();
   const videoSrc = (form.media?.videoSrc || "").trim();
@@ -256,7 +262,7 @@ function PopupPreview({ form }: { form: PopupItem }) {
               <div className="mt-4 flex flex-wrap gap-2">
                 {href ? (
                   <span className="inline-flex items-center justify-center rounded-xl bg-[var(--olivea-olive)] px-4 py-2.5 text-[11px] uppercase tracking-[0.28em] text-white">
-                    {lang === "es" ? "Leer" : "Read"}
+                    {ctaLabel}
                   </span>
                 ) : null}
                 <span className="inline-flex items-center justify-center rounded-xl bg-white/70 px-4 py-2.5 text-[11px] uppercase tracking-[0.28em] text-[var(--olivea-olive)] ring-1 ring-[var(--olivea-olive)]/10">
@@ -418,6 +424,15 @@ function PopupForm({
           enValue={form.translations.en.href ?? ""}
           onEsChange={(v) => updateTranslation("es", "href", v)}
           onEnChange={(v) => updateTranslation("en", "href", v)}
+        />
+        {/* The button used to always read "Leer"/"Read" — correct for a
+            journal post, nonsense on an offer. Blank keeps the default. */}
+        <BilingualInput
+          label={t({ es: "Texto del botón (opcional)", en: "Button label (optional)" })}
+          esValue={form.translations.es.ctaLabel ?? ""}
+          enValue={form.translations.en.ctaLabel ?? ""}
+          onEsChange={(v) => updateTranslation("es", "ctaLabel", v)}
+          onEnChange={(v) => updateTranslation("en", "ctaLabel", v)}
         />
       </div>
 

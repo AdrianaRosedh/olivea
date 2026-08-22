@@ -422,6 +422,12 @@ export interface PopupTranslation {
   title: string;
   excerpt: string;
   href?: string;
+  /**
+   * Label for the action button. The popup used to hardcode "Leer"/"Read",
+   * which reads as nonsense on an announcement offering a room and dinner.
+   * Falls back to a sensible default per kind when left empty.
+   */
+  ctaLabel?: string;
 }
 
 export interface PopupItem {

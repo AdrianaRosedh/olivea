@@ -14,7 +14,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
-import { isFlagSet, setFlag } from "@/lib/storage";
+import { isStampFresh, setStamp } from "@/lib/storage";
 
 export type SitePopup =
   | {
@@ -28,6 +28,9 @@ export type SitePopup =
       coverAlt?: string;
       videoSrc?: string;
       badge?: string;
+      ctaLabel?: string;
+      frequency?: "onceEver" | "oncePerPopupId" | "oncePerDays";
+      days?: number;
     }
   | {
       id: string;
@@ -43,6 +46,9 @@ export type SitePopup =
       coverAlt?: string;
       videoSrc?: string;
       badge?: string;
+      ctaLabel?: string;
+      frequency?: "onceEver" | "oncePerPopupId" | "oncePerDays";
+      days?: number;
     };
 
 type PopupApiResponse = { popup: SitePopup | null };
@@ -82,6 +88,8 @@ function isSitePopup(v: unknown): v is SitePopup {
   if (v.coverSrc != null && typeof v.coverSrc !== "string") return false;
   if (v.coverAlt != null && typeof v.coverAlt !== "string") return false;
   if (v.videoSrc != null && typeof v.videoSrc !== "string") return false;
+  if (v.ctaLabel != null && typeof v.ctaLabel !== "string") return false;
+  if (v.days != null && typeof v.days !== "number") return false;
 
   if (v.kind === "journal") {
     if (typeof v.href !== "string") return false;
@@ -142,11 +150,25 @@ export default function PopupHost() {
     return () => controller.abort();
   }, [lang, pathname]);
 
-  const key = useMemo(() => (popup ? `${STORAGE_PREFIX}${popup.id}` : ""), [popup]);
+  // "onceEver" means once across all popups, so it cannot be keyed by id.
+  const key = useMemo(() => {
+    if (!popup) return "";
+    return popup.frequency === "onceEver"
+      ? `${STORAGE_PREFIX}__ever__`
+      : `${STORAGE_PREFIX}${popup.id}`;
+  }, [popup]);
+
+  // How long a dismissal counts for. Undefined means forever, which is what
+  // "once ever" and "once per popup" both mean; oncePerDays expires.
+  const suppressDays = useMemo(() => {
+    if (!popup) return undefined;
+    if (popup.frequency !== "oncePerDays") return undefined;
+    return typeof popup.days === "number" && popup.days > 0 ? popup.days : 1;
+  }, [popup]);
 
   const close = useCallback(() => {
     setOpen(false);
-    if (popup) setFlag(key);
+    if (popup) setStamp(key);
   }, [key, popup]);
 
   useEffect(() => {
@@ -155,7 +177,7 @@ export default function PopupHost() {
     // Extra safeguard: never show on journal pages
     if (pathname?.includes("/journal")) return;
 
-    if (isFlagSet(key)) return;
+    if (isStampFresh(key, suppressDays)) return;
 
     if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 
@@ -164,7 +186,7 @@ export default function PopupHost() {
     return () => {
       cancel?.();
     };
-  }, [popup, key, close, pathname]);
+  }, [popup, key, close, pathname, suppressDays]);
 
   if (!popup) return null;
 
@@ -396,7 +418,14 @@ export default function PopupHost() {
                           "hover:opacity-95 transition",
                         ].join(" ")}
                       >
-                        {popup.lang === "es" ? "Leer" : "Read"}
+                        {popup.ctaLabel?.trim() ||
+                          (popup.kind === "journal"
+                            ? popup.lang === "es"
+                              ? "Leer"
+                              : "Read"
+                            : popup.lang === "es"
+                              ? "Ver más"
+                              : "Learn more")}
                       </Link>
                     ) : null}
 

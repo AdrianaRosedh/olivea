@@ -61,6 +61,7 @@ type ActivePopupFile = {
       title: string;
       excerpt: string;
       href?: string;
+      ctaLabel?: string;
     }
   >;
   media?: {
@@ -90,6 +91,9 @@ type SitePopup =
       coverAlt?: string;
       videoSrc?: string;
       badge?: string;
+      ctaLabel?: string;
+      frequency?: "onceEver" | "oncePerPopupId" | "oncePerDays";
+      days?: number;
     }
   | {
       id: string;
@@ -99,6 +103,12 @@ type SitePopup =
       excerpt: string;
       href?: string;
       badge?: string;
+      coverSrc?: string;
+      coverAlt?: string;
+      videoSrc?: string;
+      ctaLabel?: string;
+      frequency?: "onceEver" | "oncePerPopupId" | "oncePerDays";
+      days?: number;
     };
 
 /* ── Popup-specific validators ───────────────────────────────────── */
@@ -137,7 +147,7 @@ function isActivePopupFile(v: unknown): v is ActivePopupFile {
   if (typeof v.id !== "string") return false;
   if (v.kind !== "journal" && v.kind !== "announcement") return false;
   if (v.priority !== undefined && typeof v.priority !== "number") return false;
-  if (!validateBilingualBlock(v.translations, ["title", "excerpt"], ["badge", "href"])) return false;
+  if (!validateBilingualBlock(v.translations, ["title", "excerpt"], ["badge", "href", "ctaLabel"])) return false;
   if (!isRulesBlock(v.rules)) return false;
   if (v.media !== undefined && !isMediaBlock(v.media)) return false;
   return true;
@@ -263,6 +273,12 @@ export async function GET(req: Request) {
       ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
       ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
       ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
+      ...(t.ctaLabel ? { ctaLabel: t.ctaLabel } : {}),
+      // The client cannot honour a frequency it is never told about: these
+      // were configured in the admin and then dropped here, so every popup
+      // behaved as "once, ever" regardless of the setting.
+      ...(active.rules?.frequency ? { frequency: active.rules.frequency } : {}),
+      ...(typeof active.rules?.days === "number" ? { days: active.rules.days } : {}),
     };
 
     return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200, headers: CACHE_HEADERS });
@@ -282,6 +298,12 @@ export async function GET(req: Request) {
     ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
     ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
     ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
+    ...(t.ctaLabel ? { ctaLabel: t.ctaLabel } : {}),
+    // The client cannot honour a frequency it is never told about: these
+    // were configured in the admin and then dropped here, so every popup
+    // behaved as "once, ever" regardless of the setting.
+    ...(active.rules?.frequency ? { frequency: active.rules.frequency } : {}),
+    ...(typeof active.rules?.days === "number" ? { days: active.rules.days } : {}),
   };
 
   return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200, headers: CACHE_HEADERS });

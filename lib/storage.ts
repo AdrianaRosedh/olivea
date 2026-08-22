@@ -49,3 +49,32 @@ export function isFlagSet(key: string): boolean {
 export function setFlag(key: string): void {
   safeSet(key, "1");
 }
+
+/**
+ * A flag that expires.
+ *
+ * setFlag/isFlagSet store "1" forever, which silently turned every popup
+ * frequency into "once, ever". Storing the timestamp instead lets the caller
+ * decide how long the flag counts for.
+ */
+export function setStamp(key: string): void {
+  safeSet(key, String(Date.now()));
+}
+
+/**
+ * True when the flag was set within the last `days`. A flag with no expiry
+ * (days omitted) counts forever, which is what "once ever" means.
+ */
+export function isStampFresh(key: string, days?: number): boolean {
+  const raw = safeGet(key);
+  if (!raw) return false;
+  if (days === undefined) return true;
+
+  // Values written by the previous setFlag() are "1"; treat them as "seen
+  // long ago" rather than "seen now", so an expiring popup returns rather
+  // than staying suppressed forever from a legacy flag.
+  const ts = Number(raw);
+  if (!Number.isFinite(ts) || ts <= 1) return false;
+
+  return Date.now() - ts < days * 24 * 60 * 60 * 1000;
+}
