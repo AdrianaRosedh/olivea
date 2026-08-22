@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────
 "use server";
 
-import { uploadFile, deleteFile, storagePublicUrl } from "./storage";
+import { uploadFile, deleteFile, storagePublicUrl, VIDEO_BUCKET } from "./storage";
 import { isSupabaseConfigured } from "./config";
 
 async function requireEditor() {
@@ -92,4 +92,85 @@ export async function deleteImage(publicUrl: string): Promise<{ error?: string }
  */
 export async function getImageUrl(path: string): Promise<string> {
   return storagePublicUrl(path);
+}
+
+/* ── Video ──────────────────────────────────────────────────────────
+   Popup loops are decoration, so the ceiling here is deliberately low.
+   There is no client-side compression for video the way there is for
+   images — a canvas can re-encode a photo, it cannot transcode a movie —
+   so the size limit is the only guard, and it has to be enforced rather
+   than merely suggested.                                              */
+
+/** Hard ceiling for an uploaded loop. Matches the site-video bucket. */
+const VIDEO_MAX_BYTES = 12 * 1024 * 1024;
+
+/**
+ * Upload a short looping video.
+ * Expects: formData.get("file") as File, formData.get("folder") as string
+ */
+export async function uploadVideo(
+  formData: FormData
+): Promise<{ url: string; error?: string }> {
+  try {
+    await requireEditor();
+    const file = formData.get("file") as File | null;
+    const rawFolder = (formData.get("folder") as string) || "general";
+    const folder =
+      rawFolder
+        .replace(/\.\./g, "")
+        .replace(/[^a-zA-Z0-9_/-]/g, "-")
+        .replace(/^\/+|\/+$/g, "") || "general";
+
+    if (!file || !file.size) return { url: "", error: "No file provided" };
+
+    const allowed = ["video/mp4", "video/webm"];
+    if (!allowed.includes(file.type)) {
+      return {
+        url: "",
+        error: `${file.type || "That file"} is not supported. Use MP4 or WebM.`,
+      };
+    }
+
+    if (file.size > VIDEO_MAX_BYTES) {
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      return {
+        url: "",
+        error: `That video is ${mb}MB. Keep loops under 12MB — trim the clip or export it smaller.`,
+      };
+    }
+
+    const ext = file.type === "video/webm" ? "webm" : "mp4";
+    const safeName = file.name
+      .replace(/\.[^.]+$/, "")
+      .replace(/[^a-zA-Z0-9_-]/g, "-")
+      .replace(/-+/g, "-")
+      .substring(0, 60);
+    const path = `${folder}/${Date.now()}-${safeName}.${ext}`;
+
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const { publicUrl } = await uploadFile(path, bytes, file.type, {
+      upsert: true,
+      bucket: VIDEO_BUCKET,
+    });
+
+    return { url: publicUrl };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Upload failed";
+    return { url: "", error: message };
+  }
+}
+
+/** Delete a video by its public URL. */
+export async function deleteVideo(publicUrl: string): Promise<{ error?: string }> {
+  try {
+    await requireEditor();
+    const marker = `/storage/v1/object/public/${VIDEO_BUCKET}/`;
+    const idx = publicUrl.indexOf(marker);
+    if (idx === -1) return { error: "Not a valid video storage URL" };
+    await deleteFile(publicUrl.slice(idx + marker.length), VIDEO_BUCKET);
+    return {};
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Delete failed";
+    return { error: message };
+  }
 }

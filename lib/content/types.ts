@@ -436,6 +436,12 @@ export interface PopupItem {
   media?: {
     coverSrc: string;
     coverAlt: Bilingual;
+    /**
+     * Optional silent loop shown in place of the cover. The cover still
+     * matters when one is set — it is the poster frame, and it is what
+     * shows to anyone who has asked their device to reduce motion.
+     */
+    videoSrc?: string;
   };
   rules: PopupRules;
 }

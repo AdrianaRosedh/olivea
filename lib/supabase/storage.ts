@@ -6,11 +6,15 @@
 
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "./config";
 
-const BUCKET = "site-images";
+/** Buckets the admin writes to. Both are public-read, service-role-write. */
+export const IMAGE_BUCKET = "site-images";
+export const VIDEO_BUCKET = "site-video";
+
+const BUCKET = IMAGE_BUCKET;
 
 /** Public URL for a file in the site-images bucket */
-export function storagePublicUrl(path: string): string {
-  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+export function storagePublicUrl(path: string, bucket: string = BUCKET): string {
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
 }
 
 /** Upload a file to the site-images bucket (service_role only) */
@@ -18,9 +22,10 @@ export async function uploadFile(
   path: string,
   file: Uint8Array,
   contentType: string,
-  opts?: { upsert?: boolean }
+  opts?: { upsert?: boolean; bucket?: string }
 ): Promise<{ publicUrl: string }> {
-  const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`;
+  const bucket = opts?.bucket ?? BUCKET;
+  const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`;
 
   const res = await fetch(url, {
     method: "POST",
@@ -38,12 +43,12 @@ export async function uploadFile(
     throw new Error(`Storage upload failed (${res.status}): ${body}`);
   }
 
-  return { publicUrl: storagePublicUrl(path) };
+  return { publicUrl: storagePublicUrl(path, bucket) };
 }
 
 /** Delete a file from the site-images bucket (service_role only) */
-export async function deleteFile(path: string): Promise<void> {
-  const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`;
+export async function deleteFile(path: string, bucket: string = BUCKET): Promise<void> {
+  const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`;
 
   const res = await fetch(url, {
     method: "DELETE",

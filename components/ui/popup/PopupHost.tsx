@@ -26,6 +26,7 @@ export type SitePopup =
       href: string;
       coverSrc?: string;
       coverAlt?: string;
+      videoSrc?: string;
       badge?: string;
     }
   | {
@@ -35,6 +36,12 @@ export type SitePopup =
       title: string;
       excerpt: string;
       href?: string;
+      // Announcements used to render no media at all, so a cover uploaded
+      // for one silently went nowhere. They now carry the same media as a
+      // journal popup.
+      coverSrc?: string;
+      coverAlt?: string;
+      videoSrc?: string;
       badge?: string;
     };
 
@@ -71,6 +78,10 @@ function isSitePopup(v: unknown): v is SitePopup {
   if (v.lang !== "es" && v.lang !== "en") return false;
   if (typeof v.title !== "string") return false;
   if (typeof v.excerpt !== "string") return false;
+
+  if (v.coverSrc != null && typeof v.coverSrc !== "string") return false;
+  if (v.coverAlt != null && typeof v.coverAlt !== "string") return false;
+  if (v.videoSrc != null && typeof v.videoSrc !== "string") return false;
 
   if (v.kind === "journal") {
     if (typeof v.href !== "string") return false;
@@ -157,8 +168,9 @@ export default function PopupHost() {
 
   if (!popup) return null;
 
-  const coverSrc = popup.kind === "journal" ? popup.coverSrc : undefined;
-  const coverAlt = popup.kind === "journal" ? popup.coverAlt : undefined;
+  const coverSrc = popup.coverSrc;
+  const coverAlt = popup.coverAlt;
+  const videoSrc = popup.videoSrc;
 
   // Motion: calm, natural
   const backdropVariants: Variants = reduce
@@ -307,8 +319,32 @@ export default function PopupHost() {
                 initial="hidden"
                 animate="show"
               >
-                {/* Media */}
-                {coverSrc ? (
+                {/* Media — a silent loop when one is set, otherwise the
+                    cover. The loop is muted and inline because no browser
+                    autoplays anything else, and it is skipped entirely for
+                    anyone who has asked their device to reduce motion: a
+                    popup that moves on its own is exactly what that setting
+                    is about. */}
+                {videoSrc && !reduce ? (
+                  <motion.div variants={item} className="mt-4">
+                    <div className="relative overflow-hidden rounded-2xl ring-1 ring-(--olivea-olive)/10 bg-white/10">
+                      <div className="aspect-video md:aspect-16/8 relative">
+                        <video
+                          src={videoSrc}
+                          poster={coverSrc}
+                          className="absolute inset-0 h-full w-full object-cover object-center"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          preload="metadata"
+                          aria-label={coverAlt ?? popup.title}
+                        />
+                        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/20 via-black/5 to-transparent" />
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : coverSrc ? (
                   <motion.div variants={item} className="mt-4">
                     <div className="relative overflow-hidden rounded-2xl ring-1 ring-(--olivea-olive)/10 bg-white/10">
                       <div className="aspect-video md:aspect-16/8 relative">

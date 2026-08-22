@@ -39,7 +39,11 @@ const activePopupData = (() => {
     priority: p.priority,
     translations: p.translations,
     media: p.media
-      ? { coverSrc: p.media.coverSrc, coverAlt: { es: p.media.coverAlt.es, en: p.media.coverAlt.en } }
+      ? {
+          coverSrc: p.media.coverSrc,
+          coverAlt: { es: p.media.coverAlt.es, en: p.media.coverAlt.en },
+          ...(p.media.videoSrc ? { videoSrc: p.media.videoSrc } : {}),
+        }
       : undefined,
     rules: p.rules,
   };
@@ -62,6 +66,7 @@ type ActivePopupFile = {
   media?: {
     coverSrc?: string;
     coverAlt?: Record<Lang, string>;
+    videoSrc?: string;
   };
   rules: {
     startsAt?: string;
@@ -83,6 +88,7 @@ type SitePopup =
       href: string;
       coverSrc?: string;
       coverAlt?: string;
+      videoSrc?: string;
       badge?: string;
     }
   | {
@@ -115,6 +121,7 @@ function isRulesBlock(v: unknown): v is ActivePopupFile["rules"] {
 function isMediaBlock(v: unknown): v is NonNullable<ActivePopupFile["media"]> {
   if (!isObject(v)) return false;
   if (!isStringOrUndefined(v.coverSrc)) return false;
+  if (!isStringOrUndefined(v.videoSrc)) return false;
 
   if (v.coverAlt !== undefined) {
     if (!isObject(v.coverAlt)) return false;
@@ -244,11 +251,15 @@ export async function GET(req: Request) {
       ...(t.badge ? { badge: t.badge } : {}),
       ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
       ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
+      ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
     };
 
     return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200, headers: CACHE_HEADERS });
   }
 
+  // Announcements previously shipped no media, so anything uploaded for one
+  // was stored and never rendered. They now carry the same fields a journal
+  // popup does.
   const popup: SitePopup = {
     id: active.id,
     kind: "announcement",
@@ -257,6 +268,9 @@ export async function GET(req: Request) {
     excerpt: t.excerpt,
     ...(t.badge ? { badge: t.badge } : {}),
     ...(t.href ? { href: t.href } : {}),
+    ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
+    ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
+    ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
   };
 
   return NextResponse.json<{ popup: SitePopup | null }>({ popup }, { status: 200, headers: CACHE_HEADERS });

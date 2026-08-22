@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import ImageUpload from "@/components/admin/ImageUpload";
+import VideoUpload from "@/components/admin/VideoUpload";
 import { Bell, Plus, Pencil, Trash2, ChevronUp, X } from "lucide-react";
 import { getPopups, savePopup, deletePopup, togglePopup } from "@/lib/supabase/actions";
 import type { PopupItem, PopupFrequency } from "@/lib/content/types";
@@ -23,7 +24,7 @@ function emptyPopup(): PopupItem {
       es: { ...EMPTY_TRANSLATION },
       en: { ...EMPTY_TRANSLATION },
     },
-    media: { coverSrc: "", coverAlt: { es: "", en: "" } },
+    media: { coverSrc: "", coverAlt: { es: "", en: "" }, videoSrc: "" },
     rules: {
       startsAt: "",
       endsAt: "",
@@ -170,7 +171,8 @@ function PopupPreview({ form }: { form: PopupItem }) {
   const excerpt = (t.excerpt || "").trim();
   const href = (t.href || "").trim();
   // The real card only renders a cover for "journal" kind.
-  const coverSrc = form.kind === "journal" ? (form.media?.coverSrc || "").trim() : "";
+  const coverSrc = (form.media?.coverSrc || "").trim();
+  const videoSrc = (form.media?.videoSrc || "").trim();
 
   return (
     <div className="space-y-2">
@@ -210,7 +212,21 @@ function PopupPreview({ form }: { form: PopupItem }) {
           </div>
 
           <div className="px-5 pb-5">
-            {coverSrc && imgOk ? (
+            {/* Matches the shipped card: the loop wins when one is set, the
+                cover is its poster, and the cover shows on its own otherwise. */}
+            {videoSrc ? (
+              <div className="mt-4 aspect-video overflow-hidden rounded-2xl bg-black/5 ring-1 ring-[var(--olivea-olive)]/10">
+                <video
+                  src={videoSrc}
+                  poster={coverSrc || undefined}
+                  className="h-full w-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              </div>
+            ) : coverSrc && imgOk ? (
               <div className="mt-4 aspect-video overflow-hidden rounded-2xl bg-black/5 ring-1 ring-[var(--olivea-olive)]/10">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -255,8 +271,8 @@ function PopupPreview({ form }: { form: PopupItem }) {
       <p className="text-[11px] leading-relaxed text-[var(--olivea-ink)]/50">
         {form.kind === "announcement"
           ? tr({
-              es: "Los anuncios no muestran imagen de portada. ",
-              en: "Announcements don’t show a cover image. ",
+              es: "Los anuncios ahora muestran portada o video, igual que las ventanas tipo Cuaderno. ",
+              en: "Announcements now show a cover or a video, the same as journal popups. ",
             })
           : tr({
               es: "Las ventanas tipo Cuaderno muestran la imagen de portada arriba. ",
@@ -318,7 +334,7 @@ function PopupForm({
   function updateMedia(patch: Partial<NonNullable<PopupItem["media"]>>) {
     setForm((prev) => ({
       ...prev,
-      media: { coverSrc: "", coverAlt: { es: "", en: "" }, ...prev.media, ...patch },
+      media: { coverSrc: "", coverAlt: { es: "", en: "" }, videoSrc: "", ...prev.media, ...patch },
     }));
   }
 
@@ -421,6 +437,17 @@ function PopupForm({
             en: "Drag an image here or click to choose a file. It is optimised automatically.",
           })}
         />
+        <VideoUpload
+          value={form.media?.videoSrc ?? ""}
+          onChange={(url) => updateMedia({ videoSrc: url })}
+          folder="popups"
+          label={t({ es: "Video en bucle (opcional)", en: "Looping video (optional)" })}
+          hint={t({
+            es: "Se reproduce en silencio y en bucle, en lugar de la portada. La portada sigue usándose como primer cuadro y para quien pide menos movimiento.",
+            en: "Plays silently on a loop in place of the cover. The cover is still used as the first frame, and for anyone who asks for reduced motion.",
+          })}
+        />
+
         <BilingualInput
           label={t({ es: "Texto alternativo de portada", en: "Cover Alt Text" })}
           esValue={form.media?.coverAlt?.es ?? ""}
