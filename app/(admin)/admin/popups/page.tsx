@@ -170,12 +170,23 @@ function PopupPreview({ form }: { form: PopupItem }) {
   const title = (t.title || "").trim();
   const excerpt = (t.excerpt || "").trim();
   const href = (t.href || "").trim();
-  // Mirrors the shipped default: journal popups read, everything else learns more.
+  // An action shows a button whether or not a link was filled in, and it is
+  // what the card will actually do — so the preview has to follow the same
+  // precedence the popup uses, or it stops being a preview.
+  const hasPrimary = Boolean(form.action) || Boolean(href);
+  // Mirrors the shipped defaults: a booking names its venue, journal popups
+  // read, everything else learns more.
   const ctaLabel =
     (t.ctaLabel || "").trim() ||
-    (form.kind === "journal"
-      ? lang === "es" ? "Leer" : "Read"
-      : lang === "es" ? "Ver más" : "Learn more");
+    (form.action === "hotel"
+      ? lang === "es" ? "Reservar hospedaje" : "Book a stay"
+      : form.action === "restaurant"
+        ? lang === "es" ? "Reservar mesa" : "Book a table"
+        : form.action === "cafe"
+          ? lang === "es" ? "Reservar en el café" : "Book at the café"
+          : form.kind === "journal"
+            ? lang === "es" ? "Leer" : "Read"
+            : lang === "es" ? "Ver más" : "Learn more");
   // The real card only renders a cover for "journal" kind.
   const coverSrc = (form.media?.coverSrc || "").trim();
   const videoSrc = (form.media?.videoSrc || "").trim();
@@ -260,7 +271,7 @@ function PopupPreview({ form }: { form: PopupItem }) {
                 )}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {href ? (
+                {hasPrimary ? (
                   <span className="inline-flex items-center justify-center rounded-xl bg-[var(--olivea-olive)] px-4 py-2.5 text-[11px] uppercase tracking-[0.28em] text-white">
                     {ctaLabel}
                   </span>
@@ -434,6 +445,44 @@ function PopupForm({
           onEsChange={(v) => updateTranslation("es", "ctaLabel", v)}
           onEnChange={(v) => updateTranslation("en", "ctaLabel", v)}
         />
+      </div>
+
+      {/* ── What the button does ──
+          Separate from Translations because the venue is not language
+          specific — only the label on the button is. */}
+      <div className="space-y-2">
+        <h4 className="text-sm font-semibold text-[var(--olivea-ink)]">
+          {t({ es: "Acción del botón", en: "Button action" })}
+        </h4>
+        <select
+          value={form.action ?? ""}
+          onChange={(e) =>
+            updateField("action", (e.target.value || undefined) as PopupItem["action"])
+          }
+          className={inputClass}
+        >
+          <option value="">{t({ es: "Ir al enlace", en: "Go to the link" })}</option>
+          <option value="hotel">
+            {t({ es: "Abrir reservación · Casa Olivea", en: "Open booking · Casa Olivea" })}
+          </option>
+          <option value="restaurant">
+            {t({ es: "Abrir reservación · Restaurante", en: "Open booking · Restaurant" })}
+          </option>
+          <option value="cafe">
+            {t({ es: "Abrir reservación · Café", en: "Open booking · Café" })}
+          </option>
+        </select>
+        <p className="text-[11px] leading-relaxed text-[var(--olivea-ink)]/60">
+          {form.action
+            ? t({
+                es: "El botón abre la reservación en la misma página. El enlace de arriba se ignora, y si dejas el texto del botón vacío dirá «Reservar hospedaje».",
+                en: "The button opens the booking on the same page. The link above is ignored, and leaving the button text empty reads “Book a stay”.",
+              })
+            : t({
+                es: "El botón lleva al enlace de arriba. Elige una reservación si prefieres que abra el calendario sin salir de la página.",
+                en: "The button follows the link above. Pick a booking if you would rather it open the calendar without leaving the page.",
+              })}
+        </p>
       </div>
 
       {/* ── Media ── */}

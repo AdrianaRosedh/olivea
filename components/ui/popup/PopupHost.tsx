@@ -11,12 +11,21 @@ import {
   type Variants,
 } from "framer-motion";
 import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useReservation } from "@/contexts/ReservationContext";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { isStampFresh, setStamp } from "@/lib/storage";
+
+/**
+ * What the primary button does. A link navigates; an action opens something
+ * that is already on the page — the reservation modal for a given venue.
+ * Set, it wins over href, because sending someone to a page to find the
+ * booking button is a worse version of opening the booking button.
+ */
+export type PopupAction = "hotel" | "restaurant" | "cafe";
 
 export type SitePopup =
   | {
@@ -26,6 +35,7 @@ export type SitePopup =
       title: string;
       excerpt: string;
       href: string;
+      action?: PopupAction;
       coverSrc?: string;
       coverAlt?: string;
       videoSrc?: string;
@@ -41,6 +51,7 @@ export type SitePopup =
       title: string;
       excerpt: string;
       href?: string;
+      action?: PopupAction;
       // Announcements used to render no media at all, so a cover uploaded
       // for one silently went nowhere. They now carry the same media as a
       // journal popup.
@@ -92,6 +103,8 @@ function isSitePopup(v: unknown): v is SitePopup {
   if (v.videoSrc != null && typeof v.videoSrc !== "string") return false;
   if (v.ctaLabel != null && typeof v.ctaLabel !== "string") return false;
   if (v.days != null && typeof v.days !== "number") return false;
+  if (v.action != null && v.action !== "hotel" && v.action !== "restaurant" && v.action !== "cafe")
+    return false;
 
   if (v.kind === "journal") {
     if (typeof v.href !== "string") return false;
@@ -116,9 +129,17 @@ export default function PopupHost() {
   // close button as the only way out rather than animating the sheet away.
   const isMobile = useIsMobile();
   const dragToDismiss = isMobile && !reduce;
+  const { openReservationModal } = useReservation();
 
   const [popup, setPopup] = useState<SitePopup | null>(null);
   const [open, setOpen] = useState(false);
+  // The cover is painted underneath the video and the video fades in over it
+  // once it can actually play, so the media area is never empty and never
+  // pops. If the video fails — a bad encode, a blocked host, a codec the
+  // browser will not take — the cover simply stays, which is a far better
+  // outcome than the black rectangle that used to be left behind.
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   const closeRef = useRef<HTMLButtonElement>(null);
   const trapRef = useFocusTrap<HTMLDivElement>({
@@ -157,6 +178,13 @@ export default function PopupHost() {
 
     return () => controller.abort();
   }, [lang, pathname]);
+
+  // A different popup means a different clip, so the readiness of the last
+  // one says nothing about this one.
+  useEffect(() => {
+    setVideoReady(false);
+    setVideoFailed(false);
+  }, [popup?.videoSrc]);
 
   // "onceEver" means once across all popups, so it cannot be keyed by id.
   const key = useMemo(() => {
@@ -201,6 +229,33 @@ export default function PopupHost() {
   const coverSrc = popup.coverSrc;
   const coverAlt = popup.coverAlt;
   const videoSrc = popup.videoSrc;
+  const es = popup.lang === "es";
+
+  // A popup that moves on its own is exactly what "reduce motion" is about,
+  // so the loop is skipped for anyone who asked for that and the cover is
+  // shown instead.
+  const showVideo = Boolean(videoSrc) && !reduce && !videoFailed;
+
+  // Both buttons in the row share this so the primary one looks the same
+  // whether it navigates or opens the booking modal.
+  const primaryCta = [
+    "w-full md:w-auto",
+    "inline-flex items-center justify-center",
+    "rounded-2xl px-4 py-3.5 md:py-3",
+    "bg-(--olivea-olive) text-white",
+    "text-[12px] uppercase tracking-[0.28em]",
+    "shadow-[0_14px_34px_-20px_rgba(0,0,0,0.45)]",
+    "hover:opacity-95 transition",
+  ].join(" ");
+
+  // Naming the venue beats a bare "Reservar": someone reading an offer about
+  // a stay wants to see the word for the thing they are about to book.
+  const defaultActionLabel =
+    popup.action === "hotel"
+      ? es ? "Reservar hospedaje" : "Book a stay"
+      : popup.action === "restaurant"
+        ? es ? "Reservar mesa" : "Book a table"
+        : es ? "Reservar en el café" : "Book at the café";
 
   // Motion: calm, natural
   const backdropVariants: Variants = reduce
@@ -382,37 +437,45 @@ export default function PopupHost() {
                     anyone who has asked their device to reduce motion: a
                     popup that moves on its own is exactly what that setting
                     is about. */}
-                {videoSrc && !reduce ? (
+                {coverSrc || showVideo ? (
                   <motion.div variants={item} className="mt-4">
-                    <div className="relative overflow-hidden rounded-2xl ring-1 ring-(--olivea-olive)/10 bg-white/10">
+                    <div className="relative overflow-hidden rounded-2xl ring-1 ring-(--olivea-olive)/10 bg-(--olivea-cream)/40">
                       <div className="aspect-video md:aspect-16/8 relative">
-                        <video
-                          src={videoSrc}
-                          poster={coverSrc}
-                          className="absolute inset-0 h-full w-full object-cover object-center"
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          preload="metadata"
-                          aria-label={coverAlt ?? popup.title}
-                        />
-                        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/20 via-black/5 to-transparent" />
-                      </div>
-                    </div>
-                  </motion.div>
-                ) : coverSrc ? (
-                  <motion.div variants={item} className="mt-4">
-                    <div className="relative overflow-hidden rounded-2xl ring-1 ring-(--olivea-olive)/10 bg-white/10">
-                      <div className="aspect-video md:aspect-16/8 relative">
-                        <Image
-                          src={coverSrc}
-                          alt={coverAlt ?? popup.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 640px"
-                          className="object-cover object-center"
-                          priority={false}
-                        />
+                        {/* Base layer. Goes through next/image, so it arrives
+                            as a resized AVIF/WebP and is usually painted
+                            before the video has finished buffering. */}
+                        {coverSrc ? (
+                          <Image
+                            src={coverSrc}
+                            alt={coverAlt ?? popup.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 640px"
+                            className="object-cover object-center"
+                            priority={false}
+                          />
+                        ) : null}
+
+                        {showVideo ? (
+                          <video
+                            key={videoSrc}
+                            src={videoSrc}
+                            poster={coverSrc}
+                            className={[
+                              "absolute inset-0 h-full w-full object-cover object-center",
+                              "transition-opacity duration-700 ease-out",
+                              videoReady ? "opacity-100" : "opacity-0",
+                            ].join(" ")}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="metadata"
+                            onCanPlay={() => setVideoReady(true)}
+                            onError={() => setVideoFailed(true)}
+                            aria-label={coverAlt ?? popup.title}
+                          />
+                        ) : null}
+
                         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/20 via-black/5 to-transparent" />
                       </div>
                     </div>
@@ -439,20 +502,22 @@ export default function PopupHost() {
                   </p>
 
                   <div className="mt-5 flex flex-col md:flex-row gap-3">
-                    {popup.href ? (
-                      <Link
-                        href={popup.href}
-                        onClick={close}
-                        className={[
-                          "w-full md:w-auto",
-                          "inline-flex items-center justify-center",
-                          "rounded-2xl px-4 py-3.5 md:py-3",
-                          "bg-(--olivea-olive) text-white",
-                          "text-[12px] uppercase tracking-[0.28em]",
-                          "shadow-[0_14px_34px_-20px_rgba(0,0,0,0.45)]",
-                          "hover:opacity-95 transition",
-                        ].join(" ")}
+                    {/* An action opens the booking modal in place and wins
+                        over href — sending someone to a page to hunt for the
+                        booking button is a worse version of opening it. */}
+                    {popup.action ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          close();
+                          openReservationModal(popup.action);
+                        }}
+                        className={primaryCta}
                       >
+                        {popup.ctaLabel?.trim() || defaultActionLabel}
+                      </button>
+                    ) : popup.href ? (
+                      <Link href={popup.href} onClick={close} className={primaryCta}>
                         {popup.ctaLabel?.trim() ||
                           (popup.kind === "journal"
                             ? popup.lang === "es"

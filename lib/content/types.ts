@@ -430,11 +430,25 @@ export interface PopupTranslation {
   ctaLabel?: string;
 }
 
+/**
+ * What the popup's primary button does when it is not just a link.
+ * Opens the reservation modal for the named venue, in place, without
+ * navigating away.
+ */
+export type PopupAction = "hotel" | "restaurant" | "cafe";
+
 export interface PopupItem {
   id: string;
   enabled: boolean;
   kind: "journal" | "announcement";
   priority?: number;
+  /**
+   * Opens the booking modal for this venue instead of following href. Set,
+   * it wins over href: an announcement offering a discounted stay wants a
+   * button that opens the booking, not one that navigates to a page where
+   * the visitor still has to find it.
+   */
+  action?: PopupAction;
   translations: {
     es: PopupTranslation;
     en: PopupTranslation;

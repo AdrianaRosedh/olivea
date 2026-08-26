@@ -37,6 +37,7 @@ const activePopupData = (() => {
     id: p.id,
     kind: p.kind,
     priority: p.priority,
+    ...(p.action ? { action: p.action } : {}),
     translations: p.translations,
     media: p.media
       ? {
@@ -49,11 +50,26 @@ const activePopupData = (() => {
   };
 })();
 
+/**
+ * What the primary button does.
+ *
+ * A link sends the visitor somewhere; an action opens something already on
+ * the page. The announcement currently running offers a discount on a stay
+ * for anyone who dines — the useful button there is the one that opens the
+ * hotel booking, not one that navigates away to find it.
+ *
+ * Not bilingual: the venue is the same in both languages. Only the label on
+ * the button is translated.
+ */
+type PopupAction = "hotel" | "restaurant" | "cafe";
+
 type ActivePopupFile = {
   enabled: boolean;
   id: string;
   kind: "journal" | "announcement";
   priority?: number;
+  /** Opens the reservation modal for this venue. Takes precedence over href. */
+  action?: PopupAction;
   translations: Record<
     Lang,
     {
@@ -87,6 +103,7 @@ type SitePopup =
       title: string;
       excerpt: string;
       href: string;
+      action?: PopupAction;
       coverSrc?: string;
       coverAlt?: string;
       videoSrc?: string;
@@ -102,6 +119,7 @@ type SitePopup =
       title: string;
       excerpt: string;
       href?: string;
+      action?: PopupAction;
       badge?: string;
       coverSrc?: string;
       coverAlt?: string;
@@ -147,6 +165,8 @@ function isActivePopupFile(v: unknown): v is ActivePopupFile {
   if (typeof v.id !== "string") return false;
   if (v.kind !== "journal" && v.kind !== "announcement") return false;
   if (v.priority !== undefined && typeof v.priority !== "number") return false;
+  if (v.action !== undefined && v.action !== "hotel" && v.action !== "restaurant" && v.action !== "cafe")
+    return false;
   if (!validateBilingualBlock(v.translations, ["title", "excerpt"], ["badge", "href", "ctaLabel"])) return false;
   if (!isRulesBlock(v.rules)) return false;
   if (v.media !== undefined && !isMediaBlock(v.media)) return false;
@@ -198,6 +218,9 @@ async function loadActivePopups(): Promise<ActivePopupFile[]> {
               id: p.id,
               kind: p.kind,
               priority: p.priority,
+              // Rows written before this column existed simply have no
+              // action, which is the "follow the link" behaviour they had.
+              ...(p.action ? { action: p.action } : {}),
               translations: p.translations,
               media: p.media,
               rules: p.rules,
@@ -269,6 +292,7 @@ export async function GET(req: Request) {
       title: t.title,
       excerpt: t.excerpt,
       href: t.href,
+      ...(active.action ? { action: active.action } : {}),
       ...(t.badge ? { badge: t.badge } : {}),
       ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
       ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
@@ -295,6 +319,7 @@ export async function GET(req: Request) {
     excerpt: t.excerpt,
     ...(t.badge ? { badge: t.badge } : {}),
     ...(t.href ? { href: t.href } : {}),
+    ...(active.action ? { action: active.action } : {}),
     ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
     ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
     ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
