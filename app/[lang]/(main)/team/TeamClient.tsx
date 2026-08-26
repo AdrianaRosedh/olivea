@@ -234,12 +234,21 @@ function AutoSlideGalleryVerticalVariableHeight({
                   transition={{ duration: 0.32, ease: EASE }}
                 >
                   <div className="absolute inset-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={src}
+                    {/* Through next/image, not a raw <img>. The originals here
+                        run to 13-29MB apiece; a raw tag downloads all of that
+                        to fill a thumbnail a few hundred pixels wide. The
+                        optimiser serves AVIF/WebP at the displayed size, and
+                        naturalWidth/Height still carry the true aspect ratio
+                        that onImgLoad measures. Duplicated entries arrive with
+                        a ?dup= suffix for React keys — the optimiser needs the
+                        bare path. */}
+                    <Image
+                      src={src.split("?")[0]}
                       alt=""
                       role="presentation"
-                      className="h-full w-full object-cover object-center"
+                      fill
+                      sizes={`${width}px`}
+                      className="object-cover object-center"
                       onLoad={onImgLoad(src)}
                       draggable={false}
                     />
@@ -357,12 +366,15 @@ function AutoSlideGalleryHorizontalVariableWidth({
                     transition={{ duration: 0.32, ease: EASE }}
                   >
                     <div className="absolute inset-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={baseSrc}
+                      {/* See the note on the other strip: raw <img> here meant
+                          multi-megabyte originals behind a small tile. */}
+                      <Image
+                        src={baseSrc.split("?")[0]}
                         alt=""
                         role="presentation"
-                        className="h-full w-full object-cover object-center"
+                        fill
+                        sizes={`${w}px`}
+                        className="object-cover object-center"
                         onLoad={onImgLoad(baseSrc)}
                         draggable={false}
                       />
