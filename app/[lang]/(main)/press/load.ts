@@ -162,16 +162,23 @@ export async function loadPressItems(lang: Lang): Promise<PressItem[]> {
 
 /* Legacy MDX loader — fallback when the DB is empty or unreachable. */
 export function loadPressItemsFromMdx(lang: Lang): PressItem[] {
-  const dir = path.join(
-    process.cwd(),
-    "app",
-    "(main)",
-    "[lang]",
-    "press",
-    "content",
-    lang
-  );
-  if (!fs.existsSync(dir)) return [];
+  // The route moved from app/(main)/[lang] to app/[lang]/(main); this path
+  // did not move with it. Both are checked so the next move cannot silently
+  // empty the page — the philosophy page lost every section this way.
+  const candidates = [
+    path.join(process.cwd(), "app", "[lang]", "(main)", "press", "content", lang),
+    path.join(process.cwd(), "app", "(main)", "[lang]", "press", "content", lang),
+  ];
+  const dir = candidates.find((d) => fs.existsSync(d));
+  if (!dir) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error(
+        `[press] No MDX content found for "${lang}". Looked in:\n  ` +
+          candidates.join("\n  ")
+      );
+    }
+    return [];
+  }
 
   const files = fs
     .readdirSync(dir)
@@ -373,14 +380,13 @@ function normalizeManifest(maybe: unknown): PressManifest {
 
 export function loadPressManifest(): PressManifest {
   // ✅ Prefer app-local manifest (your current choice)
-  const appPath = path.join(
-    process.cwd(),
-    "app",
-    "(main)",
-    "[lang]",
-    "press",
-    "manifest.json"
-  );
+  // Same stale path as above. Falling back to DEFAULT_MANIFEST is not a
+  // harmless default: it replaced the real press copy with placeholder text
+  // and dropped every media item, while the page still rendered happily.
+  const appPath = [
+    path.join(process.cwd(), "app", "[lang]", "(main)", "press", "manifest.json"),
+    path.join(process.cwd(), "app", "(main)", "[lang]", "press", "manifest.json"),
+  ].find((f) => fs.existsSync(f)) ?? "";
 
   // ✅ Also support public/press/manifest.json (optional)
   const publicPath = path.join(process.cwd(), "public", "press", "manifest.json");
@@ -391,7 +397,12 @@ export function loadPressManifest(): PressManifest {
       ? publicPath
       : null;
 
-  if (!pick) return DEFAULT_MANIFEST;
+  if (!pick) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error("[press] manifest.json not found — serving placeholder copy.");
+    }
+    return DEFAULT_MANIFEST;
+  }
 
   const raw = fs.readFileSync(pick, "utf8");
   const parsed = safeJsonParse(raw);
