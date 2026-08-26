@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { Lang } from "@/app/[lang]/(main)/dictionaries";
 import { listJournalIndex } from "@/lib/journal/load";
 import { absoluteUrl, SITE } from "@/lib/site";
+import { formatPublicDateLong } from "@/lib/date/public-date";
 import {
   loadAuthorProfile,
   localizedAuthorBio,
@@ -17,15 +18,7 @@ import { loadLeader } from "@/app/[lang]/(main)/team/teamData";
 import { localeAlternates } from "@/lib/site";
 
 function fmtDate(iso: string, lang: Lang) {
-  try {
-    return new Date(iso).toLocaleDateString(lang === "es" ? "es-MX" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+  return formatPublicDateLong(iso, lang);
 }
 
 function initialsFromName(name: string): string {

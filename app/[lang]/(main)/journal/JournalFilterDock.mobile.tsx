@@ -10,6 +10,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { publicDateYear } from "@/lib/date/public-date";
 import { tt } from "@/lib/i18n";
 import type { JournalFilterDockProps } from "./JournalFilterDock";
 import {
@@ -155,7 +156,7 @@ export default function JournalFilterDockMobile({
   const years = useMemo(() => {
     const s = new Set<string>();
     posts.forEach((p) => {
-      const y = new Date(p.publishedAt).getFullYear();
+      const y = publicDateYear(p.publishedAt);
       if (!Number.isNaN(y)) s.add(String(y));
     });
     return ["all", ...Array.from(s).sort((a, b) => Number(b) - Number(a))];

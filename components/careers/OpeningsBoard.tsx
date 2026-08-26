@@ -26,6 +26,7 @@ import { ArrowRight, Clock3, Layers, MapPin, X } from "lucide-react";
 import { useScrollLock } from "@/lib/hooks/useScrollLock";
 import { findOpeningByToken, openingSlug, parseRequirements } from "@/lib/careers/slug";
 import { areaLabel } from "@/lib/careers/areas";
+import { formatPublicDateLong } from "@/lib/date/public-date";
 import type { Lang } from "@/lib/i18n";
 
 /** Mirrors JobOpening from careers-actions without importing across the
@@ -100,13 +101,8 @@ const COPY = {
 
 function formatPosted(iso: string | null, lang: Lang): string | null {
   if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(lang === "es" ? "es-MX" : "en-US", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  if (Number.isNaN(new Date(iso).getTime())) return null;
+  return formatPublicDateLong(iso, lang);
 }
 
 // ── Meta chip ───────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { tt } from "@/lib/i18n";
+import { publicDateYear } from "@/lib/date/public-date";
 import type { JournalFilterDockProps } from "./JournalFilterDock";
 import {
   Search,
@@ -157,7 +158,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
   const years = useMemo(() => {
     const s = new Set<string>();
     posts.forEach((p) => {
-      const y = new Date(p.publishedAt).getFullYear();
+      const y = publicDateYear(p.publishedAt);
       if (!Number.isNaN(y)) s.add(String(y));
     });
     return ["all", ...Array.from(s).sort((a, b) => Number(b) - Number(a))];

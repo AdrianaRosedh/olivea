@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Lang } from "../dictionaries";
 import { tt } from "@/lib/i18n";
+import { formatPublicDate, publicDateYear } from "@/lib/date/public-date";
 import JournalFilterDock from "./JournalFilterDock";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
@@ -137,7 +138,7 @@ export default function JournalClient({
       const matchPillar = pillar === "all" || p.pillar === pillar;
       const matchTag = tag === "all" || (p.tags ?? []).includes(tag);
 
-      const y = String(new Date(p.publishedAt).getFullYear());
+      const y = String(publicDateYear(p.publishedAt));
       const matchYear = year === "all" || y === year;
 
       const matchReadTime = matchesTime(p.readingMinutes);
@@ -166,15 +167,7 @@ export default function JournalClient({
     setSort("newest");
   };
 
-  const fmtDate = (iso: string) => {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleDateString(lang === "es" ? "es-MX" : "en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    });
-  };
+  const fmtDate = (iso: string) => formatPublicDate(iso, lang);
 
   const { featured, rest } = useMemo(() => {
     if (!sortedFiltered.length) {

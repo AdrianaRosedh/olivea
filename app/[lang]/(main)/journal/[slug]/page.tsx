@@ -14,6 +14,7 @@ import PhotoCarousel from "../PhotoCarousel";
 
 import { getDictionary, type Lang } from "@/app/[lang]/(main)/dictionaries";
 import { sanitizeHtml } from "@/lib/utils/sanitize-html";
+import { formatPublicDateLong } from "@/lib/date/public-date";
 import { optimizeHtmlImages } from "@/lib/utils/optimize-html-images";
 import {
   listJournalSlugs,
@@ -131,15 +132,7 @@ function safeGallery(x: unknown): GalleryImage[] {
 }
 
 function formatDateEditorial(iso: string, lang: Lang) {
-  try {
-    return new Date(iso).toLocaleDateString(lang === "es" ? "es-MX" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+  return formatPublicDateLong(iso, lang);
 }
 
 /* ---------------- page ---------------- */

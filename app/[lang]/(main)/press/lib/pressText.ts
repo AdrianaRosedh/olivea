@@ -1,4 +1,5 @@
 // app/(main)/[lang]/press/lib/pressText.ts
+import { formatPublicDate } from "@/lib/date/public-date";
 import type { Identity, Lang } from "../pressTypes";
 
 export function tt(lang: Lang, es: string, en: string) {
@@ -6,14 +7,7 @@ export function tt(lang: Lang, es: string, en: string) {
 }
 
 export function fmtDate(lang: Lang, iso: string) {
-  const d = new Date(`${iso}T00:00:00Z`);
-  if (Number.isNaN(d.getTime())) return iso;
-
-  return d.toLocaleDateString(lang === "es" ? "es-MX" : "en-US", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
+  return formatPublicDate(iso, lang);
 }
 
 export function identityLabel(lang: Lang, x: Identity) {
