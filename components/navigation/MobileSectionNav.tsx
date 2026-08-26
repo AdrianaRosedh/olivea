@@ -123,6 +123,7 @@ export default function MobileSectionNav({
   const showRef = useRef(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const dockRef = useRef<HTMLElement>(null);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const pendingIdRef = useRef<string | null>(null);
@@ -149,6 +150,29 @@ export default function MobileSectionNav({
     saveData.current = !!nav.connection?.saveData;
 
     return () => mql.removeEventListener?.("change", onMqlChange);
+  }, []);
+
+  // This dock is fixed to the bottom of the viewport and, because its wrapper
+  // opens a stacking context, it paints over anything anchored down there. The
+  // hiring pill was landing underneath it and never being seen on mobile.
+  // Publishing the measured height lets the pill clear the dock the same way
+  // it already clears the footer via --footer-h, without hardcoding a number
+  // that goes stale when the chips wrap onto a second line.
+  useEffect(() => {
+    const el = dockRef.current;
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty(
+        "--mobile-dock-h",
+        `${Math.round(el.getBoundingClientRect().height)}px`
+      );
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty("--mobile-dock-h");
+    };
   }, []);
 
   // ✅ Close sheet on route change (and tell MobileNav)
@@ -387,6 +411,7 @@ export default function MobileSectionNav({
   return (
     <>
       <nav
+        ref={dockRef}
         className={cn("fixed inset-x-0 bottom-0 z-96 lg:hidden", "pointer-events-none")}
         aria-label="Mobile section navigation"
       >

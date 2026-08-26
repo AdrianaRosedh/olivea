@@ -94,18 +94,27 @@ export default function HiringPillClient({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.96 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          /* z-210 clears the fixed footer (z-200). At z-40 the footer painted
-             over the pill even where they only partly overlapped. */
-          className="fixed left-4 z-210 max-w-[min(20rem,calc(100vw-2rem))]"
+          /* z-310 clears the fixed footer (z-200) and the mobile section dock,
+             whose wrapper opens a stacking context at z-300 — so the dock's
+             own z-96 is measured inside that, and the whole subtree paints
+             above anything below 300. At z-210 the pill was rendered but
+             completely covered on mobile; at z-40 the footer painted over it
+             on desktop. */
+          className="fixed left-4 z-310 max-w-[min(20rem,calc(100vw-2rem))]"
           style={{
-            // Clear the fixed footer, which is 48-52px of the bottom of the
-            // viewport on desktop and absent on mobile. Footer publishes its
-            // measured height as --footer-h for exactly this; the pill was
-            // pinned at 1rem and sat 47px inside the footer band.
-            // Fallback 0 because there is no footer on mobile, where a
-            // non-zero default would strand the pill above the fold.
+            // Clear whichever bar owns the bottom of the viewport. On desktop
+            // that is the fixed footer; on mobile the footer is not rendered
+            // and the section dock sits there instead. Between those two
+            // widths both exist. They are each anchored to bottom:0 and so
+            // overlap rather than stack, which is why this is max() and not a
+            // sum — adding them would strand the pill a dock's height too high
+            // wherever both are present.
+            //
+            // Both publish their measured height because neither is a
+            // constant: the footer is 77px on desktop and 133px when its links
+            // wrap, and the dock grows when the chips run onto a second line.
             bottom:
-              "calc(var(--footer-h, 0px) + 1rem + env(safe-area-inset-bottom, 0px))",
+              "calc(max(var(--footer-h, 0px), var(--mobile-dock-h, 0px)) + 1rem + env(safe-area-inset-bottom, 0px))",
           }}
         >
           <Link
