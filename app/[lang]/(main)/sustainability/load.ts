@@ -24,17 +24,31 @@ function normalizeBody(body: string): string {
 }
 
 export function loadPhilosophySections(lang: Lang): PhilosophySection[] {
-  const dir = path.join(
-    process.cwd(),
-    "app",
-    "(main)",
-    "[lang]",
-    "sustainability",
-    "content",
-    lang
-  );
+  // The route moved from app/(main)/[lang] to app/[lang]/(main) when the root
+  // layout was placed under [lang]. This path did not move with it, so the
+  // directory stopped existing, the base list came back empty, and the whole
+  // philosophy page rendered with no sections — silently, because a missing
+  // directory returned [] rather than complaining.
+  //
+  // The old location is still checked so the page cannot break again on the
+  // next move, and an empty result is now loud in development.
+  const candidates = [
+    path.join(process.cwd(), "app", "[lang]", "(main)", "sustainability", "content", lang),
+    path.join(process.cwd(), "app", "(main)", "[lang]", "sustainability", "content", lang),
+  ];
 
-  if (!fs.existsSync(dir)) return [];
+  const dir = candidates.find((d) => fs.existsSync(d));
+
+  if (!dir) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error(
+        `[philosophy] No section content found for "${lang}". Looked in:\n  ` +
+          candidates.join("\n  ") +
+          "\nThe page will render without sections."
+      );
+    }
+    return [];
+  }
 
   const files = fs
     .readdirSync(dir)
