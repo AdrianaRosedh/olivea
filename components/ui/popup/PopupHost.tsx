@@ -7,8 +7,10 @@ import {
   AnimatePresence,
   motion,
   useReducedMotion,
+  type PanInfo,
   type Variants,
 } from "framer-motion";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -108,6 +110,12 @@ export default function PopupHost() {
   const pathname = usePathname();
   const lang: "es" | "en" = pathname?.startsWith("/en") ? "en" : "es";
   const reduce = useReducedMotion();
+  // On mobile the popup is a bottom sheet, and a sheet with a grab handle is
+  // expected to be dismissible by dragging it down. Desktop renders a centred
+  // dialog, where dragging would be meaningless. Reduced motion keeps the
+  // close button as the only way out rather than animating the sheet away.
+  const isMobile = useIsMobile();
+  const dragToDismiss = isMobile && !reduce;
 
   const [popup, setPopup] = useState<SitePopup | null>(null);
   const [open, setOpen] = useState(false);
@@ -201,7 +209,10 @@ export default function PopupHost() {
         hidden: { opacity: 0, backdropFilter: "blur(0px)" },
         show: {
           opacity: 1,
-          backdropFilter: "blur(6px)",
+          // 6px pushed the page behind into an unreadable wash, and the card
+          // sits on its own near-opaque plane so it does not need the
+          // separation. 3px still reads as depth without hiding the site.
+          backdropFilter: "blur(3px)",
           transition: { duration: 0.32, ease: [0.19, 1, 0.22, 1] },
         },
         exit: { opacity: 0, transition: { duration: 0.22 } },
@@ -269,6 +280,22 @@ export default function PopupHost() {
               aria-modal="true"
               data-lenis-prevent
               onClick={(e) => e.stopPropagation()}
+              /* Swipe the sheet down to dismiss. Constrained to y with no
+                 upward travel, so the sheet cannot be dragged off the top of
+                 its own position; the elastic only gives downward. Nothing
+                 inside the card scrolls, so taking over the vertical gesture
+                 costs no scrolling behaviour. */
+              drag={dragToDismiss ? "y" : false}
+              dragDirectionLock
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.7 }}
+              dragMomentum={false}
+              onDragEnd={(_, info: PanInfo) => {
+                // Either a deliberate pull or a quick flick dismisses it.
+                // Distance alone would ignore a fast short flick, and velocity
+                // alone would fire on an accidental brush.
+                if (info.offset.y > 96 || info.velocity.y > 650) close();
+              }}
               className={[
                 "relative w-full md:max-w-160",
                 "rounded-t-[28px] md:rounded-[28px]",
@@ -286,9 +313,17 @@ export default function PopupHost() {
                 <div className="absolute inset-0 bg-linear-to-b from-white/18 via-transparent to-transparent opacity-80" />
               </div>
 
-              {/* Mobile handle */}
-              <div className="relative md:hidden pt-3 pb-2 flex justify-center">
-                <div className="h-1 w-12 rounded-full bg-(--olivea-olive)/20" />
+              {/* Mobile handle. Given a real grab area — the visible bar is
+                  4px tall, which is far below a comfortable touch target, and
+                  the padding around it is what a thumb actually lands on. */}
+              <div
+                className={[
+                  "relative md:hidden pt-3 pb-2 flex justify-center",
+                  dragToDismiss ? "cursor-grab active:cursor-grabbing" : "",
+                ].join(" ")}
+                aria-hidden
+              >
+                <div className="h-1 w-12 rounded-full bg-(--olivea-olive)/25" />
               </div>
 
               {/* Header */}
