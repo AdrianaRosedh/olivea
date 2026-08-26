@@ -449,6 +449,13 @@ export interface PopupItem {
    * the visitor still has to find it.
    */
   action?: PopupAction;
+  /**
+   * Phone number for a tap-to-call button beside the primary one. A number
+   * printed in the body is something a visitor has to select and copy on a
+   * phone; as a button it is one tap. Stored as written — the display keeps
+   * the formatting and only the tel: href is stripped to digits.
+   */
+  phone?: string;
   translations: {
     es: PopupTranslation;
     en: PopupTranslation;

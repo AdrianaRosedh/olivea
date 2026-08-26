@@ -15,7 +15,7 @@ import { useReservation } from "@/contexts/ReservationContext";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { X } from "lucide-react";
+import { Phone, X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { isStampFresh, setStamp } from "@/lib/storage";
 
@@ -36,6 +36,7 @@ export type SitePopup =
       excerpt: string;
       href: string;
       action?: PopupAction;
+      phone?: string;
       coverSrc?: string;
       coverAlt?: string;
       videoSrc?: string;
@@ -52,6 +53,7 @@ export type SitePopup =
       excerpt: string;
       href?: string;
       action?: PopupAction;
+      phone?: string;
       // Announcements used to render no media at all, so a cover uploaded
       // for one silently went nowhere. They now carry the same media as a
       // journal popup.
@@ -105,6 +107,7 @@ function isSitePopup(v: unknown): v is SitePopup {
   if (v.days != null && typeof v.days !== "number") return false;
   if (v.action != null && v.action !== "hotel" && v.action !== "restaurant" && v.action !== "cafe")
     return false;
+  if (v.phone != null && typeof v.phone !== "string") return false;
 
   if (v.kind === "journal") {
     if (typeof v.href !== "string") return false;
@@ -529,6 +532,32 @@ export default function PopupHost() {
                       </Link>
                     ) : null}
 
+                    {/* Tap to call. A number printed in the body is something
+                        a visitor has to select and copy on a phone; here it is
+                        one tap. The digits are stripped for the href and the
+                        written formatting is kept for the label, so the number
+                        stays readable on desktop where tel: often does
+                        nothing. Narrower tracking than the other buttons
+                        because a full number at 0.28em does not fit. */}
+                    {popup.phone ? (
+                      <a
+                        href={`tel:${popup.phone.replace(/[^\d+]/g, "")}`}
+                        onClick={close}
+                        aria-label={`${es ? "Llamar al" : "Call"} ${popup.phone}`}
+                        className={[
+                          "w-full md:w-auto",
+                          "inline-flex items-center justify-center gap-2",
+                          "rounded-2xl px-4 py-3.5 md:py-3",
+                          "bg-white/70 ring-1 ring-(--olivea-olive)/25",
+                          "text-[12px] tracking-[0.08em]",
+                          "text-(--olivea-olive) hover:bg-white/90 transition",
+                        ].join(" ")}
+                      >
+                        <Phone size={14} strokeWidth={1.75} aria-hidden />
+                        {popup.phone}
+                      </a>
+                    ) : null}
+
                     <button
                       type="button"
                       onClick={close}
@@ -541,7 +570,7 @@ export default function PopupHost() {
                         "text-(--olivea-olive) opacity-90 hover:opacity-100 transition",
                       ].join(" ")}
                     >
-                      {popup.lang === "es" ? "Ahora no" : "Not now"}
+                      {es ? "Ahora no" : "Not now"}
                     </button>
                   </div>
                 </motion.div>

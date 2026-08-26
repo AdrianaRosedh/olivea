@@ -276,6 +276,11 @@ function PopupPreview({ form }: { form: PopupItem }) {
                     {ctaLabel}
                   </span>
                 ) : null}
+                {form.phone ? (
+                  <span className="inline-flex items-center justify-center rounded-xl bg-white/70 px-4 py-2.5 text-[11px] tracking-[0.08em] text-[var(--olivea-olive)] ring-1 ring-[var(--olivea-olive)]/25">
+                    {form.phone}
+                  </span>
+                ) : null}
                 <span className="inline-flex items-center justify-center rounded-xl bg-white/70 px-4 py-2.5 text-[11px] uppercase tracking-[0.28em] text-[var(--olivea-olive)] ring-1 ring-[var(--olivea-olive)]/10">
                   {lang === "es" ? "Ahora no" : "Not now"}
                 </span>
@@ -472,6 +477,24 @@ function PopupForm({
             {t({ es: "Abrir reservación · Café", en: "Open booking · Café" })}
           </option>
         </select>
+        <div className="pt-1">
+          <label className="block text-xs font-medium text-[var(--olivea-ink)]/70 uppercase tracking-wider mb-1">
+            {t({ es: "Teléfono (opcional)", en: "Phone (optional)" })}
+          </label>
+          <input
+            value={form.phone ?? ""}
+            onChange={(e) => updateField("phone", e.target.value || undefined)}
+            placeholder="+52 (646) 388 2369"
+            className={inputClass}
+          />
+          <p className="mt-1 text-[11px] leading-relaxed text-[var(--olivea-ink)]/60">
+            {t({
+              es: "Añade un botón para llamar. Escríbelo como quieras que se lea — el enlace usa solo los dígitos. Mejor aquí que dentro del texto: en el teléfono es un toque en vez de copiarlo a mano.",
+              en: "Adds a call button. Write it how you want it read — the link uses only the digits. Better here than inside the body text: on a phone it becomes one tap instead of copying it by hand.",
+            })}
+          </p>
+        </div>
+
         <p className="text-[11px] leading-relaxed text-[var(--olivea-ink)]/60">
           {form.action
             ? t({

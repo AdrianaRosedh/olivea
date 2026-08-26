@@ -38,6 +38,7 @@ const activePopupData = (() => {
     kind: p.kind,
     priority: p.priority,
     ...(p.action ? { action: p.action } : {}),
+    ...(p.phone ? { phone: p.phone } : {}),
     translations: p.translations,
     media: p.media
       ? {
@@ -70,6 +71,8 @@ type ActivePopupFile = {
   priority?: number;
   /** Opens the reservation modal for this venue. Takes precedence over href. */
   action?: PopupAction;
+  /** Renders a tap-to-call button beside the primary one. */
+  phone?: string;
   translations: Record<
     Lang,
     {
@@ -104,6 +107,7 @@ type SitePopup =
       excerpt: string;
       href: string;
       action?: PopupAction;
+      phone?: string;
       coverSrc?: string;
       coverAlt?: string;
       videoSrc?: string;
@@ -120,6 +124,7 @@ type SitePopup =
       excerpt: string;
       href?: string;
       action?: PopupAction;
+      phone?: string;
       badge?: string;
       coverSrc?: string;
       coverAlt?: string;
@@ -167,6 +172,7 @@ function isActivePopupFile(v: unknown): v is ActivePopupFile {
   if (v.priority !== undefined && typeof v.priority !== "number") return false;
   if (v.action !== undefined && v.action !== "hotel" && v.action !== "restaurant" && v.action !== "cafe")
     return false;
+  if (!isStringOrUndefined(v.phone)) return false;
   if (!validateBilingualBlock(v.translations, ["title", "excerpt"], ["badge", "href", "ctaLabel"])) return false;
   if (!isRulesBlock(v.rules)) return false;
   if (v.media !== undefined && !isMediaBlock(v.media)) return false;
@@ -221,6 +227,7 @@ async function loadActivePopups(): Promise<ActivePopupFile[]> {
               // Rows written before this column existed simply have no
               // action, which is the "follow the link" behaviour they had.
               ...(p.action ? { action: p.action } : {}),
+              ...(p.phone ? { phone: p.phone } : {}),
               translations: p.translations,
               media: p.media,
               rules: p.rules,
@@ -293,6 +300,7 @@ export async function GET(req: Request) {
       excerpt: t.excerpt,
       href: t.href,
       ...(active.action ? { action: active.action } : {}),
+      ...(active.phone ? { phone: active.phone } : {}),
       ...(t.badge ? { badge: t.badge } : {}),
       ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
       ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
@@ -320,6 +328,7 @@ export async function GET(req: Request) {
     ...(t.badge ? { badge: t.badge } : {}),
     ...(t.href ? { href: t.href } : {}),
     ...(active.action ? { action: active.action } : {}),
+    ...(active.phone ? { phone: active.phone } : {}),
     ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
     ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
     ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
