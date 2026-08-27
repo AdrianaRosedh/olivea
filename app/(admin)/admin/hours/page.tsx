@@ -21,6 +21,13 @@ interface BusinessHours {
   label: { es: string; en: string };
   schedule: { es: string; en: string };
   slots?: HoursSlot[];
+  /* Lodging only. Reception hours say when somebody can be RECEIVED; these say
+   * when a room becomes yours and when you have to be out of it. Different
+   * facts, and schema.org has separate properties for them — publishing only
+   * reception hours makes a hotel look shut overnight to a guest already in
+   * it. Optional, and blank for anything that is not a place to sleep. */
+  checkinTime?: string;
+  checkoutTime?: string;
   sortOrder: number;
 }
 
@@ -299,6 +306,31 @@ export default function HoursPage() {
                 />
               </div>
             </div>
+            {/* ── Check-in / check-out · lodging only ── */}
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-100">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">{t({ es: "Check-in (opcional)", en: "Check-in (optional)" })}</label>
+                <input
+                  type="time"
+                  value={item.checkinTime ?? ""}
+                  onChange={(e) => updateItem(idx, { checkinTime: e.target.value || undefined })}
+                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 focus:border-[var(--olivea-olive)] focus:ring-2 focus:ring-[var(--olivea-olive)]/20 outline-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">{t({ es: "Check-out (opcional)", en: "Check-out (optional)" })}</label>
+                <input
+                  type="time"
+                  value={item.checkoutTime ?? ""}
+                  onChange={(e) => updateItem(idx, { checkoutTime: e.target.value || undefined })}
+                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 focus:border-[var(--olivea-olive)] focus:ring-2 focus:ring-[var(--olivea-olive)]/20 outline-none"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-stone-400 leading-relaxed pl-1">
+              {t({ es: "Solo para hospedaje. Las horas de arriba son cuando hay recepción; estas son cuando la habitación es tuya.", en: "Lodging only. The hours above are when reception is open; these are when the room is yours." })}
+            </p>
+
             <p className="text-[11px] text-stone-400 leading-relaxed pl-1">
               {t({ es: "Consejo: separa los días con un punto ( · ) y usa una raya para los rangos de horario (5–8 y no 5-8). Ejemplo: ", en: "Tip: separate days with a dot ( · ) and use en-dash for time ranges (5–8 not 5-8). Example: " })}<code className="text-stone-500">Wed 5–8 · Fri 2:30–8:30 · Sun 2–7</code>
             </p>

@@ -52,6 +52,12 @@ export interface BusinessHours {
   schedule: Bilingual; // e.g. "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7"
   /** Structured slots that drive openingHoursSpecification in JSON-LD (optional). */
   slots?: HoursSlot[];
+  /** Lodging only, 24h "HH:MM". Reception hours say when somebody can be
+   *  RECEIVED; these say when a room becomes yours and when you must be out.
+   *  Separate schema.org properties, because a hotel that publishes only
+   *  reception hours reads as shut overnight to a guest already asleep in it. */
+  checkinTime?: string;
+  checkoutTime?: string;
   sortOrder: number;
 }
 

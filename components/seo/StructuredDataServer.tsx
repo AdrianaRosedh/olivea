@@ -110,6 +110,18 @@ export default async function StructuredDataServer() {
     return specs ? { openingHoursSpecification: specs } : {};
   };
 
+  /** Check-in / check-out, same rule as hoursOf: present only when set.
+   *  These are what tell Google the property serves guests overnight even
+   *  though reception closes at 22:00 — without them, reception hours alone
+   *  make a hotel look shut for the night. */
+  const stayTimesOf = (venue: string) => {
+    const v = settings?.hours?.find((h) => h.venue === venue);
+    return {
+      ...(v?.checkinTime ? { checkinTime: v.checkinTime } : {}),
+      ...(v?.checkoutTime ? { checkoutTime: v.checkoutTime } : {}),
+    };
+  };
+
   const commonAddress = { "@type": "PostalAddress", ...SITE_ADDRESS };
 
   const geo = { "@type": "GeoCoordinates", ...SITE_GEO };
@@ -330,6 +342,7 @@ export default async function StructuredDataServer() {
         { "@type": "LocationFeatureSpecification", name: "Pádel court", value: true },
       ],
       ...hoursOf("casa"),
+      ...stayTimesOf("casa"),
     },
 
     // ─── Café ───────────────────────────────────────────────────
