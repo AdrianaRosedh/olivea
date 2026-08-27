@@ -145,7 +145,7 @@ interface FullDocRow {
   created_at: string;
 }
 
-function mapDoc(r: FullDocRow): SecureDocument {
+function mapDoc(r: FullDocRow, viewCount: number): SecureDocument {
   return {
     id: r.id,
     token: r.token,
@@ -159,7 +159,7 @@ function mapDoc(r: FullDocRow): SecureDocument {
     expiresAt: r.expires_at,
     readWindowSeconds: r.read_window_seconds,
     grantTtlSeconds: r.grant_ttl_seconds,
-    viewCount: r.view_count,
+    viewCount,
     claimedAt: r.claimed_at,
     createdAt: r.created_at,
   };
@@ -169,14 +169,31 @@ export async function listSecureDocuments(): Promise<SecureDocument[]> {
   await requireSectionAccess(SECURE_DOCS_SECTION, "viewer");
   if (!isSupabaseConfigured) return [];
   // Note: passcode_hash is read to derive hasPasscode but is never returned.
-  const rows = await selectRows<FullDocRow>("secure_documents", {
-    role: "service_role",
-    query:
-      "select=id,token,file_name,recipient,enabled,revoked,passcode_hash," +
-      "require_name,access_mode,expires_at,read_window_seconds," +
-      "grant_ttl_seconds,view_count,claimed_at,created_at&order=created_at.desc",
-  });
-  return rows.map(mapDoc);
+  // secure_documents.view_count is vestigial: open_secure_document_grant records
+  // every read into secure_document_views but never touches the counter, so it
+  // is written by nothing and the dashboard reported "0 vistas" on documents
+  // that had in fact been opened dozens of times — a working document looking
+  // broken. Count the rows that actually get written instead. This also makes
+  // the historical views visible immediately, with no backfill.
+  const [rows, viewRows] = await Promise.all([
+    selectRows<FullDocRow>("secure_documents", {
+      role: "service_role",
+      query:
+        "select=id,token,file_name,recipient,enabled,revoked,passcode_hash," +
+        "require_name,access_mode,expires_at,read_window_seconds," +
+        "grant_ttl_seconds,view_count,claimed_at,created_at&order=created_at.desc",
+    }),
+    selectRows<{ document_id: string }>("secure_document_views", {
+      role: "service_role",
+      query: "select=document_id",
+    }),
+  ]);
+
+  const counts = new Map<string, number>();
+  for (const v of viewRows) {
+    counts.set(v.document_id, (counts.get(v.document_id) ?? 0) + 1);
+  }
+  return rows.map((r) => mapDoc(r, counts.get(r.id) ?? 0));
 }
 
 export interface CreateDocResult {
