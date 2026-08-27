@@ -18,7 +18,7 @@ export default function ArticleEn() {
       <section id="rooms" aria-labelledby="rooms-heading">
         <h2 id="rooms-heading">Our Suites</h2>
         <p>Fourteen suites, part of the garden ecosystem, each named for an aromatic plant or tree, each opening to the huerto, the olive rows, and the desert light of Baja California. You do not book a room here; you stay within the ecosystem the garden feeds.</p>
-        <p>King-size beds, blackout curtains, and natural fiber textures invite deep rest. All rooms are designed for two adults, quiet, light-filled, and considered.</p>
+        <p>Every detail is designed for comfort: king-size beds, soft linens, and natural textures. Filtered water in reusable bottles each day, zero visual noise, and sleep comes easy.</p>
         <p>Light shifts throughout the day. In the morning, it filters softly through curtains. In the evening, it settles, warm, indirect, grounding.</p>
         <p>Your evening is Olivea Farm To Table, a <strong>MICHELIN</strong>-starred tasting menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, beside the garden, to wake to it the next morning.</p>
       </section>
