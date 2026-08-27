@@ -69,7 +69,7 @@ export default async function StructuredDataServer() {
   const base = BASE;
 
   // Opening hours are admin-editable via global_settings → JSON-LD stays in
-  // sync without a developer. Falls back to the hardcoded specs below.
+  // sync without a developer. There is no fallback; see hoursOf below.
   const settings = await getContent("global").catch(() => null);
   const toSpecs = (venue: string) => {
     const slots = settings?.hours?.find((h) => h.venue === venue)?.slots;
@@ -80,6 +80,34 @@ export default async function StructuredDataServer() {
       opens: s.opens,
       closes: s.closes,
     }));
+  };
+
+  /**
+   * Hours, or NO hours — never invented ones.
+   *
+   * Each venue used to fall back to a hard-coded schedule when the lookup came
+   * back empty. That is a second copy of a fact that changes, in a file nobody
+   * opens when it does, and it had already drifted: the fallback said the
+   * restaurant opened Wednesday, Friday and Sunday, while the kitchen has been
+   * serving Thursday and Saturday too.
+   *
+   * The drift was survivable only because the database row existed, so the
+   * fallback was unreachable. Had that row ever gone missing — a failed read,
+   * a bad migration, a venue key renamed — the site would have published three
+   * confident wrong days to Google, and guests would have driven to a locked
+   * door on a Thursday.
+   *
+   * So there is no fallback. If the data is not there the property is OMITTED,
+   * because schema.org treats a missing openingHoursSpecification as "not
+   * stated" and treats a present one as fact. Losing the rich result for one
+   * render costs a little search polish; publishing hours nobody verified
+   * costs somebody their evening.
+   *
+   * Hours are edited in /admin/hours, which is the one place they live.
+   */
+  const hoursOf = (venue: string) => {
+    const specs = toSpecs(venue);
+    return specs ? { openingHoursSpecification: specs } : {};
   };
 
   const commonAddress = { "@type": "PostalAddress", ...SITE_ADDRESS };
@@ -273,11 +301,7 @@ export default async function StructuredDataServer() {
       // the page ineligible for review stars. Google surfaces the Business Profile
       // rating in Search natively; AI-facing ratings live in llms.txt.
       subjectOf: recognitionWorks,
-      openingHoursSpecification: toSpecs("farmtotable") ?? [
-        { "@type": "OpeningHoursSpecification", dayOfWeek: "Wednesday", opens: "17:00", closes: "20:00" },
-        { "@type": "OpeningHoursSpecification", dayOfWeek: "Friday", opens: "14:30", closes: "20:30" },
-        { "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: "14:00", closes: "19:00" },
-      ],
+      ...hoursOf("farmtotable"),
     },
 
     // ─── Hotel / Farm Stay ──────────────────────────────────────
@@ -305,9 +329,7 @@ export default async function StructuredDataServer() {
         { "@type": "LocationFeatureSpecification", name: "Specialty café", value: true },
         { "@type": "LocationFeatureSpecification", name: "Pádel court", value: true },
       ],
-      openingHoursSpecification: toSpecs("casa") ?? [
-        { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "00:00", closes: "23:59" },
-      ],
+      ...hoursOf("casa"),
     },
 
     // ─── Café ───────────────────────────────────────────────────
@@ -332,9 +354,7 @@ export default async function StructuredDataServer() {
       // ✅ Café is also contained in the restaurant property
       containedInPlace: { "@id": ENTITY_IDS.restaurant },
       parentOrganization: { "@id": ENTITY_IDS.organization },
-      openingHoursSpecification: toSpecs("cafe") ?? [
-        { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "07:30", closes: "18:15" },
-      ],
+      ...hoursOf("cafe"),
     },
   ];
 
