@@ -18,6 +18,8 @@ import React, { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import {
   openSecureDocument,
+  markSecureDocumentDisplayed,
+  reportSecureDocumentRenderFailure,
   type OpenSecureDocResult,
   type ClientFingerprint,
 } from "./actions";
@@ -100,6 +102,12 @@ const t = (lang: "es" | "en") =>
         errExpired: "Este documento ya no está disponible.",
         errLinkExpired: "El enlace expiró. Vuelve a escanear el código QR en la pared.",
         errGeneric: "No se pudo abrir el documento. Inténtalo de nuevo.",
+        // Distinct from errGeneric on purpose: the code WAS correct and the
+        // document was unlocked — it just failed to draw. Telling people it
+        // "couldn't be opened" sends them back to re-enter a code that was
+        // never wrong, which is exactly how this got reported as a broken QR.
+        errRender:
+          "Tu código es correcto, pero el documento no se pudo mostrar en este dispositivo. Intenta desde una computadora o con otro navegador.",
       }
     : {
         title: "Protected document",
@@ -122,6 +130,8 @@ const t = (lang: "es" | "en") =>
         errExpired: "This document is no longer available.",
         errLinkExpired: "This link expired. Please scan the wall QR code again.",
         errGeneric: "Couldn't open the document. Please try again.",
+        errRender:
+          "Your code was correct, but the document could not be displayed on this device. Try a computer or a different browser.",
       };
 
 export default function SecureDocumentViewer({
@@ -195,11 +205,22 @@ export default function SecureDocumentViewer({
       }
       setPages(metas);
       setPhase("ready");
+      // The document is on screen: separate a real read from a mere release.
+      void markSecureDocumentDisplayed(grant);
     } catch (err) {
       console.warn("[SecureDocumentViewer] render failed:", err);
+      // Send it server-side too — a browser console nobody is watching is why
+      // this failure mode went undiagnosed.
+      void reportSecureDocumentRenderFailure(
+        grant,
+        err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+      );
       setOpenedDoc(null);
       setPhase("form");
-      setFormError(s.errGeneric);
+      // NOT errGeneric: the passcode was accepted and the document was
+      // unlocked. Saying it "couldn't be opened" sends the reader back to
+      // re-enter a code that was never wrong.
+      setFormError(s.errRender);
     }
   }
 

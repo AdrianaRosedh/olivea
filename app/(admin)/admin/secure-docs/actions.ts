@@ -183,14 +183,17 @@ export async function listSecureDocuments(): Promise<SecureDocument[]> {
         "require_name,access_mode,expires_at,read_window_seconds," +
         "grant_ttl_seconds,view_count,claimed_at,created_at&order=created_at.desc",
     }),
-    selectRows<{ document_id: string }>("secure_document_views", {
-      role: "service_role",
-      query: "select=document_id",
-    }),
+    // displayed_at distinguishes a real read from a release the reader never
+    // saw (client-side viewer failure). Count only what actually displayed.
+    selectRows<{ document_id: string; displayed_at: string | null }>(
+      "secure_document_views",
+      { role: "service_role", query: "select=document_id,displayed_at" },
+    ),
   ]);
 
   const counts = new Map<string, number>();
   for (const v of viewRows) {
+    if (v.displayed_at == null) continue;
     counts.set(v.document_id, (counts.get(v.document_id) ?? 0) + 1);
   }
   return rows.map((r) => mapDoc(r, counts.get(r.id) ?? 0));
