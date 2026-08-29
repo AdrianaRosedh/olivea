@@ -165,3 +165,70 @@ export async function openSecureDocument(
     return { ok: false, status: "error" };
   }
 }
+
+/**
+ * Read the per-browser session id set by openSecureDocument. Returns null when
+ * the cookie is absent — the caller then simply has nothing to reconcile.
+ */
+async function readSid(grant: string): Promise<string | null> {
+  const sidCookie =
+    SID_PREFIX + createHash("sha256").update(grant).digest("hex").slice(0, 12);
+  const jar = await cookies();
+  return jar.get(sidCookie)?.value ?? null;
+}
+
+/**
+ * Confirm the PDF actually rendered on the reader's device.
+ *
+ * openSecureDocument logs a view when the bytes are RELEASED, which is the
+ * event that matters for the audit trail and must keep being recorded. But a
+ * release is not a read: if the viewer fails client-side the reader never sees
+ * the document, and the access log was counting those as views. This marks the
+ * ones that genuinely displayed, so the two can be told apart.
+ */
+export async function markSecureDocumentDisplayed(grant: string): Promise<void> {
+  try {
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
+    const sid = await readSid(grant);
+    if (!sid) return;
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/mark_secure_document_displayed`,
+      {
+        method: "POST",
+        headers: { ...svcHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ _grant: grant, _session: sid }),
+        cache: "no-store",
+      },
+    );
+  } catch (e) {
+    // Never surface this to the reader: the document is already on screen.
+    console.warn("[secure-doc] mark displayed failed:", e);
+  }
+}
+
+/**
+ * Report a client-side viewer failure so it lands in the server logs.
+ *
+ * Without this a render failure is invisible: the server sees a successful
+ * open, the reader sees an error, and nothing anywhere records why. That gap
+ * is what made "the QR is not working" take weeks to pin down.
+ */
+export async function reportSecureDocumentRenderFailure(
+  grant: string,
+  detail: string,
+): Promise<void> {
+  try {
+    const hdrs = await headers();
+    console.error(
+      "[secure-doc] client render failed:",
+      JSON.stringify({
+        grant: grant.slice(0, 8),
+        detail: String(detail).slice(0, 300),
+        ua: hdrs.get("user-agent")?.slice(0, 160) ?? null,
+        city: hdrs.get("x-vercel-ip-city") ?? null,
+      }),
+    );
+  } catch {
+    /* diagnostics must never break the page */
+  }
+}
