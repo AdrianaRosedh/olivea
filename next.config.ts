@@ -122,6 +122,18 @@ const nextConfig: NextConfig = {
           { key: "Timing-Allow-Origin", value: "*" },
           { key: "Content-Security-Policy", value: STATIC_CSP },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(self), browsing-topics=()",
+          },
+          ...(process.env.NODE_ENV === "production"
+            ? [{
+                key: "Strict-Transport-Security",
+                value: "max-age=31536000; includeSubDomains",
+              }]
+            : []),
         ],
       },
     ];

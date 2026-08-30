@@ -1,6 +1,6 @@
 // app/olivea-locator/route.ts
 import { NextResponse, type NextRequest } from "next/server";
-import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { rateLimitDistributed, clientIp } from "@/lib/rate-limit";
 import { type Lang } from "@/lib/i18n";
 
 export const runtime = "nodejs";
@@ -23,7 +23,10 @@ const copy = {
 
 export async function GET(req: NextRequest) {
   const ip = clientIp(req);
-  const { ok, retryAfter } = rateLimit(`locator:${ip}`, { limit: 60, windowMs: 60_000 });
+  const { ok, retryAfter } = await rateLimitDistributed(`locator:${ip}`, {
+    limit: 60,
+    windowMs: 60_000,
+  });
   if (!ok) {
     return new NextResponse("Too Many Requests", {
       status: 429,

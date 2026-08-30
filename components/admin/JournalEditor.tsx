@@ -9,19 +9,8 @@ import {
   useMemo,
   forwardRef,
 } from "react";
-
-/** Client-side HTML sanitizer for editor preview — strips script/event-handler XSS vectors */
-function sanitizeEditorHtml(html: string): string {
-  if (!html) return "";
-  let s = html;
-  s = s.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
-  s = s.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "");
-  s = s.replace(/<\/?(?:iframe|object|embed|form|link|meta|base)\b[^>]*>/gi, "");
-  s = s.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
-  s = s.replace(/(href|src|action)\s*=\s*(?:"[^"]*javascript:[^"]*"|'[^']*javascript:[^']*')/gi, '$1=""');
-  return s;
-}
 import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import {
   X,
   Save,
@@ -1201,7 +1190,7 @@ function LivePreview({
           "[&_figure.float-left]:float-left [&_figure.float-left]:mr-4 [&_figure.float-left]:w-40 [&_figure.float-left]:h-40",
           "[&_figure.float-right]:float-right [&_figure.float-right]:ml-4 [&_figure.float-right]:w-40 [&_figure.float-right]:h-40",
         ].join(" ")}
-        dangerouslySetInnerHTML={{ __html: sanitizeEditorHtml(html || t({ es: "<p><em>Empieza a escribir para ver la vista previa aquí…</em></p>", en: "<p><em>Start writing to see the preview here...</em></p>" })) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(html || t({ es: "<p><em>Empieza a escribir para ver la vista previa aquí…</em></p>", en: "<p><em>Start writing to see the preview here...</em></p>" })) }}
       />
     </article>
   );

@@ -8,9 +8,12 @@
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { selectRows, updateRows, upsertRows, assertUUID } from "@/lib/supabase/client";
-import { requireSession } from "@/lib/auth/session";
+import { requireSectionAccess } from "@/lib/auth/session";
 import { logAudit } from "@/lib/auth/audit";
 import type { JournalPost, JournalStatus } from "@/lib/content/types";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
+
+const JOURNAL_SECTION = "content.journal";
 
 // Public journal pages are ISR-cached — every mutation must bust them or
 // edits stay invisible until the next revalidation window / redeploy.
@@ -76,7 +79,7 @@ function mapJournalRow(r: JournalRow): JournalPost {
 }
 
 export async function getJournalPosts(): Promise<JournalPost[]> {
-  await requireSession();
+  await requireSectionAccess(JOURNAL_SECTION, "viewer");
   if (!isSupabaseConfigured) {
     const { mockJournalPosts } = await import("@/lib/admin/mock-data");
     return mockJournalPosts;
@@ -99,7 +102,7 @@ export async function getJournalPosts(): Promise<JournalPost[]> {
 const VALID_JOURNAL_STATUSES: JournalStatus[] = ["draft", "published", "archived"];
 
 export async function saveJournalPost(post: JournalPost): Promise<JournalPost> {
-  await requireSession();
+  await requireSectionAccess(JOURNAL_SECTION, "editor");
   assertUUID(post.id, "postId");
   if (!VALID_JOURNAL_STATUSES.includes(post.status)) {
     throw new Error(`Invalid journal status: ${post.status}`);
@@ -119,8 +122,8 @@ export async function saveJournalPost(post: JournalPost): Promise<JournalPost> {
     slug: post.slug,
     excerpt_es: post.excerpt.es,
     excerpt_en: post.excerpt.en,
-    body_es: post.body.es,
-    body_en: post.body.en,
+    body_es: sanitizeHtml(post.body.es),
+    body_en: sanitizeHtml(post.body.en),
     cover_image: post.coverImage ?? null,
     cover_alt: post.coverAlt ?? null,
     cover_position: post.coverPosition ?? null,
@@ -145,7 +148,7 @@ export async function saveJournalPost(post: JournalPost): Promise<JournalPost> {
 }
 
 export async function publishJournalPost(id: string): Promise<void> {
-  await requireSession();
+  await requireSectionAccess(JOURNAL_SECTION, "editor");
   assertUUID(id, "postId");
   if (!isSupabaseConfigured) return;
   await updateRows("journal_posts", `id=eq.${id}`, {
@@ -158,7 +161,7 @@ export async function publishJournalPost(id: string): Promise<void> {
 }
 
 export async function unpublishJournalPost(id: string): Promise<void> {
-  await requireSession();
+  await requireSectionAccess(JOURNAL_SECTION, "editor");
   assertUUID(id, "postId");
   if (!isSupabaseConfigured) return;
   await updateRows("journal_posts", `id=eq.${id}`, {

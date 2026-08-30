@@ -44,6 +44,7 @@ import {
 import staticCareers from "@/lib/content/data/careers";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
 import { CAREER_AREAS, areaLabel, isKnownArea } from "@/lib/careers/areas";
+import { useAuth } from "@/components/admin/AuthProvider";
 
 /* ── Styling tokens ─────────────────────────────────────────────── */
 
@@ -263,6 +264,7 @@ function OpeningsTab({
   const [saving, setSaving] = useState(false);
   const [promo, setPromo] = useState<"auto" | "on" | "off">("auto");
   const { t } = useAdminLocale();
+  const { canEdit, canDelete } = useAuth();
 
   // Load the current "we're hiring" pill mode.
   useEffect(() => {
@@ -392,6 +394,7 @@ function OpeningsTab({
                 <button
                   key={opt.v}
                   onClick={() => changePromo(opt.v)}
+                  disabled={!canEdit}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     promo === opt.v
                       ? "bg-[var(--olivea-olive)] text-white shadow-sm"
@@ -426,11 +429,11 @@ function OpeningsTab({
               : { es: "vacante", en: "opening" }
           )}
         </p>
-        <button onClick={openNew} className={cls.btnPrimary}>
+        {canEdit && <button onClick={openNew} className={cls.btnPrimary}>
           <span className="flex items-center gap-2">
             <Plus size={14} /> {t({ es: "Nueva vacante", en: "New opening" })}
           </span>
-        </button>
+        </button>}
       </div>
 
       {/* Opening cards */}
@@ -472,6 +475,7 @@ function OpeningsTab({
                   {o.status === "draft" ? (
                     <button
                       onClick={() => handleToggle(o.id, "live")}
+                      disabled={!canEdit}
                       title={t({ es: "Publicar", en: "Publish" })}
                       className="p-2 rounded-lg hover:bg-emerald-50 text-[var(--olivea-clay)] hover:text-emerald-600 transition-colors"
                     >
@@ -480,6 +484,7 @@ function OpeningsTab({
                   ) : o.status === "live" ? (
                     <button
                       onClick={() => handleToggle(o.id, "closed")}
+                      disabled={!canEdit}
                       title={t({ es: "Cerrar", en: "Close" })}
                       className="p-2 rounded-lg hover:bg-gray-100 text-[var(--olivea-clay)] hover:text-gray-600 transition-colors"
                     >
@@ -488,6 +493,7 @@ function OpeningsTab({
                   ) : (
                     <button
                       onClick={() => handleToggle(o.id, "live")}
+                      disabled={!canEdit}
                       title={t({ es: "Reabrir", en: "Reopen" })}
                       className="p-2 rounded-lg hover:bg-emerald-50 text-[var(--olivea-clay)] hover:text-emerald-600 transition-colors"
                     >
@@ -496,16 +502,17 @@ function OpeningsTab({
                   )}
                   <button
                     onClick={() => openEdit(o)}
+                    disabled={!canEdit}
                     className="p-2 rounded-lg hover:bg-[var(--olivea-cream)] text-[var(--olivea-clay)] hover:text-[var(--olivea-ink)] transition-colors"
                   >
                     <FileText size={16} />
                   </button>
-                  <button
+                  {canDelete && <button
                     onClick={() => handleDelete(o.id)}
                     className="p-2 rounded-lg hover:bg-red-50 text-[var(--olivea-clay)] hover:text-red-500 transition-colors"
                   >
                     <Trash2 size={16} />
-                  </button>
+                  </button>}
                 </div>
               </div>
             </motion.div>
@@ -1418,6 +1425,8 @@ export default function CareersAdmin() {
     type: "success" | "error";
   } | null>(null);
   const { t } = useAdminLocale();
+  const { hasRole } = useAuth();
+  const canManageApplications = hasRole("manager");
 
   const toast = useCallback(
     (message: string, type: "success" | "error") =>
@@ -1426,14 +1435,17 @@ export default function CareersAdmin() {
   );
 
   useEffect(() => {
-    Promise.all([getJobOpenings(), getJobApplications()])
+    Promise.all([
+      getJobOpenings(),
+      canManageApplications ? getJobApplications() : Promise.resolve([]),
+    ])
       .then(([o, a]) => {
         setOpenings(o);
         setApplications(a);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [canManageApplications]);
 
   return (
     <SectionGuard sectionKey="pages.careers">
@@ -1447,7 +1459,7 @@ export default function CareersAdmin() {
 
       {/* Tab bar */}
       <div className="flex items-center gap-1 p-1 rounded-2xl bg-white/40 backdrop-blur-sm ring-1 ring-black/5 w-fit">
-        {tabs.map((tabItem) => {
+        {tabs.filter((item) => item.key !== "applications" || canManageApplications).map((tabItem) => {
           const Icon = tabItem.icon;
           const active = tab === tabItem.key;
           return (

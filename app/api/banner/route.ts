@@ -7,7 +7,7 @@
 export const runtime = "edge";
 
 import { NextResponse } from "next/server";
-import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { rateLimitDistributed, clientIp } from "@/lib/rate-limit";
 import { type Lang } from "@/lib/i18n";
 import {
   isObject,
@@ -157,7 +157,10 @@ const nullBanner = () =>
 
 export async function GET(req: Request) {
   const ip = clientIp(req);
-  const { ok, retryAfter } = rateLimit(`banner:${ip}`, { limit: 120, windowMs: 60_000 });
+  const { ok, retryAfter } = await rateLimitDistributed(`banner:${ip}`, {
+    limit: 120,
+    windowMs: 60_000,
+  });
   if (!ok) {
     return new Response("Too Many Requests", {
       status: 429,

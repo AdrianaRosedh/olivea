@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { headers } from "next/headers";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitDistributed } from "@/lib/rate-limit";
 import { sendCareersEmail, sendApplicationReceivedEmail } from "@/lib/email/send";
 import { submitApplication } from "@/lib/supabase/careers-actions";
 import { canonicalUrl } from "@/lib/site";
@@ -59,22 +59,34 @@ async function verifyTurnstile(token: string, ip: string) {
   body.set("response", token);
   if (ip !== "unknown") body.set("remoteip", ip);
 
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body,
-  });
-
-  const data = (await res.json()) as { success: boolean };
-  return { ok: data.success as boolean };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5_000);
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body,
+      signal: controller.signal,
+    });
+    if (!res.ok) return { ok: false as const };
+    const data = (await res.json()) as { success?: boolean };
+    return { ok: data.success === true };
+  } catch {
+    return { ok: false as const };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export async function handleSubmit(
   formData: FormData
 ): Promise<{ errors?: ApplicationErrors; success?: true }> {
-  // Rate limiting: 10 submissions per minute per IP
+  // Cross-instance rate limiting: 10 submissions per minute per IP.
   const ip = await getClientIp();
-  const rl = rateLimit(`carreras:${ip}`, { limit: 10, windowMs: 60_000 });
+  const rl = await rateLimitDistributed(`carreras:ip:${ip}`, {
+    limit: 10,
+    windowMs: 60_000,
+  });
   if (!rl.ok) {
     return { errors: { form: "Demasiadas solicitudes. Intenta en un momento." } };
   }
@@ -112,6 +124,17 @@ export async function handleSubmit(
   // 3) Turnstile verify
   const ok = await verifyTurnstile(data.turnstileToken, ip);
   if (!ok.ok) return { errors: { turnstileToken: "No se pudo verificar. Intenta de nuevo." } };
+
+  // An IP can rotate; an address can be targeted. Count the address only after
+  // Turnstile succeeds so a bot cannot exhaust somebody else's email quota.
+  // The database receives an HMAC digest, never the raw address.
+  const emailLimit = await rateLimitDistributed(
+    `carreras:email:${data.email.trim().toLowerCase()}`,
+    { limit: 6, windowMs: 10 * 60_000 },
+  );
+  if (!emailLimit.ok) {
+    return { errors: { form: "Demasiadas solicitudes. Intenta en un momento." } };
+  }
 
   // ── Optional CV ───────────────────────────────────────────────────
   //

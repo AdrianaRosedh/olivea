@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { Film, Loader2, Upload, X } from "lucide-react";
 import { uploadVideo, deleteVideo } from "@/lib/supabase/storage-actions";
+import { useAuth } from "@/components/admin/AuthProvider";
 
 interface VideoUploadProps {
   /** Current video URL, if any */
@@ -39,6 +40,8 @@ export default function VideoUpload({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { canEdit, canDelete } = useAuth();
+  const interactionDisabled = disabled || !canEdit;
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -71,14 +74,14 @@ export default function VideoUpload({
   const handleRemove = useCallback(async () => {
     if (!value) return;
     setUploading(true);
-    if (value.includes("/storage/v1/object/public/site-video/")) {
+    if (canDelete && value.includes("/storage/v1/object/public/site-video/")) {
       const res = await deleteVideo(value);
       // Clearing the field matters more than the file going away.
       if (res.error) console.warn("Video delete failed:", res.error);
     }
     onChange("");
     setUploading(false);
-  }, [value, onChange]);
+  }, [value, onChange, canDelete]);
 
   return (
     <div className="space-y-1.5">
@@ -91,23 +94,23 @@ export default function VideoUpload({
       <div
         onDragOver={(e) => {
           e.preventDefault();
-          if (!disabled && !uploading) setDragOver(true);
+          if (!interactionDisabled && !uploading) setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={(e) => {
           e.preventDefault();
           setDragOver(false);
-          if (disabled || uploading) return;
+          if (interactionDisabled || uploading) return;
           const f = e.dataTransfer.files[0];
           if (f) handleFile(f);
         }}
         onClick={() => {
-          if (!disabled && !uploading && !value) inputRef.current?.click();
+          if (!interactionDisabled && !uploading && !value) inputRef.current?.click();
         }}
         className={`
           relative overflow-hidden rounded-lg border-2 border-dashed transition-colors
           ${dragOver ? "border-[var(--olivea-olive)] bg-[var(--olivea-olive)]/5" : "border-stone-300 bg-stone-50/50"}
-          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${interactionDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           ${value ? "" : "aspect-video"}
         `}
       >
@@ -130,7 +133,7 @@ export default function VideoUpload({
               autoPlay
               playsInline
             />
-            {!disabled && (
+            {!interactionDisabled && (
               <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
                 <button
                   type="button"
@@ -177,7 +180,7 @@ export default function VideoUpload({
             if (inputRef.current) inputRef.current.value = "";
           }}
           className="hidden"
-          disabled={disabled || uploading}
+          disabled={interactionDisabled || uploading}
         />
       </div>
 

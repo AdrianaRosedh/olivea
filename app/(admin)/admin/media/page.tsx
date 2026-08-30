@@ -6,6 +6,7 @@ import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
 import { Image as ImageIcon, Upload, Trash2, Loader2, Copy, Check, FolderOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { useAuth } from "@/components/admin/AuthProvider";
 
 /* ── Types ── */
 
@@ -40,6 +41,7 @@ export default function MediaPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useAdminLocale();
   const confirm = useConfirm();
+  const { canEdit, canDelete } = useAuth();
 
   const loadFiles = useCallback(async (folder: string) => {
     setLoading(true);
@@ -130,7 +132,7 @@ export default function MediaPage() {
           </div>
         </div>
 
-        <label className={`
+        {canEdit && <label className={`
           flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all
           bg-[var(--olivea-olive)] text-white hover:bg-[var(--olivea-olive)]/90 shadow-sm
           ${uploading ? "opacity-50 pointer-events-none" : ""}
@@ -140,11 +142,11 @@ export default function MediaPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/svg+xml,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif"
             onChange={handleUpload}
             className="hidden"
           />
-        </label>
+        </label>}
       </div>
 
       {/* ── Folder tabs ── */}
@@ -222,13 +224,13 @@ export default function MediaPage() {
                         <Copy className="w-4 h-4" />
                       )}
                     </button>
-                    <button
+                    {canDelete && <button
                       onClick={() => handleDelete(file)}
                       className="p-2 rounded-full bg-white/90 text-red-500 hover:bg-red-50 transition-colors"
                       title={t(STR.delete)}
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </button>}
                   </div>
                 </div>
 

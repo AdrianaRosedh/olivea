@@ -93,3 +93,28 @@ test.describe("seo endpoints", () => {
     expect(await sitemap.text()).toContain("<urlset");
   });
 });
+
+test.describe("production hardening", () => {
+  test("serves the expected browser security headers", async ({ request }) => {
+    const response = await request.get("/es");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["strict-transport-security"]).toContain("max-age=31536000");
+    expect(response.headers()["x-content-type-options"]).toBe("nosniff");
+    expect(response.headers()["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(response.headers()["permissions-policy"]).toContain("camera=()");
+  });
+
+  test("keeps design preview routes unavailable", async ({ request }) => {
+    expect((await request.get("/dev/editor-preview")).status()).toBe(404);
+    expect((await request.get("/dev/roster-preview")).status()).toBe(404);
+  });
+
+  test("serves press fallback content and rate-limited APIs", async ({ request }) => {
+    const press = await request.get("/es/press");
+    expect(press.status()).toBe(200);
+    expect(await press.text()).toContain("Sala de Prensa");
+
+    expect((await request.get("/api/banner?lang=es&path=/es")).status()).toBe(200);
+    expect((await request.get("/api/popup?lang=es&path=/es")).status()).toBe(200);
+  });
+});

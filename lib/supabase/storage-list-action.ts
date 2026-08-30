@@ -6,7 +6,7 @@
 "use server";
 
 import { listFiles, storagePublicUrl } from "./storage";
-import { requireSession } from "@/lib/auth/session";
+import { requireSectionAccess } from "@/lib/auth/session";
 
 interface MediaFileItem {
   name: string;
@@ -20,7 +20,7 @@ interface MediaFileItem {
  * List files in a storage folder. Returns items with public URLs.
  */
 export async function listStorageFiles(folder: string): Promise<MediaFileItem[]> {
-  await requireSession();
+  await requireSectionAccess("content.media", "viewer");
 
   // Sanitize folder
   const safeFolder = folder

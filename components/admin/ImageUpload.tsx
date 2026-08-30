@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { uploadImage, deleteImage } from "@/lib/supabase/storage-actions";
 import { compressImage, IMAGE_BUDGETS, type ImageBudget } from "@/lib/utils/compress-image";
+import { useAuth } from "@/components/admin/AuthProvider";
 
 interface ImageUploadProps {
   /** Current image URL (if any) */
@@ -52,6 +53,8 @@ export default function ImageUpload({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { canEdit, canDelete } = useAuth();
+  const interactionDisabled = disabled || !canEdit;
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -84,16 +87,16 @@ export default function ImageUpload({
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragOver(false);
-      if (disabled || uploading) return;
+      if (interactionDisabled || uploading) return;
 
       const file = e.dataTransfer.files[0];
       if (file && file.type.startsWith("image/")) {
         handleFile(file);
       } else {
-        setError("Please drop an image file (JPEG, PNG, WebP, SVG, or GIF)");
+        setError("Please drop an image file (JPEG, PNG, WebP, or GIF)");
       }
     },
-    [disabled, uploading, handleFile]
+    [interactionDisabled, uploading, handleFile]
   );
 
   const handleInputChange = useCallback(
@@ -112,7 +115,7 @@ export default function ImageUpload({
     setError(null);
 
     // Try to delete from storage (non-blocking — image may be external)
-    if (value.includes("/storage/v1/object/public/site-images/")) {
+    if (canDelete && value.includes("/storage/v1/object/public/site-images/")) {
       const result = await deleteImage(value);
       if (result.error) {
         // Don't block removal from the form — just clear the URL
@@ -122,19 +125,19 @@ export default function ImageUpload({
 
     onChange("");
     setUploading(false);
-  }, [value, onChange]);
+  }, [value, onChange, canDelete]);
 
   if (variant === "inline") {
     return (
       <div
         onDragOver={(e) => {
           e.preventDefault();
-          if (!disabled && !uploading) setDragOver(true);
+          if (!interactionDisabled && !uploading) setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         onClick={() => {
-          if (!disabled && !uploading) inputRef.current?.click();
+          if (!interactionDisabled && !uploading) inputRef.current?.click();
         }}
         title={
           error ??
@@ -145,7 +148,7 @@ export default function ImageUpload({
           group relative shrink-0 overflow-hidden rounded-lg ring-1 transition-colors
           ${dragOver ? "ring-2 ring-[var(--olivea-olive)]" : "ring-black/5"}
           ${error ? "ring-2 ring-red-400" : ""}
-          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${interactionDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           ${value ? "" : "bg-[var(--olivea-cream)]/40"}
         `}
       >
@@ -154,7 +157,7 @@ export default function ImageUpload({
           <img src={value} alt="" className="h-full w-full object-cover" />
         )}
 
-        {!uploading && !disabled && (
+        {!uploading && !interactionDisabled && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/45 group-hover:opacity-100">
             <Upload className="h-4 w-4 text-white" />
           </div>
@@ -175,10 +178,10 @@ export default function ImageUpload({
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/svg+xml,image/gif"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={handleInputChange}
           className="hidden"
-          disabled={disabled || uploading}
+          disabled={interactionDisabled || uploading}
         />
       </div>
     );
@@ -196,18 +199,18 @@ export default function ImageUpload({
       <div
         onDragOver={(e) => {
           e.preventDefault();
-          if (!disabled && !uploading) setDragOver(true);
+          if (!interactionDisabled && !uploading) setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         className={`
           relative rounded-lg border-2 border-dashed transition-colors overflow-hidden
           ${dragOver ? "border-olive-600 bg-olive-50/50" : "border-stone-300 bg-stone-50/50"}
-          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${interactionDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           ${!value ? aspectRatio : ""}
         `}
         onClick={() => {
-          if (!disabled && !uploading && !value) inputRef.current?.click();
+          if (!interactionDisabled && !uploading && !value) inputRef.current?.click();
         }}
       >
         {/* Loading overlay */}
@@ -227,7 +230,7 @@ export default function ImageUpload({
               alt="Uploaded"
               className={`w-full object-cover ${aspectRatio}`}
             />
-            {!disabled && (
+            {!interactionDisabled && (
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                 <button
                   type="button"
@@ -261,7 +264,7 @@ export default function ImageUpload({
             <p className="text-sm">
               {dragOver ? "Drop image here" : "Click or drag image here"}
             </p>
-            <p className="text-xs text-stone-400">JPEG, PNG, WebP, SVG, GIF · Max 5MB</p>
+            <p className="text-xs text-stone-400">JPEG, PNG, WebP, GIF · Max 5MB</p>
           </div>
         )}
       </div>
@@ -270,10 +273,10 @@ export default function ImageUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/svg+xml,image/gif"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         onChange={handleInputChange}
         className="hidden"
-        disabled={disabled || uploading}
+        disabled={interactionDisabled || uploading}
       />
 
       {/* URL text input (for manual entry or pasting external URLs) */}
@@ -283,7 +286,7 @@ export default function ImageUpload({
         onChange={(e) => onChange(e.target.value)}
         placeholder="Or paste an image URL..."
         className="w-full text-xs px-2.5 py-1.5 rounded border border-stone-300 bg-white/60 text-stone-600 focus:ring-1 focus:ring-olive-500 focus:border-olive-500 outline-none"
-        disabled={disabled}
+        disabled={interactionDisabled}
       />
 
       {/* Hint */}

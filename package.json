@@ -27,9 +27,10 @@
     }
   },
   "scripts": {
-    "postinstall": "node scripts/copy-pdf-worker.mjs",
-    "predev": "node scripts/copy-pdf-worker.mjs",
-    "prebuild": "node scripts/copy-pdf-worker.mjs",
+    "assets:prepare": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
+    "postinstall": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
+    "predev": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
+    "prebuild": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
     "dev": "next dev --hostname olivea-localhost --port 3000",
     "dev:local": "cross-env HOST=olivea-localhost PORT=3000 next dev",
     "build": "next build",
@@ -37,6 +38,7 @@
     "start:local": "cross-env HOST=olivea-localhost PORT=3000 next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test:security": "vitest run tests/security",
     "test:e2e": "playwright test",
     "analyze": "ANALYZE=true next build",
     "images:formats": "node scripts/convert-missing-formats.mjs",
@@ -86,6 +88,7 @@
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "resend": "^4.5.1",
+    "sanitize-html": "^2.17.7",
     "tailwind-merge": "^3.2.0",
     "zod": "^3.25.76"
   },
@@ -99,6 +102,7 @@
     "@types/node": "^24.7.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
+    "@types/sanitize-html": "^2.16.1",
     "cross-env": "^7.0.3",
     "eslint": "^9.37.0",
     "eslint-config-next": "16.2.9",
@@ -117,6 +121,7 @@
     "tailwindcss": "^4.1.5",
     "ts-prune": "^0.10.3",
     "typescript": "^5",
+    "vitest": "^4.1.11",
     "webpack-bundle-analyzer": "^4.10.2"
   }
 }

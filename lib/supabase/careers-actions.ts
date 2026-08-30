@@ -15,8 +15,23 @@ import {
   upsertRows,
   assertUUID,
 } from "@/lib/supabase/client";
-import { requireSession } from "@/lib/auth/session";
+import { requireRole, requireSectionAccess } from "@/lib/auth/session";
 import { signedResumeUrl } from "@/lib/supabase/resume-storage";
+
+const CAREERS_SECTION = "pages.careers";
+
+async function requireCareersViewer() {
+  return requireSectionAccess(CAREERS_SECTION, "viewer");
+}
+
+async function requireCareersEditor() {
+  return requireSectionAccess(CAREERS_SECTION, "editor");
+}
+
+async function requireCareersManager() {
+  await requireSectionAccess(CAREERS_SECTION, "editor");
+  return requireRole("manager");
+}
 
 // The public careers page caches its data — bust it whenever openings change.
 function revalidateCareers() {
@@ -155,7 +170,7 @@ function mapApplication(r: ApplicationRow, openingTitle?: string): JobApplicatio
 // ── Job Openings CRUD ───────────────────────────────────────────────
 
 export async function getJobOpenings(): Promise<JobOpening[]> {
-  await requireSession();
+  await requireCareersViewer();
   if (!isSupabaseConfigured) return [];
   try {
     const rows = await selectRows<OpeningRow>("job_openings", {
@@ -170,7 +185,7 @@ export async function getJobOpenings(): Promise<JobOpening[]> {
 }
 
 export async function saveJobOpening(opening: Partial<JobOpening> & { id?: string }): Promise<JobOpening | null> {
-  await requireSession();
+  await requireCareersEditor();
   if (!isSupabaseConfigured) return null;
 
   const row: Record<string, unknown> = {
@@ -203,7 +218,7 @@ export async function saveJobOpening(opening: Partial<JobOpening> & { id?: strin
 }
 
 export async function deleteJobOpening(id: string): Promise<void> {
-  await requireSession();
+  await requireCareersManager();
   assertUUID(id, "openingId");
   if (!isSupabaseConfigured) return;
   await deleteRows("job_openings", `id=eq.${id}`);
@@ -211,7 +226,7 @@ export async function deleteJobOpening(id: string): Promise<void> {
 }
 
 export async function toggleJobOpeningStatus(id: string, status: "draft" | "live" | "closed"): Promise<void> {
-  await requireSession();
+  await requireCareersEditor();
   assertUUID(id, "openingId");
   if (!isSupabaseConfigured) return;
   const updates: Record<string, unknown> = { status, updated_at: new Date().toISOString() };
@@ -223,7 +238,7 @@ export async function toggleJobOpeningStatus(id: string, status: "draft" | "live
 // ── Job Applications ────────────────────────────────────────────────
 
 export async function getJobApplications(): Promise<JobApplication[]> {
-  await requireSession();
+  await requireCareersManager();
   if (!isSupabaseConfigured) return [];
   try {
     // Fetch applications and openings in parallel
@@ -249,7 +264,7 @@ export async function updateApplicationStatus(
   id: string,
   status: JobApplication["status"]
 ): Promise<void> {
-  await requireSession();
+  await requireCareersManager();
   assertUUID(id, "applicationId");
   if (!isSupabaseConfigured) return;
   const validStatuses = ["applied", "reviewing", "interview", "offer", "hired", "rejected"];
@@ -269,7 +284,7 @@ export async function addApplicationNote(
   id: string,
   note: { text: string; author: string }
 ): Promise<void> {
-  await requireSession();
+  await requireCareersManager();
   assertUUID(id, "applicationId");
   if (!isSupabaseConfigured) return;
 
@@ -298,7 +313,7 @@ export async function addApplicationNote(
 export async function getResumeDownloadUrl(
   applicationId: string
 ): Promise<string | null> {
-  await requireSession();
+  await requireCareersManager();
   assertUUID(applicationId, "applicationId");
   if (!isSupabaseConfigured) return null;
   const [row] = await selectRows<{ resume_url: string | null }>(
@@ -407,7 +422,7 @@ export async function getHiringPromo(): Promise<"auto" | "on" | "off"> {
  * (or the other careers content columns).
  */
 export async function setHiringPromo(value: "auto" | "on" | "off"): Promise<void> {
-  await requireSession();
+  await requireCareersEditor();
   if (!isSupabaseConfigured) return;
   const row = await selectOne<{ openings: Record<string, unknown> | null }>(
     "careers_content",
@@ -532,7 +547,7 @@ export async function getApplicationStatus(
  * write to the person before the status page says anything.
  */
 export async function publishApplicationOutcome(id: string): Promise<void> {
-  await requireSession();
+  await requireCareersManager();
   assertUUID(id, "applicationId");
   if (!isSupabaseConfigured) return;
   await updateRows("job_applications", `id=eq.${id}`, {

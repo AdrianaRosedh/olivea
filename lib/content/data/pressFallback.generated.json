@@ -1,0 +1,567 @@
+{
+  "items": {
+    "es": [
+      {
+        "kind": "award",
+        "id": "pmg-sustainability-2026",
+        "publishedAt": "2026-02-05",
+        "issuer": "Los250mx Culinaria Mexicana",
+        "for": "restaurant",
+        "title": "Premio México Gastronómico de Sustentabilidad 2026",
+        "tags": [
+          "México Gastronómico",
+          "Sustentabilidad",
+          "Culinaria Mexicana",
+          "Reconocimiento"
+        ],
+        "links": [
+          {
+            "label": "Fuente oficial",
+            "href": "https://www.culinariamexicana.com.mx/guia-mexico-gastronomico-2026-2/"
+          }
+        ],
+        "blurb": "Olivea recibió el Premio México Gastronómico de Sustentabilidad 2026, un reconocimiento otorgado por Culinaria Mexicana a los proyectos que destacan por su compromiso integral con la sostenibilidad, el territorio y las prácticas responsables dentro de la gastronomía en México."
+      },
+      {
+        "kind": "mention",
+        "id": "wsj-best-travel-destinations-2026",
+        "publishedAt": "2025-12-18",
+        "issuer": "The Wall Street Journal",
+        "for": "olivea",
+        "title": "Best Travel Destinations 2026 — Wall Street Journal",
+        "section": "Guadalupe Valley, Mexico",
+        "tags": [
+          "WSJ",
+          "Viajes",
+          "Reportaje"
+        ],
+        "links": [
+          {
+            "label": "Leer artículo",
+            "href": "https://www.wsj.com/lifestyle/travel/best-travel-destinations-vacation-2026-16c79c69"
+          }
+        ],
+        "blurb": "Olivea fue destacada dentro de la sección “Guadalupe Valley, Mexico”.",
+        "cover": {
+          "src": "/images/press/mentions/wsj-2026.jpg",
+          "alt": "WSJ — Mejores destinos para viajar 2026"
+        }
+      },
+      {
+        "kind": "award",
+        "id": "mb100-2025",
+        "publishedAt": "2025-11-19",
+        "issuer": "Marco Beteta — MB100",
+        "for": "restaurant",
+        "title": "MB100 — Marco Beteta",
+        "tags": [
+          "MB100",
+          "Marco Beteta",
+          "Reconocimiento"
+        ],
+        "links": [
+          {
+            "label": "Fuente oficial",
+            "href": "https://mbmarcobeteta.com/lugares/olivea/"
+          }
+        ],
+        "blurb": "Olivea fue seleccionada en MB100 de Marco Beteta, un reconocimiento a su propuesta gastronómica en Valle de Guadalupe."
+      },
+      {
+        "kind": "mention",
+        "id": "bajaflavors-mesas-de-vida-ange-joy",
+        "publishedAt": "2025-11-14",
+        "issuer": "Baja Flavors",
+        "for": "olivea",
+        "title": "Mesas de Vida — Baja Flavors",
+        "section": "Perfil",
+        "tags": [
+          "Baja Flavors",
+          "Perfil",
+          "Comunidad",
+          "Valle de Guadalupe"
+        ],
+        "links": [
+          {
+            "label": "Leer artículo",
+            "href": "https://bajaflavors.com/perfil/mesas-de-vida/"
+          }
+        ],
+        "blurb": "En el artículo “Mesas de Vida”, publicado por Baja Flavors y escrito por Humberto Ballesteros, se perfila a Ange Joy, fundadora de Olivea, como una voz que propone una forma más consciente de habitar el Valle de Guadalupe.\n\nEl texto reflexiona sobre la mesa como espacio de encuentro, el huerto como origen y la comunidad como esencia, destacando la visión humana y sensible que Ange imprime en Olivea.",
+        "cover": {
+          "src": "/images/press/mentions/bajaFlavorMesa-de-vida.jpg",
+          "alt": "Baja Flavors — Mesas de Vida · Ange Joy"
+        }
+      },
+      {
+        "kind": "award",
+        "id": "michelin-star-green-2025",
+        "publishedAt": "2025-06-03",
+        "issuer": "MICHELIN Guide",
+        "for": "restaurant",
+        "title": "Estrella MICHELIN & Estrella Verde",
+        "tags": [
+          "MICHELIN",
+          "Green Star",
+          "Sostenibilidad"
+        ],
+        "links": [
+          {
+            "label": "Fuente oficial",
+            "href": "https://guide.michelin.com/en/baja-california/ensenada_2059847/restaurant/olivea-farm-to-table"
+          }
+        ],
+        "blurb": "Reconocimiento a la excelencia culinaria y a las prácticas sostenibles impulsadas por el huerto en Olivea Farm To Table.",
+        "starred": true
+      },
+      {
+        "kind": "award",
+        "id": "michelin-guide-hotel-casa-olivea-2026",
+        "publishedAt": "2025-01-17",
+        "issuer": "MICHELIN Guide (Hotels & Stays)",
+        "for": "hotel",
+        "title": "Casa Olivea en MICHELIN Guide (Hotels & Stays)",
+        "tags": [
+          "MICHELIN Guide",
+          "Hotels & Stays"
+        ],
+        "links": [
+          {
+            "label": "Fuente oficial",
+            "href": "https://guide.michelin.com/mx/es/hotels-stays/Ensenada/casa-olivea-14762?arr=2026-01-17&dep=2026-01-18&nA=1&nC=0&nR=1"
+          }
+        ],
+        "blurb": "Casa Olivea aparece en MICHELIN Guide (Hotels & Stays) como hospedaje recomendado en Ensenada, Baja California."
+      }
+    ],
+    "en": [
+      {
+        "kind": "award",
+        "id": "pmg-sustainability-2026",
+        "publishedAt": "2026-02-05",
+        "issuer": "Los250mx Culinaria Mexicana",
+        "for": "restaurant",
+        "title": "México Gastronómico Sustainability Award 2026",
+        "tags": [
+          "México Gastronómico",
+          "Sustainability",
+          "Culinaria Mexicana",
+          "Recognition"
+        ],
+        "links": [
+          {
+            "label": "Official source",
+            "href": "https://www.culinariamexicana.com.mx/guia-mexico-gastronomico-2026-2/"
+          }
+        ],
+        "blurb": "Olivea received the México Gastronómico Sustainability Award 2026, a recognition granted by Culinaria Mexicana to projects that demonstrate a deep commitment to sustainability, territory, and responsible practices within Mexican gastronomy."
+      },
+      {
+        "kind": "mention",
+        "id": "wsj-best-travel-destinations-2026",
+        "publishedAt": "2025-12-18",
+        "issuer": "The Wall Street Journal",
+        "for": "olivea",
+        "title": "Best Travel Destinations 2026 — Wall Street Journal",
+        "section": "Guadalupe Valley, Mexico",
+        "tags": [
+          "WSJ",
+          "Travel",
+          "Feature"
+        ],
+        "links": [
+          {
+            "label": "Read article",
+            "href": "https://www.wsj.com/lifestyle/travel/best-travel-destinations-vacation-2026-16c79c69"
+          }
+        ],
+        "blurb": "Olivea is featured under the “Guadalupe Valley, Mexico” section.",
+        "cover": {
+          "src": "/images/press/mentions/wsj-2026.jpg",
+          "alt": "WSJ — Best Travel Destinations 2026"
+        }
+      },
+      {
+        "kind": "award",
+        "id": "mb100-2025",
+        "publishedAt": "2025-11-19",
+        "issuer": "Marco Beteta — MB100",
+        "for": "restaurant",
+        "title": "MB100 — Marco Beteta",
+        "tags": [
+          "MB100",
+          "Marco Beteta",
+          "Award"
+        ],
+        "links": [
+          {
+            "label": "Official source",
+            "href": "https://mbmarcobeteta.com/lugares/olivea/"
+          }
+        ],
+        "blurb": "Olivea was included in Marco Beteta’s MB100, recognizing its culinary proposal in Valle de Guadalupe."
+      },
+      {
+        "kind": "mention",
+        "id": "bajaflavors-mesas-de-vida-ange-joy",
+        "publishedAt": "2025-11-14",
+        "issuer": "Baja Flavors",
+        "for": "olivea",
+        "title": "Mesas de Vida — Baja Flavors",
+        "section": "Profile",
+        "tags": [
+          "Baja Flavors",
+          "Profile",
+          "Community",
+          "Valle de Guadalupe"
+        ],
+        "links": [
+          {
+            "label": "Read article",
+            "href": "https://bajaflavors.com/perfil/mesas-de-vida/"
+          }
+        ],
+        "blurb": "In “Mesas de Vida”, published by Baja Flavors and written by Humberto Ballesteros, Ange Joy, founder of Olivea, is portrayed as a voice advocating for a more conscious way of living in Valle de Guadalupe.\n\nThe piece reflects on the table as a place of gathering, the garden as origin, and community as essence — highlighting the human-centered vision that Ange brings to Olivea.",
+        "cover": {
+          "src": "/images/press/mentions/bajaFlavorMesa-de-vida.jpg",
+          "alt": "Baja Flavors — Mesas de Vida · Ange Joy"
+        }
+      },
+      {
+        "kind": "award",
+        "id": "michelin-star-green-2025",
+        "publishedAt": "2025-06-03",
+        "issuer": "MICHELIN Guide",
+        "for": "restaurant",
+        "title": "MICHELIN Star & Green Star",
+        "tags": [
+          "MICHELIN",
+          "Green Star",
+          "Sustainability"
+        ],
+        "links": [
+          {
+            "label": "Official source",
+            "href": "https://guide.michelin.com/en/baja-california/ensenada_2059847/restaurant/olivea-farm-to-table"
+          }
+        ],
+        "blurb": "Recognition of both culinary excellence and sustainability-driven practices at Olivea Farm To Table.",
+        "starred": true
+      },
+      {
+        "kind": "award",
+        "id": "michelin-guide-hotel-casa-olivea-2026",
+        "publishedAt": "2025-01-17",
+        "issuer": "MICHELIN Guide (Hotels & Stays)",
+        "for": "hotel",
+        "title": "Casa Olivea on the MICHELIN Guide (Hotels & Stays)",
+        "tags": [
+          "MICHELIN Guide",
+          "Hotels & Stays"
+        ],
+        "links": [
+          {
+            "label": "Official source",
+            "href": "https://guide.michelin.com/mx/es/hotels-stays/Ensenada/casa-olivea-14762?arr=2026-01-17&dep=2026-01-18&nA=1&nC=0&nR=1"
+          }
+        ],
+        "blurb": "Casa Olivea is listed in the MICHELIN Guide (Hotels & Stays) as a recommended stay in Ensenada, Baja California."
+      }
+    ]
+  },
+  "manifest": {
+    "version": "2026.03",
+    "updatedAt": "2026-03-01",
+    "contactEmail": "pr@casaolivea.com",
+    "downloads": {
+      "fullKit": "/api/press/full-kit",
+      "logos": "/images/press/Olivea-Logos.zip",
+      "photos": "/images/press/Olivea-Photos.zip",
+      "factsheet": "/images/press/Olivea-FactSheet.pdf"
+    },
+    "copy": {
+      "es": {
+        "headline": "Sala de Prensa",
+        "subhead": "Recursos oficiales: logos, fact sheet y fotografías descargables.",
+        "usageTitle": "Uso editorial",
+        "usageBody": "Material disponible para uso editorial en cobertura de Olivea. Crédito requerido cuando aplique. Para usos comerciales, contáctanos.",
+        "boilerplate30": "Olivea es un ecosistema gastronómico y de hospitalidad arraigado al huerto en Valle de Guadalupe.",
+        "boilerplate80": "Olivea integra Olivea Farm To Table, Casa Olivea y Olivea Café Wine Bar en una experiencia 360° arraigada al huerto, el territorio y la sustentabilidad."
+      },
+      "en": {
+        "headline": "Press Room",
+        "subhead": "Official logos, fact sheet, and downloadable photography.",
+        "usageTitle": "Editorial use",
+        "usageBody": "Assets provided for editorial coverage of Olivea. Credit required where applicable. For commercial usage, please contact us.",
+        "boilerplate30": "Olivea is a garden-rooted hospitality and culinary ecosystem in Valle de Guadalupe.",
+        "boilerplate80": "Olivea integrates Olivea Farm To Table, Casa Olivea, and Olivea Café Wine Bar into a 360° experience shaped by terroir, technique, and sustainability."
+      }
+    },
+    "media": [
+      {
+        "id": "people-chef-daniel-nates-01",
+        "category": "people",
+        "title": {
+          "es": "Chef Daniel Nates",
+          "en": "Chef Daniel Nates"
+        },
+        "web": "/images/press/media/web/chefdanielnates.jpg",
+        "hires": "/images/press/media/hires/chefdanielnates.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-habitacion-01",
+        "category": "hotel",
+        "title": {
+          "es": "Habitación de Casa Olivea",
+          "en": "Room in Casa Olivea"
+        },
+        "web": "/images/press/media/web/habitacion.jpg",
+        "hires": "/images/press/media/hires/habitacion.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "garden-huertitos-01",
+        "category": "garden",
+        "title": {
+          "es": "Huertitos",
+          "en": "Garden Beds"
+        },
+        "web": "/images/press/media/web/huertitos.jpg",
+        "hires": "/images/press/media/hires/huertitos.png",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "people-leaderes-trio-01",
+        "category": "people",
+        "title": {
+          "es": "Líderes",
+          "en": "Leaders"
+        },
+        "web": "/images/press/media/web/leaderestrio.jpg",
+        "hires": "/images/press/media/hires/leaderestrio.png",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-bed-01",
+        "category": "hotel",
+        "title": {
+          "es": "Cama de Casa Olivea",
+          "en": "Bed in Casa Olivea"
+        },
+        "web": "/images/press/media/web/bed.jpg",
+        "hires": "/images/press/media/hires/bed.jpeg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "cafe-olivea-cafe-01",
+        "category": "cafe",
+        "title": {
+          "es": "Olivea Café Wine Bar",
+          "en": "Olivea Café Wine Bar"
+        },
+        "web": "/images/press/media/web/cafe.jpg",
+        "hires": "/images/press/media/hires/cafe.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-cama-01",
+        "category": "hotel",
+        "title": {
+          "es": "Cama de Casa Olivea",
+          "en": "Bed in Casa Olivea"
+        },
+        "web": "/images/press/media/web/cama.jpg",
+        "hires": "/images/press/media/hires/cama.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "hotel-lounge-01",
+        "category": "hotel",
+        "title": {
+          "es": "Lounge de Olivea",
+          "en": "Olivea's Lounge"
+        },
+        "web": "/images/press/media/web/lounge.jpg",
+        "hires": "/images/press/media/hires/lounge.png",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "people-ange-adriana-01",
+        "category": "people",
+        "title": {
+          "es": "Ange & Adriana Rose",
+          "en": "Ange & Adriana Rose"
+        },
+        "web": "/images/press/media/web/olivea-ange-adriana.jpg",
+        "hires": "/images/press/media/hires/olivea-ange-adriana.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "architecture-firepit-01",
+        "category": "architecture",
+        "title": {
+          "es": "Firepit",
+          "en": "Firepit"
+        },
+        "web": "/images/press/media/web/olivea-firepit.jpg",
+        "hires": "/images/press/media/hires/olivea-firepit.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "food-plato-choro-01",
+        "category": "food",
+        "title": {
+          "es": "Plato de Choro",
+          "en": "Mussel Plate"
+        },
+        "web": "/images/press/media/web/platochoro.jpg",
+        "hires": "/images/press/media/hires/platochoro.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "food-plato-olivea-01",
+        "category": "food",
+        "title": {
+          "es": "Plato Olivea",
+          "en": "Olivea's Dish"
+        },
+        "web": "/images/press/media/web/platoolivea.jpg",
+        "hires": "/images/press/media/hires/platoolivea.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "architecture-background-01",
+        "category": "architecture",
+        "title": {
+          "es": "Plato de Bacalao",
+          "en": "Bacalao Plate"
+        },
+        "web": "/images/press/media/web/background.jpg",
+        "hires": "/images/press/media/hires/background.png",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-bokchoi-01",
+        "category": "food",
+        "title": {
+          "es": "Bok Choi",
+          "en": "Bok Choi"
+        },
+        "web": "/images/press/media/web/bokchoi.jpg",
+        "hires": "/images/press/media/hires/bokchoi.jpg",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-cangrejo-01",
+        "category": "food",
+        "title": {
+          "es": "Plato de Cangrejo",
+          "en": "Crab Plate"
+        },
+        "web": "/images/press/media/web/cangrejo.jpg",
+        "hires": "/images/press/media/hires/cangrejo.jpg",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-choro-01",
+        "category": "food",
+        "title": {
+          "es": "Plato Choro",
+          "en": "Mussel Plate"
+        },
+        "web": "/images/press/media/web/choro.jpg",
+        "hires": "/images/press/media/hires/choro.jpg",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-curry-01",
+        "category": "food",
+        "title": {
+          "es": "Curry de Kumquat",
+          "en": "Kumquat Curry"
+        },
+        "web": "/images/press/media/web/curry.jpg",
+        "hires": "/images/press/media/hires/curry.jpg",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-hongos-01",
+        "category": "food",
+        "title": {
+          "es": "Plato de Hongos",
+          "en": "Mushroom Plate"
+        },
+        "web": "/images/press/media/web/hongos.jpg",
+        "hires": "/images/press/media/hires/hongos.jpg",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-olivea-01",
+        "category": "food",
+        "title": {
+          "es": "Plato de Olivea",
+          "en": "Olivea's Plate"
+        },
+        "web": "/images/press/media/web/olivea.jpg",
+        "hires": "/images/press/media/hires/olivea.jpg",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-olivea-02",
+        "category": "food",
+        "title": {
+          "es": "Plato de Olivea",
+          "en": "Olivea's Plate"
+        },
+        "web": "/images/press/media/web/olivea2.jpg",
+        "hires": "/images/press/media/hires/olivea2.jpg",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "architecture-salon-01",
+        "category": "architecture",
+        "title": {
+          "es": "Salón de Olivea Farm To Table",
+          "en": "Salon of Olivea Farm To Table"
+        },
+        "web": "/images/press/media/web/salon.jpg",
+        "hires": "/images/press/media/hires/salon.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "architecture-salon-02",
+        "category": "architecture",
+        "title": {
+          "es": "Salón de Olivea Farm To Table",
+          "en": "Salon of Olivea Farm To Table"
+        },
+        "web": "/images/press/media/web/salon2.jpg",
+        "hires": "/images/press/media/hires/salon2.jpg",
+        "credit": "Technicolor | Creative Studio"
+      },
+      {
+        "id": "food-tamal-01",
+        "category": "food",
+        "title": {
+          "es": "Plato de Tamal",
+          "en": "Tamal Dish"
+        },
+        "web": "/images/press/media/web/tamal.jpg",
+        "hires": "/images/press/media/hires/tamal.png",
+        "credit": "Adriana Rose"
+      },
+      {
+        "id": "food-pollito-01",
+        "category": "food",
+        "title": {
+          "es": "Pollito de Leche",
+          "en": "Milk Chick"
+        },
+        "web": "/images/press/media/web/pollito.jpg",
+        "hires": "/images/press/media/hires/pollito.jpg",
+        "credit": "Adriana Rose"
+      }
+    ]
+  }
+}

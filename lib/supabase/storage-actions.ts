@@ -5,12 +5,42 @@
 "use server";
 
 import { uploadFile, deleteFile, storagePublicUrl, VIDEO_BUCKET } from "./storage";
-import { isSupabaseConfigured } from "./config";
+import { isSupabaseConfigured, SUPABASE_URL } from "./config";
+import {
+  extensionForUploadType,
+  sniffRasterImageType,
+  sniffVideoType,
+} from "@/lib/uploads/file-types";
 
 async function requireEditor() {
   if (!isSupabaseConfigured) return;
-  const { requireRole } = await import("@/lib/auth/session");
-  await requireRole("editor");
+  const { requireSectionAccess } = await import("@/lib/auth/session");
+  await requireSectionAccess("content.media", "editor");
+}
+
+async function requireManager() {
+  if (!isSupabaseConfigured) return;
+  const { requireRole, requireSectionAccess } = await import("@/lib/auth/session");
+  await requireSectionAccess("content.media", "editor");
+  await requireRole("manager");
+}
+
+function storagePathFromPublicUrl(publicUrl: string, bucket: string): string | null {
+  try {
+    const url = new URL(publicUrl);
+    if (!SUPABASE_URL || url.origin !== new URL(SUPABASE_URL).origin) return null;
+
+    const marker = `/storage/v1/object/public/${bucket}/`;
+    if (!url.pathname.startsWith(marker)) return null;
+
+    const path = decodeURIComponent(url.pathname.slice(marker.length));
+    if (!path || path.split("/").some((part) => !part || part === "." || part === "..")) {
+      return null;
+    }
+    return path;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -34,19 +64,22 @@ export async function uploadImage(formData: FormData): Promise<{ url: string; er
       return { url: "", error: "No file provided" };
     }
 
-    // Validate file type
-    const allowed = ["image/jpeg", "image/png", "image/webp", "image/svg+xml", "image/gif"];
-    if (!allowed.includes(file.type)) {
-      return { url: "", error: `File type ${file.type} not allowed. Use JPEG, PNG, WebP, SVG, or GIF.` };
-    }
-
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       return { url: "", error: "File too large. Maximum 5MB." };
     }
 
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const detectedType = sniffRasterImageType(bytes);
+    if (!detectedType) {
+      return {
+        url: "",
+        error: "File contents are not a supported image. Use JPEG, PNG, WebP, or GIF.",
+      };
+    }
+
     // Generate a clean filename: timestamp-originalname
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const ext = extensionForUploadType(detectedType);
     const safeName = file.name
       .replace(/\.[^.]+$/, "")           // remove extension
       .replace(/[^a-zA-Z0-9_-]/g, "-")   // sanitize
@@ -55,8 +88,7 @@ export async function uploadImage(formData: FormData): Promise<{ url: string; er
     const timestamp = Date.now();
     const path = `${folder}/${timestamp}-${safeName}.${ext}`;
 
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const { publicUrl } = await uploadFile(path, bytes, file.type, { upsert: true });
+    const { publicUrl } = await uploadFile(path, bytes, detectedType, { upsert: true });
 
     return { url: publicUrl };
   } catch (err) {
@@ -71,14 +103,11 @@ export async function uploadImage(formData: FormData): Promise<{ url: string; er
  */
 export async function deleteImage(publicUrl: string): Promise<{ error?: string }> {
   try {
-    await requireEditor();
-    // Extract path from URL: .../storage/v1/object/public/site-images/folder/file.jpg
-    const marker = "/storage/v1/object/public/site-images/";
-    const idx = publicUrl.indexOf(marker);
-    if (idx === -1) {
+    await requireManager();
+    const path = storagePathFromPublicUrl(publicUrl, "site-images");
+    if (!path) {
       return { error: "Not a valid storage URL" };
     }
-    const path = publicUrl.slice(idx + marker.length);
     await deleteFile(path);
     return {};
   } catch (err) {
@@ -123,14 +152,6 @@ export async function uploadVideo(
 
     if (!file || !file.size) return { url: "", error: "No file provided" };
 
-    const allowed = ["video/mp4", "video/webm"];
-    if (!allowed.includes(file.type)) {
-      return {
-        url: "",
-        error: `${file.type || "That file"} is not supported. Use MP4 or WebM.`,
-      };
-    }
-
     if (file.size > VIDEO_MAX_BYTES) {
       const mb = (file.size / 1024 / 1024).toFixed(1);
       return {
@@ -139,7 +160,13 @@ export async function uploadVideo(
       };
     }
 
-    const ext = file.type === "video/webm" ? "webm" : "mp4";
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const detectedType = sniffVideoType(bytes);
+    if (!detectedType) {
+      return { url: "", error: "File contents are not a supported MP4 or WebM video." };
+    }
+
+    const ext = extensionForUploadType(detectedType);
     const safeName = file.name
       .replace(/\.[^.]+$/, "")
       .replace(/[^a-zA-Z0-9_-]/g, "-")
@@ -147,8 +174,7 @@ export async function uploadVideo(
       .substring(0, 60);
     const path = `${folder}/${Date.now()}-${safeName}.${ext}`;
 
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const { publicUrl } = await uploadFile(path, bytes, file.type, {
+    const { publicUrl } = await uploadFile(path, bytes, detectedType, {
       upsert: true,
       bucket: VIDEO_BUCKET,
     });
@@ -163,11 +189,10 @@ export async function uploadVideo(
 /** Delete a video by its public URL. */
 export async function deleteVideo(publicUrl: string): Promise<{ error?: string }> {
   try {
-    await requireEditor();
-    const marker = `/storage/v1/object/public/${VIDEO_BUCKET}/`;
-    const idx = publicUrl.indexOf(marker);
-    if (idx === -1) return { error: "Not a valid video storage URL" };
-    await deleteFile(publicUrl.slice(idx + marker.length), VIDEO_BUCKET);
+    await requireManager();
+    const path = storagePathFromPublicUrl(publicUrl, VIDEO_BUCKET);
+    if (!path) return { error: "Not a valid video storage URL" };
+    await deleteFile(path, VIDEO_BUCKET);
     return {};
   } catch (err) {
     const message = err instanceof Error ? err.message : "Delete failed";

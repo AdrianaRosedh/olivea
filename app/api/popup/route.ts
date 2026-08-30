@@ -5,10 +5,8 @@
 // static seed in lib/content/data/popups.ts when Supabase is unavailable/
 // unconfigured. No deploy needed for popup changes.
 //
-// Edge runtime: the rate limit is a per-isolate best-effort guard. On edge,
-// state is fragmented across more isolates than on Node lambdas, but the
-// endpoint is CDN-cached with s-maxage=60, so most traffic never reaches a
-// handler — this limit only catches obviously-scripted abuse behind the cache.
+// Edge runtime: rate limits are shared through Supabase, with an in-isolate
+// fallback if the RPC is unavailable. CDN caching still absorbs most traffic.
 export const runtime = "edge";
 
 import { NextResponse } from "next/server";
@@ -21,7 +19,7 @@ import {
   validateBilingualBlock,
   validateOptionalPathList,
 } from "@/lib/contentRules";
-import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { rateLimitDistributed, clientIp } from "@/lib/rate-limit";
 // Content layer — single source of truth (was: @/content/popups/active.json)
 import popupItems from "@/lib/content/data/popups";
 
@@ -260,7 +258,10 @@ const nullPopup = () =>
 
 export async function GET(req: Request) {
   // Rate limit first — cheapest path out.
-  const { ok, retryAfter } = rateLimit(clientIp(req), RATE_LIMIT);
+  const { ok, retryAfter } = await rateLimitDistributed(
+    `popup:${clientIp(req)}`,
+    RATE_LIMIT,
+  );
   if (!ok) {
     return new NextResponse("Too Many Requests", {
       status: 429,
