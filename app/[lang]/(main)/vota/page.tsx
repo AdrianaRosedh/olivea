@@ -7,7 +7,7 @@
 // footer, docks and section nav for it (see isFullViewport there).
 import type { Metadata, Viewport } from "next";
 import type { Lang } from "../dictionaries";
-import { localeAlternates } from "@/lib/site";
+import { localeAlternates, canonicalUrl, SITE } from "@/lib/site";
 import { VOTE_COPY } from "./copy";
 import VoteClient from "./VoteClient";
 import "./vota.css";
@@ -25,11 +25,32 @@ export async function generateMetadata({
   const lang: Lang = raw === "en" ? "en" : "es";
   const copy = VOTE_COPY[lang];
 
+  // A purpose-built share card so the link preview reads as the vote — not the
+  // site's default food photo, which said nothing about Reader's Choice. One
+  // per locale; absolute URL so scrapers (WhatsApp, etc.) can fetch it.
+  const ogImage = canonicalUrl(lang === "en" ? "/images/seo/vota-og-en.jpg" : "/images/seo/vota-og.jpg");
+  const ogTitle = `${copy.title} | OLIVEA`;
+
   return {
+    metadataBase: new URL(SITE.canonicalBaseUrl),
     alternates: localeAlternates(lang, "/vota"),
-    title: `${copy.title} | OLIVEA`,
+    title: ogTitle,
     description: copy.lead,
-    openGraph: { title: `${copy.title} | OLIVEA`, description: copy.lead },
+    openGraph: {
+      title: ogTitle,
+      description: copy.lead,
+      url: canonicalUrl(`/${lang}/vota`),
+      siteName: "OLIVEA",
+      locale: lang === "en" ? "en_US" : "es_MX",
+      type: "website",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: ogTitle }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: copy.lead,
+      images: [ogImage],
+    },
   };
 }
 
