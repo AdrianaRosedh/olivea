@@ -397,33 +397,48 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
               ? "relative w-full pt-16 md:pt-28 pb-20"
               : "relative w-full pt-16 md:pt-28 pb-20"
         }
-        style={{
-          paddingLeft: "max(var(--gutter), env(safe-area-inset-left))",
-          paddingRight: "max(var(--gutter), env(safe-area-inset-right))",
-        }}
+        style={
+          isBareShell
+            ? undefined
+            : {
+                paddingLeft: "max(var(--gutter), env(safe-area-inset-left))",
+                paddingRight: "max(var(--gutter), env(safe-area-inset-right))",
+              }
+        }
       >
-        <SubtleContentFade duration={0.65}>
-          <div
-            // Pages with a chapter rail position via --content-left so the
-            // column yields to the expanded rail instead of sliding under
-            // it (below 1281px the variable equals plain centering, so this
-            // is identical to mx-auto there). Pages without a rail center.
-            className={isBareShell || (identity && !isMobileLike) ? "" : "mx-auto"}
-            style={
-              isBareShell
-                ? undefined
-                : identity && !isMobileLike
+        {isBareShell ? (
+          // Full-viewport pages (home, /vota) render their own fixed layout and
+          // supply their own chrome. They must NOT sit inside SubtleContentFade:
+          // its wrapper carries `will-change: opacity` and animates, and in
+          // WebKit (iOS Safari, in-app browsers) a will-change / animated
+          // ancestor becomes the containing block for `position: fixed`
+          // descendants — which collapsed the whole vote page to nothing while
+          // the cream body showed through. The homepage avoids this by living
+          // outside LayoutShell entirely; this gives the vote page the same
+          // clean, un-wrapped mount. No page fade here, by design.
+          children
+        ) : (
+          <SubtleContentFade duration={0.65}>
+            <div
+              // Pages with a chapter rail position via --content-left so the
+              // column yields to the expanded rail instead of sliding under
+              // it (below 1281px the variable equals plain centering, so this
+              // is identical to mx-auto there). Pages without a rail center.
+              className={identity && !isMobileLike ? "" : "mx-auto"}
+              style={
+                identity && !isMobileLike
                   ? {
                       width: "var(--content-w)",
                       marginLeft:
                         "calc(var(--content-left) - max(var(--gutter), env(safe-area-inset-left)))",
                     }
                   : { width: "var(--content-w)" }
-            }
-          >
-            {allowHeroBreakout ? <NavigationProvider>{children}</NavigationProvider> : children}
-          </div>
-        </SubtleContentFade>
+              }
+            >
+              {allowHeroBreakout ? <NavigationProvider>{children}</NavigationProvider> : children}
+            </div>
+          </SubtleContentFade>
+        )}
       </main>
 
       {/* FOOTER */}
