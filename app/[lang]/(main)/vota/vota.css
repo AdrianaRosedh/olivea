@@ -1,15 +1,19 @@
 /* app/[lang]/(main)/vota/vota.css
    Entrance motion for the vote page.
 
-   The site's <Reveal> uses framer-motion `whileInView`, which parks content at
-   opacity 0 until an IntersectionObserver fires. That is the right trade
-   everywhere else — but this page is what a guest lands on from a QR code at
-   the table, often on slow restaurant wifi. If hydration is late or the
-   observer never fires, a fade is not what is lost: the ask is.
+   Hard rule, learned the hard way: this page is opened from a QR code at the
+   table and from links in WhatsApp/Instagram in-app browsers, which load the
+   page in a webview that is effectively `document.hidden` at load. A hidden
+   document PAUSES CSS animations at frame zero — so any animation that fades
+   content IN from opacity 0 leaves that content invisible until the webview is
+   foregrounded, and often it simply never is. That is exactly what happened:
+   the whole page rendered blank over the cream background.
 
-   So the motion here is CSS-only and time-based. The resting state is VISIBLE;
-   the animation starts from transparent and runs on load. No JavaScript, no
-   observer, and nothing to get stuck behind. */
+   So the entrance animates TRANSFORM ONLY. Opacity rests at 1 and is never
+   touched by the keyframes, meaning a paused/never-run animation still shows
+   every element (merely un-slid by a few pixels). The motion is decoration
+   that plays when the document is actually on screen; visibility never depends
+   on it. Same principle as .share-panel below. */
 
 .v-rise {
   opacity: 1;
@@ -22,14 +26,8 @@
 .v-rise-4 { animation-delay: 0.28s; }
 
 @keyframes v-rise {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { transform: translateY(16px); }
+  to   { transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
