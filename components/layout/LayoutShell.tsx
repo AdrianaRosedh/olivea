@@ -16,6 +16,7 @@ import SubtleContentFade from "@/components/transitions/SubtleContentFade";
 
 import { useContainerMobileLike } from "@/hooks/useContainerBreakpoint";
 import type { Lang, AppDictionary } from "@/app/[lang]/(main)/dictionaries";
+import { isVotePath } from "@/lib/mexbest";
 
 /* =========================
    Navbar split
@@ -207,6 +208,20 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
   const identity: Identity | null = (section?.id as Identity) ?? null;
 
   const isHome = pathname === "/" || pathname === "/en";
+
+  /**
+   * The Reader's Choice vote page is composed like the homepage: one fixed,
+   * full-viewport screen that never scrolls. It therefore needs the homepage's
+   * shell treatment — no footer, no docks, no section nav, and a `main` that
+   * does not add its own padding or scroll height.
+   *
+   * Kept separate from `isHome` because it is not the homepage: this is only
+   * about chrome and scroll, and it disappears with the campaign.
+   */
+  const isFullViewport = isVotePath(pathname);
+
+  /** Pages that own the whole viewport and supply their own chrome. */
+  const isBareShell = isHome || isFullViewport;
   const isJournal =
     pathname?.includes("/journal") ||
     pathname?.includes("/diario") ||
@@ -345,7 +360,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
   return (
     <div ref={shellRef} className="w-full">
       {/* NAVBAR */}
-      {!isHome && (
+      {!isBareShell && (
         <ClientOnly>
           {isMobileLike ? (
             <MobileNavbar dictionary={dictionary} />
@@ -356,7 +371,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
       )}
 
       {/* Crawlable primary nav */}
-      {!isHome && (
+      {!isBareShell && (
         <nav
           aria-label={pathLang === "en" ? "Primary navigation" : "Navegación principal"}
           className="sr-only"
@@ -376,7 +391,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
         id="main-content"
         data-hero-breakout={allowHeroBreakout ? "true" : "false"}
         className={
-          isHome
+          isBareShell
             ? "relative p-0 m-0 overflow-hidden"
             : isJournal
               ? "relative w-full pt-16 md:pt-28 pb-20"
@@ -393,9 +408,9 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
             // column yields to the expanded rail instead of sliding under
             // it (below 1281px the variable equals plain centering, so this
             // is identical to mx-auto there). Pages without a rail center.
-            className={isHome || (identity && !isMobileLike) ? "" : "mx-auto"}
+            className={isBareShell || (identity && !isMobileLike) ? "" : "mx-auto"}
             style={
-              isHome
+              isBareShell
                 ? undefined
                 : identity && !isMobileLike
                   ? {
@@ -412,10 +427,10 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
       </main>
 
       {/* FOOTER */}
-      {!isHome && !isMobileLike && <Footer dict={dictionary} socials={socials} />}
+      {!isBareShell && !isMobileLike && <Footer dict={dictionary} socials={socials} />}
 
       {/* DOCKS */}
-      {!isHome && !isMobileLike && (
+      {!isBareShell && !isMobileLike && (
         <>
           {identity && <DockLeft identity={identity} sectionsOverride={sectionsOverride ?? []} />}
           <DockRight items={dockRightItems} />
@@ -423,7 +438,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
       )}
 
       {/* MOBILE-LIKE NAV (includes iPad portrait + split view) */}
-      {!isHome && isMobileLike && mobileNavItems.length > 0 && (
+      {!isBareShell && isMobileLike && mobileNavItems.length > 0 && (
         <ClientOnly>
           <div className="relative z-300 lg:hidden">
             <MobileSectionNav
@@ -446,7 +461,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
       )}
 
       {/* Desktop chat trigger */}
-      {!isHome && !isMobileLike && (
+      {!isBareShell && !isMobileLike && (
         <ClientOnly>
           <DesktopChatButton lang={pathLang} />
         </ClientOnly>

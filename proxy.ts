@@ -28,6 +28,7 @@ const SHORT_URL_PREFIXES = [
   "/menu",
   "/roseiies",
   "/innovation",
+  "/vota",
 ];
 
 // Minimal, brand-free page shown for any non-document path on olivea.ai.

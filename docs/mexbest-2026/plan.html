@@ -1,0 +1,412 @@
+<title>Olivea Reader's Choice 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,700&family=Plus+Jakarta+Sans:wght@400;500;700&family=Inter:wght@400;500&display=swap">
+<style>
+  /* Palette lifted from app/globals.css — Olivea brand tokens */
+  :root{
+    --cream:#e7eae1;
+    --ivory:#efece2;
+    --sand:#dcd5c3;
+    --clay:#a3b09d;
+    --sage:#5e7658;
+    --forest:#33422e;
+    --honey:#b6894a;
+    --paper:#f5f3ec;
+
+    --ground:var(--ivory);
+    --panel:var(--paper);
+    --rule:#d3d8c9;
+    --head:var(--forest);
+    --body:#4c5c47;
+    --muted:#7d8a76;
+    --accent:var(--honey);
+    --accent-soft:#f0e6d5;
+
+    --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+    --sans:"Plus Jakarta Sans","Helvetica Neue",Arial,sans-serif;
+    --mono:"Inter",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#1b241a;
+      --panel:#222c20;
+      --rule:#39452f;
+      --head:#e2e7d8;
+      --body:#c2ccb8;
+      --muted:#8c9883;
+      --accent:#d3a463;
+      --accent-soft:#2e2a1e;
+      --sand:#3a4230;
+      --clay:#7e8a78;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#1b241a;
+    --panel:#222c20;
+    --rule:#39452f;
+    --head:#e2e7d8;
+    --body:#c2ccb8;
+    --muted:#8c9883;
+    --accent:#d3a463;
+    --accent-soft:#2e2a1e;
+    --sand:#3a4230;
+    --clay:#7e8a78;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);
+    color:var(--body);
+    font-family:var(--sans);
+    font-size:16.5px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .sheet{max-width:820px;margin:0 auto;padding:clamp(30px,5vw,64px) clamp(20px,4vw,48px) 80px}
+
+  /* ── masthead ─────────────────────────────────────── */
+  .masthead{border-bottom:1px solid var(--rule);padding-bottom:26px;margin-bottom:44px}
+  .crest{
+    display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  }
+  .crest .house{color:var(--sage);font-weight:500}
+  h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(40px,7.5vw,68px);
+    line-height:1.04;
+    letter-spacing:-.01em;
+    color:var(--head);
+    margin:26px 0 0;
+    text-wrap:balance;
+  }
+  h1 .flourish{font-style:italic;font-weight:700;color:var(--sage)}
+  .standfirst{
+    font-family:var(--serif);font-size:clamp(19px,2.6vw,23px);line-height:1.5;
+    color:var(--body);margin:16px 0 0;max-width:58ch;
+  }
+  .filed{
+    margin-top:24px;display:flex;gap:26px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.03em;
+  }
+  .filed b{display:block;font-weight:500;color:var(--sage);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:2px}
+
+  /* ── sections ─────────────────────────────────────── */
+  section{margin-bottom:52px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+  .sec-num{
+    font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent);
+    letter-spacing:.1em;font-variant-numeric:tabular-nums;
+    border-bottom:1px solid var(--accent);padding-bottom:1px;
+  }
+  h2{
+    font-family:var(--serif);font-weight:600;font-size:clamp(27px,4vw,34px);
+    line-height:1.15;color:var(--head);margin:0;letter-spacing:-.005em;
+  }
+  h3{
+    font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--sage);margin:30px 0 10px;
+  }
+  p{margin:0 0 14px;max-width:66ch}
+  p:last-child{margin-bottom:0}
+  strong{color:var(--head);font-weight:700}
+  a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+  code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.86em;background:var(--sand);color:var(--head);
+    padding:1px 5px;border-radius:2px;
+  }
+
+  /* ── the two nominations ──────────────────────────── */
+  .noms{display:grid;grid-template-columns:1fr;gap:16px}
+  @media (min-width:640px){.noms{grid-template-columns:1fr 1fr}}
+  .nom{
+    background:var(--panel);border:1px solid var(--rule);
+    padding:22px;display:flex;flex-direction:column;gap:12px;
+  }
+  .nom.priority{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+  .nom .cat{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .nom .prop{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--head);line-height:1.12}
+  .nom .field{display:flex;align-items:baseline;gap:9px;border-top:1px solid var(--rule);padding-top:12px;margin-top:auto}
+  .nom .n{font-family:var(--serif);font-size:34px;font-weight:700;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+  .nom .field span{font-size:13.5px;color:var(--muted);line-height:1.35}
+  .nom .rivals{font-size:13px;color:var(--muted);line-height:1.5}
+
+  /* ── mechanic list ────────────────────────────────── */
+  dl.mech{margin:0;display:flex;flex-direction:column;gap:0}
+  dl.mech > div{
+    display:grid;grid-template-columns:1fr;gap:3px;
+    padding:15px 0;border-bottom:1px solid var(--rule);
+  }
+  @media (min-width:680px){dl.mech > div{grid-template-columns:190px 1fr;gap:24px;align-items:baseline}}
+  dl.mech dt{font-family:var(--sans);font-weight:700;font-size:14px;color:var(--head);letter-spacing:.01em}
+  dl.mech dd{margin:0;font-size:15.5px}
+
+  /* ── pull quote / key insight ─────────────────────── */
+  .insight{
+    background:var(--accent-soft);border-left:3px solid var(--accent);
+    padding:20px 24px;margin:26px 0;
+  }
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;color:var(--head);max-width:52ch;margin:0}
+  .insight .src{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:10px;display:block}
+
+  /* ── table ────────────────────────────────────────── */
+  .tablewrap{overflow-x:auto;border:1px solid var(--rule);background:var(--panel)}
+  table{border-collapse:collapse;width:100%;min-width:600px;font-size:14.5px}
+  th{
+    text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);font-weight:500;padding:13px 16px;border-bottom:1px solid var(--rule);white-space:nowrap;
+  }
+  td{padding:13px 16px;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--body)}
+  tr:last-child td{border-bottom:0}
+  td.who{color:var(--head);font-weight:700;white-space:nowrap}
+  td.when{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+
+  /* ── phases ───────────────────────────────────────── */
+  ol.phases{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
+  ol.phases li{display:grid;grid-template-columns:1fr;gap:4px;padding:16px 0;border-bottom:1px solid var(--rule)}
+  @media (min-width:680px){ol.phases li{grid-template-columns:118px 1fr;gap:24px}}
+  ol.phases .ph{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);padding-top:3px;
+  }
+  ol.phases .what b{display:block;font-family:var(--sans);font-weight:700;color:var(--head);font-size:15.5px;margin-bottom:2px}
+  ol.phases .what span{font-size:15px;color:var(--body)}
+
+  /* ── message architecture ─────────────────────────── */
+  .msgs{display:grid;grid-template-columns:1fr;gap:14px}
+  @media (min-width:700px){.msgs{grid-template-columns:repeat(3,1fr)}}
+  .msg{border-top:2px solid var(--sage);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+  .msg .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .msg .line{font-family:var(--serif);font-size:19.5px;line-height:1.3;color:var(--head)}
+  .msg .why{font-size:14px;color:var(--muted);line-height:1.45}
+
+  /* ── integrity ────────────────────────────────────── */
+  .integrity{background:var(--panel);border:1px solid var(--rule);border-top:3px solid var(--sage);padding:26px}
+  .integrity h2{margin-bottom:12px}
+  .integrity ul{margin:12px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:7px}
+  .integrity li{font-size:15.5px}
+  .integrity li::marker{color:var(--clay)}
+
+  /* ── open items ───────────────────────────────────── */
+  ul.open{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0}
+  ul.open li{display:flex;gap:14px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--rule)}
+  ul.open .box{
+    width:11px;height:11px;border:1.5px solid var(--clay);flex:0 0 auto;
+    transform:translateY(1px);
+  }
+  ul.open .txt{font-size:15.5px}
+  ul.open .owner{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;padding-left:14px}
+
+  footer{
+    margin-top:60px;border-top:1px solid var(--rule);padding-top:22px;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--muted);line-height:1.8;
+  }
+  footer p{margin:0;max-width:none}
+  footer .sig{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--sage);letter-spacing:0;margin-bottom:8px}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <div class="crest">
+      <span class="house">Olivea · Valle de Guadalupe</span>
+      <span>Documento interno</span>
+    </div>
+    <h1>Reader's Choice <span class="flourish">2026</span></h1>
+    <p class="standfirst">Plan de campaña para las dos nominaciones de la casa en los Premios MexBest: Olivea Farm to Table en Restaurantes y Casa Olivea en Hoteles.</p>
+    <div class="filed">
+      <div><b>Preparado</b>3 septiembre 2026</div>
+      <div><b>Zona</b>Baja California</div>
+      <div><b>Nominaciones</b>Dos, en categorías independientes</div>
+      <div><b>Página</b>oliveafarmtotable.com/vota</div>
+      <div><b>Cierre de votación</b>Sin confirmar</div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Dónde estamos</h2></div>
+    <p>Reader's Choice es la única categoría de los Premios MexBest que no decide el jurado. La decide el público — quien ya comió en la mesa y quien ya durmió en la casa. Estamos nominados en dos de ellas, y las dos se votan por separado.</p>
+    <div class="noms">
+      <article class="nom">
+        <div class="cat">Restaurantes</div>
+        <div class="prop">Olivea Farm to Table</div>
+        <div class="rivals">Animalón, Fauna, Deckman's, Lunario, Bruma Wine Garden, Damiana, Villa Torél, Monteliebre, Manzanilla, Maíz de Loto y ocho más.</div>
+        <div class="field"><span class="n">19</span><span>nominados en la zona. Categoría muy disputada; el objetivo aquí es competir con dignidad y sumar.</span></div>
+      </article>
+      <article class="nom priority">
+        <div class="cat">Hoteles · Prioridad</div>
+        <div class="prop">Casa Olivea</div>
+        <div class="rivals">Banyan Tree Veya, Bruma Wine Resort, La Villa del Valle, MIRA Earth Studios.</div>
+        <div class="field"><span class="n">5</span><span>nominados en total. Con cuatro rivales, la diferencia entre ganar y no ganar son decenas de votos, no miles.</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Cómo funciona la boleta</h2></div>
+    <p>Antes de pedirle a nadie que vote, hay que entender exactamente qué le vamos a pedir. La boleta vive en <a href="https://readerschoice.mex-best.mx/" target="_blank" rel="noopener">readerschoice.mex-best.mx</a>.</p>
+    <dl class="mech">
+      <div>
+        <dt>Fricción</dt>
+        <dd>Ninguna. Se pulsa <strong>VOTAR</strong>, se confirma <strong>«Sí, quiero votar»</strong> y termina. No pide correo, no pide cuenta, no hay captcha.</dd>
+      </div>
+      <div>
+        <dt>Límite</dt>
+        <dd>Un voto por categoría, por dispositivo. Se controla con cookie por categoría y con huella de dispositivo del lado del servidor.</dd>
+      </div>
+      <div>
+        <dt>Las categorías son independientes</dt>
+        <dd>Votar en Restaurantes <strong>no consume</strong> el voto de Hoteles. La misma persona, desde el mismo teléfono, puede votar por las dos casas.</dd>
+      </div>
+      <div>
+        <dt>El obstáculo, y cómo lo saltamos</dt>
+        <dd>La boleta abre en CDMX: quien entra al enlace crudo ve noventa restaurantes de la capital, no encuentra Olivea y se va. La zona se cambia con un formulario — pero la página también lee el parámetro de la dirección, así que <code>?regions__select=1</code> aterriza directo en Baja California. <strong>Nuestros dos botones ya lo llevan.</strong></dd>
+      </div>
+    </dl>
+    <div class="insight">
+      <p>La campaña no se gana pidiendo más votos. Se gana quitando los dos motivos por los que un voto ya ganado se pierde: que la gente no sepa que son dos, y que la página los deje en la ciudad equivocada. El segundo ya está resuelto en el enlace.</p>
+      <span class="src">Tesis de la campaña</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02b</span><h2>La página de la casa</h2></div>
+    <p>Todo apunta a <strong>oliveafarmtotable.com/vota</strong> — dominio propio, las dos lenguas, la tipografía y el color de siempre. Se lee bien impresa en una tarjeta y no depende de nadie más.</p>
+    <dl class="mech">
+      <div>
+        <dt>Dos botones</dt>
+        <dd>Uno por categoría, los dos saltando el desplegable de zona. Del código QR al voto: tocar, VOTAR, confirmar.</dd>
+      </div>
+      <div>
+        <dt>Y aterrizan en la tarjeta</dt>
+        <dd>Llegar a la lista correcta no bastaba: Olivea Farm to Table queda a unos 9,200 px de una página de 12,400 — once pantallas de teléfono, pasando por toda la competencia. La boleta no tiene ancla por nominado ni buscador, así que los enlaces llevan un fragmento de texto (<code>#:~:text=</code>) y el navegador se encarga de bajar hasta el nombre y resaltarlo. Donde no exista soporte, la página abre arriba como siempre.</dd>
+      </div>
+      <div>
+        <dt>Recuerda el primero</dt>
+        <dd>La página guarda en el teléfono cuál categoría ya se votó y avisa que falta la otra. Es la fuente más grande de votos adicionales: convierte a quien votó una vez en quien vota dos.</dd>
+      </div>
+      <div>
+        <dt>Compartir en un toque</dt>
+        <dd>Abre la hoja de compartir nativa del teléfono — WhatsApp, mensajes, lo que tenga. Como votar de nuevo está topado por huella de dispositivo, la única vía honesta de crecer es otra persona.</dd>
+      </div>
+      <div>
+        <dt>Banner del sitio</dt>
+        <dd>Toda página de oliveafarmtotable.com lleva a <code>/vota</code> mientras dure la campaña.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Objetivo</h2></div>
+    <p><strong>Ganar Hoteles con Casa Olivea.</strong> Es un campo de cinco y la casa tiene una base de huéspedes real y agradecida. Es la nominación donde el esfuerzo se convierte en resultado.</p>
+    <p><strong>Colocar dignamente a Olivea Farm to Table.</strong> Diecinueve nominados de este valle es una lista de honor. Cada voto que pedimos para el restaurante viaja gratis junto al del hotel — misma conversación, mismo minuto, misma persona.</p>
+    <h3>Medida de éxito</h3>
+    <p>No tenemos acceso al conteo público, así que la métrica que sí controlamos es la de arriba del embudo: cuántas personas escanean, cuántos correos se abren, cuántas historias se tocan. Se mide semanalmente contra el volumen de mesa y de check-out.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Canales y responsables</h2></div>
+    <p>Ordenados por conversión real, no por alcance. La mesa gana a todo lo demás: la persona está contenta, ya tiene el teléfono en la mano y hay alguien de la casa parado enfrente.</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Canal</th><th>Responsable</th><th>Material</th><th>Ritmo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="who">Mesa</td><td>Servicio · capitanes</td><td>QR en la carpeta de cuenta + guion de dos líneas</td><td class="when">Cada servicio</td></tr>
+          <tr><td class="who">Check-out</td><td>Recepción Casa Olivea</td><td>Tarjeta de mesa en recepción; los dos votos</td><td class="when">Cada salida</td></tr>
+          <tr><td class="who">Correo</td><td>Dirección</td><td>Envío a la lista completa, sin segmentar</td><td class="when">Lanzamiento + 1 recordatorio</td></tr>
+          <tr><td class="who">Instagram</td><td>Comunicación</td><td>Historia de tres cuadros con sticker de enlace</td><td class="when">Cada 4–5 días</td></tr>
+          <tr><td class="who">WhatsApp</td><td>Dirección, en persona</td><td>Mensaje individual a habituales y a la mesa larga</td><td class="when">Una ronda, sin repetir</td></tr>
+          <tr><td class="who">Sitio olivea</td><td>Equipo web</td><td>Banner activo en todo el sitio hacia <code>/vota</code></td><td class="when">Permanente durante la campaña</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Fases</h2></div>
+    <ol class="phases">
+      <li>
+        <div class="ph">Fase 1</div>
+        <div class="what"><b>Preparar</b><span>Confirmar con MexBest la fecha de cierre. Publicar la guía de votación e imprimir los QR. Informar a servicio y recepción — nadie pide un voto que no entiende.</span></div>
+      </li>
+      <li>
+        <div class="ph">Fase 2</div>
+        <div class="what"><b>Abrir</b><span>Correo a la lista y primera historia el mismo día. Las tarjetas entran a la mesa y a recepción y ya no salen.</span></div>
+      </li>
+      <li>
+        <div class="ph">Fase 3</div>
+        <div class="what"><b>Sostener</b><span>Historia cada cuatro o cinco días, rotando el ángulo: el valle, el jardín, el equipo. La mesa sigue trabajando sola.</span></div>
+      </li>
+      <li>
+        <div class="ph">Fase 4</div>
+        <div class="what"><b>Cerrar</b><span>Un último empujón en la semana final, y sólo si podemos decir la verdad sobre dónde estamos. Un cierre honesto vale más que uno inflado.</span></div>
+      </li>
+      <li>
+        <div class="ph">Después</div>
+        <div class="what"><b>Agradecer</b><span>Se gane o no. Quien votó hizo algo por la casa y merece saber que lo notamos.</span></div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Arquitectura del mensaje</h2></div>
+    <p>Toda pieza de la campaña — tarjeta, historia, correo, guion de servicio — carga estas tres líneas. En ese orden. Si una pieza no las tiene, no sale.</p>
+    <div class="msgs">
+      <div class="msg">
+        <div class="k">Uno</div>
+        <div class="line">Son dos votos.</div>
+        <div class="why">El hallazgo que multiplica la campaña. Casi nadie lo sabe y nadie lo adivina solo.</div>
+      </div>
+      <div class="msg">
+        <div class="k">Dos</div>
+        <div class="line">Entra por oliveafarmtotable.com/vota.</div>
+        <div class="why">Nunca el enlace crudo de la boleta. El nuestro salta la zona y deja a la persona donde sí aparecemos.</div>
+      </div>
+      <div class="msg">
+        <div class="k">Tres</div>
+        <div class="line">Toma un minuto y no pide registro.</div>
+        <div class="why">Retira la objeción antes de que se formule.</div>
+      </div>
+    </div>
+    <h3>Tono</h3>
+    <p>El mismo de la casa: directo, agradecido, sin súplica. No pedimos que nos rescaten — invitamos a que quien ya tiene una relación con este valle la haga contar. La copia completa en español e inglés vive en <code>docs/mexbest-2026/olivea-vote-campaign.md</code>.</p>
+  </section>
+
+  <section class="integrity">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Integridad del voto</h2></div>
+    <p>Esta sección es política de la casa, no una nota técnica. La boleta identifica cada dispositivo con huella digital del lado del servidor. Manipularla es detectable, y el castigo natural es la descalificación en la categoría que sí podemos ganar.</p>
+    <ul>
+      <li>No se automatizan votos, ni con scripts ni con formularios.</li>
+      <li>No se rota por VPN, ventanas privadas ni dispositivos de la casa.</li>
+      <li>No se pide al equipo votar desde varios teléfonos.</li>
+      <li>Un voto por persona, por categoría. Los dos que le tocan, ninguno más.</li>
+    </ul>
+    <p style="margin-top:14px">Si ganamos Hoteles, quiero que sea porque la gente que se quedó en la casa quiso que ganara. Es el único resultado que vale la pena colgar en la pared.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>Pendientes</h2></div>
+    <ul class="open">
+      <li><span class="box"></span><span class="txt">Confirmar con MexBest la fecha de cierre de la votación. Define si esto es un sprint de dos semanas o una campaña de dos meses — y hasta cuándo dejamos vivo el banner.</span><span class="owner">Dirección</span></li>
+      <li><span class="box"></span><span class="txt">Revisar y publicar <code>/vota</code>. Está construida y probada en local; falta el visto bueno y el despliegue.</span><span class="owner">Web</span></li>
+      <li><span class="box"></span><span class="txt">Mandar a imprenta las tarjetas de mesa con el QR (<code>docs/mexbest-2026/qr-vota.svg</code>).</span><span class="owner">Web</span></li>
+      <li><span class="box"></span><span class="txt">Poner el enlace en la bio de Instagram y preparar los tres cuadros de historia.</span><span class="owner">Comunicación</span></li>
+      <li><span class="box"></span><span class="txt">Sesión de cinco minutos con servicio y recepción antes del lanzamiento.</span><span class="owner">Operación</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="sig">Territorio, jardín y mesa. Lo demás es consecuencia.</p>
+    <p>Olivea Farm to Table · Casa Olivea · Valle de Guadalupe, Baja California</p>
+    <p>Premios MexBest 2026 · Reader's Choice · Documento interno de campaña</p>
+  </footer>
+
+</div>

@@ -1,0 +1,62 @@
+/* app/[lang]/(main)/vota/vota.css
+   Entrance motion for the vote page.
+
+   The site's <Reveal> uses framer-motion `whileInView`, which parks content at
+   opacity 0 until an IntersectionObserver fires. That is the right trade
+   everywhere else — but this page is what a guest lands on from a QR code at
+   the table, often on slow restaurant wifi. If hydration is late or the
+   observer never fires, a fade is not what is lost: the ask is.
+
+   So the motion here is CSS-only and time-based. The resting state is VISIBLE;
+   the animation starts from transparent and runs on load. No JavaScript, no
+   observer, and nothing to get stuck behind. */
+
+.v-rise {
+  opacity: 1;
+  animation: v-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.v-rise-1 { animation-delay: 0.05s; }
+.v-rise-2 { animation-delay: 0.12s; }
+.v-rise-3 { animation-delay: 0.2s; }
+.v-rise-4 { animation-delay: 0.28s; }
+
+@keyframes v-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-rise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Share sheet entrance. The panel animates TRANSFORM only and rests at
+   opacity 1, so even if the animation never advances — a background tab, a
+   throttled or hidden document — the sheet is a fully visible, usable dialog
+   (merely un-slid), never an invisible layer that swallows taps. The backdrop
+   is a plain dim with no entrance of its own, for the same reason. Motion is
+   decoration that plays only when the document is actually on screen. */
+.share-panel {
+  opacity: 1;
+  animation: share-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes share-rise {
+  from { transform: translateY(40px); }
+  to   { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .share-panel {
+    animation: none;
+    transform: none;
+  }
+}

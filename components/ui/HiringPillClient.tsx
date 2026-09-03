@@ -17,6 +17,7 @@ import {
   getConsentSettled,
   getConsentSettledServer,
 } from "@/components/legal/consentFlag";
+import { isVoteCampaignLive } from "@/lib/mexbest";
 
 const DISMISS_KEY = "olivea:hiring-pill-dismissed";
 
@@ -35,6 +36,15 @@ export default function HiringPillClient({
   const pathname = usePathname();
   // Don't nag on the careers page itself — they're already there.
   const onCareersPage = pathname?.includes("/carreras") ?? false;
+
+  // Both pills share the bottom-left corner. While the MexBest campaign is
+  // live the vote pill owns it and this one steps aside, so the two never
+  // stack. Checked on the client (not at mount only) so a page cached before
+  // the campaign's end date reclaims the corner once the window closes.
+  const [voteLive, setVoteLive] = useState(false);
+  useEffect(() => {
+    setVoteLive(isVoteCampaignLive());
+  }, []);
 
   // The cookie banner occupies this same bottom-left corner. Wait for the
   // visitor to answer it rather than stacking two notices on them; published
@@ -56,11 +66,12 @@ export default function HiringPillClient({
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (onCareersPage) return;
+    if (voteLive) return; // vote pill owns the corner during the campaign
     if (!consentSettled) return;
     if (sessionStorage.getItem(DISMISS_KEY) === "1") return;
     const t = window.setTimeout(() => setShow(true), 1200);
     return () => window.clearTimeout(t);
-  }, [onCareersPage, consentSettled]);
+  }, [onCareersPage, voteLive, consentSettled]);
 
   const dismiss = (e: React.MouseEvent) => {
     e.preventDefault();

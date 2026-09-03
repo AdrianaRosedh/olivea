@@ -10,6 +10,7 @@ import PopupHost from "@/components/ui/popup/PopupHost";
 import SiteBanner from "@/components/ui/banner/SiteBanner";
 import { fontsClass, lora } from "@/app/fonts";
 import HiringPill from "@/components/ui/HiringPill";
+import VotePill from "@/components/ui/VotePill";
 import {
   loadLocale,
   type Lang,
@@ -100,8 +101,13 @@ export default async function LangLayout({
       <LayoutShell lang={lang} dictionary={dict}>
         {children}
       </LayoutShell>
-      {/* "We're hiring" pill — auto-shows when a role is live (HR-toggleable) */}
+      {/* "We're hiring" pill — auto-shows when a role is live (HR-toggleable).
+          Steps aside while the MexBest vote pill is live (see HiringPillClient). */}
       <HiringPill lang={lang} />
+      {/* MexBest Reader's Choice — its own corner pill, not the shared banner
+          slot, so it runs alongside other announcements instead of displacing
+          them. Self-removing at the campaign end date (see lib/mexbest). */}
+      <VotePill lang={lang} />
       <SiteBanner />
       <PopupHost />
     </div>

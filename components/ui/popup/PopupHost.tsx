@@ -18,6 +18,7 @@ import { usePathname } from "next/navigation";
 import { Phone, X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { isStampFresh, setStamp } from "@/lib/storage";
+import { isVotePath } from "@/lib/mexbest";
 
 /**
  * What the primary button does. A link navigates; an action opens something
@@ -156,8 +157,16 @@ export default function PopupHost() {
 
   // Fetch active popup (single file via /api/popup, rule-aware using path)
   useEffect(() => {
-    const controller = new AbortController();
+    // The Reader's Choice vote page is a single fixed screen whose whole job is
+    // one tap. A popup over it would cover the ask, and the lookup is a request
+    // we can skip entirely rather than fetch and then discard.
     const p = pathname ?? "/";
+    if (isVotePath(p)) {
+      setPopup(null);
+      return;
+    }
+
+    const controller = new AbortController();
     const url = `/api/popup?lang=${lang}&path=${encodeURIComponent(p)}`;
 
     fetch(url, { cache: "default", signal: controller.signal })
