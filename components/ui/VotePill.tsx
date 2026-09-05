@@ -52,20 +52,44 @@ export default function VotePill({ lang }: { lang: "es" | "en" }) {
     setLive(isVoteCampaignLive());
   }, []);
 
+  // Defer to the site banner: while the banner is on screen it already carries
+  // the vote, so the pill stands down — one prompt at a time, banner first. The
+  // banner renders `[data-olivea-banner-root]` when visible; watch for it so
+  // the pill also reappears if the visitor dismisses the banner, and shows on
+  // pages the banner excludes (the locale roots). The pill's own reveal delay
+  // below sits past the banner's ~2.2–2.6s arm delay, so a banner that is
+  // coming suppresses the pill before it ever flashes.
+  const [bannerPresent, setBannerPresent] = useState(false);
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const check = () =>
+      setBannerPresent(!!document.querySelector("[data-olivea-banner-root]"));
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, []);
+
   // Reveal after mount, a beat after the page settles rather than at first
   // paint — measured from consent being settled so accepting cookies doesn't
   // snap it into the space the banner just vacated.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (onVotePage || !live || !consentSettled) return;
+    if (onVotePage || !live || !consentSettled || bannerPresent) {
+      setShow(false);
+      return;
+    }
     try {
       if (sessionStorage.getItem(DISMISS_KEY) === "1") return;
     } catch {
       /* private mode — treat as not dismissed */
     }
-    const t = window.setTimeout(() => setShow(true), 1400);
+    // Longer than the banner's arm delay (2200ms desktop / 2600ms mobile): if a
+    // banner is coming, `bannerPresent` flips true and this effect re-runs to
+    // hide the pill before the timer fires, so the two never both appear.
+    const t = window.setTimeout(() => setShow(true), 3000);
     return () => window.clearTimeout(t);
-  }, [onVotePage, live, consentSettled]);
+  }, [onVotePage, live, consentSettled, bannerPresent]);
 
   const dismiss = (e: React.MouseEvent) => {
     e.preventDefault();
