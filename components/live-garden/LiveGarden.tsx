@@ -42,6 +42,7 @@ function orbDims(vw: number) {
 }
 const ORB_TOP_MARGIN = 64; // keep clear of the header
 const ORB_BOTTOM_MARGIN = 28; // keep clear of the bottom
+const ORB_BANNER_GAP = 12; // breathing room above the site banner when present
 const ORB_STORAGE_KEY = "olivea:livegarden:orb:v1";
 
 type OrbSide = "left" | "right";
@@ -205,6 +206,13 @@ export default function LiveGarden() {
   const [orbSize, setOrbSize] = useState(56);
   const orbMovedRef = useRef(false);
 
+  // Extra bottom clearance so the orb never rests over the site banner (its
+  // Vote / dismiss controls sit at the bottom-right, exactly where the orb
+  // snaps). Held in a ref so placeOrb reads the current value without being
+  // rebuilt, mirrored into state only to trigger the re-place effect below.
+  const bannerClearanceRef = useRef(0);
+  const [bannerClearance, setBannerClearance] = useState(0);
+
   const placeOrb = useCallback(
     (s: OrbSide, yy: number, withAnim: boolean) => {
       if (typeof window === "undefined") return;
@@ -212,7 +220,9 @@ export default function LiveGarden() {
       const vh = window.innerHeight;
       const { size, edge } = orbDims(vw);
       const targetX = s === "right" ? vw - size - edge : edge;
-      orbY.set(clampN(yy, ORB_TOP_MARGIN, vh - size - ORB_BOTTOM_MARGIN));
+      orbY.set(
+        clampN(yy, ORB_TOP_MARGIN, vh - size - ORB_BOTTOM_MARGIN - bannerClearanceRef.current),
+      );
       if (withAnim && !prefersReduced) {
         animate(orbX, targetX, {
           type: "spring",
@@ -265,6 +275,46 @@ export default function LiveGarden() {
       window.visualViewport?.removeEventListener("resize", onResize);
     };
   }, [orbSide, placeOrb, orbY]);
+
+  // Track the site banner and keep the orb above it. The banner renders
+  // `[data-olivea-banner-root]` when visible; measure how much of the viewport
+  // bottom it occupies and expose that as extra clearance. Re-measured on the
+  // element appearing/disappearing (dismissal) and on resize.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const measure = () => {
+      const el = document.querySelector<HTMLElement>("[data-olivea-banner-root]");
+      let clearance = 0;
+      if (el) {
+        const r = el.getBoundingClientRect();
+        if (r.height > 0 && r.top < window.innerHeight) {
+          clearance = window.innerHeight - r.top + ORB_BANNER_GAP;
+        }
+      }
+      bannerClearanceRef.current = clearance;
+      setBannerClearance(clearance);
+    };
+    // A beat after DOM changes so the banner's slide-in has settled its rect.
+    const measureSoon = () => window.setTimeout(measure, 60);
+    measureSoon();
+    const mo = new MutationObserver(measureSoon);
+    mo.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("resize", measure);
+    window.visualViewport?.addEventListener("resize", measure);
+    return () => {
+      mo.disconnect();
+      window.removeEventListener("resize", measure);
+      window.visualViewport?.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  // When the clearance changes (banner arrives), re-clamp the orb — it moves up
+  // only if it was resting over the banner; an orb already above stays put.
+  useEffect(() => {
+    if (!orbReady) return;
+    placeOrb(orbSide, orbY.get(), true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bannerClearance, orbReady]);
 
   const handleOrbDragStart = useCallback(() => {
     orbMovedRef.current = true;
