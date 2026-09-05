@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type Lang } from "@/lib/i18n";
 import {
@@ -18,6 +19,8 @@ type BannerPayload = {
   type: BannerType;
   lang: Lang;
   text: string;
+  ctaLabel?: string;
+  ctaHref?: string;
   dismissible: boolean;
 };
 
@@ -264,7 +267,7 @@ export default function SiteBanner() {
                   type="button"
                   onClick={dismiss}
                   aria-label={lang === "es" ? "Cerrar" : "Close"}
-                  className="order-1 md:order-3 shrink-0 h-10 w-10 md:h-9 md:w-9 inline-flex items-center justify-center rounded-full bg-white/80 ring-1 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/95 transition"
+                  className="order-1 md:order-4 shrink-0 h-10 w-10 md:h-9 md:w-9 inline-flex items-center justify-center rounded-full bg-white/80 ring-1 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/95 transition"
                 >
                   <X
                     size={18}
@@ -298,6 +301,20 @@ export default function SiteBanner() {
               >
                 {banner.text}
               </motion.p>
+
+              {/* CTA — the reason the banner exists. Without this the notice was
+                  a dead end: text and a dismiss button, nothing to act on. */}
+              {banner.ctaHref && banner.ctaLabel ? (
+                <Link
+                  href={banner.ctaHref}
+                  className="order-4 md:order-3 shrink-0 inline-flex items-center gap-1.5 rounded-full bg-(--olivea-olive) px-4 py-2 md:py-1.5 text-[12px] md:text-[12.5px] font-semibold uppercase tracking-[0.12em] text-(--olivea-cream) ring-1 ring-(--olivea-olive)/20 hover:bg-(--olivea-clay) transition-colors"
+                >
+                  {banner.ctaLabel}
+                  <span aria-hidden className="translate-y-[0.5px]">
+                    →
+                  </span>
+                </Link>
+              ) : null}
             </div>
           </motion.div>
         </AnimatePresence>
