@@ -7,6 +7,9 @@
 export type VoteCopy = {
   eyebrow: string;
   title: string;
+  /** Link out of this dead-end page into the actual site. */
+  homeHref: string;
+  homeCta: string;
   /** Sits under the title inside the hero, over the image. Keep it short. */
   heroLine: string;
   heroAlt: string;
@@ -83,6 +86,8 @@ export const VOTE_COPY: Record<"es" | "en", VoteCopy> = {
   es: {
     eyebrow: "Premios MexBest 2026 · Reader's Choice",
     title: "Dos votos por Olivea",
+    homeHref: "/es",
+    homeCta: "Conoce Olivea",
     heroLine: "El único premio que no decide el jurado.",
     heroAlt: "El valle desde Olivea al caer la tarde",
     // Deliberately does not repeat heroLine, which already says the jury does
@@ -136,6 +141,8 @@ export const VOTE_COPY: Record<"es" | "en", VoteCopy> = {
   en: {
     eyebrow: "MexBest 2026 Awards · Reader's Choice",
     title: "Two votes for Olivea",
+    homeHref: "/en",
+    homeCta: "Discover Olivea",
     heroLine: "The one award the jury doesn't decide.",
     heroAlt: "The valley from Olivea at dusk",
     lead:

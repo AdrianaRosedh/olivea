@@ -19,6 +19,7 @@
 //     fingerprint, so the only honest way the number grows is another person.
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { VoteCopy } from "./copy";
 import ShareSheet from "./ShareSheet";
@@ -328,6 +329,13 @@ export default function VoteClient({ copy }: { copy: VoteCopy }) {
               {copy.shareCta}
             </button>
           )}
+          {/* Way off this dead-end page into the actual site. */}
+          <Link
+            href={copy.homeHref}
+            className="mt-3 block text-center text-[11px] uppercase tracking-[0.16em] text-(--olivea-olive)/70 underline-offset-4 hover:underline"
+          >
+            {copy.homeCta} →
+          </Link>
         </div>
       </div>
 
@@ -409,6 +417,14 @@ export default function VoteClient({ copy }: { copy: VoteCopy }) {
             </button>
           )}
         </div>
+
+        {/* Way off this dead-end page into the actual site. */}
+        <Link
+          href={copy.homeHref}
+          className="v-rise v-rise-4 mt-5 text-[12px] uppercase tracking-[0.18em] text-white/85 underline-offset-4 hover:underline"
+        >
+          {copy.homeCta} →
+        </Link>
       </div>
 
       <ShareSheet open={shareOpen} onClose={() => setShareOpen(false)} copy={copy} />
