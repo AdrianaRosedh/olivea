@@ -114,7 +114,6 @@
     "rehype-autolink-headings": "^7.1.0",
     "remark-frontmatter": "^5.0.0",
     "remark-lint": "^10.0.1",
-    "remark-mdx-frontmatter": "^5.2.0",
     "remark-preset-lint-consistent": "^6.0.1",
     "remark-preset-lint-markdown-style-guide": "^6.0.1",
     "remark-unwrap-images": "^4.0.1",
