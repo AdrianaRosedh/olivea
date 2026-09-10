@@ -35,7 +35,7 @@ interface BusinessHours {
 const venueOptions = [
   { value: "farmtotable", label: "Olivea Farm to Table" },
   { value: "casa", label: "Casa Olivea" },
-  { value: "cafe", label: "Café Olivea" },
+  { value: "cafe", label: "Olivea Café Wine Bar" },
 ] as const;
 
 /* ── Days (schema.org weekday names) ── */
