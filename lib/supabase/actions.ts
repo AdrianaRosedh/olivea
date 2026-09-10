@@ -496,6 +496,43 @@ export async function savePageContent(
   await pingIndexNowForPaths(pageRevalidations[table] ?? []);
 }
 
+/**
+ * Save operating hours — the one editor-writable slice of global_settings.
+ *
+ * Hours are operational content editors are meant to manage (settings.hours is
+ * a normal editor-accessible section), but they live on the global_settings
+ * singleton next to sensitive site-wide config (site name, contact info,
+ * socials, OG image), so savePageContent gates that whole table at manager.
+ * That left editors able to open the hours page but not save it.
+ *
+ * This action fixes the mismatch: it gates on the settings.hours SECTION
+ * (editor+) instead of the manager role, and writes ONLY the `hours` column —
+ * so an editor can update hours without being able to touch anything else on
+ * that row. Revalidates the same layout tree savePageContent does.
+ */
+export async function saveHours(hours: unknown[]): Promise<SaveResult> {
+  if (isSupabaseConfigured) {
+    const { requireSectionAccess } = await import("@/lib/auth/session");
+    await requireSectionAccess("settings.hours", "editor");
+  }
+
+  const touched = await updateRows<{ updated_at: string }>(
+    "global_settings",
+    "id=eq.singleton",
+    { hours },
+  );
+
+  await logAudit({ action: "save", resourceType: "global_settings", resourceId: "singleton" });
+  for (const path of pageRevalidations.global_settings ?? []) {
+    if (path.startsWith("layout:")) {
+      revalidatePath(path.slice("layout:".length), "layout");
+    } else {
+      revalidatePath(path);
+    }
+  }
+  return { ok: true, version: touched[0]?.updated_at ?? null };
+}
+
 // ── Sustainability Sections (collection) ───────────────────────────
 
 export async function getSustainabilitySections() {

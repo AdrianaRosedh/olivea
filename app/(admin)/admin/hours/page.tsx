@@ -143,10 +143,11 @@ export default function HoursPage() {
     setSaving(true);
     setSaveStatus("idle");
     try {
-      const { getPageContent, savePageContent } = await import("@/lib/supabase/actions");
-      const current = await getPageContent("global_settings");
-      const updated = { ...current, hours };
-      await savePageContent("global_settings", updated as Record<string, unknown>);
+      // Editors manage hours via the section-gated saveHours action, which
+      // writes ONLY the hours column. (savePageContent("global_settings") is
+      // manager-only because that row also holds sensitive site config.)
+      const { saveHours } = await import("@/lib/supabase/actions");
+      await saveHours(hours);
       setDirty(false);
       setSaveStatus("saved");
       setTimeout(() => setSaveStatus("idle"), 2500);
