@@ -1,9 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import MobileAudioFeedback from "@/components/ui/MobileAudioFeedback";
-import { isVotePath } from "@/lib/mexbest";
 
 interface ClientProvidersProps {
   children: ReactNode;
@@ -11,13 +9,6 @@ interface ClientProvidersProps {
 export default function ClientProviders({ children }: ClientProvidersProps) {
   const [mounted, setMounted]   = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const pathname = usePathname();
-
-  // The scroll-feedback widget preloads an mp3 the moment it mounts. The vote
-  // page is a fixed, non-scrolling screen, so that sound can never fire there —
-  // it would be a pure download on a page people reach from a QR code at the
-  // table, often on restaurant wifi.
-  const silent = isVotePath(pathname);
 
   useEffect(() => {
     setMounted(true);
@@ -39,7 +30,7 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
   // widget needs to wait for the UA check.
   return (
     <>
-      {mounted && isMobile && !silent && <MobileAudioFeedback />}
+      {mounted && isMobile && <MobileAudioFeedback />}
       {children}
     </>
   );

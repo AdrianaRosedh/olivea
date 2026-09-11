@@ -68,7 +68,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/innovation",
     "/roseiies",
     "/team",
-    "/vota",
   ] as const;
 
   const out: MetadataRoute.Sitemap = [];
