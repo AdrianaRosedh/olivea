@@ -12,7 +12,7 @@ import type { BannerItem } from "../types";
 const items: BannerItem[] = [
   {
     id: "mexbest-readers-choice-2026-v1",
-    enabled: true,
+    enabled: false,
     type: "notice",
     translations: {
       es: {

@@ -21,7 +21,10 @@ export function isVotePath(pathname: string | null | undefined): boolean {
  * Baja California offset so "live" means the same instant for every visitor.
  */
 export const MEXBEST_CAMPAIGN = {
-  enabled: true,
+  // Voting ended 2026-09-11 — campaign off. This stops the VotePill and lets
+  // the hiring pill show again (both read isVoteCampaignLive). The banner is
+  // disabled separately in the Supabase `banners` table (its live source).
+  enabled: false,
   startsAt: "2026-09-03T00:00:00-07:00",
   endsAt: "2026-12-31T23:59:59-08:00",
   votePath: (lang: "es" | "en") => `/${lang}/vota`,

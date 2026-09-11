@@ -1,10 +1,10 @@
 {
-  "enabled": true,
+  "enabled": false,
   "id": "mexbest-readers-choice-2026-v1",
   "type": "notice",
   "translations": {
     "es": {
-      "text": "Olivea Farm to Table y Casa Olivea están nominados en el Reader's Choice de los Premios MexBest 2026.",
+      "text": "Olivea Farm to Table y Casa Olivea est\u00e1n nominados en el Reader's Choice de los Premios MexBest 2026.",
       "ctaLabel": "Votar",
       "ctaHref": "/es/vota"
     },
@@ -17,6 +17,14 @@
   "startsAt": "2026-09-03T00:00:00-07:00",
   "endsAt": "2026-12-31T23:59:59-08:00",
   "dismissible": true,
-  "includePaths": ["/es/*", "/en/*"],
-  "excludePaths": ["/es", "/en", "/es/vota", "/en/vota"]
+  "includePaths": [
+    "/es/*",
+    "/en/*"
+  ],
+  "excludePaths": [
+    "/es",
+    "/en",
+    "/es/vota",
+    "/en/vota"
+  ]
 }
