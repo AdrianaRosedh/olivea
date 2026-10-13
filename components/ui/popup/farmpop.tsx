@@ -20,30 +20,6 @@ import { X } from "lucide-react";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 
-/** Idle scheduler (typed) */
-type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
-type RequestIdleCallback = (
-  cb: (deadline: IdleDeadline) => void,
-  opts?: { timeout?: number }
-) => number;
-type CancelIdleCallback = (handle: number) => void;
-
-function scheduleIdle(cb: () => void, timeout = 600): () => void {
-  if (typeof window === "undefined") return () => {};
-  const w = window as Window & {
-    requestIdleCallback?: RequestIdleCallback;
-    cancelIdleCallback?: CancelIdleCallback;
-  };
-  if (typeof w.requestIdleCallback === "function") {
-    const id = w.requestIdleCallback(() => cb(), { timeout });
-    return () => {
-      if (typeof w.cancelIdleCallback === "function") w.cancelIdleCallback(id);
-    };
-  }
-  const t = window.setTimeout(cb, 120);
-  return () => window.clearTimeout(t);
-}
-
 type MenuTab = {
   id: string;
   label: string;
@@ -125,7 +101,12 @@ export default function Farmpop({
   openDelayMs = 80,
 }: FarmpopProps) {
   const [open, setOpen] = useState(false);
-  const [preloaded, setPreloaded] = useState(false);
+  // Tabs opened since the modal opened. A tab's iframe is created the first
+  // time it is shown and kept while the modal stays open, so switching back is
+  // instant. Unopened tabs never load: each embed is a page view for the menu
+  // it shows (roseiies counts link visits), and loading menus nobody looked at
+  // counted them as seen.
+  const [opened, setOpened] = useState<ReadonlySet<string>>(() => new Set());
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window === "undefined"
       ? false
@@ -206,12 +187,12 @@ export default function Farmpop({
     };
   }, [open]);
 
-  // Pre-mount all iframes once opened first time — idle time
+  // Closing unmounts every iframe, so the next opening starts from the tab
+  // in view rather than reloading every tab visited before.
   useEffect(() => {
-    if (!open || preloaded || tabList.length === 0) return;
-    const cancel = scheduleIdle(() => setPreloaded(true), 600);
-    return cancel;
-  }, [open, preloaded, tabList.length]);
+    if (!open) return;
+    return () => setOpened(new Set());
+  }, [open]);
 
   // Close on ESC
   useEffect(() => {
@@ -254,6 +235,7 @@ export default function Farmpop({
   const switchTab = useCallback(
     (nextId: string) => {
       if (nextId === activeId) return;
+      setOpened((prev) => new Set(prev).add(activeId).add(nextId));
       setPrevId(activeId);
       setActiveId(nextId);
       if (FADE_MS === 0) setPrevId(null);
@@ -468,8 +450,9 @@ export default function Farmpop({
                       backfaceVisibility: "hidden",
                     }}
                   >
-                    {preloaded &&
-                      tabList.map((t) => {
+                    {tabList
+                      .filter((t) => t.id === activeId || opened.has(t.id))
+                      .map((t) => {
                         const isActive = t.id === activeId;
                         const isPrev = t.id === prevId;
 
@@ -516,27 +499,6 @@ export default function Farmpop({
                         );
                       })}
 
-                    {!preloaded && tabList.length > 0 && (
-                      <div className="absolute inset-0" style={{ opacity: 1 }}>
-                        <iframe
-                          src={
-                            tabList.find((t) => t.id === activeId)?.url ||
-                            tabList[0].url
-                          }
-                          title="Menú en vivo"
-                          className="absolute inset-0 w-full h-full block"
-                          style={{
-                            border: 0,
-                            transform: "translateZ(0)",
-                            backfaceVisibility: "hidden",
-                          }}
-                          loading="lazy"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allow="fullscreen"
-                          allowFullScreen
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
 
