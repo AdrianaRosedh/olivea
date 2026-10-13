@@ -131,12 +131,17 @@ export interface InlineEntranceCardProps {
    * (prevents overflow on in-between widths like 768–1100)
    */
   fluidDesktop?: boolean;
-}
 
-type MQLCompat = MediaQueryList & {
-  addListener?: (cb: (e: MediaQueryListEvent) => void) => void;
-  removeListener?: (cb: (e: MediaQueryListEvent) => void) => void;
-};
+  /**
+   * "compact": the collapsed card of the phone/tablet list.
+   * "full": the tall card with the hover video, in the desktop row.
+   * Chosen by the page, which knows which list it is rendering. The card used
+   * to work it out from a media query after hydration, so the server drew the
+   * full card on phones and it then collapsed — the cards below jumped
+   * (CLS 0.13 on a phone).
+   */
+  size: "compact" | "full";
+}
 
 export default function InlineEntranceCard({
   title,
@@ -149,6 +154,7 @@ export default function InlineEntranceCard({
   className = "",
   onActivate = () => {},
   fluidDesktop = false,
+  size,
 }: InlineEntranceCardProps) {
   const { startTransition } = useSharedTransition();
   const reduceMotion = usePrefersReducedMotion();
@@ -157,29 +163,7 @@ export default function InlineEntranceCard({
   const isES = href.startsWith("/es");
   const ctaText = isES ? "Haz Click" : "Click Me";
 
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Mobile detection via matchMedia
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const mq = window.matchMedia("(max-width: 1023px)") as MQLCompat; // treat tablet as non-desktop for card internals
-
-    const applyMobile = () => setIsMobile(mq.matches);
-    applyMobile();
-
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", applyMobile);
-      return () => mq.removeEventListener("change", applyMobile);
-    }
-
-    if (typeof mq.addListener === "function") {
-      mq.addListener(applyMobile);
-      return () => mq.removeListener?.(applyMobile);
-    }
-
-    return;
-  }, []);
+  const isMobile = size === "compact";
 
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -539,11 +523,13 @@ export default function InlineEntranceCard({
                   borderBottomRightRadius: 24,
                 }}
               >
-                <h3
+                <h2
                   style={{
                     margin: 1,
                     fontFamily: "var(--font-serif)",
-                    fontSize: isMobile ? 28 : Math.round(22 * scale),
+                    // Scales down on very narrow phones (320 px) so the title stays
+                    // on one line instead of wrapping into the card's hidden overflow.
+                    fontSize: isMobile ? "clamp(21px, 7.4vw, 28px)" : Math.round(22 * scale),
                     fontWeight: 600,
                     marginTop: 28,
                     transform: isHovered ? "translateY(-8px)" : "translateY(0)",
@@ -552,7 +538,7 @@ export default function InlineEntranceCard({
                   className="not-italic"
                 >
                   {title}
-                </h3>
+                </h2>
 
                 {!isMobile && isHovered && (
                   <p

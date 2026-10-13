@@ -15,7 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ReservationButton from "@components/ui/ReservationButton";
 import InlineEntranceCard from "@components/ui/InlineEntranceCard";
-import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useIsDesktop, useIsMobile } from "@/hooks/useMediaQuery";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useIntroAnimation } from "@/hooks/useIntroAnimation";
 import { HERO, SPLASH, TIMING } from "@/lib/introConstants";
@@ -82,6 +82,12 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
   }, []);
 
   const isMobile = useIsMobile();
+  // The stacked layout (hero on top, cards below) runs until the desktop
+  // layout takes over at lg (1024 px) — tablets included. The hero's height,
+  // the card order and the spacing all follow this one switch; tablets used
+  // to get the desktop hero height (100%) with the stacked cards, which pushed
+  // the cards off the screen.
+  const stacked = !useIsDesktop();
   const pathname = usePathname();
   const isES = pathname?.startsWith("/es");
   const basePath = isES ? "/es" : "/en";
@@ -100,7 +106,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
     introActive,
     overlayGone,
     loaderHidden,
-  } = useIntroAnimation(isMobile);
+  } = useIntroAnimation(stacked);
 
   const cards = useMemo(() => {
     return isES
@@ -143,8 +149,8 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
   }, [basePath, cards]);
 
   const mobileSections = useMemo(() => {
-    return isMobile ? [sections[1], sections[0], sections[2]] : sections;
-  }, [isMobile, sections]);
+    return stacked ? [sections[1], sections[0], sections[2]] : sections;
+  }, [stacked, sections]);
 
   const heroAlt = isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality";
   const barDuration = `${SPLASH.drawSec}s`;
@@ -226,9 +232,14 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
         </AnimatePresence>
 
         {/* Main */}
+        {/* Below lg the page scrolls when it does not fit (short phones, a
+            phone turned sideways); it used to be a fixed column that squeezed
+            the hero to nothing and cut off whatever was below the screen. */}
         <main
+          id="main-content"
           className="
             fixed inset-0 z-10 flex flex-col items-center justify-start lg:justify-center
+            overflow-y-auto overscroll-contain lg:overflow-hidden
             bg-(--olivea-cream) not-italic
             p-3 lg:p-6 pwa-safe-top
           "
@@ -242,13 +253,14 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
           {/* Frame fills the padded area exactly */}
           <div
             ref={heroBoxRef}
-            className="relative overflow-hidden shadow-xl mt-0 bg-(--olivea-olive) not-italic"
-            style={{
-              width: "100%",
-              height: isMobile ? `${HERO.vh}vh` : "100%",
-              borderRadius: "1.5rem",
-              marginBottom: isMobile ? -HERO.overlapPx : 0,
-            }}
+            // Sized by CSS breakpoints, not JavaScript, so it is right in the
+            // server HTML on every screen (a JS-measured height made the page
+            // jump once it started: CLS 0.24 on desktop). Never squeezed by the
+            // cards below it; a floor for short screens.
+            className="
+              relative shrink-0 overflow-hidden shadow-xl mt-0 bg-(--olivea-olive) not-italic
+              w-full rounded-3xl h-[max(29vh,150px)] -mb-2.5 lg:h-full lg:mb-0
+            "
           >
             <HeroMedia isMobile={isMobile} alt={heroAlt} videoConfig={videoConfig} videoRef={videoRef} />
 
@@ -285,7 +297,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
             variants={containerVariants}
             initial="hidden"
             animate={overlayGone ? "show" : "hidden"}
-            style={{ paddingTop: isMobile ? HERO.overlapPx + extraGap : 0 }}
+            style={{ paddingTop: stacked ? HERO.overlapPx + extraGap : 0 }}
           >
             <nav aria-label={isES ? "Navegación principal" : "Primary navigation"}>
               <ul className="space-y-12 pb-30">
@@ -300,7 +312,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                         style={
                           index === 0
                             ? {
-                                marginTop: isMobile ? -HERO.overlapPx : 0,
+                                marginTop: stacked ? -HERO.overlapPx : 0,
                                 position: "relative",
                                 zIndex: 20,
                               }
@@ -313,7 +325,9 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                           sectionKey={sec.sectionKey}
                           description={sec.description}
                           logoSrc={sec.logoSrc}
-                          logoAlt={sec.title}
+                          // The emblem is decorative: the title already names the card.
+                          logoAlt=""
+                          size="compact"
                           className={index === 0 ? "relative z-30" : ""}
                           onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                         />
@@ -333,6 +347,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
               pt-3
               pb-[max(env(safe-area-inset-bottom),16px)]
               bg-linear-to-t from-(--olivea-cream)/95 to-transparent
+              short:bg-(--olivea-cream)/95 short:bg-none
               backdrop-blur-sm
             "
           >
@@ -372,7 +387,8 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                       sectionKey={sec.sectionKey}
                       description={sec.description}
                       logoSrc={sec.logoSrc}
-                      logoAlt={sec.title}
+                      logoAlt=""
+                      size="full"
                       fluidDesktop
                       onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                     />

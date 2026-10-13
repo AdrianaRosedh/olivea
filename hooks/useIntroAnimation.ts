@@ -161,10 +161,10 @@ function useLcpDemote() {
 
 /* ── Desktop hero video: keep trying to play ─────────────────────── */
 
-function useDesktopAutoplay(isMobile: boolean, videoRef: React.RefObject<HTMLVideoElement | null>) {
+function useDesktopAutoplay(stacked: boolean, videoRef: React.RefObject<HTMLVideoElement | null>) {
   useEffect(() => {
     const v = videoRef.current;
-    if (isMobile || !v) return;
+    if (stacked || !v) return;
     v.muted = true;
     v.playsInline = true;
     const tryPlay = () => void v.play().catch(() => {});
@@ -182,12 +182,13 @@ function useDesktopAutoplay(isMobile: boolean, videoRef: React.RefObject<HTMLVid
       window.removeEventListener("touchstart", tryPlay);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [isMobile, videoRef]);
+  }, [stacked, videoRef]);
 }
 
 /* ── The intro ───────────────────────────────────────────────────── */
 
-export function useIntroAnimation(isMobile: boolean) {
+/** @param stacked the phone/tablet layout (below lg): hero on top, cards below. */
+export function useIntroAnimation(stacked: boolean) {
   const overlayControls = useAnimation();
   const logoControls = useAnimation();
   const logoBobControls = useAnimation();
@@ -205,7 +206,7 @@ export function useIntroAnimation(isMobile: boolean) {
   const [loaderHidden, setLoaderHidden] = useState(false);
 
   const hideBase = useLcpDemote();
-  useDesktopAutoplay(isMobile, videoRef);
+  useDesktopAutoplay(stacked, videoRef);
 
   // The drawing reports back through this; the sequence awaits it.
   const drawnRef = useRef<{ promise: Promise<void>; resolve: () => void } | null>(null);
@@ -216,11 +217,11 @@ export function useIntroAnimation(isMobile: boolean) {
   }
   const onAlebrijeDrawn = useCallback(() => drawnRef.current?.resolve(), []);
 
-  // Latest viewport class for the sequence, without restarting it.
-  const isMobileRef = useRef(isMobile);
+  // Latest layout for the sequence, without restarting it.
+  const stackedRef = useRef(stacked);
   useEffect(() => {
-    isMobileRef.current = isMobile;
-  }, [isMobile]);
+    stackedRef.current = stacked;
+  }, [stacked]);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -281,14 +282,14 @@ export function useIntroAnimation(isMobile: boolean) {
       ]);
 
       // Where everything ends up. On a desktop the alebrije lands on the logo
-      // above the cards; on a phone (no such slot) it settles in the middle of
+      // above the cards; on a phone or tablet (no such slot) it settles in the middle of
       // the hero, sized to sit inside it.
       await nextFrame(signal);
       const rect = hero.getBoundingClientRect();
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const slot = logoTargetRef.current?.getBoundingClientRect();
-      const landsOnSlot = !isMobileRef.current && !!slot && slot.width > 0;
+      const landsOnSlot = !stackedRef.current && !!slot && slot.width > 0;
       const target = landsOnSlot
         ? { cx: slot.left + slot.width / 2, cy: slot.top + slot.height / 2, scale: slot.width / SPLASH.sizePx }
         : {

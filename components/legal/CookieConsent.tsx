@@ -128,28 +128,28 @@ export default function CookieConsent() {
         aria-label={es ? "Aviso de cookies" : "Cookie notice"}
         className="pointer-events-auto w-full sm:max-w-sm"
       >
-        <div className="rounded-2xl border border-[var(--olivea-olive)]/10 bg-[var(--olivea-cream)]/95 p-5 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.28)] backdrop-blur-md">
+        <div className="rounded-2xl border border-[var(--olivea-olive)]/10 bg-[var(--olivea-cream)]/95 p-5 short:p-3.5 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.28)] backdrop-blur-md">
           <h2
-            className="text-[15px] font-semibold text-[var(--olivea-ink)]"
+            className="text-[15px] short:text-[14px] font-semibold text-[var(--olivea-ink)]"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             {es ? "Cuidamos tu privacidad" : "We value your privacy"}
           </h2>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-[var(--olivea-ink)]/70">
+          <p className="mt-1.5 short:mt-1 text-[12.5px] short:text-[12px] leading-relaxed short:leading-snug text-[var(--olivea-ink)]/70">
             {es
               ? "Usamos cookies para entender cómo se usa el sitio y mejorar tu experiencia. Tú decides — las esenciales siempre están activas."
               : "We use cookies to understand how the site is used and improve your experience. Your choice — essential ones are always on."}
           </p>
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 short:mt-2.5 flex items-center gap-2">
             <button
               onClick={() => choose(true)}
-              className="flex-1 rounded-full bg-[var(--olivea-olive)] px-4 py-2 text-[12.5px] font-medium text-[var(--olivea-cream)] transition-colors hover:bg-[var(--olivea-clay)]"
+              className="flex-1 rounded-full bg-[var(--olivea-olive)] px-4 py-2 short:py-1.5 text-[12.5px] font-medium text-[var(--olivea-cream)] transition-colors hover:bg-[var(--olivea-clay)]"
             >
               {es ? "Aceptar" : "Accept"}
             </button>
             <button
               onClick={() => choose(false)}
-              className="flex-1 rounded-full border border-[var(--olivea-olive)]/25 px-4 py-2 text-[12.5px] font-medium text-[var(--olivea-ink)]/80 transition-colors hover:bg-white/60"
+              className="flex-1 rounded-full border border-[var(--olivea-olive)]/25 px-4 py-2 short:py-1.5 text-[12.5px] font-medium text-[var(--olivea-ink)]/80 transition-colors hover:bg-white/60"
             >
               {es ? "Solo esenciales" : "Essential only"}
             </button>

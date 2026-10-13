@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Short screens (small phones, a phone turned sideways): `short:` utilities. */
+@custom-variant short (@media (max-height: 700px));
+
 /* ───────────────────────────────────────────────────────────── */
 /* OLIVEA GLOBAL THEME TOKENS                                   */
 /* ───────────────────────────────────────────────────────────── */
