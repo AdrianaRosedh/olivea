@@ -1,13 +1,13 @@
 "use client";
 import { useRef, useEffect } from "react";
 
-export default function IntroBarFixed() {
+/** The desktop loader: fills over `durationMs`, the same time the alebrije takes to draw. */
+export default function IntroBarFixed({ durationMs }: { durationMs: number }) {
   const percentRef = useRef<HTMLSpanElement>(null);
   const barBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    const duration = isMobile ? 1800 : 3500;
+    const duration = durationMs;
     let rafId = 0;
     const t0 = performance.now();
 
@@ -27,7 +27,7 @@ export default function IntroBarFixed() {
     barBoxRef.current?.style.setProperty("--bar-duration", `${duration / 1000}s`);
 
     return () => cancelAnimationFrame(rafId);
-  }, []);
+  }, [durationMs]);
 
   return (
     <div className="fixed bottom-20 left-12 right-12 hidden md:flex items-center z-50 text-[#e7eae1] text-xl font-semibold pointer-events-auto select-none not-italic">

@@ -11,6 +11,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { useCallback, useEffect, useState } from "react";
+import { INTRO_DONE_EVENT, isIntroPlaying } from "@/hooks/useIntroAnimation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -48,11 +49,23 @@ export default function CookieConsent() {
   const [open, setOpen] = useState(false);
 
   // First visit (no stored choice) → reveal after a beat, so it settles in
-  // gently rather than fighting first paint.
+  // gently rather than fighting first paint. On the home page it waits for the
+  // intro to finish instead of sliding up over the alebrije.
   useEffect(() => {
     if (Cookies.get(CONSENT_COOKIE)) return;
-    const t = window.setTimeout(() => setOpen(true), 900);
-    return () => window.clearTimeout(t);
+    let t = 0;
+    const reveal = () => {
+      t = window.setTimeout(() => setOpen(true), 900);
+    };
+    if (isIntroPlaying()) {
+      window.addEventListener(INTRO_DONE_EVENT, reveal, { once: true });
+    } else {
+      reveal();
+    }
+    return () => {
+      window.removeEventListener(INTRO_DONE_EVENT, reveal);
+      window.clearTimeout(t);
+    };
   }, []);
 
   // Footer "Cookies" link reopens this to change/withdraw consent.

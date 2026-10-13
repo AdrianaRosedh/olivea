@@ -24,7 +24,7 @@ export default defineConfig({
       // projects (iPhone devices would require WebKit).
       name: "mobile",
       use: { ...devices["Pixel 7"] },
-      testMatch: /smoke\.spec\.ts/,
+      testMatch: /(smoke|intro)\.spec\.ts/,
     },
   ],
 

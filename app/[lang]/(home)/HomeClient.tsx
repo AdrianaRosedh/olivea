@@ -1,38 +1,32 @@
 // app/(home)/[lang]/HomeClient.tsx
 "use client";
 
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { preload } from "react-dom";
 import {
   LazyMotion,
   domAnimation,
   m,
   AnimatePresence,
-  useReducedMotion,
   type Variants,
 } from "framer-motion";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ReservationButton from "@components/ui/ReservationButton";
 import InlineEntranceCard from "@components/ui/InlineEntranceCard";
 import { useIsMobile } from "@/hooks/useMediaQuery";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useIntroAnimation } from "@/hooks/useIntroAnimation";
-import { useMorphSequence } from "@/hooks/useMorphSequence";
-import { HERO, TIMING } from "@/lib/introConstants";
+import { HERO, SPLASH, TIMING } from "@/lib/introConstants";
 import IntroBarFixed from "@/components/intro/IntroBarFixed";
+import AlebrijeDraw from "@/components/animations/AlebrijeDraw";
 import LazyShow from "@/components/ui/LazyShow";
 import { watchLCP } from "@/lib/perf/watchLCP";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
+import HeroMedia, { type VideoConfig } from "./HeroMedia";
 
-// Default video version — overridden by videoConfig prop from content layer
-const DEFAULT_VIDEO_VERSION = "2026-01-15-v2";
-
-// Animated logo (client only)
-const AlebrijeDraw = dynamic(() => import("@/components/animations/AlebrijeDraw"), {
-  ssr: false,
-  loading: () => null,
-});
+const ALEBRIJE_SRC = "/brand/alebrije-1.svg";
 
 // Motion variants (factory so we can pass reduce flag)
 function makeContainerVariants(reduce: boolean): Variants {
@@ -58,31 +52,43 @@ type SectionDef = {
   sectionKey: SectionKey;
 };
 
-type VideoConfig = {
-  version: string;
-  mobile: { webm: string; mp4: string; poster: string };
-  desktop: { webm: string; mp4: string; poster: string };
-};
+/** Gap under the mobile hero, from the real viewport height (browser only). */
+function useMobileHeroGap(): number {
+  const [gap, setGap] = useState<number>(HERO.minGapPx);
+  // Measured after hydration, before paint: the server has no viewport, so
+  // computing this during render made the server and client HTML disagree.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const vhPx = (window.visualViewport?.height ?? window.innerHeight) / 100;
+      setGap(Math.max(HERO.minGapPx, Math.round(HERO.baseGapPx - (HERO.vh - HERO.baseVh) * vhPx)));
+    };
+    measure();
+    window.visualViewport?.addEventListener("resize", measure);
+    return () => window.visualViewport?.removeEventListener("resize", measure);
+  }, []);
+  return gap;
+}
 
 export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig }) {
-  const HERO_VIDEO_VERSION = videoConfig?.version ?? DEFAULT_VIDEO_VERSION;
-  const reduce = useReducedMotion() ?? false;
+  // Start downloading the alebrije with the HTML, so it is ready when the intro is.
+  preload(ALEBRIJE_SRC, { as: "fetch", crossOrigin: "anonymous" });
+
+  const reduce = usePrefersReducedMotion();
   const containerVariants = useMemo(() => makeContainerVariants(reduce), [reduce]);
   const itemVariants = useMemo(() => makeItemVariants(reduce), [reduce]);
 
   useEffect(() => {
     watchLCP();
-    // ensure FixedLCP is reset on entry
-    if (typeof document !== "undefined") document.body.classList.remove("lcp-demote");
   }, []);
 
   const isMobile = useIsMobile();
   const pathname = usePathname();
   const isES = pathname?.startsWith("/es");
   const basePath = isES ? "/es" : "/en";
+  const extraGap = useMobileHeroGap();
 
-  // Intro animation composition
   const {
+    mode,
     videoRef,
     heroBoxRef,
     logoTargetRef,
@@ -90,42 +96,11 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
     innerScaleControls,
     logoControls,
     logoBobControls,
-    allowLoader,
-    showLoader,
-    revealMain,
-    introStarted,
+    onAlebrijeDrawn,
+    showSplash,
+    introActive,
     overlayGone,
-    showVideo,
-    hideBase,
-    setOverlayGone,
-    setShowLoader,
-    setIntroStarted,
   } = useIntroAnimation(isMobile);
-
-  useMorphSequence(
-    hideBase,
-    introStarted,
-    heroBoxRef,
-    logoTargetRef,
-    overlayControls,
-    innerScaleControls,
-    logoControls,
-    logoBobControls,
-    setOverlayGone,
-    setShowLoader,
-    setIntroStarted
-  );
-
-  // --- Mobile video show logic ---
-  const [heroDecoded, setHeroDecoded] = useState(false);
-  const [mobileVideoVisible, setMobileVideoVisible] = useState(false);
-  const mobileVideoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (!isMobile || !heroDecoded) return;
-    const t = setTimeout(() => setMobileVideoVisible(true), 600);
-    return () => clearTimeout(t);
-  }, [isMobile, heroDecoded]);
 
   const cards = useMemo(() => {
     return isES
@@ -171,41 +146,35 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
     return isMobile ? [sections[1], sections[0], sections[2]] : sections;
   }, [isMobile, sections]);
 
-  const overlayBg = "var(--olivea-olive)";
-
-  // keep your existing mobile spacing logic (but no "tablet-as-mobile" surprises)
-  const vhPx =
-    typeof window !== "undefined"
-      ? (window.visualViewport?.height ?? window.innerHeight) / 100
-      : 8;
-
-  const extraGap = Math.max(
-    HERO.minGapPx,
-    Math.round(HERO.baseGapPx - (HERO.vh - HERO.baseVh) * vhPx)
-  );
+  const heroAlt = isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality";
+  const barDuration = `${SPLASH.drawSec}s`;
 
   return (
     <LazyMotion features={domAnimation}>
       <>
-        {/* Splash logo */}
+        {/* Without JavaScript there is no intro: show the page. */}
+        <noscript>
+          <style>{`.intro-overlay{display:none !important}`}</style>
+        </noscript>
+
+        {/* Splash alebrije */}
         <AnimatePresence>
-          {allowLoader && showLoader && (
+          {showSplash && (
             <m.div
               key="logo-splash"
-              className="fixed z-50 not-italic"
-              initial={{
-                top: "50%",
-                left: "50%",
-                x: "-50%",
-                y: "-50%",
-                scale: 1,
-                opacity: 1,
-              }}
+              className="fixed z-50 not-italic pointer-events-none"
+              initial={{ top: "50%", left: "50%", x: "-50%", y: "-50%", scale: 1, opacity: 1 }}
               animate={logoControls}
-              style={{ width: 240, height: 240, transformOrigin: "center" }}
+              style={{ width: SPLASH.sizePx, height: SPLASH.sizePx, transformOrigin: "center" }}
             >
               <m.div animate={logoBobControls}>
-                <AlebrijeDraw size={240} strokeDuration={2.8} />
+                <AlebrijeDraw
+                  src={ALEBRIJE_SRC}
+                  size={SPLASH.sizePx}
+                  strokeDuration={SPLASH.drawSec}
+                  instant={mode === "quick"}
+                  onComplete={onAlebrijeDrawn}
+                />
               </m.div>
             </m.div>
           )}
@@ -213,24 +182,21 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
 
         {/* Intro overlay */}
         <AnimatePresence>
-          {introStarted && (
+          {introActive && (
             <m.div
               key="overlay"
-              className="fixed inset-0 z-40 not-italic"
+              className="intro-overlay fixed inset-0 z-40 not-italic"
               initial={{ opacity: 1 }}
               exit={{
                 opacity: 0,
-                transition: {
-                  duration: TIMING.crossfadeSec,
-                  ease: [0.19, 1, 0.22, 1],
-                },
+                transition: { duration: TIMING.crossfadeSec, ease: [0.19, 1, 0.22, 1] },
               }}
               style={overlayGone ? { pointerEvents: "none" } : undefined}
             >
               <m.div
                 className="absolute inset-0 not-italic"
                 style={{
-                  background: overlayBg,
+                  background: "var(--olivea-olive)",
                   clipPath: "inset(0px 0px 0px 0px round 0px)",
                   contain: "layout",
                 }}
@@ -242,18 +208,18 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                   initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
                   animate={innerScaleControls}
                 >
-                  {/* Mobile vertical loader bar */}
+                  {/* Mobile vertical loader bar — fills while the alebrije draws */}
                   <div className="absolute inset-0 lg:hidden z-20 flex items-center justify-start pl-4 py-6 pointer-events-none select-none">
                     <div
                       className="relative w-2 h-2/3 bg-gray-200 rounded-full overflow-hidden"
-                      style={{ "--bar-duration": "4s" } as React.CSSProperties}
+                      style={{ "--bar-duration": barDuration } as React.CSSProperties}
                     >
                       <div className="absolute bottom-0 left-0 w-full h-full bg-[#e7eae1] rounded-full loader-vert" />
                     </div>
                   </div>
 
                   {/* Desktop percent bar */}
-                  <IntroBarFixed />
+                  <IntroBarFixed durationMs={SPLASH.drawSec * 1000} />
                 </m.div>
               </m.div>
             </m.div>
@@ -264,10 +230,9 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
         <main
           className="
             fixed inset-0 z-10 flex flex-col items-center justify-start lg:justify-center
-            bg-(--olivea-cream) transition-opacity duration-300 not-italic
+            bg-(--olivea-cream) not-italic
             p-3 lg:p-6 pwa-safe-top
           "
-          style={{ opacity: revealMain ? 1 : 0 }}
         >
           <h1 className="sr-only">
             {isES
@@ -275,7 +240,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
               : "OLIVEA — Farm Hospitality in Valle de Guadalupe: MICHELIN-Starred Restaurant, Farm Stay & Café"}
           </h1>
 
-          {/* ✅ Frame fills the padded area exactly */}
+          {/* Frame fills the padded area exactly */}
           <div
             ref={heroBoxRef}
             className="relative overflow-hidden shadow-xl mt-0 bg-(--olivea-olive) not-italic"
@@ -286,106 +251,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
               marginBottom: isMobile ? -HERO.overlapPx : 0,
             }}
           >
-            {/* MOBILE: paint hero image immediately; demote overlay when decoded */}
-            {isMobile && !showVideo && (
-              <Image
-                src="/images/hero.avif"
-                alt={isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
-                fill
-                priority
-                fetchPriority="high"
-                decoding="async"
-                loading="eager"
-                sizes="100vw"
-                quality={60}
-                placeholder="blur"
-                blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
-                className="object-cover"
-                onLoad={() => {
-                  setHeroDecoded(true);
-                  setOverlayGone?.(true);
-                  if (typeof document !== "undefined")
-                    document.body.classList.add("lcp-demote");
-                }}
-              />
-            )}
-
-            {/* MOBILE VIDEO: show after hero decode + small delay */}
-            {isMobile && (showVideo || mobileVideoVisible) && (
-              <video
-                ref={mobileVideoRef}
-                className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-(--video-brightness) pointer-events-none lg:hidden"
-                muted
-                playsInline
-                autoPlay
-                loop
-                preload="metadata"
-                poster={videoConfig?.mobile.poster ?? "/images/hero-mobile.avif"}
-                aria-hidden
-                tabIndex={-1}
-                disablePictureInPicture
-                controls={false}
-                onLoadedData={() => {
-                  try {
-                    mobileVideoRef.current?.play();
-                  } catch {}
-                }}
-              >
-                <source
-                  src={`${videoConfig?.mobile.webm ?? "/videos/homepage-mobile.webm"}?v=${HERO_VIDEO_VERSION}`}
-                  type="video/webm"
-                />
-                <source
-                  src={`${videoConfig?.mobile.mp4 ?? "/videos/homepage-mobile.mp4"}?v=${HERO_VIDEO_VERSION}`}
-                  type="video/mp4"
-                />
-              </video>
-            )}
-
-            {/* DESKTOP: paint image under the video for instant LCP */}
-            {!isMobile && (
-              <>
-                <Image
-                  src="/images/hero.avif"
-                  alt={isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
-                  fill
-                  priority
-                  fetchPriority="high"
-                  decoding="async"
-                  loading="eager"
-                  sizes="100vw"
-                  quality={70}
-                  placeholder="blur"
-                  blurDataURL="data:image/gif;base64,R0lGODlhAQABAAAAACw="
-                  className="object-cover"
-                  onLoad={() => {
-                    if (typeof document !== "undefined")
-                      document.body.classList.add("lcp-demote");
-                  }}
-                />
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover [--video-brightness:0.96] brightness-(--video-brightness) pointer-events-none"
-                  muted
-                  playsInline
-                  loop
-                  autoPlay
-                  preload="metadata"
-                  poster={videoConfig?.desktop.poster ?? "/images/hero-mobile.avif"}
-                  aria-hidden
-                  tabIndex={-1}
-                >
-                  <source
-                    src={`${videoConfig?.desktop.webm ?? "/videos/homepage-HD.webm"}?v=${HERO_VIDEO_VERSION}`}
-                    type="video/webm"
-                  />
-                  <source
-                    src={`${videoConfig?.desktop.mp4 ?? "/videos/homepage-HD.mp4"}?v=${HERO_VIDEO_VERSION}`}
-                    type="video/mp4"
-                  />
-                </video>
-              </>
-            )}
+            <HeroMedia isMobile={isMobile} alt={heroAlt} videoConfig={videoConfig} videoRef={videoRef} />
 
             {/* Mobile title after overlay */}
             <m.div
@@ -394,10 +260,8 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
               initial="hidden"
               animate={overlayGone ? "show" : "hidden"}
             >
-              <span
-                className="font-corm-hero italic text-(--olivea-mist) text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center"
-              >
-                {isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
+              <span className="font-corm-hero italic text-(--olivea-mist) text-lg tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] text-center">
+                {heroAlt}
               </span>
             </m.div>
 
@@ -406,10 +270,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
           </div>
 
           {/* Hidden plain nav links (no visual impact, improves crawl clarity) */}
-          <nav
-            aria-label={isES ? "Navegación principal" : "Primary navigation"}
-            className="sr-only"
-          >
+          <nav aria-label={isES ? "Navegación principal" : "Primary navigation"} className="sr-only">
             <ul>
               {sections.map((sec) => (
                 <li key={sec.href}>
@@ -424,7 +285,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
             className="relative z-10 flex flex-col lg:hidden flex-1 w-full px-4"
             variants={containerVariants}
             initial="hidden"
-            animate={introStarted ? "hidden" : "show"}
+            animate={overlayGone ? "show" : "hidden"}
             style={{ paddingTop: isMobile ? HERO.overlapPx + extraGap : 0 }}
           >
             <nav aria-label={isES ? "Navegación principal" : "Primary navigation"}>
@@ -455,9 +316,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                           logoSrc={sec.logoSrc}
                           logoAlt={sec.title}
                           className={index === 0 ? "relative z-30" : ""}
-                          onActivate={() =>
-                            sessionStorage.setItem("fromHomePage", "true")
-                          }
+                          onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                         />
                       </m.div>
                     </LazyShow>
@@ -478,7 +337,6 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
               backdrop-blur-sm
             "
           >
-            {/* ✅ Force full-width mobile button always inside this bar */}
             <ReservationButton forceMobile className="w-full" />
           </div>
 
@@ -500,21 +358,13 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
               />
             </div>
 
-            <span
-              className="font-corm-hero italic mt-3 text-(--olivea-mist) text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none"
-            >
-              {isES ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality"}
+            <span className="font-corm-hero italic mt-3 text-(--olivea-mist) text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none">
+              {heroAlt}
             </span>
 
-            <nav
-              aria-label={isES ? "Navegación principal" : "Primary navigation"}
-              className="mt-6 lg:mt-8 pointer-events-auto"
-            >
-              {/* ✅ Keep INLINE on desktop — fluid gaps scale with viewport */}
-              <ul
-                className="flex justify-center"
-                style={{ gap: "clamp(1rem, 2.5vw, 4rem)" }}
-              >
+            <nav aria-label={isES ? "Navegación principal" : "Primary navigation"} className="mt-6 lg:mt-8 pointer-events-auto">
+              {/* Keep INLINE on desktop — fluid gaps scale with viewport */}
+              <ul className="flex justify-center" style={{ gap: "clamp(1rem, 2.5vw, 4rem)" }}>
                 {sections.map((sec) => (
                   <li key={sec.href}>
                     <InlineEntranceCard
@@ -525,9 +375,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                       logoSrc={sec.logoSrc}
                       logoAlt={sec.title}
                       fluidDesktop
-                      onActivate={() =>
-                        sessionStorage.setItem("fromHomePage", "true")
-                      }
+                      onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
                     />
                   </li>
                 ))}

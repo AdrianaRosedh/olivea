@@ -9,7 +9,6 @@ export const HERO = {
 } as const;
 
 export const TIMING = {
-  introHoldMs: 30,
   morphSec: 0.6,
   settleMs: 100,
   // ⬇️ was 0.18 — make the overlay fade clearly visible/smooth
@@ -17,6 +16,15 @@ export const TIMING = {
 } as const;
 
 export const SPLASH = {
+  /** The alebrije's line drawing. The loader bars run for the same time. */
+  drawSec: 2.8,
+  /** Extra time allowed for the drawing (download, slow phone) before moving on. */
+  drawGraceMs: 1500,
+  /** Rendered size of the splash alebrije. */
+  sizePx: 240,
+  /** On a phone the alebrije settles small, in the middle of the hero. */
+  mobileLandScale: 0.35,
+  /** Pause on the finished drawing before the screen shrinks. */
   holdMs: 240,
   afterCrossfadeMs: 120,
   fadeOutSec: 0.24,
@@ -24,11 +32,10 @@ export const SPLASH = {
 } as const;
 
 export const INTRO = {
-  // Hard cap on the whole intro. The morph sequence awaits video metadata,
-  // LCP, and several animation promises — if any of them stalls (data-saver,
-  // low-power autoplay blocks, codec issues), the overlay must still clear.
-  // Natural sequence worst case is ~4.2s; this only fires when something hung.
-  watchdogMs: 7000,
+  // Hard cap after the drawing's own allowance. The rest of the sequence
+  // (hold, morph, move, fade) takes about 2.2 s; if anything stalls, the
+  // overlay is cleared anyway so it can never sit over the page.
+  afterDrawWatchdogMs: 4000,
 } as const;
 
 // Optional: a single place for your easing (nice & smooth)
