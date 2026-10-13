@@ -12,7 +12,6 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import ReservationButton from "@components/ui/ReservationButton";
 import InlineEntranceCard from "@components/ui/InlineEntranceCard";
 import { useIsDesktop, useIsMobile } from "@/hooks/useMediaQuery";
@@ -69,7 +68,7 @@ function useMobileHeroGap(): number {
   return gap;
 }
 
-export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig }) {
+export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; videoConfig?: VideoConfig }) {
   // Start downloading the alebrije with the HTML, so it is ready when the intro is.
   preload(ALEBRIJE_SRC, { as: "fetch", crossOrigin: "anonymous" });
 
@@ -88,8 +87,11 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
   // to get the desktop hero height (100%) with the stacked cards, which pushed
   // the cards off the screen.
   const stacked = !useIsDesktop();
-  const pathname = usePathname();
-  const isES = pathname?.startsWith("/es");
+  // The language comes from the route, never from the address: "/" is the
+  // Spanish site through a rewrite, and when the cached page regenerated after
+  // a visit to "/", startsWith("/es") was false and the Spanish page was
+  // cached in English (React #418 for every visitor until it regenerated).
+  const isES = lang === "es";
   const basePath = isES ? "/es" : "/en";
   const extraGap = useMobileHeroGap();
 

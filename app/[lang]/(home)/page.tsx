@@ -81,6 +81,7 @@ export default async function Page({
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
       <HomeClient
+        lang={lang === "en" ? "en" : "es"}
         videoConfig={video ? {
           version: video.version,
           mobile: video.mobile,

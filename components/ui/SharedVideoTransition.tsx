@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   motion,
   useAnimation,
@@ -28,16 +28,22 @@ const LogoSrcMap: Record<SectionKey, string> = {
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
+// About 1.3 s from tap to page (was ~2.3 s on a phone, ~2.6 s on a desktop,
+// most of it a flat green pause while the page only started loading after
+// the panel had fully risen).
 function getDurations(isPhone: boolean) {
   return {
-    enter: isPhone ? 0.9 : 1.1,
-    exit: isPhone ? 0.85 : 1.05,
-    hold: 0.22,
-    logoIn: isPhone ? 0.32 : 0.38,
+    enter: isPhone ? 0.55 : 0.65,
+    exit: isPhone ? 0.6 : 0.7,
+    minHoldMs: 120,
+    logoIn: isPhone ? 0.28 : 0.32,
   } as const;
 }
 
-const NAV_BUFFER_MS = 60;
+/** Start navigating this far into the rise, so the page loads under the panel. */
+const NAV_AT = 0.5;
+/** Lift the panel even if the destination logo never appears. */
+const MAX_WAIT_MS = 2500;
 
 // ✅ Failsafe so scroll can’t be trapped on weird devices/transitions.
 const FAILSAFE_MS = 9000;
@@ -175,6 +181,7 @@ function Overlay({
   onFullyDone: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const reduce = usePrefersReducedMotion();
 
   const { isPhone, vh } = useStableViewport(phase);
@@ -190,7 +197,7 @@ function Overlay({
     return saveData || (dm !== undefined && dm < 3);
   }, [isPhone]);
 
-  // ✅ lock scroll & overscroll during the transition (FIXED: no "unlock()" function)
+  // Lock scroll & overscroll during the transition.
   useEffect(() => {
     const rootStyle = document.documentElement.style;
 
@@ -209,32 +216,23 @@ function Overlay({
     };
   }, []);
 
-  // ✅ HARD FAILSAFE (prevents “stuck overlay => stuck scroll” on some Androids/PCs)
+  // Hard failsafe: the overlay can never trap the page.
   useEffect(() => {
-    const t = window.setTimeout(() => {
-      onFullyDone();
-    }, FAILSAFE_MS);
+    const t = window.setTimeout(() => onFullyDone(), FAILSAFE_MS);
     return () => window.clearTimeout(t);
   }, [onFullyDone]);
 
-  // optional prefetch (inline type guard)
+  // Prefetch the destination as soon as the overlay mounts.
   useEffect(() => {
-    type Prefetchable = { prefetch?: (href: string) => void | Promise<void> };
-    const r = router as unknown as Prefetchable;
-    if (typeof r.prefetch === "function") {
-      try {
-        void r.prefetch(targetHref);
-      } catch {
-        /* ignore */
-      }
+    try {
+      router.prefetch(targetHref);
+    } catch {
+      /* ignore */
     }
   }, [router, targetHref]);
 
   // FRAME: desktop = full hero; mobile = full-height rounded card
-  const frame = useMemo(() => {
-    if (!isPhone) return { ...DESKTOP_FRAME };
-    return { ...MOBILE_FRAME_LIGHT };
-  }, [isPhone]);
+  const frame = useMemo(() => (isPhone ? { ...MOBILE_FRAME_LIGHT } : { ...DESKTOP_FRAME }), [isPhone]);
 
   const containerCtrls = useAnimation();
   const logoCtrls = useAnimation();
@@ -249,12 +247,6 @@ function Overlay({
     return e + -vh * t;
   });
 
-  const logoY = useTransform([enterY, exitT], (vals: number[]) => {
-    const e = vals[0] ?? 0;
-    const t = vals[1] ?? 0;
-    return e + -vh * 0.92 * t;
-  });
-
   const sheenY = useTransform([enterY, exitT], (vals: number[]) => {
     const e = vals[0] ?? 0;
     const t = vals[1] ?? 0;
@@ -266,135 +258,98 @@ function Overlay({
     return `inset(${inset}% ${inset}% ${inset}% ${inset}% round ${frame.radius})`;
   });
 
-  // Tap-blocking:
-  const shouldBlockNow = phase === "enter" || phase === "covered";
-  const [blockTaps, setBlockTaps] = useState(true);
+  // The logo rides with the panel on the way in, then stays where the
+  // destination shows its own logo while the panel lifts away.
+  const logoEnterY = useTransform(enterY, (e: number) => e);
+  const logoOpacityOut = useTransform(exitT, [0, 0.55, 0.85], [1, 1, 0]);
 
-  useEffect(() => {
-    setBlockTaps(shouldBlockNow);
-  }, [shouldBlockNow]);
+  // Where the logo sits: an estimate of the destination hero's logo until the
+  // page is there, then the measured box of that very logo.
+  const [logoBox, setLogoBox] = useState<LogoBox>(() => estimateLogoBox());
 
-  // Strict-mode safe: prevent double nav / double setPhase in dev
+  // Tap-blocking while the panel covers the page.
+  const blockTaps = phase === "enter" || phase === "covered";
+
   const navFiredRef = useRef(false);
-  const rafCoveredRef = useRef<number | null>(null);
-  const tmCoveredRef = useRef<number | null>(null);
-  const navTimerRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-      if (rafCoveredRef.current) cancelAnimationFrame(rafCoveredRef.current);
-      if (tmCoveredRef.current) window.clearTimeout(tmCoveredRef.current);
-    };
-  }, []);
-
-  // ENTER
+  // ENTER: the panel rises; navigation starts halfway, so the new page loads
+  // while the panel finishes covering the old one.
   useEffect(() => {
     if (phase !== "enter") return;
-
     navFiredRef.current = false;
 
-    containerCtrls.set({ opacity: 0, willChange: "transform, opacity" });
-    logoCtrls.set({ willChange: "transform, opacity, filter" });
-
-    enterY.set(isPhone ? vh : 24);
+    containerCtrls.set({ opacity: 0 });
+    enterY.set(reduce ? 0 : isPhone ? vh : 24);
     exitT.set(0);
-    irisT.set(isPhone ? 1 : 0);
+    irisT.set(isPhone || reduce ? 1 : 0);
 
     logoCtrls.set({ opacity: 0, scale: 0.98, filter: "blur(8px)" });
     void logoCtrls.start({
       opacity: 1,
       scale: 1,
       filter: "blur(0px)",
-      transition: {
-        duration: reduce ? 0.18 : DUR.logoIn,
-        ease: EASE,
-        delay: 0.06,
-      },
+      transition: { duration: reduce ? 0.18 : DUR.logoIn, ease: EASE, delay: 0.06 },
     });
 
-    if (!isPhone) {
-      void containerCtrls.start({
-        opacity: 1,
-        transition: { duration: reduce ? 0.25 : DUR.enter, ease: EASE },
-      });
+    void containerCtrls.start({
+      opacity: 1,
+      transition: { duration: reduce ? 0.2 : isPhone ? 0.22 : DUR.enter, ease: EASE },
+    });
+    if (!isPhone && !reduce) animate(irisT, 1, { duration: DUR.enter, ease: EASE });
+    if (!reduce) animate(enterY, 0, { duration: DUR.enter, ease: EASE });
 
-      if (!reduce) {
-        animate(irisT, 1, { duration: DUR.enter, ease: EASE });
-      } else {
-        irisT.set(1);
-      }
-    } else {
-      void containerCtrls.start({
-        opacity: 1,
-        transition: { duration: reduce ? 0.2 : 0.26, ease: EASE },
-      });
-    }
-
-    animate(enterY, 0, { duration: reduce ? 0.25 : DUR.enter, ease: EASE });
-
-    if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-    navTimerRef.current = window.setTimeout(() => {
+    const enterMs = Math.round((reduce ? 0.2 : DUR.enter) * 1000);
+    const navTimer = window.setTimeout(() => {
       if (navFiredRef.current) return;
       navFiredRef.current = true;
-
       router.push(targetHref);
-
-      if (rafCoveredRef.current) cancelAnimationFrame(rafCoveredRef.current);
-      if (tmCoveredRef.current) window.clearTimeout(tmCoveredRef.current);
-
-      rafCoveredRef.current = requestAnimationFrame(() => setPhase("covered"));
-      tmCoveredRef.current = window.setTimeout(() => setPhase("covered"), 80);
-    }, Math.max(1, Math.round(DUR.enter * 1000)) + NAV_BUFFER_MS);
+    }, Math.round(enterMs * NAV_AT));
+    const coveredTimer = window.setTimeout(() => setPhase("covered"), enterMs);
 
     return () => {
-      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-      if (rafCoveredRef.current) cancelAnimationFrame(rafCoveredRef.current);
-      if (tmCoveredRef.current) window.clearTimeout(tmCoveredRef.current);
+      window.clearTimeout(navTimer);
+      window.clearTimeout(coveredTimer);
     };
-  }, [
-    phase,
-    isPhone,
-    vh,
-    DUR.enter,
-    DUR.logoIn,
-    router,
-    targetHref,
-    setPhase,
-    logoCtrls,
-    containerCtrls,
-    reduce,
-    enterY,
-    exitT,
-    irisT,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
-  // COVERED → EXIT
+  // COVERED → EXIT: as soon as the destination is on screen (its hero logo is
+  // laid out), with a short minimum hold and a cap if the page is slow.
+  const arrived = samePath(pathname, targetHref);
   useEffect(() => {
     if (phase !== "covered") return;
-    const t = window.setTimeout(
-      () => setPhase("exit"),
-      reduce ? 80 : Math.round(DUR.hold * 1000)
-    );
-    return () => clearTimeout(t);
-  }, [phase, setPhase, DUR.hold, reduce]);
+    let cancelled = false;
+    const startedAt = performance.now();
 
-  // EXIT
+    const tryExit = () => {
+      if (cancelled) return;
+      const waited = performance.now() - startedAt;
+      const dest = arrived ? findDestinationLogo(logoSrc) : null;
+      if (dest || waited >= MAX_WAIT_MS) {
+        if (dest) setLogoBox(dest);
+        const holdLeft = Math.max(0, (reduce ? 80 : DUR.minHoldMs) - waited);
+        window.setTimeout(() => !cancelled && setPhase("exit"), holdLeft);
+        return;
+      }
+      requestAnimationFrame(tryExit);
+    };
+    requestAnimationFrame(tryExit);
+    return () => {
+      cancelled = true;
+    };
+  }, [phase, arrived, logoSrc, setPhase, reduce, DUR.minHoldMs]);
+
+  // EXIT: the panel lifts; the logo stays and fades out last, over the
+  // destination's own logo in the same place.
   useEffect(() => {
     if (phase !== "exit") return;
-
     const controls = animate(exitT, 1, {
-      duration: reduce ? 0.35 : DUR.exit,
+      duration: reduce ? 0.3 : DUR.exit,
       ease: EASE,
-      onComplete: () => {
-        containerCtrls.set({ willChange: "auto" });
-        logoCtrls.set({ willChange: "auto" });
-        onFullyDone();
-      },
+      onComplete: onFullyDone,
     });
-
     return () => controls.stop();
-  }, [phase, exitT, DUR.exit, reduce, onFullyDone, containerCtrls, logoCtrls]);
+  }, [phase, exitT, DUR.exit, reduce, onFullyDone]);
 
   const background = useMemo(
     () =>
@@ -411,87 +366,116 @@ function Overlay({
   const resolvedClipPath = !isPhone && !reduce ? clipPath : undefined;
 
   return (
-    <motion.div
-      animate={containerCtrls}
-      style={{
-        position: "fixed",
-        top: frame.top,
-        left: frame.left,
-        width: frame.width,
-        height: frame.height,
-        borderRadius: frame.radius,
-        overflow: "hidden",
-        zIndex: 2147483647,
-        background,
-        y: overlayY,
-        clipPath: resolvedClipPath,
-        WebkitClipPath: resolvedClipPath,
-        transform: "translate3d(0,0,0)",
-        backfaceVisibility: "hidden",
-        WebkitBackfaceVisibility: "hidden",
-        isolation: "isolate",
-        contain: "paint",
-        pointerEvents: blockTaps ? "auto" : "none",
-        touchAction: blockTaps ? "none" : "auto",
-      }}
-      onTouchMove={(e) => {
-        if (blockTaps) e.preventDefault();
-      }}
-    >
-      {!lowEndMobile && (
-        <motion.div
+    <>
+      <motion.div
+        animate={containerCtrls}
+        style={{
+          position: "fixed",
+          top: frame.top,
+          left: frame.left,
+          width: frame.width,
+          height: frame.height,
+          borderRadius: frame.radius,
+          overflow: "hidden",
+          zIndex: 2147483646,
+          background,
+          y: overlayY,
+          clipPath: resolvedClipPath,
+          WebkitClipPath: resolvedClipPath,
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+          isolation: "isolate",
+          contain: "paint",
+          pointerEvents: blockTaps ? "auto" : "none",
+          touchAction: blockTaps ? "none" : "auto",
+        }}
+        onTouchMove={(e) => {
+          if (blockTaps) e.preventDefault();
+        }}
+      >
+        {!lowEndMobile && (
+          <motion.div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              background:
+                "conic-gradient(from 210deg at 50% 50%, rgba(255,255,255,0.00) 0deg, rgba(255,255,255,0.20) 38deg, rgba(255,255,255,0.00) 120deg)",
+              mixBlendMode: "soft-light",
+              filter: "blur(16px)",
+              opacity: sheenOpacity,
+              y: sheenY,
+            }}
+          />
+        )}
+        <div
           aria-hidden
           style={{
             position: "absolute",
             inset: 0,
             pointerEvents: "none",
+            opacity: isPhone ? 0.02 : 0.04,
+            mixBlendMode: "overlay",
             background:
-              "conic-gradient(from 210deg at 50% 50%, rgba(255,255,255,0.00) 0deg, rgba(255,255,255,0.20) 38deg, rgba(255,255,255,0.00) 120deg)",
-            mixBlendMode: "soft-light",
-            filter: "blur(16px)",
-            opacity: sheenOpacity,
-            y: sheenY,
+              "repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px), " +
+              "repeating-linear-gradient(90deg, rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px)",
           }}
         />
-      )}
-
-      <motion.div
-        animate={logoCtrls}
-        style={{
-          position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          pointerEvents: "none",
-          y: logoY,
-        }}
-      >
-        <div className="relative w-24 h-24 md:w-32 md:h-32">
-          <Image
-            src={logoSrc}
-            alt=""
-            fill
-            className="object-contain"
-            sizes="128px"
-            priority={false}
-          />
-        </div>
       </motion.div>
 
-      <div
+      {/* The logo: its own layer, at the destination logo's size and place. */}
+      <motion.div
         aria-hidden
         style={{
-          position: "absolute",
-          inset: 0,
+          position: "fixed",
+          zIndex: 2147483647,
           pointerEvents: "none",
-          opacity: isPhone ? 0.02 : 0.04,
-          mixBlendMode: "overlay",
-          background:
-            "repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px), " +
-            "repeating-linear-gradient(90deg, rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px)",
+          left: logoBox.left,
+          top: logoBox.top,
+          width: logoBox.size,
+          height: logoBox.size,
+          y: logoEnterY,
+          opacity: logoOpacityOut,
+          transition: "left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease",
         }}
-      />
-    </motion.div>
+      >
+        <motion.div animate={logoCtrls} style={{ position: "relative", width: "100%", height: "100%" }}>
+          <Image src={logoSrc} alt="" fill className="object-contain" sizes="(max-width: 767px) 200px, 320px" priority />
+        </motion.div>
+      </motion.div>
+    </>
   );
+}
+
+type LogoBox = { left: number; top: number; size: number };
+
+/** The destination hero's logo box before the page exists: centred on the
+ *  page, a little above the middle, at the hero's size (170 px on a phone,
+ *  260 px on a desktop — measured on the three section pages). */
+function estimateLogoBox(): LogoBox {
+  const w = window.innerWidth;
+  const h = window.visualViewport?.height ?? window.innerHeight;
+  const size = w < 768 ? 170 : 260;
+  const cy = w < 768 ? h * 0.425 : h * 0.4;
+  return { left: w / 2 - size / 2, top: cy - size / 2, size };
+}
+
+/** The destination page's own hero logo, once it is laid out. */
+function findDestinationLogo(logoSrc: string): LogoBox | null {
+  const name = logoSrc.split("/").pop() ?? "";
+  for (const img of Array.from(document.querySelectorAll<HTMLImageElement>("main img, section img"))) {
+    if (!(img.currentSrc || img.src).includes(name)) continue;
+    const r = img.getBoundingClientRect();
+    if (r.width < 40 || r.height < 40) continue;
+    const size = Math.min(r.width, r.height);
+    return { left: r.left + (r.width - size) / 2, top: r.top + (r.height - size) / 2, size };
+  }
+  return null;
+}
+
+function samePath(pathname: string | null, href: string): boolean {
+  if (!pathname) return false;
+  const strip = (p: string) => p.split(/[?#]/)[0].replace(/\/+$/, "");
+  return strip(pathname) === strip(href);
 }

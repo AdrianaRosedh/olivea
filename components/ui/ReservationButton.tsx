@@ -19,7 +19,9 @@ export default function ReservationButton({
 }: ReservationButtonProps) {
   const { openReservationModal } = useReservation();
   const pathname = usePathname();
-  const isES = pathname?.startsWith("/es");
+  // Spanish unless the address is English: "/" is the Spanish site (rewrite),
+  // and startsWith("/es") called it English.
+  const isES = !pathname?.startsWith("/en");
   const label = isES ? "RESERVAR" : "RESERVE";
 
   const handleClick = () => {
