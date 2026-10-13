@@ -2,8 +2,8 @@
 // ─────────────────────────────────────────────────────────────────────
 // The home page intro, as ONE ordered sequence:
 //
-//   green screen → alebrije draws → settles → screen shrinks into the hero
-//   → alebrije moves to its place → green fades → alebrije fades → page
+//   green screen → alebrije draws → loader bars fade → the screen and the
+//   alebrije shrink together into the hero → green fades → page
 //
 // ★ WHY ONE SEQUENCE. The intro used to run on two independent clocks: the
 //   morph started from page-load signals (~1 s) while the alebrije waited for
@@ -189,7 +189,6 @@ function useDesktopAutoplay(isMobile: boolean, videoRef: React.RefObject<HTMLVid
 
 export function useIntroAnimation(isMobile: boolean) {
   const overlayControls = useAnimation();
-  const innerScaleControls = useAnimation();
   const logoControls = useAnimation();
   const logoBobControls = useAnimation();
 
@@ -203,6 +202,7 @@ export function useIntroAnimation(isMobile: boolean) {
   const [introActive, setIntroActive] = useState(true);
   const [overlayGone, setOverlayGone] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [loaderHidden, setLoaderHidden] = useState(false);
 
   const hideBase = useLcpDemote();
   useDesktopAutoplay(isMobile, videoRef);
@@ -271,59 +271,59 @@ export function useIntroAnimation(isMobile: boolean) {
       const hero = heroBoxRef.current;
       if (!hero) return finish();
 
-      // Shrink the green screen into the hero.
+      // The loader bars leave first: inside the shrinking box they would be
+      // squashed into a sliver.
+      setLoaderHidden(true);
+      logoBobControls.stop();
+      await Promise.all([
+        logoBobControls.start({ y: 0, transition: { duration: SPLASH.barFadeSec } }),
+        sleep(SPLASH.barFadeSec * 1000, signal),
+      ]);
+
+      // Where everything ends up. On a desktop the alebrije lands on the logo
+      // above the cards; on a phone (no such slot) it settles in the middle of
+      // the hero, sized to sit inside it.
       await nextFrame(signal);
       const rect = hero.getBoundingClientRect();
       const vw = window.innerWidth;
       const vh = window.innerHeight;
+      const slot = logoTargetRef.current?.getBoundingClientRect();
+      const landsOnSlot = !isMobileRef.current && !!slot && slot.width > 0;
+      const target = landsOnSlot
+        ? { cx: slot.left + slot.width / 2, cy: slot.top + slot.height / 2, scale: slot.width / SPLASH.sizePx }
+        : {
+            cx: rect.left + rect.width / 2,
+            cy: rect.top + rect.height / 2,
+            scale: Math.min(rect.height * SPLASH.heroFit, rect.width * SPLASH.heroFit) / SPLASH.sizePx,
+          };
+
+      // ONE movement: the green box and the alebrije shrink together, with the
+      // same duration and easing, so the alebrije never spills out of the box.
+      const move = { duration: TIMING.morphSec, ease: EASE.inOut };
       await Promise.all([
         overlayControls.start({
           clipPath: `inset(${Math.max(0, rect.top)}px ${Math.max(0, vw - rect.right)}px ${Math.max(
             0,
             vh - rect.bottom
           )}px ${Math.max(0, rect.left)}px round 24px)`,
-          transition: { duration: TIMING.morphSec, ease: EASE.inOut },
+          transition: move,
         }),
-        innerScaleControls.start({
-          x: rect.left + rect.width / 2 - vw / 2,
-          y: rect.top + rect.height / 2 - vh / 2,
-          scaleX: rect.width / vw,
-          scaleY: rect.height / vh,
-          transition: { duration: TIMING.morphSec, ease: EASE.inOut },
-        }),
+        logoControls.start({ top: target.cy, left: target.cx, scale: target.scale, transition: move }),
       ]);
       await sleep(TIMING.settleMs, signal);
-      await nextFrame(signal);
 
-      // Move the alebrije to its place: the desktop logo slot, or — on a
-      // phone, where that slot is hidden — the middle of the hero, small.
-      const slot = logoTargetRef.current?.getBoundingClientRect();
-      const useSlot = !isMobileRef.current && slot && slot.width > 0;
-      const target = useSlot
-        ? { cx: slot.left + slot.width / 2, cy: slot.top + slot.height / 2, scale: slot.width / SPLASH.sizePx }
-        : { cx: rect.left + rect.width / 2, cy: rect.top + rect.height / 2, scale: SPLASH.mobileLandScale };
-
-      logoBobControls.stop();
-      await logoBobControls.start({ y: 0, transition: { duration: 0.2 } });
-      await logoControls.start({
-        top: target.cy,
-        left: target.cx,
-        scale: target.scale,
-        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-      });
-
-      await nextFrame(signal);
-      await overlayControls.start({
-        opacity: 0,
-        transition: { duration: TIMING.crossfadeSec, ease: EASE.out },
-      });
+      // Then one fade. On a desktop the alebrije sits exactly on the logo, so
+      // only the green leaves; on a phone the green and the alebrije leave
+      // together, revealing the photo and the title.
       setOverlayGone(true);
-
-      await sleep(SPLASH.afterCrossfadeMs, signal);
-      await logoControls.start({
-        opacity: 0,
-        transition: { duration: SPLASH.fadeOutSec, ease: EASE.out },
-      });
+      const fade = { duration: TIMING.crossfadeSec, ease: EASE.out };
+      await Promise.all([
+        overlayControls.start({ opacity: 0, transition: fade }),
+        landsOnSlot ? Promise.resolve() : logoControls.start({ opacity: 0, transition: fade }),
+      ]);
+      if (landsOnSlot) {
+        await logoControls.start({ opacity: 0, transition: { duration: SPLASH.fadeOutSec, ease: EASE.out } });
+      }
       finish();
     };
 
@@ -337,13 +337,12 @@ export function useIntroAnimation(isMobile: boolean) {
       controller.abort();
       clearTimeout(watchdog);
       overlayControls.stop();
-      innerScaleControls.stop();
       logoControls.stop();
       logoBobControls.stop();
       document.body.classList.remove("overflow-hidden");
       announceIntroDone();
     };
-  }, [overlayControls, innerScaleControls, logoControls, logoBobControls]);
+  }, [overlayControls, logoControls, logoBobControls]);
 
   return {
     mode,
@@ -351,13 +350,13 @@ export function useIntroAnimation(isMobile: boolean) {
     heroBoxRef,
     logoTargetRef,
     overlayControls,
-    innerScaleControls,
     logoControls,
     logoBobControls,
     onAlebrijeDrawn,
     showSplash: showSplash && mode !== null && mode !== "none",
     introActive,
     overlayGone,
+    loaderHidden,
     hideBase,
   };
 }

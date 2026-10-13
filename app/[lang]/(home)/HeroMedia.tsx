@@ -7,9 +7,11 @@
 //
 // ★ NO BLACK FRAME. The phone version used to unmount the photo and mount the
 //   video in its place; until the video decoded a frame the hero was black.
-//   Now the photo always stays underneath and the video fades in on its first
-//   `playing` event — if it never plays (data saver, low-power mode, a codec
-//   problem) the guest simply keeps the photo.
+//   Now the photo always stays underneath and the video fades in once its first
+//   frame is actually on screen (requestVideoFrameCallback; `playing` fires a
+//   moment before the picture exists, which showed as two black frames). If it
+//   never plays (data saver, low-power mode, a codec problem) the guest simply
+//   keeps the photo.
 // ★ The photo is the LCP element. On a phone the video is mounted only after
 //   the photo has decoded (plus a short pause), so it never competes with it.
 // ─────────────────────────────────────────────────────────────────────
@@ -23,8 +25,18 @@ export type VideoConfig = {
   desktop: { webm: string; mp4: string; poster: string };
 };
 
-const DEFAULT_VIDEO_VERSION = "2026-01-15-v2";
+const DEFAULT_VIDEO_VERSION = "2026-10-13-v3";
 const MOBILE_VIDEO_DELAY_MS = 600;
+
+/** Calls `show` once the video has presented a frame (two paints later where
+ *  requestVideoFrameCallback is missing). */
+function revealOnFirstFrame(video: HTMLVideoElement, show: () => void) {
+  if (typeof video.requestVideoFrameCallback === "function") {
+    video.requestVideoFrameCallback(() => show());
+  } else {
+    requestAnimationFrame(() => requestAnimationFrame(show));
+  }
+}
 
 export default function HeroMedia({
   isMobile,
@@ -90,11 +102,13 @@ export default function HeroMedia({
           playsInline
           loop
           autoPlay
-          preload="metadata"
+          // The whole clip (under 1 MB): with only metadata buffered, every loop
+          // back to the start dropped to readyState 1 and showed a black frame.
+          preload="auto"
           aria-hidden
           tabIndex={-1}
           disablePictureInPicture
-          onPlaying={() => setPlaying(true)}
+          onPlaying={(e) => revealOnFirstFrame(e.currentTarget, () => setPlaying(true))}
           onLoadedData={(e) => void e.currentTarget.play().catch(() => {})}
         >
           <source src={`${sources.webm}?v=${version}`} type="video/webm" />

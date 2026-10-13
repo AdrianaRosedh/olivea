@@ -9,7 +9,8 @@ export const HERO = {
 } as const;
 
 export const TIMING = {
-  morphSec: 0.6,
+  // The green box and the alebrije shrink together over this time.
+  morphSec: 0.75,
   settleMs: 100,
   // ⬇️ was 0.18 — make the overlay fade clearly visible/smooth
   crossfadeSec: 0.65,
@@ -22,11 +23,12 @@ export const SPLASH = {
   drawGraceMs: 1500,
   /** Rendered size of the splash alebrije. */
   sizePx: 240,
-  /** On a phone the alebrije settles small, in the middle of the hero. */
-  mobileLandScale: 0.35,
+  /** On a phone the alebrije settles in the middle of the hero, this share of its size. */
+  heroFit: 0.6,
+  /** The loader bars fade out before the screen shrinks. */
+  barFadeSec: 0.2,
   /** Pause on the finished drawing before the screen shrinks. */
   holdMs: 240,
-  afterCrossfadeMs: 120,
   fadeOutSec: 0.24,
   bobSec: 2.0,
 } as const;

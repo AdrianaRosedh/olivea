@@ -64,7 +64,7 @@ const home: HomeContent = {
       mp4: "/videos/homepage-HD.mp4",
       poster: "/images/hero.avif",
     },
-    version: "2026-01-15-v2",
+    version: "2026-10-13-v3",
     active: true,
   },
 };

@@ -93,13 +93,13 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
     heroBoxRef,
     logoTargetRef,
     overlayControls,
-    innerScaleControls,
     logoControls,
     logoBobControls,
     onAlebrijeDrawn,
     showSplash,
     introActive,
     overlayGone,
+    loaderHidden,
   } = useIntroAnimation(isMobile);
 
   const cards = useMemo(() => {
@@ -202,11 +202,10 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
                 }}
                 animate={overlayControls}
               >
-                <m.div
-                  className="absolute inset-0 not-italic"
-                  style={{ transformOrigin: "center", contain: "layout" }}
-                  initial={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
-                  animate={innerScaleControls}
+                {/* The loader bars fade out before the screen shrinks. */}
+                <div
+                  className="absolute inset-0 not-italic transition-opacity duration-200 ease-out"
+                  style={{ opacity: loaderHidden ? 0 : 1 }}
                 >
                   {/* Mobile vertical loader bar — fills while the alebrije draws */}
                   <div className="absolute inset-0 lg:hidden z-20 flex items-center justify-start pl-4 py-6 pointer-events-none select-none">
@@ -220,7 +219,7 @@ export default function HomeClient({ videoConfig }: { videoConfig?: VideoConfig 
 
                   {/* Desktop percent bar */}
                   <IntroBarFixed durationMs={SPLASH.drawSec * 1000} />
-                </m.div>
+                </div>
               </m.div>
             </m.div>
           )}
