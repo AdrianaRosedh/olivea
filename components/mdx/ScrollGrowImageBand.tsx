@@ -4,13 +4,13 @@ import Image from "next/image";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
   motion,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
   type MotionValue,
 } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 type UseScrollOptions = NonNullable<Parameters<typeof useScroll>[0]>;
 type OffsetType = UseScrollOptions extends { offset?: infer O } ? O : unknown;
@@ -84,7 +84,7 @@ export default function ScrollGrowImageBand({
   mobileMode = "static",
   mobileH = "260px",
 }: Props) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const targetRef = useRef<HTMLDivElement | null>(null);
   // Track target mount via state so useScroll only receives a populated ref.
   // (Avoids framer-motion's "Target ref defined but not hydrated" warning and

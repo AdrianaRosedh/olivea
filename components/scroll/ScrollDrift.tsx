@@ -6,13 +6,13 @@ import {
   motion,
   useScroll,
   useTransform,
-  useReducedMotion,
   useSpring,
   useInView,
   type UseScrollOptions,
   type UseInViewOptions,
 } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 type ScrollOffset = NonNullable<UseScrollOptions["offset"]>;
 type InViewMargin = NonNullable<UseInViewOptions["margin"]>;
@@ -59,7 +59,7 @@ export default function ScrollDrift({
   driftMode?: "desktop" | "always" | "never";
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   // Tailwind md parity
   const isMobile = useMediaQuery("(max-width: 767px)");

@@ -2,11 +2,11 @@
 
 import {
   motion,
-  useReducedMotion,
   type Transition,
   type MotionProps,
 } from "framer-motion";
 import type { PropsWithChildren, ReactElement, ElementType } from "react";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 export type RevealPreset =
   | "fade"
@@ -48,7 +48,7 @@ export default function Reveal({
 }: PropsWithChildren<RevealProps>): ReactElement {
   const Comp = motion.create(as ?? "div");
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
-  const reduce = useReducedMotion() ?? false;
+  const reduce = usePrefersReducedMotion();
 
   const base = (() => {
     switch (preset) {

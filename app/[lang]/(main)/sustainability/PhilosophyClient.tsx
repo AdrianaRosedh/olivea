@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
   motion,
-  useReducedMotion,
   useScroll,
   useTransform,
   type Variants,
@@ -16,6 +15,7 @@ import { tt } from "@/lib/i18n";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 import PhilosophyDockLeft from "./PhilosophyDockLeft";
 import { PracticesCard, SignalsRow } from "./ProofModules";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 // Dynamic import keeps GSAP (~60KB) out of the shared bundle
 const FloatingPracticesCardGSAP = dynamic(
@@ -193,7 +193,7 @@ export default function PhilosophyClient({
   lang: Lang;
   sections: PhilosophySection[];
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const pathname = usePathname();
 
   // ✅ ensure we land at top when entering this page

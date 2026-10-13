@@ -2,9 +2,10 @@
 "use client";
 
 import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
-import { motion, type Variants, useReducedMotion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Lang } from "@/app/[lang]/(main)/dictionaries";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 type ContactDict = {
   kicker: string;
@@ -75,7 +76,7 @@ const VIEWPORT = {
 } as const;
 
 export default function ContactClient({ lang, t, contactInfo }: Props) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const address = "Carretera Ensenada-Tecate Km 92.5, 22766 Villa de Juárez, Baja California";
   const mapsUrl = "https://maps.app.goo.gl/oySkL6k7G7t5VFus5";

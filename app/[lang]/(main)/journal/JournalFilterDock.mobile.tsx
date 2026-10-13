@@ -7,7 +7,6 @@ import {
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
-  useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { publicDateYear } from "@/lib/date/public-date";
@@ -24,6 +23,7 @@ import {
 } from "lucide-react";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -71,7 +71,7 @@ export default function JournalFilterDockMobile({
   setSort,
   onClear,
 }: JournalFilterDockProps) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetTab, setSheetTab] = useState<"filters" | "jump">("filters");

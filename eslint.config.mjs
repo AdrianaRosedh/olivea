@@ -46,6 +46,22 @@ export default defineConfig([
       // can't auto-preserve. Informational, not a correctness bug; same
       // stance as the rules above.
       "react-hooks/preserve-manual-memoization": "off",
+
+      // framer-motion's useReducedMotion answers from the browser during the
+      // hydration render, so anything rendered from it disagrees with the
+      // server for reduced-motion guests (React #418 — the page is rebuilt).
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "framer-motion",
+              importNames: ["useReducedMotion"],
+              message: "Use usePrefersReducedMotion from @/hooks/usePrefersReducedMotion (hydration-safe).",
+            },
+          ],
+        },
+      ],
     },
   },
 ]);

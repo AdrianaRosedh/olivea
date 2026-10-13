@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import {
   motion,
   useAnimation,
-  useReducedMotion,
   useMotionValue,
   useTransform,
   animate,
@@ -19,6 +18,7 @@ import {
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 import Image from "next/image";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const LogoSrcMap: Record<SectionKey, string> = {
   casa: "/brand/herocasa.svg",
@@ -175,7 +175,7 @@ function Overlay({
   onFullyDone: () => void;
 }) {
   const router = useRouter();
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const { isPhone, vh } = useStableViewport(phase);
   const DUR = useMemo(() => getDurations(isPhone), [isPhone]);

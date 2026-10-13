@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
-  useReducedMotion,
   useScroll,
   useMotionValueEvent,
   type Variants,
@@ -16,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { tt, type Lang } from "@/lib/i18n";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 export type TeamCategory = "all" | "hotel" | "restaurant" | "cafe";
 
@@ -41,7 +41,7 @@ export default function TeamDockLeft({
   setCategory: (v: TeamCategory) => void;
   count: number;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const label = useCallback(
     (c: TeamCategory) => {

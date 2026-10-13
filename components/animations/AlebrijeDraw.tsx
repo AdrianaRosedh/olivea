@@ -1,281 +1,198 @@
-// components/animations/AlebrijeDraw.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+// components/animations/AlebrijeDraw.tsx
+// ─────────────────────────────────────────────────────────────────────
+// Draws the alebrije line by line, then tells its owner it is finished.
+//
+// ★ ONE DOWNLOAD, SHARED. The SVG is fetched once per page load through
+//   loadAlebrije() and the promise is kept at module level, so React's
+//   development double-mount, a remount, or a second instance never fetches
+//   again — and never ends up with nothing to draw. (The previous version
+//   guarded with a ref that also cancelled its only fetch in development, so
+//   the alebrije never appeared locally.) The home page preloads the same URL
+//   in the document head, so the request starts with the HTML.
+//
+// ★ SCOPED. The source file carries a document-wide `.cls-1 { fill … !important }`
+//   rule; injected as-is it would repaint any element on the page with that
+//   (very common, Illustrator-default) class. The loader strips the <style>
+//   and classes and sets the fill on each shape instead.
+//
+// ★ INSERTED BY THIS COMPONENT, NOT BY REACT. With dangerouslySetInnerHTML,
+//   React re-inserted the markup after the drawing effect had styled it, so
+//   the visible, animating copy was replaced by a fresh hidden one. React now
+//   owns only an empty container; the effect parses the SVG and appends it.
+//
+// ★ EVERY SHAPE IS DRAWN: paths and polygons (both are SVGGeometryElement).
+//
+// ★ FINISHES EVEN WHEN IT CANNOT ANIMATE. Reduced motion, no Web Animations
+//   API, or a failed download all report `onComplete` straight away, so the
+//   intro never waits on a drawing that will not happen.
+// ─────────────────────────────────────────────────────────────────────
 
-interface Props {
-  size?: number; // px
-  strokeDuration?: number; // seconds (2.4–3.2 calm)
-  microStaggerEach?: number; // 0 or ~0.001–0.002 for whisper cascade
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+
+
+type Props = {
+  size?: number;
+  /** Seconds to draw every line. */
+  strokeDuration?: number;
+  /** Called once: when the drawing finishes, or at once if it cannot be drawn. */
   onComplete?: () => void;
-  /**
-   * Public SVG path to load and animate.
-   * Defaults to your brand asset.
-   */
+  /** Skip the drawing and show the finished alebrije (e.g. a returning guest). */
+  instant?: boolean;
   src?: string;
-
-  /**
-   * Extra breathing room so strokes never clip.
-   * (Only affects wrapper box, not the SVG itself.)
-   */
+  /** Room around the drawing so strokes never clip at the edge. */
   bleedPx?: number;
+};
+
+const FILL = "#e7eae1";
+
+const cache = new Map<string, Promise<string | null>>();
+
+/** Fetch and clean an SVG once per page load; later calls share the promise. */
+export function loadAlebrije(src: string): Promise<string | null> {
+  let pending = cache.get(src);
+  if (!pending) {
+    pending = fetch(src, { cache: "force-cache" })
+      .then((res) => (res.ok ? res.text() : null))
+      .then((text) => (text ? cleanSvg(text) : null))
+      .catch(() => null);
+    cache.set(src, pending);
+  }
+  return pending;
 }
 
-/**
- * WAAPI “draw”:
- * - SSR-safe (SVG hidden until prepared)
- * - dasharray/dashoffset reveal
- * - fade-in stroke + constant-speed draw
- * - reduced-motion aware
- * - fallback if WAAPI isn't available on SVGElement
- *
- * NOTE: SVG is loaded from /public via fetch() and injected as inline markup
- * so paths are available for animation (cannot animate <img>/<Image> SVG contents).
- */
+function cleanSvg(text: string): string | null {
+  const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+  const svg = doc.querySelector("svg");
+  if (!svg || doc.querySelector("parsererror")) return null;
+  doc.querySelectorAll("style, script, foreignObject").forEach((n) => n.remove());
+  svg.querySelectorAll("*").forEach((n) => {
+    for (const attr of Array.from(n.attributes)) {
+      if (attr.name.startsWith("on")) n.removeAttribute(attr.name);
+    }
+    n.removeAttribute("class");
+  });
+  svg.querySelectorAll("path, polygon").forEach((n) => n.setAttribute("fill", FILL));
+  svg.removeAttribute("width");
+  svg.removeAttribute("height");
+  svg.removeAttribute("id");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  if (!svg.getAttribute("preserveAspectRatio")) {
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  }
+  return new XMLSerializer().serializeToString(svg);
+}
+
 export default function AlebrijeDraw({
-  size = 1000,
+  size = 240,
   strokeDuration = 2.8,
-  microStaggerEach = 0,
   onComplete,
+  instant = false,
   src = "/brand/alebrije-1.svg",
   bleedPx = 8,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
+  const [markup, setMarkup] = useState<string | null>(null);
 
-  const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
-  const fetchedRef = useRef(false);
+  // The latest callback, without restarting the drawing when it changes.
+  const onCompleteRef = useRef(onComplete);
+  useLayoutEffect(() => {
+    onCompleteRef.current = onComplete;
+  });
 
-  // Cache lengths per instance
-  const lengthsRef = useRef<WeakMap<SVGPathElement, number>>(new WeakMap());
-
-  // Load SVG from public
   useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const res = await fetch(src, { cache: "force-cache" });
-        if (!res.ok) throw new Error(`Failed to load SVG: ${src} (${res.status})`);
-        const text = await res.text();
-        if (!cancelled) setSvgMarkup(text);
-      } catch {
-        if (!cancelled) setSvgMarkup(null);
-      }
-    })();
-
+    let alive = true;
+    loadAlebrije(src).then((svg) => {
+      if (!alive) return;
+      if (svg) setMarkup(svg);
+      else onCompleteRef.current?.(); // nothing to draw: do not hold the intro
+    });
     return () => {
-      cancelled = true;
+      alive = false;
     };
   }, [src]);
 
   useEffect(() => {
-    const el = containerRef.current;
-    const svg = el?.querySelector<SVGSVGElement>("svg");
-    if (!svg) return;
+    const host = containerRef.current;
+    if (!host || !markup) return;
+    const parsed = new DOMParser().parseFromString(markup, "image/svg+xml").documentElement;
+    const svg = document.importNode(parsed, true) as unknown as SVGSVGElement;
+    svg.style.visibility = "hidden";
+    host.replaceChildren(svg);
 
-    // ✅ Make injected SVG behave like a centered responsive asset
-    // Remove fixed sizing that can distort/crop inside the wrapper
-    svg.removeAttribute("width");
-    svg.removeAttribute("height");
-
-    // Ensure it scales to the wrapper
     svg.style.width = "100%";
     svg.style.height = "100%";
     svg.style.display = "block";
-    svg.style.overflow = "visible"; // important for strokes near edges
+    svg.style.overflow = "visible";
 
-    // Center it the same way as your HomeClient/logo usage
-    if (!svg.getAttribute("preserveAspectRatio")) {
-      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-    }
-
-    // If your SVG has no viewBox (rare, but possible), attempt to derive one
-    // so scaling behaves predictably.
-    if (!svg.getAttribute("viewBox")) {
-      // try to infer from bounding box after insertion
-      try {
-        const bb = svg.getBBox();
-        if (bb.width > 0 && bb.height > 0) {
-          svg.setAttribute("viewBox", `${bb.x} ${bb.y} ${bb.width} ${bb.height}`);
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    // Reduced motion: just show
-    if (reduceMotion) {
-      svg.style.visibility = "visible";
-      onComplete?.();
-      return;
-    }
-
-    let raf1 = 0;
-    let raf2 = 0;
-    let cancelled = false;
-
-    const anims: Animation[] = [];
-
-    const cleanup = () => {
-      cancelled = true;
-      anims.forEach((a) => {
-        try {
-          a.cancel();
-        } catch {}
-      });
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      onCompleteRef.current?.();
     };
 
-    const prepAndAnimate = () => {
-      if (cancelled) return;
+    const shapes = Array.from(svg.querySelectorAll<SVGGeometryElement>("path, polygon"))
+      .map((el) => ({ el, length: el.getTotalLength() }))
+      .filter((s) => s.length >= 0.5);
 
-      svg.setAttribute("shape-rendering", "geometricPrecision");
+    const canAnimate = shapes.length > 0 && typeof shapes[0].el.animate === "function";
 
-      const rawPaths = Array.from(svg.querySelectorAll<SVGPathElement>("path"));
-      if (!rawPaths.length) {
-        svg.style.visibility = "visible";
-        onComplete?.();
-        return;
-      }
+    // Finished state: the line drawing, fully stroked.
+    for (const { el } of shapes) {
+      el.setAttribute("vector-effect", "non-scaling-stroke");
+      el.style.stroke = FILL;
+      el.style.strokeWidth = "0.3";
+      el.style.strokeLinecap = "round";
+      el.style.strokeLinejoin = "round";
+      el.style.fillOpacity = "0";
+    }
 
-      // Measure & filter
-      const MIN_LEN = 0.5;
-      const paths: Array<{ p: SVGPathElement; L: number }> = [];
-
-      for (const p of rawPaths) {
-        const cached = lengthsRef.current.get(p);
-        const L = typeof cached === "number" ? cached : p.getTotalLength();
-        if (typeof cached !== "number") lengthsRef.current.set(p, L);
-        if (L >= MIN_LEN) paths.push({ p, L });
-      }
-
-      if (!paths.length) {
-        svg.style.visibility = "visible";
-        onComplete?.();
-        return;
-      }
-
-      // If WAAPI isn't supported, just reveal
-      const waapiOk = typeof paths[0]?.p.animate === "function";
-      if (!waapiOk) {
-        for (const { p } of paths) {
-          p.style.fillOpacity = "0";
-          p.style.strokeOpacity = "1";
-        }
-        svg.style.visibility = "visible";
-        onComplete?.();
-        return;
-      }
-
-      // Prepare styles
-      for (const { p, L } of paths) {
-        p.setAttribute("vector-effect", "non-scaling-stroke");
-        p.style.strokeLinecap = "round";
-        p.style.strokeLinejoin = "round";
-        p.style.strokeMiterlimit = "1";
-
-        p.style.strokeDasharray = `${L} ${L}`;
-        p.style.strokeDashoffset = `${L}`;
-        p.style.fillOpacity = "0";
-        p.style.strokeOpacity = "0";
-        p.style.willChange = "stroke-dashoffset, stroke-opacity";
-
-        const fill = getComputedStyle(p).fill;
-        if (
-          fill &&
-          fill !== "none" &&
-          !fill.includes("rgba(0,0,0,0)") &&
-          !fill.includes("rgba(0, 0, 0, 0)")
-        ) {
-          p.style.stroke = fill;
-        }
-
-        p.style.strokeWidth = ".3";
-      }
-
-      // Show after prep
+    if (instant || reduceMotion || !canAnimate) {
       svg.style.visibility = "visible";
+      finish();
+      return () => svg.remove();
+    }
 
-      const durMs = Math.max(0, Math.round(strokeDuration * 1000));
-      const fadeMs = 180;
-      const eachDelayMs = microStaggerEach
-        ? Math.max(0, Math.round(microStaggerEach * 1000))
-        : 0;
+    for (const { el, length } of shapes) {
+      el.style.strokeDasharray = `${length} ${length}`;
+      el.style.strokeDashoffset = `${length}`;
+    }
+    svg.style.visibility = "visible";
 
-      let finished = 0;
-      const total = paths.length;
+    const duration = Math.max(0, Math.round(strokeDuration * 1000));
+    const animations = shapes.flatMap(({ el, length }) => [
+      el.animate([{ strokeOpacity: 0 }, { strokeOpacity: 1 }], {
+        duration: 180,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        fill: "forwards",
+      }),
+      el.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], {
+        duration,
+        easing: "linear",
+        fill: "forwards",
+      }),
+    ]);
 
-      const markDone = () => {
-        finished += 1;
-        if (finished >= total && !cancelled) onComplete?.();
-      };
-
-      paths.forEach(({ p, L }, i) => {
-        const delay = eachDelayMs * i;
-
-        const a1 = p.animate([{ strokeOpacity: 0 }, { strokeOpacity: 1 }], {
-          duration: fadeMs,
-          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-          delay,
-          fill: "forwards",
-        });
-
-        const a2 = p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], {
-          duration: durMs,
-          easing: "linear",
-          delay,
-          fill: "forwards",
-        });
-
-        a2.onfinish = () => markDone();
-
-        anims.push(a1, a2);
-      });
-    };
-
-    raf1 = requestAnimationFrame(() => {
-      raf2 = requestAnimationFrame(() => {
-        prepAndAnimate();
-      });
-    });
+    // All lines share one duration, so the last one to finish is the signal.
+    Promise.all(animations.map((a) => a.finished)).then(finish, () => {});
 
     return () => {
-      if (raf1) cancelAnimationFrame(raf1);
-      if (raf2) cancelAnimationFrame(raf2);
-      cleanup();
+      animations.forEach((a) => a.cancel());
+      svg.remove();
     };
-  }, [strokeDuration, microStaggerEach, onComplete, reduceMotion, svgMarkup]);
+  }, [markup, instant, reduceMotion, strokeDuration]);
 
-  // ✅ IMPORTANT:
-  // - remove `contain: paint` to prevent clipping
-  // - allow overflow so strokes can breathe
   return (
     <div
-      ref={containerRef}
       className="relative flex items-center justify-center overflow-visible"
-      style={{
-        width: size,
-        height: size,
-        // safer containment (no paint clipping)
-        contain: "layout style",
-        // give a little breathing room so nothing hits the edge
-        padding: bleedPx,
-        boxSizing: "border-box",
-      }}
+      style={{ width: size, height: size, padding: bleedPx, boxSizing: "border-box", contain: "layout style" }}
     >
-      {/* ✅ SVG source: controlled build-time asset, not user-supplied */}
-      {svgMarkup ? (
-        <div
-          className="absolute inset-0"
-          style={{ visibility: "hidden", overflow: "visible" }}
-          // controlled asset (your own SVG), used intentionally for animation
-          dangerouslySetInnerHTML={{ __html: svgMarkup }}
-        />
-      ) : null}
+      <div ref={containerRef} className="absolute inset-0" style={{ overflow: "visible" }} />
     </div>
   );
 }

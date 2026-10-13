@@ -10,11 +10,11 @@ import {
   useTransform,
   AnimatePresence,
   MotionValue,
-  useReducedMotion,
 } from "framer-motion";
 import { useLayoutEffect, useMemo, useRef, useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 interface DockRightItem {
   id: string;
@@ -84,7 +84,7 @@ function useDockRightMode(): DockMode {
 
 export default function DockRight({ items }: DockRightProps) {
   const pathname = usePathname();
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   // hooks must be unconditional
   const mode = useDockRightMode();

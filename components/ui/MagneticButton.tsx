@@ -1,8 +1,15 @@
 // components/ui/MagneticButton.tsx
 "use client";
 
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { m, useMotionValue, useTransform, animate } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+
+const subscribeNever = () => () => {};
+/** Firefox, decided after hydration (the server never knows the browser). */
+function useIsFirefox(): boolean {
+  return useSyncExternalStore(subscribeNever, () => /firefox/i.test(navigator.userAgent), () => false);
+}
 
 type Preset = "classic" | "subtle";
 
@@ -71,12 +78,10 @@ export default function MagneticButton({
   const scaleEnabled = scaleText ?? p.scaleText;
 
   /** ── env ── */
-  const isReduced =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-  const isFirefox =
-    typeof navigator !== "undefined" && /firefox/i.test(navigator.userAgent);
+  // Both read after hydration: computed during render they made the server
+  // and a reduced-motion browser render different elements (React #418).
+  const isReduced = usePrefersReducedMotion();
+  const isFirefox = useIsFirefox();
 
   // Firefox tends to feel “jittery” with large pointer-tracked transforms
   const maxShift = isFirefox ? Math.min(dist, preset === "classic" ? 9 : 4) : dist;

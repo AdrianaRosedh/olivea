@@ -5,7 +5,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
  ArrowLeft,
  Instagram,
@@ -24,6 +24,7 @@ import type {
  TeamLink,
  I18nText,
 } from "@/app/[lang]/(main)/team/teamData";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 
 /* ---------------- helpers ---------------- */
@@ -413,7 +414,7 @@ export default function LinktreeClient({
  lang: Lang;
  member: LeaderProfile;
 }) {
- const reduce = useReducedMotion();
+ const reduce = usePrefersReducedMotion();
  const V = makeVariants(!!reduce);
 
 

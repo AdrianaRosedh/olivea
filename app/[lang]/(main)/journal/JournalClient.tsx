@@ -9,7 +9,8 @@ import { tt } from "@/lib/i18n";
 import { formatPublicDate, publicDateYear } from "@/lib/date/public-date";
 import JournalFilterDock from "./JournalFilterDock";
 import { cn } from "@/lib/utils";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 /* =================== types =================== */
 type AuthorLike = string | { id?: string; name: string };
@@ -91,7 +92,7 @@ export default function JournalClient({
   subtitle: string;
   posts: Post[];
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const [q, setQ] = useState("");
   const [pillar, setPillar] = useState<string>("all");

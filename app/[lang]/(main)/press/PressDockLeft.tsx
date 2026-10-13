@@ -1,10 +1,11 @@
 "use client";
 
-import { useReducedMotion } from "framer-motion";
+
 import type { Identity, ItemKind, Lang, PressItem } from "./pressTypes";
 import { usePressDock } from "./usePressDock";
 import { PressDockMobile } from "./PressDockMobile";
 import { PressDockDesktop } from "./PressDockDesktop";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 export default function PressDockLeft({
   lang,
@@ -31,7 +32,7 @@ export default function PressDockLeft({
   setQ: (v: string) => void;
   count: number;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const hook = usePressDock({
     items,

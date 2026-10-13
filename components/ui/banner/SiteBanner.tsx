@@ -7,11 +7,11 @@ import { type Lang } from "@/lib/i18n";
 import {
   motion,
   AnimatePresence,
-  useReducedMotion,
   type Variants,
 } from "framer-motion";
 import { X } from "lucide-react";
 import { isFlagSet, setFlag } from "@/lib/storage";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 type BannerType = "notice" | "promo" | "warning";
 
 type BannerPayload = {
@@ -63,7 +63,7 @@ function labelFor(type: BannerType, lang: Lang) {
 export default function SiteBanner() {
   const pathname = usePathname();
   const lang: Lang = pathname?.startsWith("/en") ? "en" : "es";
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const [banner, setBanner] = useState<BannerPayload | null>(null);
   const [hidden, setHidden] = useState(false);

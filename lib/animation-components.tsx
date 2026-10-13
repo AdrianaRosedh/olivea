@@ -11,7 +11,8 @@
  */
 
 import React, { type ReactNode, type CSSProperties } from "react";
-import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { m, useScroll, useTransform } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import type { Variants } from "framer-motion";
 import {
   fadeUp,
@@ -51,7 +52,7 @@ export function Reveal({
   style,
   as = "div",
 }: RevealProps) {
-  const prefersReduced = useReducedMotion();
+  const prefersReduced = usePrefersReducedMotion();
   const { ref, inView } = useScrollReveal(threshold);
 
   const Component = m[as];
@@ -101,7 +102,7 @@ export function StaggerList({
   as = "ul",
   childAs = "li",
 }: StaggerListProps) {
-  const prefersReduced = useReducedMotion();
+  const prefersReduced = usePrefersReducedMotion();
   const { ref, inView } = useScrollReveal(threshold);
 
   const Container = m[as];
@@ -147,7 +148,7 @@ export function ParallaxSection({
   className,
   style,
 }: ParallaxSectionProps) {
-  const prefersReduced = useReducedMotion();
+  const prefersReduced = usePrefersReducedMotion();
   const { ref, inView } = useScrollReveal(0.05);
 
   const { scrollYProgress } = useScroll({
@@ -195,7 +196,7 @@ export function CinematicHero({
   className,
   style,
 }: CinematicHeroProps) {
-  const prefersReduced = useReducedMotion();
+  const prefersReduced = usePrefersReducedMotion();
 
   const delayedVariants: Variants = delay
     ? {
@@ -254,7 +255,7 @@ export function CardReveal({
   className,
   style,
 }: CardRevealProps) {
-  const prefersReduced = useReducedMotion();
+  const prefersReduced = usePrefersReducedMotion();
   const { ref, inView } = useScrollReveal(threshold);
 
   const indexedVariants: Variants =

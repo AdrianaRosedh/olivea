@@ -12,11 +12,11 @@ import {
   motion,
   AnimatePresence,
   type Variants,
-  useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { tt, type Lang } from "@/lib/i18n";
 import { scrollOffsetPx } from "@/lib/scroll-offset";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 /* ── Types ───────────────────────────────────────────────────────── */
 type Identity = "casa" | "cafe" | "farmtotable";
@@ -764,7 +764,7 @@ export default function DockLeft({
   sectionsOverride,
   lang = "es",
 }: DockLeftProps) {
-  const reduce = !!useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const mode = useDockMode();
 
   /* ── Derived data ─────────────────────────────────────────────── */

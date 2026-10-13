@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { motion, useAnimation, useReducedMotion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 function isModifiedEvent(e: MouseEvent) {
   return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
@@ -115,7 +116,7 @@ export default function MainFadeRouter({
   const router = useRouter();
   const pathname = usePathname();
   const controls = useAnimation();
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const pendingHrefRef = useRef<string | null>(null);
 

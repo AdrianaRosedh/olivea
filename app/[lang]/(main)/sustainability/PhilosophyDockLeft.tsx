@@ -6,11 +6,11 @@ import {
   motion,
   AnimatePresence,
   type Variants,
-  useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { tt } from "@/lib/i18n";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const TOP_OFFSET_PX = 120;
 const MANUAL_MS = 900;
@@ -145,7 +145,7 @@ export default function PhilosophyDockLeft({
   lang: Lang;
   sections: PhilosophySection[];
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   // match DockLeft behavior (mode + environment flags)
   const [mode, setMode] = useState<Mode>("hidden");

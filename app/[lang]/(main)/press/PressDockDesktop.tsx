@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Identity, ItemKind, Lang } from "./pressTypes";
 import { tt } from "./lib/pressText";
@@ -16,6 +16,7 @@ import {
   Mail,
   Layers,
 } from "lucide-react";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -108,7 +109,7 @@ export function PressDockDesktop({
   count,
   onNav,
 }: PressDockDesktopProps) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const panelShell = cn(

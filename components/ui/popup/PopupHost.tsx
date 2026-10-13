@@ -6,7 +6,6 @@ import { useScrollLock } from "@/lib/hooks/useScrollLock";
 import {
   AnimatePresence,
   motion,
-  useReducedMotion,
   type PanInfo,
   type Variants,
 } from "framer-motion";
@@ -18,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { Phone, X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { isStampFresh, setStamp } from "@/lib/storage";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 /**
  * What the primary button does. A link navigates; an action opens something
@@ -125,7 +125,7 @@ function isSitePopup(v: unknown): v is SitePopup {
 export default function PopupHost() {
   const pathname = usePathname();
   const lang: "es" | "en" = pathname?.startsWith("/en") ? "en" : "es";
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   // On mobile the popup is a bottom sheet, and a sheet with a grab handle is
   // expected to be dismissible by dragging it down. Desktop renders a centred
   // dialog, where dragging would be meaningless. Reduced motion keeps the

@@ -13,7 +13,6 @@ import {
   type Variants,
   type Transition,
   AnimatePresence,
-  useReducedMotion,
 } from "framer-motion";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import {
@@ -24,6 +23,7 @@ import dynamic from "next/dynamic";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 import Image from "next/image";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 // Client-only widgets (already memoized)
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), {
@@ -334,7 +334,7 @@ function MobileRestaurantSheet({
     active: visible,
     onEscape: onClose,
   });
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   return (
     <AnimatePresence>
@@ -393,7 +393,7 @@ interface ReservationModalProps {
 }
 
 export default function ReservationModal({ lang }: ReservationModalProps) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const {
     isOpen,
     closeReservationModal,

@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
-  useReducedMotion,
   useScroll,
   useTransform,
   useSpring,
 } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 export type ServiceItem = {
   id: string;
@@ -38,7 +38,7 @@ function ServiceCard({
   index: number;
   containerRef: React.RefObject<HTMLElement | null>;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const ref = useRef<HTMLElement | null>(null);
 
   // Only pass `container` once it's actually been resolved on the client.

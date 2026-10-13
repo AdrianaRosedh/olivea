@@ -4,7 +4,6 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import {
   motion,
   AnimatePresence,
-  useReducedMotion,
   type Variants,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -86,7 +86,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
     count,
   } = props;
 
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   // “More” = extra chips sections
   const [moreOpen, setMoreOpen] = useState(false);

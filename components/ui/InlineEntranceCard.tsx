@@ -7,11 +7,13 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useSyncExternalStore,
   type ComponentType,
   type SVGProps,
   type RefObject,
 } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useSharedTransition, type SectionKey } from "@/contexts/SharedTransitionContext";
 
 /* ========= codec probe (client-only, cached) ========= */
@@ -92,9 +94,22 @@ const HOVER_EASE_ARRAY = [0.22, 1, 0.36, 1] as const;
 const MAX_TILT_DEG = 5;
 const HOVER_ATTACH_DELAY_MS = 120;
 
-const isSafari =
-  typeof navigator !== "undefined" &&
-  /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const SAFARI_UA = /^((?!chrome|android).)*safari/i;
+const subscribeNever = () => () => {};
+
+/**
+ * Safari, decided in the browser after hydration. Read at module load, the
+ * server (always "not Safari") and an iPhone disagreed on the card's class
+ * names; React keeps the server's attributes in that case, so the Safari
+ * styling never applied where it was meant to.
+ */
+function useIsSafari(): boolean {
+  return useSyncExternalStore(
+    subscribeNever,
+    () => SAFARI_UA.test(navigator.userAgent),
+    () => false
+  );
+}
 
 /* ========= props ========= */
 export interface InlineEntranceCardProps {
@@ -136,7 +151,8 @@ export default function InlineEntranceCard({
   fluidDesktop = false,
 }: InlineEntranceCardProps) {
   const { startTransition } = useSharedTransition();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
+  const isSafari = useIsSafari();
 
   const isES = href.startsWith("/es");
   const ctaText = isES ? "Haz Click" : "Click Me";

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -11,7 +12,7 @@ export function CoverLead({
   children: React.ReactNode;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   return (
     <motion.div
       className={className}
@@ -37,7 +38,7 @@ export function BodyLead({
   className?: string;
   delay?: number;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   return (
     <motion.div
       className={className}

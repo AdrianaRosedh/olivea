@@ -12,7 +12,6 @@ import { usePathname } from "next/navigation";
 import {
   motion,
   AnimatePresence,
-  useReducedMotion,
   useMotionValue,
   animate,
   type PanInfo,
@@ -25,6 +24,7 @@ import {
   getModalOpen,
   getModalOpenServer,
 } from "@/components/ui/modalFlag";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 // Web Component types declared in types/roseiies.d.ts
 
@@ -152,7 +152,7 @@ export default function LiveGarden() {
     getModalOpen,
     getModalOpenServer
   );
-  const prefersReduced = useReducedMotion();
+  const prefersReduced = usePrefersReducedMotion();
   const pathname = usePathname();
   const isEn = useMemo(() => pathname?.startsWith("/en") ?? false, [pathname]);
   const isAdmin = useMemo(() => pathname?.startsWith("/admin") ?? false, [pathname]);
