@@ -39,6 +39,8 @@ export async function pingIndexNow(urls: string[]): Promise<void> {
       method: "POST",
       headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify({ host: HOST, key: KEY, keyLocation: KEY_LOCATION, urlList }),
+      // A save waits on this; a slow search engine must not hold it up.
+      signal: AbortSignal.timeout(3000),
     });
   } catch (err) {
     console.error("[indexnow] ping failed:", err);

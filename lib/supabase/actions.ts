@@ -17,16 +17,36 @@ import { pingIndexNowForPaths } from "@/lib/indexnow";
 // All mutating actions verify the user has at least "editor" role.
 // Settings and team actions require higher roles (checked individually).
 
+// Without Supabase there is no database to protect, so local development
+// skips the checks. Production never does: a missing configuration there is a
+// broken deploy, and these actions must refuse rather than run unchecked.
+function authSkipped(): boolean {
+  if (isSupabaseConfigured) return false;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Admin actions are unavailable: Supabase is not configured.");
+  }
+  return true;
+}
+
 async function requireEditor() {
-  if (!isSupabaseConfigured) return; // Dev mode — skip
+  if (authSkipped()) return;
   const { requireRole } = await import("@/lib/auth/session");
   await requireRole("editor");
 }
 
 async function requireManager() {
-  if (!isSupabaseConfigured) return;
+  if (authSkipped()) return;
   const { requireRole } = await import("@/lib/auth/session");
   await requireRole("manager");
+}
+
+// Reads are server actions too, so the browser can call them directly: every
+// one needs a signed-in admin, whatever its role, before it touches the
+// service-role key.
+async function requireAdmin() {
+  if (authSkipped()) return;
+  const { requireSession } = await import("@/lib/auth/session");
+  await requireSession();
 }
 
 // ── Bidirectional snake_case ↔ camelCase mappers ────────────────────
@@ -93,6 +113,7 @@ function camelToSnake(
 // ── Popups ──────────────────────────────────────────────────────────
 
 export async function getPopups() {
+  await requireAdmin();
   return selectRows("popups", {
     role: "service_role",
     query: "order=priority.desc,created_at.desc",
@@ -100,6 +121,7 @@ export async function getPopups() {
 }
 
 export async function getPopup(id: string) {
+  await requireAdmin();
   return selectOne("popups", id, { role: "service_role" });
 }
 
@@ -130,6 +152,7 @@ export async function togglePopup(id: string, enabled: boolean) {
 // ── Banners ─────────────────────────────────────────────────────────
 
 export async function getBanners() {
+  await requireAdmin();
   return selectRows("banners", {
     role: "service_role",
     query: "order=created_at.desc",
@@ -137,6 +160,7 @@ export async function getBanners() {
 }
 
 export async function getBanner(id: string) {
+  await requireAdmin();
   return selectOne("banners", id, { role: "service_role" });
 }
 
@@ -243,6 +267,7 @@ function revalidateCasa() {
 }
 
 export async function getCasaFaq() {
+  await requireAdmin();
   return toRows(await currentItems());
 }
 
@@ -300,6 +325,7 @@ export async function reorderCasaFaq(order: { id: string; sort_order: number }[]
 // ── Careers Content ─────────────────────────────────────────────────
 
 export async function getCareersContent() {
+  await requireAdmin();
   const row = await selectOne("careers_content", "careers", { role: "service_role" });
   if (!row) return null;
   // Convert snake_case → camelCase for admin editor
@@ -323,6 +349,7 @@ export async function saveCareersContent(data: Record<string, unknown>) {
 // ── Hero Videos ─────────────────────────────────────────────────────
 
 export async function getHeroVideos() {
+  await requireAdmin();
   return selectRows("hero_videos", {
     role: "service_role",
     query: "order=created_at.desc",
@@ -358,6 +385,7 @@ export async function setActiveVideo(id: string) {
 // ── Home Content ────────────────────────────────────────────────────
 
 export async function getHomeContent() {
+  await requireAdmin();
   return selectOne("home_content", "home", { role: "service_role" });
 }
 
@@ -407,7 +435,17 @@ const pageRevalidations: Record<PageTable, string[]> = {
   roseiies_content: ["/es/roseiies", "/en/roseiies"],
 };
 
+// The table name arrives from the browser; TypeScript's PageTable is not
+// checked at runtime. Only these singletons may be read or written here.
+function assertPageTable(table: string): asserts table is PageTable {
+  if (!Object.prototype.hasOwnProperty.call(pageRevalidations, table)) {
+    throw new Error("Unknown page table.");
+  }
+}
+
 export async function getPageContent(table: PageTable) {
+  await requireAdmin();
+  assertPageTable(table);
   const rows = await selectRows(table, {
     role: "service_role",
     query: "limit=1",
@@ -437,6 +475,7 @@ export async function savePageContent(
   data: Record<string, unknown>,
   expectedVersion?: string | null
 ): Promise<SaveResult> {
+  assertPageTable(table);
   // Global settings require manager role; everything else requires editor
   if (table === "global_settings") {
     await requireManager();
@@ -478,6 +517,7 @@ export async function savePageContent(
         revalidatePath(path);
       }
     }
+    await pingIndexNowForPaths(pageRevalidations[table] ?? []);
     return { ok: true, version: touched[0]?.updated_at ?? null };
   }
 
@@ -490,10 +530,9 @@ export async function savePageContent(
       revalidatePath(path);
     }
   }
-  return { ok: true, version: null };
-
   // Notify IndexNow (Bing -> Copilot + ChatGPT Search) of the changed URLs.
   await pingIndexNowForPaths(pageRevalidations[table] ?? []);
+  return { ok: true, version: null };
 }
 
 /**
@@ -536,6 +575,7 @@ export async function saveHours(hours: unknown[]): Promise<SaveResult> {
 // ── Sustainability Sections (collection) ───────────────────────────
 
 export async function getSustainabilitySections() {
+  await requireAdmin();
   return selectRows("sustainability_sections", {
     role: "service_role",
     query: "order=sort_order.asc",
@@ -576,6 +616,7 @@ function revalidatePress() {
 }
 
 export async function getPressItemsAdmin() {
+  await requireAdmin();
   return selectRows("press_items", {
     role: "service_role",
     query: "order=published_at.desc",
