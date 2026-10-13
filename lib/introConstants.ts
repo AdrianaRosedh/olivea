@@ -18,7 +18,7 @@ export const TIMING = {
 
 export const SPLASH = {
   /** The alebrije's line drawing. The loader bars run for the same time. */
-  drawSec: 2.8,
+  drawSec: 2.0,
   /** Extra time allowed for the drawing (download, slow phone) before moving on. */
   drawGraceMs: 1500,
   /** Rendered size of the splash alebrije. */
