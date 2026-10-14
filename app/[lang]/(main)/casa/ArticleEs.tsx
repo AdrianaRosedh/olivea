@@ -15,7 +15,7 @@ export default function ArticleEs() {
       </header>
 
       {/* ── Habitaciones ── */}
-      <section id="habitaciones" aria-labelledby="habitaciones-heading">
+      <section aria-labelledby="habitaciones-heading">
         <h2 id="habitaciones-heading">Habitaciones</h2>
         <p>Catorce habitaciones parte del ecosistema del huerto, cada una con el nombre de una planta aromática o un árbol, cada una abierta al huerto, los olivos y la luz del desierto de Baja California. Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.</p>
         <p>Cada detalle está pensado para tu confort: camas amplias, sábanas suaves y texturas naturales. Agua filtrada en botellas reutilizables cada día, cero ruido visual, y el sueño llega fácil.</p>
@@ -24,7 +24,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Diseño ── */}
-      <section id="diseno" aria-labelledby="diseno-heading">
+      <section aria-labelledby="diseno-heading">
         <h2 id="diseno-heading">Diseño que se siente</h2>
         <p><em>Diseño concebido por Ange Joy, fundadora de Olivea.</em></p>
         <p>La luz guía la arquitectura. Por la mañana, suave e indirecta. Por la tarde, cálida y envolvente. Cada superficie evita el reflejo, favoreciendo la calma.</p>
@@ -33,7 +33,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Patio ── */}
-      <section id="patio" aria-labelledby="patio-heading">
+      <section aria-labelledby="patio-heading">
         <h2 id="patio-heading">Espacios para respirar</h2>
         <p>Inspirado en la naturaleza, el patio se abre en el corazón de la propiedad. Dos pasillos largos conectan tu habitación con el aire libre y el ritmo.</p>
         <p>Una sensación de calma vive en el patio — caminos de grava, plantas aromáticas y una alberca que sigue el ritmo de las estaciones. La luz se filtra con naturalidad. El sonido se asienta suave.</p>
@@ -41,7 +41,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Mañanas ── */}
-      <section id="mananas" aria-labelledby="mananas-heading">
+      <section aria-labelledby="mananas-heading">
         <h2 id="mananas-heading">Mañanas en Olivea</h2>
         <h3>Desayuno</h3>
         <p>Los huéspedes pueden comenzar el día en Olivea Café Wine Bar, donde la cocina sirve un desayuno continental de temporada — pan de casa, verduras de nuestro huerto y una selección de preparaciones locales e internas, frescas y enraizadas en el huerto.</p>
@@ -51,7 +51,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Servicios ── */}
-      <section id="servicios" aria-labelledby="servicios-heading">
+      <section aria-labelledby="servicios-heading">
         <h2 id="servicios-heading">Lo esencial, elegido con cuidado</h2>
         <h3>Conectividad</h3>
         <p>Wi-Fi disponible en toda la propiedad, incluyendo habitaciones, patios y la cancha de pádel. Los enchufes están ubicados con cuidado en espacios compartidos y privados.</p>
@@ -68,7 +68,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Info práctica ── */}
-      <section id="info-practica" aria-labelledby="info-heading-es">
+      <section aria-labelledby="info-heading-es">
         <h2 id="info-heading-es">Información de estancia</h2>
         <h3>Check-In / Check-Out</h3>
         <p>Check-in desde las 3:00 pm. Check-out a las 11:00 am.</p>
@@ -81,7 +81,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq-es" aria-labelledby="faq-heading-es">
+      <section aria-labelledby="faq-heading-es">
         <h2 id="faq-heading-es">Antes de reservar</h2>
         <h3>¿El desayuno está incluido?</h3>
         <p>No — el desayuno no está incluido en la estancia. Los huéspedes pueden disfrutarlo en Olivea Café Wine Bar cada mañana (no incluido).</p>

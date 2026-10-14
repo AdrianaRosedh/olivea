@@ -2,10 +2,9 @@
 "use client";
 
 import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
-import { motion, type Variants } from "framer-motion";
+import Reveal from "@/components/scroll/Reveal";
 import { cn } from "@/lib/utils";
 import type { Lang } from "@/app/[lang]/(main)/dictionaries";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 type ContactDict = {
   kicker: string;
@@ -44,39 +43,7 @@ function formatLocalPhone(phone: string) {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
 }
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const itemInV: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.9,
-      ease: EASE,
-      delay: Math.min(0.9, i * 0.08),
-    },
-  }),
-};
-
-const sectionStaggerV: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.085,
-      delayChildren: 0.02,
-    },
-  },
-};
-
-const VIEWPORT = {
-  once: true,
-  amount: 0.22,
-  margin: "0px 0px -18% 0px",
-} as const;
-
 export default function ContactClient({ lang, t, contactInfo }: Props) {
-  const reduce = usePrefersReducedMotion();
 
   const address = "Carretera Ensenada-Tecate Km 92.5, 22766 Villa de Juárez, Baja California";
   const mapsUrl = "https://maps.app.goo.gl/oySkL6k7G7t5VFus5";
@@ -97,16 +64,10 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
           <div className="mx-auto w-full max-w-250">
             <div className="grid gap-10 lg:gap-12 items-start lg:grid-cols-[minmax(560px,1.15fr)_minmax(520px,0.85fr)]">
               {/* LEFT */}
-              <motion.div
+              <div
                 className="flex flex-col gap-7"
-                variants={sectionStaggerV}
-                initial={reduce ? false : "hidden"}
-                whileInView="show"
-                viewport={VIEWPORT}
               >
-                <motion.header
-                  variants={itemInV}
-                  custom={0}
+                <Reveal as="header" preset="up" distance={18} duration={0.9} delay={0.0}
                   className="pt-2 sm:pt-6"
                 >
                   <p className="text-(--olivea-ink)/55 text-[12px] tracking-[0.34em] uppercase">
@@ -123,12 +84,10 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                   <p className="mt-3 text-(--olivea-ink)/70 text-[15px] md:text-[17px] leading-relaxed max-w-[62ch]">
                     {t.subtitle}
                   </p>
-                </motion.header>
+                </Reveal>
 
                 {/* ACTIONS */}
-                <motion.div
-                  variants={itemInV}
-                  custom={1}
+                <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.08}
                   className="grid grid-cols-3 gap-3"
                 >
                   <a
@@ -165,16 +124,13 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                     <Phone className="w-4 h-4 text-(--olivea-olive)" />
                     {t.actions.call}
                   </a>
-                </motion.div>
+                </Reveal>
 
                 {/* INFO GRID */}
-                <motion.div
+                <div
                   className="grid gap-4 sm:grid-cols-2"
-                  variants={sectionStaggerV}
                 >
-                  <motion.div
-                    variants={itemInV}
-                    custom={2}
+                  <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.16}
                     className={cn(card, "p-6")}
                   >
                     <div className="flex items-start gap-3">
@@ -193,11 +149,9 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                         </a>
                       </div>
                     </div>
-                  </motion.div>
+                  </Reveal>
 
-                  <motion.div
-                    variants={itemInV}
-                    custom={3}
+                  <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.24}
                     className={cn(card, "p-6")}
                   >
                     <div className="flex items-start gap-3">
@@ -214,11 +168,9 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                         </a>
                       </div>
                     </div>
-                  </motion.div>
+                  </Reveal>
 
-                  <motion.div
-                    variants={itemInV}
-                    custom={4}
+                  <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.32}
                     className={cn(card, "p-6")}
                   >
                     <p className="text-(--olivea-ink) font-semibold text-[16px]">
@@ -241,11 +193,9 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                         {t.hours.farmToTable}
                       </div>
                     </div>
-                  </motion.div>
+                  </Reveal>
 
-                  <motion.div
-                    variants={itemInV}
-                    custom={5}
+                  <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.4}
                     className={cn(card, "p-6")}
                   >
                     <p className="text-(--olivea-ink) font-semibold text-[16px]">
@@ -268,11 +218,9 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                         {t.hours.cafe}
                       </div>
                     </div>
-                  </motion.div>
+                  </Reveal>
 
-                  <motion.div
-                    variants={itemInV}
-                    custom={6}
+                  <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.48}
                     className={cn(card, "p-6")}
                   >
                     <p className="text-(--olivea-ink) font-semibold text-[16px]">
@@ -295,29 +243,21 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                         {t.hours.casa}
                       </div>
                     </div>
-                  </motion.div>
-                </motion.div>
+                  </Reveal>
+                </div>
 
-                <motion.p
-                  variants={itemInV}
-                  custom={7}
+                <Reveal as="p" preset="up" distance={18} duration={0.9} delay={0.56}
                   className="text-sm text-(--olivea-ink)/55 leading-relaxed max-w-[75ch]"
                 >
                   {t.footerNote}
-                </motion.p>
-              </motion.div>
+                </Reveal>
+              </div>
 
               {/* RIGHT */}
-              <motion.aside
+              <aside
                 className="lg:sticky lg:top-28"
-                variants={sectionStaggerV}
-                initial={reduce ? false : "hidden"}
-                whileInView="show"
-                viewport={VIEWPORT}
               >
-                <motion.div
-                  variants={itemInV}
-                  custom={0}
+                <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.0}
                   className="lg:max-w-160 lg:ml-auto"
                 >
                   <div className={cn(card, "overflow-hidden")}>
@@ -332,9 +272,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                         allow="geolocation; fullscreen"
                       />
 
-                      <motion.div
-                        variants={itemInV}
-                        custom={1}
+                      <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.08}
                         className="absolute left-4 top-4"
                       >
                         <div className="rounded-2xl bg-white/70 backdrop-blur px-3 py-2 ring-1 ring-black/5">
@@ -345,11 +283,9 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                             {t.map.badgeValue}
                           </p>
                         </div>
-                      </motion.div>
+                      </Reveal>
 
-                      <motion.div
-                        variants={itemInV}
-                        custom={2}
+                      <Reveal as="div" preset="up" distance={18} duration={0.9} delay={0.16}
                         className="absolute right-4 top-4"
                       >
                         <a
@@ -361,11 +297,11 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                           {t.map.googleMapsCta}
                           <ExternalLink className="w-3.5 h-3.5 text-(--olivea-olive)/80" />
                         </a>
-                      </motion.div>
+                      </Reveal>
                     </div>
                   </div>
-                </motion.div>
-              </motion.aside>
+                </Reveal>
+              </aside>
             </div>
           </div>
         </section>

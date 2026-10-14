@@ -213,6 +213,7 @@ export default function MobileDrawer({
                 className="absolute inset-0 pointer-events-auto overflow-hidden"
                 aria-modal="true"
                 role="dialog"
+                aria-label={lang === "es" ? "Menú" : "Menu"}
               >
                 {/* Background layers */}
                 <div className="absolute inset-0 bg-(--olivea-olive)" />

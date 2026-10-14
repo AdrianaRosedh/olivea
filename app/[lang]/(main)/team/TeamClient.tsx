@@ -16,10 +16,10 @@ import {
   motion,
   useAnimationFrame,
   useMotionValue,
-  type Variants,
 } from "framer-motion";
 import { X, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Reveal from "@/components/scroll/Reveal";
 import { type Lang } from "@/lib/i18n";
 
 import { TEAM, type LeaderProfile } from "./teamData";
@@ -44,19 +44,6 @@ type Category = TeamCategory;
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/* ---------------- scroll-in animations ---------------- */
-const cardInV: Variants = {
-  hidden: { opacity: 0, y: 26 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.9,
-      ease: EASE,
-      delay: Math.min(0.9, i * 0.1),
-    },
-  }),
-};
 
 /* ---------- category inference (fallback) ---------- */
 function leaderCategoryFromOrg(
@@ -397,7 +384,6 @@ function LeaderCard({
   sizes,
   className,
   imageMode = "cover",
-  motionProps,
   priority = false,
 }: {
   l: Leader;
@@ -408,13 +394,6 @@ function LeaderCard({
   imageMode?: "contain" | "cover";
   /** The first row on screen: load now, it is the page's main image. */
   priority?: boolean;
-  motionProps?: {
-    variants?: Variants;
-    initial?: "hidden" | "show";
-    whileInView?: "hidden" | "show";
-    viewport?: { once?: boolean; amount?: number; margin?: string };
-    custom?: number;
-  };
 }) {
   return (
     <motion.button
@@ -428,7 +407,6 @@ function LeaderCard({
       whileTap={{ scale: 0.995 }}
       transition={{ duration: 0.25, ease: EASE }}
       style={{ willChange: "transform, opacity" }}
-      {...motionProps}
     >
       <div className="absolute inset-0 bg-white/35" />
 
@@ -623,11 +601,6 @@ export default function TeamClient({
   const PAGE_PAD = "px-6 sm:px-10 md:px-12 lg:px-12";
   const RAIL = "max-w-[1400px]";
 
-  const CARD_VIEWPORT = {
-    once: true,
-    amount: 0.22,
-    margin: "0px 0px -18% 0px",
-  } as const;
 
   return (
     <NavigationProvider>
@@ -658,15 +631,21 @@ export default function TeamClient({
                     (lang === "es" ? "Equipo de Olivea" : "Team of Olivea")}
                 </h1>
 
-                {isLg === null ? null : isLg ? (
-                  <div>
+                {/* Before the breakpoint is known (server render, pre-hydration)
+                    both layouts are in the HTML and CSS shows the right one, so
+                    the cards paint without waiting for JavaScript. */}
+                {isLg !== false && (
+                  <div className={isLg === null ? "hidden lg:block" : undefined}>
                     {/* Leaders */}
                     <div className="mt-6 sm:mt-10">
                       <div className="grid grid-cols-12 gap-6">
                         {featured.map((l, idx) => (
-                          <div
+                          <Reveal
                             key={l.id}
-                            id={l.id}
+                            id={isLg ? l.id : undefined}
+                            distance={26}
+                            duration={0.9}
+                            delay={Math.min(0.9, idx * 0.1)}
                             className={cn(
                               "main-section",
                               "scroll-mt-[calc(var(--header-h,64px)+18px)]",
@@ -677,19 +656,12 @@ export default function TeamClient({
                               l={l}
                               roleText={t(l.role)}
                               onOpen={() => setOpenId(l.id)}
-                              priority={idx < 3}
+                              priority={isLg === true && idx < 3}
                               sizes="(max-width: 1200px) 33vw, 520px"
                               className="w-full h-full"
                               imageMode="cover"
-                              motionProps={{
-                                variants: cardInV,
-                                initial: "hidden",
-                                whileInView: "show",
-                                viewport: CARD_VIEWPORT,
-                                custom: idx,
-                              }}
                             />
-                          </div>
+                          </Reveal>
                         ))}
                       </div>
                     </div>
@@ -698,9 +670,12 @@ export default function TeamClient({
                     {row2.length ? (
                       <div className="mt-7 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
                         {row2.map((l, idx) => (
-                          <div
+                          <Reveal
                             key={l.id}
-                            id={l.id}
+                            id={isLg ? l.id : undefined}
+                            distance={26}
+                            duration={0.9}
+                            delay={Math.min(0.9, (idx % 4) * 0.1)}
                             className={cn(
                               "main-section",
                               "scroll-mt-[calc(var(--header-h,64px)+18px)]",
@@ -714,15 +689,8 @@ export default function TeamClient({
                               sizes="(max-width: 1200px) 25vw, 360px"
                               className="w-full h-full"
                               imageMode="cover"
-                              motionProps={{
-                                variants: cardInV,
-                                initial: "hidden",
-                                whileInView: "show",
-                                viewport: CARD_VIEWPORT,
-                                custom: idx,
-                              }}
                             />
-                          </div>
+                          </Reveal>
                         ))}
                       </div>
                     ) : null}
@@ -731,9 +699,12 @@ export default function TeamClient({
                     {restAfterRow2.length ? (
                       <div className="mt-6 grid grid-cols-12 gap-6 auto-rows-[320px] xl:auto-rows-[340px]">
                         {restAfterRow2.map((l, idx) => (
-                          <div
+                          <Reveal
                             key={l.id}
-                            id={l.id}
+                            id={isLg ? l.id : undefined}
+                            distance={26}
+                            duration={0.9}
+                            delay={Math.min(0.9, (idx % 4) * 0.1)}
                             className={cn(
                               "main-section",
                               "scroll-mt-[calc(var(--header-h,64px)+18px)]",
@@ -747,26 +718,30 @@ export default function TeamClient({
                               sizes="(max-width: 1200px) 25vw, 360px"
                               className="w-full h-full"
                               imageMode="cover"
-                              motionProps={{
-                                variants: cardInV,
-                                initial: "hidden",
-                                whileInView: "show",
-                                viewport: CARD_VIEWPORT,
-                                custom: idx % 4,
-                              }}
                             />
-                          </div>
+                          </Reveal>
                         ))}
                       </div>
                     ) : null}
                   </div>
-                ) : (
+                )}
+                {isLg !== true && (
                   // Mobile list
-                  <div className="mt-4 grid grid-cols-1 gap-6 pb-28">
+                  <div
+                    className={cn(
+                      "mt-4 grid grid-cols-1 gap-6 pb-28",
+                      isLg === null && "lg:hidden"
+                    )}
+                  >
                     {mobileLeaders.map((l, idx) => (
-                      <motion.button
+                      <Reveal
                         key={l.id}
-                        id={l.id}
+                        distance={26}
+                        duration={0.9}
+                        delay={Math.min(0.9, (idx % 6) * 0.1)}
+                      >
+                      <motion.button
+                        id={isLg === false ? l.id : undefined}
                         type="button"
                         onClick={() => setOpenId(l.id)}
                         className={cn(
@@ -776,11 +751,6 @@ export default function TeamClient({
                         )}
                         whileTap={{ scale: 0.995 }}
                         transition={{ duration: 0.2, ease: EASE }}
-                        variants={cardInV}
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={CARD_VIEWPORT}
-                        custom={idx % 6}
                       >
                         <div className="absolute inset-0 bg-white/35" />
                         <div className="absolute inset-0">
@@ -790,9 +760,9 @@ export default function TeamClient({
                             fill
                             sizes="100vw"
                             // The first card fills a phone screen: the page's main image.
-                            priority={idx === 0}
+                            priority={isLg === false && idx === 0}
                             fetchPriority={idx === 0 ? "high" : undefined}
-                            loading={idx === 0 ? "eager" : undefined}
+                            loading={isLg === false && idx === 0 ? "eager" : undefined}
                             className="object-cover object-center"
                           />
                         </div>
@@ -810,6 +780,7 @@ export default function TeamClient({
                           </div>
                         </div>
                       </motion.button>
+                      </Reveal>
                     ))}
                   </div>
                 )}

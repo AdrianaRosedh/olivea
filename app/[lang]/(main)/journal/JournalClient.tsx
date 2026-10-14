@@ -9,8 +9,7 @@ import { tt } from "@/lib/i18n";
 import { formatPublicDate, publicDateYear } from "@/lib/date/public-date";
 import JournalFilterDock from "./JournalFilterDock";
 import { cn } from "@/lib/utils";
-import { motion, type Variants } from "framer-motion";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import Reveal from "@/components/scroll/Reveal";
 
 /* =================== types =================== */
 type AuthorLike = string | { id?: string; name: string };
@@ -47,39 +46,6 @@ function collectAuthorSearchTokens(p: Post): string[] {
   return tokens;
 }
 
-/* =================== motion =================== */
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const cardInV: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.9,
-      ease: EASE,
-      delay: Math.min(0.9, i * 0.08),
-    },
-  }),
-};
-
-const sectionStaggerV: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.085,
-      delayChildren: 0.02,
-    },
-  },
-};
-
-const VIEWPORT = {
-  once: true,
-  amount: 0.22,
-  margin: "0px 0px -18% 0px",
-} as const;
-
-const MotionLink = motion.create(Link);
 
 export default function JournalClient({
   lang,
@@ -92,7 +58,6 @@ export default function JournalClient({
   subtitle: string;
   posts: Post[];
 }) {
-  const reduce = usePrefersReducedMotion();
 
   const [q, setQ] = useState("");
   const [pillar, setPillar] = useState<string>("all");
@@ -269,19 +234,9 @@ export default function JournalClient({
                     {tt(lang, "Destacado", "Featured")}
                   </div>
 
-                  <motion.div
-                    className="mt-4"
-                    variants={sectionStaggerV}
-                    initial={reduce ? false : "hidden"}
-                    whileInView="show"
-                    viewport={VIEWPORT}
-                  >
-                    <motion.div
-                      variants={cardInV}
-                      custom={0}
-                      style={{ willChange: "transform, opacity" }}
-                    >
-                      <MotionLink
+                  <div className="mt-4">
+                    <Reveal distance={22} duration={0.9}>
+                      <Link
                         href={`/${lang}/journal/${featured.slug}`}
                         className={cn(
                           "group block overflow-hidden rounded-3xl",
@@ -363,35 +318,31 @@ export default function JournalClient({
                             </div>
                           </div>
                         </div>
-                      </MotionLink>
-                    </motion.div>
-                  </motion.div>
+                      </Link>
+                    </Reveal>
+                  </div>
                 </section>
               ) : null}
 
               <section id="posts" className="mt-8 sm:mt-10">
-                <motion.div
+                <div
                   className={cn(
                     "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[repeat(3,minmax(360px,1fr))] gap-6 sm:gap-10"
                   )}
                   style={{ gridAutoRows: "1fr" }}
-                  variants={sectionStaggerV}
-                  initial={reduce ? false : "hidden"}
-                  whileInView="show"
-                  viewport={VIEWPORT}
                 >
                   {rest.map((p, i) => {
                     const prettyDate = fmtDate(p.publishedAt);
 
                     return (
-                      <motion.div
+                      <Reveal
                         key={`${p.lang}:${p.slug}`}
-                        className="will-change-transform h-full"
-                        variants={cardInV}
-                        custom={i % 6}
-                        style={{ willChange: "transform, opacity" }}
+                        className="h-full"
+                        distance={22}
+                        duration={0.9}
+                        delay={Math.min(0.9, (i % 6) * 0.08)}
                       >
-                        <MotionLink
+                        <Link
                           href={`/${lang}/journal/${p.slug}`}
                           className={cn(
                             "group flex h-full flex-col overflow-hidden rounded-[22px]",
@@ -476,11 +427,11 @@ export default function JournalClient({
                               </div>
                             </div>
                           </div>
-                        </MotionLink>
-                      </motion.div>
+                        </Link>
+                      </Reveal>
                     );
                   })}
-                </motion.div>
+                </div>
 
                 {sortedFiltered.length === 0 && (
                   <div className="mt-10 text-[15px] leading-7 text-(--olivea-clay) opacity-85">

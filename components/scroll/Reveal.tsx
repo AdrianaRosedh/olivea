@@ -1,12 +1,33 @@
 "use client";
 
+// components/scroll/Reveal.tsx
+// ─────────────────────────────────────────────────────────────────────
+// Fade/slide a block in — without making it wait for JavaScript.
+//
+// ★ CSS FIRST. The block carries its entrance as a CSS animation
+//   (globals.css, [data-reveal]), so on the first screen it plays the moment
+//   the page paints — before React has loaded. The previous version rendered
+//   `opacity: 0` inline and only revealed on an IntersectionObserver after
+//   hydration: on a mid-range phone the first screen of Contact, Careers,
+//   Sustainability and the section heroes sat invisible for seconds, and
+//   Lighthouse counted ~10 s of "render delay" before the main image showed.
+//
+// ★ SCROLL REVEAL KEPT. Once React is running, a block that is still below the
+//   screen is put back to its hidden starting state (it is off-screen, so
+//   nothing flickers) and plays the same entrance when it scrolls into view.
+//
+// ★ Reduced motion: the CSS shows everything at once, no entrance.
+// ─────────────────────────────────────────────────────────────────────
+
 import {
-  motion,
-  type Transition,
-  type MotionProps,
-} from "framer-motion";
-import type { PropsWithChildren, ReactElement, ElementType } from "react";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type ElementType,
+  type PropsWithChildren,
+  type ReactElement,
+} from "react";
 
 export type RevealPreset =
   | "fade"
@@ -20,17 +41,39 @@ export type RevealPreset =
 
 export type RevealProps = {
   preset?: RevealPreset;
-  distance?: number;     // px
-  duration?: number;     // s
-  delay?: number;        // s
+  distance?: number; // px
+  duration?: number; // s
+  delay?: number; // s
   once?: boolean;
   amount?: number | "some" | "all";
   className?: string;
+  id?: string;
   as?: ElementType;
-  transition?: Transition;
-  initialProps?: MotionProps["initial"];
-  whileInViewProps?: MotionProps["whileInView"];
 };
+
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/** The starting offset of each preset, as CSS variables the keyframes read. */
+function startVars(preset: RevealPreset, distance: number): Record<string, string> {
+  switch (preset) {
+    case "up":
+      return { "--reveal-y": `${distance}px` };
+    case "down":
+      return { "--reveal-y": `${-distance}px` };
+    case "left":
+      return { "--reveal-x": `${-distance}px` };
+    case "right":
+      return { "--reveal-x": `${distance}px` };
+    case "scale-in":
+      return { "--reveal-scale": "0.96" };
+    case "zoom-out":
+      return { "--reveal-scale": "1.06" };
+    case "blur-up":
+      return { "--reveal-y": `${distance}px`, "--reveal-blur": "6px" };
+    default:
+      return {};
+  }
+}
 
 export default function Reveal({
   children,
@@ -41,61 +84,49 @@ export default function Reveal({
   once = true,
   amount = "some",
   className = "",
+  id,
   as,
-  transition,
-  initialProps,
-  whileInViewProps,
 }: PropsWithChildren<RevealProps>): ReactElement {
-  const Comp = motion.create(as ?? "div");
-  const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
-  const reduce = usePrefersReducedMotion();
+  const Tag = (as ?? "div") as ElementType;
+  const ref = useRef<HTMLElement>(null);
 
-  const base = (() => {
-    switch (preset) {
-      case "fade":
-        return { initial: { opacity: 0 }, whileInView: { opacity: 1 } };
-      case "up":
-        return { initial: { opacity: 0, y: distance }, whileInView: { opacity: 1, y: 0 } };
-      case "down":
-        return { initial: { opacity: 0, y: -distance }, whileInView: { opacity: 1, y: 0 } };
-      case "left":
-        return { initial: { opacity: 0, x: -distance }, whileInView: { opacity: 1, x: 0 } };
-      case "right":
-        return { initial: { opacity: 0, x: distance }, whileInView: { opacity: 1, x: 0 } };
-      case "scale-in":
-        return { initial: { opacity: 0, scale: 0.96 }, whileInView: { opacity: 1, scale: 1 } };
-      case "zoom-out":
-        return { initial: { opacity: 0, scale: 1.06 }, whileInView: { opacity: 1, scale: 1 } };
-      case "blur-up":
-        return {
-          initial: { opacity: 0, y: distance, filter: "blur(6px)" },
-          whileInView: { opacity: 1, y: 0, filter: "blur(0px)" },
-        };
-      default:
-        return { initial: { opacity: 0 }, whileInView: { opacity: 1 } };
-    }
-  })();
+  // After hydration: blocks below the screen wait for the scroll; blocks
+  // already on screen keep the entrance they played on first paint.
+  useIsoLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (el.getBoundingClientRect().top < window.innerHeight) return;
 
-  // Reduced motion: render the final state outright — no hidden initial
-  // frame, no dependence on IntersectionObserver to make content visible.
-  if (reduce) {
-    return (
-      <Comp className={className} data-reveal>
-        {children}
-      </Comp>
+    el.dataset.revealState = "waiting";
+    const threshold = amount === "all" ? 1 : amount === "some" ? 0 : amount;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.dataset.revealState = "play";
+          if (once) io.disconnect();
+        } else if (!once) {
+          el.dataset.revealState = "waiting";
+        }
+      },
+      // The root reaches far above the screen: a block jumped over in one go
+      // (a chapter link, a fast flick) counts as reached, instead of waiting
+      // invisibly for a scroll back up.
+      { threshold, rootMargin: "100000px 0px -20% 0px" }
     );
-  }
+    io.observe(el);
+    return () => io.disconnect();
+  }, [amount, once]);
+
+  const style = {
+    ...startVars(preset, distance),
+    "--reveal-duration": `${duration}s`,
+    "--reveal-delay": `${Number(delay.toFixed(3))}s`,
+  } as CSSProperties;
 
   return (
-    <Comp
-      className={className}
-      data-reveal
-      initial={initialProps ?? base.initial}
-      whileInView={whileInViewProps ?? base.whileInView}
-      transition={transition ?? { duration, delay, ease }}
-      viewport={{ once, amount, margin: "0px 0px -20% 0px" }}
-    >
+    <Tag ref={ref} id={id} className={className} data-reveal={preset} style={style}>
       {children}
-    </Comp>
+    </Tag>
   );
 }

@@ -336,6 +336,7 @@ export default function PopupHost() {
               exit="exit"
               role="dialog"
               aria-modal="true"
+              aria-labelledby="olivea-popup-title"
               data-lenis-prevent
               onClick={(e) => e.stopPropagation()}
               /* Swipe the sheet down to dismiss. Constrained to y with no
@@ -496,9 +497,12 @@ export default function PopupHost() {
                     "px-5 py-5",
                   ].join(" ")}
                 >
-                  <h3 className="text-[20px] md:text-[24px] leading-tight font-semibold text-(--olivea-olive)">
+                  <h2
+                    id="olivea-popup-title"
+                    className="text-[20px] md:text-[24px] leading-tight font-semibold text-(--olivea-olive)"
+                  >
                     {popup.title}
-                  </h3>
+                  </h2>
 
                   <p className="mt-2 text-[14.5px] leading-relaxed text-(--olivea-clay) opacity-95">
                     {popup.excerpt}

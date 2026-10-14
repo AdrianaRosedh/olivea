@@ -15,7 +15,7 @@ export default function ArticleEn() {
       </header>
 
       {/* ── Rooms ── */}
-      <section id="rooms" aria-labelledby="rooms-heading">
+      <section aria-labelledby="rooms-heading">
         <h2 id="rooms-heading">Our Suites</h2>
         <p>Fourteen suites, part of the garden ecosystem, each named for an aromatic plant or tree, each opening to the huerto, the olive rows, and the desert light of Baja California. You do not book a room here; you stay within the ecosystem the garden feeds.</p>
         <p>Every detail is designed for comfort: king-size beds, soft linens, and natural textures. Filtered water in reusable bottles each day, zero visual noise, and sleep comes easy.</p>
@@ -24,7 +24,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Design ── */}
-      <section id="design" aria-labelledby="design-heading">
+      <section aria-labelledby="design-heading">
         <h2 id="design-heading">Design That Feels</h2>
         <p><em>Design conceived by Ange Joy, founder of Olivea.</em></p>
         <p>Light leads the architecture. In the morning, it's soft and indirect. By afternoon, warm and grounding. Every surface avoids glare, favoring calm.</p>
@@ -33,7 +33,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Courtyard ── */}
-      <section id="courtyard" aria-labelledby="courtyard-heading">
+      <section aria-labelledby="courtyard-heading">
         <h2 id="courtyard-heading">Spaces to Breathe</h2>
         <p>Inspired by nature, the courtyard opens at the heart of the property. Two long corridors connect your room to open air and rhythm.</p>
         <p>A sense of calm lives in the courtyard — gravel paths, aromatic plants, and a sunlit pool that follows the rhythm of the seasons. Light filters naturally. Sound settles softly.</p>
@@ -41,7 +41,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Mornings ── */}
-      <section id="mornings" aria-labelledby="mornings-heading">
+      <section aria-labelledby="mornings-heading">
         <h2 id="mornings-heading">Mornings at Olivea</h2>
         <h3>Breakfast</h3>
         <p>Guests are welcome to start the day at Olivea Café Wine Bar, where the kitchen serves a seasonal continental breakfast — house-made bread, vegetables from our garden, and a selection of local and in-house preparations, fresh and rooted in the garden.</p>
@@ -51,7 +51,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Services ── */}
-      <section id="services" aria-labelledby="services-heading">
+      <section aria-labelledby="services-heading">
         <h2 id="services-heading">Essentials, Thoughtfully Chosen</h2>
         <h3>Connectivity</h3>
         <p>Wi-Fi is available throughout the property, including all rooms, patios, and the paddle court. Electrical outlets are thoughtfully placed across shared and private spaces.</p>
@@ -68,7 +68,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Stay Info ── */}
-      <section id="practical" aria-labelledby="practical-heading">
+      <section aria-labelledby="practical-heading">
         <h2 id="practical-heading">Stay Info</h2>
         <h3>Check-In / Check-Out</h3>
         <p>Check-in from 3:00 pm. Check-out by 11:00 am.</p>
@@ -81,7 +81,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" aria-labelledby="faq-heading">
+      <section aria-labelledby="faq-heading">
         <h2 id="faq-heading">Before You Book</h2>
         <h3>Is breakfast included?</h3>
         <p>No — breakfast is not included with your stay. Guests are welcome to enjoy breakfast at Olivea Café Wine Bar each morning (not included).</p>

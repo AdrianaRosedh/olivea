@@ -33,7 +33,7 @@ export default function ArticleEn() {
       </header>
 
       {/* ── Experience ── */}
-      <section id="experience" aria-labelledby="experience-heading">
+      <section aria-labelledby="experience-heading">
         <h2 id="experience-heading">A Garden-Driven Culinary Journey</h2>
         <p>
           A single tasting menu, composed in seasons — guided by soil, climate,
@@ -87,7 +87,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Kitchen ── */}
-      <section id="kitchen" aria-labelledby="kitchen-heading">
+      <section aria-labelledby="kitchen-heading">
         <h2 id="kitchen-heading">Technique in Service of Origin</h2>
         <p>
           The product leads. The kitchen is rooted in the garden and nearby
@@ -118,7 +118,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Table / Hospitality ── */}
-      <section id="table" aria-labelledby="table-heading">
+      <section aria-labelledby="table-heading">
         <h2 id="table-heading">Hospitality as Calibration</h2>
         <p>
           We host friends. Service is present, discreet, and calibrated to the
@@ -142,7 +142,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Ecosystem / Pantry ── */}
-      <section id="pantry" aria-labelledby="pantry-heading">
+      <section aria-labelledby="pantry-heading">
         <h2 id="pantry-heading">The Olivea Ecosystem</h2>
         <p>A garden is the essence. But with a garden, what do you create?</p>
         <p>
@@ -206,7 +206,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Menu ── */}
-      <section id="menu-info" aria-labelledby="menu-heading">
+      <section aria-labelledby="menu-heading">
         <h2 id="menu-heading">The Menu</h2>
         <p>
           A seasonal <strong>9-course tasting menu</strong>, composed as a
@@ -248,7 +248,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── FAQ (mirrors the JSON-LD already in page.tsx) ── */}
-      <section id="faq" aria-labelledby="faq-heading">
+      <section aria-labelledby="faq-heading">
         <h2 id="faq-heading">Before You Reserve</h2>
 
         <h3>What kind of experience is Olivea Farm To Table?</h3>

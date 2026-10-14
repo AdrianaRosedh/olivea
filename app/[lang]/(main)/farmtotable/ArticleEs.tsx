@@ -34,7 +34,7 @@ export default function ArticleEs() {
       </header>
 
       {/* ── Experiencia ── */}
-      <section id="experiencia" aria-labelledby="experiencia-heading">
+      <section aria-labelledby="experiencia-heading">
         <h2 id="experiencia-heading">
           Un recorrido gastronómico guiado por el huerto
         </h2>
@@ -92,7 +92,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Cocina ── */}
-      <section id="cocina" aria-labelledby="cocina-heading">
+      <section aria-labelledby="cocina-heading">
         <h2 id="cocina-heading">Técnica al servicio del origen</h2>
         <p>
           El producto marca el camino. La cocina nace del huerto y de
@@ -123,7 +123,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Mesa / Hospitalidad ── */}
-      <section id="mesa" aria-labelledby="mesa-heading">
+      <section aria-labelledby="mesa-heading">
         <h2 id="mesa-heading">Hospitalidad como calibración</h2>
         <p>
           Recibimos como a amigos. El servicio está presente, es discreto y se
@@ -148,7 +148,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Ecosistema / Despensa ── */}
-      <section id="despensa" aria-labelledby="despensa-heading">
+      <section aria-labelledby="despensa-heading">
         <h2 id="despensa-heading">El Ecosistema de Olivea</h2>
         <p>El huerto es la esencia. Pero con un huerto, ¿qué se crea?</p>
         <p>
@@ -213,7 +213,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Menú ── */}
-      <section id="menu-info" aria-labelledby="menu-heading-es">
+      <section aria-labelledby="menu-heading-es">
         <h2 id="menu-heading-es">El menú</h2>
         <p>
           Un <strong>menú degustación de 9 tiempos</strong>, concebido como un
@@ -254,7 +254,7 @@ export default function ArticleEs() {
       </section>
 
       {/* ── Preguntas frecuentes ── */}
-      <section id="faq-es" aria-labelledby="faq-heading-es">
+      <section aria-labelledby="faq-heading-es">
         <h2 id="faq-heading-es">Antes de reservar</h2>
 
         <h3>¿Qué tipo de experiencia es Olivea Farm To Table?</h3>

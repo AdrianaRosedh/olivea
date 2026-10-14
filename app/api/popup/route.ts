@@ -24,6 +24,22 @@ import { rateLimitDistributed, clientIp } from "@/lib/rate-limit";
 // Content layer — single source of truth (was: @/content/popups/active.json)
 import popupItems from "@/lib/content/data/popups";
 
+/**
+ * Media on this site is served as a path. The admin may save a full
+ * https://www.oliveafarmtotable.com/... address; kept absolute, it is a
+ * cross-origin load on any other host (Vercel previews, localhost) and the
+ * page's CSP (media-src 'self') blocks it.
+ */
+function ownSitePath(src: string): string {
+  try {
+    const u = new URL(src);
+    if (/^(www\.)?oliveafarmtotable\.com$/i.test(u.hostname)) return u.pathname + u.search;
+  } catch {
+    // already a path
+  }
+  return src;
+}
+
 // Pick the highest-priority enabled popup from the content layer
 const activePopupData = (() => {
   const enabled = popupItems
@@ -306,7 +322,7 @@ export async function GET(req: Request) {
       ...(t.badge ? { badge: t.badge } : {}),
       ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
       ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
-      ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
+      ...(active.media?.videoSrc ? { videoSrc: ownSitePath(active.media.videoSrc) } : {}),
       ...(t.ctaLabel ? { ctaLabel: t.ctaLabel } : {}),
       // The client cannot honour a frequency it is never told about: these
       // were configured in the admin and then dropped here, so every popup
@@ -333,7 +349,7 @@ export async function GET(req: Request) {
     ...(active.phone ? { phone: active.phone } : {}),
     ...(active.media?.coverSrc ? { coverSrc: active.media.coverSrc } : {}),
     ...(active.media?.coverAlt?.[lang] ? { coverAlt: active.media.coverAlt[lang] } : {}),
-    ...(active.media?.videoSrc ? { videoSrc: active.media.videoSrc } : {}),
+    ...(active.media?.videoSrc ? { videoSrc: ownSitePath(active.media.videoSrc) } : {}),
     ...(t.ctaLabel ? { ctaLabel: t.ctaLabel } : {}),
     // The client cannot honour a frequency it is never told about: these
     // were configured in the admin and then dropped here, so every popup

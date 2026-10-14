@@ -9,6 +9,46 @@
    against the root, so this changes nothing on screen. */
 html { position: relative; }
 
+/* ── Reveal (components/scroll/Reveal.tsx) ─────────────────────────────
+   The entrance is CSS, so the first screen animates in on first paint, before
+   JavaScript. Two keyframe names let the scroll reveal restart the animation
+   when a waiting block comes into view. */
+@keyframes olivea-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--reveal-x, 0), var(--reveal-y, 0), 0) scale(var(--reveal-scale, 1));
+    filter: blur(var(--reveal-blur, 0));
+  }
+}
+@keyframes olivea-reveal-scroll {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--reveal-x, 0), var(--reveal-y, 0), 0) scale(var(--reveal-scale, 1));
+    filter: blur(var(--reveal-blur, 0));
+  }
+}
+[data-reveal] {
+  animation: olivea-reveal var(--reveal-duration, 0.7s) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s) both;
+}
+[data-reveal][data-reveal-state="waiting"] {
+  animation: none;
+  opacity: 0;
+  transform: translate3d(var(--reveal-x, 0), var(--reveal-y, 0), 0) scale(var(--reveal-scale, 1));
+  filter: blur(var(--reveal-blur, 0));
+}
+[data-reveal][data-reveal-state="play"] {
+  animation-name: olivea-reveal-scroll;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal][data-reveal-state] {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
 /* ───────────────────────────────────────────────────────────── */
 /* OLIVEA GLOBAL THEME TOKENS                                   */
 /* ───────────────────────────────────────────────────────────── */
@@ -450,10 +490,9 @@ html.pwa-standalone .pwa-safe-bottom {
   border: 0;
 }
 
-/* Scroll-reveal fallback: Reveal renders opacity:0 inline (SSR) and relies
-   on JS to animate in. If hydration never lands (watchdog above removed
-   js-hydrated), force the content visible — animation is enhancement,
-   never a gate. */
+/* Without JavaScript (or if hydration never lands and the watchdog removed
+   js-hydrated) Reveal content shows outright, no entrance: animation is an
+   enhancement, never a gate. */
 html:not(.js-hydrated) [data-reveal] {
   opacity: 1 !important;
   transform: none !important;

@@ -7,7 +7,6 @@ import {
   motion,
   useScroll,
   useMotionValueEvent,
-  type Variants,
 } from "framer-motion";
 import Image from "next/image";
 import { SlidersHorizontal, X } from "lucide-react";
@@ -15,20 +14,11 @@ import { cn } from "@/lib/utils";
 import { tt, type Lang } from "@/lib/i18n";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import Reveal from "@/components/scroll/Reveal";
 
 export type TeamCategory = "all" | "hotel" | "restaurant" | "cafe";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const dockV: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: EASE, delay: 0.25 },
-  },
-};
 
 export default function TeamDockLeft({
   lang,
@@ -41,7 +31,6 @@ export default function TeamDockLeft({
   setCategory: (v: TeamCategory) => void;
   count: number;
 }) {
-  const reduce = usePrefersReducedMotion();
 
   const label = useCallback(
     (c: TeamCategory) => {
@@ -391,7 +380,7 @@ export default function TeamDockLeft({
       style={{ top: 250 }}
       aria-label="Team filter"
     >
-      <motion.div variants={dockV} initial={reduce ? false : "hidden"} animate="show">
+      <Reveal distance={10} delay={0.25}>
         <motion.div
           animate={{ width: collapsed ? 56 : 188 }}
           transition={{ duration: 0.26, ease: EASE }}
@@ -447,7 +436,7 @@ export default function TeamDockLeft({
             ) : null}
           </div>
         </motion.div>
-      </motion.div>
+      </Reveal>
     </nav>
   );
 

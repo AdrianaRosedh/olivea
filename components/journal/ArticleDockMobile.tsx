@@ -148,6 +148,7 @@ export function ArticleDockMobile({
                 transition={{ duration: 0.26, ease: EASE }}
                 role="dialog"
                 aria-modal="true"
+                aria-label={labels.shareTo}
               >
                 <div className="px-4 pt-3 pb-4">
                   <div className="mx-auto h-1 w-10 rounded-full bg-(--olivea-olive)/15" />
@@ -221,6 +222,7 @@ export function ArticleDockMobile({
                 transition={{ duration: 0.26, ease: EASE }}
                 role="dialog"
                 aria-modal="true"
+                aria-label={labels.toc}
               >
                 <div className="px-4 pt-3 pb-4">
                   <div className="mx-auto h-1 w-10 rounded-full bg-(--olivea-olive)/15" />

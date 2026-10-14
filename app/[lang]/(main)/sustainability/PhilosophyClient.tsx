@@ -8,7 +8,6 @@ import {
   motion,
   useScroll,
   useTransform,
-  type Variants,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { tt } from "@/lib/i18n";
@@ -16,6 +15,7 @@ import type { Lang, PhilosophySection } from "./philosophyTypes";
 import PhilosophyDockLeft from "./PhilosophyDockLeft";
 import { PracticesCard, SignalsRow } from "./ProofModules";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import Reveal from "@/components/scroll/Reveal";
 
 // Dynamic import keeps GSAP (~60KB) out of the shared bundle
 const FloatingPracticesCardGSAP = dynamic(
@@ -23,8 +23,6 @@ const FloatingPracticesCardGSAP = dynamic(
   { ssr: false, loading: () => null },
 );
 import PhilosophyMobileNav from "./PhilosophyMobileNav";
-
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 function paragraphs(body: string) {
   return body
@@ -130,61 +128,6 @@ function MobilePractices({
   );
 }
 
-/* ---------- motion ---------- */
-
-const heroV: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.95, ease: EASE },
-  },
-};
-
-const chapterV: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: EASE },
-  },
-};
-
-const headerV: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: EASE },
-  },
-};
-
-const bodyV: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.02 } },
-};
-
-const pV: Variants = {
-  hidden: { opacity: 0, y: 6 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: EASE } },
-};
-
-const moduleV: Variants = {
-  hidden: { opacity: 0, y: 10, scale: 0.995 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.55, ease: EASE },
-  },
-};
-
-// ✅ earlier reveal to avoid “blank gaps” on mobile
-const VIEWPORT = {
-  once: true,
-  amount: 0.12,
-  margin: "20% 0px -5% 0px",
-} as const;
 
 export default function PhilosophyClient({
   lang,
@@ -268,11 +211,11 @@ export default function PhilosophyClient({
             </motion.div>
 
             {/* HERO */}
-            <motion.header
+            <Reveal
+              as="header"
               className="relative z-10 mt-10 sm:mt-12 max-w-[82ch]"
-              variants={heroV}
-              initial="hidden"
-              animate="show"
+              distance={16}
+              duration={0.95}
             >
               <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-70">
                 {tt(lang, "Filosofía", "Philosophy")}
@@ -336,7 +279,7 @@ export default function PhilosophyClient({
               </p>
 
               {/* ✅ Sustainability spine highlight */}
-              <motion.div
+              <Reveal
                 className={cn(
                   "mt-6 w-full max-w-[82ch]",
                   "rounded-[22px]",
@@ -344,9 +287,8 @@ export default function PhilosophyClient({
                   "pl-5 sm:pl-6 py-2",
                   "border-l border-(--olivea-olive)/18"
                 )}
-                initial={reduce ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25, duration: 0.7, ease: EASE }}
+                distance={10}
+                delay={0.25}
               >
                 <div className="text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-60">
                   {tt(lang, "Principio rector", "Guiding principle")}
@@ -369,25 +311,25 @@ export default function PhilosophyClient({
                     "Present in every decision, not confined to a single chapter."
                   )}
                 </div>
-              </motion.div>
+              </Reveal>
 
               <div className="mt-7">
                 <SignalsRow items={heroSignals} />
               </div>
 
               {/* ✅ subtle cue so users instantly know there is more */}
-              <motion.div
+              <Reveal
                 className="mt-10 flex items-center gap-3 text-(--olivea-olive) opacity-55"
-                initial={reduce ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5, ease: EASE }}
+                distance={6}
+                duration={0.5}
+                delay={0.6}
               >
                 <span className="text-[12px] uppercase tracking-[0.34em]">
                   {tt(lang, "Desliza para leer", "Scroll to read")}
                 </span>
                 <span className="h-px flex-1 bg-(--olivea-olive)/20" />
-              </motion.div>
-            </motion.header>
+              </Reveal>
+            </Reveal>
 
             {/* CHAPTERS */}
             <div className="relative z-10 mt-18 sm:mt-20 space-y-20 sm:space-y-24">
@@ -397,17 +339,15 @@ export default function PhilosophyClient({
               </div>
 
               {sections.map((s, idx) => (
-                <motion.section
+                <Reveal
+                  as="section"
                   key={s.id}
                   id={s.id}
                   className="scroll-mt-32"
-                  variants={chapterV}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={VIEWPORT}
+                  distance={14}
                 >
                   {/* Header */}
-                  <motion.div variants={headerV} className="max-w-[92ch]">
+                  <div className="max-w-[92ch]">
                     <div className="flex items-center gap-3">
                       <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-70">
                         {tt(lang, "Capítulo", "Chapter")}{" "}
@@ -455,22 +395,17 @@ export default function PhilosophyClient({
                         <SignalsRow items={s.signals} />
                       </div>
                     ) : null}
-                  </motion.div>
+                  </div>
 
                   {/* Body + right rail */}
-                  <motion.div
-                    variants={bodyV}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={VIEWPORT}
+                  <div
                     className="mt-8 grid lg:grid-cols-[1fr_420px] gap-10 lg:gap-12 items-start"
                   >
                     {/* Body */}
                     <div className="space-y-6">
                       {paragraphs(s.body).map((p, i) => (
-                        <motion.p
+                        <p
                           key={i}
-                          variants={pV}
                           className={cn(
                             "text-[16px] sm:text-[17px] leading-[1.9]",
                             inkSoft,
@@ -478,13 +413,12 @@ export default function PhilosophyClient({
                           )}
                         >
                           {linkifyNames(p, lang)}
-                        </motion.p>
+                        </p>
                       ))}
                     </div>
 
                     {/* Right rail: invisible anchor (desktop only) */}
-                    <motion.div
-                      variants={moduleV}
+                    <div
                       className="space-y-6 hidden lg:block"
                     >
                       <div data-practices-anchor className="invisible">
@@ -493,21 +427,19 @@ export default function PhilosophyClient({
                           items={s.practices}
                         />
                       </div>
-                    </motion.div>
-                  </motion.div>
+                    </div>
+                  </div>
 
                   <div className="mt-14 h-px bg-linear-to-r from-transparent via-(--olivea-honey)/25 to-transparent" />
-                </motion.section>
+                </Reveal>
               ))}
             </div>
 
             {/* Closing */}
-            <motion.section
+            <Reveal
+              as="section"
               className="relative z-10 mt-22 sm:mt-24 max-w-[82ch]"
-              initial={reduce ? false : { opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={VIEWPORT}
-              transition={{ duration: reduce ? 0.1 : 0.7, ease: EASE }}
+              distance={12}
             >
               <h3
                 className="text-[clamp(1.6rem,1.3rem_+_1.1vw,1.9rem)] font-semibold tracking-[-0.02em] text-(--olivea-forest)"
@@ -567,7 +499,7 @@ export default function PhilosophyClient({
                   {tt(lang, "Conoce a los Colibríes", "Meet the Colibríes")}
                 </a>
               </div>
-            </motion.section>
+            </Reveal>
           </div>
         </div>
       </section>
