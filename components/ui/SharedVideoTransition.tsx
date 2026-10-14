@@ -42,11 +42,15 @@ function getDurations(isPhone: boolean) {
 
 /** Start navigating this far into the rise, so the page loads under the panel. */
 const NAV_AT = 0.5;
-/** Lift the panel even if the destination logo never appears. */
+/** Once the new page is there, lift the panel even if its logo never appears. */
 const MAX_WAIT_MS = 2500;
+/** The new page never arrived (a slow server, a lost request): load it
+ *  directly, still under the panel, rather than lifting it over the page the
+ *  visitor just left. */
+const NAV_GIVE_UP_MS = 12_000;
 
 // ✅ Failsafe so scroll can’t be trapped on weird devices/transitions.
-const FAILSAFE_MS = 9000;
+const FAILSAFE_MS = 20_000;
 
 // Desktop: match the desktop hero frame
 const DESKTOP_FRAME = {
@@ -314,7 +318,9 @@ function Overlay({
   }, [phase]);
 
   // COVERED → EXIT: as soon as the destination is on screen (its hero logo is
-  // laid out), with a short minimum hold and a cap if the page is slow.
+  // laid out), with a short minimum hold. The panel never lifts before the
+  // route has changed: lifting on a timer showed the old page again whenever
+  // the new one was slow (the dev server compiling it, a slow connection).
   const arrived = samePath(pathname, targetHref);
   useEffect(() => {
     if (phase !== "covered") return;
@@ -324,7 +330,12 @@ function Overlay({
     const tryExit = () => {
       if (cancelled) return;
       const waited = performance.now() - startedAt;
-      const dest = arrived ? findDestinationLogo(logoSrc) : null;
+      if (!arrived) {
+        if (waited >= NAV_GIVE_UP_MS) window.location.assign(targetHref);
+        else requestAnimationFrame(tryExit);
+        return;
+      }
+      const dest = findDestinationLogo(logoSrc);
       if (dest || waited >= MAX_WAIT_MS) {
         if (dest) setLogoBox(dest);
         const holdLeft = Math.max(0, (reduce ? 80 : DUR.minHoldMs) - waited);
@@ -337,7 +348,7 @@ function Overlay({
     return () => {
       cancelled = true;
     };
-  }, [phase, arrived, logoSrc, setPhase, reduce, DUR.minHoldMs]);
+  }, [phase, arrived, logoSrc, setPhase, reduce, DUR.minHoldMs, targetHref]);
 
   // EXIT: the panel lifts; the logo stays and fades out last, over the
   // destination's own logo in the same place.
