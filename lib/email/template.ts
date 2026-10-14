@@ -4,7 +4,7 @@
 // compatibility across email clients.
 //
 // Design language: warm, earthy, minimal — matching Olivea's identity.
-// Colors: #5e7658 (olive green), #2d3b29 (dark ink), #f4f5f0 (warm bg),
+// Colors: #566d51 (olive green), #2d3b29 (dark ink), #f4f5f0 (warm bg),
 //         #c9a96e (warm gold accent), #6b7a65 (clay text)
 // ─────────────────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ function layout(opts: {
   <style>
     body, table, td { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
     img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
-    a { color: #5e7658; text-decoration: none; }
+    a { color: #566d51; text-decoration: none; }
     a:hover { text-decoration: underline; }
     @media (prefers-color-scheme: dark) {
       .email-bg { background-color: #1a1f18 !important; }
@@ -124,7 +124,7 @@ function defaultFooter() {
       </tr>
       <tr>
         <td align="center" style="font-size: 11px; color: #6b7a65; line-height: 18px;">
-          <a href="${SITE_URL}" style="color: #5e7658; font-weight: 500;">oliveafarmtotable.com</a>
+          <a href="${SITE_URL}" style="color: #566d51; font-weight: 500;">oliveafarmtotable.com</a>
           <br />
           Valle de Guadalupe, Ensenada, Baja California, México
           <br />
@@ -140,10 +140,10 @@ function primaryButton(label: string, href: string) {
   return `
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 28px auto 0;">
       <tr>
-        <td align="center" style="border-radius: 12px; background-color: #5e7658;">
+        <td align="center" style="border-radius: 12px; background-color: #566d51;">
           <!--[if mso]>
           <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
-            href="${href}" style="height:48px;v-text-anchor:middle;width:220px;" arcsize="25%" fillcolor="#5e7658">
+            href="${href}" style="height:48px;v-text-anchor:middle;width:220px;" arcsize="25%" fillcolor="#566d51">
             <w:anchorlock/>
             <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:600;">${label}</center>
           </v:roundrect>
@@ -157,7 +157,7 @@ function primaryButton(label: string, href: string) {
                font-size: 14px;
                font-weight: 600;
                color: #ffffff;
-               background-color: #5e7658;
+               background-color: #566d51;
                border-radius: 12px;
                text-decoration: none;
                text-align: center;
@@ -282,7 +282,7 @@ export function magicLinkEmail(opts: { magicLinkUrl: string; email: string }) {
 
     <p class="email-muted" style="margin: 16px 0 0; font-size: 11px; color: #9ca896; text-align: center; line-height: 16px; word-break: break-all;">
       Or copy this link:<br />
-      <a href="${opts.magicLinkUrl}" style="color: #5e7658; font-size: 11px;">${opts.magicLinkUrl}</a>
+      <a href="${opts.magicLinkUrl}" style="color: #566d51; font-size: 11px;">${opts.magicLinkUrl}</a>
     </p>`;
 
   return layout({
@@ -348,7 +348,7 @@ export function careersApplicationEmail(opts: {
 
   const answer = (question: string, answer: string) =>
     `<div style="margin-bottom: 20px;">
-      <p style="margin: 0 0 6px; font-size: 12px; font-weight: 600; color: #5e7658; text-transform: uppercase; letter-spacing: 0.5px;">${question}</p>
+      <p style="margin: 0 0 6px; font-size: 12px; font-weight: 600; color: #566d51; text-transform: uppercase; letter-spacing: 0.5px;">${question}</p>
       <p class="email-text" style="margin: 0; font-size: 14px; color: #2d3b29; line-height: 22px;">${escapeHtml(answer).replace(/\n/g, "<br/>")}</p>
     </div>`;
 
