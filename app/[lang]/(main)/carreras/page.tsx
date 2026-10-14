@@ -10,6 +10,7 @@ import { openingSlug, parseRequirements } from "@/lib/careers/slug";
 import { canonicalUrl, localeAlternates, withShare } from "@/lib/site";
 import { getContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 type Params = { params: Promise<{ lang: string }> };
 
@@ -387,7 +388,7 @@ export default async function CarrerasPage({ params }: Params) {
         <script
           key={ld.identifier.value}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(ld) }}
         />
       ))}
     </main>

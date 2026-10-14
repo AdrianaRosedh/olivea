@@ -8,6 +8,7 @@ import {
   loadLeader,
   type LeaderProfile,
 } from "@/app/[lang]/(main)/team/teamData";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 const normalizeLang = (raw: string): Lang => (raw === "en" ? "en" : "es");
 const safeStr = (x: unknown): string => (typeof x === "string" ? x : "");
 
@@ -144,7 +145,7 @@ export default async function Page({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildPersonJsonLd(member, lang)) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(buildPersonJsonLd(member, lang)) }}
       />
       <LinktreeClient lang={lang} member={member} />
     </>

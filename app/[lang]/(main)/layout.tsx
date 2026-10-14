@@ -18,6 +18,7 @@ import {
 import { applyCmsOverlay } from "@/app/[lang]/(main)/dictionaries/cms-overlay";
 import ClientPrewarm from "./prewarm-client";
 import { canonicalUrl, SITE } from "@/lib/site";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 export function generateStaticParams() {
   return [{ lang: "es" }, { lang: "en" }];
@@ -90,7 +91,7 @@ export default async function LangLayout({
       {/* ✅ Navigation schema for sitelinks */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(navLd) }}
       />
       {/* ✅ Crawlable internal-link graph. The visual nav is a tap-to-open
           drawer (not in the DOM until opened), so this always-rendered,

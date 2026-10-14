@@ -5,6 +5,7 @@ import { listJournalIndex, type JournalIndexItem } from "@/lib/journal/load";
 import JournalClient from "./JournalClient";
 import ArticleJournal from "./ArticleJournal";
 import { SITE, canonicalUrl } from "@/lib/site";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 export const revalidate = 60;
 
@@ -173,16 +174,16 @@ export default async function JournalPage({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(blogLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(collectionLd) }}
       />
       {itemListLd ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(itemListLd) }}
         />
       ) : null}
 

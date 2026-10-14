@@ -3,6 +3,7 @@ import type { Metadata, ResolvingMetadata, Viewport } from "next";
 import FixedLCP from "./FixedLCP";
 import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import StructuredDataServer, { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 export const viewport: Viewport = {
   themeColor: "#5a6852",
@@ -129,11 +130,11 @@ export default async function HomeLangLayout({
       {/* ✅ Homepage + navigation schema (no UI impact) */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(pageLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(navLd) }}
       />
 
       {children}

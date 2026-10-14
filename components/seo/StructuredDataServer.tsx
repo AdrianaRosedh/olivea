@@ -1,6 +1,7 @@
 // components/seo/StructuredDataServer.tsx
 import { canonicalUrl, SITE, SITE_ADDRESS, SITE_GEO } from "@/lib/site";
 import { getContent } from "@/lib/content";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 type Recognition = {
   name: string;
@@ -375,7 +376,7 @@ export default async function StructuredDataServer() {
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify({ "@context": "https://schema.org", "@graph": graph }),
+        __html: jsonLdHtml({ "@context": "https://schema.org", "@graph": graph }),
       }}
     />
   );

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { SITE, canonicalUrl, withShare } from "@/lib/site";
 import { getContent } from "@/lib/content";
 import RoseiiesClient from "./RoseiiesClient";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 type PageProps = { params: Promise<{ lang: string }> };
 
@@ -71,7 +72,7 @@ export default async function RoseiiesPage({ params }: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       <RoseiiesClient lang={lang} content={content} />
     </>

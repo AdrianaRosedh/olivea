@@ -13,6 +13,7 @@ import CafeContent from "./CafeContent";
 import type { SectionData } from "./sections/types";
 import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 type CafeMetaShape = {
   cafe?: { meta?: { title?: string; description?: string; ogImage?: string } };
@@ -138,11 +139,11 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           Hero image preload is emitted automatically by next/image with priority+fetchPriority. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPage) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(webPage) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumb) }}
       />
 
       <FaqJsonLd id={faqId} items={faq} />

@@ -16,6 +16,7 @@ import {
 import { normalizeAuthors } from "@/lib/journal/author";
 import { loadLeader } from "@/app/[lang]/(main)/team/teamData";
 import { localeAlternates, withShare } from "@/lib/site";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 function fmtDate(iso: string, lang: Lang) {
   return formatPublicDateLong(iso, lang);
@@ -132,7 +133,7 @@ export default async function AuthorPage({
     <main className="mx-auto w-full max-w-215 px-6 pb-20 pt-12 md:px-10">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(personLd) }}
       />
 
       <header className="mb-12">

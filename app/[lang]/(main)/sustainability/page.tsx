@@ -7,6 +7,7 @@ import { loadPhilosophySectionsCms } from "./load";
 import { philosophyFaqLd } from "./faq";
 import { canonicalUrl, withShare } from "@/lib/site";
 import type { Lang } from "./philosophyTypes";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -90,7 +91,7 @@ export default async function SustainabilityPage({
           hoists ld+json into <head>. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqLd) }}
       />
     </>
   );

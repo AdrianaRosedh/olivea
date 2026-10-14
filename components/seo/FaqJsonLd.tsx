@@ -1,4 +1,6 @@
 // components/seo/FaqJsonLd.tsx
+import { jsonLdHtml } from "@/lib/seo/json-ld";
+
 export type FaqItem = { q: string; a: string };
 
 export default function FaqJsonLd({ id, items }: { id: string; items: FaqItem[] }) {
@@ -18,7 +20,7 @@ export default function FaqJsonLd({ id, items }: { id: string; items: FaqItem[] 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdHtml(json) }}
     />
   );
 }

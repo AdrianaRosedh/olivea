@@ -34,6 +34,7 @@ import { SITE } from "@/lib/site";
 import type { TocItem } from "@/components/journal/ArticleTOC";
 import { CoverLead, BodyLead } from "@/components/journal/JournalSlugEnter";
 import { normalizeAuthors } from "@/lib/journal/author";
+import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 /* ---------------- types ---------------- */
 
@@ -433,22 +434,22 @@ export default async function JournalPostPage({
             {/* JSON-LD */}
             <script
               type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+              dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumbsLd) }}
             />
             <script
               type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+              dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
             />
             {itemListLd && (
               <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+                dangerouslySetInnerHTML={{ __html: jsonLdHtml(itemListLd) }}
               />
             )}
             {faqLd && (
               <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+                dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqLd) }}
               />
             )}
 
