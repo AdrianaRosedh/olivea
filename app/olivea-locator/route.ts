@@ -62,9 +62,9 @@ export async function GET(req: NextRequest) {
         width: 100%;
         height: 100%;
         --gmpx-color-surface: #f1f1f1;
-        --gmpx-color-on-surface: #5e7658;
+        --gmpx-color-on-surface: #566d51;
         --gmpx-color-on-surface-variant: rgba(94,118,88,0.7);
-        --gmpx-color-primary: #5e7658;
+        --gmpx-color-primary: #566d51;
         --gmpx-color-outline: rgba(94,118,88,0.2);
 
         --gmpx-font-family-base: "Plus Jakarta Sans", system-ui, sans-serif;

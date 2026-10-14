@@ -112,7 +112,7 @@ export default function TeamDockLeft({
   const chipBaseMobile = cn(
     "px-3 py-2 rounded-full text-[13px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/14 text-(--olivea-clay) opacity-95",
+    "bg-white/14 text-(--olivea-olive)/85",
     "hover:bg-white/24 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
@@ -143,14 +143,14 @@ export default function TeamDockLeft({
           >
             <div className="px-3 py-2 flex items-center gap-2">
               <div className="min-w-0 flex-1">
-                <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-80">
+                <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-85">
                   {tt(lang, "Equipo", "Team")}
                 </div>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-[13px] text-(--olivea-olive) font-medium truncate">
                     {label(category)}
                   </span>
-                  <span className="text-[12px] text-(--olivea-clay) opacity-70">{count}</span>
+                  <span className="text-[12px] text-(--olivea-olive)/85">{count}</span>
                 </div>
               </div>
 
@@ -349,7 +349,7 @@ export default function TeamDockLeft({
               <div
                 className={cn(
                   "text-[11px] uppercase tracking-[0.24em] leading-none",
-                  active ? "text-(--olivea-olive) opacity-90" : "text-(--olivea-clay) opacity-80"
+                  active ? "text-(--olivea-olive) opacity-90" : "text-(--olivea-olive)/85"
                 )}
               >
                 {shortName(c)}
@@ -396,10 +396,10 @@ export default function TeamDockLeft({
           <div className={cn("flex items-center", collapsed ? "justify-center p-2.5" : "justify-between px-3 py-3")}>
             {!collapsed ? (
               <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-70">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85">
                   {tt(lang, "Filtro", "Filter")}
                 </div>
-                <div className="mt-1 text-[10px] text-(--olivea-clay) opacity-70">
+                <div className="mt-1 text-[10px] text-(--olivea-olive)/85">
                   {count} {tt(lang, "personas", "people")}
                 </div>
               </div>
@@ -430,7 +430,7 @@ export default function TeamDockLeft({
             </div>
 
             {!collapsed ? (
-              <div className="mt-3 text-[10.5px] text-(--olivea-clay) opacity-60 leading-snug">
+              <div className="mt-3 text-[10.5px] text-(--olivea-olive)/85 leading-snug">
                 {tt(lang, "Incluye a los líderes en cada filtro.", "Includes the leaders in every filter.")}
               </div>
             ) : null}

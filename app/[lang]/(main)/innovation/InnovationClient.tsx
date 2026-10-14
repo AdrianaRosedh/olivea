@@ -18,7 +18,7 @@ const stagger: Variants = {
 };
 
 // lifted from the Philosophy page so this reads as the same brand
-const EYEBROW = "text-[11px] uppercase tracking-[0.3em] text-(--olivea-olive)/70";
+const EYEBROW = "text-[11px] uppercase tracking-[0.3em] text-(--olivea-olive)/85";
 const PANEL =
   "rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 shadow-[0_10px_24px_rgba(40,60,35,0.08)]";
 
@@ -93,7 +93,7 @@ export default function InnovationClient({
               <ul className="mt-7 space-y-5">
                 {craftItems.map(({ n, title, line }) => (
                   <li key={n} className="flex gap-4">
-                    <span className="mt-1 text-[12px] tabular-nums tracking-[0.14em] text-(--olivea-olive)/45">
+                    <span className="mt-1 text-[12px] tabular-nums tracking-[0.14em] text-(--olivea-olive)/85">
                       {n}
                     </span>
                     <div>
@@ -103,7 +103,7 @@ export default function InnovationClient({
                       >
                         {title}
                       </h3>
-                      <p className="mt-1 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-olive)/80">
+                      <p className="mt-1 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-olive)/85">
                         {line}
                       </p>
                     </div>
@@ -143,7 +143,7 @@ export default function InnovationClient({
               <ul className="mt-6 space-y-3">
                 {content.technology.items.map((label, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span aria-hidden="true" className="mt-2 text-(--olivea-olive)/40">—</span>
+                    <span aria-hidden="true" className="mt-2 text-(--olivea-olive)/85">—</span>
                     <span className="text-[15px] sm:text-[16px] leading-snug">{t(label)}</span>
                   </li>
                 ))}

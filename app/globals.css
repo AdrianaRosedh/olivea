@@ -56,13 +56,13 @@ html { position: relative; }
   --olivea-cream: #e7eae1;
   --olivea-shell: #e7eae1;
   --olivea-clay: #a3b09d;
-  --olivea-olive: #5e7658;
-  --olivea-ink: #5e7658;
+  --olivea-olive: #566d51;
+  --olivea-ink: #566d51;
   --olivea-white: #f1f1f1;
-  --olivea-soil: #5e7658;
+  --olivea-soil: #566d51;
   --olivea-mist: #e7eae1;
   --olivea-sand: #dcd5c3;
-  --olivea-sage: #5e7658;
+  --olivea-sage: #566d51;
 
   /* Quiet sage depth — tonal hierarchy + one warm accent (Philosophy page).
      New tokens only; existing aliases above are untouched. */

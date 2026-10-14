@@ -427,7 +427,7 @@ function CompactDock({
         animate="show"
         className="rounded-lg border border-(--olivea-olive)/12 bg-(--olivea-cream)/70 backdrop-blur-md shadow-[0_18px_54px_-30px_rgba(0,0,0,0.35)] overflow-visible"
       >
-        <div className="px-2 pt-3 pb-2 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) opacity-55 text-center">
+        <div className="px-2 pt-3 pb-2 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) opacity-85 text-center">
           {tt(lang, "Cap.", "Ch.")}
         </div>
 
@@ -460,7 +460,7 @@ function CompactDock({
                       "tabular-nums text-[12px] tracking-[0.22em] font-semibold",
                       isActive
                         ? "text-(--olivea-olive) opacity-90"
-                        : "text-(--olivea-olive) opacity-70"
+                        : "text-(--olivea-olive) opacity-85"
                     )}
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
@@ -542,7 +542,7 @@ function ExpandedItem({
           "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-white)",
           isActive
             ? "text-(--olivea-olive) font-black"
-            : "text-(--olivea-olive) opacity-75 hover:opacity-100 hover:text-(--olivea-olive)"
+            : "text-(--olivea-olive) opacity-85 hover:opacity-100 hover:text-(--olivea-olive)"
         )}
         aria-current={isActive ? "page" : undefined}
       >
@@ -656,7 +656,7 @@ function ExpandedItem({
                         "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-white)",
                         isSubActive
                           ? "text-(--olivea-olive) font-semibold"
-                          : "text-(--olivea-olive) opacity-70 hover:opacity-100 hover:text-(--olivea-olive)"
+                          : "text-(--olivea-olive) opacity-85 hover:opacity-100 hover:text-(--olivea-olive)"
                       )}
                       aria-current={isSubActive ? "page" : undefined}
                     >
@@ -731,7 +731,7 @@ function ExpandedDock({
 
         {/* Header */}
         <div
-          className="mb-4 pl-10 uppercase tracking-[0.34em] text-(--olivea-olive) opacity-55"
+          className="mb-4 pl-10 uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85"
           style={{ fontSize: "var(--dock-label-fs)" }}
         >
           {tt(lang, "Capítulos", "Chapters")}

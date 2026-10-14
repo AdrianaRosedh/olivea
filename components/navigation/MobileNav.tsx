@@ -668,7 +668,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
                       "active:scale-[0.98] transition-transform"
                     )}
                   >
-                    <ToggleIcon className="h-4 w-4 text-(--olivea-olive) opacity-70" />
+                    <ToggleIcon className="h-4 w-4 text-(--olivea-olive) opacity-85" />
                   </button>
 
                   <ActionRow

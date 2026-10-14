@@ -63,12 +63,12 @@ export function PracticesCard({
       )}
       style={{ willChange: "transform, opacity", ...style }}
     >
-      <div className="text-[11px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-70">
+      <div className="text-[11px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
         {title}
       </div>
 
       {hasItems ? (
-        <ul className="mt-3 space-y-2 text-[14px] text-(--olivea-clay) leading-relaxed">
+        <ul className="mt-3 space-y-2 text-[14px] text-(--olivea-olive)/85 leading-relaxed">
           {items!.map((x) => (
             <li key={x} className="flex gap-2">
               <span className="opacity-40">—</span>
@@ -77,7 +77,7 @@ export function PracticesCard({
           ))}
         </ul>
       ) : (
-        <div className="mt-3 text-[14px] text-(--olivea-clay) opacity-55">
+        <div className="mt-3 text-[14px] text-(--olivea-olive)/85">
           {/* subtle placeholder so the card never looks “broken” */}
           —
         </div>

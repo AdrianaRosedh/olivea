@@ -449,7 +449,7 @@ export default function MobileSectionNav({
                   </button>
 
                   <div className="flex items-center gap-2">
-                    <span className={cn("text-[11px] tracking-[0.18em]", "text-(--olivea-olive)/65")}>
+                    <span className={cn("text-[11px] tracking-[0.18em]", "text-(--olivea-olive)/85")}>
                       {progressText}
                     </span>
 
@@ -524,7 +524,7 @@ export default function MobileSectionNav({
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)",
                         isSubActive
                           ? "bg-(--olivea-olive)/14 text-(--olivea-olive) border-(--olivea-olive)/40"
-                          : "bg-transparent text-(--olivea-olive)/80 border-(--olivea-olive)/20 hover:bg-(--olivea-olive)/8"
+                          : "bg-transparent text-(--olivea-olive)/85 border-(--olivea-olive)/20 hover:bg-(--olivea-olive)/8"
                       )}
                     >
                       {s.label}
@@ -570,7 +570,7 @@ export default function MobileSectionNav({
                 >
                   <div className="flex items-center justify-between gap-3 px-4 py-4">
                     <div className="min-w-0">
-                      <div className="text-[11px] uppercase tracking-[0.38em] text-(--olivea-olive)/70">
+                      <div className="text-[11px] uppercase tracking-[0.38em] text-(--olivea-olive)/85">
                         Outline
                       </div>
                       <div className="mt-1 text-[15px] font-medium text-(--olivea-olive) truncate">
@@ -609,7 +609,7 @@ export default function MobileSectionNav({
                                 : "bg-transparent border-(--olivea-olive)/18 hover:bg-(--olivea-olive)/8"
                             )}
                           >
-                            <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)/80 truncate">
+                            <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)/85 truncate">
                               {m.label}
                             </div>
                           </button>

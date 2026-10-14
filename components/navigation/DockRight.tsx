@@ -279,7 +279,7 @@ function IconContainer({
             "px-3 py-1 rounded-full border border-(--olivea-olive)/10",
             "bg-(--olivea-white)/90 backdrop-blur-sm shadow-sm",
             "text-[12px] font-semibold whitespace-nowrap",
-            active ? "text-(--olivea-olive) opacity-95" : "text-(--olivea-olive) opacity-75"
+            active ? "text-(--olivea-olive) opacity-95" : "text-(--olivea-olive) opacity-85"
           )}
           aria-hidden="true"
         >

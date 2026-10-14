@@ -21,7 +21,7 @@ export default function RosterPreviewClient({ initial }: { initial: RosterMember
         }
       >
         <div className="mx-auto max-w-3xl space-y-4">
-          <h1 className="text-sm font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
+          <h1 className="text-sm font-semibold uppercase tracking-wider text-[var(--olivea-olive)]/85">
             Roster editor — dev preview ({members.length})
           </h1>
           <div className="rounded-2xl bg-white/40 p-6 ring-1 ring-black/5">

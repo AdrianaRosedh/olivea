@@ -33,7 +33,7 @@ type CenterItem = {
 const SCROLL_BG_START = 14;
 
 /* ── Visual tokens ────────────────────────────────────────────────
-   Derived from --olivea-olive (#5e7658) and --olivea-cream (#e7eae1).
+   Derived from --olivea-olive (#566d51) and --olivea-cream (#e7eae1).
    Centralized here so a palette change only needs one update.
    ──────────────────────────────────────────────────────────────── */
 const TOKENS = {

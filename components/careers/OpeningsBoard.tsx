@@ -115,8 +115,8 @@ function Meta({
   children: React.ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 px-2.5 py-1 text-[11.5px] text-(--olivea-ink)/70 ring-1 ring-black/6">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-(--olivea-olive)/75" aria-hidden />
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 px-2.5 py-1 text-[11.5px] text-(--olivea-ink)/85 ring-1 ring-black/6">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-(--olivea-olive)/85" aria-hidden />
       <span className="truncate">{children}</span>
     </span>
   );
@@ -185,7 +185,7 @@ export default function OpeningsBoard({
         <h3 className="text-[13px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
           {c.section}
         </h3>
-        <span className="inline-flex items-center gap-1.5 text-[12px] text-(--olivea-ink)/55">
+        <span className="inline-flex items-center gap-1.5 text-[12px] text-(--olivea-ink)/85">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--olivea-olive)/60" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-(--olivea-olive)" />
@@ -234,7 +234,7 @@ export default function OpeningsBoard({
               </div>
 
               {v.description && (
-                <p className="mt-3.5 line-clamp-3 text-[14px] leading-[1.75] text-(--olivea-ink)/70">
+                <p className="mt-3.5 line-clamp-3 text-[14px] leading-[1.75] text-(--olivea-ink)/85">
                   {v.description}
                 </p>
               )}
@@ -394,7 +394,7 @@ function OpeningDialog({
                      Keyed to pointer-coarse, not a width breakpoint: this was
                      `h-11 w-11 sm:h-9 sm:w-9`, and every iPad is wider than
                      sm, so tablets — touch devices — got the 35px target. */
-                  className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-(--olivea-ink)/55 transition-colors hover:bg-black/5 hover:text-(--olivea-ink) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 pointer-coarse:-mr-2 pointer-coarse:-mt-2 pointer-coarse:h-11 pointer-coarse:w-11"
+                  className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-(--olivea-ink)/85 transition-colors hover:bg-black/5 hover:text-(--olivea-ink) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 pointer-coarse:-mr-2 pointer-coarse:-mt-2 pointer-coarse:h-11 pointer-coarse:w-11"
                 >
                   <X className="h-4.5 w-4.5" />
                 </button>
@@ -437,7 +437,7 @@ function OpeningDialog({
               )}
 
               {posted && (
-                <p className="mt-7 text-[12px] text-(--olivea-ink)/45">
+                <p className="mt-7 text-[12px] text-(--olivea-ink)/85">
                   {c.posted} · {posted}
                 </p>
               )}

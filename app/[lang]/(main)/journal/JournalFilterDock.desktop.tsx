@@ -220,7 +220,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
   const chipBase = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/16 text-(--olivea-clay) opacity-95",
+    "bg-white/16 text-(--olivea-olive)/85",
     "hover:bg-white/26 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
@@ -251,7 +251,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
         <div className={sectionLabel}>{t.search}</div>
         <div className={cn("mt-2 px-4 py-2.5", capsule)}>
           <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 opacity-70 shrink-0 text-(--olivea-olive)" />
+            <Search className="h-4 w-4 opacity-85 shrink-0 text-(--olivea-olive)" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -270,7 +270,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                   "h-7 w-7 rounded-full",
                   "inline-flex items-center justify-center",
                   "bg-white/18 ring-1 ring-(--olivea-olive)/14",
-                  "text-(--olivea-olive) opacity-80 hover:opacity-100 transition"
+                  "text-(--olivea-olive) opacity-85 hover:opacity-100 transition"
                 )}
                 aria-label={tt(lang, "Borrar", "Clear")}
                 title={tt(lang, "Borrar", "Clear")}

@@ -117,7 +117,7 @@ export default async function ApplicationStatusPage({ params }: Params) {
         </h1>
 
         {date && (
-          <p className="mt-2 text-[13px] tracking-[0.06em] text-(--olivea-ink)/55">
+          <p className="mt-2 text-[13px] tracking-[0.06em] text-(--olivea-ink)/85">
             {es ? `Enviada el ${date}` : `Submitted ${date}`}
           </p>
         )}
@@ -184,7 +184,7 @@ export default async function ApplicationStatusPage({ params }: Params) {
                             ? "font-semibold text-(--olivea-ink)"
                             : done
                               ? "text-(--olivea-ink)/85"
-                              : "text-(--olivea-ink)/45")
+                              : "text-(--olivea-ink)/85")
                         }
                       >
                         {label}
@@ -217,7 +217,7 @@ export default async function ApplicationStatusPage({ params }: Params) {
           )}
         </div>
 
-        <p className="mt-7 text-[14px] leading-[1.85] text-(--olivea-ink)/60">
+        <p className="mt-7 text-[14px] leading-[1.85] text-(--olivea-ink)/85">
           {es ? (
             <>
               Esta página se actualiza sola. Si tienes una pregunta, escríbenos a{" "}

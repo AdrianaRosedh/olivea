@@ -526,7 +526,7 @@ export default function PopupHost() {
                     {popup.title}
                   </h2>
 
-                  <p className="mt-2 text-[14.5px] leading-relaxed text-(--olivea-clay) opacity-95">
+                  <p className="mt-2 text-[14.5px] leading-relaxed text-(--olivea-olive)/85">
                     {popup.excerpt}
                   </p>
 

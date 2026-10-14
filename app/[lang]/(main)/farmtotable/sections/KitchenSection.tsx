@@ -50,7 +50,7 @@ export default function KitchenSection({ data, lang }: SectionProps) {
           </ScrollDrift>
 
           <Reveal preset="fade" delay={0.12}>
-            <div className="mt-4 flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/55">
+            <div className="mt-4 flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/85">
               <span className="h-[1px] w-10 bg-black/10" />
               <span>{caption}</span>
             </div>

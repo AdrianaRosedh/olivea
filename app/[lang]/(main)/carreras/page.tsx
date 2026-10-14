@@ -100,7 +100,7 @@ export default async function CarrerasPage({ params }: Params) {
     "rounded-[26px] bg-white/22 backdrop-blur-sm ring-1 ring-black/8 shadow-[0_26px_70px_-50px_rgba(0,0,0,0.45)]";
 
   const pill =
-    "inline-flex items-center rounded-full px-3 py-1 text-[12px] bg-white/65 ring-1 ring-black/8 text-(--olivea-ink)/75";
+    "inline-flex items-center rounded-full px-3 py-1 text-[12px] bg-white/65 ring-1 ring-black/8 text-(--olivea-ink)/85";
 
   const principles = c.principles.map((p) => ({
     k: t(L, p.title),
@@ -152,7 +152,7 @@ export default async function CarrerasPage({ params }: Params) {
 
             {/* Minimal standards — clean list, not a big box */}
             <div className="mt-8">
-              <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/80">
+              <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
                 {t(L, c.standards.title)}
               </div>
               <ul className="mt-3 space-y-2 text-[14.5px] leading-[1.8] text-(--olivea-ink)/74">
@@ -202,7 +202,7 @@ export default async function CarrerasPage({ params }: Params) {
                     <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
                       {t(L, s.label)}
                     </div>
-                    <div className="mt-2 text-[14px] leading-[1.6] text-(--olivea-ink)/75">
+                    <div className="mt-2 text-[14px] leading-[1.6] text-(--olivea-ink)/85">
                       {t(L, s.text)}
                     </div>
                   </div>
@@ -215,10 +215,10 @@ export default async function CarrerasPage({ params }: Params) {
               {c.hiringSteps.map((step) => t(L, step)).map((label, i) => (
                 <div key={label} className="rounded-2xl bg-white/35 ring-1 ring-black/8 p-4">
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 ring-1 ring-black/10 text-[12px] text-(--olivea-ink)/75">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 ring-1 ring-black/10 text-[12px] text-(--olivea-ink)/85">
                       {i + 1}
                     </span>
-                    <div className="text-[13px] uppercase tracking-[0.18em] text-(--olivea-ink)/70">
+                    <div className="text-[13px] uppercase tracking-[0.18em] text-(--olivea-ink)/85">
                       {label}
                     </div>
                   </div>
@@ -321,7 +321,7 @@ export default async function CarrerasPage({ params }: Params) {
                 <a href="#aplicar" className={ctaPrimary}>
                   {t(L, c.openings.openApplication.ctaLabel)}
                 </a>
-                <span className="inline-flex items-center text-[12.5px] text-(--olivea-ink)/60">
+                <span className="inline-flex items-center text-[12.5px] text-(--olivea-ink)/85">
                   {t(L, c.openings.openApplication.responseTime)}
                 </span>
               </div>

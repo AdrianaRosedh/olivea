@@ -230,7 +230,7 @@ export default function JournalClient({
             >
               {featured ? (
                 <section id="featured" className="mt-6 sm:mt-0">
-                  <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-75">
+                  <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85">
                     {tt(lang, "Destacado", "Featured")}
                   </div>
 
@@ -268,7 +268,7 @@ export default function JournalClient({
                           </div>
 
                           <div className="p-5 sm:p-7 lg:p-10">
-                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-80">
+                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85">
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className="truncate">
                                   {featured.pillar}
@@ -288,7 +288,7 @@ export default function JournalClient({
                               {featured.title}
                             </h2>
 
-                            <p className="mt-3 text-[14px] sm:text-[16px] leading-[1.65] sm:leading-[1.75] text-(--olivea-clay) opacity-95 line-clamp-4">
+                            <p className="mt-3 text-[14px] sm:text-[16px] leading-[1.65] sm:leading-[1.75] text-(--olivea-olive)/85 line-clamp-4">
                               {featured.excerpt}
                             </p>
 
@@ -374,7 +374,7 @@ export default function JournalClient({
                           </div>
 
                           <div className="flex flex-1 flex-col p-5 sm:p-7">
-                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-80">
+                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-85">
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className="truncate">{p.pillar}</span>
                                 <span className="opacity-60">·</span>
@@ -392,7 +392,7 @@ export default function JournalClient({
                               {p.title}
                             </h3>
 
-                            <p className="mt-2 text-[14px] sm:text-[15px] leading-[1.6] sm:leading-[1.65] text-(--olivea-clay) opacity-95 line-clamp-3">
+                            <p className="mt-2 text-[14px] sm:text-[15px] leading-[1.6] sm:leading-[1.65] text-(--olivea-olive)/85 line-clamp-3">
                               {p.excerpt || " "}
                             </p>
 
@@ -434,7 +434,7 @@ export default function JournalClient({
                 </div>
 
                 {sortedFiltered.length === 0 && (
-                  <div className="mt-10 text-[15px] leading-7 text-(--olivea-clay) opacity-85">
+                  <div className="mt-10 text-[15px] leading-7 text-(--olivea-olive)/85">
                     {lang === "es" ? "No hay resultados." : "No results found."}
                   </div>
                 )}

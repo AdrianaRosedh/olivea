@@ -70,7 +70,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                 <Reveal as="header" preset="up" distance={18} duration={0.9} delay={0.0}
                   className="pt-2 sm:pt-6"
                 >
-                  <p className="text-(--olivea-ink)/55 text-[12px] tracking-[0.34em] uppercase">
+                  <p className="text-(--olivea-ink)/85 text-[12px] tracking-[0.34em] uppercase">
                     {t.kicker}
                   </p>
 
@@ -81,7 +81,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                     OLIVEA
                   </h1>
 
-                  <p className="mt-3 text-(--olivea-ink)/70 text-[15px] md:text-[17px] leading-relaxed max-w-[62ch]">
+                  <p className="mt-3 text-(--olivea-ink)/85 text-[15px] md:text-[17px] leading-relaxed max-w-[62ch]">
                     {t.subtitle}
                   </p>
                 </Reveal>
@@ -136,7 +136,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                     <div className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 mt-0.5 text-(--olivea-olive)" />
                       <div className="space-y-1">
-                        <p className="text-sm text-(--olivea-ink)/60">
+                        <p className="text-sm text-(--olivea-ink)/85">
                           {t.labels.address}
                         </p>
                         <a
@@ -157,7 +157,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                     <div className="flex items-start gap-3">
                       <Mail className="w-5 h-5 mt-0.5 text-(--olivea-olive)" />
                       <div className="space-y-1">
-                        <p className="text-sm text-(--olivea-ink)/60">
+                        <p className="text-sm text-(--olivea-ink)/85">
                           {t.labels.email}
                         </p>
                         <a
@@ -189,7 +189,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
 
                     <div className="mt-3 flex items-start gap-3">
                       <Clock className="w-5 h-5 text-(--olivea-olive) mt-0.5" />
-                      <div className="text-sm text-(--olivea-ink)/75 leading-6">
+                      <div className="text-sm text-(--olivea-ink)/85 leading-6">
                         {t.hours.farmToTable}
                       </div>
                     </div>
@@ -214,7 +214,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
 
                     <div className="mt-3 flex items-start gap-3">
                       <Clock className="w-5 h-5 text-(--olivea-olive) mt-0.5" />
-                      <div className="text-sm text-(--olivea-ink)/75 leading-6">
+                      <div className="text-sm text-(--olivea-ink)/85 leading-6">
                         {t.hours.cafe}
                       </div>
                     </div>
@@ -239,7 +239,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
 
                     <div className="mt-3 flex items-start gap-3">
                       <Clock className="w-5 h-5 text-(--olivea-olive) mt-0.5" />
-                      <div className="text-sm text-(--olivea-ink)/75 leading-6">
+                      <div className="text-sm text-(--olivea-ink)/85 leading-6">
                         {t.hours.casa}
                       </div>
                     </div>
@@ -247,7 +247,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                 </div>
 
                 <Reveal as="p" preset="up" distance={18} duration={0.9} delay={0.56}
-                  className="text-sm text-(--olivea-ink)/55 leading-relaxed max-w-[75ch]"
+                  className="text-sm text-(--olivea-ink)/85 leading-relaxed max-w-[75ch]"
                 >
                   {t.footerNote}
                 </Reveal>
@@ -276,7 +276,7 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                         className="absolute left-4 top-4"
                       >
                         <div className="rounded-2xl bg-white/70 backdrop-blur px-3 py-2 ring-1 ring-black/5">
-                          <p className="text-[10px] tracking-[0.3em] uppercase text-(--olivea-ink)/65 font-semibold">
+                          <p className="text-[10px] tracking-[0.3em] uppercase text-(--olivea-ink)/85 font-semibold">
                             {t.map.badgeLabel}
                           </p>
                           <p className="mt-0.5 text-xs text-(--olivea-ink)/90">
@@ -292,10 +292,10 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                           href={mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur px-3 py-2 ring-1 ring-black/5 text-xs text-(--olivea-ink)/75 hover:text-(--olivea-ink) transition"
+                          className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur px-3 py-2 ring-1 ring-black/5 text-xs text-(--olivea-ink)/85 hover:text-(--olivea-ink) transition"
                         >
                           {t.map.googleMapsCta}
-                          <ExternalLink className="w-3.5 h-3.5 text-(--olivea-olive)/80" />
+                          <ExternalLink className="w-3.5 h-3.5 text-(--olivea-olive)/85" />
                         </a>
                       </Reveal>
                     </div>

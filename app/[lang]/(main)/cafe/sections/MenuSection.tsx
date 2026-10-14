@@ -135,7 +135,7 @@ export default function MenuSection({ data, lang }: SectionProps) {
               <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
                 {emojiMap[i] ?? ""} {t(card.label, lang)}
               </div>
-              <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/82">
+              <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/85">
                 {t(card.text, lang)}
               </p>
             </div>

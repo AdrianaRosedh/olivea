@@ -344,7 +344,7 @@ export default function Farmpop({
           "shrink-0 inline-flex items-center text-[12px] uppercase tracking-[0.18em] pb-1",
           active
             ? "text-(--olivea-olive) border-b-2 border-(--olivea-olive)"
-            : "text-(--olivea-ink)/80 hover:text-(--olivea-olive)",
+            : "text-(--olivea-ink)/85 hover:text-(--olivea-olive)",
         ].join(" ")}
       >
         {t.label}

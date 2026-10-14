@@ -104,17 +104,17 @@ function MobilePractices({
       <details className="rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 shadow-[0_10px_24px_rgba(40,60,35,0.08)] overflow-hidden">
         <summary className="cursor-pointer list-none px-5 py-4">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-70">
+            <div className="text-[11px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
               {title}
             </div>
-            <div className="text-(--olivea-olive) opacity-60 text-[12px]">
+            <div className="text-(--olivea-olive) opacity-85 text-[12px]">
               Ver
             </div>
           </div>
         </summary>
 
         <div className="px-5 pb-5">
-          <ul className="mt-2 space-y-3 text-[15px] leading-relaxed text-(--olivea-clay)">
+          <ul className="mt-2 space-y-3 text-[15px] leading-relaxed text-(--olivea-olive)/85">
             {items.map((x) => (
               <li key={x} className="flex gap-3">
                 <span className="opacity-40">—</span>
@@ -217,7 +217,7 @@ export default function PhilosophyClient({
               distance={16}
               duration={0.95}
             >
-              <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-70">
+              <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
                 {tt(lang, "Filosofía", "Philosophy")}
               </div>
 
@@ -290,7 +290,7 @@ export default function PhilosophyClient({
                 distance={10}
                 delay={0.25}
               >
-                <div className="text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-60">
+                <div className="text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
                   {tt(lang, "Principio rector", "Guiding principle")}
                 </div>
               
@@ -304,7 +304,7 @@ export default function PhilosophyClient({
                   <span className="font-semibold">{sustainabilitySpine}</span>
                 </p>
                 
-                <div className="mt-2 text-[12px] text-(--olivea-olive) opacity-55">
+                <div className="mt-2 text-[12px] text-(--olivea-olive) opacity-85">
                   {tt(
                     lang,
                     "Presente en cada decisión, no solo en un capítulo.",
@@ -319,7 +319,7 @@ export default function PhilosophyClient({
 
               {/* ✅ subtle cue so users instantly know there is more */}
               <Reveal
-                className="mt-10 flex items-center gap-3 text-(--olivea-olive) opacity-55"
+                className="mt-10 flex items-center gap-3 text-(--olivea-olive) opacity-85"
                 distance={6}
                 duration={0.5}
                 delay={0.6}
@@ -349,7 +349,7 @@ export default function PhilosophyClient({
                   {/* Header */}
                   <div className="max-w-[92ch]">
                     <div className="flex items-center gap-3">
-                      <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-70">
+                      <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
                         {tt(lang, "Capítulo", "Chapter")}{" "}
                         <span className="tabular-nums text-(--olivea-honey)">
                           {String(idx + 1).padStart(2, "0")}

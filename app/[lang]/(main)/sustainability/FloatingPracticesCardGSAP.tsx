@@ -28,7 +28,7 @@ const RESIZE_DUR = 0.55;
 const TEXT_FADE_DUR = 0.30;
 const EASE = "power3.out";
 
-const INK = "#5e7658";
+const INK = "#566d51";
 const INK_SOFT = "#a3b09d";
 
 /* ---------------- UI ---------------- */
@@ -305,7 +305,7 @@ function MobilePracticesAccordion({
                     <div className="h-px flex-1 bg-(--olivea-olive)/18" />
                   </div>
 
-                  <div className="mt-3 text-[12px] uppercase tracking-[0.32em] text-(--olivea-olive)/70">
+                  <div className="mt-3 text-[12px] uppercase tracking-[0.32em] text-(--olivea-olive)/85">
                     {tt(lang, "Capítulo", "Chapter")}{" "}
                     {String(s.order ?? "").padStart(2, "0")}
                   </div>
@@ -316,7 +316,7 @@ function MobilePracticesAccordion({
                 </div>
 
                 <div className="shrink-0 flex items-center gap-3">
-                  <span className="text-[14px] text-(--olivea-olive)/65">
+                  <span className="text-[14px] text-(--olivea-olive)/85">
                     {viewLabel}
                   </span>
 

@@ -28,7 +28,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#5e7658",
+  themeColor: "#566d51",
   viewportFit: "cover",
 };
 
@@ -54,7 +54,7 @@ export default async function LegalPage({
         <h1 className="mt-3 font-serif text-4xl md:text-5xl leading-tight text-(--olivea-ink)">
           {t(lang, legal.title)}
         </h1>
-        <p className="mt-4 text-sm text-(--olivea-ink)/60 leading-relaxed">
+        <p className="mt-4 text-sm text-(--olivea-ink)/85 leading-relaxed">
           {t(lang, legal.description)}
         </p>
       </header>
@@ -84,7 +84,7 @@ export default async function LegalPage({
                 </h3>
               )}
               {body && (
-                <p className="mt-2 text-[15px] text-(--olivea-ink)/75 leading-7 whitespace-pre-line">
+                <p className="mt-2 text-[15px] text-(--olivea-ink)/85 leading-7 whitespace-pre-line">
                   {body}
                 </p>
               )}

@@ -74,7 +74,7 @@ export default function ItemCard({
 
         <div>
           <div className="relative">
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2 text-[12px] text-(--olivea-olive) opacity-80 pr-14 sm:pr-24">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2 text-[12px] text-(--olivea-olive) opacity-85 pr-14 sm:pr-24">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="tabular-nums whitespace-nowrap">
                   {fmtDate(lang, it.publishedAt)}
@@ -145,7 +145,7 @@ export default function ItemCard({
           </h3>
 
           {it.blurb ? (
-            <p className="mt-2 text-[14px] sm:text-[15px] leading-[1.65] sm:leading-[1.75] text-(--olivea-clay) opacity-95 max-w-[80ch]">
+            <p className="mt-2 text-[14px] sm:text-[15px] leading-[1.65] sm:leading-[1.75] text-(--olivea-olive)/85 max-w-[80ch]">
               {it.blurb}
             </p>
           ) : null}
@@ -155,7 +155,7 @@ export default function ItemCard({
               {tagsTiny.map((t) => (
                 <span
                   key={t}
-                  className="text-[11px] px-3 py-1 rounded-full bg-white/18 ring-1 ring-(--olivea-olive)/12 text-(--olivea-olive) opacity-75"
+                  className="text-[11px] px-3 py-1 rounded-full bg-white/18 ring-1 ring-(--olivea-olive)/12 text-(--olivea-olive) opacity-85"
                 >
                   {t}
                 </span>
@@ -165,7 +165,7 @@ export default function ItemCard({
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
             <div>
-              <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-75">
+              <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85">
                 {tt(lang, "Fuentes", "Sources")}
               </div>
 
@@ -186,7 +186,7 @@ export default function ItemCard({
                     <span className="text-[14px] text-(--olivea-olive) opacity-90 group-hover:opacity-100">
                       {l.label}
                     </span>
-                    <span className="text-(--olivea-olive) opacity-70">↗</span>
+                    <span className="text-(--olivea-olive) opacity-85">↗</span>
                   </a>
                 ))}
               </div>
@@ -195,7 +195,7 @@ export default function ItemCard({
             {/* ✅ Logos column (with per-logo scaling support) */}
             {it.kind === "award" && awardBadges.length ? (
               <div className="sm:pl-2">
-                <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-75 sm:text-right">
+                <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85 sm:text-right">
                   {tt(lang, "Logos", "Logos")}
                 </div>
 

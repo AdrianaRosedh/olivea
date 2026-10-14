@@ -15,7 +15,7 @@ export function AISection(props: {
     <section className={cn("mx-auto max-w-5xl px-6 py-14", props.className)}>
       <div className="rounded-3xl bg-white/40 backdrop-blur ring-1 ring-black/5 shadow-[0_18px_50px_rgba(40,60,35,0.10)] overflow-hidden">
         <div className="px-7 py-8 sm:px-10 sm:py-10">
-          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)/55">
+          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)/85">
             Olivea
           </p>
 
@@ -26,7 +26,7 @@ export function AISection(props: {
             {props.title}
           </h2>
 
-          <p className="mt-4 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-ink)/75 max-w-[78ch]">
+          <p className="mt-4 text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-ink)/85 max-w-[78ch]">
             {props.body}
           </p>
 
@@ -37,7 +37,7 @@ export function AISection(props: {
                 className="inline-flex items-center gap-2 rounded-full bg-white/55 backdrop-blur px-4 py-2 text-sm text-(--olivea-ink)/85 ring-1 ring-black/5 hover:bg-white/70 transition"
               >
                 {props.ctaLabel ?? "Learn more"}
-                <span className="text-(--olivea-olive)/70">→</span>
+                <span className="text-(--olivea-olive)/85">→</span>
               </a>
             </div>
           ) : null}
@@ -62,14 +62,14 @@ function FaqRow({ item }: { item: FAQItem }) {
         <span className="text-[15px] sm:text-[16px] font-medium text-(--olivea-ink)">
           {item.q}
         </span>
-        <span className="text-(--olivea-ink)/45 text-xl leading-none">
+        <span className="text-(--olivea-ink)/85 text-xl leading-none">
           {open ? "–" : "+"}
         </span>
       </button>
 
       <div
         className={cn(
-          "px-7 sm:px-10 pb-6 -mt-1 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-ink)/70 max-w-[95ch]",
+          "px-7 sm:px-10 pb-6 -mt-1 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-ink)/85 max-w-[95ch]",
           open ? "block" : "hidden"
         )}
       >
@@ -89,7 +89,7 @@ export function FAQSection(props: {
     <section className={cn("mx-auto max-w-5xl px-6 pb-16", props.className)}>
       <div className="rounded-3xl bg-white/40 backdrop-blur ring-1 ring-black/5 shadow-[0_18px_50px_rgba(40,60,35,0.10)] overflow-hidden">
         <div className="px-7 pt-8 pb-5 sm:px-10 sm:pt-10">
-          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)/55">
+          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)/85">
             Información
           </p>
           <h3
@@ -99,7 +99,7 @@ export function FAQSection(props: {
             {props.title}
           </h3>
           {props.subtitle ? (
-            <p className="mt-3 text-[14px] sm:text-[15px] text-(--olivea-ink)/70 max-w-[78ch]">
+            <p className="mt-3 text-[14px] sm:text-[15px] text-(--olivea-ink)/85 max-w-[78ch]">
               {props.subtitle}
             </p>
           ) : null}

@@ -135,7 +135,7 @@ export default function CookieConsent() {
           >
             {es ? "Cuidamos tu privacidad" : "We value your privacy"}
           </h2>
-          <p className="mt-1.5 short:mt-1 text-[12.5px] short:text-[12px] leading-relaxed short:leading-snug text-[var(--olivea-ink)]/70">
+          <p className="mt-1.5 short:mt-1 text-[12.5px] short:text-[12px] leading-relaxed short:leading-snug text-[var(--olivea-ink)]/85">
             {es
               ? "Usamos cookies para entender cómo se usa el sitio y mejorar tu experiencia. Tú decides — las esenciales siempre están activas."
               : "We use cookies to understand how the site is used and improve your experience. Your choice — essential ones are always on."}
@@ -149,14 +149,14 @@ export default function CookieConsent() {
             </button>
             <button
               onClick={() => choose(false)}
-              className="flex-1 rounded-full border border-[var(--olivea-olive)]/25 px-4 py-2 short:py-1.5 text-[12.5px] font-medium text-[var(--olivea-ink)]/80 transition-colors hover:bg-white/60"
+              className="flex-1 rounded-full border border-[var(--olivea-olive)]/25 px-4 py-2 short:py-1.5 text-[12.5px] font-medium text-[var(--olivea-ink)]/85 transition-colors hover:bg-white/60"
             >
               {es ? "Solo esenciales" : "Essential only"}
             </button>
           </div>
           <Link
             href={`/${lang}/legal`}
-            className="mt-3 inline-block text-[11px] text-[var(--olivea-ink)]/50 underline underline-offset-2 transition-colors hover:text-[var(--olivea-olive)]"
+            className="mt-3 inline-block text-[11px] text-[var(--olivea-ink)]/85 underline underline-offset-2 transition-colors hover:text-[var(--olivea-olive)]"
           >
             {es ? "Política de cookies" : "Cookie policy"}
           </Link>

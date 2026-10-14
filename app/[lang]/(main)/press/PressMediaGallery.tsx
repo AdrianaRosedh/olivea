@@ -65,7 +65,7 @@ export default function PressMediaGallery({
   const chipBase = cn(
     "px-3 py-1.5 rounded-full text-[12px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/18 text-(--olivea-clay) opacity-95",
+    "bg-white/18 text-(--olivea-olive)/85",
     "hover:bg-white/26 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
@@ -79,7 +79,7 @@ export default function PressMediaGallery({
     <section id="media" className="mt-12 sm:mt-14">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-75">
+          <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
             {tt(lang, "Media Library", "Media Library")}
           </div>
           <h2
@@ -88,7 +88,7 @@ export default function PressMediaGallery({
           >
             {tt(lang, "Fotografías & Recursos", "Photography & Assets")}
           </h2>
-          <p className="mt-2 text-[14px] text-(--olivea-clay) opacity-95 max-w-[78ch]">
+          <p className="mt-2 text-[14px] text-(--olivea-olive)/85 max-w-[78ch]">
             {tt(
               lang,
               "Descarga individual (web o hi-res), con créditos y captions listos para publicar.",
@@ -112,7 +112,7 @@ export default function PressMediaGallery({
       </div>
 
       <div className="mt-5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-        <div className="text-[13px] text-(--olivea-olive) opacity-80">
+        <div className="text-[13px] text-(--olivea-olive) opacity-85">
           {tt(lang, "Seleccionados", "Selected")}:{" "}
           {Object.values(selected).filter(Boolean).length}
         </div>
@@ -137,7 +137,7 @@ export default function PressMediaGallery({
             className={cn(
               "rounded-2xl px-4 py-2.5",
               selectedUrls.length === 0
-                ? "bg-(--olivea-olive)/10 text-(--olivea-olive)/60 ring-1 ring-(--olivea-olive)/10"
+                ? "bg-(--olivea-olive)/10 text-(--olivea-olive)/85 ring-1 ring-(--olivea-olive)/10"
                 : "bg-(--olivea-olive) text-(--olivea-cream) ring-1 ring-black/10 hover:brightness-[1.03]",
               "transition"
             )}
@@ -148,7 +148,7 @@ export default function PressMediaGallery({
       </div>
 
       {shown.length === 0 ? (
-        <div className="mt-8 rounded-3xl bg-white/25 ring-1 ring-(--olivea-olive)/12 p-8 text-(--olivea-clay) opacity-90">
+        <div className="mt-8 rounded-3xl bg-white/25 ring-1 ring-(--olivea-olive)/12 p-8 text-(--olivea-olive)/85">
           {tt(
             lang,
             "Aún no hay recursos en la galería. Agrega elementos en public/press/manifest.json",
@@ -216,7 +216,7 @@ function MediaCard({
       </div>
 
       <div className="p-5">
-        <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-70">
+        <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
           {it.category}
         </div>
 
@@ -225,13 +225,13 @@ function MediaCard({
         </div>
 
         {caption ? (
-          <div className="mt-2 text-[13px] text-(--olivea-clay) opacity-90">
+          <div className="mt-2 text-[13px] text-(--olivea-olive)/85">
             {caption}
           </div>
         ) : null}
 
         {it.credit ? (
-          <div className="mt-2 text-[12px] text-(--olivea-olive) opacity-70">
+          <div className="mt-2 text-[12px] text-(--olivea-olive) opacity-85">
             {it.credit}
           </div>
         ) : null}
@@ -268,7 +268,7 @@ function MediaCard({
               className={cn(
                 "flex-1 inline-flex items-center justify-center",
                 "rounded-2xl px-3 py-2.5",
-                "bg-(--olivea-olive)/10 text-(--olivea-olive)/60",
+                "bg-(--olivea-olive)/10 text-(--olivea-olive)/85",
                 "ring-1 ring-(--olivea-olive)/10"
               )}
             >

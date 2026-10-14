@@ -101,7 +101,7 @@ export default function PressClient({
             >
               {/* Featured / Most recent */}
               <div className="mt-6 sm:mt-10">
-                <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-75">
+                <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85">
                   {tt(lang, "Más reciente", "Most recent")}
                 </div>
 
@@ -116,7 +116,7 @@ export default function PressClient({
                     <ItemCard lang={lang} it={featured} index={0} />
                   </motion.div>
                 ) : (
-                  <div className="mt-4 text-(--olivea-clay) opacity-85">
+                  <div className="mt-4 text-(--olivea-olive)/85">
                     {tt(lang, "Aún no hay elementos.", "No items yet.")}
                   </div>
                 )}
@@ -191,7 +191,7 @@ export default function PressClient({
               {/* Contact */}
               <section id="contact" className="mt-12 sm:mt-14">
                 <div className="rounded-3xl border border-(--olivea-olive)/12 bg-white/40 shadow-[0_16px_40px_rgba(40,60,35,0.10)] p-7 sm:p-10">
-                  <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-75">
+                  <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
                     {tt(lang, "Contacto", "Contact")}
                   </div>
 
@@ -202,7 +202,7 @@ export default function PressClient({
                     {tt(lang, "Medios & PR", "Media & PR")}
                   </h2>
 
-                  <p className="mt-3 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-clay) opacity-95 max-w-[78ch]">
+                  <p className="mt-3 text-[14px] sm:text-[15px] leading-relaxed text-(--olivea-olive)/85 max-w-[78ch]">
                     {tt(
                       lang,
                       "Para entrevistas, historias o solicitudes de prensa:",

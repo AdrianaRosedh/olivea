@@ -16,7 +16,7 @@ import React, { useState } from "react";
  * The mural is a stateless date/time/party picker that hands off to OpenTable
  * in a NEW TAB to finish (isNewTab=true), so it needs no third-party cookie
  * and renders in every browser. Styled to Olivea's palette via OpenTable's own
- * params: primaryColor e7eae1 (shell), buttonColor 5e7658 (olive), Georgia.
+ * params: primaryColor e7eae1 (shell), buttonColor 566d51 (olive), Georgia.
  *
  * Note: mural is OpenTable's widget-internal endpoint. If they ever change it,
  * the "Reservar en OpenTable" link in the pane header is the always-works path.
@@ -43,7 +43,7 @@ function buildMuralSrc(uuid: string): string {
     font: "Georgia",
     primaryColor: "e7eae1",
     primaryFontColor: "333333",
-    buttonColor: "5e7658",
+    buttonColor: "566d51",
     buttonFontColor: "ffffff",
     logoPid: "0",
     backgroundPid: "0",
