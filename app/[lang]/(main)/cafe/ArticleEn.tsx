@@ -16,7 +16,7 @@ export default function ArticleEn() {
       </header>
 
       {/* ── Experience ── */}
-      <section id="experience" aria-labelledby="exp-heading">
+      <section id="experience-en" aria-labelledby="exp-heading">
         <h2 id="exp-heading">The Daily Rhythm of Olivea</h2>
         <p>Slow coffee. Slow food. Calm energy — built as practice, as daily discipline.</p>
         <p>Olivea Café Wine Bar is the most relaxed expression of the Olivea ecosystem — where mornings unfold slowly over coffee, evenings settle in over a glass of Valle de Guadalupe wine, movement stays human, and the garden remains the source. It carries the same leaders, the same standards, and the same philosophy as Casa Olivea and Olivea Farm To Table.</p>
@@ -40,7 +40,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Breakfast ── */}
-      <section id="breakfast" aria-labelledby="breakfast-heading">
+      <section id="breakfast-en" aria-labelledby="breakfast-heading">
         <h2 id="breakfast-heading">Breakfast, Homey &amp; Precise</h2>
         <p>Breakfast at Olivea Café Wine Bar moves at a calm pace. The goal is rhythm: plates that feel warm and familiar, while staying clean and intentional.</p>
         <p>The style is mostly savory, rooted in Mexican comfort — simple food, done with care, guided by what the garden and the season are offering.</p>
@@ -49,7 +49,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Bread ── */}
-      <section id="bread" aria-labelledby="bread-heading">
+      <section id="bread-en" aria-labelledby="bread-heading">
         <h2 id="bread-heading">Bread as Ritual</h2>
         <p>Flour is structure. We choose it for flavor and fermentation performance — the kind of crumb that feels light yet complete, never heavy, never loud.</p>
         <p>Recipes are composed for clarity: clean layers, balanced seasoning, and texture that feels intentional. The goal is precision that stays quiet.</p>
@@ -58,7 +58,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Padel ── */}
-      <section id="padel" aria-labelledby="padel-heading">
+      <section id="padel-en" aria-labelledby="padel-heading">
         <h2 id="padel-heading">Padel as Lifestyle</h2>
         <p>Olivea is a garden ecosystem, and a full experience includes rhythm. Movement helps the day feel clearer. The café brings you back to calm.</p>
         <p>Padel here is social and curated: coffee, music, good energy — integrated with the property, carried in the same Olivea tone.</p>
@@ -74,7 +74,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── Menu ── */}
-      <section id="menu-info" aria-labelledby="menu-heading">
+      <section id="menu-info-en" aria-labelledby="menu-heading">
         <h2 id="menu-heading">The Menu</h2>
         <p>A curated <strong>coffee + café menu</strong>, designed around clarity and rhythm — espresso with structure, filter with transparency, tea with calm, and cold drinks that feel bright. Coffee is sourced exclusively from <strong>Mexico</strong>. Matcha is ceremonial. Syrups and jarabes evolve with the garden.</p>
         <h3>Coffee · Mexico-sourced</h3>
@@ -86,7 +86,7 @@ export default function ArticleEn() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" aria-labelledby="faq-heading">
+      <section id="faq-en" aria-labelledby="faq-heading">
         <h2 id="faq-heading">Good to Know</h2>
         <h3>Who is Olivea Café Wine Bar for?</h3>
         <p>Casa Olivea guests begin the day here, and day visitors are welcome as well — the café is an open door into the Olivea rhythm.</p>

@@ -492,7 +492,6 @@ export default function Farmpop({
                               loading="lazy"
                               referrerPolicy="strict-origin-when-cross-origin"
                               allow="fullscreen"
-                              allowFullScreen
                               tabIndex={isActive ? 0 : -1}
                             />
                           </div>

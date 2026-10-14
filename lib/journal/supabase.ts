@@ -43,6 +43,8 @@ export interface SupabaseJournalItem {
   coverImage?: string;
   coverPosition?: string;
   author: string;
+  /** Credited authors with profile ids, when the editor picked them. */
+  authors?: { id?: string; name: string }[];
   tags: string[];
   publishedAt: string;
   updatedAt: string;
@@ -98,7 +100,7 @@ export async function listPublishedJournalPosts(
   try {
     const rows = await selectRows<JournalRow>("journal_posts", {
       role: "anon",
-      query: `select=id,slug,title_es,title_en,excerpt_es,excerpt_en,body_${lang},cover_image,cover_position,author,tags,published_at,updated_at&status=eq.published&order=published_at.desc`,
+      query: `select=id,slug,title_es,title_en,excerpt_es,excerpt_en,body_${lang},cover_image,cover_position,author,authors,tags,published_at,updated_at&status=eq.published&order=published_at.desc`,
       revalidate: 60, // ISR: revalidate every 60s, compatible with static generation
     });
 
@@ -112,6 +114,9 @@ export async function listPublishedJournalPosts(
         coverImage: r.cover_image ?? undefined,
         coverPosition: r.cover_position ?? undefined,
         author: r.author || "Olivea",
+        // Without these the index lost every author id, so the list, author
+        // pages and "Keep reading" could not link anyone.
+        authors: Array.isArray(r.authors) && r.authors.length > 0 ? r.authors : undefined,
         tags: r.tags ?? [],
         publishedAt: r.published_at!,
         updatedAt: r.updated_at,
@@ -187,5 +192,33 @@ export async function listPublishedSlugs(): Promise<string[]> {
     return rows.map((r) => r.slug);
   } catch {
     return [];
+  }
+}
+
+/**
+ * The slug under which a published post reads in `lang`, or null.
+ *
+ * A database post holds both languages in one row, so its "translation" is the
+ * same row with the other body filled in. The text-file lookup could never
+ * find it (the row's translationId is its own id), which hid "Read in English"
+ * on every article once articles moved into the database.
+ */
+export async function publishedSlugInLanguage(
+  id: string,
+  lang: JournalLang,
+): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const rows = await selectRows<Pick<JournalRow, "slug" | "body_es" | "body_en">>("journal_posts", {
+      role: "anon",
+      query: `select=slug,body_${lang}&id=eq.${encodeURIComponent(id)}&status=eq.published&limit=1`,
+      revalidate: 60,
+    });
+    const r = rows[0];
+    const body = r ? ((r[`body_${lang}` as "body_es" | "body_en"] as string) || "") : "";
+    return r && body.trim() ? r.slug : null;
+  } catch (e) {
+    console.error("[journal/supabase] Failed to find translation:", e);
+    return null;
   }
 }

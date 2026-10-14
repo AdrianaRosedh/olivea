@@ -1,21 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import Reveal from "@/components/scroll/Reveal";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 import type { InnovationContent, Bilingual } from "@/lib/content/types";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
-};
-const stagger: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.04 } },
-};
+// Entrances are CSS-first (Reveal): visible before JavaScript and with Reduce
+// Motion. The framer-motion version rendered opacity 0 and, with Reduce Motion
+// on, never animated in: the whole page stayed blank.
+const FADE = { distance: 22, duration: 0.8 } as const;
 
 // lifted from the Philosophy page so this reads as the same brand
 const EYEBROW = "text-[11px] uppercase tracking-[0.3em] text-(--olivea-olive)";
@@ -50,33 +44,32 @@ export default function InnovationClient({
       <main className="relative w-full overflow-clip px-6 sm:px-10 md:px-12 pt-24 sm:pt-32 pb-40 sm:pb-32">
         <div className="mx-auto max-w-[1100px]">
           {/* ───────── HERO ───────── */}
-          <motion.header initial="hidden" animate="show" variants={stagger} className="max-w-[60ch]">
-            <motion.div variants={fadeUp} className={EYEBROW}>
+          <header className="max-w-[60ch]">
+            <Reveal {...FADE} delay={0.04} className={EYEBROW}>
               {t(content.hero.eyebrow)}
-            </motion.div>
-            <motion.h1
-              variants={fadeUp}
+            </Reveal>
+            <Reveal
+              as="h1"
+              {...FADE}
+              delay={0.14}
               className="mt-4 text-[clamp(2.4rem,1.5rem_+_3.8vw,4.2rem)] font-semibold leading-[1.02] tracking-[-0.02em]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               {t(content.hero.headline)}
-            </motion.h1>
-            <motion.p variants={fadeUp} className="mt-6 text-[17px] sm:text-[19px] leading-relaxed">
+            </Reveal>
+            <Reveal as="p" {...FADE} delay={0.24} className="mt-6 text-[17px] sm:text-[19px] leading-relaxed">
               {t(content.hero.intro)}
-            </motion.p>
-          </motion.header>
+            </Reveal>
+          </header>
 
           {/* ───────── TWO FORCES — laboratory + roseiies, side by side ───────── */}
-          <motion.section
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.12 }}
-            variants={stagger}
+          <section
             className="mt-16 sm:mt-24 grid gap-4 sm:gap-5 lg:grid-cols-2 lg:items-start"
           >
             {/* LEFT — the craft */}
-            <motion.div
-              variants={fadeUp}
+            <Reveal
+              {...FADE}
+              delay={0.04}
               id="craft"
               className={`main-section scroll-mt-28 ${PANEL} p-7 sm:p-9`}
             >
@@ -110,11 +103,12 @@ export default function InnovationClient({
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </Reveal>
 
             {/* RIGHT — roseiies */}
-            <motion.div
-              variants={fadeUp}
+            <Reveal
+              {...FADE}
+              delay={0.14}
               id="technology"
               className={`main-section scroll-mt-28 ${PANEL} p-7 sm:p-9`}
             >
@@ -164,55 +158,48 @@ export default function InnovationClient({
                   {lang === "es" ? "Conoce roseiies" : "Visit roseiies"}
                 </a>
               </div>
-            </motion.div>
-          </motion.section>
+            </Reveal>
+          </section>
 
           {/* the rule, stated plainly */}
-          <motion.blockquote
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.6 }}
-            variants={fadeUp}
+          <Reveal
+            as="blockquote"
+            {...FADE}
             className="mx-auto mt-16 sm:mt-20 max-w-[24ch] text-center text-[clamp(1.6rem,1.2rem_+_1.8vw,2.4rem)] leading-[1.2]"
             style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
           >
             {t(content.quote)}
-          </motion.blockquote>
+          </Reveal>
 
           {/* ───────── THE METHOD ───────── */}
           <section id="method" className="main-section scroll-mt-28 mt-20 sm:mt-28">
-            <motion.div
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.4 }}
-              variants={stagger}
-              className="mx-auto max-w-[680px] text-center"
-            >
-              <motion.div variants={fadeUp} className={EYEBROW}>
+            <div className="mx-auto max-w-[680px] text-center">
+              <Reveal {...FADE} delay={0.04} className={EYEBROW}>
                 {t(content.method.eyebrow)}
-              </motion.div>
-              <motion.p
-                variants={fadeUp}
+              </Reveal>
+              <Reveal
+                as="p"
+                {...FADE}
+                delay={0.14}
                 className="mt-5 text-[clamp(1.35rem,1.1rem_+_1.3vw,2rem)] leading-[1.32]"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
                 {t(content.method.lead)}
-              </motion.p>
-              <motion.p
-                variants={fadeUp}
+              </Reveal>
+              <Reveal
+                as="p"
+                {...FADE}
+                delay={0.24}
                 className="mt-5 text-[16px] sm:text-[17px] leading-relaxed text-(--olivea-olive)/90"
               >
                 {t(content.method.body)}
-              </motion.p>
-            </motion.div>
+              </Reveal>
+            </div>
           </section>
 
           {/* ───────── CLOSE ───────── */}
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.4 }}
-            variants={fadeUp}
+          <Reveal
+            {...FADE}
             className="mt-20 sm:mt-28 flex flex-wrap items-center justify-between gap-4 border-t border-(--olivea-olive)/15 pt-8"
           >
             <p className="max-w-[46ch] text-[15px] sm:text-[16px] leading-relaxed text-(--olivea-olive)/90">
@@ -232,7 +219,7 @@ export default function InnovationClient({
                 {lang === "es" ? "Nuestra filosofía" : "Our philosophy"}
               </Link>
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </main>
 

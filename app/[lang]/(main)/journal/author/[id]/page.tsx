@@ -15,7 +15,7 @@ import {
 } from "@/lib/journal/authors";
 import { normalizeAuthors } from "@/lib/journal/author";
 import { loadLeader } from "@/app/[lang]/(main)/team/teamData";
-import { localeAlternates } from "@/lib/site";
+import { localeAlternates, withShare } from "@/lib/site";
 
 function fmtDate(iso: string, lang: Lang) {
   return formatPublicDateLong(iso, lang);
@@ -40,11 +40,24 @@ export async function generateMetadata({
   const p = await params;
   const lang: Lang = p.lang === "es" ? "es" : "en";
 
-  return {
-    alternates: localeAlternates(lang, `/journal/author/${p.id}`),
-    title: lang === "es" ? "Autor | Journal de Olivea" : "Author | Olivea Journal",
-    robots: { index: true, follow: true },
-  };
+  const profile = await loadAuthorProfile(p.id);
+  const name = profile?.name;
+  const title = name
+    ? lang === "es" ? `${name} | Cuaderno de Olivea` : `${name} | Olivea Journal`
+    : lang === "es" ? "Autor | Cuaderno de Olivea" : "Author | Olivea Journal";
+
+  return withShare(
+    {
+      alternates: localeAlternates(lang, `/journal/author/${p.id}`),
+      title,
+      description:
+        lang === "es"
+          ? `Artículos${name ? ` de ${name}` : ""} en el Cuaderno de Olivea.`
+          : `Articles${name ? ` by ${name}` : ""} in the Olivea Journal.`,
+      robots: { index: true, follow: true },
+    },
+    { lang, path: `/journal/author/${p.id}` }
+  );
 }
 
 export default async function AuthorPage({
@@ -288,7 +301,7 @@ export default async function AuthorPage({
                   className="text-[13px] text-(--olivea-olive) hover:opacity-100 underline underline-offset-4"
                 >
                   {leaderLine}{" "}
-                  <span className="opacity-80">{teamHubLabel}</span>
+                  <span>{teamHubLabel}</span>
                 </Link>
               </div>
             ) : null}

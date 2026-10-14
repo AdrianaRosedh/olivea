@@ -34,6 +34,25 @@ const PAGES = [
   "/es/team",
   "/es/carreras",
   "/es/press",
+  "/es/menu",
+  "/es/innovation",
+  "/es/roseiies",
+  "/es/legal",
+  "/es/team/ange",
+  "/es/journal/author/danielnates",
+  "/es/pagina-que-no-existe",
+  "/en/farmtotable",
+  "/en/casa",
+  "/en/cafe",
+  "/en/contact",
+  "/en/sustainability",
+  "/en/journal",
+  "/en/journal/2026-04-15-lo-que-la-tierra-ya-sabe",
+  "/en/carreras",
+  "/en/press",
+  "/en/menu",
+  "/en/innovation",
+  "/en/legal",
 ];
 
 // Noise outside the site's control, or local-only gaps.
@@ -166,6 +185,7 @@ for (const path of PAGES) {
 
     test("link preview has a title, description and a picture that loads", async ({ page, request }) => {
       test.skip(test.info().project.name !== "chromium", "server HTML is the same for every device");
+      test.skip(path.includes("no-existe"), "an error page is not shared");
       await page.goto(path, { waitUntil: "domcontentloaded" });
       const og = await page.evaluate(() => {
         const m = (k: string) =>

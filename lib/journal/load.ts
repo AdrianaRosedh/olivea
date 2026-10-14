@@ -20,6 +20,7 @@ import {
   listPublishedJournalPosts,
   loadPublishedJournalPost,
   listPublishedSlugs,
+  publishedSlugInLanguage,
 } from "./supabase";
 
 const ROOT = process.cwd();
@@ -292,7 +293,7 @@ export async function listJournalIndex(
     cover: p.coverImage
       ? { src: p.coverImage, alt: p.title, position: p.coverPosition }
       : undefined,
-    author: p.author,
+    ...(p.authors?.length ? { authors: p.authors } : { author: p.author }),
     readingMinutes: p.readingMinutes,
   }));
 
@@ -322,6 +323,10 @@ export async function findTranslationSlug(
   translationId: string,
   targetLang: JournalLang
 ): Promise<string | null> {
+  // A database post: the other language lives in the same row.
+  const fromDb = await publishedSlugInLanguage(translationId, targetLang);
+  if (fromDb) return fromDb;
+
   // For MDX-based posts, search through files
   const fileSlugs = await listMdxSlugs(targetLang);
 

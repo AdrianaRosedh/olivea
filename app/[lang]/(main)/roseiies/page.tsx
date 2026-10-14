@@ -1,12 +1,12 @@
 // app/(main)/[lang]/roseiies/page.tsx
 import type { Metadata } from "next";
-import { SITE, canonicalUrl } from "@/lib/site";
+import { SITE, canonicalUrl, withShare } from "@/lib/site";
 import { getContent } from "@/lib/content";
 import RoseiiesClient from "./RoseiiesClient";
 
 type PageProps = { params: Promise<{ lang: string }> };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+async function pageMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang: raw } = await params;
   const lang: "en" | "es" = raw === "en" ? "en" : "es";
   const es = lang === "es";
@@ -76,4 +76,11 @@ export default async function RoseiiesPage({ params }: PageProps) {
       <RoseiiesClient lang={lang} content={content} />
     </>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/roseiies" });
 }

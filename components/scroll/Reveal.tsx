@@ -49,6 +49,8 @@ export type RevealProps = {
   className?: string;
   id?: string;
   as?: ElementType;
+  /** Extra inline style (fonts etc.); the entrance variables are added to it. */
+  style?: CSSProperties;
 };
 
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -86,6 +88,7 @@ export default function Reveal({
   className = "",
   id,
   as,
+  style: extraStyle,
 }: PropsWithChildren<RevealProps>): ReactElement {
   const Tag = (as ?? "div") as ElementType;
   const ref = useRef<HTMLElement>(null);
@@ -119,6 +122,7 @@ export default function Reveal({
   }, [amount, once]);
 
   const style = {
+    ...extraStyle,
     ...startVars(preset, distance),
     "--reveal-duration": `${duration}s`,
     "--reveal-delay": `${Number(delay.toFixed(3))}s`,
