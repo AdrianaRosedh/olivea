@@ -264,7 +264,7 @@ export default function ImageUpload({
             <p className="text-sm">
               {dragOver ? "Drop image here" : "Click or drag image here"}
             </p>
-            <p className="text-xs text-stone-400">JPEG, PNG, WebP, GIF · Max 5MB</p>
+            <p className="text-xs text-stone-400">JPEG, PNG, WebP, GIF · Max 4MB</p>
           </div>
         )}
       </div>

@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { Film, Loader2, Upload, X } from "lucide-react";
-import { uploadVideo, deleteVideo } from "@/lib/supabase/storage-actions";
+import { createVideoUpload, finalizeVideoUpload, deleteVideo } from "@/lib/supabase/storage-actions";
 import { useAuth } from "@/components/admin/AuthProvider";
 
 interface VideoUploadProps {
@@ -59,14 +59,36 @@ export default function VideoUpload({
       }
 
       setUploading(true);
-      const formData = new FormData();
-      formData.set("file", file);
-      formData.set("folder", folder);
-
-      const result = await uploadVideo(formData);
-      if (result.error) setError(result.error);
-      else onChange(result.url);
-      setUploading(false);
+      try {
+        // Straight to storage: a server action cannot carry more than 4.5 MB
+        // on Vercel, which is less than the 12 MB a loop may be.
+        const ticket = await createVideoUpload({ name: file.name, size: file.size, folder });
+        if (ticket.error || !ticket.uploadUrl || !ticket.path) {
+          setError(ticket.error ?? "Upload failed");
+          return;
+        }
+        const put = await fetch(ticket.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": ticket.contentType ?? file.type,
+            "x-upsert": "false",
+            // Each upload has a unique timestamped path, so it can be cached for good.
+            "cache-control": "max-age=31536000",
+          },
+          body: file,
+        });
+        if (!put.ok) {
+          setError(`Upload failed (${put.status}). Try again.`);
+          return;
+        }
+        const result = await finalizeVideoUpload(ticket.path);
+        if (result.error) setError(result.error);
+        else onChange(result.url);
+      } catch {
+        setError("Upload failed. Check your connection and try again.");
+      } finally {
+        setUploading(false);
+      }
     },
     [folder, onChange]
   );
