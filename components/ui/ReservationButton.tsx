@@ -50,12 +50,14 @@ export default function ReservationButton({
         alt="MICHELIN Star"
         width={13}
         height={14}
+        style={{ width: 13, height: 14 }}
       />
       <Image
         src="/images/press/awards/michelin-green-star.svg"
         alt="MICHELIN Green Star"
         width={15}
         height={14}
+        style={{ width: 15, height: 14 }}
       />
       <span
         className="text-[10px] tracking-[0.08em] uppercase"
@@ -80,6 +82,7 @@ export default function ReservationButton({
         alt="MICHELIN Star"
         width={16}
         height={18}
+        style={{ width: 16, height: 18 }}
         className="brightness-0 invert opacity-80"
       />
       <Image
@@ -87,6 +90,7 @@ export default function ReservationButton({
         alt="MICHELIN Green Star"
         width={19}
         height={18}
+        style={{ width: 19, height: 18 }}
         className="brightness-0 invert opacity-80"
       />
       <span

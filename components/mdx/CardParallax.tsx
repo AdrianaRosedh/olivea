@@ -1,7 +1,7 @@
 // components/mdx/CardParallax.tsx
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image, { type ImageProps } from "next/image";
 
 type StyleVars = React.CSSProperties & Record<string, string | number | undefined>;
@@ -9,6 +9,11 @@ type StyleVars = React.CSSProperties & Record<string, string | number | undefine
 function isCoarsePointer(): boolean {
   if (typeof window === "undefined") return false;
   return !!window.matchMedia?.("(pointer: coarse)").matches;
+}
+
+function subscribeHash(onChange: () => void) {
+  window.addEventListener("hashchange", onChange);
+  return () => window.removeEventListener("hashchange", onChange);
 }
 
 export default function CardParallax({
@@ -27,6 +32,7 @@ export default function CardParallax({
   placeholder = "empty",
   blurDataURL,
   priority = false,
+  eagerWhenHash,
 
   /**
    * ✅ NEW:
@@ -51,12 +57,24 @@ export default function CardParallax({
   placeholder?: "blur" | "empty";
   blurDataURL?: string;
   priority?: boolean;
+  /**
+   * Load eagerly when the page was opened at this #fragment (a deep link that
+   * scrolls straight to this image, making it the first thing on screen);
+   * otherwise `loading` applies. Read after hydration, so the server HTML stays
+   * the same for everyone.
+   */
+  eagerWhenHash?: string;
 
   parallaxOnCoarsePointer?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const deepLinked = useSyncExternalStore(
+    subscribeHash,
+    () => !!eagerWhenHash && window.location.hash === eagerWhenHash,
+    () => false
+  );
 
   const shouldEnableParallax =
     ready &&
@@ -146,7 +164,7 @@ export default function CardParallax({
   }
 
   const effectivePlaceholder: "blur" | "empty" = blurDataURL ? "blur" : placeholder;
-  const effectiveLoading: ImageProps["loading"] = priority ? undefined : loading;
+  const effectiveLoading: ImageProps["loading"] = priority ? undefined : deepLinked ? "eager" : loading;
 
   return (
     <div

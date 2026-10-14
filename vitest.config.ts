@@ -10,5 +10,7 @@ export default defineConfig({
   test: {
     environment: "node",
     clearMocks: true,
+    // e2e/ holds Playwright specs (pnpm test:e2e); vitest must not collect them.
+    exclude: ["**/node_modules/**", "**/.next/**", "e2e/**"],
   },
 });

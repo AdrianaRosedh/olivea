@@ -158,7 +158,7 @@ export default function CookieConsent() {
             href={`/${lang}/legal`}
             className="mt-3 inline-block text-[11px] text-[var(--olivea-ink)]/50 underline underline-offset-2 transition-colors hover:text-[var(--olivea-olive)]"
           >
-            {es ? "Más información" : "Learn more"}
+            {es ? "Política de cookies" : "Cookie policy"}
           </Link>
         </div>
       </div>

@@ -4,7 +4,8 @@
 // loader below reads Supabase first (60s revalidate) and only falls back
 // to the static seed in lib/content/data/banners.ts when Supabase is
 // unavailable/unconfigured. No deploy needed for banner changes.
-export const runtime = "edge";
+// Node.js runtime: the Edge Runtime is deprecated as of Next.js 16.3.
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { rateLimitDistributed, clientIp } from "@/lib/rate-limit";

@@ -182,7 +182,8 @@ export default async function CarrerasPage({ params }: Params) {
                   fit="cover"
                   objectPosition="50% 62%"
                   sizes="(max-width: 1024px) 100vw, 1000px"
-                  loading="lazy"
+                  // The first image on the page (its LCP): load it now.
+                  priority
                   placeholder="empty"
                   className="-inset-12 md:-inset-10"
                   surfaceClassName="h-full w-full"

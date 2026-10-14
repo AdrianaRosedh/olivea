@@ -18,12 +18,20 @@ export type ServiceItem = {
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 // nearest scroll container (snap container / ScrollLimiter wrapper)
+/**
+ * The nearest ancestor that actually scrolls, or null for the page itself.
+ * <body> and <html> are never returned: the page scrolls on <html>, but the
+ * global CSS gives <body> `overflow-y: auto`, so matching on the overflow value
+ * alone picked <body> — a box that never scrolls — and the cards' scroll
+ * progress never moved (framer also warned it was position: static).
+ */
 function getScrollParent(el: HTMLElement | null): HTMLElement | null {
   if (!el) return null;
   let p: HTMLElement | null = el.parentElement;
-  while (p) {
+  while (p && p !== document.body && p !== document.documentElement) {
     const oy = getComputedStyle(p).overflowY;
-    if (oy === "auto" || oy === "scroll" || oy === "overlay") return p;
+    const scrolls = oy === "auto" || oy === "scroll" || oy === "overlay";
+    if (scrolls && p.scrollHeight > p.clientHeight) return p;
     p = p.parentElement;
   }
   return null;

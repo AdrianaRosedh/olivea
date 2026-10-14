@@ -59,8 +59,12 @@ export default function MenuSection({ data, lang }: SectionProps) {
             speed={0.12}
             fit="cover"
             objectPosition="35% 82%"
-            sizes="100vw"
+            // Phone-only copy (md:hidden): on wider screens the browser picks
+            // the smallest file instead of a full-width one it never shows.
+            sizes="(max-width: 767px) 100vw, 16px"
             loading="lazy"
+            // /menu deep-links here (#menu): then this is the first image on screen.
+            eagerWhenHash="#menu"
             placeholder="empty"
             className="-inset-[28px]"
             surfaceClassName="h-full w-full"
@@ -82,8 +86,10 @@ export default function MenuSection({ data, lang }: SectionProps) {
             speed={0.16}
             fit="cover"
             objectPosition="40% 55%"
-            sizes="(max-width: 768px) 100vw, 1180px"
+            // Desktop-only copy (hidden md:block): phones pick the smallest file.
+            sizes="(max-width: 767px) 16px, 1180px"
             loading="lazy"
+            eagerWhenHash="#menu"
             placeholder="empty"
             className="-inset-[34px]"
             surfaceClassName="h-full w-full"

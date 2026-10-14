@@ -69,8 +69,14 @@ function useMobileHeroGap(): number {
 }
 
 export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; videoConfig?: VideoConfig }) {
-  // Start downloading the alebrije with the HTML, so it is ready when the intro is.
-  preload(ALEBRIJE_SRC, { as: "fetch", crossOrigin: "anonymous" });
+  // Start downloading the alebrije with the HTML, so it is ready when the intro
+  // is — only where the intro plays (reduced motion skips it, and an unused
+  // preload is a wasted download the browser warns about).
+  preload(ALEBRIJE_SRC, {
+    as: "fetch",
+    crossOrigin: "anonymous",
+    media: "(prefers-reduced-motion: no-preference)",
+  });
 
   const reduce = usePrefersReducedMotion();
   const containerVariants = useMemo(() => makeContainerVariants(reduce), [reduce]);

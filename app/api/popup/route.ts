@@ -5,9 +5,10 @@
 // static seed in lib/content/data/popups.ts when Supabase is unavailable/
 // unconfigured. No deploy needed for popup changes.
 //
-// Edge runtime: rate limits are shared through Supabase, with an in-isolate
-// fallback if the RPC is unavailable. CDN caching still absorbs most traffic.
-export const runtime = "edge";
+// Node.js runtime (the Edge Runtime is deprecated as of Next.js 16.3): rate
+// limits are shared through Supabase, with an in-process fallback if the RPC
+// is unavailable. CDN caching still absorbs most traffic.
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { type Lang } from "@/lib/i18n";

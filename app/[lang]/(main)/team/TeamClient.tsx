@@ -398,6 +398,7 @@ function LeaderCard({
   className,
   imageMode = "cover",
   motionProps,
+  priority = false,
 }: {
   l: Leader;
   roleText: string;
@@ -405,6 +406,8 @@ function LeaderCard({
   sizes: string;
   className: string;
   imageMode?: "contain" | "cover";
+  /** The first row on screen: load now, it is the page's main image. */
+  priority?: boolean;
   motionProps?: {
     variants?: Variants;
     initial?: "hidden" | "show";
@@ -435,6 +438,11 @@ function LeaderCard({
           alt={l.name}
           fill
           sizes={sizes}
+          // Next 16's \`priority\` no longer marks the request high priority;
+          // say it explicitly for the page's main image.
+          priority={priority}
+          fetchPriority={priority ? "high" : undefined}
+          loading={priority ? "eager" : undefined}
           className={cn(
             imageMode === "cover"
               ? "object-cover object-center scale-[1.02]"
@@ -669,6 +677,7 @@ export default function TeamClient({
                               l={l}
                               roleText={t(l.role)}
                               onOpen={() => setOpenId(l.id)}
+                              priority={idx < 3}
                               sizes="(max-width: 1200px) 33vw, 520px"
                               className="w-full h-full"
                               imageMode="cover"
@@ -780,6 +789,10 @@ export default function TeamClient({
                             alt={l.name}
                             fill
                             sizes="100vw"
+                            // The first card fills a phone screen: the page's main image.
+                            priority={idx === 0}
+                            fetchPriority={idx === 0 ? "high" : undefined}
+                            loading={idx === 0 ? "eager" : undefined}
                             className="object-cover object-center"
                           />
                         </div>

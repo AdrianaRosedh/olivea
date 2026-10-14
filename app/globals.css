@@ -3,6 +3,12 @@
 /* Short screens (small phones, a phone turned sideways): `short:` utilities. */
 @custom-variant short (@media (max-height: 700px));
 
+/* The page's scroll container is <html>. Scroll-linked effects (framer's
+   useScroll with a target) measure against it and need it positioned; only
+   visually hidden elements (sr-only, the route announcer) are positioned
+   against the root, so this changes nothing on screen. */
+html { position: relative; }
+
 /* ───────────────────────────────────────────────────────────── */
 /* OLIVEA GLOBAL THEME TOKENS                                   */
 /* ───────────────────────────────────────────────────────────── */
