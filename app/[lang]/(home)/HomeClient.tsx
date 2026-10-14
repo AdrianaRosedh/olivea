@@ -270,7 +270,13 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
               w-full rounded-3xl h-[max(29vh,150px)] -mb-2.5 lg:h-full lg:mb-0
             "
           >
-            <HeroMedia isMobile={isMobile} alt={heroAlt} videoConfig={videoConfig} videoRef={videoRef} />
+            <HeroMedia
+              isMobile={isMobile}
+              alt={heroAlt}
+              videoConfig={videoConfig}
+              videoRef={videoRef}
+              introDone={overlayGone}
+            />
 
             {/* Mobile title after overlay */}
             <m.div

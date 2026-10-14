@@ -418,7 +418,7 @@ export default function LiveGarden() {
               {/* roseiies orb (the woggle) */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/roseiies-mark.svg"
+                src="/images/roseiies-mark.webp"
                 alt=""
                 aria-hidden="true"
                 draggable={false}

@@ -15,6 +15,7 @@ import {
 import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useSharedTransition, type SectionKey } from "@/contexts/SharedTransitionContext";
+import { INTRO_DONE_EVENT, isIntroPlaying } from "@/hooks/useIntroAnimation";
 
 /* ========= codec probe (client-only, cached) ========= */
 let PREFERS_WEBM: boolean | null = null;
@@ -242,19 +243,31 @@ export default function InlineEntranceCard({
     if (reduceMotion) return;
     if (isMobile || !isInView || !srcA) return;
 
-    const cancel = requestIdle(() => {
-      const key = `olivea-preload:${srcA}`;
-      if (document.head.querySelector(`link[data-key="${key}"]`)) return;
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (conn?.saveData) return;
 
-      const link = document.createElement("link");
-      link.rel = "prefetch";
-      link.href = srcA;
-      link.type = srcA.endsWith(".webm") ? "video/webm" : "video/mp4";
-      link.setAttribute("data-key", key);
-      document.head.appendChild(link);
-    }, 1200);
+    let cancelIdle: () => void = () => {};
+    // Not while the home intro plays: the hero and the alebrije come first.
+    const schedule = () => {
+      cancelIdle = requestIdle(() => {
+        const key = `olivea-preload:${srcA}`;
+        if (document.head.querySelector(`link[data-key="${key}"]`)) return;
 
-    return cancel;
+        const link = document.createElement("link");
+        link.rel = "prefetch";
+        link.href = srcA;
+        link.type = srcA.endsWith(".webm") ? "video/webm" : "video/mp4";
+        link.setAttribute("data-key", key);
+        document.head.appendChild(link);
+      }, 1200);
+    };
+    if (isIntroPlaying()) window.addEventListener(INTRO_DONE_EVENT, schedule, { once: true });
+    else schedule();
+
+    return () => {
+      window.removeEventListener(INTRO_DONE_EVENT, schedule);
+      cancelIdle();
+    };
   }, [isMobile, isInView, srcA, reduceMotion]);
 
   // hover play/pause behavior

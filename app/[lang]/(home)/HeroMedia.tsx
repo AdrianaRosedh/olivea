@@ -13,7 +13,9 @@
 //   never plays (data saver, low-power mode, a codec problem) the guest simply
 //   keeps the photo.
 // ★ The photo is the LCP element. On a phone the video is mounted only after
-//   the photo has decoded (plus a short pause), so it never competes with it.
+//   the photo has decoded and the intro has finished, so it never competes
+//   with either for a phone's bandwidth.
+// ★ Data Saver or a 2G/3G connection: the photo only.
 // ─────────────────────────────────────────────────────────────────────
 
 import Image from "next/image";
@@ -27,6 +29,14 @@ export type VideoConfig = {
 
 const DEFAULT_VIDEO_VERSION = "2026-10-13-v3";
 const MOBILE_VIDEO_DELAY_MS = 600;
+
+/** The visitor asked to save data, or the connection is too slow for a video. */
+function wantsLightPage(): boolean {
+  const c = (navigator as Navigator & {
+    connection?: { saveData?: boolean; effectiveType?: string };
+  }).connection;
+  return !!c?.saveData || /(^|-)(2g|3g)$/.test(c?.effectiveType ?? "");
+}
 
 /** Calls `show` once the video has presented a frame (two paints later where
  *  requestVideoFrameCallback is missing). */
@@ -43,8 +53,11 @@ export default function HeroMedia({
   alt,
   videoConfig,
   videoRef,
+  introDone,
 }: {
   isMobile: boolean;
+  /** The home intro has finished (or was skipped). */
+  introDone: boolean;
   alt: string;
   videoConfig?: VideoConfig;
   videoRef: RefObject<HTMLVideoElement | null>;
@@ -54,16 +67,20 @@ export default function HeroMedia({
   const [mountVideo, setMountVideo] = useState(false);
   const [playing, setPlaying] = useState(false);
 
-  // Desktop: the video right away. Phone: after the photo, so LCP stays the photo.
+  // Desktop: the video right away. Phone: after the photo and the intro, so
+  // LCP stays the photo and the intro has the bandwidth. The viewport is read
+  // here rather than trusted from `isMobile`: that prop is false on the first
+  // (hydration) render of every screen, which started the video on phones.
   useEffect(() => {
-    if (!isMobile) {
+    const phone = window.matchMedia("(max-width: 767.98px)").matches;
+    if (!phone) {
       setMountVideo(true);
       return;
     }
-    if (!photoReady) return;
-    const t = setTimeout(() => setMountVideo(true), MOBILE_VIDEO_DELAY_MS);
-    return () => clearTimeout(t);
-  }, [isMobile, photoReady]);
+    if (!photoReady || !introDone || wantsLightPage()) return;
+    const t = window.setTimeout(() => setMountVideo(true), MOBILE_VIDEO_DELAY_MS);
+    return () => window.clearTimeout(t);
+  }, [isMobile, photoReady, introDone]);
 
   const sources = isMobile
     ? videoConfig?.mobile ?? {

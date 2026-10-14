@@ -70,21 +70,43 @@ type PopupApiResponse = { popup: SitePopup | null };
 
 const STORAGE_PREFIX = "olivea:popup:seen:";
 
-function scheduleAfterInteractive(cb: () => void) {
+/**
+ * Open once the visitor has engaged with the page, not on top of its first
+ * impression: a short pause after their first scroll, tap or key, or after
+ * FALLBACK_MS if they only read. Opening at ~1 s made the popup's cover the
+ * largest thing painted on many pages, and it covered the page before anyone
+ * had seen it.
+ */
+const ENGAGED_PAUSE_MS = 1500;
+const FALLBACK_MS = 15_000;
+const ENGAGE_EVENTS = ["scroll", "wheel", "pointerdown", "keydown", "touchstart"] as const;
+
+function scheduleAfterEngagement(cb: () => void) {
   if (typeof window === "undefined") return () => {};
-  const w = window as Window & {
-    requestIdleCallback?: (fn: () => void, opts?: { timeout?: number }) => number;
-  };
-
-  const t = window.setTimeout(() => {
-    if (typeof w.requestIdleCallback === "function") {
-      w.requestIdleCallback(cb, { timeout: 1200 });
-      return;
-    }
+  let done = false;
+  let pause = 0;
+  const fire = () => {
+    if (done) return;
+    done = true;
+    cleanup();
     cb();
-  }, 900);
-
-  return () => window.clearTimeout(t);
+  };
+  const onEngage = () => {
+    if (pause) return;
+    pause = window.setTimeout(fire, ENGAGED_PAUSE_MS);
+  };
+  const fallback = window.setTimeout(fire, FALLBACK_MS);
+  const opts = { passive: true, capture: true } as const;
+  ENGAGE_EVENTS.forEach((e) => window.addEventListener(e, onEngage, opts));
+  function cleanup() {
+    window.clearTimeout(fallback);
+    window.clearTimeout(pause);
+    ENGAGE_EVENTS.forEach((e) => window.removeEventListener(e, onEngage, opts));
+  }
+  return () => {
+    done = true;
+    cleanup();
+  };
 }
 
 function isObject(v: unknown): v is Record<string, unknown> {
@@ -220,7 +242,7 @@ export default function PopupHost() {
 
     if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 
-    const cancel = scheduleAfterInteractive(() => setOpen(true));
+    const cancel = scheduleAfterEngagement(() => setOpen(true));
 
     return () => {
       cancel?.();
