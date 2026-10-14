@@ -494,6 +494,13 @@ html.pwa-standalone .pwa-safe-bottom {
 /* Without JavaScript (or if hydration never lands and the watchdog removed
    js-hydrated) Reveal content shows outright, no entrance: animation is an
    enhancement, never a gate. */
+/* Journal photos fade in on scroll once JavaScript runs (InlineImageReveal);
+   before that they must simply be visible. */
+html:not(.js-hydrated) article figure {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 html:not(.js-hydrated) [data-reveal] {
   opacity: 1 !important;
   transform: none !important;

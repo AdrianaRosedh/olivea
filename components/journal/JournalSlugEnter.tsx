@@ -1,9 +1,12 @@
-"use client";
+// components/journal/JournalSlugEnter.tsx
+// The article's cover and body fade in on arrival.
+//
+// CSS-first (Reveal): the entrance plays on first paint and reduced motion is
+// handled in CSS. The previous framer-motion version rendered `opacity: 0`
+// until it knew the motion preference; with Reduce Motion on, it then dropped
+// the animation and the whole article stayed invisible.
 
-import { motion } from "framer-motion";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+import Reveal from "@/components/scroll/Reveal";
 
 export function CoverLead({
   children,
@@ -12,20 +15,10 @@ export function CoverLead({
   children: React.ReactNode;
   className?: string;
 }) {
-  const reduce = usePrefersReducedMotion();
   return (
-    <motion.div
-      className={className}
-      initial={
-        reduce
-          ? false
-          : { opacity: 0, y: 10, scale: 0.992, filter: "blur(12px)" }
-      }
-      animate={reduce ? {} : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-      transition={reduce ? undefined : { duration: 0.65, ease: EASE }}
-    >
+    <Reveal className={className} preset="blur-up" distance={10} duration={0.65}>
       {children}
-    </motion.div>
+    </Reveal>
   );
 }
 
@@ -38,17 +31,9 @@ export function BodyLead({
   className?: string;
   delay?: number;
 }) {
-  const reduce = usePrefersReducedMotion();
   return (
-    <motion.div
-      className={className}
-      initial={reduce ? false : { opacity: 0, y: 14, filter: "blur(10px)" }}
-      animate={reduce ? {} : { opacity: 1, y: 0, filter: "blur(0px)" }}
-      transition={
-        reduce ? undefined : { duration: 0.55, delay, ease: EASE }
-      }
-    >
+    <Reveal className={className} preset="blur-up" distance={14} duration={0.55} delay={delay}>
       {children}
-    </motion.div>
+    </Reveal>
   );
 }

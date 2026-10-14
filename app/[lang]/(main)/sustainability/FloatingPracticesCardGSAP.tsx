@@ -479,17 +479,18 @@ export default function FloatingPracticesCardGSAP({
     rafRef.current = 0;
 
     if (wrapRef.current) {
-      gsap.set(wrapRef.current, { opacity: 0, clearProps: "x,width,y" });
+      gsap.set(wrapRef.current, { autoAlpha: 0, clearProps: "x,width,y" });
     }
   }, [isDesktop]);
 
-  // initial hidden (desktop only)
+  // initial hidden (desktop only). autoAlpha, not opacity: while the card is
+  // away it is also visibility:hidden, so screen readers and the keyboard skip it.
   useEffect(() => {
     if (!isDesktop) return;
     const wrap = wrapRef.current;
     if (!wrap) return;
 
-    gsap.set(wrap, { opacity: 0, y: STICKY_TOP + REVEAL_OFFSET_Y });
+    gsap.set(wrap, { autoAlpha: 0, y: STICKY_TOP + REVEAL_OFFSET_Y });
   }, [isDesktop]);
 
   // Reveal/hide (desktop only)
@@ -513,7 +514,7 @@ export default function FloatingPracticesCardGSAP({
       if (ar) gsap.set(wrap, { x: ar.left, width: ar.width });
 
       gsap.to(wrap, {
-        opacity: 1,
+        autoAlpha: 1,
         y: STICKY_TOP,
         duration: REVEAL_IN_DUR,
         ease: "power2.out",
@@ -529,7 +530,7 @@ export default function FloatingPracticesCardGSAP({
       tlRef.current = null;
 
       gsap.to(wrap, {
-        opacity: 0,
+        autoAlpha: 0,
         y: STICKY_TOP + REVEAL_OFFSET_Y,
         duration: REVEAL_OUT_DUR,
         ease: "power2.out",

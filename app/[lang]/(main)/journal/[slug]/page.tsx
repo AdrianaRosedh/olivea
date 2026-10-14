@@ -12,7 +12,7 @@ import ArticleDock from "@/components/journal/ArticleDock";
 import InlineImageReveal from "../InlineImageReveal";
 import PhotoCarousel from "../PhotoCarousel";
 
-import { getDictionary, type Lang } from "@/app/[lang]/(main)/dictionaries";
+import type { Lang } from "@/app/[lang]/(main)/dictionaries";
 import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import { formatPublicDateLong } from "@/lib/date/public-date";
 import { optimizeHtmlImages } from "@/lib/utils/optimize-html-images";
@@ -20,7 +20,9 @@ import {
   listJournalSlugs,
   loadJournalBySlug,
   findTranslationSlug,
+  listJournalIndex,
 } from "@/lib/journal/load";
+import RelatedPosts, { pickRelated } from "./RelatedPosts";
 import {
   buildArticleJsonLd,
   buildJournalMetadata,
@@ -144,7 +146,6 @@ export default async function JournalPostPage({
 }) {
   const { lang: rawLang, slug } = await params;
   const lang: Lang = rawLang === "es" ? "es" : "en";
-  const dict = await getDictionary(lang);
 
   let post: Awaited<ReturnType<typeof loadJournalBySlug>>;
   try {
@@ -154,7 +155,11 @@ export default async function JournalPostPage({
   }
 
   const otherLang = lang === "es" ? "en" : "es";
-  const otherSlug = await findTranslationSlug(post.fm.translationId, otherLang);
+  const [otherSlug, index] = await Promise.all([
+    findTranslationSlug(post.fm.translationId, otherLang),
+    listJournalIndex(lang).catch(() => []),
+  ]);
+  const related = pickRelated(index, { slug, tags: post.fm.tags });
 
   const toc = safeToc(hasHeadings(post) ? post.headings : undefined);
   const audio = safeAudio(post.fm);
@@ -447,12 +452,14 @@ export default async function JournalPostPage({
               />
             )}
 
+            <RelatedPosts lang={lang} posts={related} />
+
             <div className="mt-12 text-sm opacity-70">
               <Link
                 href={`/${lang}/journal`}
                 className="underline underline-offset-4 hover:opacity-90"
               >
-                {dict.journal?.backToJournal ?? "Back to Journal"}
+                {lang === "es" ? "Volver al Cuaderno" : "Back to Journal"}
               </Link>
             </div>
           </BodyLead>

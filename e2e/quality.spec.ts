@@ -15,7 +15,9 @@ import { test, expect, type Page } from "@playwright/test";
 //    disabled controls, are outside what this check can judge or require.
 // 5. No duplicate ids (the hidden server article repeated section ids, so
 //    getElementById scrolled to the hidden copy).
-// 6. Link previews: every page shares with a title, description, address and
+// 6. With Reduce Motion on, the page's text is visible once loaded (Journal
+//    articles stayed at opacity 0: the entrance was cancelled, not finished).
+// 7. Link previews: every page shares with a title, description, address and
 //    a picture that loads (the home page's pointed at a missing file, and seven
 //    pages had no picture at all).
 
@@ -28,6 +30,7 @@ const PAGES = [
   "/es/contact",
   "/es/sustainability",
   "/es/journal",
+  "/es/journal/2026-04-15-lo-que-la-tierra-ya-sabe",
   "/es/team",
   "/es/carreras",
   "/es/press",
@@ -81,6 +84,7 @@ for (const path of PAGES) {
         for (const el of document.querySelectorAll<HTMLElement>("main *")) {
           const b = el.getBoundingClientRect();
           if (b.width < 40 || b.height < 16 || b.top >= innerHeight || b.bottom <= 0) continue;
+          if (b.left >= innerWidth || b.right <= 0 || el.closest("[aria-hidden='true']")) continue;
           const ownText = [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? "").trim().length > 2);
           if (!ownText) continue;
           let o = 1;
@@ -94,6 +98,33 @@ for (const path of PAGES) {
         return out;
       });
       expect(hidden, "text on the first screen that waits for JavaScript").toEqual([]);
+    });
+
+    test("with Reduce Motion on, the text on screen is visible", async ({ page, baseURL }) => {
+      await consent(page, baseURL!);
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(path, { waitUntil: "load" });
+      await page.waitForTimeout(2000);
+      const hidden = await page.evaluate(() => {
+        const out: string[] = [];
+        for (const el of document.querySelectorAll<HTMLElement>("main *")) {
+          const b = el.getBoundingClientRect();
+          if (b.width < 40 || b.height < 16 || b.top >= innerHeight || b.bottom <= 0) continue;
+          if (b.left >= innerWidth || b.right <= 0 || el.closest("[aria-hidden='true']")) continue;
+          const ownText = [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? "").trim().length > 2);
+          if (!ownText) continue;
+          let o = 1;
+          for (let a: HTMLElement | null = el; a; a = a.parentElement) {
+            const cs = getComputedStyle(a);
+            // Deliberately hidden (visibility/display) is not "stuck invisible".
+            if (cs.visibility === "hidden" || cs.display === "none") o = NaN;
+            o *= Number(cs.opacity);
+          }
+          if (o < 0.5) out.push(`${el.tagName}.${String(el.className).slice(0, 50)}`);
+        }
+        return out;
+      });
+      expect(hidden, "text left invisible with Reduce Motion").toEqual([]);
     });
 
     test("no block left invisible, no console errors, no duplicate ids", async ({ page, baseURL }) => {
