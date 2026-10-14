@@ -42,6 +42,8 @@ const IGNORED_CONSOLE = [
   /olivea-locator/, // needs the Google Maps key, absent locally and in CI
   /Failed to load resource/, // a third party or missing local key; real 404s are caught by the smoke suite
   /google|gtag|doubleclick|facebook|cloudbeds|opentable/i,
+  /Cloudflare Turnstile|challenges\.cloudflare\.com|No available adapters/, // the anti-spam widget, live only
+  /GL Driver Message/, // the browser's GPU driver, under the Google Map (live only)
 ];
 
 async function consent(page: Page, baseURL: string) {

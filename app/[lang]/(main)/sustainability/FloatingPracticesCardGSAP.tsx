@@ -706,7 +706,10 @@ export default function FloatingPracticesCardGSAP({
         style={{
           left: 0,
           top: 0,
+          // Hidden until scrolled to chapter one, before JavaScript as well:
+          // GSAP's autoAlpha takes over visibility from here.
           opacity: 0,
+          visibility: "hidden",
           transform: "translateZ(0)",
           backfaceVisibility: "hidden",
           WebkitFontSmoothing: "antialiased",
