@@ -9,6 +9,7 @@ import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
 import VhSetter from "@/components/ui/VhSetter";
 import CookieConsent from "@/components/legal/CookieConsent";
+import DeferredGtag from "@/components/analytics/DeferredGtag";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -150,8 +151,10 @@ export default async function LocaleRootLayout({
           pay the full handshake cost. Keep this list tight — every preconnect
           competes for bandwidth with the LCP image.
         */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
-        <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="" />
+        {/* Analytics loads after the page is seen (DeferredGtag), so a full
+            preconnect at start-up would only compete with the hero; resolve DNS. */}
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         {/* Cloudbeds + OpenTable widgets are modal-gated (lazy-loaded on click).
             Moved from preconnect to dns-prefetch so they don't compete with LCP. */}
         <link rel="dns-prefetch" href="https://static1.cloudbeds.com" />
@@ -168,11 +171,9 @@ export default async function LocaleRootLayout({
         <link rel="dns-prefetch" href="https://roseiies.com" />
         <link rel="dns-prefetch" href="https://www.canva.com" />
 
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-M3JEDWZ732"
-          strategy="lazyOnload"
-        />
-        <Script id="ga-init" strategy="lazyOnload">
+        {/* gtag.js itself loads later (DeferredGtag, in <body>); this snippet
+            is tiny and only queues consent defaults and the page view. */}
+        <Script id="ga-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -201,6 +202,7 @@ export default async function LocaleRootLayout({
       </head>
 
       <body className="bg-background text-foreground">
+        <DeferredGtag />
         {/* ✅ Skip-to-content link for keyboard / screen-reader users */}
         <a
           href="#main-content"
