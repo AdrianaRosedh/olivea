@@ -23,7 +23,7 @@ export default function PressKitHero({
     <section id="presskit" className="mt-6 sm:mt-10">
       <div className="rounded-[28px] border border-(--olivea-olive)/12 bg-white/55 shadow-[0_18px_55px_rgba(40,60,35,0.12)] overflow-hidden">
         <div className="p-7 sm:p-10">
-          <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
+          <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive)">
             {c.headline}
           </div>
 
@@ -40,7 +40,7 @@ export default function PressKitHero({
                 {c.subhead}
               </p>
 
-              <div className="mt-4 text-[12px] text-(--olivea-olive) opacity-85">
+              <div className="mt-4 text-[12px] text-(--olivea-olive)">
                 <span className="uppercase tracking-[0.30em]">
                   {tt(lang, "Actualizado", "Updated")}
                 </span>
@@ -101,7 +101,7 @@ export default function PressKitHero({
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="rounded-2xl bg-white/35 ring-1 ring-(--olivea-olive)/12 p-5">
-              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                 {tt(lang, "Boilerplate (30 palabras)", "Boilerplate (30 words)")}
               </div>
               <p className="mt-2 text-[14px] leading-relaxed text-(--olivea-olive)/85">
@@ -110,14 +110,14 @@ export default function PressKitHero({
               <button
                 type="button"
                 onClick={() => copyToClipboard(c.boilerplate30)}
-                className="mt-3 text-[12px] text-(--olivea-olive) underline underline-offset-4 opacity-85 hover:opacity-100"
+                className="mt-3 text-[12px] text-(--olivea-olive) underline underline-offset-4 hover:opacity-100"
               >
                 {tt(lang, "Copiar", "Copy")}
               </button>
             </div>
 
             <div className="rounded-2xl bg-white/35 ring-1 ring-(--olivea-olive)/12 p-5">
-              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                 {tt(lang, "Boilerplate (80 palabras)", "Boilerplate (80 words)")}
               </div>
               <p className="mt-2 text-[14px] leading-relaxed text-(--olivea-olive)/85">
@@ -126,7 +126,7 @@ export default function PressKitHero({
               <button
                 type="button"
                 onClick={() => copyToClipboard(c.boilerplate80)}
-                className="mt-3 text-[12px] text-(--olivea-olive) underline underline-offset-4 opacity-85 hover:opacity-100"
+                className="mt-3 text-[12px] text-(--olivea-olive) underline underline-offset-4 hover:opacity-100"
               >
                 {tt(lang, "Copiar", "Copy")}
               </button>
@@ -134,14 +134,14 @@ export default function PressKitHero({
           </div>
 
           <div className="mt-6 rounded-2xl bg-white/28 ring-1 ring-(--olivea-olive)/10 p-5">
-            <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+            <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
               {c.usageTitle}
             </div>
-            <p className="mt-2 text-[13px] leading-relaxed text-(--olivea-olive)/85 max-w-[90ch]">
+            <p className="mt-2 text-[13px] leading-relaxed text-(--olivea-olive) max-w-[90ch]">
               {c.usageBody}
             </p>
 
-            <div className="mt-3 text-[13px] text-(--olivea-olive) opacity-90">
+            <div className="mt-3 text-[13px] text-(--olivea-olive)">
               <a className="underline underline-offset-4" href={`mailto:${manifest.contactEmail}`}>
                 {manifest.contactEmail}
               </a>

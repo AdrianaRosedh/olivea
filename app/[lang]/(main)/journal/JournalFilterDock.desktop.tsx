@@ -202,7 +202,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
 
   const sectionLabel = cn(
     "text-[12px] uppercase tracking-[0.30em]",
-    "text-(--olivea-olive) opacity-90"
+    "text-(--olivea-olive)"
   );
 
   const capsule = cn(
@@ -213,21 +213,21 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
   );
 
   const subtleLink = cn(
-    "text-[12px] text-(--olivea-olive) opacity-85 hover:opacity-100",
+    "text-[12px] text-(--olivea-olive) hover:opacity-100",
     "underline underline-offset-4 decoration-(--olivea-olive)/25 hover:decoration-(--olivea-olive)/45"
   );
 
   const chipBase = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/16 text-(--olivea-olive)/85",
+    "bg-white/16 text-(--olivea-olive)",
     "hover:bg-white/26 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
   const chipActive = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/28",
-    "bg-(--olivea-olive)/12 text-(--olivea-olive) opacity-100"
+    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
   );
 
   const topPillarPicks = useMemo(() => pillars.slice(0, 6), [pillars]);
@@ -446,7 +446,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                 >
                   {restPillars.length ? (
                     <>
-                      <div className="text-[11px] text-(--olivea-olive) opacity-85">
+                      <div className="text-[11px] text-(--olivea-olive)">
                         {tt(lang, "Más pilares", "More pillars")}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -469,7 +469,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
 
                   {restYears.length ? (
                     <>
-                      <div className="mt-4 text-[11px] text-(--olivea-olive) opacity-85">
+                      <div className="mt-4 text-[11px] text-(--olivea-olive)">
                         {tt(lang, "Más años", "More years")}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -492,7 +492,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
 
                   {restTags.length ? (
                     <>
-                      <div className="mt-4 text-[11px] text-(--olivea-olive) opacity-85">
+                      <div className="mt-4 text-[11px] text-(--olivea-olive)">
                         {tt(lang, "Más tags", "More tags")}
                       </div>
                       <div className="mt-2 max-h-40 overflow-auto pr-1">
@@ -596,7 +596,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                 )}
               >
                 <div className="flex items-center justify-between px-4 pt-4">
-                  <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-90">
+                  <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                     {t.filters}
                   </div>
                   <button
@@ -663,7 +663,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                     <span className="text-[12px] uppercase tracking-[0.30em]">
                       {t.filters}
                     </span>
-                    <span className="text-[12px] opacity-75">
+                    <span className="text-[12px]">
                       {count} {t.count}
                     </span>
                   </span>

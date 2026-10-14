@@ -37,7 +37,7 @@ export default function RoseiiesClient({
           <header className="max-w-[68ch]">
             <Link
               href={`/${lang}/innovation`}
-              className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-(--olivea-olive)/85 hover:text-(--olivea-honey) transition"
+              className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-(--olivea-olive) hover:text-(--olivea-honey) transition"
             >
               <span aria-hidden="true">←</span>
               {t(content.hero.back)}
@@ -159,7 +159,7 @@ export default function RoseiiesClient({
         {/* ───────── CTA ───────── */}
         <Reveal preset="up" delay={0.05}>
           <div className="mt-24 rounded-[28px] bg-(--olivea-ivory)/50 ring-1 ring-(--olivea-honey)/20 px-7 py-9 sm:px-10 sm:py-11">
-            <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive)/85">
+            <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive)">
               <span>{t(content.cta.kicker)}</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

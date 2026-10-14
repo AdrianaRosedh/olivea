@@ -346,7 +346,7 @@ export default function PhilosophyDockLeft({
           animate="show"
           className="rounded-lg border border-(--olivea-olive)/12 bg-(--olivea-cream)/70 backdrop-blur-md shadow-[0_18px_54px_-30px_rgba(0,0,0,0.35)] overflow-visible"
         >
-          <div className="px-2 pt-3 pb-2 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) opacity-85 text-center">
+          <div className="px-2 pt-3 pb-2 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) text-center">
             {tt(lang, "Cap.", "Ch.")}
           </div>
 
@@ -448,7 +448,7 @@ export default function PhilosophyDockLeft({
       <motion.div variants={dockV} initial="hidden" animate="show" className="relative">
         <div className="absolute left-4.5 top-6 bottom-6 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/12 to-transparent" />
 
-        <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
+        <div className="mb-4 pl-10 text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive)">
           {tt(lang, "Capítulos", "Chapters")}
         </div>
 

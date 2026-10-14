@@ -30,7 +30,7 @@ export function SignalsRow({ items }: { items?: string[] }) {
           className={cn(
             "px-3 py-1 rounded-full text-[12px]",
             "bg-(--olivea-ivory)/60 ring-1 ring-(--olivea-olive)/12",
-            "text-(--olivea-olive) opacity-90"
+            "text-(--olivea-olive)"
           )}
         >
           {x}
@@ -63,7 +63,7 @@ export function PracticesCard({
       )}
       style={{ willChange: "transform, opacity", ...style }}
     >
-      <div className="text-[11px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+      <div className="text-[11px] uppercase tracking-[0.30em] text-(--olivea-olive)">
         {title}
       </div>
 

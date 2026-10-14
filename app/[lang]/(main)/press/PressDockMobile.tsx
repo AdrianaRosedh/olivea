@@ -56,14 +56,14 @@ export function PressDockMobile({
   const chipBase = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/12 text-(--olivea-olive)/85",
+    "bg-white/12 text-(--olivea-olive)",
     "hover:bg-white/18 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
   const chipActive = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/26",
-    "bg-(--olivea-olive)/12 text-(--olivea-olive) opacity-100"
+    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
   );
 
   const kindLabel = (k: ItemKind) => {
@@ -138,7 +138,7 @@ export function PressDockMobile({
               "h-11 w-11 rounded-xl grid place-items-center transition shrink-0",
               "ring-1",
               sheetOpen
-                ? "bg-(--olivea-olive)/12 ring-(--olivea-olive)/26 text-(--olivea-olive)"
+                ? "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
                 : "bg-white/10 ring-(--olivea-olive)/14 text-(--olivea-olive)/85"
             )}
             aria-label={tt(lang, "Filtros", "Filters")}
@@ -184,7 +184,7 @@ export function PressDockMobile({
 
               {/* Filters: Identity */}
               <div>
-                <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85 mb-2">
+                <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive) mb-2">
                   {tt(lang, "Marca", "Brand")}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -203,7 +203,7 @@ export function PressDockMobile({
 
               {/* Filters: Type */}
               <div>
-                <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85 mb-2">
+                <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive) mb-2">
                   {tt(lang, "Tipo", "Type")}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -222,7 +222,7 @@ export function PressDockMobile({
 
               {/* Filters: Year */}
               <div>
-                <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85 mb-2">
+                <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive) mb-2">
                   {tt(lang, "Año", "Year")}
                 </div>
                 <div className="flex flex-wrap gap-2">

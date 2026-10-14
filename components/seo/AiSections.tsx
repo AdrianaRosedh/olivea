@@ -15,7 +15,7 @@ export function AISection(props: {
     <section className={cn("mx-auto max-w-5xl px-6 py-14", props.className)}>
       <div className="rounded-3xl bg-white/40 backdrop-blur ring-1 ring-black/5 shadow-[0_18px_50px_rgba(40,60,35,0.10)] overflow-hidden">
         <div className="px-7 py-8 sm:px-10 sm:py-10">
-          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)/85">
+          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)">
             Olivea
           </p>
 
@@ -34,7 +34,7 @@ export function AISection(props: {
             <div className="mt-6">
               <a
                 href={props.ctaHref}
-                className="inline-flex items-center gap-2 rounded-full bg-white/55 backdrop-blur px-4 py-2 text-sm text-(--olivea-ink)/85 ring-1 ring-black/5 hover:bg-white/70 transition"
+                className="inline-flex items-center gap-2 rounded-full bg-white/55 backdrop-blur px-4 py-2 text-sm text-(--olivea-ink) ring-1 ring-black/5 hover:bg-white/70 transition"
               >
                 {props.ctaLabel ?? "Learn more"}
                 <span className="text-(--olivea-olive)/85">→</span>
@@ -89,7 +89,7 @@ export function FAQSection(props: {
     <section className={cn("mx-auto max-w-5xl px-6 pb-16", props.className)}>
       <div className="rounded-3xl bg-white/40 backdrop-blur ring-1 ring-black/5 shadow-[0_18px_50px_rgba(40,60,35,0.10)] overflow-hidden">
         <div className="px-7 pt-8 pb-5 sm:px-10 sm:pt-10">
-          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)/85">
+          <p className="text-[11px] tracking-[0.34em] uppercase text-(--olivea-ink)">
             Información
           </p>
           <h3

@@ -115,7 +115,7 @@ function Meta({
   children: React.ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 px-2.5 py-1 text-[11.5px] text-(--olivea-ink)/85 ring-1 ring-black/6">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 px-2.5 py-1 text-[11.5px] text-(--olivea-ink) ring-1 ring-black/6">
       <Icon className="h-3.5 w-3.5 shrink-0 text-(--olivea-olive)/85" aria-hidden />
       <span className="truncate">{children}</span>
     </span>
@@ -182,10 +182,10 @@ export default function OpeningsBoard({
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h3 className="text-[13px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
+        <h3 className="text-[13px] uppercase tracking-[0.22em] text-(--olivea-olive)">
           {c.section}
         </h3>
-        <span className="inline-flex items-center gap-1.5 text-[12px] text-(--olivea-ink)/85">
+        <span className="inline-flex items-center gap-1.5 text-[12px] text-(--olivea-ink)">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--olivea-olive)/60" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-(--olivea-olive)" />
@@ -373,7 +373,7 @@ function OpeningDialog({
             <div className="shrink-0 border-b border-black/6 bg-white/50 px-6 pb-5 pt-6 sm:px-8">
               <div className="flex items-start gap-4">
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
+                  <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                     {c.section}
                   </div>
                   <h2 className="mt-2 font-serif text-[26px] leading-[1.15] text-(--olivea-ink) sm:text-[30px]">
@@ -405,10 +405,10 @@ function OpeningDialog({
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8">
               {v.description && (
                 <section>
-                  <h3 className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
+                  <h3 className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                     {c.about}
                   </h3>
-                  <p className="mt-3 text-[15.5px] leading-[1.85] text-(--olivea-ink)/78">
+                  <p className="mt-3 text-[15.5px] leading-[1.85] text-(--olivea-ink)/85">
                     {v.description}
                   </p>
                 </section>
@@ -416,14 +416,14 @@ function OpeningDialog({
 
               {v.requirements.length > 0 && (
                 <section className="mt-7">
-                  <h3 className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
+                  <h3 className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                     {c.requirements}
                   </h3>
                   <ul className="mt-3 space-y-2.5">
                     {v.requirements.map((r, i) => (
                       <li
                         key={i}
-                        className="flex gap-3 text-[15px] leading-[1.8] text-(--olivea-ink)/76"
+                        className="flex gap-3 text-[15px] leading-[1.8] text-(--olivea-ink)/85"
                       >
                         <span
                           className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-olive)/70"
@@ -437,7 +437,7 @@ function OpeningDialog({
               )}
 
               {posted && (
-                <p className="mt-7 text-[12px] text-(--olivea-ink)/85">
+                <p className="mt-7 text-[12px] text-(--olivea-ink)">
                   {c.posted} · {posted}
                 </p>
               )}

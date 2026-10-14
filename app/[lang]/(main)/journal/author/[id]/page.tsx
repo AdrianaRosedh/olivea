@@ -123,7 +123,7 @@ export default async function AuthorPage({
       />
 
       <header className="mb-12">
-        <div className="text-[12px] uppercase tracking-[0.32em] text-(--olivea-olive) opacity-85">
+        <div className="text-[12px] uppercase tracking-[0.32em] text-(--olivea-olive)">
           {lang === "es" ? "Autor" : "Author"}
         </div>
 
@@ -173,7 +173,7 @@ export default async function AuthorPage({
                     </div>
                   )}
 
-                  <div className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-white/55 px-2 py-1 text-[11px] text-(--olivea-olive) opacity-85 ring-1 ring-(--olivea-olive)/10">
+                  <div className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-white/55 px-2 py-1 text-[11px] text-(--olivea-olive) ring-1 ring-(--olivea-olive)/10">
                     {lang === "es" ? "Perfil" : "Profile"}
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export default async function AuthorPage({
                   </h1>
 
                   {title ? (
-                    <div className="mt-3 text-[13px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85 group-hover:opacity-90">
+                    <div className="mt-3 text-[13px] uppercase tracking-[0.28em] text-(--olivea-olive) group-hover:opacity-90">
                       {title}
                     </div>
                   ) : null}
@@ -249,7 +249,7 @@ export default async function AuthorPage({
                   </h1>
 
                   {title ? (
-                    <div className="mt-3 text-[13px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85">
+                    <div className="mt-3 text-[13px] uppercase tracking-[0.28em] text-(--olivea-olive)">
                       {title}
                     </div>
                   ) : null}
@@ -272,7 +272,7 @@ export default async function AuthorPage({
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[13px] underline underline-offset-4 text-(--olivea-olive) opacity-85 hover:opacity-100"
+                    className="text-[13px] underline underline-offset-4 text-(--olivea-olive) hover:opacity-100"
                   >
                     {href.replace(/^https?:\/\//, "").replace(/\/$/, "")}
                   </a>
@@ -285,7 +285,7 @@ export default async function AuthorPage({
               <div className="mt-5">
                 <Link
                   href={teamHubHref}
-                  className="text-[13px] text-(--olivea-olive) opacity-85 hover:opacity-100 underline underline-offset-4"
+                  className="text-[13px] text-(--olivea-olive) hover:opacity-100 underline underline-offset-4"
                 >
                   {leaderLine}{" "}
                   <span className="opacity-80">{teamHubLabel}</span>
@@ -297,7 +297,7 @@ export default async function AuthorPage({
 
         <Link
           href={`/${lang}/journal`}
-          className="mt-8 inline-block text-[13px] underline underline-offset-4 text-(--olivea-olive) opacity-85 hover:opacity-100"
+          className="mt-8 inline-block text-[13px] underline underline-offset-4 text-(--olivea-olive) hover:opacity-100"
         >
           {lang === "es" ? "Volver al Journal" : "Back to Journal"}
         </Link>
@@ -324,7 +324,7 @@ export default async function AuthorPage({
             ) : null}
 
             <div className="p-6">
-              <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85">
+              <div className="text-[11px] uppercase tracking-[0.28em] text-(--olivea-olive)">
                 {fmtDate(post.publishedAt, lang)} · {post.readingMinutes} min
               </div>
 

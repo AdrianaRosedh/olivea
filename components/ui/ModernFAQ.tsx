@@ -46,7 +46,7 @@ export default function ModernFAQ({ items }: { items: FAQItem[] }) {
               "
               aria-expanded={open}
             >
-              <span className="font-semibold text-oliveaText text-base">
+              <span className="font-semibold text-(--olivea-ink) text-base">
                 {item.q}
               </span>
 
@@ -56,7 +56,7 @@ export default function ModernFAQ({ items }: { items: FAQItem[] }) {
                 aria-hidden="true"
                 className="shrink-0"
               >
-                <ChevronDown className="w-5 h-5 text-oliveaMuted" />
+                <ChevronDown className="w-5 h-5 text-(--olivea-olive)" />
               </motion.div>
             </button>
 
@@ -70,7 +70,7 @@ export default function ModernFAQ({ items }: { items: FAQItem[] }) {
                 >
                   <div className="px-5 pb-5 pt-0">
                     <div className="h-px w-full bg-black/10 mb-4" />
-                    <div className="text-sm leading-relaxed space-y-2 text-oliveaText/80">
+                    <div className="text-sm leading-relaxed space-y-2 text-(--olivea-ink)">
                       {item.a}
                     </div>
                   </div>

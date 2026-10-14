@@ -41,7 +41,7 @@ export default function RoomsSection({ data, lang }: SectionProps) {
 
         {subtitle && (
           <Reveal preset="fade" delay={0.18}>
-            <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)]/85 leading-relaxed">
+            <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)] leading-relaxed">
               {subtitle}
             </p>
           </Reveal>

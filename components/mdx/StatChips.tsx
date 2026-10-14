@@ -10,7 +10,7 @@ export default function StatChips({
       {items.map(({ label, value }) => (
         <li
           key={label}
-          className="rounded-lg border border-black/10 bg-white/60 px-3 py-1 text-xs tracking-wide text-(--olivea-olive)/85 backdrop-blur"
+          className="rounded-lg border border-black/10 bg-white/60 px-3 py-1 text-xs tracking-wide text-(--olivea-olive) backdrop-blur"
         >
           <span className="font-semibold text-(--olivea-olive)/85">{label}:</span>{" "}
           {value}

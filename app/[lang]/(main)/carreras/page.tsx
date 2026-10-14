@@ -100,7 +100,7 @@ export default async function CarrerasPage({ params }: Params) {
     "rounded-[26px] bg-white/22 backdrop-blur-sm ring-1 ring-black/8 shadow-[0_26px_70px_-50px_rgba(0,0,0,0.45)]";
 
   const pill =
-    "inline-flex items-center rounded-full px-3 py-1 text-[12px] bg-white/65 ring-1 ring-black/8 text-(--olivea-ink)/85";
+    "inline-flex items-center rounded-full px-3 py-1 text-[12px] bg-white/65 ring-1 ring-black/8 text-(--olivea-ink)";
 
   const principles = c.principles.map((p) => ({
     k: t(L, p.title),
@@ -123,7 +123,7 @@ export default async function CarrerasPage({ params }: Params) {
             <Reveal preset="fade">
               <div className="inline-flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-(--olivea-olive)" />
-                <span className="text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
+                <span className="text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                   {t(L, c.hero.kicker)}
                 </span>
               </div>
@@ -136,7 +136,7 @@ export default async function CarrerasPage({ params }: Params) {
             </Reveal>
 
             <Reveal preset="fade" delay={0.12}>
-              <p className="mt-5 max-w-[62ch] text-[16px] md:text-[17px] leading-[1.9] text-(--olivea-ink)/76">
+              <p className="mt-5 max-w-[62ch] text-[16px] md:text-[17px] leading-[1.9] text-(--olivea-ink)/85">
                 {t(L, c.hero.description)}
               </p>
             </Reveal>
@@ -152,10 +152,10 @@ export default async function CarrerasPage({ params }: Params) {
 
             {/* Minimal standards — clean list, not a big box */}
             <div className="mt-8">
-              <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
+              <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)">
                 {t(L, c.standards.title)}
               </div>
-              <ul className="mt-3 space-y-2 text-[14.5px] leading-[1.8] text-(--olivea-ink)/74">
+              <ul className="mt-3 space-y-2 text-[14.5px] leading-[1.8] text-(--olivea-ink)/85">
                 {c.standards.items.map((item, i) => (
                   <li key={i} className="flex gap-3">
                     <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
@@ -199,7 +199,7 @@ export default async function CarrerasPage({ params }: Params) {
                     key={i}
                     className="rounded-2xl bg-white/55 p-4 ring-1 ring-black/8 md:bg-white/70 md:backdrop-blur-md md:ring-black/10"
                   >
-                    <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
+                    <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                       {t(L, s.label)}
                     </div>
                     <div className="mt-2 text-[14px] leading-[1.6] text-(--olivea-ink)/85">
@@ -215,10 +215,10 @@ export default async function CarrerasPage({ params }: Params) {
               {c.hiringSteps.map((step) => t(L, step)).map((label, i) => (
                 <div key={label} className="rounded-2xl bg-white/35 ring-1 ring-black/8 p-4">
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 ring-1 ring-black/10 text-[12px] text-(--olivea-ink)/85">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 ring-1 ring-black/10 text-[12px] text-(--olivea-ink)">
                       {i + 1}
                     </span>
-                    <div className="text-[13px] uppercase tracking-[0.18em] text-(--olivea-ink)/85">
+                    <div className="text-[13px] uppercase tracking-[0.18em] text-(--olivea-ink)">
                       {label}
                     </div>
                   </div>
@@ -243,12 +243,12 @@ export default async function CarrerasPage({ params }: Params) {
           {principles.map((p) => (
             <div key={p.k} className="rounded-[22px] bg-white/20 ring-1 ring-black/8 px-6 py-5">
               <div className="flex items-center gap-4">
-                <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
+                <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)">
                   {p.k}
                 </div>
                 <div className="h-px flex-1 bg-black/10" />
               </div>
-              <p className="mt-3 text-[15px] leading-[1.85] text-(--olivea-ink)/76">
+              <p className="mt-3 text-[15px] leading-[1.85] text-(--olivea-ink)/85">
                 {p.v}
               </p>
             </div>
@@ -269,10 +269,10 @@ export default async function CarrerasPage({ params }: Params) {
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {tracks.map((tr) => (
             <div key={tr.title} className={tile + " p-6"}>
-              <div className="text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)/85">
+              <div className="text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                 {tr.title}
               </div>
-              <p className="mt-3 text-[15px] leading-[1.85] text-(--olivea-ink)/76">
+              <p className="mt-3 text-[15px] leading-[1.85] text-(--olivea-ink)/85">
                 {tr.desc}
               </p>
 
@@ -309,11 +309,11 @@ export default async function CarrerasPage({ params }: Params) {
         <div className="mt-6 rounded-[28px] bg-white/18 ring-1 ring-black/8 p-7 md:p-9">
           <div className="grid gap-8 lg:grid-cols-12 items-start">
             <div className="lg:col-span-7">
-              <div className="text-[13px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
+              <div className="text-[13px] uppercase tracking-[0.22em] text-(--olivea-olive)">
                 {t(L, c.openings.openApplication.label)}
               </div>
 
-              <p className="mt-3 text-[16px] leading-[1.9] text-(--olivea-ink)/76 max-w-[70ch]">
+              <p className="mt-3 text-[16px] leading-[1.9] text-(--olivea-ink)/85 max-w-[70ch]">
                 {t(L, c.openings.openApplication.description)}
               </p>
 
@@ -321,7 +321,7 @@ export default async function CarrerasPage({ params }: Params) {
                 <a href="#aplicar" className={ctaPrimary}>
                   {t(L, c.openings.openApplication.ctaLabel)}
                 </a>
-                <span className="inline-flex items-center text-[12.5px] text-(--olivea-ink)/85">
+                <span className="inline-flex items-center text-[12.5px] text-(--olivea-ink)">
                   {t(L, c.openings.openApplication.responseTime)}
                 </span>
               </div>
@@ -329,10 +329,10 @@ export default async function CarrerasPage({ params }: Params) {
 
             <div className="lg:col-span-5">
               <div className="rounded-[22px] bg-white/40 ring-1 ring-black/10 p-5">
-                <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
+                <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)">
                   {t(L, c.openings.qualifications.title)}
                 </div>
-                <ul className="mt-3 space-y-2.5 text-[14.5px] leading-[1.8] text-(--olivea-ink)/74">
+                <ul className="mt-3 space-y-2.5 text-[14.5px] leading-[1.8] text-(--olivea-ink)/85">
                   {c.openings.qualifications.items.map((item, i) => (
                     <li key={i} className="flex gap-3">
                       <span className="mt-2.25 h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/70" />
@@ -359,16 +359,16 @@ export default async function CarrerasPage({ params }: Params) {
             </Reveal>
 
             <Reveal preset="fade" delay={0.06}>
-              <p className="mt-4 text-[15.5px] leading-[1.95] text-(--olivea-ink)/74">
+              <p className="mt-4 text-[15.5px] leading-[1.95] text-(--olivea-ink)/85">
                 {t(L, c.application.description)}
               </p>
             </Reveal>
 
             <div className="mt-6 rounded-[22px] bg-white/20 ring-1 ring-black/8 p-5">
-              <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85">
+              <div className="text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)">
                 {t(L, c.application.tip.label)}
               </div>
-              <p className="mt-3 text-[14.5px] leading-[1.85] text-(--olivea-ink)/74">
+              <p className="mt-3 text-[14.5px] leading-[1.85] text-(--olivea-ink)/85">
                 {t(L, c.application.tip.text)}
               </p>
             </div>

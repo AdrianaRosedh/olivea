@@ -133,7 +133,7 @@ export default function MenuSection({ data, lang }: SectionProps) {
             className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6"
           >
             <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
-            <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]/85">
+            <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]">
               {cardEmojis[i] ?? "\uD83C\uDF3F"} {t(card.title, lang)}
             </div>
             <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/85">

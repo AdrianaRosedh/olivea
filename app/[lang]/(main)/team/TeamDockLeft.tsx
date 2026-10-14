@@ -112,14 +112,14 @@ export default function TeamDockLeft({
   const chipBaseMobile = cn(
     "px-3 py-2 rounded-full text-[13px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/14 text-(--olivea-olive)/85",
+    "bg-white/14 text-(--olivea-olive)",
     "hover:bg-white/24 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
   const chipActiveMobile = cn(
     "px-3 py-2 rounded-full text-[13px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/26",
-    "bg-(--olivea-olive)/12 text-(--olivea-olive) opacity-100"
+    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
   );
 
   const mobileBar = (
@@ -143,14 +143,14 @@ export default function TeamDockLeft({
           >
             <div className="px-3 py-2 flex items-center gap-2">
               <div className="min-w-0 flex-1">
-                <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-85">
+                <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                   {tt(lang, "Equipo", "Team")}
                 </div>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-[13px] text-(--olivea-olive) font-medium truncate">
                     {label(category)}
                   </span>
-                  <span className="text-[12px] text-(--olivea-olive)/85">{count}</span>
+                  <span className="text-[12px] text-(--olivea-olive)">{count}</span>
                 </div>
               </div>
 
@@ -204,7 +204,7 @@ export default function TeamDockLeft({
                   <div className="mx-auto h-1 w-10 rounded-full bg-(--olivea-olive)/15" />
 
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                       {tt(lang, "Filtros", "Filters")}
                     </span>
 
@@ -348,8 +348,8 @@ export default function TeamDockLeft({
             <div className="min-w-0 flex-1">
               <div
                 className={cn(
-                  "text-[11px] uppercase tracking-[0.24em] leading-none",
-                  active ? "text-(--olivea-olive) opacity-90" : "text-(--olivea-olive)/85"
+                  "text-[11px] uppercase tracking-[0.24em] leading-none text-(--olivea-olive)",
+                  active && "font-semibold"
                 )}
               >
                 {shortName(c)}
@@ -396,10 +396,10 @@ export default function TeamDockLeft({
           <div className={cn("flex items-center", collapsed ? "justify-center p-2.5" : "justify-between px-3 py-3")}>
             {!collapsed ? (
               <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-(--olivea-olive)">
                   {tt(lang, "Filtro", "Filter")}
                 </div>
-                <div className="mt-1 text-[10px] text-(--olivea-olive)/85">
+                <div className="mt-1 text-[10px] text-(--olivea-olive)">
                   {count} {tt(lang, "personas", "people")}
                 </div>
               </div>
@@ -430,7 +430,7 @@ export default function TeamDockLeft({
             </div>
 
             {!collapsed ? (
-              <div className="mt-3 text-[10.5px] text-(--olivea-olive)/85 leading-snug">
+              <div className="mt-3 text-[10.5px] text-(--olivea-olive) leading-snug">
                 {tt(lang, "Incluye a los líderes en cada filtro.", "Includes the leaders in every filter.")}
               </div>
             ) : null}

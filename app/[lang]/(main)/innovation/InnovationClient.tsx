@@ -18,7 +18,7 @@ const stagger: Variants = {
 };
 
 // lifted from the Philosophy page so this reads as the same brand
-const EYEBROW = "text-[11px] uppercase tracking-[0.3em] text-(--olivea-olive)/85";
+const EYEBROW = "text-[11px] uppercase tracking-[0.3em] text-(--olivea-olive)";
 const PANEL =
   "rounded-2xl bg-white/45 ring-1 ring-(--olivea-olive)/12 shadow-[0_10px_24px_rgba(40,60,35,0.08)]";
 
@@ -93,7 +93,7 @@ export default function InnovationClient({
               <ul className="mt-7 space-y-5">
                 {craftItems.map(({ n, title, line }) => (
                   <li key={n} className="flex gap-4">
-                    <span className="mt-1 text-[12px] tabular-nums tracking-[0.14em] text-(--olivea-olive)/85">
+                    <span className="mt-1 text-[12px] tabular-nums tracking-[0.14em] text-(--olivea-olive)">
                       {n}
                     </span>
                     <div>

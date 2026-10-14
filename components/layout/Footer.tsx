@@ -287,7 +287,6 @@ export default function Footer({ dict, socials }: FooterProps) {
   }) => {
     const className = [
       "group relative inline-flex items-center",
-      "opacity-80 hover:opacity-100",
       "transition-[opacity,transform,color] duration-200",
       "hover:-translate-y-px",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40",
@@ -504,7 +503,7 @@ export default function Footer({ dict, socials }: FooterProps) {
         {/* RIGHT: rights */}
         <div
           ref={rightRef}
-          className="min-w-0 justify-self-end whitespace-nowrap text-right leading-snug opacity-80"
+          className="min-w-0 justify-self-end whitespace-nowrap text-right leading-snug"
         >
           <span className="cursor-default transition-colors hover:text-(--olivea-olive)">
             <span>© {new Date().getFullYear()} Inmobiliaria MYA by DH.</span>
@@ -551,7 +550,7 @@ function FooterSocialIcon({ item }: { item: SocialItem }) {
       animate="rest"
       className={[
         "flex items-center justify-center",
-        "text-(--olivea-olive) opacity-85 hover:opacity-100",
+        "text-(--olivea-olive)",
         "transition-[opacity,transform]",
         "rounded-full",
       ].join(" ")}

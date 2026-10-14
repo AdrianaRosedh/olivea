@@ -434,7 +434,7 @@ function LeaderCard({
           <span className="inline-flex items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) text-xs font-medium px-3 py-1">
             {l.name}
           </span>
-          <span className="ml-2 mr-2 text-xs text-(--olivea-ink)/85 whitespace-nowrap">
+          <span className="ml-2 mr-2 text-xs text-(--olivea-ink) whitespace-nowrap">
             {roleText}
           </span>
         </div>
@@ -774,7 +774,7 @@ export default function TeamClient({
                                 {l.name}
                               </span>
                             </span>
-                            <span className="min-w-0 flex-1 px-4 py-2 text-sm text-(--olivea-ink)/85 text-left truncate">
+                            <span className="min-w-0 flex-1 px-4 py-2 text-sm text-(--olivea-ink) text-left truncate">
                               {t(l.role)}
                             </span>
                           </div>
@@ -904,7 +904,7 @@ export default function TeamClient({
                             }}
                           >
                             <div className="mb-3">
-                              <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/85">
+                              <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)">
                                 {t(active.tag) ||
                                   (lang === "es" ? "Equipo" : "Team")}
                               </span>
@@ -923,7 +923,7 @@ export default function TeamClient({
                               </h3>
                             </button>
 
-                            <div className="mt-1 text-sm text-(--olivea-ink)/85">
+                            <div className="mt-1 text-sm text-(--olivea-ink)">
                               {t(active.role)} · {t(active.org)}
                             </div>
 
@@ -959,7 +959,7 @@ export default function TeamClient({
                               </Link>
                             </div>
 
-                            <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/85">
+                            <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)">
                               {lang === "es"
                                 ? "El perfil completo vive en el Link en bio."
                                 : "Full profile lives on the Link in bio."}
@@ -1015,7 +1015,7 @@ export default function TeamClient({
                           {/* content column */}
                           <div className="px-6 pb-6 flex-1 overflow-hidden flex flex-col">
                             <div className="mb-3 shrink-0">
-                              <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)/85">
+                              <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] bg-white/60 ring-1 ring-black/10 text-(--olivea-ink)">
                                 {t(active.tag) ||
                                   (lang === "es" ? "Equipo" : "Team")}
                               </span>
@@ -1035,7 +1035,7 @@ export default function TeamClient({
                                 </h3>
                               </button>
 
-                              <div className="mt-1 text-sm text-(--olivea-ink)/85">
+                              <div className="mt-1 text-sm text-(--olivea-ink)">
                                 {t(active.role)} · {t(active.org)}
                               </div>
                             </div>
@@ -1082,7 +1082,7 @@ export default function TeamClient({
                                 />
                               </Link>
 
-                              <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)/85">
+                              <div className="mt-3 text-[11px] tracking-wide text-(--olivea-ink)">
                                 {lang === "es"
                                   ? "El perfil completo vive en el Link en bio."
                                   : "Full profile lives on the Link in bio."}

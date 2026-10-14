@@ -416,7 +416,7 @@ export default function PopupHost() {
               >
                 <motion.span
                   variants={item}
-                  className="text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-90"
+                  className="text-[11px] uppercase tracking-[0.34em] text-(--olivea-olive)"
                 >
                   {popup.badge ?? (popup.lang === "es" ? "Nuevo" : "New")}
                 </motion.span>

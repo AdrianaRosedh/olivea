@@ -65,21 +65,21 @@ export default function PressMediaGallery({
   const chipBase = cn(
     "px-3 py-1.5 rounded-full text-[12px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/18 text-(--olivea-olive)/85",
+    "bg-white/18 text-(--olivea-olive)",
     "hover:bg-white/26 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
   const chipActive = cn(
     "px-3 py-1.5 rounded-full text-[12px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/26",
-    "bg-(--olivea-olive)/12 text-(--olivea-olive) opacity-100"
+    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
   );
 
   return (
     <section id="media" className="mt-12 sm:mt-14">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
+          <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive)">
             {tt(lang, "Media Library", "Media Library")}
           </div>
           <h2
@@ -112,7 +112,7 @@ export default function PressMediaGallery({
       </div>
 
       <div className="mt-5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-        <div className="text-[13px] text-(--olivea-olive) opacity-85">
+        <div className="text-[13px] text-(--olivea-olive)">
           {tt(lang, "Seleccionados", "Selected")}:{" "}
           {Object.values(selected).filter(Boolean).length}
         </div>
@@ -216,7 +216,7 @@ function MediaCard({
       </div>
 
       <div className="p-5">
-        <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+        <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
           {it.category}
         </div>
 
@@ -225,13 +225,13 @@ function MediaCard({
         </div>
 
         {caption ? (
-          <div className="mt-2 text-[13px] text-(--olivea-olive)/85">
+          <div className="mt-2 text-[13px] text-(--olivea-olive)">
             {caption}
           </div>
         ) : null}
 
         {it.credit ? (
-          <div className="mt-2 text-[12px] text-(--olivea-olive) opacity-85">
+          <div className="mt-2 text-[12px] text-(--olivea-olive)">
             {it.credit}
           </div>
         ) : null}

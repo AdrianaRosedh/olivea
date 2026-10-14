@@ -280,7 +280,7 @@ export default function SiteBanner() {
               {/* Label + pulse dot */}
               <div className="order-2 shrink-0 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
-                <span className="text-[11px] tracking-[0.22em] uppercase text-(--olivea-olive) opacity-85">
+                <span className="text-[11px] tracking-[0.22em] uppercase text-(--olivea-olive)">
                   {label}
                 </span>
               </div>

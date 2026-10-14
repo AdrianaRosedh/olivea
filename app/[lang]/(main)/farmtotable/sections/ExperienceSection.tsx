@@ -37,7 +37,7 @@ export default function ExperienceSection({ data, lang }: SectionProps) {
         </Reveal>
 
         <Reveal preset="fade" delay={0.18}>
-          <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)]/85 leading-relaxed">
+          <p className="mt-3 text-[13px] md:text-[14px] text-[var(--olivea-ink)] leading-relaxed">
             {subtitle}
           </p>
         </Reveal>
@@ -68,7 +68,7 @@ export default function ExperienceSection({ data, lang }: SectionProps) {
       />
 
       <Reveal preset="fade" delay={0.08}>
-        <div className="mt-4 max-w-275 mx-auto flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]/85">
+        <div className="mt-4 max-w-275 mx-auto flex items-center gap-3 text-[12px] text-[var(--olivea-ink)]">
           <span className="h-[1px] w-10 bg-black/10" />
           <span>{caption}</span>
         </div>

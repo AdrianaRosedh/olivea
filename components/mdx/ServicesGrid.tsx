@@ -163,7 +163,7 @@ function ServiceCard({
         scroll-mt-30
         overflow-hidden
         will-change-transform
-        text-oliveaText
+        text-(--olivea-ink)
       "
       aria-label={item.title}
       data-index={index}
@@ -193,11 +193,11 @@ function ServiceCard({
         />
       )}
 
-      <h3 className="font-semibold text-sm italic text-oliveaMuted mb-2 relative">
+      <h3 className="font-semibold text-sm italic text-(--olivea-olive) mb-2 relative">
         {item.title}
       </h3>
 
-      <p className="text-sm text-oliveaText leading-relaxed relative">
+      <p className="text-sm text-(--olivea-ink) leading-relaxed relative">
         {item.text}
       </p>
 

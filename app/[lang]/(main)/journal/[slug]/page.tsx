@@ -236,7 +236,7 @@ export default async function JournalPostPage({
                 {post.fm.title}
               </h1>
 
-              <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive) opacity-85">
+              <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] md:text-[14px] text-(--olivea-olive)">
                 <span>
                   {lang === "es" ? "Por " : "By "}
                   {authors.map((a, i) => {

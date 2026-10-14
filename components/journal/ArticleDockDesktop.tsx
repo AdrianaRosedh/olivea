@@ -170,7 +170,7 @@ export function ArticleDockDesktop({
             transition={{ duration: 0.2, ease: EASE }}
           >
             <div className="flex items-center justify-between">
-              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                 {labels.shareTo}
               </div>
 
@@ -228,7 +228,7 @@ export function ArticleDockDesktop({
             transition={{ duration: 0.2, ease: EASE }}
           >
             <div className="flex items-center justify-between">
-              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                 {labels.toc}
               </div>
 

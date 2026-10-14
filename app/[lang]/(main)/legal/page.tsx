@@ -54,7 +54,7 @@ export default async function LegalPage({
         <h1 className="mt-3 font-serif text-4xl md:text-5xl leading-tight text-(--olivea-ink)">
           {t(lang, legal.title)}
         </h1>
-        <p className="mt-4 text-sm text-(--olivea-ink)/85 leading-relaxed">
+        <p className="mt-4 text-sm text-(--olivea-ink) leading-relaxed">
           {t(lang, legal.description)}
         </p>
       </header>

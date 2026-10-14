@@ -65,7 +65,7 @@ function fmtDate(iso: string, lang: "es" | "en") {
 }
 
 const shell = "mx-auto w-full max-w-2xl px-6 sm:px-8 pt-14 pb-20 md:pt-20 md:pb-28";
-const kicker = "text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)/85";
+const kicker = "text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)";
 
 /** Shown for an unknown, mistyped, or retired token. */
 function NotFoundCard({ lang }: { lang: "es" | "en" }) {
@@ -77,7 +77,7 @@ function NotFoundCard({ lang }: { lang: "es" | "en" }) {
         <h1 className="mt-4 text-[30px] md:text-[36px] leading-[1.1] font-semibold tracking-[-0.02em] text-(--olivea-ink)">
           {es ? "No encontramos esta solicitud" : "We couldn't find this application"}
         </h1>
-        <p className="mt-5 text-[15.5px] leading-[1.9] text-(--olivea-ink)/74">
+        <p className="mt-5 text-[15.5px] leading-[1.9] text-(--olivea-ink)/85">
           {es
             ? "El enlace puede estar incompleto. Ábrelo directamente desde el correo que te enviamos al aplicar, sin copiarlo a mano."
             : "The link may be incomplete. Open it straight from the email we sent when you applied, rather than copying it by hand."}
@@ -117,7 +117,7 @@ export default async function ApplicationStatusPage({ params }: Params) {
         </h1>
 
         {date && (
-          <p className="mt-2 text-[13px] tracking-[0.06em] text-(--olivea-ink)/85">
+          <p className="mt-2 text-[13px] tracking-[0.06em] text-(--olivea-ink)">
             {es ? `Enviada el ${date}` : `Submitted ${date}`}
           </p>
         )}
@@ -135,7 +135,7 @@ export default async function ApplicationStatusPage({ params }: Params) {
                       ? "No seguimos adelante esta vez"
                       : "We didn't move forward this time"}
                   </div>
-                  <p className="mt-3 text-[15.5px] leading-[1.9] text-(--olivea-ink)/74">
+                  <p className="mt-3 text-[15.5px] leading-[1.9] text-(--olivea-ink)/85">
                     {es
                       ? "Gracias por el tiempo que nos diste. Nos quedamos con tu perfil y te escribiremos si abre algo que encaje."
                       : "Thank you for the time you gave us. We're keeping your profile on file and will write if something opens that fits."}
@@ -190,7 +190,7 @@ export default async function ApplicationStatusPage({ params }: Params) {
                         {label}
                       </div>
                       {now && (
-                        <p className="mt-2 text-[15px] leading-[1.85] text-(--olivea-ink)/74">
+                        <p className="mt-2 text-[15px] leading-[1.85] text-(--olivea-ink)/85">
                           {note}
                         </p>
                       )}
@@ -245,7 +245,7 @@ export default async function ApplicationStatusPage({ params }: Params) {
 
         <Link
           href={`/${L}/carreras`}
-          className="mt-8 inline-flex text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive)/85 hover:text-(--olivea-clay)"
+          className="mt-8 inline-flex text-[12px] uppercase tracking-[0.22em] text-(--olivea-olive) hover:text-(--olivea-clay)"
         >
           {es ? "← Ver todas las vacantes" : "← See all openings"}
         </Link>

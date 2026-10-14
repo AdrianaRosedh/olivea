@@ -101,7 +101,7 @@ export default function PressClient({
             >
               {/* Featured / Most recent */}
               <div className="mt-6 sm:mt-10">
-                <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85">
+                <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)">
                   {tt(lang, "Más reciente", "Most recent")}
                 </div>
 
@@ -191,7 +191,7 @@ export default function PressClient({
               {/* Contact */}
               <section id="contact" className="mt-12 sm:mt-14">
                 <div className="rounded-3xl border border-(--olivea-olive)/12 bg-white/40 shadow-[0_16px_40px_rgba(40,60,35,0.10)] p-7 sm:p-10">
-                  <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive) opacity-85">
+                  <div className="text-[12px] uppercase tracking-[0.34em] text-(--olivea-olive)">
                     {tt(lang, "Contacto", "Contact")}
                   </div>
 

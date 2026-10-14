@@ -37,7 +37,7 @@ function Dot() {
   return (
     <span
       aria-hidden="true"
-      className="mt-1.5 h-1.5 w-1.5 rounded-full bg-(--olivea-olive) opacity-60"
+      className="mt-1.5 h-1.5 w-1.5 rounded-full bg-(--olivea-olive) opacity-85"
       style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
     />
   );
@@ -305,7 +305,7 @@ function MobilePracticesAccordion({
                     <div className="h-px flex-1 bg-(--olivea-olive)/18" />
                   </div>
 
-                  <div className="mt-3 text-[12px] uppercase tracking-[0.32em] text-(--olivea-olive)/85">
+                  <div className="mt-3 text-[12px] uppercase tracking-[0.32em] text-(--olivea-olive)">
                     {tt(lang, "Capítulo", "Chapter")}{" "}
                     {String(s.order ?? "").padStart(2, "0")}
                   </div>

@@ -15,12 +15,12 @@ export default function FAQItem({
     <div className="mb-6 border-b border-black/10 pb-4">
       <button
         onClick={() => setOpen(!open)}
-        className="text-left w-full text-lg font-medium text-oliveaText"
+        className="text-left w-full text-lg font-medium text-(--olivea-ink)"
       >
         {q}
       </button>
 
-      {open && <div className="mt-2 text-oliveaMuted text-base">{children}</div>}
+      {open && <div className="mt-2 text-(--olivea-olive) text-base">{children}</div>}
     </div>
   );
 }

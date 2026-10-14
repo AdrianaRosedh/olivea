@@ -108,13 +108,13 @@ function HotelPane({
               onClick={onOpenOverlay}
               className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
             >
-              <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/85 mb-2">
+              <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink) mb-2">
                 Motor de reservaciones
               </p>
               <p className="text-sm font-medium text-(--olivea-ink) mb-1">
                 Gestiona tu reserva de Casa Olivea
               </p>
-              <p className="text-xs text-(--olivea-ink)/85 mb-3">
+              <p className="text-xs text-(--olivea-ink) mb-3">
                 Toca para abrir el motor seguro de Cloudbeds en pantalla
                 completa.
               </p>
@@ -211,13 +211,13 @@ function RestaurantPane({
           onClick={onOpenOverlay}
           className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
         >
-          <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/85 mb-2">
+          <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink) mb-2">
             Reservación restaurante
           </p>
           <p className="text-sm font-medium text-(--olivea-ink) mb-1">
             Busca mesa en Olivea Farm To Table
           </p>
-          <p className="text-xs text-(--olivea-ink)/85 mb-3">
+          <p className="text-xs text-(--olivea-ink) mb-3">
             Toca para abrir OpenTable en pantalla completa.
           </p>
           <span className="text-xs font-semibold underline underline-offset-4">
@@ -291,7 +291,7 @@ function MobileHotelSheet({
       }`}
     >
       <div className="flex items-center px-4 py-3 bg-(--olivea-cream)">
-        <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/85">
+        <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)">
           {lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
         </span>
         <button
@@ -350,7 +350,7 @@ function MobileRestaurantSheet({
           exit={{ opacity: 0, y: reduce ? 0 : 16, transition: { duration: reduce ? 0 : 0.18, ease: EASE } }}
         >
           <div className="flex items-center px-4 py-3 bg-(--olivea-cream) shrink-0">
-            <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)/85">
+            <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)">
               Olivea Farm To Table — OpenTable
             </span>
 

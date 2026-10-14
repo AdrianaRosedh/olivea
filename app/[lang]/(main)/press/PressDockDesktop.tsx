@@ -82,7 +82,7 @@ function JumpButton({
         <span className="text-[13px] font-medium">{title}</span>
       </div>
       {subtitle ? (
-        <div className={cn("mt-1 text-[12px]", tone === "primary" ? "opacity-80" : "text-(--olivea-olive)/85")}>
+        <div className={cn("mt-1 text-[12px]", tone === "primary" ? "" : "text-(--olivea-olive)")}>
           {subtitle}
         </div>
       ) : null}
@@ -121,7 +121,7 @@ export function PressDockDesktop({
 
   const sectionLabel = cn(
     "text-[10px] uppercase tracking-[0.28em]",
-    "text-(--olivea-olive) opacity-85"
+    "text-(--olivea-olive)"
   );
 
   const inputShell = cn(
@@ -135,21 +135,21 @@ export function PressDockDesktop({
       "h-11 w-11 rounded-2xl grid place-items-center",
       "ring-1 transition",
       active
-        ? "bg-(--olivea-olive)/12 ring-(--olivea-olive)/26 text-(--olivea-olive)"
+        ? "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
         : "bg-white/10 ring-(--olivea-olive)/14 text-(--olivea-olive)/85 hover:bg-white/16 hover:ring-(--olivea-olive)/22"
     );
 
   const chipBase = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/12 text-(--olivea-olive)/85",
+    "bg-white/12 text-(--olivea-olive)",
     "hover:bg-white/18 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
   const chipActive = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/26",
-    "bg-(--olivea-olive)/12 text-(--olivea-olive) opacity-100"
+    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
   );
 
   const kindLabel = (k: ItemKind) => {
@@ -180,7 +180,7 @@ export function PressDockDesktop({
       <div className="px-4 pt-4 pb-3 flex items-start justify-between">
         <div className="min-w-0">
           <div className={sectionLabel}>{tt(lang, "Prensa", "Press")}</div>
-          <div className="mt-1 text-[12px] text-(--olivea-olive) opacity-85">
+          <div className="mt-1 text-[12px] text-(--olivea-olive)">
             {count} {tt(lang, "items", "items")}
           </div>
         </div>
@@ -303,7 +303,7 @@ export function PressDockDesktop({
           <button
             type="button"
             onClick={() => setMoreOpen((v) => !v)}
-            className="text-[12px] text-(--olivea-olive) opacity-85 hover:opacity-100 underline underline-offset-4"
+            className="text-[12px] text-(--olivea-olive) hover:opacity-100 underline underline-offset-4"
           >
             {moreOpen ? tt(lang, "Menos", "Less") : tt(lang, "Más", "More")}
           </button>
@@ -333,7 +333,7 @@ export function PressDockDesktop({
               className={cn("mt-3 rounded-2xl bg-white/10 ring-1 ring-(--olivea-olive)/14 p-3")}
             >
               {/* Type */}
-              <div className="text-[11px] text-(--olivea-olive) opacity-85">
+              <div className="text-[11px] text-(--olivea-olive)">
                 {tt(lang, "Tipo", "Type")}
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -350,7 +350,7 @@ export function PressDockDesktop({
               </div>
 
               {/* Year */}
-              <div className="mt-3 text-[11px] text-(--olivea-olive) opacity-85">
+              <div className="mt-3 text-[11px] text-(--olivea-olive)">
                 {tt(lang, "Año", "Year")}
               </div>
               <div className="mt-2 flex flex-wrap gap-2">

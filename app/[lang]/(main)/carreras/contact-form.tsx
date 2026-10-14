@@ -92,7 +92,7 @@ function Field({
     <div>
       <label
         htmlFor={id}
-        className="block text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)/85"
+        className="block text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)"
       >
         {label}
       </label>
@@ -420,13 +420,13 @@ export default function ContactForm({ lang }: { lang: Lang }) {
             className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-olive)/60"
             aria-hidden
           />
-          <p className="min-w-0 flex-1 text-[13.5px] leading-snug text-(--olivea-ink)/85">
+          <p className="min-w-0 flex-1 text-[13.5px] leading-snug text-(--olivea-ink)">
             {c.draftRestored}
           </p>
           <button
             type="button"
             onClick={discardDraft}
-            className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink)/85 transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
+            className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink) transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
           >
             {c.draftDiscard}
           </button>
@@ -440,20 +440,20 @@ export default function ContactForm({ lang }: { lang: Lang }) {
             aria-hidden
           />
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-(--olivea-olive)/85">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-(--olivea-olive)">
               {c.applyingFor}
             </div>
             <div className="mt-0.5 text-[15px] font-semibold text-(--olivea-ink)">
               {applyingFor.roleTitle}
             </div>
-            <p className="mt-1 text-[12.5px] leading-snug text-(--olivea-ink)/85">
+            <p className="mt-1 text-[12.5px] leading-snug text-(--olivea-ink)">
               {c.linkedNote}
             </p>
           </div>
           <button
             type="button"
             onClick={() => setApplyingFor(null)}
-            className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink)/85 transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
+            className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink) transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
           >
             {c.clearRole}
           </button>
@@ -485,7 +485,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
               className={`${inputClass} flex items-center justify-between gap-2 bg-(--olivea-olive)/6`}
             >
               <span className="truncate">{areaLabel(applyingFor.area, lang)}</span>
-              <span className="shrink-0 text-[11px] uppercase tracking-[0.16em] text-(--olivea-olive)/85">
+              <span className="shrink-0 text-[11px] uppercase tracking-[0.16em] text-(--olivea-olive)">
                 {c.fromPosting}
               </span>
               {/* Store the canonical value even if the posting handed over a label. */}
@@ -546,7 +546,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
               onChange={(e) => setCvName(e.target.files?.[0]?.name ?? null)}
             />
           </label>
-          <span className="min-w-0 flex-1 truncate text-[13.5px] text-(--olivea-ink)/85">
+          <span className="min-w-0 flex-1 truncate text-[13.5px] text-(--olivea-ink)">
             {cvName ?? c.cvHint}
           </span>
           {cvName && (
@@ -557,7 +557,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
                 const el = document.querySelector<HTMLInputElement>('input[name="cv"]');
                 if (el) el.value = "";
               }}
-              className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink)/85 transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
+              className="shrink-0 rounded-lg px-2 py-1 text-[12px] text-(--olivea-ink) transition-colors hover:bg-black/5 hover:text-(--olivea-ink)"
             >
               {c.cvRemove}
             </button>
@@ -583,7 +583,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
       {/* Turnstile area */}
       <div className="rounded-2xl bg-white/35 ring-1 ring-black/8 p-4">
-        <div className="text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)/85">
+        <div className="text-[12px] uppercase tracking-[0.18em] text-(--olivea-olive)">
           {c.verify}
         </div>
 
@@ -593,7 +593,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
         </div>
 
         {!turnstileReady ? (
-          <p className="mt-2 text-[12.5px] text-(--olivea-ink)/85">Cargando verificación…</p>
+          <p className="mt-2 text-[12.5px] text-(--olivea-ink)">Cargando verificación…</p>
         ) : null}
 
         {state.errors?.turnstileToken ? (

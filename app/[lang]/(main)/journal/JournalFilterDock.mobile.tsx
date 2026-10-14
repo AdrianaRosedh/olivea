@@ -115,14 +115,14 @@ export default function JournalFilterDockMobile({
   const chipBase = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/14 text-(--olivea-olive)/85",
+    "bg-white/14 text-(--olivea-olive)",
     "hover:bg-white/24 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
   const chipActive = cn(
     "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/26",
-    "bg-(--olivea-olive)/12 text-(--olivea-olive) opacity-100"
+    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
   );
 
   const anyActive =
@@ -310,7 +310,7 @@ export default function JournalFilterDockMobile({
             "bg-white/35 ring-1 ring-(--olivea-olive)/14 hover:bg-white/45 transition"
           )}
         >
-          <span className="text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive) opacity-85">
+          <span className="text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive)">
             {title}
           </span>
           <span
@@ -536,7 +536,7 @@ export default function JournalFilterDockMobile({
                   <div className="mx-auto h-1 w-12 rounded-full bg-(--olivea-olive)/18" />
 
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                       {sheetTab === "filters" ? t.filters : t.sections}
                     </span>
 
@@ -562,8 +562,8 @@ export default function JournalFilterDockMobile({
                       className={cn(
                         "flex-1 rounded-full px-4 py-2 text-[12px] ring-1 transition",
                         sheetTab === "filters"
-                          ? "bg-(--olivea-olive)/12 ring-(--olivea-olive)/26 text-(--olivea-olive)"
-                          : "bg-white/35 ring-(--olivea-olive)/14 text-(--olivea-olive)/85 hover:bg-white/45"
+                          ? "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
+                          : "bg-white/35 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/45"
                       )}
                     >
                       {t.filters}
@@ -575,8 +575,8 @@ export default function JournalFilterDockMobile({
                       className={cn(
                         "flex-1 rounded-full px-4 py-2 text-[12px] ring-1 transition",
                         sheetTab === "jump"
-                          ? "bg-(--olivea-olive)/12 ring-(--olivea-olive)/26 text-(--olivea-olive)"
-                          : "bg-white/35 ring-(--olivea-olive)/14 text-(--olivea-olive)/85 hover:bg-white/45"
+                          ? "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
+                          : "bg-white/35 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/45"
                       )}
                     >
                       {t.sections}
@@ -734,7 +734,7 @@ export default function JournalFilterDockMobile({
                             <button
                               type="button"
                               onClick={() => setShowAllTags((v) => !v)}
-                              className="mt-3 text-[12px] text-(--olivea-olive) opacity-85 underline underline-offset-4"
+                              className="mt-3 text-[12px] text-(--olivea-olive) underline underline-offset-4"
                             >
                               {showAllTags ? t.showLess : t.showMore}
                             </button>

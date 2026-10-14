@@ -154,7 +154,7 @@ export function ArticleDockMobile({
                   <div className="mx-auto h-1 w-10 rounded-full bg-(--olivea-olive)/15" />
 
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                       {labels.shareTo}
                     </span>
                     <button
@@ -228,7 +228,7 @@ export function ArticleDockMobile({
                   <div className="mx-auto h-1 w-10 rounded-full bg-(--olivea-olive)/15" />
 
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive) opacity-85">
+                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                       {labels.toc}
                     </span>
                     <button

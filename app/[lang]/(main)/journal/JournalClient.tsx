@@ -230,7 +230,7 @@ export default function JournalClient({
             >
               {featured ? (
                 <section id="featured" className="mt-6 sm:mt-0">
-                  <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85">
+                  <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)">
                     {tt(lang, "Destacado", "Featured")}
                   </div>
 
@@ -268,7 +268,7 @@ export default function JournalClient({
                           </div>
 
                           <div className="p-5 sm:p-7 lg:p-10">
-                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive) opacity-85">
+                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)">
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className="truncate">
                                   {featured.pillar}
@@ -300,7 +300,7 @@ export default function JournalClient({
                                     className={cn(
                                       "text-[12px] px-3 py-1.5 rounded-full",
                                       "bg-(--olivea-cream)/70 border border-(--olivea-olive)/18",
-                                      "text-(--olivea-olive) opacity-90"
+                                      "text-(--olivea-olive)"
                                     )}
                                   >
                                     {t}
@@ -374,7 +374,7 @@ export default function JournalClient({
                           </div>
 
                           <div className="flex flex-1 flex-col p-5 sm:p-7">
-                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive) opacity-85">
+                            <div className="flex flex-col gap-2 text-[12px] uppercase tracking-[0.24em] text-(--olivea-olive)">
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className="truncate">{p.pillar}</span>
                                 <span className="opacity-60">·</span>
@@ -406,7 +406,7 @@ export default function JournalClient({
                                         className={cn(
                                           "text-[12px] px-3 py-1.5 rounded-full",
                                           "bg-(--olivea-cream)/70 border border-(--olivea-olive)/18",
-                                          "text-(--olivea-olive) opacity-90"
+                                          "text-(--olivea-olive)"
                                         )}
                                       >
                                         {t}
