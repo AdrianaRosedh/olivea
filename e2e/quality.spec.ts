@@ -43,6 +43,7 @@ const IGNORED_CONSOLE = [
   /Failed to load resource/, // a third party or missing local key; real 404s are caught by the smoke suite
   /google|gtag|doubleclick|facebook|cloudbeds|opentable/i,
   /Cloudflare Turnstile|challenges\.cloudflare\.com|No available adapters/, // the anti-spam widget, live only
+  /^%c%d font-size:0;color:transparent/, // the same widget's invisible console probe
   /GL Driver Message/, // the browser's GPU driver, under the Google Map (live only)
 ];
 
@@ -92,7 +93,8 @@ for (const path of PAGES) {
           let o = 1;
           for (let a: HTMLElement | null = el; a; a = a.parentElement) {
             const cs = getComputedStyle(a);
-            if (cs.visibility === "hidden" || cs.display === "none") o = 0;
+            // Deliberately hidden (visibility/display) is not "waiting for JavaScript".
+            if (cs.visibility === "hidden" || cs.display === "none") o = NaN;
             o *= Number(cs.opacity);
           }
           if (o < 0.5) out.push(`${el.tagName}.${String(el.className).slice(0, 50)}`);
@@ -136,6 +138,8 @@ for (const path of PAGES) {
         if (m.type() !== "error" && m.type() !== "warning") return;
         const text = m.text();
         if (IGNORED_CONSOLE.some((r) => r.test(text))) return;
+        // Anything the Cloudflare anti-spam frame logs is the widget's own.
+        if (/^https:\/\/challenges\.cloudflare\.com\//.test(m.location().url)) return;
         errors.push(`${m.type()}: ${text.slice(0, 200)}`);
       });
       await consent(page, baseURL!);
