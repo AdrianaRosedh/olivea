@@ -7,13 +7,13 @@ import ContactForm from "./contact-form";
 import OpeningsBoard from "@/components/careers/OpeningsBoard";
 import { getLiveJobOpenings } from "@/lib/supabase/careers-actions";
 import { openingSlug, parseRequirements } from "@/lib/careers/slug";
-import { canonicalUrl, localeAlternates } from "@/lib/site";
+import { canonicalUrl, localeAlternates, withShare } from "@/lib/site";
 import { getContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 
 type Params = { params: Promise<{ lang: string }> };
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+async function pageMetadata({ params }: Params): Promise<Metadata> {
   const p = await params;
   const { lang } = await loadLocale({ lang: p.lang });
   const c = await getContent("careers");
@@ -392,4 +392,11 @@ export default async function CarrerasPage({ params }: Params) {
       ))}
     </main>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/carreras" });
 }

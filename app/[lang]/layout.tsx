@@ -5,7 +5,7 @@ import Script from "next/script";
 import { AppProviders } from "../providers";
 import { fontsClass } from "../fonts";
 import PathTracker from "@/components/PathTracker";
-import { SITE, canonicalUrl } from "@/lib/site";
+import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
 import VhSetter from "@/components/ui/VhSetter";
 import CookieConsent from "@/components/legal/CookieConsent";
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "OLIVEA",
     images: [
       {
-        url: canonicalUrl("/images/seo/cover.jpg"),
+        url: canonicalUrl(shareImagePath("/images/seo/cover.jpg")),
         width: 1200,
         height: 630,
         alt: "OLIVEA",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     title: "OLIVEA | Farm Hospitality in Valle de Guadalupe",
     description:
       "Farm hospitality in Valle de Guadalupe — MICHELIN-starred restaurant, farm stay, and café born from the garden. Where the garden is the essence.",
-    images: [canonicalUrl("/images/seo/cover.jpg")],
+    images: [canonicalUrl(shareImagePath("/images/seo/cover.jpg"))],
   },
 
   robots: {

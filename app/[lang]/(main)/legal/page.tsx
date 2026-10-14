@@ -2,13 +2,13 @@
 import type { Metadata, Viewport } from "next";
 import { getContent, t } from "@/lib/content";
 import type { Lang } from "../dictionaries";
-import { localeAlternates } from "@/lib/site";
+import { localeAlternates, withShare } from "@/lib/site";
 
 export async function generateStaticParams(): Promise<{ lang: string }[]> {
   return [{ lang: "en" }, { lang: "es" }];
 }
 
-export async function generateMetadata({
+async function pageMetadata({
   params,
 }: {
   params: Promise<{ lang: string }>;
@@ -94,4 +94,11 @@ export default async function LegalPage({
       </div>
     </main>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/legal" });
 }

@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { loadLocale as loadDict, type Lang } from "@/app/[lang]/(main)/dictionaries";
-import { SITE, canonicalUrl } from "@/lib/site";
+import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { toFaqItems } from "@/lib/seo/faq";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
@@ -68,13 +68,13 @@ export async function generateMetadata({
       locale: isEs ? "es_MX" : "en_US",
       type: "website",
       siteName: "OLIVEA",
-      images: [{ url: canonicalUrl(ogImage), width: 1200, height: 630, alt: title }],
+      images: [{ url: canonicalUrl(shareImagePath(ogImage)), width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [canonicalUrl(ogImage)],
+      images: [canonicalUrl(shareImagePath(ogImage))],
     },
   };
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 // lib/site.ts
 const env = process.env;
 
@@ -105,4 +106,70 @@ export const SITE_GEO = {
 export function addressOneLine(): string {
   const a = SITE_ADDRESS;
   return `${a.streetAddress}, ${a.postalCode} ${a.addressLocality}, ${a.addressRegion}, Mexico`;
+}
+
+/** The share card used when a page has none of its own. */
+export const DEFAULT_SHARE_IMAGE = "/images/seo/seo-og.jpg";
+
+/** Share images live under /images/seo/. A path elsewhere (an old
+ *  /images/og/… left in the admin) pointed at a file that does not exist, and
+ *  the page then shared with no picture at all. */
+export function shareImagePath(src?: string | null, fallback = DEFAULT_SHARE_IMAGE): string {
+  const path = src && /^\/images\/seo\/[\w.-]+\.(jpe?g|png|webp)$/i.test(src) ? src : fallback;
+  return WIDE_SHARE[path] ?? path;
+}
+
+/** The section photos are tall (1600×2400) and are also used on the pages and
+ *  in structured data. Link previews are wide (1.91:1), and each app cropped
+ *  the tall photo its own way, so previews use a 1200×630 crop of each, under
+ *  300 KB (WhatsApp drops larger preview images). */
+const WIDE_SHARE: Record<string, string> = {
+  "/images/seo/cover.jpg": "/images/seo/cover-share.jpg",
+  "/images/seo/farm-og.jpg": "/images/seo/farm-share.jpg",
+  "/images/seo/casa-og.jpg": "/images/seo/casa-share.jpg",
+  "/images/seo/cafe-og.jpg": "/images/seo/cafe-share.jpg",
+  "/images/seo/default-of.jpg": DEFAULT_SHARE_IMAGE,
+};
+
+
+/**
+ * Completes a page's metadata for link previews (WhatsApp, iMessage,
+ * Facebook, LinkedIn, X): picture, site name, language, address, card size.
+ *
+ * Next.js replaces — does not merge — a parent's `openGraph` when a page sets
+ * its own, so a page that wrote only a title and description shared with no
+ * picture. This fills in whatever the page left out and keeps what it set.
+ */
+export function withShare(
+  meta: Metadata,
+  opts: { lang: Locale | string; path: string; image?: string | null; alt?: string }
+): Metadata {
+  const lang = opts.lang === "en" ? "en" : "es";
+  const url = canonicalUrl(`/${lang}${opts.path}`);
+  const image = canonicalUrl(shareImagePath(opts.image));
+  const og = meta.openGraph ?? {};
+  const title = og.title ?? (typeof meta.title === "string" ? meta.title : undefined);
+  const description = og.description ?? meta.description ?? undefined;
+
+  return {
+    ...meta,
+    alternates: meta.alternates ?? localeAlternates(lang, opts.path),
+    openGraph: {
+      siteName: "OLIVEA",
+      locale: lang === "es" ? "es_MX" : "en_US",
+      url,
+      ...og,
+      type: "website",
+      title,
+      description,
+      images: og.images ?? [{ url: image, width: 1200, height: 630, alt: opts.alt ?? "OLIVEA" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+      ...(meta.twitter ?? {}),
+    },
+  };
 }

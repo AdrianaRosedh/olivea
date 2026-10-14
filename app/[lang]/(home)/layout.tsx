@@ -1,7 +1,7 @@
 // app/(home)/[lang]/layout.tsx
 import type { Metadata, ResolvingMetadata, Viewport } from "next";
 import FixedLCP from "./FixedLCP";
-import { SITE, canonicalUrl } from "@/lib/site";
+import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import StructuredDataServer, { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 
 export const viewport: Viewport = {
@@ -24,7 +24,7 @@ export async function generateMetadata(
 
   const canonicalPath = isEs ? "/es" : "/en";
   const url = canonicalUrl(canonicalPath);
-  const ogImage = canonicalUrl("/images/seo/cover.jpg");
+  const ogImage = canonicalUrl(shareImagePath("/images/seo/cover.jpg"));
 
   return {
     title,
@@ -104,7 +104,7 @@ export default async function HomeLangLayout({
     about: { "@id": ENTITY_IDS.organization },
     primaryImageOfPage: {
       "@type": "ImageObject",
-      url: canonicalUrl("/images/seo/cover.jpg"),
+      url: canonicalUrl(shareImagePath("/images/seo/cover.jpg")),
       width: 1200,
       height: 630,
     },

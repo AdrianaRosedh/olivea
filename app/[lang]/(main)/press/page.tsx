@@ -4,9 +4,9 @@ import PressClient from "./PressClient";
 import ArticlePress from "./ArticlePress";
 import { loadPressItems, loadPressManifest } from "./load";
 import type { Lang } from "./pressTypes";
-import { localeAlternates } from "@/lib/site";
+import { localeAlternates, withShare } from "@/lib/site";
 
-export async function generateMetadata({
+async function pageMetadata({
   params,
 }: {
   params: Promise<{ lang: string }>;
@@ -44,4 +44,11 @@ export default async function PressPage({
       <PressClient lang={lang} items={items} manifest={manifest} />
     </>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/press" });
 }

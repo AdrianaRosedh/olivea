@@ -1,6 +1,6 @@
 // app/(home)/[lang]/page.tsx
 import type { Metadata } from "next";
-import { SITE, canonicalUrl } from "@/lib/site";
+import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import { getContent, listContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 import HomeClient from "./HomeClient";
@@ -44,7 +44,7 @@ export async function generateMetadata({
       siteName: "OLIVEA",
       images: [
         {
-          url: canonicalUrl(home.meta.ogImage ?? "/images/seo/cover.jpg"),
+          url: canonicalUrl(shareImagePath(home.meta.ogImage, "/images/seo/cover.jpg")),
           width: 1200,
           height: 630,
           alt: "OLIVEA",
@@ -55,7 +55,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [canonicalUrl(home.meta.ogImage ?? "/images/seo/cover.jpg")],
+      images: [canonicalUrl(shareImagePath(home.meta.ogImage, "/images/seo/cover.jpg"))],
     },
   };
 }

@@ -7,7 +7,7 @@ import {
 } from "@/app/[lang]/(main)/dictionaries";
 import { applyCmsOverlay } from "@/app/[lang]/(main)/dictionaries/cms-overlay";
 import { getContent } from "@/lib/content";
-import { canonicalUrl } from "@/lib/site";
+import { canonicalUrl, withShare } from "@/lib/site";
 import FaqJsonLd from "@/components/seo/FaqJsonLd";
 import FaqProse from "@/components/seo/FaqProse";
 import { contactFaq } from "./faq";
@@ -39,7 +39,7 @@ type PageProps = {
   params: Promise<{ lang: string }>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+async function pageMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang: raw } = await params;
   const lang: Lang = normalizeLang(raw);
   const dict = getDictionary(lang);
@@ -57,13 +57,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: pageTitle,
     description: t.metaDescription,
-    alternates: {
-      canonical: `/${lang}/contact`,
-      languages: {
-        "es-MX": "/es/contact",
-        en: "/en/contact",
-      },
-    },
     openGraph: {
       title: pageTitle,
       description: t.metaDescription,
@@ -111,4 +104,11 @@ export default async function ContactPage({ params }: PageProps) {
       <FaqJsonLd id={canonicalUrl(`/${lang}/contact#faq`)} items={faq} />
     </>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/contact" });
 }

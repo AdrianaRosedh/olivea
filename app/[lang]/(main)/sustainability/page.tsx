@@ -5,14 +5,14 @@ import ArticleEn from "./ArticleEn";
 import ArticleEs from "./ArticleEs";
 import { loadPhilosophySectionsCms } from "./load";
 import { philosophyFaqLd } from "./faq";
-import { canonicalUrl } from "@/lib/site";
+import { canonicalUrl, withShare } from "@/lib/site";
 import type { Lang } from "./philosophyTypes";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
 }
 
-export async function generateMetadata({
+async function pageMetadata({
   params,
 }: {
   params: Promise<{ lang: string }>;
@@ -94,4 +94,11 @@ export default async function SustainabilityPage({
       />
     </>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/sustainability" });
 }

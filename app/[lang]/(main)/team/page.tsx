@@ -1,7 +1,7 @@
 // app/(main)/[lang]/team/page.tsx
 import type { Metadata } from "next";
 import { loadLocale } from "@/lib/i18n";
-import { SITE, canonicalUrl } from "@/lib/site";
+import { SITE, canonicalUrl, withShare } from "@/lib/site";
 import TeamClient, { type TeamDict } from "./TeamClient";
 import { loadTeam } from "./teamData";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
@@ -24,7 +24,7 @@ function withBrand(title: string) {
   return `${t} | OLIVEA`;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+async function pageMetadata({ params }: PageProps): Promise<Metadata> {
   const p = await params;
   const { dict } = await loadLocale(p);
   const lang: "en" | "es" = p.lang === "en" ? "en" : "es";
@@ -48,10 +48,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     metadataBase: new URL(SITE.canonicalBaseUrl),
-    alternates: {
-      canonical: url,
-      languages: { es: canonicalUrl("/es/team"), en: canonicalUrl("/en/team") },
-    },
     openGraph: {
       title,
       description,
@@ -127,4 +123,11 @@ export default async function TeamPage({ params }: PageProps) {
       <TeamClient lang={lang} team={team} members={members} />
     </main>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/team" });
 }

@@ -1,6 +1,6 @@
 // app/(main)/[lang]/menu/page.tsx
 import type { Metadata } from "next";
-import { SITE, canonicalUrl } from "@/lib/site";
+import { SITE, canonicalUrl, withShare } from "@/lib/site";
 import { type Lang } from "@/lib/i18n";
 import { Suspense } from "react";
 import MenuDeepLinkClient from "./MenuDeepLinkClient";
@@ -13,7 +13,7 @@ export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
 }
 
-export async function generateMetadata({
+async function pageMetadata({
   params,
 }: {
   params: Promise<{ lang: string }>;
@@ -82,4 +82,11 @@ export default async function MenuPage({
       </Suspense>
     </>
   );
+}
+
+export async function generateMetadata(
+  props: Parameters<typeof pageMetadata>[0]
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  return withShare(await pageMetadata(props), { lang, path: "/menu" });
 }

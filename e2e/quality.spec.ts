@@ -15,6 +15,9 @@ import { test, expect, type Page } from "@playwright/test";
 //    disabled controls, are outside what this check can judge or require.
 // 5. No duplicate ids (the hidden server article repeated section ids, so
 //    getElementById scrolled to the hidden copy).
+// 6. Link previews: every page shares with a title, description, address and
+//    a picture that loads (the home page's pointed at a missing file, and seven
+//    pages had no picture at all).
 
 const PAGES = [
   "/es",
@@ -122,6 +125,32 @@ for (const path of PAGES) {
       expect(dupIds, "duplicate ids").toEqual([]);
 
       expect(errors, "console errors and warnings").toEqual([]);
+    });
+
+    test("link preview has a title, description and a picture that loads", async ({ page, request }) => {
+      test.skip(test.info().project.name !== "chromium", "server HTML is the same for every device");
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+      const og = await page.evaluate(() => {
+        const m = (k: string) =>
+          document.querySelector<HTMLMetaElement>(`meta[property="${k}"], meta[name="${k}"]`)?.content ?? null;
+        return {
+          title: m("og:title"),
+          description: m("og:description"),
+          url: m("og:url"),
+          image: m("og:image"),
+          twitterCard: m("twitter:card"),
+        };
+      });
+      expect(og.title, "og:title").toBeTruthy();
+      expect(og.description, "og:description").toBeTruthy();
+      expect(og.url, "og:url").toBeTruthy();
+      expect(og.twitterCard, "twitter:card").toBe("summary_large_image");
+      expect(og.image, "og:image").toBeTruthy();
+      // Same file served locally: the production host in the URL is swapped for this one.
+      const local = new URL(og.image!).pathname;
+      const res = await request.get(local);
+      expect(res.status(), `og:image ${local}`).toBe(200);
+      expect(res.headers()["content-type"], `og:image ${local}`).toMatch(/^image\//);
     });
 
     test("small text meets 4.5:1 contrast", async ({ page, baseURL }) => {
