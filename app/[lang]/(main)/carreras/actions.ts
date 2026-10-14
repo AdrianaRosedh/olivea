@@ -12,34 +12,65 @@ import {
   RESUME_MAX_BYTES,
 } from "@/lib/supabase/resume-storage";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Nombre requerido"),
-  email: z.string().email("Correo inválido"),
-  phone: z.string().min(7, "Teléfono requerido"),
-  area: z.string().min(2, "Selecciona un área"),
-  availability: z.string().min(2, "Selecciona disponibilidad"),
-  languages: z.string().min(2, "Indica idiomas"),
-  role: z.string().optional(),
-  links: z.string().optional(),
-  // Set when the applicant came from a specific posting. Empty for the open
-  // application, so it is validated as a UUID only when actually present.
-  openingId: z.union([z.string().uuid(), z.literal("")]).optional(),
-  // The posting's own title, carried separately from the editable "role"
-  // field so the email subject and the cover note quote what was actually
-  // advertised rather than whatever the applicant typed over it.
-  openingTitle: z.string().max(200).optional(),
-  // Which language they applied in, so the confirmation matches.
-  lang: z.enum(["es", "en"]).optional(),
-  q1: z.string().min(10, "Respuesta muy corta"),
-  q2: z.string().min(10, "Respuesta muy corta"),
-  q3: z.string().min(6, "Respuesta muy corta"),
-  notes: z.string().optional(),
+/* Messages in the applicant's language. These were Spanish only, so an English
+   applicant was told "Nombre requerido". */
+function messages(lang: "es" | "en") {
+  const es = lang === "es";
+  return {
+    name: es ? "Nombre requerido" : "Name required",
+    email: es ? "Correo inválido" : "Invalid email",
+    phone: es ? "Teléfono requerido" : "Phone required",
+    area: es ? "Selecciona un área" : "Choose a track",
+    availability: es ? "Selecciona disponibilidad" : "Choose your availability",
+    languages: es ? "Indica idiomas" : "List your languages",
+    short: es ? "Respuesta muy corta" : "Answer too short",
+    long: es ? "Texto demasiado largo" : "Text too long",
+    verify: es ? "Verificación requerida" : "Verification required",
+    tooMany: es ? "Demasiadas solicitudes. Intenta en un momento." : "Too many requests. Please try again in a moment.",
+    invalid: es ? "Solicitud inválida." : "Invalid request.",
+    verifyFailed: es ? "No se pudo verificar. Intenta de nuevo." : "Verification failed. Please try again.",
+    cvTooBig: es ? "El archivo supera 4 MB." : "The file is larger than 4 MB.",
+    cvType: es ? "Formato no válido. Adjunta un PDF o DOCX." : "Invalid format. Attach a PDF or DOCX.",
+    sendFailed: es ? "No se pudo enviar. Intenta más tarde." : "Could not send. Please try again later.",
+  };
+}
 
-  // anti-spam
-  website: z.string().optional(), // honeypot
-  startedAt: z.string().optional(), // ms timestamp
-  turnstileToken: z.string().min(10, "Verificación requerida"),
-});
+/* Upper bounds are generous for real answers and stop a pasted megabyte from
+   being stored and emailed. */
+function formSchema(lang: "es" | "en") {
+  const m = messages(lang);
+  const text = (min: number, minMsg: string, max: number) =>
+    z.string().trim().min(min, minMsg).max(max, m.long);
+  const optional = (max: number) => z.string().trim().max(max, m.long).optional();
+  return z.object({
+    name: text(2, m.name, 120),
+    email: z.string().trim().max(254, m.long).email(m.email),
+    phone: text(7, m.phone, 40),
+    area: text(2, m.area, 120),
+    availability: text(2, m.availability, 120),
+    languages: text(2, m.languages, 200),
+    role: optional(200),
+    links: optional(1000),
+    // Set when the applicant came from a specific posting. Empty for the open
+    // application, so it is validated as a UUID only when actually present.
+    openingId: z.union([z.string().uuid(), z.literal("")]).optional(),
+    // The posting's own title, carried separately from the editable "role"
+    // field so the email subject and the cover note quote what was actually
+    // advertised rather than whatever the applicant typed over it.
+    openingTitle: z.string().max(200).optional(),
+    // Which language they applied in, so the confirmation matches.
+    lang: z.enum(["es", "en"]).optional(),
+    q1: text(10, m.short, 3000),
+    q2: text(10, m.short, 3000),
+    q3: text(6, m.short, 3000),
+    notes: optional(3000),
+
+    // anti-spam
+    website: z.string().max(500).optional(), // honeypot
+    startedAt: z.string().max(20).optional(), // ms timestamp
+    turnstileToken: z.string().min(10, m.verify).max(4096),
+  });
+}
 
 export type ApplicationErrors = Record<string, string>;
 
@@ -81,6 +112,9 @@ async function verifyTurnstile(token: string, ip: string) {
 export async function handleSubmit(
   formData: FormData
 ): Promise<{ errors?: ApplicationErrors; success?: true }> {
+  const lang = formData.get("lang") === "en" ? "en" : "es";
+  const m = messages(lang);
+
   // Cross-instance rate limiting: 10 submissions per minute per IP.
   const ip = await getClientIp();
   const rl = await rateLimitDistributed(`carreras:ip:${ip}`, {
@@ -88,7 +122,7 @@ export async function handleSubmit(
     windowMs: 60_000,
   });
   if (!rl.ok) {
-    return { errors: { form: "Demasiadas solicitudes. Intenta en un momento." } };
+    return { errors: { form: m.tooMany } };
   }
 
   // The CV is a File, not a string — pull it out before zod sees the rest.
@@ -98,7 +132,7 @@ export async function handleSubmit(
   const raw = Object.fromEntries(
     [...formData.entries()].filter(([k]) => k !== "cv")
   );
-  const parsed = formSchema.safeParse(raw);
+  const parsed = formSchema(lang).safeParse(raw);
 
   if (!parsed.success) {
     const errors: ApplicationErrors = {};
@@ -113,17 +147,17 @@ export async function handleSubmit(
 
   // 1) honeypot
   if (data.website && data.website.trim().length > 0) {
-    return { errors: { form: "Solicitud inválida." } };
+    return { errors: { form: m.invalid } };
   }
 
   // 2) timing check (bots submit instantly)
   const started = Number(data.startedAt || "0");
-  if (!Number.isFinite(started) || started <= 0) return { errors: { form: "Solicitud inválida." } };
-  if (Date.now() - started < 2500) return { errors: { form: "Solicitud inválida." } };
+  if (!Number.isFinite(started) || started <= 0) return { errors: { form: m.invalid } };
+  if (Date.now() - started < 2500) return { errors: { form: m.invalid } };
 
   // 3) Turnstile verify
   const ok = await verifyTurnstile(data.turnstileToken, ip);
-  if (!ok.ok) return { errors: { turnstileToken: "No se pudo verificar. Intenta de nuevo." } };
+  if (!ok.ok) return { errors: { turnstileToken: m.verifyFailed } };
 
   // An IP can rotate; an address can be targeted. Count the address only after
   // Turnstile succeeds so a bot cannot exhaust somebody else's email quota.
@@ -133,25 +167,25 @@ export async function handleSubmit(
     { limit: 6, windowMs: 10 * 60_000 },
   );
   if (!emailLimit.ok) {
-    return { errors: { form: "Demasiadas solicitudes. Intenta en un momento." } };
+    return { errors: { form: m.tooMany } };
   }
 
   // ── Optional CV ───────────────────────────────────────────────────
   //
   // Deliberately after the honeypot, timing and Turnstile checks: those are
-  // cheap, and there is no reason to read up to 5 MB into memory for a
+  // cheap, and there is no reason to read up to 4 MB into memory for a
   // request we are about to reject. Everything is re-checked server-side —
   // a file input's accept attribute and the browser's reported MIME type are
   // both claims, not guarantees, so the bytes themselves decide.
   let cv: { bytes: Uint8Array; name: string; kind: "pdf" | "docx" } | null = null;
   if (cvFile) {
     if (cvFile.size > RESUME_MAX_BYTES) {
-      return { errors: { cv: "El archivo supera 5 MB." } };
+      return { errors: { cv: m.cvTooBig } };
     }
     const bytes = new Uint8Array(await cvFile.arrayBuffer());
     const kind = sniffResumeType(bytes);
     if (!kind) {
-      return { errors: { cv: "Formato no válido. Adjunta un PDF o DOCX." } };
+      return { errors: { cv: m.cvType } };
     }
     cv = { bytes, name: cvFile.name || "cv", kind };
   }
@@ -230,7 +264,7 @@ export async function handleSubmit(
       },
     });
   } catch {
-    return { errors: { form: "No se pudo enviar. Intenta más tarde." } };
+    return { errors: { form: m.sendFailed } };
   }
 
   // Confirm to the applicant. Deliberately last and deliberately unawaited

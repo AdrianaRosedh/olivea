@@ -144,7 +144,7 @@ function CreateForm({ onDone }: { onDone: () => void }) {
 
   const errMsg =
     error === "no_file" ? t({ es: "Elige un PDF.", en: "Choose a PDF." })
-    : error === "too_large" ? t({ es: "El archivo supera 25 MB.", en: "File exceeds 25 MB." })
+    : error === "too_large" ? t({ es: "El archivo supera 3 MB. Comprime el PDF e intenta de nuevo.", en: "File exceeds 3 MB. Compress the PDF and try again." })
     : error === "not_pdf" ? t({ es: "Solo se permiten archivos PDF.", en: "Only PDF files are allowed." })
     : error ? t({ es: "No se pudo crear el documento.", en: "Could not create the document." })
     : null;

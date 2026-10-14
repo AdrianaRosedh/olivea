@@ -61,6 +61,17 @@ export async function openSecureDocument(
       return { ok: false, status: "error" };
     }
 
+    // Everything below is stored in the access log. The browser details are
+    // supplied by the client, so bound them; a name is a name.
+    name = String(name ?? "").slice(0, 120);
+    passcode = String(passcode ?? "").slice(0, 200);
+    let fp: ClientFingerprint | null = fingerprint ?? null;
+    try {
+      if (fp && JSON.stringify(fp).length > 8_000) fp = { hash: String(fp.hash ?? "").slice(0, 128) };
+    } catch {
+      fp = null;
+    }
+
     // Stable per-browser session id (for the access log; not a secret).
     const sidCookie =
       SID_PREFIX + createHash("sha256").update(grant).digest("hex").slice(0, 12);
@@ -109,9 +120,9 @@ export async function openSecureDocument(
           _session: sid,
           _ip: ip,
           _ua: ua,
-          _client: fingerprint ?? null,
+          _client: fp,
           _geo: geo,
-          _fp_hash: fingerprint?.hash ?? null,
+          _fp_hash: fp?.hash ? String(fp.hash).slice(0, 128) : null,
           _accept_language: acceptLanguage,
           _referer: referer,
         }),

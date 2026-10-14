@@ -593,7 +593,7 @@ export default function PopupHost() {
                         "rounded-2xl px-4 py-3.5 md:py-3",
                         "bg-white/70 ring-1 ring-(--olivea-olive)/10",
                         "text-[12px] uppercase tracking-[0.28em]",
-                        "text-(--olivea-olive) opacity-90 hover:opacity-100 transition",
+                        "text-(--olivea-olive) transition",
                       ].join(" ")}
                     >
                       {es ? "Ahora no" : "Not now"}

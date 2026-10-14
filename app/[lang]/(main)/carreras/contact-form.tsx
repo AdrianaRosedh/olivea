@@ -10,7 +10,7 @@ import {
   areaLabel,
   canonicalArea,
 } from "@/lib/careers/areas";
-import { RESUME_ACCEPT } from "@/lib/supabase/resume-storage";
+import { RESUME_ACCEPT, RESUME_MAX_BYTES } from "@/lib/supabase/resume-storage";
 type State = { success?: boolean; errors?: ApplicationErrors };
 
 const initialState: State = { success: false, errors: {} };
@@ -37,7 +37,13 @@ const copy = (lang: Lang) => ({
       : "Your application will be linked to this role.",
   links: lang === "es" ? "Links (opcional)" : "Links (optional)",
   cv: lang === "es" ? "CV (opcional)" : "CV (optional)",
-  cvHint: lang === "es" ? "PDF o DOCX, máx. 5 MB" : "PDF or DOCX, max 5 MB",
+  cvHint: lang === "es" ? "PDF o DOCX, máx. 4 MB" : "PDF or DOCX, max 4 MB",
+  cvTooBig: lang === "es" ? "El archivo supera 4 MB." : "The file is larger than 4 MB.",
+  cvType: lang === "es" ? "Formato no válido. Adjunta un PDF o DOCX." : "Invalid format. Attach a PDF or DOCX.",
+  sendFailed:
+    lang === "es"
+      ? "No se pudo enviar. Revisa tu conexión e intenta de nuevo."
+      : "Could not send. Check your connection and try again.",
   cvChoose: lang === "es" ? "Adjuntar archivo" : "Attach a file",
   cvRemove: lang === "es" ? "Quitar" : "Remove",
   draftRestored:
@@ -157,6 +163,9 @@ export default function ContactForm({ lang }: { lang: Lang }) {
   }, []);
 
   const [cvName, setCvName] = useState<string | null>(null);
+  // Checked on choosing the file, so a too-large or wrong file is caught
+  // before the whole application is sent (the server re-checks the bytes).
+  const [cvError, setCvError] = useState<string | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [turnstileToken, setTurnstileToken] = useState("");
@@ -208,11 +217,17 @@ export default function ContactForm({ lang }: { lang: Lang }) {
 
   const actionWrapper = useCallback(
     async (_state: State, formData: FormData): Promise<State> => {
-      const result = await handleSubmit(formData);
-      if (result.success) return { success: true, errors: {} };
-      return { success: false, errors: result.errors ?? {} };
+      try {
+        const result = await handleSubmit(formData);
+        if (result.success) return { success: true, errors: {} };
+        return { success: false, errors: result.errors ?? {} };
+      } catch {
+        // The request itself failed (offline, a dropped connection, the
+        // platform refusing it): say so instead of leaving the button silent.
+        return { success: false, errors: { form: c.sendFailed } };
+      }
     },
-    []
+    [c.sendFailed]
   );
 
   const [state, runAction, isPending] = useActionState(actionWrapper, initialState);
@@ -534,7 +549,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
       {/* Optional CV. Kept out of the required set on purpose — plenty of
           strong hospitality candidates do not have one to hand, and the three
           questions below tell us more than a CV does. */}
-      <Field name="cv" label={c.cv} error={state.errors?.cv}>
+      <Field name="cv" label={c.cv} error={cvError ?? state.errors?.cv}>
         <div className={`${inputClass} flex items-center gap-3`}>
           <label className="cursor-pointer rounded-lg bg-(--olivea-olive)/10 px-3 py-1.5 text-[13px] font-medium text-(--olivea-olive) transition-colors hover:bg-(--olivea-olive)/16 focus-within:ring-2 focus-within:ring-(--olivea-olive)/40">
             {c.cvChoose}
@@ -543,10 +558,30 @@ export default function ContactForm({ lang }: { lang: Lang }) {
               name="cv"
               accept={RESUME_ACCEPT}
               className="sr-only"
-              onChange={(e) => setCvName(e.target.files?.[0]?.name ?? null)}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) {
+                  setCvName(null);
+                  setCvError(null);
+                  return;
+                }
+                const okType = /\.(pdf|docx)$/i.test(file.name);
+                const problem = !okType ? c.cvType : file.size > RESUME_MAX_BYTES ? c.cvTooBig : null;
+                setCvError(problem);
+                if (problem) {
+                  e.target.value = "";
+                  setCvName(null);
+                } else {
+                  setCvName(file.name);
+                }
+              }}
             />
           </label>
-          <span className="min-w-0 flex-1 truncate text-[13.5px] text-(--olivea-ink)">
+          {/* A chosen file name truncates; the hint wraps, so the size limit is
+              readable on a phone instead of ending in "…". */}
+          <span
+            className={`min-w-0 flex-1 text-[13.5px] text-(--olivea-ink) ${cvName ? "truncate" : "leading-snug"}`}
+          >
             {cvName ?? c.cvHint}
           </span>
           {cvName && (
@@ -554,6 +589,7 @@ export default function ContactForm({ lang }: { lang: Lang }) {
               type="button"
               onClick={() => {
                 setCvName(null);
+                setCvError(null);
                 const el = document.querySelector<HTMLInputElement>('input[name="cv"]');
                 if (el) el.value = "";
               }}

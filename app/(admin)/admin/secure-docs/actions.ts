@@ -21,7 +21,11 @@ import {
 
 const SECURE_DOCS_SECTION = "settings.securedocs";
 const BUCKET = "secure-documents";
-const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+// 3 MB. The viewer returns the document base64-encoded in one response (about
+// a third larger) and Vercel caps a function response at 4.5 MB, so anything
+// much over 3 MB uploaded fine but could never be opened. Uploads were also
+// capped at 5 MB by serverActions.bodySizeLimit, so "25 MB" was never real.
+const MAX_BYTES = 3 * 1024 * 1024;
 
 function svc(extra: Record<string, string> = {}): Record<string, string> {
   return {
