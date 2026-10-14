@@ -19,6 +19,7 @@
       "lodash": ">=4.17.23",
       "minimatch": ">=9.0.7",
       "postcss": ">=8.5.23",
+      "postcss-selector-parser": ">=7.1.6",
       "ws": ">=8.20.1",
       "yaml": ">=2.8.3",
       "sharp": ">=0.35.5",
