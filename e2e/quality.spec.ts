@@ -97,7 +97,9 @@ for (const path of PAGES) {
     test("first screen is visible before JavaScript runs", async ({ page, baseURL }) => {
       test.skip(HOME.has(path), "the home intro owns the first screen");
       await consent(page, baseURL!);
-      await page.route("**/_next/static/chunks/**", (r) => r.abort());
+      // Scripts only: the stylesheets live in the same chunks folder, and a slow
+      // phone has its CSS — it is the JavaScript that has not run yet.
+      await page.route(/\/_next\/static\/chunks\/.*\.js(\?|$)/, (r) => r.abort());
       await page.goto(path, { waitUntil: "load" });
       await page.waitForTimeout(1500); // CSS entrances finish
 

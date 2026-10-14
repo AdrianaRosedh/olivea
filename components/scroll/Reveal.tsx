@@ -114,8 +114,12 @@ export default function Reveal({
       },
       // The root reaches far above the screen: a block jumped over in one go
       // (a chapter link, a fast flick) counts as reached, instead of waiting
-      // invisibly for a scroll back up.
-      { threshold, rootMargin: "100000px 0px -20% 0px" }
+      // invisibly for a scroll back up. The bottom edge is the screen's own:
+      // a block is "waiting" only when it starts fully below the screen, so it
+      // must play as soon as any of it is visible. A -20% margin here left a
+      // block whose top settled in the bottom fifth (fonts, images loading)
+      // blank until the visitor scrolled.
+      { threshold, rootMargin: "100000px 0px 0px 0px" }
     );
     io.observe(el);
     return () => io.disconnect();
