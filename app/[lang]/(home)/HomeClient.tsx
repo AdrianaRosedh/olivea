@@ -72,9 +72,12 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
   // Start downloading the alebrije with the HTML, so it is ready when the intro
   // is — only where the intro plays (reduced motion skips it, and an unused
   // preload is a wasted download the browser warns about).
+  // `as: "image"`: the same file is the hero's <img> logo, which every browser
+  // matches to an image preload; the intro's fetch() then reads it from the
+  // HTTP cache. As a fetch preload Safari never matched it — three downloads
+  // and a "preload not used" warning on every visit.
   preload(ALEBRIJE_SRC, {
-    as: "fetch",
-    crossOrigin: "anonymous",
+    as: "image",
     media: "(prefers-reduced-motion: no-preference)",
   });
 
