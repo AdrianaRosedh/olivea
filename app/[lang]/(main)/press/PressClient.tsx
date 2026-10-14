@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import PressDockLeft from "./PressDockLeft";
 import type { Identity, ItemKind, Lang, PressItem, PressManifest } from "./pressTypes";
@@ -17,23 +16,6 @@ import { tt } from "./lib/pressText";
 
 import PressKitHero from "./PressKitHero";
 import PressMediaGallery from "./PressMediaGallery";
-
-/* ---------------- motion ---------------- */
-const sectionStaggerV: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.085,
-      delayChildren: 0.02,
-    },
-  },
-};
-
-const CARD_VIEWPORT = {
-  once: true,
-  amount: 0.22,
-  margin: "0px 0px -18% 0px",
-} as const;
 
 export default function PressClient({
   lang,
@@ -106,15 +88,9 @@ export default function PressClient({
                 </div>
 
                 {featured ? (
-                  <motion.div
-                    className="mt-4 w-full"
-                    variants={sectionStaggerV}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={CARD_VIEWPORT}
-                  >
+                  <div className="mt-4 w-full">
                     <ItemCard lang={lang} it={featured} index={0} />
-                  </motion.div>
+                  </div>
                 ) : (
                   <div className="mt-4 text-(--olivea-olive)/85">
                     {tt(lang, "Aún no hay elementos.", "No items yet.")}
@@ -140,17 +116,14 @@ export default function PressClient({
                   />
                 </div>
 
-                <motion.div
+                <div
                   key={`awards-${awardsYearTab}`}
                   className="mt-6 sm:mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-10"
-                  variants={sectionStaggerV}
-                  initial="hidden"
-                  animate="show"
                 >
                   {awardsShown.map((it, idx) => (
                     <ItemCard key={it.id} lang={lang} it={it} index={idx} />
                   ))}
-                </motion.div>
+                </div>
               </section>
 
               {/* Mentions */}
@@ -171,17 +144,14 @@ export default function PressClient({
                   />
                 </div>
 
-                <motion.div
+                <div
                   key={`mentions-${mentionsYearTab}`}
                   className="mt-6 sm:mt-8 flex flex-col gap-6 sm:gap-10"
-                  variants={sectionStaggerV}
-                  initial="hidden"
-                  animate="show"
                 >
                   {mentionsShown.map((it, idx) => (
                     <ItemCard key={it.id} lang={lang} it={it} index={idx} />
                   ))}
-                </motion.div>
+                </div>
               </section>
 
               {/* ✅ Press Kit + Media Library moved to bottom */}

@@ -2,28 +2,12 @@
 "use client";
 
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import Reveal from "@/components/scroll/Reveal";
 import { cn } from "@/lib/utils";
 import type { Lang, PressItem } from "../pressTypes";
 import { Pin } from "lucide-react";
 import { fmtDate, identityLabel, tt } from "../lib/pressText";
 import { getAwardBadges } from "../lib/pressBadges";
-
-/* ---------------- motion ---------------- */
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const cardInV: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.9,
-      ease: EASE,
-      delay: Math.min(0.9, i * 0.08),
-    },
-  }),
-};
 
 export default function ItemCard({
   lang,
@@ -46,11 +30,12 @@ export default function ItemCard({
   const pinned = it.kind === "award" && it.starred === true;
 
   return (
-    <motion.article
-      variants={cardInV}
-      custom={index}
+    <Reveal
+      as="article"
       className={cn(glass, "overflow-hidden")}
-      style={{ willChange: "transform, opacity" }}
+      distance={22}
+      duration={0.9}
+      delay={Math.min(0.9, index * 0.08)}
     >
       <div
         className={cn(
@@ -233,6 +218,6 @@ export default function ItemCard({
           </div>
         </div>
       </div>
-    </motion.article>
+    </Reveal>
   );
 }

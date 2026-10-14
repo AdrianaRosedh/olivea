@@ -351,7 +351,7 @@ export default function PhilosophyClient({
                     <div className="flex items-center gap-3">
                       <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
                         {tt(lang, "Capítulo", "Chapter")}{" "}
-                        <span className="tabular-nums text-(--olivea-honey)">
+                        <span className="tabular-nums text-(--olivea-honey-text)">
                           {String(idx + 1).padStart(2, "0")}
                         </span>
                       </div>
@@ -492,7 +492,7 @@ export default function PhilosophyClient({
                     "inline-flex items-center justify-center",
                     "rounded-2xl px-6 py-3.5 sm:py-3",
                     "bg-(--olivea-ivory)/70 ring-1 ring-(--olivea-honey)/30",
-                    "text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey)",
+                    "text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey-text)",
                     "hover:bg-(--olivea-ivory)/95 transition"
                   )}
                 >

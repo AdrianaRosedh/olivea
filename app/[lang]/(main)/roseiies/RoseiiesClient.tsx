@@ -49,7 +49,7 @@ export default function RoseiiesClient({
               alt="roseiies"
               className="mt-8 h-9 sm:h-10 w-auto"
             />
-            <div className="mt-8 text-[12px] uppercase tracking-[0.34em] text-(--olivea-honey)">
+            <div className="mt-8 text-[12px] uppercase tracking-[0.34em] text-(--olivea-honey-text)">
               {t(content.hero.eyebrow)}
             </div>
             <h1
@@ -92,7 +92,7 @@ export default function RoseiiesClient({
 
             {/* Narrative */}
             <div className="max-w-[56ch]">
-              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-honey)">
+              <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-honey-text)">
                 {t(content.founder.eyebrow)}
               </div>
               <h2
@@ -185,7 +185,7 @@ export default function RoseiiesClient({
               </a>
               <Link
                 href={`/${lang}/sustainability`}
-                className="inline-flex items-center justify-center rounded-2xl px-6 py-3.5 sm:py-3 bg-white/60 ring-1 ring-(--olivea-honey)/30 text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey) hover:bg-white/80 transition"
+                className="inline-flex items-center justify-center rounded-2xl px-6 py-3.5 sm:py-3 bg-white/60 ring-1 ring-(--olivea-honey)/30 text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey-text) hover:bg-white/80 transition"
               >
                 {t(content.cta.secondary)}
               </Link>
@@ -212,7 +212,7 @@ function Section({
     <Reveal preset="up" delay={0.05}>
       <section className="mt-16 sm:mt-20 max-w-[72ch]">
         <div className="flex items-center gap-3">
-          <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-honey)">
+          <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-honey-text)">
             {eyebrow}
           </div>
           <div className="h-px flex-1 bg-linear-to-r from-(--olivea-honey)/30 to-transparent" />

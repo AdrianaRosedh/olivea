@@ -378,12 +378,7 @@ export default function PhilosophyDockLeft({
                     title={item.label}
                   >
                     <span
-                      className={cn(
-                        "tabular-nums text-[12px] tracking-[0.22em] font-semibold",
-                        isActive
-                          ? "text-(--olivea-honey) opacity-100"
-                          : "text-(--olivea-honey) opacity-75"
-                      )}
+                      className="tabular-nums text-[12px] tracking-[0.22em] font-semibold text-(--olivea-honey-text)"
                       style={{ fontFamily: "var(--font-serif)" }}
                     >
                       {item.number}

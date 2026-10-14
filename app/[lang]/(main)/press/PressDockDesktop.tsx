@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Identity, ItemKind, Lang } from "./pressTypes";
 import { tt } from "./lib/pressText";
@@ -16,18 +16,9 @@ import {
   Mail,
   Layers,
 } from "lucide-react";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import Reveal from "@/components/scroll/Reveal";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const dockV: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: EASE, delay: 0.25 },
-  },
-};
 
 export interface PressDockDesktopProps {
   lang: Lang;
@@ -109,7 +100,6 @@ export function PressDockDesktop({
   count,
   onNav,
 }: PressDockDesktopProps) {
-  const reduce = usePrefersReducedMotion();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const panelShell = cn(
@@ -470,9 +460,9 @@ export function PressDockDesktop({
       style={{ top: 255 }}
       aria-label="Press dock"
     >
-      <motion.div variants={dockV} initial={reduce ? false : "hidden"} animate="show">
+      <Reveal distance={10} delay={0.25}>
         {collapsed ? DesktopCollapsed : DesktopExpanded}
-      </motion.div>
+      </Reveal>
     </nav>
   );
 }

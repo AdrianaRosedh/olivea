@@ -69,6 +69,7 @@ html { position: relative; }
   --olivea-forest: #33422e; /* deep heading ink — adds hierarchy vs body */
   --olivea-ivory: #efece2;  /* warm ground, vs the flat cream */
   --olivea-honey: #b6894a;  /* sparing accent: numerals, rules, links, CTA */
+  --olivea-honey-text: #816135;  /* honey for small text: 4.67:1 on cream (the accent is 2.6:1) */
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
