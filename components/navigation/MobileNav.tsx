@@ -492,6 +492,9 @@ export function MobileNav({ isDrawerOpen }: Props) {
       <motion.button
         type="button"
         onClick={onClick}
+        // The visible word only shows when the bar is expanded; collapsed it is
+        // an icon, which a screen reader announced as just "button".
+        aria-label={label}
         className={cn(
           "relative isolate rounded-[18px]",
           "inline-flex items-center",
@@ -634,7 +637,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
               onPointerCancel={() => setIsDragging(false)}
-              aria-label="Quick actions"
+              aria-label={lang === "es" ? "Acciones rápidas" : "Quick actions"}
             >
               <motion.div
                 className="p-1.75"

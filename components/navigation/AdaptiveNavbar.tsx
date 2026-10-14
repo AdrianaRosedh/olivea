@@ -263,7 +263,13 @@ export default function AdaptiveNavbar({
     >
       <div className={cn("transition-all duration-200 ease-out", pillClass)}>
         <div className="flex items-center justify-between px-4 h-16">
-          <Link href="/" aria-label="Home" onClick={() => clearTransition()}>
+          {/* /${lang}, not "/": the bare root serves Spanish, so English visitors
+              tapping the logo landed on the Spanish home page. */}
+          <Link
+            href={`/${lang}`}
+            aria-label={lang === "es" ? "Inicio" : "Home"}
+            onClick={() => clearTransition()}
+          >
             <span className="sr-only">Olivea</span>
             <div
               aria-hidden="true"
@@ -285,6 +291,7 @@ export default function AdaptiveNavbar({
           <MenuToggle
             toggle={onToggleDrawer}
             isOpen={isDrawerOpen}
+            lang={lang}
             className={cn("transition-colors duration-150", iconTone)}
             buttonRef={menuBtnRef}
           />

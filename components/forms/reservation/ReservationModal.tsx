@@ -425,6 +425,17 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     };
   }, [isOpen]);
 
+  // Escape closes the window wherever focus is. The inner sheets only heard
+  // Escape when focus was inside them, and it is not moved there on open.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeReservationModal();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, closeReservationModal]);
+
   // Full-screen overlays (mobile only)
   const [showHotelOverlay, setShowHotelOverlay] = useState(false);
   const [showRestaurantOverlay, setShowRestaurantOverlay] = useState(false);

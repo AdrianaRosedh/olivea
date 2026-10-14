@@ -7,6 +7,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import LocaleSwitcher from "./LocaleSwitcher";
 import FocusTrap from "focus-trap-react";
+import { useScrollLock } from "@/lib/hooks/useScrollLock";
 import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 
 // ✅ SEO: real crawlable <a href> nav that keeps framer-motion stagger.
@@ -48,31 +49,6 @@ const item: Variants = {
   },
 };
 
-function useBodyScrollLock(locked: boolean) {
-  useEffect(() => {
-    if (!locked) return;
-
-    const scrollY = window.scrollY;
-    const body = document.body;
-
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
-
-    return () => {
-      const y = Math.abs(parseInt(body.style.top || "0", 10)) || scrollY;
-      body.style.position = "";
-      body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
-      body.style.width = "";
-      window.scrollTo(0, y);
-    };
-  }, [locked]);
-}
-
 export default function MobileDrawer({
   isOpen,
   onClose,
@@ -86,8 +62,6 @@ export default function MobileDrawer({
 
   const [itemsReady, setItemsReady] = useState(false);
   const [blurReady, setBlurReady] = useState(false);
-
-  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (!isOpen) {
@@ -107,6 +81,13 @@ export default function MobileDrawer({
       window.clearTimeout(tBlur);
     };
   }, [isOpen]);
+
+  // The shared lock: keeps the page still behind the menu and flags a modal as
+  // open, so the Live Garden orb (z-9999) steps aside instead of floating over
+  // the menu. It replaces the drawer's own position:fixed lock — with both, the
+  // shared lock saved the drawer's `fixed` as the page's style and put it back
+  // on close, leaving the page stuck.
+  useScrollLock(isOpen);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -225,7 +206,10 @@ export default function MobileDrawer({
                   initial="hidden"
                   animate={itemsReady ? "visible" : "hidden"}
                   exit="exit"
-                  className="relative h-full w-full flex flex-col px-6 pb-10 pt-20 pwa-safe-top pwa-safe-bottom"
+                  // Scrolls on short screens (iPhone SE): the language switcher and
+                  // social links used to sit below the bottom edge, out of reach.
+                  data-lenis-prevent
+                  className="relative h-full w-full flex flex-col px-6 pb-10 pt-20 pwa-safe-top pwa-safe-bottom overflow-y-auto overscroll-contain"
                 >
                   {/* Main links */}
                   <div className="flex flex-col gap-3">

@@ -233,7 +233,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
       {/* Logo pinned LEFT */}
       <Link
         href={homeHref}
-        aria-label="Home"
+        aria-label={lang === "es" ? "Inicio" : "Home"}
         onPointerDown={() => {
           try {
             sessionStorage.setItem("olivea:returning", "1");

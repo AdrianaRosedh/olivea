@@ -458,7 +458,7 @@ export default function Footer({ dict, socials }: FooterProps) {
             </AnimatePresence>
 
             <nav
-              aria-label="Footer navigation"
+              aria-label={lang === "es" ? "Navegación del pie de página" : "Footer navigation"}
               className="flex flex-nowrap items-center whitespace-nowrap"
               style={{ gap: "max(7px, calc(14px * var(--fd, 1)))" }}
             >

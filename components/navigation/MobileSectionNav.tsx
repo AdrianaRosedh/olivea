@@ -413,7 +413,7 @@ export default function MobileSectionNav({
       <nav
         ref={dockRef}
         className={cn("fixed inset-x-0 bottom-0 z-96 lg:hidden", "pointer-events-none")}
-        aria-label="Mobile section navigation"
+        aria-label={lang === "es" ? "Secciones de la página" : "Mobile section navigation"}
       >
         <div className="pointer-events-auto w-full pb-[env(safe-area-inset-bottom)]">
           <div
@@ -443,7 +443,7 @@ export default function MobileSectionNav({
                       "text-(--olivea-olive)"
                     )}
                     onClick={() => enableSheet && openSheet()}
-                    aria-label="Open section outline"
+                    aria-label={lang === "es" ? "Abrir el índice de secciones" : "Open section outline"}
                   >
                     <span className="block truncate">{resolvedPageTitle}</span>
                   </button>
@@ -464,7 +464,7 @@ export default function MobileSectionNav({
                           "text-(--olivea-olive)",
                           "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)"
                         )}
-                        aria-label="Open outline"
+                        aria-label={lang === "es" ? "Abrir índice" : "Open outline"}
                       >
                         <ChevronUp className="h-4 w-4" />
                         <span className="text-[12px] font-medium">Outline</span>
@@ -557,7 +557,7 @@ export default function MobileSectionNav({
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               role="dialog"
               aria-modal="true"
-              aria-label="Section outline"
+              aria-label={lang === "es" ? "Índice de secciones" : "Section outline"}
             >
               <div className="w-full px-3 pb-3">
                 <div
@@ -587,7 +587,7 @@ export default function MobileSectionNav({
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)"
                       )}
                       onClick={() => closeSheet()}
-                      aria-label="Close outline"
+                      aria-label={lang === "es" ? "Cerrar índice" : "Close outline"}
                     >
                       <X className="h-5 w-5" />
                     </button>

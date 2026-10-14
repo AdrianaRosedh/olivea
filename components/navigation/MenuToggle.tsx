@@ -22,6 +22,7 @@ type MenuToggleProps = {
   isOpen: boolean;
   className?: string;
   buttonRef?: Ref<HTMLButtonElement>;
+  lang?: "es" | "en";
 };
 
 export default function MenuToggle({
@@ -29,6 +30,7 @@ export default function MenuToggle({
   isOpen,
   className,
   buttonRef,
+  lang = "es",
 }: MenuToggleProps) {
   return (
     <button
@@ -38,7 +40,11 @@ export default function MenuToggle({
         navigator.vibrate?.(10);
         toggle();
       }}
-      aria-label="Toggle menu"
+      aria-label={
+        lang === "es"
+          ? isOpen ? "Cerrar menú" : "Abrir menú"
+          : isOpen ? "Close menu" : "Open menu"
+      }
       aria-expanded={isOpen}
       className={cn(
         "p-3 rounded-full focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40 focus-visible:ring-offset-2 active:bg-transparent transition focus-custom",
