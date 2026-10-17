@@ -21,8 +21,8 @@ type Params = { params: Promise<{ lang: string }> };
 
 const EVENT = {
   date: "2026-11-01",
-  poster: "/images/events/mesa-invitada-03/poster-v4.jpg",
-  share: "/images/seo/mesa-invitada-03-share-v4.jpg",
+  poster: "/images/events/mesa-invitada-03/poster-v5.jpg",
+  share: "/images/seo/mesa-invitada-03-share-v5.jpg",
   openTable:
     "https://www.opentable.com.mx/booking/experiences-availability?rid=1313743&restref=1313743&experienceId=818362&utm_source=olivea&utm_medium=website&utm_campaign=mesa-invitada-03",
   // Casa Olivea reception.
@@ -41,7 +41,7 @@ const COPY = {
     title: "Cena de Día de Muertos y estancia en Casa Olivea",
     chefLabel: "Chef invitado",
     chef: "Fernando Hernández",
-    chefOf: "Moyuelo · Estrella MICHELIN",
+    chefOf: "Moyuelo · Bib Gourmand MICHELIN",
     when: "Domingo 1 de noviembre",
     where: "Olivea Farm To Table · Valle de Guadalupe, Baja California",
     intro:
@@ -77,7 +77,7 @@ const COPY = {
     title: "A Día de Muertos dinner and a stay at Casa Olivea",
     chefLabel: "Guest chef",
     chef: "Fernando Hernández",
-    chefOf: "Moyuelo · MICHELIN Star",
+    chefOf: "Moyuelo · MICHELIN Bib Gourmand",
     when: "Sunday, November 1",
     where: "Olivea Farm To Table · Valle de Guadalupe, Baja California",
     intro:
