@@ -55,7 +55,7 @@ const COPY = {
     stayKicker: "Estancia completa",
     stayTitle: "Cena + 2 noches en Casa Olivea",
     stayBody:
-      "Para 2 personas: dos noches de hospedaje en Casa Olivea y la cena con maridaje del 1 de noviembre. Se reserva directamente con recepción.",
+      "Para 2 personas: dos noches de hospedaje en Casa Olivea y la cena con maridaje del 1 de noviembre. Precio especial válido únicamente con esta cena de Mesa Invitada. Se reserva directamente con recepción.",
     plusTax: "MXN para 2 personas + impuestos y servicio",
     stayCta: "Reservar estancia",
     stayVia: "Vía WhatsApp con recepción",
@@ -91,7 +91,7 @@ const COPY = {
     stayKicker: "The full stay",
     stayTitle: "Dinner + 2 nights at Casa Olivea",
     stayBody:
-      "For 2 guests: two nights at Casa Olivea and the November 1 dinner with pairing. Booked directly with reception.",
+      "For 2 guests: two nights at Casa Olivea and the November 1 dinner with pairing. Special rate valid only with this Mesa Invitada dinner. Booked directly with reception.",
     plusTax: "MXN for 2 guests + tax and service",
     stayCta: "Book the stay",
     stayVia: "Via WhatsApp with reception",
