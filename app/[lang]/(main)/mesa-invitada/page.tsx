@@ -21,8 +21,8 @@ type Params = { params: Promise<{ lang: string }> };
 
 const EVENT = {
   date: "2026-11-01",
-  poster: "/images/events/mesa-invitada-03/poster-v3.jpg",
-  share: "/images/seo/mesa-invitada-03-share-v3.jpg",
+  poster: "/images/events/mesa-invitada-03/poster-v4.jpg",
+  share: "/images/seo/mesa-invitada-03-share-v4.jpg",
   openTable:
     "https://www.opentable.com.mx/booking/experiences-availability?rid=1313743&restref=1313743&experienceId=818362&utm_source=olivea&utm_medium=website&utm_campaign=mesa-invitada-03",
   // Casa Olivea reception.
