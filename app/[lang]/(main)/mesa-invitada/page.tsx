@@ -22,7 +22,7 @@ type Params = { params: Promise<{ lang: string }> };
 const EVENT = {
   date: "2026-11-01",
   poster: "/images/events/mesa-invitada-03/poster.jpg",
-  share: "/images/seo/mesa-invitada-share.jpg",
+  share: "/images/seo/mesa-invitada-03-share.jpg",
   openTable:
     "https://www.opentable.com.mx/booking/experiences-availability?rid=1313743&restref=1313743&experienceId=818362&utm_source=olivea&utm_medium=website&utm_campaign=mesa-invitada-03",
   // Casa Olivea reception.
@@ -33,9 +33,9 @@ const EVENT = {
 
 const COPY = {
   es: {
-    metaTitle: "Mesa Invitada Vol. 03 · Chef Fernando Hernández · Olivea Farm To Table",
+    metaTitle: "Mesa Invitada Vol. 03 · Chef Fernando Hernández · Cena y estancia en Olivea",
     metaDescription:
-      "Domingo 1 de noviembre: cena de Día de Muertos con el chef invitado Fernando Hernández (Moyuelo) en Olivea Farm To Table. Menú del huerto con maridaje, $2,550 MXN por persona.",
+      "Domingo 1 de noviembre, cena de Día de Muertos con el chef Fernando Hernández (Moyuelo): $2,550 MXN por persona con maridaje. O la estancia completa: 2 noches en Casa Olivea + la cena por $10,031 MXN + impuestos y servicio.",
     kicker: "Mesa Invitada · Volumen 03",
     occasion: "Día de Muertos",
     title: "Una cena en celebración del Día de Muertos",
@@ -69,9 +69,9 @@ const COPY = {
       "Cartel de Mesa Invitada Volumen 03: el chef Fernando Hernández, de Moyuelo, sentado en un sillón; cena de Día de Muertos el domingo 1 de noviembre en Olivea Farm To Table.",
   },
   en: {
-    metaTitle: "Mesa Invitada Vol. 03 · Chef Fernando Hernández · Olivea Farm To Table",
+    metaTitle: "Mesa Invitada Vol. 03 · Chef Fernando Hernández · Dinner and stay at Olivea",
     metaDescription:
-      "Sunday, November 1: a Día de Muertos dinner with guest chef Fernando Hernández (Moyuelo) at Olivea Farm To Table. A garden menu with pairing, $2,550 MXN per person.",
+      "Sunday, November 1, a Día de Muertos dinner with chef Fernando Hernández (Moyuelo): $2,550 MXN per person with pairing. Or the full stay: 2 nights at Casa Olivea + the dinner for $10,031 MXN + tax and service.",
     kicker: "Mesa Invitada · Volume 03",
     occasion: "Día de Muertos",
     title: "A dinner in celebration of Día de Muertos",
@@ -161,6 +161,14 @@ export default async function MesaInvitadaPage({ params }: Params) {
         priceCurrency: "MXN",
         availability: "https://schema.org/LimitedAvailability",
         url: EVENT.openTable,
+      },
+      {
+        "@type": "Offer",
+        name: c.stayTitle,
+        price: EVENT.stayPrice,
+        priceCurrency: "MXN",
+        availability: "https://schema.org/LimitedAvailability",
+        url: pageUrl,
       },
     ],
   };
