@@ -21,8 +21,8 @@ type Params = { params: Promise<{ lang: string }> };
 
 const EVENT = {
   date: "2026-11-01",
-  poster: "/images/events/mesa-invitada-03/poster-v2.jpg",
-  share: "/images/seo/mesa-invitada-03-share-v2.jpg",
+  poster: "/images/events/mesa-invitada-03/poster-v3.jpg",
+  share: "/images/seo/mesa-invitada-03-share-v3.jpg",
   openTable:
     "https://www.opentable.com.mx/booking/experiences-availability?rid=1313743&restref=1313743&experienceId=818362&utm_source=olivea&utm_medium=website&utm_campaign=mesa-invitada-03",
   // Casa Olivea reception.
@@ -35,7 +35,7 @@ const COPY = {
   es: {
     metaTitle: "Mesa Invitada Vol. 03 · Cena de Día de Muertos + Estancia en Casa Olivea",
     metaDescription:
-      "Domingo 1 de noviembre, cena de Día de Muertos con el chef Fernando Hernández (Moyuelo): $2,550 MXN por persona con maridaje. O la estancia completa: 2 noches en Casa Olivea + la cena por $10,031 MXN por persona + impuestos y servicio.",
+      "Domingo 1 de noviembre, cena de Día de Muertos con el chef Fernando Hernández (Moyuelo): $2,550 MXN por persona con maridaje. O la estancia completa: 2 noches en Casa Olivea + la cena por $10,031 MXN para 2 personas + impuestos y servicio.",
     kicker: "Mesa Invitada · Volumen 03",
     occasion: "Día de Muertos",
     title: "Cena de Día de Muertos y estancia en Casa Olivea",
@@ -55,12 +55,12 @@ const COPY = {
     stayKicker: "Estancia completa",
     stayTitle: "Cena + 2 noches en Casa Olivea",
     stayBody:
-      "Dos noches de hospedaje en Casa Olivea y la cena con maridaje del 1 de noviembre. Se reserva directamente con recepción.",
-    plusTax: "MXN por persona + impuestos y servicio",
+      "Para 2 personas: dos noches de hospedaje en Casa Olivea y la cena con maridaje del 1 de noviembre. Se reserva directamente con recepción.",
+    plusTax: "MXN para 2 personas + impuestos y servicio",
     stayCta: "Reservar estancia",
     stayVia: "Vía WhatsApp con recepción",
     stayMessage:
-      "Hola, me interesa la Estancia Completa de Mesa Invitada Vol. 03 con el chef Fernando Hernández (1 de noviembre): 2 noches en Casa Olivea + la cena con maridaje.",
+      "Hola, me interesa la Estancia Completa de Mesa Invitada Vol. 03 con el chef Fernando Hernández (1 de noviembre): 2 noches en Casa Olivea + la cena con maridaje, para 2 personas.",
     limited: "Cupo limitado",
     share: "Compartir",
     copied: "Enlace copiado",
@@ -71,7 +71,7 @@ const COPY = {
   en: {
     metaTitle: "Mesa Invitada Vol. 03 · Día de Muertos Dinner + Stay at Casa Olivea",
     metaDescription:
-      "Sunday, November 1, a Día de Muertos dinner with chef Fernando Hernández (Moyuelo): $2,550 MXN per person with pairing. Or the full stay: 2 nights at Casa Olivea + the dinner for $10,031 MXN per person + tax and service.",
+      "Sunday, November 1, a Día de Muertos dinner with chef Fernando Hernández (Moyuelo): $2,550 MXN per person with pairing. Or the full stay: 2 nights at Casa Olivea + the dinner for $10,031 MXN for 2 guests + tax and service.",
     kicker: "Mesa Invitada · Volume 03",
     occasion: "Día de Muertos",
     title: "A Día de Muertos dinner and a stay at Casa Olivea",
@@ -91,12 +91,12 @@ const COPY = {
     stayKicker: "The full stay",
     stayTitle: "Dinner + 2 nights at Casa Olivea",
     stayBody:
-      "Two nights at Casa Olivea and the November 1 dinner with pairing. Booked directly with reception.",
-    plusTax: "MXN per person + tax and service",
+      "For 2 guests: two nights at Casa Olivea and the November 1 dinner with pairing. Booked directly with reception.",
+    plusTax: "MXN for 2 guests + tax and service",
     stayCta: "Book the stay",
     stayVia: "Via WhatsApp with reception",
     stayMessage:
-      "Hi, I'm interested in the Mesa Invitada Vol. 03 full stay with chef Fernando Hernández (November 1): 2 nights at Casa Olivea + the dinner with pairing.",
+      "Hi, I'm interested in the Mesa Invitada Vol. 03 full stay with chef Fernando Hernández (November 1): 2 nights at Casa Olivea + the dinner with pairing, for 2 guests.",
     limited: "Limited seating",
     share: "Share",
     copied: "Link copied",
