@@ -50,6 +50,18 @@ function toDatetimeLocal(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/**
+ * An expiry timestamp `days` from now, as ISO.
+ *
+ * At module scope on purpose. The clock is only ever read from a click, but
+ * inside the component body react-hooks/purity cannot tell that apart from a
+ * read during render — and it is right to be strict, because a Date.now()
+ * that does run during render yields a value that changes on every re-render.
+ */
+function expiryFromNow(days: number): string {
+  return new Date(Date.now() + days * 86_400_000).toISOString();
+}
+
 type DocStatus = { label: { es: string; en: string }; cls: string };
 
 function statusOf(d: SecureDocument): DocStatus {
@@ -250,7 +262,7 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
     await run(() => updateSecureDocument(doc.id, { expiresAt: value }));
     setEditingExpiry(false);
   };
-  const plusDays = (n: number) => commitExpiry(new Date(Date.now() + n * 86_400_000).toISOString());
+  const plusDays = (n: number) => commitExpiry(expiryFromNow(n));
 
   return (
     <div className="rounded-2xl border border-stone-200/70 bg-white/60 p-4">
