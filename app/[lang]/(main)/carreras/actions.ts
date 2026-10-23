@@ -136,7 +136,8 @@ export async function handleSubmit(
 
   if (!parsed.success) {
     const errors: ApplicationErrors = {};
-    parsed.error.errors.forEach((err) => {
+    // zod 4 renamed ZodError.errors to .issues; .errors is gone, not aliased.
+    parsed.error.issues.forEach((err) => {
       const key = err.path[0]?.toString();
       if (key) errors[key] = err.message;
     });

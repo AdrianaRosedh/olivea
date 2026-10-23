@@ -10,8 +10,17 @@ const MetaSEO = z
   })
   .optional();
 
-/** Convenience helper for page objects that get a meta block */
-const pageWithMeta = (shape: Record<string, z.ZodTypeAny>) =>
+/**
+ * Convenience helper for page objects that get a meta block.
+ *
+ * Generic on the shape, not `Record<string, z.ZodType>`. That annotation
+ * widened every page's shape to a plain record, so the inferred Dictionary
+ * carried `unknown` for each field instead of the real types. zod 3 let it
+ * pass; zod 4 infers strictly and surfaced it as `unknown` spreading through
+ * the CMS overlay, the contact page and the dock labels. Capturing the shape
+ * as a type parameter keeps each page's fields intact.
+ */
+const pageWithMeta = <S extends z.ZodRawShape>(shape: S) =>
   z.object(shape).extend({ meta: MetaSEO });
 
 export const dictionarySchema = z.object({
