@@ -4,10 +4,10 @@ import path from "node:path";
 import matter from "gray-matter";
 import { listContent } from "@/lib/content";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import type { Lang, PhilosophySection, PhilosophySectionId } from "./philosophyTypes";
+import type { Lang, PhilosophySection } from "./philosophyTypes";
 
 type Frontmatter = {
-  id: PhilosophySectionId;
+  id: string;
   order: number;
   title: string;
   subtitle?: string;
@@ -69,7 +69,7 @@ export function loadPhilosophySections(lang: Lang): PhilosophySection[] {
     assert(typeof fm.title === "string" && fm.title.length > 0, `Missing title in ${file}`);
 
     out.push({
-      id: fm.id as PhilosophySectionId,
+      id: fm.id,
       order: fm.order,
       title: fm.title,
       subtitle: typeof fm.subtitle === "string" ? fm.subtitle : undefined,
@@ -118,30 +118,55 @@ export async function loadPhilosophySectionsCms(
     const cms = await listContent("sustainabilitySections");
     if (!cms?.length) return base;
 
-    const byId = new Map(cms.map((s) => [s.id, s]));
-    return base.map((section) => {
-      const row = byId.get(section.id);
-      if (!row) return section;
+    // The CMS decides which sections exist, in what order.
+    //
+    // It used to be the other way round: the MDX produced the list and the
+    // CMS could only overwrite fields of sections that already existed in a
+    // file. That made the admin a skin rather than a source — adding,
+    // removing or reordering a chapter there did nothing, and any field the
+    // CMS left blank silently fell back to whatever the file said, so the two
+    // could disagree with no way to tell which a visitor was reading.
+    //
+    // MDX is now a seed: it still answers when Supabase is unreachable or has
+    // no rows, and it still fills individual blanks for a chapter it shares an
+    // id with. But it no longer constrains the list.
+    const baseById = new Map(base.map((s) => [s.id, s]));
 
-      const title = row.title?.[lang]?.trim();
-      const subtitle = row.subtitle?.[lang]?.trim();
-      const body = htmlToPlainParagraphs(row.body?.[lang] ?? "");
-      const signals = row.signals
-        ?.map((b) => b?.[lang]?.trim())
-        .filter((s): s is string => !!s);
-      const practices = row.practices
-        ?.map((b) => b?.[lang]?.trim())
-        .filter((s): s is string => !!s);
+    const sections = [...cms]
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((row, index) => {
+        const seed = baseById.get(row.id);
 
-      return {
-        ...section,
-        title: title || section.title,
-        subtitle: subtitle || section.subtitle,
-        body: body || section.body,
-        signals: signals?.length ? signals : section.signals,
-        practices: practices?.length ? practices : section.practices,
-      };
-    });
+        const title = row.title?.[lang]?.trim() || seed?.title || "";
+        const subtitle = row.subtitle?.[lang]?.trim() || seed?.subtitle;
+        const body = htmlToPlainParagraphs(row.body?.[lang] ?? "") || seed?.body || "";
+
+        const signals = row.signals
+          ?.map((b) => b?.[lang]?.trim())
+          .filter((s): s is string => !!s);
+        const practices = row.practices
+          ?.map((b) => b?.[lang]?.trim())
+          .filter((s): s is string => !!s);
+
+        return {
+          id: row.id,
+          // Renumbered from position so a gap or a duplicate in the CMS
+          // ordering cannot reshuffle the page.
+          order: index + 1,
+          title,
+          subtitle,
+          body,
+          signals: signals?.length ? signals : seed?.signals,
+          practices: practices?.length ? practices : seed?.practices,
+        } satisfies PhilosophySection;
+      })
+      // A chapter with no heading and no prose is a half-created row, not
+      // content. Rendering it would leave an empty band on the page.
+      .filter((s) => s.title.length > 0 && s.body.length > 0);
+
+    // If every row turned out to be empty, fall back rather than publishing a
+    // page with no chapters at all.
+    return sections.length ? sections : base;
   } catch {
     return base; // CMS unavailable → static content, never a broken page
   }

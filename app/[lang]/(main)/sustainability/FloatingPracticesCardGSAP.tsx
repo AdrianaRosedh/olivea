@@ -14,7 +14,11 @@ gsap.ticker.lagSmoothing(1000, 16);
 
 /* ---------------- tuning ---------------- */
 
-const FIRST_CHAPTER_ID = "origins";
+// Was pinned to "origins". Chapters come from the CMS now, so that id can be
+// renamed or removed — and the lookup below fails silently when it misses,
+// which would have quietly disabled the card. Taking whichever marker comes
+// first in document order says what was actually meant.
+const FIRST_CHAPTER_MARKER = "[data-practices-switch][data-section-id]";
 
 const STICKY_TOP = 150;
 const PICK_LINE = STICKY_TOP + 40;
@@ -500,9 +504,7 @@ export default function FloatingPracticesCardGSAP({
     const wrap = wrapRef.current;
     if (!wrap) return;
 
-    const firstMarker = document.querySelector<HTMLElement>(
-      `[data-practices-switch][data-section-id="${FIRST_CHAPTER_ID}"]`
-    );
+    const firstMarker = document.querySelector<HTMLElement>(FIRST_CHAPTER_MARKER);
     if (!firstMarker) return;
 
     const show = () => {
