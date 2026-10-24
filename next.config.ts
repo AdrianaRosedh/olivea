@@ -128,6 +128,20 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(self), browsing-topics=()",
           },
+          // Severs window.opener for cross-origin documents, which is what
+          // closes tab-nabbing and cross-origin window poking.
+          //
+          // "allow-popups" rather than plain "same-origin" on purpose: the
+          // booking and payment flows here open third-party windows
+          // (Cloudbeds, OpenTable, Stripe/Braintree/PayPal in the Cloudbeds
+          // payment element) and the strict value would cut the opener
+          // reference those rely on to report back. This keeps the
+          // protection for the page itself without breaking a reservation
+          // mid-payment.
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
+          },
           ...(process.env.NODE_ENV === "production"
             ? [{
                 key: "Strict-Transport-Security",
