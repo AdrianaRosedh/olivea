@@ -217,6 +217,7 @@ export function PressDockDesktop({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={tt(lang, "Título, medio, tag…", "Title, outlet, tag…")}
+            aria-label={tt(lang, "Buscar en prensa", "Search press coverage")}
             className={cn(
               "w-full bg-transparent outline-none",
               "text-[13px] text-(--olivea-olive)",

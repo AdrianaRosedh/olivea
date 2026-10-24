@@ -91,6 +91,9 @@ export default function JournalFilterDockMobile({
 
   const t = {
     ph: lang === "es" ? "Título, autor, tag…" : "Title, author, tag…",
+    // Accessible name for the search field. The placeholder cannot serve as
+    // one: it disappears the moment someone types.
+    searchLabel: lang === "es" ? "Buscar artículos" : "Search articles",
     clear: lang === "es" ? "Limpiar" : "Clear",
     done: lang === "es" ? "Listo" : "Done",
     pillar: lang === "es" ? "Pilar" : "Pillar",
@@ -386,6 +389,7 @@ export default function JournalFilterDockMobile({
                     onFocus={() => (inputFocusedRef.current = true)}
                     onBlur={() => (inputFocusedRef.current = false)}
                     placeholder={t.ph}
+                    aria-label={t.searchLabel}
                     className={cn(
                       "w-full bg-transparent outline-none",
                       "text-[13px] text-(--olivea-olive)",

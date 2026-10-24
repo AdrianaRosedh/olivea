@@ -112,6 +112,7 @@ export function PressDockMobile({
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={tt(lang, "Buscar…", "Search…")}
+              aria-label={tt(lang, "Buscar en prensa", "Search press coverage")}
               className={cn(
                 "w-full bg-transparent outline-none",
                 "text-[13px] text-(--olivea-olive)",

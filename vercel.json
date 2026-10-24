@@ -1,7 +1,7 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "buildCommand": "npm run build",
+  "buildCommand": "pnpm run build",
   "headers": [
     {
       "source": "/_next/static/(.*)",

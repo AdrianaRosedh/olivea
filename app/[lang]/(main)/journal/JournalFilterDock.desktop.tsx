@@ -180,6 +180,9 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
   const t = {
     filters: lang === "es" ? "Filtros" : "Filters",
     search: lang === "es" ? "Buscar" : "Search",
+    // Accessible name for the search field. The placeholder cannot serve as
+    // one: it disappears the moment someone types.
+    searchLabel: lang === "es" ? "Buscar artículos" : "Search articles",
     ph:
       lang === "es"
         ? "Título, autor, tag, tema…"
@@ -256,6 +259,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t.ph}
+              aria-label={t.searchLabel}
               className={cn(
                 "w-full bg-transparent outline-none",
                 "text-[13px] text-(--olivea-olive)",
