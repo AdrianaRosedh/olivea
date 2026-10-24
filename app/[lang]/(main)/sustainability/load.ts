@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { listContent } from "@/lib/content";
+import { htmlToPlainParagraphs } from "@/lib/content/rich-text";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { Lang, PhilosophySection } from "./philosophyTypes";
 
@@ -90,23 +91,9 @@ export function loadPhilosophySections(lang: Lang): PhilosophySection[] {
    the CMS knows about overrides per-field. HTML bodies are flattened to
    the same plain-paragraph shape the static loader produces. */
 
-function htmlToPlainParagraphs(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, " ") // intra-paragraph breaks collapse, same as MDX soft breaks
-    .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/([^\n])\n(?!\n)/g, "$1 ") // soft breaks → spaces, keep \n\n
-    .replace(/[ \t]+/g, " ")
-    .trim();
-}
+// Moved to lib/content/rich-text so the admin editor for this page can apply
+// the same conversion — otherwise what an editor types and what the page
+// renders drift apart.
 
 export async function loadPhilosophySectionsCms(
   lang: Lang

@@ -2,39 +2,30 @@
 
 import { Leaf, ExternalLink } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
+import PhilosophySectionsEditor from "@/components/admin/PhilosophySectionsEditor";
 import sustainabilityContent from "@/lib/content/data/sustainability";
-import sustainabilitySections from "@/lib/content/data/sustainabilitySections";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
 import {
   VisualPageEditor,
   useEditor,
   MetaSection,
   EditableBilingual,
-  EditableSections,
 } from "@/components/admin/visual-editor";
 
-/* ── Build fallback data with sections included ── */
-const fallback = {
-  ...(sustainabilityContent as unknown as Record<string, unknown>),
-  sections: sustainabilitySections.map((s) => ({
-    id: s.id,
-    title: s.title,
-    subtitle: s.subtitle,
-    body: s.body,
-  })),
-};
+/* ── Fallback for the page-level fields only ──
+   `sections` deliberately absent. It used to be merged in here, which meant
+   the page editor rendered chapters read from the static data file and then
+   sent them back as a `sections` key on sustainability_content — a column
+   that does not exist on that table, so the save failed on the unknown
+   column and took the title, description and meta down with it. Chapters
+   live in sustainability_sections and are edited by PhilosophySectionsEditor
+   below, against that table. */
+const fallback = sustainabilityContent as unknown as Record<string, unknown>;
 
 function SustainabilityVisual() {
   const { get, set } = useEditor();
   const { t } = useAdminLocale();
   const meta = get("meta") as { title?: { es: string; en: string }; description?: { es: string; en: string } } | undefined;
-
-  const sections = (get("sections") ?? []) as Array<{
-    id?: string;
-    title?: { es: string; en: string };
-    subtitle?: { es: string; en: string };
-    body?: { es: string; en: string };
-  }>;
 
   return (
     <div className="space-y-8">
@@ -50,16 +41,10 @@ function SustainabilityVisual() {
         <EditableBilingual label={{ es: "Descripción", en: "Description" }} as="p" value={(get("description") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("description", v)} className="text-base text-stone-600 leading-relaxed max-w-2xl mx-auto" multiline />
       </section>
 
-      {/* ── Philosophy sections ── */}
-      <EditableSections
-        label={{ es: "Secciones de filosofía", en: "Philosophy Sections" }}
-        value={sections}
-        onChange={(v) => set("sections", v)}
-        fields={["title", "subtitle", "body"]}
-        allowAdd
-        allowDelete
-        allowReorder
-      />
+      {/* ── Philosophy chapters ──
+          Separate editor with its own save, because these live in a different
+          table from the page fields above. */}
+      <PhilosophySectionsEditor />
 
       {/* ── View live ── */}
       <div className="flex justify-end">
