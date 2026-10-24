@@ -8,15 +8,22 @@ import { useMemo, useRef, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import {
  ArrowLeft,
- Instagram,
- Youtube,
- Music2,
- Twitter,
- Facebook,
- Linkedin,
  Globe,
  ArrowUpRight,
 } from "lucide-react";
+// lucide 1.x dropped its brand icons — Instagram, YouTube, X, Facebook and
+// LinkedIn are gone from the 3808 it still ships, removed rather than
+// renamed. The project already keeps its own brand marks for the footer and
+// the mobile drawer, so the linktree now draws from that same set instead of
+// a second icon library.
+import {
+ InstagramIcon,
+ YouTubeIcon,
+ TikTokIcon,
+ LinkedInIcon,
+ FacebookIcon,
+ XIcon,
+} from "@/components/icons/SocialIcons";
 
 import type {
  Lang,
@@ -260,22 +267,31 @@ function isGenericPlatformLabel(label: string, kind: SocialKind): boolean {
 
 
 function SocialIcon({ kind }: { kind: SocialKind }) {
- const props = { size: 20, strokeWidth: 1.6 };
+ // Two sets with different weights. The generic fallback is a lucide
+ // stroke icon; the brand marks are solid shapes, which read heavier at the
+ // same box, so they sit slightly smaller to keep the row optically even.
+ // Both inherit currentColor, so the marks stay in the page's palette
+ // rather than arriving in Instagram pink and Facebook blue.
+ const line = { size: 20, strokeWidth: 1.6 };
+ const brand = { size: 18 };
  switch (kind) {
    case "instagram":
-     return <Instagram {...props} />;
+     return <InstagramIcon {...brand} />;
+   // TikTok moves to the real mark too; it had been borrowing a music note.
    case "tiktok":
-     return <Music2 {...props} />;
+     return <TikTokIcon {...brand} />;
    case "youtube":
-     return <Youtube {...props} />;
+     return <YouTubeIcon {...brand} />;
+   // The kind has been "x" all along; it was just still drawing the old
+   // Twitter bird, because that was the only mark lucide offered.
    case "x":
-     return <Twitter {...props} />;
+     return <XIcon {...brand} />;
    case "facebook":
-     return <Facebook {...props} />;
+     return <FacebookIcon {...brand} />;
    case "linkedin":
-     return <Linkedin {...props} />;
+     return <LinkedInIcon {...brand} />;
    default:
-     return <Globe {...props} />;
+     return <Globe {...line} />;
  }
 }
 

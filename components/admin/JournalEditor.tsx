@@ -29,7 +29,6 @@ import {
   Heading3,
   Image as ImageIcon,
   Quote,
-  Youtube,
   Code2,
   Minus,
   Images,
@@ -39,6 +38,11 @@ import {
   Link as LinkIcon,
   Users,
 } from "lucide-react";
+// lucide 1.x removed its brand icons; the YouTube mark comes from the
+// project's own set, the same one the footer and mobile drawer use. It takes
+// a size and inherits currentColor, so the block-type map is unchanged apart
+// from the name.
+import { YouTubeIcon } from "@/components/icons/SocialIcons";
 import type { JournalPost, JournalPostAuthor, JournalPostGalleryImage } from "@/lib/content/types";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { useAdminLocale, STR, type B } from "@/lib/admin/i18n";
@@ -282,7 +286,7 @@ const BLOCK_LABELS: Record<BlockType, { label: B; icon: React.ElementType }> = {
   heading3: { label: { es: "Encabezado 3", en: "Heading 3" }, icon: Heading3 },
   image: { label: { es: "Imagen", en: "Image" }, icon: ImageIcon },
   quote: { label: { es: "Cita destacada", en: "Pull Quote" }, icon: Quote },
-  youtube: { label: { es: "YouTube", en: "YouTube" }, icon: Youtube },
+  youtube: { label: { es: "YouTube", en: "YouTube" }, icon: YouTubeIcon },
   embed: { label: { es: "Insertado", en: "Embed" }, icon: Code2 },
   gallery: { label: { es: "Galería", en: "Gallery" }, icon: Images },
   divider: { label: { es: "Separador", en: "Divider" }, icon: Minus },
