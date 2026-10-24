@@ -475,20 +475,19 @@ html.pwa-standalone .pwa-safe-bottom {
   margin-top: 1rem;
 }
 
-/* Once JS hydrates, hide the server article. The animated client
-   version takes over visually; the article stays in DOM for a11y.
-   (layout.tsx adds js-hydrated pre-paint but removes it again after 4s
-   if React never hydrates — so this never hides content permanently.) */
+/* Once JS hydrates, remove the server article outright.
+   This used to be visually-hidden-but-readable (the sr-only clip), on the
+   theory that the article was the accessible copy. It isn't: the hydrated
+   client version exposes the same prose — measured 7,056 of 7,563 chars on
+   /es/farmtotable — with its own complete, skip-free heading outline. So
+   keeping both in the accessibility tree made a screen reader announce the
+   whole page twice and gave every page two <h1>s. display:none takes it out
+   of the tree; the crawler/no-JS job is already done by being in the served
+   HTML, which is unaffected.
+   (layout.tsx adds js-hydrated pre-paint but removes it again after 4s if
+   React never hydrates — so this never hides content permanently.) */
 .js-hydrated .ssr-article {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  display: none;
 }
 
 /* Without JavaScript (or if hydration never lands and the watchdog removed
