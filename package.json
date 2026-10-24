@@ -90,8 +90,6 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "reading-time": "^1.5.0",
-    "rehype-slug": "^6.0.0",
-    "remark-gfm": "^4.0.1",
     "resend": "^6.34.1",
     "sanitize-html": "^2.18.1",
     "tailwind-merge": "^3.7.0",
@@ -112,19 +110,10 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "16.4.3",
     "eslint-config-prettier": "^10.1.8",
-    "fast-glob": "^3.3.3",
     "postcss": "^8.5.31",
-    "rehype-autolink-headings": "^7.1.0",
-    "remark-frontmatter": "^5.0.0",
-    "remark-lint": "^10.0.1",
-    "remark-preset-lint-consistent": "^6.0.1",
-    "remark-preset-lint-markdown-style-guide": "^6.0.1",
-    "remark-unwrap-images": "^4.0.1",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
-    "ts-prune": "^0.10.3",
     "typescript": "^5.9.3",
-    "vitest": "^5.0.5",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "vitest": "^5.0.5"
   }
 }
