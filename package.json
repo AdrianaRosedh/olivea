@@ -32,10 +32,10 @@
     }
   },
   "scripts": {
-    "assets:prepare": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
+    "assets:prepare": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs && node scripts/generate-content-fallback.mjs",
     "postinstall": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
     "predev": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
-    "prebuild": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs",
+    "prebuild": "node scripts/copy-pdf-worker.mjs && node scripts/generate-press-fallback.mjs && node scripts/generate-content-fallback.mjs",
     "dev": "next dev --hostname olivea-localhost --port 3000",
     "dev:local": "cross-env HOST=olivea-localhost PORT=3000 next dev",
     "build": "next build",

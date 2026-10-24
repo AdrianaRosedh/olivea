@@ -62,7 +62,13 @@ export default async function LegalPage({
       <div className="space-y-8">
         {sections.map((s, i) => {
           const title = s.title ? t(lang, s.title) : "";
-          const body = s.body ? t(lang, s.body) : "";
+          // A section body is one block on most pages and a list of
+          // paragraphs on a couple, so handle both rather than assuming.
+          const body = Array.isArray(s.body)
+            ? s.body.map((p) => t(lang, p)).join("\n\n")
+            : s.body
+              ? t(lang, s.body)
+              : "";
           const isGroupHeading = title && !body.trim();
 
           if (isGroupHeading) {

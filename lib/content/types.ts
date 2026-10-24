@@ -140,14 +140,28 @@ export interface FaqItem {
 }
 
 /** A generic content section on a page */
+/**
+ * One section of a data-driven page.
+ *
+ * Open on purpose. Sections are heterogeneous — a hero carries CTAs, a
+ * gallery carries images, a quote carries an attribution — and the pages read
+ * them as plain records (see each page's SectionData). Declaring a closed
+ * shape only made the type a fiction: surveying the 25 sections actually
+ * stored across casa, café and farm to table, `id` is on all 25, but `body`
+ * is on 2, `sortOrder` on 8, and `page` and `slug` on none at all, though all
+ * four were declared required here.
+ *
+ * So: `id` is real and required, the rest are optional, and whatever else a
+ * given kind needs is allowed rather than forbidden.
+ */
 export interface ContentSection {
   id: string;
-  page: string;
-  slug: string;
   title?: Bilingual;
-  body: BilingualRich;
+  /** A single block, or a list of paragraphs — both occur in the data. */
+  body?: BilingualRich | Bilingual[];
   image?: SiteImage;
-  sortOrder: number;
+  sortOrder?: number;
+  [key: string]: unknown;
 }
 
 /* ── Page-Specific Types ── */
@@ -181,7 +195,13 @@ export interface CasaContent {
   meta: PageMeta;
   hero: HeroBlock;
   sections: ContentSection[];
-  faq: FaqItem[];
+  /**
+   * Optional, unlike café and farm to table. casa_content has no faq column —
+   * Casa's questions live in a section inside `sections`, which is what the
+   * page reads (faqSectionOf(...)). Declaring it required described a column
+   * that does not exist.
+   */
+  faq?: FaqItem[];
   updatedAt?: string;
 }
 

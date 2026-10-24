@@ -9,6 +9,7 @@ import {
   deleteCasaFaqItem,
 } from "@/lib/supabase/actions";
 import casaContent from "@/lib/content/data/casa";
+import { faqSectionOf } from "@/lib/seo/faq";
 import {
   HelpCircle,
   Plus,
@@ -331,6 +332,25 @@ function FaqCard({
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Static fallback, used only when the FAQ table returns nothing.
+ *
+ * Reads the consolidated store — the `faq` section inside casa's sections,
+ * keyed q/a — rather than the old top-level `casa.faq` array, which used the
+ * superseded question/answer shape and no longer exists: casa_content has no
+ * faq column, so the generated fallback cannot carry one.
+ */
+function fallbackFaq(): FaqItem[] {
+  const entries = faqSectionOf(casaContent.sections)?.items ?? [];
+  return entries.map((f, i) => ({
+    id: f.id ?? `faq-${i + 1}`,
+    page: "casa",
+    question: (f.q ?? f.question ?? { es: "", en: "" }) as BilingualText,
+    answer: (f.a ?? f.answer ?? { es: "", en: "" }) as BilingualText,
+    sort_order: i + 1,
+  }));
+}
+
 export default function CasaFaqPage() {
   const [items, setItems] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -347,25 +367,13 @@ export default function CasaFaqPage() {
         setItems(data.sort((a, b) => a.sort_order - b.sort_order));
       } else {
         // Fall back to static FAQ items from content data
-        const staticItems: FaqItem[] = casaContent.faq.map((f) => ({
-          id: f.id,
-          page: f.page ?? "casa",
-          question: f.question,
-          answer: f.answer,
-          sort_order: f.sortOrder,
-        }));
+        const staticItems: FaqItem[] = fallbackFaq();
         setItems(staticItems);
       }
     } catch (err) {
       console.error("Failed to load FAQ items:", err);
       // Fall back to static FAQ items on error
-      const staticItems: FaqItem[] = casaContent.faq.map((f) => ({
-        id: f.id,
-        page: f.page ?? "casa",
-        question: f.question,
-        answer: f.answer,
-        sort_order: f.sortOrder,
-      }));
+      const staticItems: FaqItem[] = fallbackFaq();
       setItems(staticItems);
     } finally {
       setLoading(false);
