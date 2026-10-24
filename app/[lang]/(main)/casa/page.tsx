@@ -7,8 +7,6 @@ import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { toFaqItems, faqSectionOf } from "@/lib/seo/faq";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent } from "@/lib/content";
-import ContentEs from "./ContentEs";
-import ContentEn from "./ContentEn";
 import CasaContent from "./CasaContent";
 import type { SectionData } from "./sections/types";
 import ArticleEn from "./ArticleEn";
@@ -89,13 +87,10 @@ export const viewport: Viewport = {
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params;
   const L: Lang = raw === "es" ? "es" : "en";
-  const Content = L === "en" ? ContentEn : ContentEs;
   const Article = L === "en" ? ArticleEn : ArticleEs;
 
   // Fetch Supabase-driven sections (falls back gracefully)
   const casaContent = await getContent("casa");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const hasSections = casaContent.sections && (casaContent.sections as any[]).length > 0;
   // sections[faq].items is the single FAQ store: the page renders it, the
   // markup describes it, and the admin edits it. It used to be one of three.
   const faq: FaqItem[] = toFaqItems(faqSectionOf(casaContent.sections)?.items, L);
@@ -155,19 +150,16 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
 
-      {hasSections ? (
-        <Suspense
-          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
-        >
-          <CasaContent lang={L} sections={casaContent.sections as SectionData[]} />
-        </Suspense>
-      ) : (
-        <Suspense
-          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
-        >
-          <Content />
-        </Suspense>
-      )}
+      {/* The fallback is no longer a parallel MDX tree. lib/content/data is
+          regenerated from the CMS at build time, so `sections` is populated
+          even when Supabase is unreachable — the old MDX branch had become
+          unreachable, while still carrying text that could contradict the
+          live page. See scripts/generate-content-fallback.mjs. */}
+      <Suspense
+        fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+      >
+        <CasaContent lang={L} sections={casaContent.sections as SectionData[]} />
+      </Suspense>
     </div>
   );
 }

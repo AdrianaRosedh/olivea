@@ -7,8 +7,6 @@ import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import { toFaqItems } from "@/lib/seo/faq";
 import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent } from "@/lib/content";
-import ContentEs from "./ContentEs";
-import ContentEn from "./ContentEn";
 import FTTContent from "./FTTContent";
 import type { SectionData } from "./sections/types";
 import ArticleEn from "./ArticleEn";
@@ -91,17 +89,15 @@ export const viewport: Viewport = {
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params;
   const L: Lang = raw === "es" ? "es" : "en";
-  const Content = L === "en" ? ContentEn : ContentEs;
   const Article = L === "en" ? ArticleEn : ArticleEs;
 
   // Fetch Supabase-driven sections (falls back gracefully)
   const fttData = await getContent('farmtotable');
-  const hasSections = fttData.sections && fttData.sections.length > 0;
 
   // Use Supabase FAQ for JSON-LD if available
-  const faqSection = hasSections
-    ? (fttData.sections as SectionData[]).find((s) => s.id === 'faq')
-    : null;
+  const faqSection = (fttData.sections as SectionData[] | undefined)?.find(
+    (s) => s.id === 'faq'
+  );
   // sections[faq].items is the single FAQ store: the page renders it, the
   // markup describes it, and the admin edits it. seoFaq and the faq column
   // are retired — their questions were merged in.
@@ -163,19 +159,16 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
       <Article />
 
-      {hasSections ? (
-        <Suspense
-          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
-        >
-          <FTTContent lang={L} sections={fttData.sections as SectionData[]} />
-        </Suspense>
-      ) : (
-        <Suspense
-          fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
-        >
-          <Content />
-        </Suspense>
-      )}
+      {/* The fallback is no longer a parallel MDX tree. lib/content/data is
+          regenerated from the CMS at build time, so `sections` is populated
+          even when Supabase is unreachable — the old MDX branch had become
+          unreachable, while still carrying text that could contradict the
+          live page. See scripts/generate-content-fallback.mjs. */}
+      <Suspense
+        fallback={<div className="mk-fullh flex items-center justify-center">Loading…</div>}
+      >
+        <FTTContent lang={L} sections={fttData.sections as SectionData[]} />
+      </Suspense>
     </div>
   );
 }
