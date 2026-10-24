@@ -37,10 +37,19 @@ const SCROLL_BG_START = 14;
    Centralized here so a palette change only needs one update.
    ──────────────────────────────────────────────────────────────── */
 const TOKENS = {
-  ink: "rgba(94,118,88,0.82)",       // olive at 82%
-  light: "rgba(231,234,225,0.98)",   // cream at 98%
-  ring: "rgba(94,118,88,0.30)",      // olive ring
-  ringStrong: "rgba(94,118,88,0.42)",
+  // Full-strength --olivea-olive, not a tinted olive at 82%. The old
+  // rgba(94,118,88,0.82) composited to rgb(119,139,113) over the cream pill,
+  // which is 3.03:1 — under the 4.5:1 AA floor for 16px text, on the primary
+  // navigation. #566d51 at full opacity measures 4.66:1 on the same ground.
+  // It also stops the label's contrast drifting, since the bar is glass
+  // (glassBg below is cream at 64%) and a translucent ink over a translucent
+  // surface rides on whatever happens to scroll underneath.
+  ink: "#566d51",
+  light: "rgba(231,234,225,0.98)",   // cream at 98% — 4.55:1 on the olive slider
+  ring: "rgba(94,118,88,0.30)",      // olive ring — hover affordance, decorative
+  // The group-focus-visible indicator, so it owes 3:1 (WCAG 2.4.11). At 0.42
+  // it measured 1.67:1 and was effectively invisible to a keyboard user.
+  ringStrong: "#566d51",
   glassBg: "rgba(231,234,225,0.64)", // cream glass
   glassRing: "1px solid rgba(94,118,88,0.12)",
   glassShadow: "0 16px 44px rgba(18,24,16,0.10)",
