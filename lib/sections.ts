@@ -76,8 +76,9 @@ export function buildCenterNavItems(pathname: string) {
   }));
 }
 
-/** Where should the Reserve button default to on this page? */
-export function reserveDefault(pathname: string): SectionId {
+/** Which house does this page belong to, for the Reserve button? Null on a
+ *  page that belongs to none (home, journal…): the guest chooses. */
+export function reserveDefault(pathname: string): SectionId | null {
   const { section } = getActiveSection(pathname);
-  return section?.id ?? "farmtotable";
+  return section?.id ?? null;
 }

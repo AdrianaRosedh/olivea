@@ -3,6 +3,7 @@ import "../globals.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { AppProviders } from "../providers";
+import { getContent } from "@/lib/content";
 import { fontsClass } from "../fonts";
 import PathTracker from "@/components/PathTracker";
 import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
@@ -117,6 +118,12 @@ export default async function LocaleRootLayout({
   const { lang: raw } = await params;
   const lang = raw === "en" ? "en" : "es";
 
+  // The café's hours for the reservation window, from the site settings
+  // (admin → Horarios), the same request the page layouts already make.
+  const settings = await getContent("global").catch(() => null);
+  const cafe = settings?.hours?.find((h) => h.venue === "cafe");
+  const cafeHours = cafe ? { schedule: cafe.schedule, slots: cafe.slots } : null;
+
   return (
     <html lang={lang} className={fontsClass} suppressHydrationWarning>
       <head>
@@ -221,7 +228,7 @@ export default async function LocaleRootLayout({
         <VhSetter />
 
         <PathTracker />
-        <AppProviders>{children}</AppProviders>
+        <AppProviders cafeHours={cafeHours}>{children}</AppProviders>
 
         <CookieConsent />
         <Analytics />

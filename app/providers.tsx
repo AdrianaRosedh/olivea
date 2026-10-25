@@ -4,6 +4,7 @@
 import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import type { CafeHours } from "@/components/forms/reservation/ReservationModal";
 import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
 import {
   SharedTransitionProvider,
@@ -19,6 +20,8 @@ import PathTracker from "@/components/PathTracker";
 
 interface AppProvidersProps {
   children: ReactNode;
+  /** The café's opening hours, for the reservation window's café tab. */
+  cafeHours?: CafeHours | null;
 }
 
 /* ========== Lazy bits ========== */
@@ -52,8 +55,13 @@ function ConditionalLiveGarden() {
 }
 
 /** Load & render reservation modal only when it's open (saves a chunk on idle pages). */
-const ConditionalReservationModal = () => {
+const ConditionalReservationModal = ({ cafeHours }: { cafeHours?: CafeHours | null }) => {
   const { isOpen } = useReservation();
+  // The window speaks the page's language. "/" is the Spanish site (rewrite),
+  // so only an /en address is English. It was fixed to "es", which showed
+  // English visitors a Spanish reservation window.
+  const pathname = usePathname();
+  const lang = pathname?.startsWith("/en") ? "en" : "es";
   const [warm, setWarm] = useState(false);
   const [shouldMount, setShouldMount] = useState(false); // ⬅️ latch
 
@@ -83,7 +91,7 @@ const ConditionalReservationModal = () => {
   }, [isOpen, warm]);
 
   if (!shouldMount) return null;
-  return <ReservationModal lang="es" />;
+  return <ReservationModal lang={lang} cafeHours={cafeHours} />;
 };
 
 /**
@@ -128,7 +136,7 @@ function TransitionOverlayGate() {
   return <SharedVideoTransitionLazy />;
 }
 
-export function AppProviders({ children }: AppProvidersProps) {
+export function AppProviders({ children, cafeHours }: AppProvidersProps) {
   // React is live: confirm the js-hydrated marker and cancel the
   // pre-hydration watchdog (see the inline script in app/layout.tsx).
   useLayoutEffect(() => {
@@ -151,7 +159,7 @@ export function AppProviders({ children }: AppProvidersProps) {
               <PathTracker />
 
               {children}
-              <ConditionalReservationModal />
+              <ConditionalReservationModal cafeHours={cafeHours} />
               <ConditionalLiveGarden />
             </ClientProviders>
           </ScrollProvider>

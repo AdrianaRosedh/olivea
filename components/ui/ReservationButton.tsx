@@ -24,8 +24,9 @@ export default function ReservationButton({
   const isES = !pathname?.startsWith("/en");
   const label = isES ? "RESERVAR" : "RESERVE";
 
+  // The home page belongs to no single house: let the guest choose.
   const handleClick = () => {
-    openReservationModal("restaurant");
+    openReservationModal();
   };
 
   // exact same typography as the navbar RESERVE button

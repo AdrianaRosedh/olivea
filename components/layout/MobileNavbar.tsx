@@ -42,13 +42,13 @@ export default function MobileNavbar({
   }, []);
 
   const handleReserve = useCallback(() => {
-    const id = reserveDefault(pathname); // "casa" | "farmtotable" | "cafe"
+    const id = reserveDefault(pathname); // "casa" | "farmtotable" | "cafe" | null
     const map: Record<"casa" | "farmtotable" | "cafe", "hotel" | "restaurant" | "cafe"> = {
       casa: "hotel",
       farmtotable: "restaurant",
       cafe: "cafe",
     };
-    openReservationModal(map[id]);
+    openReservationModal(id ? map[id] : undefined);
   }, [openReservationModal, pathname]);
 
   // Close drawer on navigation change (prevents stale open drawer)

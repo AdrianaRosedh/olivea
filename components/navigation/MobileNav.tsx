@@ -29,6 +29,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { reserveDefault } from "@/lib/sections";
 
 type Props = { isDrawerOpen?: boolean };
 type DockSide = "left" | "right";
@@ -198,11 +199,11 @@ export function MobileNav({ isDrawerOpen }: Props) {
         };
   }, [lang]);
 
-  const reserveTab: ReservationType = pathname?.includes("/casa")
-    ? "hotel"
-    : pathname?.includes("/cafe")
-    ? "cafe"
-    : "restaurant";
+  // Undefined on a page that belongs to no house: the guest chooses.
+  const reserveSection = pathname ? reserveDefault(pathname) : null;
+  const reserveTab: ReservationType | undefined = reserveSection
+    ? ({ casa: "hotel", farmtotable: "restaurant", cafe: "cafe" } as const)[reserveSection]
+    : undefined;
 
   const isContentHeavy =
     !!pathname &&
@@ -377,7 +378,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
       source: expanded
         ? "mobile_floating_dock_expanded"
         : "mobile_floating_dock",
-      section: reserveTab,
+      section: reserveTab ?? "choose",
       lang,
     });
     setExpanded(false);

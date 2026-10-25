@@ -7,7 +7,7 @@ import {
   useCallback,
   type WheelEventHandler,
 } from "react";
-import { X, ExternalLink, Maximize2, Minimize2 } from "lucide-react";
+import { X, ExternalLink, Maximize2, Minimize2, ArrowRight } from "lucide-react";
 import {
   motion,
   type Variants,
@@ -21,9 +21,13 @@ import {
 } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
 import { openTableUrl } from "./OpentableWidget";
+import { HOUSES, HOUSE_ORDER } from "@/lib/houses";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { BusinessHours } from "@/lib/content/types";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 // Client-only widgets (already memoized)
@@ -39,6 +43,13 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /** Remembers the desktop full-screen choice across sessions. */
 const FULLSCREEN_KEY = "olivea:reservation-fullscreen";
+
+/** Desktop: the booking engines sit in a rounded frame inside the window. */
+const ENGINE_FRAME =
+  "md:mx-6 md:mb-6 md:rounded-2xl md:overflow-hidden md:ring-1 md:ring-black/5 md:shadow-[0_8px_30px_rgba(0,0,0,0.06)]";
+
+/** The café's opening hours, from the site settings (admin → Horarios). */
+export type CafeHours = Pick<BusinessHours, "schedule" | "slots">;
 
 const stopWheelPropagation: WheelEventHandler<HTMLDivElement> = (e) => {
   e.stopPropagation();
@@ -98,7 +109,7 @@ function HotelPane({
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className={`flex-1 min-h-0 overflow-hidden ${isMobile ? "" : ENGINE_FRAME}`}>
         {isMobile ? (
           <div className="px-4 pt-6 pb-10 flex justify-center">
             <button
@@ -147,42 +158,25 @@ function RestaurantPane({
   if (!isMobile) {
     return (
       <>
-        <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
-          <div className="relative h-11 md:h-16 w-16 md:w-24">
-            <Image
-              src="/brand/oliveaFTT1.svg"
-              alt="Olivea Farm To Table"
-              fill
-              className="object-contain"
-              sizes="96px"
-              priority={false}
-            />
-          </div>
-          <span
-            className={`font-jakarta font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
-            style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
-            id="restaurant-pane-title"
-          >
-            Olivea Farm To Table
-          </span>
-
-          {/* Always-available booking link. OpenTable's page below runs as a
-              third-party frame, and some browsers (Safari) limit it, so there
-              is always a direct path to reserve. */}
+        {/* The tab already names the house, so no logo bar here: just the
+            always-available booking link. OpenTable's page below runs as a
+            third-party frame, and some browsers (Safari) limit it, so there
+            is always a direct path to reserve. */}
+        <div className="flex justify-end px-6 pb-2 shrink-0">
           <a
             href={openTableUrl(lang)}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--olivea-olive) hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 text-xs text-(--olivea-ink)/60 underline-offset-4 hover:text-(--olivea-olive) hover:underline whitespace-nowrap"
           >
-            {lang === "es" ? "Reservar en OpenTable" : "Reserve on OpenTable"}
-            <ExternalLink size={16} />
+            {lang === "es" ? "Reservar directamente en OpenTable" : "Reserve directly on OpenTable"}
+            <ExternalLink size={13} />
           </a>
         </div>
 
         <div
-          className="flex-1 min-h-0 overflow-hidden"
-          aria-labelledby="restaurant-pane-title"
+          className={`flex-1 min-h-0 overflow-hidden ${ENGINE_FRAME}`}
+          aria-label="Olivea Farm To Table"
           onWheelCapture={stopWheelPropagation}
         >
           {mounted && <OpentableWidget lang={lang} />}
@@ -231,34 +225,100 @@ function RestaurantPane({
 
 /* ── Cafe Pane ───────────────────────────────────────────────────── */
 
-function CafePane({ lang, isMobile }: { lang: "es" | "en"; isMobile: boolean }) {
-  return (
-    <>
-      {!isMobile && (
-        <div className="flex items-center px-4 py-3 md:px-6 md:py-4 bg-(--olivea-cream) shrink-0">
-          <div className="relative h-11 md:h-16 w-16 md:w-24">
-            <Image
-              src="/brand/oliveaCafe.svg"
-              alt="Olivea Café Wine Bar"
-              fill
-              className="object-contain"
-              sizes="96px"
-              priority={false}
-            />
-          </div>
-          <span
-            className={`font-jakarta font-bold ml-5 md:ml-7 text-(--olivea-ink)`}
-            style={{ fontSize: "clamp(0.9rem,2vw,1.15rem)" }}
-          >
-            Olivea Café Wine Bar
-          </span>
-        </div>
-      )}
+const WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-      <div className="flex-1 flex items-center justify-center italic text-neutral-500 p-6">
-        {lang === "es" ? "Próximamente disponible." : "Coming Soon."}
+/** "Todos los días · 7:15 a.m. – 4:00 p.m." from the settings' slots; the
+ *  schedule text when there are none. Client-only (the window never SSRs). */
+function hoursLines(hours: CafeHours | null | undefined, lang: "es" | "en"): string[] {
+  const locale = lang === "es" ? "es-MX" : "en-US";
+  const time = (hhmm: string) => {
+    const [h, m] = hhmm.split(":").map(Number);
+    return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(
+      new Date(2000, 0, 1, h, m)
+    );
+  };
+  const dayName = (day: string) =>
+    new Intl.DateTimeFormat(locale, { weekday: "long" }).format(
+      new Date(2024, 0, 1 + WEEK.indexOf(day)) // 2024-01-01 was a Monday
+    );
+
+  const slots = hours?.slots ?? [];
+  if (!slots.length) return hours?.schedule ? [hours.schedule[lang]] : [];
+  return slots.map((slot) => {
+    const days =
+      slot.days.length === 7
+        ? lang === "es" ? "Todos los días" : "Every day"
+        : slot.days.map(dayName).join(", ");
+    return `${days} · ${time(slot.opens)} – ${time(slot.closes)}`;
+  });
+}
+
+/**
+ * The café takes no reservations, so its tab is an invitation rather than a
+ * booking engine: come whenever, and these are the hours.
+ */
+function CafePane({ lang, cafeHours }: { lang: "es" | "en"; cafeHours?: CafeHours | null }) {
+  const { closeReservationModal } = useReservation();
+  const pathname = usePathname();
+  const house = HOUSES.cafe;
+  const lines = hoursLines(cafeHours, lang);
+  const cafeHref = lang === "es" ? "/es/cafe" : "/en/cafe";
+  const onCafePage = pathname === cafeHref || (lang === "es" && pathname === "/cafe");
+
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-10">
+      <div className="mx-auto flex min-h-full max-w-md flex-col items-center justify-center text-center">
+        <span className="relative h-20 w-20 overflow-hidden rounded-full border-4 border-[#e7eae1] bg-[#e7eae1] shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+          <Image src={house.emblem} alt="" fill sizes="80px" className="object-contain" />
+        </span>
+        <h3
+          className="mt-4 text-(--olivea-olive)"
+          style={{ fontFamily: "var(--font-serif)", fontSize: 27, fontWeight: 600, lineHeight: 1.15 }}
+        >
+          {house.name}
+        </h3>
+        <p className="italic text-(--olivea-olive)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}>
+          {house.descriptor[lang]}
+        </p>
+
+        <span aria-hidden className="my-7 h-px w-14 bg-(--olivea-olive)/25" />
+
+        <p className="text-(--olivea-ink)" style={{ fontFamily: "var(--font-serif)", fontSize: 21, lineHeight: 1.3 }}>
+          {lang === "es" ? "Por ahora no necesitas reservar." : "For now, there’s no need to reserve."}
+        </p>
+        <p className="mt-1 italic text-(--olivea-ink)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 17 }}>
+          {lang === "es" ? "Ven cuando quieras; te esperamos." : "Come whenever you like; we’ll be waiting."}
+        </p>
+
+        {lines.length > 0 && (
+          <div className="mt-8 w-full rounded-2xl bg-[#e7eae1] px-6 py-5 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-(--olivea-olive)">
+              {lang === "es" ? "Horario" : "Hours"}
+            </p>
+            {lines.map((line) => (
+              <p
+                key={line}
+                className="mt-1.5 text-(--olivea-ink)"
+                style={{ fontFamily: "var(--font-serif)", fontSize: 18 }}
+              >
+                {line}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {!onCafePage && (
+          <Link
+            href={cafeHref}
+            onClick={closeReservationModal}
+            className="mt-7 inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/35 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-(--olivea-olive) transition-colors hover:bg-(--olivea-olive) hover:text-(--olivea-cream)"
+          >
+            {lang === "es" ? "Conoce el café" : "Discover the café"}
+            <ArrowRight size={14} />
+          </Link>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -386,19 +446,86 @@ function MobileRestaurantSheet({
   );
 }
 
+/* ── House chooser (phones) ──────────────────────────────────────── */
+
+/**
+ * What a phone shows when the guest has not chosen a house yet: the three
+ * houses, dressed like the home page cards, so reserving starts from OLIVEA
+ * as a whole rather than from one booking engine.
+ */
+function HouseChoice({
+  lang,
+  onChoose,
+}: {
+  lang: "es" | "en";
+  onChoose: (id: ReservationType) => void;
+}) {
+  const reduce = usePrefersReducedMotion();
+
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-2 pb-[max(env(safe-area-inset-bottom),28px)]">
+      <p
+        className="text-center italic text-(--olivea-ink)/70"
+        style={{ fontFamily: "var(--font-serif)", fontSize: 17 }}
+      >
+        {lang === "es" ? "¿Dónde te esperamos?" : "Where shall we welcome you?"}
+      </p>
+
+      <ul className="mt-12 space-y-12">
+        {HOUSE_ORDER.map((id, i) => {
+          const house = HOUSES[id];
+          return (
+            <motion.li
+              key={id}
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={reduce ? { duration: 0 } : { duration: 0.45, ease: EASE, delay: 0.08 + i * 0.08 }}
+            >
+              <button
+                type="button"
+                onClick={() => onChoose(id)}
+                className="relative w-full rounded-3xl border-4 border-[#e7eae1] bg-[#e7eae1] px-4 pt-10 pb-4 text-center shadow-[0_12px_32px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform"
+              >
+                <span className="absolute left-1/2 top-0 h-16 w-16 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full border-4 border-[#e7eae1] bg-[#e7eae1]">
+                  <Image src={house.emblem} alt="" fill sizes="64px" className="object-contain" />
+                </span>
+                <span
+                  className="block text-(--olivea-olive)"
+                  style={{ fontFamily: "var(--font-serif)", fontSize: 23, fontWeight: 600, lineHeight: 1.15 }}
+                >
+                  {house.name}
+                </span>
+                <span
+                  className="mt-0.5 block italic text-(--olivea-olive)/70"
+                  style={{ fontFamily: "var(--font-serif)", fontSize: 14.5 }}
+                >
+                  {house.descriptor[lang]}
+                </span>
+              </button>
+            </motion.li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 /* ── Main Modal ──────────────────────────────────────────────────── */
 
 interface ReservationModalProps {
   lang: "es" | "en";
+  cafeHours?: CafeHours | null;
 }
 
-export default function ReservationModal({ lang }: ReservationModalProps) {
+export default function ReservationModal({ lang, cafeHours }: ReservationModalProps) {
   const reduce = usePrefersReducedMotion();
   const {
     isOpen,
     closeReservationModal,
     reservationType,
     setReservationType,
+    typeChosen,
+    chooseAgain,
   } = useReservation();
 
   // Mobile vs desktop
@@ -480,12 +607,25 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
     );
   }, [isOpen, reservationType]);
 
-  // Auto-open mobile overlays when tab is already selected
+  // Auto-open mobile overlays when the guest already chose a house (opened
+  // from that house's page). Otherwise the phone shows the three houses.
   useEffect(() => {
-    if (!isOpen || !isMobile) return;
+    if (!isOpen || !isMobile || !typeChosen) return;
     if (reservationType === "hotel") setShowHotelOverlay(true);
     if (reservationType === "restaurant") openRestaurantOverlay();
-  }, [isOpen, isMobile, reservationType, openRestaurantOverlay]);
+  }, [isOpen, isMobile, typeChosen, reservationType, openRestaurantOverlay]);
+
+  // On a phone, closing a booking sheet goes back to the three houses.
+  const closeHotelSheet = useCallback(() => {
+    setShowHotelOverlay(false);
+    chooseAgain();
+  }, [chooseAgain]);
+  const closeRestaurantSheet = useCallback(() => {
+    closeRestaurantOverlay();
+    chooseAgain();
+  }, [closeRestaurantOverlay, chooseAgain]);
+
+  const showChoice = isMobile && !typeChosen;
 
   // Tab handler
   const handleTabClick = useCallback(
@@ -623,16 +763,23 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
           }`}
         >
           {/* Header */}
-          <div className="relative flex items-center px-6 py-4 shrink-0">
-            <h2
-              className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: isMobile ? 22 : 32,
-                fontWeight: 200,
-              }}
-            >
-              {lang === "es" ? "Reservaciones" : "Reservations"}
+          <div className={`relative flex items-center px-6 shrink-0 ${isMobile ? "py-4" : "h-20"}`}>
+            <h2 className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              {!isMobile && (
+                <span className="text-[11px] uppercase tracking-[0.42em] text-(--olivea-olive)/80">
+                  Olivea
+                </span>
+              )}
+              <span
+                className="uppercase tracking-[0.25em]"
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: isMobile ? 22 : 28,
+                  fontWeight: 200,
+                }}
+              >
+                {lang === "es" ? "Reservaciones" : "Reservations"}
+              </span>
             </h2>
             <div className="ml-auto flex items-center gap-1">
               {!isMobile && (
@@ -673,43 +820,89 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div role="tablist" className="flex shrink-0 bg-(--olivea-cream) px-4 md:px-0">
-            {(["restaurant", "hotel", "cafe"] as ReservationType[]).map((id) => (
-              <button
-                key={id}
-                role="tab"
-                onClick={() => handleTabClick(id)}
-                className={`relative flex-1 py-3 text-center uppercase tracking-[0.15em] transition-colors ${
-                  reservationType === id
-                    ? "text-(--olivea-olive) font-semibold"
-                    : "text-(--olivea-ink) hover:bg-(--olivea-olive) hover:text-(--olivea-cream)"
-                }`}
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: isMobile ? 16 : 18,
-                  fontWeight: 400,
-                }}
-                aria-selected={reservationType === id}
-              >
-                {id === "restaurant"
-                  ? lang === "es"
-                    ? "Restaurante"
-                    : "Restaurant"
-                  : id === "hotel"
-                  ? "Hotel"
-                  : lang === "es"
-                  ? "Café"
-                  : "Cafe"}
-                {reservationType === id && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.75 bg-(--olivea-olive)" />
-                )}
-              </button>
-            ))}
+          {showChoice && <HouseChoice lang={lang} onChoose={handleTabClick} />}
+
+          {/* Tabs, named after the houses. Kept mounted (only hidden) while a
+              phone shows the chooser, so the panes never remount. */}
+          <div
+            role="tablist"
+            className={`shrink-0 bg-(--olivea-cream) ${showChoice ? "hidden" : "flex"} ${
+              isMobile ? "px-4" : "gap-3 px-6 pt-2 pb-4"
+            }`}
+          >
+            {HOUSE_ORDER.map((id) => {
+              const active = reservationType === id;
+              const house = HOUSES[id];
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  onClick={() => handleTabClick(id)}
+                  aria-selected={active}
+                  className={`group relative flex flex-1 items-center whitespace-nowrap transition-colors ${
+                    isMobile
+                      ? "flex-col justify-center gap-1 py-2"
+                      : "gap-3.5 rounded-2xl px-4 py-3 text-left"
+                  } ${
+                    active
+                      ? "text-(--olivea-olive)"
+                      : isMobile
+                        ? "text-(--olivea-ink)"
+                        : "text-(--olivea-ink)/75 hover:bg-[#e7eae1]/55 hover:text-(--olivea-ink)"
+                  }`}
+                >
+                  {/* The selected house sits on a raised card (desktop) or an
+                      underline (phone) that slides from house to house. */}
+                  {active && (
+                    <motion.span
+                      layoutId="reservation-tab"
+                      aria-hidden
+                      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
+                      className={
+                        isMobile
+                          ? "absolute bottom-0 left-0 right-0 h-0.75 bg-(--olivea-olive)"
+                          : "absolute inset-0 rounded-2xl bg-[#e7eae1] shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+                      }
+                    />
+                  )}
+                  <span
+                    aria-hidden
+                    className={`relative shrink-0 overflow-hidden ${
+                      isMobile
+                        ? "h-6 w-6"
+                        : "h-11 w-11 rounded-full border-2 border-[#e7eae1] bg-[#e7eae1]"
+                    } ${active ? "" : "opacity-70"}`}
+                  >
+                    <Image src={house.emblem} alt="" fill sizes="44px" className="object-contain" />
+                  </span>
+                  {isMobile ? (
+                    <span className="relative" style={{ fontFamily: "var(--font-serif)", fontSize: 13 }}>
+                      {house.tab}
+                    </span>
+                  ) : (
+                    <span className="relative flex min-w-0 flex-col">
+                      <span
+                        className={`truncate uppercase tracking-[0.14em] ${active ? "font-semibold" : ""}`}
+                        style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}
+                      >
+                        {house.tab}
+                      </span>
+                      <span
+                        className="truncate italic opacity-75"
+                        style={{ fontFamily: "var(--font-serif)", fontSize: 13.5 }}
+                      >
+                        {house.descriptor[lang]}
+                      </span>
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* Panes */}
-          <div className="flex-1 min-h-0 flex flex-col bg-(--olivea-cream)">
+          <div className={`flex-1 min-h-0 flex-col bg-(--olivea-cream) ${showChoice ? "hidden" : "flex"}`}>
             <div
               className={`flex-1 min-h-0 flex flex-col ${reservationType === "hotel" ? "flex" : "hidden"}`}
               aria-hidden={reservationType !== "hotel"}
@@ -738,7 +931,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
               className={`flex-1 min-h-0 flex flex-col ${reservationType === "cafe" ? "flex" : "hidden"}`}
               aria-hidden={reservationType !== "cafe"}
             >
-              <CafePane lang={lang} isMobile={isMobile} />
+              <CafePane lang={lang} cafeHours={cafeHours} />
             </div>
           </div>
         </div>
@@ -749,7 +942,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         <MobileHotelSheet
           lang={lang}
           visible={showHotelOverlay}
-          onClose={() => setShowHotelOverlay(false)}
+          onClose={closeHotelSheet}
         />
       )}
 
@@ -757,7 +950,7 @@ export default function ReservationModal({ lang }: ReservationModalProps) {
         <MobileRestaurantSheet
           lang={lang}
           visible={showRestaurantOverlay}
-          onClose={closeRestaurantOverlay}
+          onClose={closeRestaurantSheet}
         />
       )}
     </>

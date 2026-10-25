@@ -21,6 +21,8 @@ import IntroBarFixed from "@/components/intro/IntroBarFixed";
 import AlebrijeDraw from "@/components/animations/AlebrijeDraw";
 import { watchLCP } from "@/lib/perf/watchLCP";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
+import type { ReservationType } from "@/contexts/ReservationContext";
+import { HOUSES } from "@/lib/houses";
 import HeroMedia, { type VideoConfig } from "./HeroMedia";
 
 const ALEBRIJE_SRC = "/brand/alebrije-1.svg";
@@ -126,49 +128,22 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
   } = useIntroAnimation(stacked);
 
   // Each card carries the place's own name, so guests learn the houses of
-  // OLIVEA, and a few words saying what kind of place it is. The MICHELIN
-  // honours already sit above the reserve button, so the line describes the
-  // place instead. The names are the same in both languages; only the line is
-  // translated.
-  const cards = useMemo(() => {
-    return isES
-      ? {
-          casa: { title: "Casa Olivea", description: "Hotel boutique" },
-          farm: { title: "Olivea Farm To Table", description: "Restaurante de alta cocina" },
-          cafe: { title: "Olivea Café Wine Bar", description: "Café · brunch · vino" },
-        }
-      : {
-          casa: { title: "Casa Olivea", description: "Boutique Hotel" },
-          farm: { title: "Olivea Farm To Table", description: "Fine Dining Restaurant" },
-          cafe: { title: "Olivea Café Wine Bar", description: "Coffee · Brunch · Wine" },
-        };
-  }, [isES]);
-
+  // OLIVEA, and a few words saying what kind of place it is (lib/houses.ts,
+  // shared with the reservation window).
   const sections = useMemo<SectionDef[]>(() => {
+    const card = (id: ReservationType, href: string, sectionKey: SectionKey): SectionDef => ({
+      href: `${basePath}/${href}`,
+      title: HOUSES[id].name,
+      description: HOUSES[id].descriptor[lang],
+      logoSrc: HOUSES[id].emblem,
+      sectionKey,
+    });
     return [
-      {
-        href: `${basePath}/casa`,
-        title: cards.casa.title,
-        description: cards.casa.description,
-        logoSrc: "/brand/alebrije-2.svg",
-        sectionKey: "casa",
-      },
-      {
-        href: `${basePath}/farmtotable`,
-        title: cards.farm.title,
-        description: cards.farm.description,
-        logoSrc: "/brand/alebrije-1-Green.svg",
-        sectionKey: "farmtotable",
-      },
-      {
-        href: `${basePath}/cafe`,
-        title: cards.cafe.title,
-        description: cards.cafe.description,
-        logoSrc: "/brand/alebrije-3.svg",
-        sectionKey: "cafe",
-      },
+      card("hotel", "casa", "casa"),
+      card("restaurant", "farmtotable", "farmtotable"),
+      card("cafe", "cafe", "cafe"),
     ];
-  }, [basePath, cards]);
+  }, [basePath, lang]);
 
   const mobileSections = useMemo(() => {
     return stacked ? [sections[1], sections[0], sections[2]] : sections;

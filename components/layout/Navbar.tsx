@@ -108,7 +108,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
       farmtotable: "restaurant",
       cafe: "cafe",
     };
-    openReservationModal(map[id]);
+    openReservationModal(id ? map[id] : undefined);
   }, [openReservationModal, pathname]);
 
   useEffect(() => {

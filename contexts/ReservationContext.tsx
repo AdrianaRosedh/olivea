@@ -28,6 +28,13 @@ type ReservationContextValue = {
   /** current tab */
   reservationType: ReservationType;
   setReservationType: (type: ReservationType | LegacyType) => void;
+
+  /** Whether the guest has chosen a house yet: opened from a house's page,
+   *  or picked one in the window. When not, phones show the three houses
+   *  first instead of dropping the guest into one booking engine. */
+  typeChosen: boolean;
+  /** Back to the three houses (phones, after closing a booking sheet). */
+  chooseAgain: () => void;
 };
 
 /** Null by default – enforces provider usage (no `as any`) */
@@ -37,6 +44,7 @@ export function ReservationProvider({ children }: { children: React.ReactNode })
   // Start on "restaurant" to match previous behavior
   const [reservationType, _setType] = useState<ReservationType>("restaurant");
   const [isOpen, setIsOpen] = useState(false);
+  const [typeChosen, setTypeChosen] = useState(false);
 
   // Wrapped so they are stable across renders. They only call setState, so the
   // stale copies the memo captured behaved identically — but the moment one of
@@ -44,12 +52,18 @@ export function ReservationProvider({ children }: { children: React.ReactNode })
   // them stable lets the memo below list its real dependencies.
   const setReservationType = useCallback((t: ReservationType | LegacyType) => {
     _setType(toCanonical(t));
+    setTypeChosen(true);
   }, []);
 
+  // Without a type (a page that belongs to no house, like the home page) the
+  // guest chooses; the last tab stays as the desktop default.
   const open = useCallback((t?: ReservationType | LegacyType) => {
     if (t) _setType(toCanonical(t));
+    setTypeChosen(Boolean(t));
     setIsOpen(true);
   }, []);
+
+  const chooseAgain = useCallback(() => setTypeChosen(false), []);
 
   const close = useCallback(() => setIsOpen(false), []);
 
@@ -69,8 +83,10 @@ export function ReservationProvider({ children }: { children: React.ReactNode })
       closeReservationModal,
       reservationType,
       setReservationType,
+      typeChosen,
+      chooseAgain,
     }),
-    [isOpen, reservationType, open, close, openReservationModal, closeReservationModal, setReservationType]
+    [isOpen, reservationType, typeChosen, open, close, openReservationModal, closeReservationModal, setReservationType, chooseAgain]
   );
 
   return <ReservationContext.Provider value={value}>{children}</ReservationContext.Provider>;
