@@ -28,8 +28,8 @@ export const SECTIONS_CAFE_EN: NavSection[] = [
     id: "pan",
     title: "Bread",
     subs: [
-      { id: "flours", title: "Flours" },
-      { id: "recipes", title: "Recipes" },
+      { id: "flours", title: "Oven" },
+      { id: "recipes", title: "Pastry" },
       { id: "bakers", title: "Bakers" },
       { id: "ritual", title: "Ritual" },
     ],

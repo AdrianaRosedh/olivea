@@ -19,11 +19,11 @@
   },
   "cafe": {
     "title": "Olivea Café Wine Bar",
-    "description": "House coffee, bread and unhurried mornings in Valle de Guadalupe.",
+    "description": "Specialty coffee, our own bakery, brunch and wine beside the garden in Valle de Guadalupe.",
     "error": "Error loading menu:",
     "meta": {
-      "title": "OLIVEA Café Wine Bar | Coffee & Wine in Valle de Guadalupe",
-      "description": "Specialty coffee, garden breakfast, brunch and Valle de Guadalupe wine — at Olivea Café Wine Bar in Baja California.",
+      "title": "OLIVEA Café Wine Bar | Coffee, Bakery & Wine in Valle de Guadalupe",
+      "description": "Specialty coffee, croissants, conchas and seasonal breads baked in-house, breakfast and brunch, and Valle de Guadalupe wine beside the garden. No reservation needed.",
       "keywords": [
         "Olivea Café Wine Bar",
         "coffee",
@@ -58,7 +58,7 @@
     "description": "One MICHELIN Star & MICHELIN Green Star tasting menu shaped by a living garden in Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "MICHELIN Star and Green Star tasting menu in Valle de Guadalupe, Baja California. Nine courses shaped by the garden, beginning with a walk through it.",
+      "description": "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only.",
       "ogImage": "/images/seo/farm-og.jpg"
     }
   },

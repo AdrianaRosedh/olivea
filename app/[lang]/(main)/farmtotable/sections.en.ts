@@ -40,6 +40,8 @@ export const SECTIONS_EN: NavSection[] = [
       { id: "ecosystem", title: "System" },
       { id: "cycle", title: "Cycle" },
       { id: "fermentation", title: "Fermentation" },
+      { id: "mushrooms", title: "Mushrooms" },
+      { id: "lab", title: "Laboratory" },
       { id: "research", title: "Research" },
       { id: "chef-daniel", title: "Chef Daniel" },
       { id: "storytelling", title: "Storytelling" },

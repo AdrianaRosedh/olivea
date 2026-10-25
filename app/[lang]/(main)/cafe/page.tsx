@@ -9,8 +9,7 @@ import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent } from "@/lib/content";
 import CafeContent from "./CafeContent";
 import type { SectionData } from "./sections/types";
-import ArticleEn from "./ArticleEn";
-import ArticleEs from "./ArticleEs";
+import CafeArticle from "./CafeArticle";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 type CafeMetaShape = {
@@ -87,7 +86,6 @@ export const viewport: Viewport = {
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params;
   const L: Lang = raw === "es" ? "es" : "en";
-  const Article = L === "en" ? ArticleEn : ArticleEs;
 
   // Fetch Supabase-driven sections (falls back gracefully)
   const cafeContent = await getContent("cafe");
@@ -104,14 +102,17 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     "@type": "WebPage",
     "@id": `${pageUrl}#webpage`,
     url: pageUrl,
+    // The CMS meta, so the page's own JSON-LD says what its <title> says.
     name:
-      L === "es"
-        ? "Olivea Café Wine Bar | Café, desayuno y vino en Valle de Guadalupe"
-        : "Olivea Café Wine Bar | Coffee, Breakfast & Wine in Valle de Guadalupe",
+      cafeContent.meta?.title?.[L] ??
+      (L === "es"
+        ? "OLIVEA Café Wine Bar | Café, panadería y vino en Valle de Guadalupe"
+        : "OLIVEA Café Wine Bar | Coffee, Bakery & Wine in Valle de Guadalupe"),
     description:
-      L === "es"
-        ? "Café de especialidad, pan de casa y desayunos junto al huerto de Olivea en Valle de Guadalupe."
-        : "Specialty coffee, house bread, and farm breakfast next to the Olivea garden in Valle de Guadalupe.",
+      cafeContent.meta?.description?.[L] ??
+      (L === "es"
+        ? "Café de especialidad, croissants, conchas y panes de temporada hechos en casa, desayuno y brunch, y vino del Valle de Guadalupe junto al huerto. Sin reservación."
+        : "Specialty coffee, croissants, conchas and seasonal breads baked in-house, breakfast and brunch, and Valle de Guadalupe wine beside the garden. No reservation needed."),
     isPartOf: { "@id": ENTITY_IDS.website },
     about: { "@id": ENTITY_IDS.cafe },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
@@ -146,7 +147,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
       {/* Server-rendered article: full semantic content for crawlers,
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
-      <Article />
+      <CafeArticle lang={L} sections={cafeContent.sections as SectionData[]} />
 
       {/* The fallback is no longer a parallel MDX tree. lib/content/data is
           regenerated from the CMS at build time, so `sections` is populated

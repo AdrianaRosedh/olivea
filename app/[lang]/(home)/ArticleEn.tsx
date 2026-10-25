@@ -59,8 +59,9 @@ export default function ArticleEn() {
           Star and a MICHELIN Green Star for sustainability in 2025. Chef
           Daniel Nates leads a kitchen that works directly with what the
           territory gives — Baja California coast, desert, and garden — using
-          technique, restraint, and memory. Open for dinner on select evenings
-          with advance reservation.
+          technique, restraint, and memory. We grow our own mushrooms and
+          work with koji and our own ferments in our own laboratory. Open for
+          dinner on select evenings with advance reservation.
         </p>
         <p>
           <Link href="/en/farmtotable">Explore Farm To Table →</Link>
@@ -69,12 +70,14 @@ export default function ArticleEn() {
 
       {/* ── Café ── */}
       <section aria-label="Olivea Café Wine Bar">
-        <h2>Olivea Café Wine Bar — Specialty Coffee, Breakfast &amp; Valle de Guadalupe Wine</h2>
+        <h2>Olivea Café Wine Bar — Specialty Coffee, Bakery, Brunch &amp; Valle de Guadalupe Wine</h2>
         <p>
-          Specialty coffee, house bread, and garden breakfast by day. As the
-          afternoon softens, the café becomes a wine bar, pouring Valle de
-          Guadalupe and Baja California wine alongside tapas from the garden —
-          a calm, unhurried space to spend the day at Olivea.
+          Specialty coffee, croissants, conchas and seasonal breads from our own
+          bakery, and breakfast and brunch. As the afternoon softens, the café
+          becomes a wine bar, pouring Valle de Guadalupe and Baja California
+          by the glass alongside tapas from the garden. Lounge sofas look out
+          over the garden, and you can walk through it. Walk in, open every
+          day.
         </p>
         <p>
           <Link href="/en/cafe">Explore Olivea Café Wine Bar →</Link>

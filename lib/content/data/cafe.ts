@@ -28,20 +28,28 @@ const cafe: CafeContent = {
   },
   meta: {
     description: {
-      en: "Specialty coffee, garden breakfast, brunch and Valle de Guadalupe wine — at Olivea Café Wine Bar in Baja California.",
-      es: "Café de especialidad, desayuno del huerto, brunch y vino del Valle de Guadalupe — en Olivea Café Wine Bar, Baja California.",
+      en: "Specialty coffee, croissants, conchas and seasonal breads baked in-house, breakfast and brunch, and Valle de Guadalupe wine beside the garden. No reservation needed.",
+      es: "Café de especialidad, croissants, conchas y panes de temporada hechos en casa, desayuno y brunch, y vino del Valle de Guadalupe junto al huerto. Sin reservación.",
     },
     keywords: [
       "Olivea Café Wine Bar",
-      "coffee",
-      "Valle de Guadalupe",
+      "specialty coffee",
+      "café de especialidad",
+      "bakery",
+      "panadería",
+      "croissants",
+      "conchas",
+      "seasonal bread",
       "breakfast",
-      "house bread",
+      "brunch",
+      "wine bar",
+      "Valle de Guadalupe wine",
+      "Valle de Guadalupe",
     ],
     ogImage: "/images/seo/cafe-og.jpg",
     title: {
-      en: "OLIVEA Café Wine Bar | Coffee & Wine in Valle de Guadalupe",
-      es: "OLIVEA Café Wine Bar | Café y Vino en Valle de Guadalupe",
+      en: "OLIVEA Café Wine Bar | Coffee, Bakery & Wine in Valle de Guadalupe",
+      es: "OLIVEA Café Wine Bar | Café, panadería y vino en Valle de Guadalupe",
     },
   },
   sections: [
@@ -126,8 +134,8 @@ const cafe: CafeContent = {
         },
       ],
       fieldNote: {
-        en: "At Olivea, sustainability is efficiency: respect made practical. The café shares ingredients, fermentation work, and a continuous return loop with Farm To Table — garden → kitchen → compost → back to the soil.",
-        es: "En Olivea, la sustentabilidad es eficiencia: respeto hecho práctico. El café comparte ingredientes, trabajo de fermentación y un ciclo continuo con Farm To Table — huerto → cocina → composta → regreso a la tierra.",
+        en: "At Olivea, sustainability is efficiency: respect made practical. The café shares ingredients, our own ferments and a continuous loop with Farm To Table — garden → kitchen → compost → back to the soil.",
+        es: "En Olivea, la sustentabilidad es eficiencia: respeto hecho práctico. El café comparte ingredientes, fermentaciones propias y un ciclo continuo con Farm To Table — huerto → cocina → composta → regreso a la tierra.",
       },
       heading: {
         en: "The Daily Rhythm of Olivea",
@@ -142,8 +150,8 @@ const cafe: CafeContent = {
         src: "/images/cafe/cafe.jpg",
       },
       origin: {
-        en: "Olivea Café Wine Bar is the most relaxed expression of the Olivea ecosystem — where mornings unfold slowly over coffee, afternoons settle in over a glass of Valle de Guadalupe wine, movement stays human, and the garden remains the source. It carries the same leaders, the same standards, and the same philosophy as Casa Olivea and Olivea Farm To Table.",
-        es: "Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma sobre un café, la tarde se asienta con una copa de vino del Valle de Guadalupe, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.",
+        en: "Olivea Café Wine Bar is the most relaxed expression of the Olivea ecosystem: mornings unfold over coffee and something fresh from our oven, afternoons settle in over a glass of Valle de Guadalupe wine, and there is always a sofa in the lounge looking out over the garden, or you can step out and walk through it. It carries the same leaders, the same standards and the same philosophy as Casa Olivea and Olivea Farm To Table.",
+        es: "Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea: la mañana se despliega con un café y algo recién salido de nuestro horno, la tarde se asienta con una copa de vino del Valle de Guadalupe, y siempre hay un sofá en el lounge con vista al huerto, o puedes salir a recorrerlo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.",
       },
       sectionId: {
         en: "experiencia",
@@ -192,8 +200,8 @@ const cafe: CafeContent = {
         },
       ],
       subtitle: {
-        en: "Slow coffee. Slow food. Local wine. Calm energy that runs from morning into the afternoon — built as practice, as daily discipline.",
-        es: "Café lento. Comida lenta. Vino local. Energía calmada que va de la mañana a la tarde — práctica cotidiana, disciplina suave.",
+        en: "Slow coffee. House bread. Local wine. Calm energy from morning into the afternoon, practiced every day.",
+        es: "Café lento. Pan de casa. Vino local. Una energía calmada de la mañana a la tarde, como práctica diaria.",
       },
     },
     {
@@ -239,8 +247,8 @@ const cafe: CafeContent = {
           },
         },
         {
-          en: "Casa Olivea guests begin the day with Olivea Café Wine Bar. Guests visiting for the day are welcome as well — the café is an open door into the Olivea rhythm.",
-          es: "En Casa Olivea, el día comienza en Olivea Café Wine Bar. Quienes visitan por el día también son bienvenidos — el café funciona como puerta de entrada al ritmo Olivea.",
+          en: "Casa Olivea guests begin the day here, and day visitors are just as welcome. Stay for brunch, come back for something light in the afternoon, or simply settle into the lounge sofas, look out over the garden, or take a walk through it.",
+          es: "En Casa Olivea, el día comienza aquí, y quien nos visita por el día también es bienvenido. Quédate al brunch, vuelve por algo ligero en la tarde, o simplemente acomódate en los sofás del lounge, contempla el huerto o sal a recorrerlo.",
           id: {
             en: "morning",
             es: "manana",
@@ -274,8 +282,8 @@ const cafe: CafeContent = {
         },
       ],
       heading: {
-        en: "Bread as Ritual",
-        es: "Pan como rito",
+        en: "House Bread & Pastry",
+        es: "Pan y repostería de casa",
       },
       id: "bread",
       image: {
@@ -287,16 +295,16 @@ const cafe: CafeContent = {
       },
       paragraphs: [
         {
-          en: "Flour is structure. We choose it for flavor and fermentation performance — the kind of crumb that feels light yet complete, never heavy, never loud.",
-          es: "La harina es estructura. La elegimos por sabor y desempeño en fermentación — una miga ligera y completa, pensada para sentirse limpia y equilibrada.",
+          en: "Everything in our display case is baked here: croissants, conchas, pastries and seasonal breads that change with what the garden offers.",
+          es: "Todo lo que ves en nuestra vitrina se hornea aquí: croissants, conchas, repostería y panes de temporada que cambian con lo que ofrece el huerto.",
           id: {
             en: "flours",
             es: "harinas",
           },
         },
         {
-          en: "Recipes are composed for clarity: clean layers, balanced seasoning, and texture that feels intentional. The goal is precision that stays quiet.",
-          es: "Las recetas se componen para claridad: capas limpias, sazón balanceada y textura intencional. La meta es precisión que se siente suave.",
+          en: "Recipes are composed for clarity: clean layers, balanced sweetness and texture that feels intentional. Precision that stays quiet.",
+          es: "Las recetas buscan claridad: capas limpias, dulzor equilibrado y una textura intencional. Precisión que se siente tranquila.",
           id: {
             en: "recipes",
             es: "recetas",
@@ -311,8 +319,8 @@ const cafe: CafeContent = {
           },
         },
         {
-          en: "Bread here pairs naturally with slow coffee in the morning, and it carries the same standard that lives throughout Olivea. Fermentation is time intelligence: it extends the season with elegance, preserves peak moments, and keeps the menu continuous — always returning what remains back into the system through compost.",
-          es: "El pan acompaña naturalmente el café lento de la mañana y sostiene el mismo estándar que vive en todo Olivea. La fermentación es inteligencia del tiempo: extiende la temporada con elegancia, preserva momentos en su punto, y mantiene continuidad — integrando lo que queda al ciclo del sistema a través de la composta.",
+          en: "Bread pairs naturally with slow coffee in the morning and carries the same standard found throughout Olivea. Our own ferments give it time and depth: they extend the season and keep the menu alive, returning what remains to the cycle through compost.",
+          es: "El pan acompaña naturalmente el café lento de la mañana y sostiene el mismo estándar de todo Olivea. Nuestras fermentaciones propias le dan tiempo y profundidad: extienden la temporada y mantienen el menú vivo, devolviendo lo que queda al ciclo a través de la composta.",
           id: {
             en: "ritual",
             es: "rito",
@@ -457,8 +465,8 @@ const cafe: CafeContent = {
     },
     {
       description: {
-        en: "A curated **coffee + café menu**, designed around clarity and rhythm — espresso with structure, filter with transparency, tea with calm, and cold drinks that feel bright. Coffee is sourced exclusively from **Mexico**. Matcha is ceremonial. Syrups and jarabes evolve with the garden.",
-        es: "Un **menú de café + café** curado, diseñado con claridad y ritmo — espresso con estructura, filtrado con transparencia, té en calma y bebidas frías con brillo. El café proviene exclusivamente de **México**. El matcha es ceremonial. Los jarabes evolucionan con el huerto.",
+        en: "A menu of **specialty coffee**, **our own bakery**, breakfast and brunch, something light in the afternoon and **Valle de Guadalupe wine**, designed around clarity and rhythm. Coffee is sourced exclusively from **Mexico**; matcha is ceremonial; syrups evolve with the garden.",
+        es: "Un menú de **café de especialidad**, **panadería propia**, desayuno y brunch, algo ligero por la tarde y **vino del Valle de Guadalupe**, diseñado con claridad y ritmo. El café proviene exclusivamente de **México**; el matcha es ceremonial; los jarabes evolucionan con el huerto.",
       },
       farmpop: {
         canvaUrl: "https://www.canva.com/design/DAGjvAZxZhE/EwbugVOorA1VUbXx8wNmhw/view",
@@ -496,6 +504,16 @@ const cafe: CafeContent = {
         },
         {
           label: {
+            en: "Bakery · made in-house",
+            es: "Panadería · hecha en casa",
+          },
+          text: {
+            en: "Croissants, conchas, pastries and seasonal breads, baked here to go with your coffee.",
+            es: "Croissants, conchas, repostería y panes de temporada, horneados aquí para acompañar el café.",
+          },
+        },
+        {
+          label: {
             en: "Matcha · garden jarabes",
             es: "Matcha · jarabes del huerto",
           },
@@ -510,7 +528,7 @@ const cafe: CafeContent = {
             es: "Wine bar · Valle de Guadalupe",
           },
           text: {
-            en: "As the day softens, the café becomes a wine bar — Valle de Guadalupe and Baja California by the glass, our own house wine, and tapas drawn from the garden.",
+            en: "As the day softens, the café becomes a wine bar — Valle de Guadalupe and Baja California by the glass, our own house label, and tapas drawn from the garden.",
             es: "Cuando el día baja, el café se vuelve wine bar — Valle de Guadalupe y Baja California por copa, nuestro vino de la casa y tapas del huerto.",
           },
         },
@@ -602,8 +620,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "Yes. As the day softens, the café becomes a wine bar — Valle de Guadalupe and Baja California wines, our house wine, and tapas from the garden. Walk in, no reservation needed.",
-            es: "Sí. Cuando el día baja, el café se vuelve wine bar — vinos del Valle de Guadalupe y Baja California, nuestro vino de la casa y tapas del huerto. Sin reservación: llega directo.",
+            en: "Yes. As the day softens, the café becomes a wine bar — Valle de Guadalupe and Baja California by the glass, our own house label, and tapas from the garden. Walk in, no reservation needed.",
+            es: "Sí. Cuando el día baja, el café se vuelve wine bar — Valle de Guadalupe y Baja California por copa, nuestra etiqueta de la casa y tapas del huerto. Sin reservación: llega directo.",
           },
           id: "faq_fd8b7e774727",
           q: {
@@ -635,8 +653,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "Olivea Café Wine Bar is Olivea's specialty coffee house in Valle de Guadalupe: house coffee, artisan bread, and breakfast from the garden, beside the same working garden that feeds the Olivea Farm To Table restaurant. It's one of Olivea's three experiences, alongside the MICHELIN-starred restaurant and Casa Olivea, the farm stay.",
-            es: "Olivea Café Wine Bar es la cafetería de especialidad de Olivea en Valle de Guadalupe: café de casa, pan artesanal y desayuno del huerto, junto al mismo huerto que abastece al restaurante Olivea Farm To Table. Es una de las tres experiencias de Olivea, junto con el restaurante con estrella MICHELIN y Casa Olivea, el hospedaje del huerto.",
+            en: "It's Olivea's daytime home in Valle de Guadalupe: specialty coffee, our own croissants, conchas and seasonal breads, breakfast and brunch, and Valle de Guadalupe wine, beside the same working garden that feeds Olivea Farm To Table. One of Olivea's three experiences, alongside the MICHELIN-starred restaurant and Casa Olivea, the farm stay.",
+            es: "Es el lugar de día de Olivea en Valle de Guadalupe: café de especialidad, croissants, conchas y panes de temporada hechos en casa, desayuno y brunch, y vino del Valle de Guadalupe, junto al mismo huerto que abastece a Olivea Farm To Table. Una de las tres experiencias de Olivea, junto con el restaurante con estrella MICHELIN y Casa Olivea, el hospedaje del huerto.",
           },
           id: "faq_f969429dd4a2",
           q: {
@@ -646,8 +664,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "Yes. Every morning we serve breakfast from the garden, freshly baked house bread, and specialty coffee. It's a walk-in café — no reservation needed.",
-            es: "Sí. Cada mañana servimos desayuno del huerto, pan artesanal recién horneado y café de especialidad. Es un café de entrada libre; no necesitas reservación.",
+            en: "Yes. Every morning we serve breakfast and brunch from the garden, our own freshly baked bread and pastries, and specialty coffee. It's a walk-in café — no reservation needed.",
+            es: "Sí. Cada mañana servimos desayuno y brunch del huerto, pan y repostería propios recién horneados, y café de especialidad. Es un café de entrada libre; no necesitas reservación.",
           },
           id: "faq_f09f9ca0e207",
           q: {
@@ -657,8 +675,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "No. Olivea Café Wine Bar is walk-in and open in the mornings. A reservation is only needed for the tasting menu at Olivea Farm To Table. You can check the café's current hours on the contact page.",
-            es: "No. Olivea Café Wine Bar es de entrada libre y funciona por las mañanas. La reservación solo es necesaria para el menú degustación en Olivea Farm To Table. Puedes consultar los horarios vigentes del café en la página de contacto.",
+            en: "No. Olivea Café Wine Bar is walk-in and open every day. A reservation is only needed for the tasting menu at Olivea Farm To Table.",
+            es: "No. Olivea Café Wine Bar es de entrada libre y abre todos los días. La reservación solo es necesaria para el menú degustación en Olivea Farm To Table.",
           },
           id: "faq_a72c2c7c2229",
           q: {
@@ -668,8 +686,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "Olivea Café Wine Bar is the casual morning experience: walk-in specialty coffee, bread, and breakfast. Olivea Farm To Table is the MICHELIN-starred restaurant, serving a tasting menu in the afternoons and by reservation. Both share the same garden on the same property.",
-            es: "Olivea Café Wine Bar es la experiencia casual de la mañana: café de especialidad, pan y desayuno de entrada libre. Olivea Farm To Table es el restaurante con estrella MICHELIN, con un menú degustación por las tardes y bajo reservación. Ambos comparten el mismo huerto en la misma propiedad.",
+            en: "Olivea Café Wine Bar is the casual daytime experience: walk-in specialty coffee, our own bakery, breakfast, brunch and wine. Olivea Farm To Table is the MICHELIN-starred restaurant, serving a tasting menu by reservation. Both share the same garden on the same property.",
+            es: "Olivea Café Wine Bar es la experiencia casual de día: café de especialidad, panadería propia, desayuno, brunch y vino, de entrada libre. Olivea Farm To Table es el restaurante con estrella MICHELIN, con un menú degustación bajo reservación. Ambos comparten el mismo huerto en la misma propiedad.",
           },
           id: "faq_15f1e57a9816",
           q: {
@@ -686,6 +704,61 @@ const cafe: CafeContent = {
           q: {
             en: "Where is Olivea Café Wine Bar located?",
             es: "¿Dónde está Olivea Café Wine Bar?",
+          },
+        },
+        {
+          a: {
+            en: "Yes. Croissants, conchas, pastries and seasonal breads are baked here, by our pastry chef, who also works with Olivea Farm To Table.",
+            es: "Sí. Croissants, conchas, repostería y panes de temporada se hornean aquí, a cargo de nuestro chef repostero, que también trabaja con Olivea Farm To Table.",
+          },
+          id: "faq_cafe_bakery",
+          q: {
+            en: "Do you bake your own bread and pastries?",
+            es: "¿Hornean su propio pan y repostería?",
+          },
+        },
+        {
+          a: {
+            en: "Yes. Come for a coffee, a pastry or a glass of wine, settle into the lounge sofas looking out over the garden, and take a walk through it. No reservation needed.",
+            es: "Sí. Ven por un café, un pan o una copa de vino, acomódate en los sofás del lounge con vista al huerto y sal a recorrerlo. No necesitas reservación.",
+          },
+          id: "faq_cafe_relax",
+          q: {
+            en: "Can I come just to relax?",
+            es: "¿Puedo venir solo a relajarme?",
+          },
+        },
+        {
+          a: {
+            en: "Yes. From the café you can look out over Olivea's working garden and walk through it — it's the one that feeds Olivea Farm To Table.",
+            es: "Sí. Desde el café puedes contemplar el huerto de Olivea y recorrerlo; es el que abastece a Olivea Farm To Table.",
+          },
+          id: "faq_cafe_garden",
+          q: {
+            en: "Can I walk through the garden?",
+            es: "¿Puedo recorrer el huerto?",
+          },
+        },
+        {
+          a: {
+            en: "Yes. The kitchen runs until 4 pm, with our bakery and tapas from the garden alongside the wine.",
+            es: "Sí. La cocina funciona hasta las 4 pm, con nuestra panadería y tapas del huerto para acompañar el vino.",
+          },
+          id: "faq_cafe_light",
+          q: {
+            en: "Do you serve something light in the afternoon?",
+            es: "¿Sirven algo ligero por la tarde?",
+          },
+        },
+        {
+          a: {
+            en: "Yes. We make our own ferments on the property, shared with Olivea Farm To Table; they find their way into the café's bread and kitchen.",
+            es: "Sí. Hacemos nuestras propias fermentaciones en la propiedad, compartidas con Olivea Farm To Table; llegan al pan y a la cocina del café.",
+          },
+          id: "faq_cafe_ferments",
+          q: {
+            en: "Do you make your own ferments?",
+            es: "¿Hacen sus propias fermentaciones?",
           },
         },
       ],

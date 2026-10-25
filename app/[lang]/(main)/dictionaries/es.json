@@ -19,11 +19,11 @@
   },
   "cafe": {
     "title": "Olivea Café Wine Bar",
-    "description": "Café de casa, pan propio y mañanas serenas en Valle de Guadalupe.",
+    "description": "Café de especialidad, panadería propia, brunch y vino junto al huerto en Valle de Guadalupe.",
     "error": "Error al cargar el menú:",
     "meta": {
-      "title": "OLIVEA Café Wine Bar | Café y Vino en Valle de Guadalupe",
-      "description": "Café de especialidad, desayuno del huerto, brunch y vino del Valle de Guadalupe — en Olivea Café Wine Bar, Baja California.",
+      "title": "OLIVEA Café Wine Bar | Café, panadería y vino en Valle de Guadalupe",
+      "description": "Café de especialidad, croissants, conchas y panes de temporada hechos en casa, desayuno y brunch, y vino del Valle de Guadalupe junto al huerto. Sin reservación.",
       "keywords": [
         "Olivea Café Wine Bar",
         "café",
@@ -58,7 +58,7 @@
     "description": "Menú degustación con Una Estrella MICHELIN y Estrella Verde, nacido del huerto en Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "Menú degustación con Estrella MICHELIN y Estrella Verde en Valle de Guadalupe, Baja California. Nueve tiempos del huerto, que inician con un recorrido.",
+      "description": "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación.",
       "ogImage": "/images/seo/farm-og.jpg"
     }
   }, 

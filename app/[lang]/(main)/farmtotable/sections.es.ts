@@ -41,6 +41,8 @@ export const SECTIONS_ES: NavSection[] = [
       { id: "ecosystem", title: "Sistema" },
       { id: "cycle", title: "Ciclo" },
       { id: "fermentation", title: "Fermentación" },
+      { id: "mushrooms", title: "Hongos" },
+      { id: "lab", title: "Laboratorio" },
       { id: "research", title: "Investigación" },
       { id: "chef-daniel", title: "Chef Daniel" },
       { id: "storytelling", title: "Relato" },

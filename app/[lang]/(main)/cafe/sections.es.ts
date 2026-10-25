@@ -28,9 +28,9 @@ export const SECTIONS_CAFE_ES: NavSection[] = [
     id: "pan",
     title: "Pan",
     subs: [
-      { id: "harinas", title: "Harinas" },
-      { id: "recetas", title: "Recetas" },
-      { id: "obradores", title: "Obradores" },
+      { id: "harinas", title: "Horno" },
+      { id: "recetas", title: "Repostería" },
+      { id: "obradores", title: "Panaderos" },
       { id: "rito", title: "Rito" },
     ],
   },

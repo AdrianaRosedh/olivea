@@ -28,8 +28,8 @@ const farmtotable: FarmToTableContent = {
   },
   meta: {
     description: {
-      en: "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant with farm stay and café on the same property in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
-      es: "Menú degustación con estrella MICHELIN y estrella verde MICHELIN, nacido del huerto en Valle de Guadalupe, Baja California. Donde el huerto es la esencia.",
+      en: "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only.",
+      es: "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación.",
     },
     ogImage: "/images/seo/farm-og.jpg",
     title: {
@@ -153,8 +153,8 @@ const farmtotable: FarmToTableContent = {
         es: "Un solo menú degustación, compuesto por estaciones — guiado por la tierra, el clima y el tiempo.",
       },
       values: {
-        en: "Traceability, water stewardship, and circular thinking guide our decisions. Sustainability is practiced as daily discipline — measured, specific, and grounded in the realities of the land. The experience unfolds slowly, designed for adults who can dedicate **~3 hours** to the table. The evening need not end there: the suites of **Casa Olivea** open onto the same garden — dine, walk a few steps, and wake to the garden.",
-        es: "La trazabilidad, el cuidado del agua y el pensamiento circular guían nuestras decisiones. La sustentabilidad se practica como disciplina diaria — medida, concreta y anclada a la realidad del territorio. La experiencia se vive con calma, pensada para adultos que pueden dedicar **~3 horas** a la mesa. Y la noche no tiene que terminar en la mesa: las habitaciones de **Casa Olivea** dan al mismo huerto — cena, camina unos pasos y amanece frente al huerto.",
+        en: "Traceability, water stewardship, and circular thinking guide our decisions. Sustainability is practiced as daily discipline — measured, specific, and grounded in the realities of the land. The experience unfolds slowly, designed for adults who can dedicate **~3 hours** to the table. The evening need not end there: the suites of **Casa Olivea** open onto the same garden — dine, walk a few steps, and wake up there.",
+        es: "La trazabilidad, el cuidado del agua y el pensamiento circular guían nuestras decisiones. La sustentabilidad se practica como disciplina diaria — medida, concreta y anclada a la realidad del territorio. La experiencia se vive con calma, pensada para adultos que pueden dedicar **~3 horas** a la mesa. Y la noche no tiene que terminar en la mesa: las habitaciones de **Casa Olivea** dan al mismo huerto — cena, camina unos pasos y amanece ahí.",
       },
     },
     {
@@ -198,8 +198,8 @@ const farmtotable: FarmToTableContent = {
         es: "El equipo cocina leyendo clima, huerto y servicio como un solo sistema — entendiendo qué está en su punto, qué se conserva y qué evoluciona en silencio dentro de la despensa.",
       },
       technique: {
-        en: "Technique exists to clarify flavor and preserve balance. Stocks, reductions, and careful seasoning build depth without masking origin. Fermentation extends the season — allowing continuity with elegance and restraint.",
-        es: "La técnica existe para aclarar el sabor y mantener el equilibrio. Fondos, reducciones y una sazón medida construyen profundidad sin ocultar el origen. La fermentación extiende la temporada — permitiendo continuidad con elegancia y contención.",
+        en: "Technique exists to clarify flavor and preserve balance. Stocks, reductions, and careful seasoning build depth without masking origin. In our own laboratory we work with koji and our own ferments, extending the season with elegance and restraint.",
+        es: "La técnica existe para aclarar el sabor y mantener el equilibrio. Fondos, reducciones y una sazón medida construyen profundidad sin ocultar el origen. En nuestro propio laboratorio trabajamos koji y fermentaciones propias que extienden la temporada con elegancia y contención.",
       },
     },
     {
@@ -296,8 +296,8 @@ const farmtotable: FarmToTableContent = {
         },
         {
           body: {
-            en: "Fermentation extends the season without replacing it. It preserves peak moments, builds depth through living processes, and allows memory to remain active within the menu.",
-            es: "La fermentación extiende la temporada sin reemplazarla. Conserva momentos en su punto, construye profundidad con procesos vivos y mantiene activa la memoria dentro del menú.",
+            en: "Fermentation extends the season without replacing it. With koji and our own ferments we preserve peak moments and build depth through living processes, so memory stays active within the menu.",
+            es: "La fermentación extiende la temporada sin reemplazarla. Con koji y fermentaciones propias conservamos momentos en su punto y construimos profundidad con procesos vivos, para que la memoria siga activa dentro del menú.",
           },
           id: "fermentation",
           title: {
@@ -307,8 +307,30 @@ const farmtotable: FarmToTableContent = {
         },
         {
           body: {
-            en: "Each season is studied. We document, test, refine, and decide — aligning garden reality, kitchen technique, and the rhythm of service into a precise, repeatable standard.",
-            es: "Cada temporada se estudia. Documentamos, probamos, refinamos y decidimos — alineando la realidad del huerto, la técnica de cocina y el ritmo del servicio en un estándar preciso y repetible.",
+            en: "We grow our own mushrooms here on the property. They reach the kitchen at their peak, with the same logic as the garden: from growing to the table, with no one in between.",
+            es: "Cultivamos nuestros propios hongos aquí, en la propiedad. Llegan a la cocina en su punto, con la misma lógica del huerto: del cultivo a la mesa, sin intermediarios.",
+          },
+          id: "mushrooms",
+          title: {
+            en: "Our Mushrooms",
+            es: "Nuestros hongos",
+          },
+        },
+        {
+          body: {
+            en: "We have our own laboratory, where the team cultivates koji, develops ferments and tests new ideas before they reach the menu and the non-alcoholic pairing.",
+            es: "Tenemos nuestro propio laboratorio, donde el equipo cultiva koji, desarrolla fermentaciones y prueba nuevas ideas antes de que lleguen al menú y al maridaje sin alcohol.",
+          },
+          id: "lab",
+          title: {
+            en: "Our Laboratory",
+            es: "Nuestro laboratorio",
+          },
+        },
+        {
+          body: {
+            en: "Each season is studied. In the laboratory we document, test, refine, and decide — aligning garden reality, kitchen technique, and the rhythm of service into a precise, repeatable standard.",
+            es: "Cada temporada se estudia. En el laboratorio documentamos, probamos, refinamos y decidimos — alineando la realidad del huerto, la técnica de cocina y el ritmo del servicio en un estándar preciso y repetible.",
           },
           id: "research",
           title: {
@@ -697,6 +719,28 @@ const farmtotable: FarmToTableContent = {
           q: {
             en: "Can I stay or have breakfast on the same property?",
             es: "¿Puedo hospedarme o desayunar en la misma propiedad?",
+          },
+        },
+        {
+          a: {
+            en: "Yes. The tasting menu is born from our own working garden, and we grow our own mushrooms on the property.",
+            es: "Sí. El menú degustación nace de nuestro propio huerto, y cultivamos nuestros propios hongos en la propiedad.",
+          },
+          id: "faq_ftt_ingredients",
+          q: {
+            en: "Do you grow your own ingredients?",
+            es: "¿Cultivan sus propios ingredientes?",
+          },
+        },
+        {
+          a: {
+            en: "Yes. In our own laboratory the team cultivates koji and develops the ferments that carry the season into the menu and the non-alcoholic pairing.",
+            es: "Sí. En nuestro propio laboratorio el equipo cultiva koji y desarrolla las fermentaciones que llevan la temporada al menú y al maridaje sin alcohol.",
+          },
+          id: "faq_ftt_lab",
+          q: {
+            en: "Do you have your own fermentation laboratory?",
+            es: "¿Tienen su propio laboratorio de fermentación?",
           },
         },
       ],

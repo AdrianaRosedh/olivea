@@ -61,7 +61,9 @@ export default function ArticleEs() {
           por sostenibilidad en 2025. El Chef Daniel Nates lidera una cocina
           que trabaja directamente con lo que el territorio ofrece — costa de
           Baja California, desierto y huerto — con técnica, mesura y memoria.
-          Abierto para cena en noches selectas con reservación previa.
+          Cultivamos nuestros propios hongos y trabajamos koji y fermentaciones
+          propias en nuestro propio laboratorio. Abierto para cena en noches
+          selectas con reservación previa.
         </p>
         <p>
           <Link href="/es/farmtotable">Explorar Farm To Table →</Link>
@@ -70,12 +72,13 @@ export default function ArticleEs() {
 
       {/* ── Café ── */}
       <section aria-label="Olivea Café Wine Bar">
-        <h2>Olivea Café Wine Bar — Café de Especialidad, Desayuno y Vino del Valle de Guadalupe</h2>
+        <h2>Olivea Café Wine Bar — Café de Especialidad, Panadería, Brunch y Vino del Valle de Guadalupe</h2>
         <p>
-          Café de especialidad, pan de casa y desayuno del huerto de día.
-          Cuando la tarde baja, el café se vuelve wine bar, con vinos del Valle
-          de Guadalupe y Baja California y tapas del huerto — un espacio
-          tranquilo y sin prisa para pasar el día en Olivea.
+          Café de especialidad, croissants, conchas y panes de temporada de
+          nuestra propia panadería, y desayuno y brunch. Cuando la tarde baja,
+          el café se vuelve wine bar, con Valle de Guadalupe y Baja California
+          por copa y tapas del huerto. Los sofás del lounge miran al huerto, y
+          puedes recorrerlo. De entrada libre, todos los días.
         </p>
         <p>
           <Link href="/es/cafe">Explorar Olivea Café Wine Bar →</Link>

@@ -9,8 +9,7 @@ import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent } from "@/lib/content";
 import FTTContent from "./FTTContent";
 import type { SectionData } from "./sections/types";
-import ArticleEn from "./ArticleEn";
-import ArticleEs from "./ArticleEs";
+import FTTArticle from "./FTTArticle";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 type FarmMetaShape = {
@@ -89,7 +88,6 @@ export const viewport: Viewport = {
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params;
   const L: Lang = raw === "es" ? "es" : "en";
-  const Article = L === "en" ? ArticleEn : ArticleEs;
 
   // Fetch Supabase-driven sections (falls back gracefully)
   const fttData = await getContent('farmtotable');
@@ -115,14 +113,17 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     "@type": "WebPage",
     "@id": `${pageUrl}#webpage`,
     url: pageUrl,
+    // The CMS meta, so the page's own JSON-LD says what its <title> says.
     name:
-      L === "es"
+      fttData.meta?.title?.[L] ??
+      (L === "es"
         ? "Olivea Farm To Table | Restaurante con estrella MICHELIN"
-        : "Olivea Farm To Table | MICHELIN-Starred Restaurant",
+        : "Olivea Farm To Table | MICHELIN-Starred Restaurant"),
     description:
-      L === "es"
-        ? "Restaurante de menú degustación con estrella MICHELIN, hospedaje y café en la misma propiedad en Valle de Guadalupe."
-        : "MICHELIN-starred tasting-menu restaurant with farm stay and café on the same property in Valle de Guadalupe.",
+      fttData.meta?.description?.[L] ??
+      (L === "es"
+        ? "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación."
+        : "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only."),
     isPartOf: { "@id": ENTITY_IDS.website },
     about: { "@id": ENTITY_IDS.restaurant },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
@@ -157,7 +158,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
       {/* Server-rendered article: full semantic content for crawlers,
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
-      <Article />
+      <FTTArticle lang={L} sections={fttData.sections as SectionData[]} />
 
       {/* The fallback is no longer a parallel MDX tree. lib/content/data is
           regenerated from the CMS at build time, so `sections` is populated

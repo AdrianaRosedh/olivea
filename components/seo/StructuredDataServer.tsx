@@ -184,6 +184,9 @@ export default async function StructuredDataServer() {
         "Agritourism",
         "Valle de Guadalupe wine region",
         "Baja California gastronomy",
+        "Fermentation and koji",
+        "In-house mushroom cultivation",
+        "Bread and pastry",
       ],
       // ✅ Key people as linked Person entities (resolve to /team/<id> pages)
       founder: {
@@ -256,7 +259,7 @@ export default async function StructuredDataServer() {
       "@id": ENTITY_IDS.restaurant,
       name: "Olivea Farm To Table",
       alternateName: "Olivea FTT",
-      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. The fine-dining heart of Olivea; the casual daytime café (Olivea Café Wine Bar) and the farm stay (Casa Olivea) share the same property.",
+      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. It grows its own mushrooms on the property and works with koji and its own ferments in its own laboratory. The fine-dining heart of Olivea; the casual daytime café (Olivea Café Wine Bar) and the farm stay (Casa Olivea) share the same property.",
       // ✅ Google's dining-style hints. schema.org has no "fine dining" type, so
       // the tier is carried by priceRange ($$$$), the description, cuisine, and
       // these keywords — kept unambiguous so Search/AI never read it as casual.
@@ -350,15 +353,21 @@ export default async function StructuredDataServer() {
       "@type": ["CafeOrCoffeeShop", "BarOrPub"],
       "@id": ENTITY_IDS.cafe,
       name: "Olivea Café Wine Bar",
-      description: "Café and wine bar on Olivea's working-garden property in Valle de Guadalupe, Baja California. Specialty coffee, artisan bread, and farm breakfast by day; Valle de Guadalupe and Baja California wine, house wine, and tapas as the day softens. The relaxed counterpart to the One-MICHELIN-Star Olivea Farm To Table restaurant.",
-      keywords: "café, wine bar, specialty coffee, Valle de Guadalupe wine, Baja California wine, breakfast, walk-in, cafetería",
+      description: "Café and wine bar on Olivea's working-garden property in Valle de Guadalupe, Baja California, open every day, walk-in. Specialty coffee; croissants, conchas, pastries and seasonal breads from its own bakery; breakfast and brunch; Valle de Guadalupe and Baja California wine by the glass and tapas from the garden in the afternoon; its own ferments, shared with Olivea Farm To Table. Lounge sofas look out over the garden, which guests can walk through. The relaxed counterpart to the One-MICHELIN-Star Olivea Farm To Table restaurant.",
+      keywords: "café, wine bar, specialty coffee, bakery, panadería, croissants, conchas, seasonal bread, brunch, breakfast, Valle de Guadalupe wine, Baja California wine, lounge, garden, walk-in, cafetería",
       url: canonicalUrl("/es/cafe"),
       mainEntityOfPage: canonicalUrl("/es/cafe"),
       telephone: "+52-6463882369",
       image: canonicalUrl("/images/seo/cafe-og.jpg"),
       address: commonAddress,
       geo,
-      servesCuisine: ["Coffee", "Breakfast", "Pastries", "Mexican"],
+      servesCuisine: ["Coffee", "Bakery", "Pastries", "Breakfast", "Brunch", "Wine", "Mexican"],
+      amenityFeature: [
+        { "@type": "LocationFeatureSpecification", name: "Lounge with sofas", value: true },
+        { "@type": "LocationFeatureSpecification", name: "Garden views", value: true },
+        { "@type": "LocationFeatureSpecification", name: "Walk through the working garden", value: true },
+        { "@type": "LocationFeatureSpecification", name: "In-house bakery", value: true },
+      ],
       menu: canonicalUrl("/es/menu"),
       priceRange: "$$",
       hasMap: GOOGLE_MAPS.cafe,
