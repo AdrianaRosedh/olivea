@@ -49,6 +49,25 @@ async function requireAdmin() {
   await requireSession();
 }
 
+// Per-person section permissions. The role checks above are global; an owner
+// can also hide a section from someone or make it read-only (admin → Equipo).
+// These actions are public endpoints, so they enforce that themselves: the UI
+// hiding a page did not stop a direct call (an editor barred from Legal could
+// still save it). Passes if ANY listed section grants the level, because some
+// documents are edited from two places (the café menu from Café and Menus).
+async function requireSections(sections: string[], min: "viewer" | "editor") {
+  if (authSkipped()) return;
+  const [{ requireSession }, { canAccessSection }, { redirect }] = await Promise.all([
+    import("@/lib/auth/session"),
+    import("@/lib/auth/types"),
+    import("next/navigation"),
+  ]);
+  const session = await requireSession();
+  if (!sections.some((key) => canAccessSection(session.role, key, min, session.sectionPermissions))) {
+    redirect("/admin?error=section_forbidden");
+  }
+}
+
 // ── Bidirectional snake_case ↔ camelCase mappers ────────────────────
 // Admin editors use camelCase keys (TypeScript convention) but
 // Supabase columns use snake_case. These mappers bridge the gap
@@ -114,6 +133,7 @@ function camelToSnake(
 
 export async function getPopups() {
   await requireAdmin();
+  await requireSections(["content.popups"], "viewer");
   return selectRows("popups", {
     role: "service_role",
     query: "order=priority.desc,created_at.desc",
@@ -122,11 +142,13 @@ export async function getPopups() {
 
 export async function getPopup(id: string) {
   await requireAdmin();
+  await requireSections(["content.popups"], "viewer");
   return selectOne("popups", id, { role: "service_role" });
 }
 
 export async function savePopup(popup: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["content.popups"], "editor");
   await upsertRows("popups", popup, { onConflict: "id" });
   await logAudit({ action: "save", resourceType: "popup", resourceId: String(popup.id ?? "") });
   revalidatePath("/api/popup");
@@ -135,6 +157,7 @@ export async function savePopup(popup: Record<string, unknown>) {
 
 export async function deletePopup(id: string) {
   await requireManager();
+  await requireSections(["content.popups"], "editor");
   await deleteRows("popups", `id=eq.${encodeURIComponent(id)}`);
   await logAudit({ action: "delete", resourceType: "popup", resourceId: id });
   revalidatePath("/api/popup");
@@ -143,6 +166,7 @@ export async function deletePopup(id: string) {
 
 export async function togglePopup(id: string, enabled: boolean) {
   await requireEditor();
+  await requireSections(["content.popups"], "editor");
   await updateRows("popups", `id=eq.${encodeURIComponent(id)}`, { enabled });
   await logAudit({ action: enabled ? "enable" : "disable", resourceType: "popup", resourceId: id });
   revalidatePath("/api/popup");
@@ -153,6 +177,7 @@ export async function togglePopup(id: string, enabled: boolean) {
 
 export async function getBanners() {
   await requireAdmin();
+  await requireSections(["content.banners"], "viewer");
   return selectRows("banners", {
     role: "service_role",
     query: "order=created_at.desc",
@@ -161,11 +186,13 @@ export async function getBanners() {
 
 export async function getBanner(id: string) {
   await requireAdmin();
+  await requireSections(["content.banners"], "viewer");
   return selectOne("banners", id, { role: "service_role" });
 }
 
 export async function saveBanner(banner: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["content.banners"], "editor");
   await upsertRows("banners", banner, { onConflict: "id" });
   await logAudit({ action: "save", resourceType: "banner", resourceId: String(banner.id ?? "") });
   revalidatePath("/api/banner");
@@ -174,6 +201,7 @@ export async function saveBanner(banner: Record<string, unknown>) {
 
 export async function deleteBanner(id: string) {
   await requireManager();
+  await requireSections(["content.banners"], "editor");
   await deleteRows("banners", `id=eq.${encodeURIComponent(id)}`);
   await logAudit({ action: "delete", resourceType: "banner", resourceId: id });
   revalidatePath("/api/banner");
@@ -182,6 +210,7 @@ export async function deleteBanner(id: string) {
 
 export async function toggleBanner(id: string, enabled: boolean) {
   await requireEditor();
+  await requireSections(["content.banners"], "editor");
   await updateRows("banners", `id=eq.${encodeURIComponent(id)}`, { enabled });
   await logAudit({ action: enabled ? "enable" : "disable", resourceType: "banner", resourceId: id });
   revalidatePath("/api/banner");
@@ -268,11 +297,13 @@ function revalidateCasa() {
 
 export async function getCasaFaq() {
   await requireAdmin();
+  await requireSections(["content.casafaq"], "viewer");
   return toRows(await currentItems());
 }
 
 export async function saveCasaFaqItem(item: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["content.casafaq"], "editor");
   const items = await currentItems();
   const id = String(item.id ?? "").trim();
   const i = id ? items.findIndex((x) => x.id === id) : -1;
@@ -293,6 +324,7 @@ export async function saveCasaFaqItem(item: Record<string, unknown>) {
 
 export async function deleteCasaFaqItem(id: string) {
   await requireManager();
+  await requireSections(["content.casafaq"], "editor");
   const items = await currentItems();
   const next = items.filter((x) => x.id !== id);
   // A no-op means someone else already removed it — not an error worth raising.
@@ -303,6 +335,7 @@ export async function deleteCasaFaqItem(id: string) {
 
 export async function reorderCasaFaq(order: { id: string; sort_order: number }[]) {
   await requireEditor();
+  await requireSections(["content.casafaq"], "editor");
   const items = await currentItems();
   const byId = new Map(items.map((it) => [it.id, it]));
 
@@ -326,6 +359,7 @@ export async function reorderCasaFaq(order: { id: string; sort_order: number }[]
 
 export async function getCareersContent() {
   await requireAdmin();
+  await requireSections(["pages.careers"], "viewer");
   const row = await selectOne("careers_content", "careers", { role: "service_role" });
   if (!row) return null;
   // Convert snake_case → camelCase for admin editor
@@ -337,6 +371,7 @@ export async function getCareersContent() {
 
 export async function saveCareersContent(data: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["pages.careers"], "editor");
   // Convert camelCase → snake_case for Supabase
   const fieldMap = fieldMaps.careers_content;
   const dbData = fieldMap ? camelToSnake(data, fieldMap) : data;
@@ -350,6 +385,7 @@ export async function saveCareersContent(data: Record<string, unknown>) {
 
 export async function getHeroVideos() {
   await requireAdmin();
+  await requireSections(["pages.homepage"], "viewer");
   return selectRows("hero_videos", {
     role: "service_role",
     query: "order=created_at.desc",
@@ -358,6 +394,7 @@ export async function getHeroVideos() {
 
 export async function saveHeroVideo(video: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["pages.homepage"], "editor");
   await upsertRows("hero_videos", video, { onConflict: "id" });
   revalidatePath("/es");
   revalidatePath("/en");
@@ -366,6 +403,7 @@ export async function saveHeroVideo(video: Record<string, unknown>) {
 
 export async function setActiveVideo(id: string) {
   await requireEditor();
+  await requireSections(["pages.homepage"], "editor");
   // Deactivate all, then activate the chosen one.
   // If the second call fails, re-activate the original to avoid inconsistency.
   await updateRows("hero_videos", "active=eq.true", { active: false });
@@ -386,11 +424,13 @@ export async function setActiveVideo(id: string) {
 
 export async function getHomeContent() {
   await requireAdmin();
+  await requireSections(["pages.homepage"], "viewer");
   return selectOne("home_content", "home", { role: "service_role" });
 }
 
 export async function saveHomeContent(data: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["pages.homepage"], "editor");
   await upsertRows("home_content", { id: "home", ...data }, { onConflict: "id" });
   revalidatePath("/es");
   revalidatePath("/en");
@@ -435,6 +475,25 @@ const pageRevalidations: Record<PageTable, string[]> = {
   roseiies_content: ["/es/roseiies", "/en/roseiies"],
 };
 
+// Which sections may read / write each page document (see requireSections).
+const TABLE_SECTIONS: Record<PageTable, { read: string[]; write: string[] }> = {
+  farmtotable_content: { read: ["pages.farmtotable", "content.menu"], write: ["pages.farmtotable", "content.menu"] },
+  cafe_content: { read: ["pages.cafe", "content.menu"], write: ["pages.cafe", "content.menu"] },
+  casa_content: { read: ["pages.casa"], write: ["pages.casa"] },
+  contact_content: { read: ["pages.contact"], write: ["pages.contact"] },
+  sustainability_content: { read: ["pages.sustainability"], write: ["pages.sustainability"] },
+  press_content: { read: ["pages.press"], write: ["pages.press"] },
+  legal_content: { read: ["pages.legal"], write: ["pages.legal"] },
+  team_content: { read: ["pages.team"], write: ["pages.team"] },
+  not_found_content: { read: ["pages.notfound"], write: ["pages.notfound"] },
+  // Hours reads the settings row; it saves through saveHours (hours column only).
+  global_settings: { read: ["settings.global", "settings.hours"], write: ["settings.global"] },
+  drawer_content: { read: ["settings.navigation"], write: ["settings.navigation"] },
+  footer_content: { read: ["settings.footer"], write: ["settings.footer"] },
+  innovation_content: { read: ["pages.innovation"], write: ["pages.innovation"] },
+  roseiies_content: { read: ["pages.roseiies"], write: ["pages.roseiies"] },
+};
+
 // The table name arrives from the browser; TypeScript's PageTable is not
 // checked at runtime. Only these singletons may be read or written here.
 function assertPageTable(table: string): asserts table is PageTable {
@@ -446,6 +505,7 @@ function assertPageTable(table: string): asserts table is PageTable {
 export async function getPageContent(table: PageTable) {
   await requireAdmin();
   assertPageTable(table);
+  await requireSections(TABLE_SECTIONS[table].read, "viewer");
   const rows = await selectRows(table, {
     role: "service_role",
     query: "limit=1",
@@ -482,6 +542,7 @@ export async function savePageContent(
   } else {
     await requireEditor();
   }
+  await requireSections(TABLE_SECTIONS[table].write, "editor");
   // Convert camelCase editor keys → snake_case Supabase columns
   const fieldMap = fieldMaps[table];
   const dbData = fieldMap ? camelToSnake(data, fieldMap) : data;
@@ -576,6 +637,7 @@ export async function saveHours(hours: unknown[]): Promise<SaveResult> {
 
 export async function getSustainabilitySections() {
   await requireAdmin();
+  await requireSections(["pages.sustainability"], "viewer");
   return selectRows("sustainability_sections", {
     role: "service_role",
     query: "order=sort_order.asc",
@@ -584,6 +646,7 @@ export async function getSustainabilitySections() {
 
 export async function saveSustainabilitySection(item: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["pages.sustainability"], "editor");
   await upsertRows("sustainability_sections", item, { onConflict: "id" });
   await logAudit({ action: "save", resourceType: "sustainability_section", resourceId: String(item.id ?? "") });
   revalidatePath("/es/sustainability");
@@ -592,6 +655,7 @@ export async function saveSustainabilitySection(item: Record<string, unknown>) {
 
 export async function deleteSustainabilitySection(id: string) {
   await requireManager();
+  await requireSections(["pages.sustainability"], "editor");
   await deleteRows("sustainability_sections", `id=eq.${encodeURIComponent(id)}`);
   await logAudit({ action: "delete", resourceType: "sustainability_section", resourceId: id });
   revalidatePath("/es/sustainability");
@@ -617,6 +681,7 @@ function revalidatePress() {
 
 export async function getPressItemsAdmin() {
   await requireAdmin();
+  await requireSections(["content.pressitems"], "viewer");
   return selectRows("press_items", {
     role: "service_role",
     query: "order=published_at.desc",
@@ -625,6 +690,7 @@ export async function getPressItemsAdmin() {
 
 export async function savePressItem(item: Record<string, unknown>) {
   await requireEditor();
+  await requireSections(["content.pressitems"], "editor");
   assertPressId(String(item.id ?? ""));
   await upsertRows("press_items", item, { onConflict: "id" });
   await logAudit({ action: "save", resourceType: "press_item", resourceId: String(item.id) });
@@ -634,6 +700,7 @@ export async function savePressItem(item: Record<string, unknown>) {
 
 export async function togglePressItem(id: string, enabled: boolean) {
   await requireEditor();
+  await requireSections(["content.pressitems"], "editor");
   assertPressId(id);
   await updateRows("press_items", `id=eq.${encodeURIComponent(id)}`, { enabled });
   await logAudit({ action: enabled ? "enable" : "disable", resourceType: "press_item", resourceId: id });
@@ -642,6 +709,7 @@ export async function togglePressItem(id: string, enabled: boolean) {
 
 export async function deletePressItem(id: string) {
   await requireManager();
+  await requireSections(["content.pressitems"], "editor");
   assertPressId(id);
   await deleteRows("press_items", `id=eq.${encodeURIComponent(id)}`);
   await logAudit({ action: "delete", resourceType: "press_item", resourceId: id });

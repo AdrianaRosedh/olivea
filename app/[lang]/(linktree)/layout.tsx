@@ -19,7 +19,7 @@ export async function generateMetadata({
       ? "Perfiles del equipo de Olivea y enlaces principales."
       : "Olivea team profiles and key links.";
 
-  const og = absoluteUrl("/images/seo/team-og.jpg");
+  const og = absoluteUrl("/images/seo/seo-og.jpg");
 
   return {
     metadataBase: new URL(absoluteUrl("/")),
@@ -56,21 +56,11 @@ export default function LinktreeLayout({
 }) {
   return (
     <>
-      {/* ✅ Preload linktree background assets for mega-fast first paint */}
-      <link
-        rel="preload"
-        as="image"
-        href="/images/linktree/gardenleaves.avif"
-        type="image/avif"
-        fetchPriority="high"
-      />
-      <link
-        rel="preload"
-        as="image"
-        href="/images/linktree/gardenleaves-blur.jpg"
-        fetchPriority="high"
-      />
-
+      {/* No manual preloads: the page draws the background through next/image,
+          which requests /_next/image?url=… URLs. Preloading the raw files
+          downloaded both images a second time at high priority, unused
+          (the browser warned on every team page). The blur's `priority`
+          already preloads the URL that is actually shown. */}
       {children}
     </>
   );

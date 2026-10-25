@@ -129,11 +129,15 @@ const DEFAULT_MANIFEST: PressManifest = {
   version: "0",
   updatedAt: "1970-01-01",
   contactEmail: "pr@casaolivea.com",
+  // Used only when the admin manifest lacks a link. These /press/... paths
+  // never existed (they redirected to a 404); the files live under
+  // /images/press/ and the full kit is served by /api/press/full-kit, which
+  // also carries the photos.
   downloads: {
-    fullKit: "/press/Olivea-PressKit.zip",
-    logos: "/press/Olivea-Logos.zip",
-    photos: "/press/Olivea-Photos.zip",
-    factsheet: "/press/Olivea-FactSheet.pdf",
+    fullKit: "/api/press/full-kit",
+    logos: "/images/press/Olivea-Logos.zip",
+    photos: "/api/press/full-kit",
+    factsheet: "/images/press/Olivea-FactSheet.pdf",
   },
   copy: {
     es: {

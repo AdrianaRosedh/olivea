@@ -36,6 +36,11 @@ vi.mock("@/lib/supabase/client", () => ({
 vi.mock("@/lib/auth/audit", () => ({ logAudit: vi.fn(async () => undefined) }));
 vi.mock("@/lib/indexnow", () => ({ pingIndexNowForPaths: vi.fn(async () => undefined) }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/navigation", () => ({
+  redirect: (url: string) => {
+    throw new Error(`NEXT_REDIRECT ${url}`);
+  },
+}));
 
 import * as actions from "@/lib/supabase/actions";
 
@@ -72,10 +77,13 @@ describe("admin content actions without a session", () => {
   });
 });
 
+const editor = (sectionPermissions?: Record<string, string>) =>
+  ({ id: "u1", email: "e@x.com", role: "editor", sectionPermissions }) as never;
+
 describe("page-content table allow-list", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.requireSession.mockResolvedValue(undefined as never);
+    mocks.requireSession.mockResolvedValue(editor());
     mocks.requireRole.mockResolvedValue(undefined as never);
   });
 
@@ -97,5 +105,47 @@ describe("page-content table allow-list", () => {
   it("a signed-in admin can read a page singleton", async () => {
     await expect(actions.getPageContent("cafe_content")).resolves.toBeNull();
     expect(mocks.selectRows).toHaveBeenCalledWith("cafe_content", expect.anything());
+  });
+});
+
+// Per-person section permissions (admin → Equipo) are enforced by the actions
+// themselves, not only by the admin UI hiding a page.
+describe("section permissions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.requireRole.mockResolvedValue(undefined as never);
+  });
+
+  it("an editor made read-only on Legal can read it but not save it", async () => {
+    mocks.requireSession.mockResolvedValue(editor({ "pages.legal": "viewer" }));
+    await expect(actions.getPageContent("legal_content")).resolves.toBeNull();
+    vi.clearAllMocks();
+    mocks.requireSession.mockResolvedValue(editor({ "pages.legal": "viewer" }));
+    await expect(actions.savePageContent("legal_content", { title: "x" })).rejects.toThrow(/section_forbidden/);
+    expect(db()).toBe(0);
+  });
+
+  it("a section hidden from someone cannot be read", async () => {
+    mocks.requireSession.mockResolvedValue(editor({ "settings.footer": "hidden" }));
+    await expect(actions.getPageContent("footer_content")).rejects.toThrow(/section_forbidden/);
+    expect(db()).toBe(0);
+  });
+
+  it("content actions check their own section (popups)", async () => {
+    mocks.requireSession.mockResolvedValue(editor({ "content.popups": "viewer" }));
+    await expect(actions.savePopup({ id: "p1" })).rejects.toThrow(/section_forbidden/);
+    await expect(actions.togglePopup("p1", true)).rejects.toThrow(/section_forbidden/);
+    expect(db()).toBe(0);
+  });
+
+  it("the café document can still be saved from Menus when Café is hidden", async () => {
+    mocks.requireSession.mockResolvedValue(editor({ "pages.cafe": "hidden" }));
+    await expect(actions.savePageContent("cafe_content", { menu: [] })).resolves.toMatchObject({ ok: true });
+    expect(mocks.upsertRows).toHaveBeenCalled();
+  });
+
+  it("Hours can read the settings row without Brand & Identity", async () => {
+    mocks.requireSession.mockResolvedValue(editor({ "settings.global": "hidden" }));
+    await expect(actions.getPageContent("global_settings")).resolves.toBeNull();
   });
 });

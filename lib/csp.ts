@@ -6,6 +6,17 @@
 
 const isDev = process.env.NODE_ENV !== "production";
 
+/** This site's own Supabase project. Allowing every *.supabase.co project let a
+ *  script, if one were ever injected, send data to any other project. Falls
+ *  back to the wildcard only when the URL is not configured. */
+const SUPABASE_ORIGIN = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin;
+  } catch {
+    return "https://*.supabase.co";
+  }
+})();
+
 /**
  * Single site-wide CSP, emitted via next.config.ts headers() on every route.
  * Includes the Google Maps domains the /olivea-locator map iframe needs
@@ -30,14 +41,16 @@ function buildStaticCsp(): string {
     "object-src 'none'",
     "frame-ancestors 'self'",
     "form-action 'self'",
-    `connect-src 'self' data: https://*.supabase.co https://va.vercel-scripts.com https://*.vercel-insights.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://www.google.com.mx https://challenges.cloudflare.com https://www.facebook.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://connect.facebook.net https://*.canva.com https://clientstream.launchdarkly.com https://events.launchdarkly.com https://app.launchdarkly.com https://api.cloudbeds.com https://api.us1.cloudbeds.com https://api.us2.cloudbeds.com https://payment-element.cloudbeds.com https://*.tokenex.com https://api.stripe.com https://js.stripe.com https://m.stripe.network https://api.braintreegateway.com https://client-analytics.braintreegateway.com https://www.paypal.com https://checkoutshopper-live.adyen.com https://maf.pagosonline.net https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://maps.googleapis.com https://maps.gstatic.com https://roseiies.com https://roseiies-tenant.vercel.app`,
+    `connect-src 'self' data: ${SUPABASE_ORIGIN} https://va.vercel-scripts.com https://*.vercel-insights.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://www.google.com.mx https://challenges.cloudflare.com https://www.facebook.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://connect.facebook.net https://*.canva.com https://clientstream.launchdarkly.com https://events.launchdarkly.com https://app.launchdarkly.com https://api.cloudbeds.com https://api.us1.cloudbeds.com https://api.us2.cloudbeds.com https://payment-element.cloudbeds.com https://*.tokenex.com https://api.stripe.com https://js.stripe.com https://m.stripe.network https://api.braintreegateway.com https://client-analytics.braintreegateway.com https://www.paypal.com https://checkoutshopper-live.adyen.com https://maf.pagosonline.net https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://maps.googleapis.com https://maps.gstatic.com https://roseiies.com https://roseiies-tenant.vercel.app`,
     `script-src 'self' 'unsafe-inline'${scriptUnsafeEval} https://va.vercel-scripts.com 'wasm-unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://connect.facebook.net https://www.opentable.com.mx https://ajax.googleapis.com https://maps.googleapis.com https://roseiies.com https://*.tokenex.com https://js.stripe.com https://m.stripe.network https://js.braintreegateway.com https://assets.braintreegateway.com https://www.paypal.com https://www.paypalobjects.com https://payment-element.cloudbeds.com https://checkoutshopper-live.adyen.com https://maf.pagosonline.net https://js.authorize.net https://js.dlocal.com`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
-    `img-src 'self' data: blob: https://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://www.google.com.mx https://www.facebook.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://*.cloudbeds.com https://maps.gstatic.com https://*.googleapis.com https://roseiies.com https://roseiies-tenant.vercel.app`,
+    `img-src 'self' data: blob: ${SUPABASE_ORIGIN} https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://www.google.com.mx https://www.facebook.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://*.cloudbeds.com https://maps.gstatic.com https://*.googleapis.com https://roseiies.com https://roseiies-tenant.vercel.app`,
     // Admin-uploaded popup loops live in the Supabase `site-video` bucket;
     // without the host here they upload fine and are then blocked on the page.
-    "media-src 'self' blob: https://*.supabase.co",
-    "font-src 'self' data: https://fonts.gstatic.com",
+    `media-src 'self' blob: ${SUPABASE_ORIGIN}`,
+    // The Cloudbeds booking engine (drawn in the page, see above) brings its
+    // own typeface; without its host the hotel sheet fell back to a system font.
+    "font-src 'self' data: https://fonts.gstatic.com https://static1.cloudbeds.com",
     `frame-src 'self' https://challenges.cloudflare.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://www.google.com https://maps.google.com https://www.google.com/maps/embed https://maps.gstatic.com https://www.canva.com https://*.canva.com https://roseiies.com https://*.tokenex.com https://js.stripe.com https://hooks.stripe.com https://m.stripe.network https://assets.braintreegateway.com https://www.paypal.com https://c.paypal.com https://payment-element.cloudbeds.com https://checkoutshopper-live.adyen.com https://maf.pagosonline.net`,
     "manifest-src 'self'",
     "worker-src 'self' blob:",

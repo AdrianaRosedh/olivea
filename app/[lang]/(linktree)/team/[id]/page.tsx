@@ -1,5 +1,6 @@
 // app/(linktree)/[lang]/team/[id]/page.tsx
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import LinktreeClient from "./LinktreeClient";
 import { absoluteUrl, SITE } from "@/lib/site";
 import { type Lang } from "@/lib/i18n";
@@ -44,6 +45,7 @@ export async function generateMetadata({
   const id = safeStr(p.id);
 
   const member = await findMember(id);
+  if (!member) notFound();
 
   const name = safeStr(member?.name) || "Olivea";
   const role = i18nPick(member?.role, lang);
@@ -130,16 +132,9 @@ export default async function Page({
 
   const member = await findMember(id);
 
-  if (!member) {
-    return (
-      <main className="min-h-dvh grid place-items-center text-white">
-        <div className="text-center">
-          <p className="text-lg font-semibold">Not found</p>
-          <p className="text-sm opacity-80">Member does not exist.</p>
-        </div>
-      </main>
-    );
-  }
+  // A real 404 (status and noindex). It used to render "Member does not
+  // exist." as a 200 page that search engines could index.
+  if (!member) notFound();
 
   return (
     <>

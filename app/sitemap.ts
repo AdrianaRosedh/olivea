@@ -2,8 +2,7 @@
 import type { MetadataRoute } from "next";
 import { canonicalUrl } from "@/lib/site";
 import { loadTeam } from "@/app/[lang]/(main)/team/teamData";
-import fs from "node:fs/promises";
-import path from "node:path";
+import { listJournalIndex } from "@/lib/journal/load";
 
 async function getTeamIds(): Promise<string[]> {
   const team = await loadTeam();
@@ -20,33 +19,21 @@ function cleanPath(p: string): string {
   return p.trim().replace(/\s+/g, "").replace(/\/{2,}/g, "/");
 }
 
-async function safeStat(fullPath: string): Promise<Date | null> {
-  try {
-    const st = await fs.stat(fullPath);
-    return st.mtime ?? null;
-  } catch {
-    return null;
-  }
-}
-
+// The same list the journal page shows: MDX files AND posts written in the
+// admin (Supabase). Reading only content/journal/*.mdx left every admin-written
+// post (e.g. "Mesa Invitada Vol. 2") out of the sitemap.
 async function getJournalEntries(
   lang: "es" | "en"
 ): Promise<Array<{ slug: string; lastModified: Date }>> {
-  const dir = path.join(process.cwd(), "content", "journal", lang);
   try {
-    const files = await fs.readdir(dir);
-    const mdx = files.filter((f) => f.endsWith(".mdx")).filter((f) => !/\s+copy(\s+\d+)?\.mdx$/i.test(f));
-
-    const entries = await Promise.all(
-      mdx.map(async (f) => {
-        const slug = f.replace(/\.mdx$/, "");
-        const mtime = await safeStat(path.join(dir, f));
-        return { slug, lastModified: mtime ?? new Date() };
+    const items = await listJournalIndex(lang);
+    return items
+      .filter((it) => typeof it.slug === "string" && it.slug.length > 0)
+      .map((it) => {
+        const d = it.publishedAt ? new Date(it.publishedAt) : null;
+        return { slug: it.slug, lastModified: d && !Number.isNaN(d.getTime()) ? d : new Date() };
       })
-    );
-
-    entries.sort((a, b) => a.slug.localeCompare(b.slug));
-    return entries;
+      .sort((a, b) => a.slug.localeCompare(b.slug));
   } catch {
     return [];
   }
@@ -128,18 +115,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // ─── Journal entries ───
+  const journalByLang = {
+    es: await getJournalEntries("es"),
+    en: await getJournalEntries("en"),
+  };
+  const journalSlugs = {
+    es: new Set(journalByLang.es.map((e) => e.slug)),
+    en: new Set(journalByLang.en.map((e) => e.slug)),
+  };
   for (const lang of ["es", "en"] as const) {
-    const journalEntries = await getJournalEntries(lang);
-    for (const it of journalEntries) {
-      const esPath = cleanPath(`/es/journal/${it.slug}`);
-      const enPath = cleanPath(`/en/journal/${it.slug}`);
-
-      const alternates = {
-        languages: {
-          es: cleanUrl(canonicalUrl(esPath)),
-          en: cleanUrl(canonicalUrl(enPath)),
-        },
-      };
+    for (const it of journalByLang[lang]) {
+      // Name a translation only when that language really has the post.
+      const languages: Record<string, string> = {};
+      for (const l of ["es", "en"] as const) {
+        if (journalSlugs[l].has(it.slug)) {
+          languages[l] = cleanUrl(canonicalUrl(cleanPath(`/${l}/journal/${it.slug}`)));
+        }
+      }
+      const alternates = { languages };
 
       out.push({
         url: cleanUrl(canonicalUrl(cleanPath(`/${lang}/journal/${it.slug}`))),

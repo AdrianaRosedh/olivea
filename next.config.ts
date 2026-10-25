@@ -15,6 +15,14 @@ function resolvePublicUrl() {
 const PUBLIC_URL = resolvePublicUrl();
 const { hostname: PUBLIC_HOSTNAME } = new URL(PUBLIC_URL);
 
+const SUPABASE_IMAGE_HOST = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname || "*.supabase.co";
+  } catch {
+    return "*.supabase.co";
+  }
+})();
+
 /* ────────────────────────────────────────────────────────────── */
 /* CSP — single source of truth lives in lib/csp.ts               */
 /* ────────────────────────────────────────────────────────────── */
@@ -93,7 +101,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "static1.cloudbeds.com" },
       { protocol: "https", hostname: "www.opentable.com" },
       { protocol: "https", hostname: "www.opentable.com.mx" },
-      { protocol: "https", hostname: "*.supabase.co" },
+      // Only this site's own project (any *.supabase.co made the optimizer a
+      // free resizing proxy for every Supabase project's public files).
+      { protocol: "https", hostname: SUPABASE_IMAGE_HOST },
     ],
     unoptimized: false,
   },

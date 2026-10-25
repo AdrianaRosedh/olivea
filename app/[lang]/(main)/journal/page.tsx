@@ -69,7 +69,7 @@ export async function generateMetadata({
   const path = `/${lang}/journal`;
   const canonical = canonicalUrl(path);
 
-  const ogImage = jm.ogImage ?? jm.ogDefault ?? "/images/seo/journal-og.jpg";
+  const ogImage = jm.ogImage ?? jm.ogDefault ?? "/images/seo/seo-og.jpg";
   const ogLocale = lang === "es" ? "es_MX" : "en_US";
 
   return {

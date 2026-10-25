@@ -12,7 +12,7 @@ const notFound: NotFoundContent = {
       es: "La página que buscas no existe. Vuelve al inicio de OLIVEA.",
       en: "The page you're looking for doesn't exist. Return to OLIVEA home.",
     },
-    ogImage: "/images/seo/default-og.jpg",
+    ogImage: "/images/seo/seo-og.jpg",
   },
   message: {
     es: "La página que buscas no existe.",

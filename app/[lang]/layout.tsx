@@ -2,6 +2,7 @@
 import "../globals.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { notFound } from "next/navigation";
 import { AppProviders } from "../providers";
 import { getContent } from "@/lib/content";
 import { fontsClass } from "../fonts";
@@ -116,7 +117,12 @@ export default async function LocaleRootLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang: raw } = await params;
-  const lang = raw === "en" ? "en" : "es";
+  // Only /es and /en exist. Anything else (/fr/cafe, /zz, a missing
+  // /images/... file falling through to this route) rendered the Spanish site
+  // as a 200 page marked index, follow: endless duplicate URLs for search
+  // engines, and soft 404s for broken links.
+  if (raw !== "es" && raw !== "en") notFound();
+  const lang = raw;
 
   // The café's hours for the reservation window, from the site settings
   // (admin → Horarios), the same request the page layouts already make.
@@ -231,7 +237,10 @@ export default async function LocaleRootLayout({
         <AppProviders cafeHours={cafeHours}>{children}</AppProviders>
 
         <CookieConsent />
-        <Analytics />
+        {/* Only on Vercel, where /_vercel/insights exists. Anywhere else (local
+            builds, the Wi-Fi preview) the script 404'd and the browser refused
+            it on every page: three console errors per page, nothing measured. */}
+        {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>
   );

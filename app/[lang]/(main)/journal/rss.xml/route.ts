@@ -84,7 +84,8 @@ export async function GET(
       const excerptRaw = getExcerpt(p as unknown) ?? "";
       const iso = getIsoDate(p as unknown) ?? new Date().toISOString();
 
-      const url = `${base}/${lang}/journal/${slug}`;
+      // Encoded and escaped like the title: a slug is admin-entered text.
+      const url = esc(`${base}/${lang}/journal/${encodeURIComponent(slug)}`);
       const title = esc(titleRaw);
       const desc = esc(excerptRaw);
 

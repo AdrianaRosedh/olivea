@@ -9,6 +9,10 @@
 
 export type Lang = "es" | "en";
 
+/** Shown for a person without a photo yet. (It was /images/team/persona.jpg,
+ *  which never existed: the card showed a broken image.) */
+export const TEAM_FALLBACK_PHOTO = "/images/farm/garden.jpg";
+
 /* ---------- Shared helpers ---------- */
 
 export type I18nText = {

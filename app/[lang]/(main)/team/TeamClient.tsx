@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import Reveal from "@/components/scroll/Reveal";
 import { type Lang } from "@/lib/i18n";
 
-import { TEAM, type LeaderProfile } from "./teamData";
+import { TEAM, TEAM_FALLBACK_PHOTO, type LeaderProfile } from "./teamData";
 import { useRouter, usePathname } from "next/navigation";
 
 import TeamDockLeft, { type TeamCategory } from "./TeamDockLeft";
@@ -127,7 +127,7 @@ function AutoSlideGalleryVerticalVariableHeight({
   maxH?: number;
 }) {
   const safe = useMemo(
-    () => (images.length ? images : ["/images/team/persona.jpg"]),
+    () => (images.length ? images : [TEAM_FALLBACK_PHOTO]),
     [images]
   );
   const items = [...safe, ...safe];
@@ -267,7 +267,7 @@ function AutoSlideGalleryHorizontalVariableWidth({
   maxW?: number;
 }) {
   const safe = useMemo(
-    () => (images.length ? images : ["/images/team/persona.jpg"]),
+    () => (images.length ? images : [TEAM_FALLBACK_PHOTO]),
     [images]
   );
 
@@ -412,7 +412,7 @@ function LeaderCard({
 
       <div className="absolute inset-0">
         <Image
-          src={l.avatar ?? "/images/team/persona.jpg"}
+          src={l.avatar ?? TEAM_FALLBACK_PHOTO}
           alt={l.name}
           fill
           sizes={sizes}
@@ -505,9 +505,9 @@ export default function TeamClient({
         ? active.gallery
         : active?.avatar
           ? [active.avatar]
-          : ["/images/team/persona.jpg"];
+          : [TEAM_FALLBACK_PHOTO];
 
-    const first = base[0] ?? "/images/team/persona.jpg";
+    const first = base[0] ?? TEAM_FALLBACK_PHOTO;
     if (base.length >= 3) return base;
     if (base.length === 2) return [base[0], base[1], `${base[0]}?dup=1`];
     return [first, `${first}?dup=1`, `${first}?dup=2`];
@@ -755,7 +755,7 @@ export default function TeamClient({
                         <div className="absolute inset-0 bg-white/35" />
                         <div className="absolute inset-0">
                           <Image
-                            src={l.avatar ?? "/images/team/persona.jpg"}
+                            src={l.avatar ?? TEAM_FALLBACK_PHOTO}
                             alt={l.name}
                             fill
                             sizes="100vw"

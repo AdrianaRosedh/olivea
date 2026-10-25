@@ -31,6 +31,7 @@ import type {
  TeamLink,
  I18nText,
 } from "@/app/[lang]/(main)/team/teamData";
+import { TEAM_FALLBACK_PHOTO } from "@/app/[lang]/(main)/team/teamData";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 
@@ -436,7 +437,7 @@ export default function LinktreeClient({
 
  const role = member.role ? t(member.role, lang) : "";
  const org = member.org ? t(member.org, lang) : "";
- const avatar = member.avatar ?? "/images/team/persona.jpg";
+ const avatar = member.avatar ?? TEAM_FALLBACK_PHOTO;
 
 
  const [bgReady, setBgReady] = useState(false);

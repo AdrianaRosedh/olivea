@@ -128,7 +128,12 @@ const WIDE_SHARE: Record<string, string> = {
   "/images/seo/farm-og.jpg": "/images/seo/farm-share.jpg",
   "/images/seo/casa-og.jpg": "/images/seo/casa-share.jpg",
   "/images/seo/cafe-og.jpg": "/images/seo/cafe-share.jpg",
+  // Names that were referenced but never existed (a typo'd file is
+  // default-of.jpg); an admin value still using one gets the default card.
   "/images/seo/default-of.jpg": DEFAULT_SHARE_IMAGE,
+  "/images/seo/default-og.jpg": DEFAULT_SHARE_IMAGE,
+  "/images/seo/journal-og.jpg": DEFAULT_SHARE_IMAGE,
+  "/images/seo/team-og.jpg": DEFAULT_SHARE_IMAGE,
 };
 
 

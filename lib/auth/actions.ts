@@ -9,6 +9,7 @@ import { createClient, createAdminClient } from "./supabase-server";
 import { selectRows, insertRows, updateRows, deleteRows, assertUUID } from "@/lib/supabase/client";
 import { requireRole } from "./session";
 import { revalidatePath } from "next/cache";
+import { rateLimitDistributed } from "@/lib/rate-limit";
 import type { AdminRole, SectionAccess, SectionPermissions } from "./types";
 import { ADMIN_SECTIONS, SECTION_ACCESS_HIERARCHY } from "./types";
 
@@ -37,7 +38,42 @@ async function adminBaseUrl(): Promise<string> {
 
 /* ── Login ── */
 
+// Both login actions are public endpoints (anyone can call a server action),
+// and they reach Supabase from this server, so Supabase's own per-IP limits
+// see every attempt as coming from one address. They limit themselves here,
+// per visitor and per email, across server instances.
+const TOO_MANY = "Too many attempts. Please wait a few minutes and try again.";
+
+async function requestIp(): Promise<string> {
+  const h = await headers();
+  const xff = h.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0]!.trim();
+  return h.get("x-real-ip")?.trim() || "unknown";
+}
+
+function normalizeEmail(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const email = raw.trim().toLowerCase();
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+}
+
+async function withinLoginLimits(kind: "password" | "magic", email: string): Promise<boolean> {
+  const ip = await requestIp();
+  const [byIp, byEmail] = await Promise.all([
+    rateLimitDistributed(`login:${kind}:ip:${ip}`, { limit: 10, windowMs: 10 * 60_000 }),
+    rateLimitDistributed(`login:${kind}:email:${email}`, { limit: 5, windowMs: 10 * 60_000 }),
+  ]);
+  return byIp.ok && byEmail.ok;
+}
+
 export async function loginWithEmail(email: string, password: string) {
+  const normalized = normalizeEmail(email);
+  if (!normalized || typeof password !== "string" || password.length === 0 || password.length > 512) {
+    return { error: "Invalid login credentials" };
+  }
+  if (!(await withinLoginLimits("password", normalized))) return { error: TOO_MANY };
+  email = normalized;
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -61,7 +97,24 @@ export async function loginWithEmail(email: string, password: string) {
   return { error: null };
 }
 
-export async function loginWithMagicLink(email: string) {
+// The same answer whatever the email, so the form can't be used to find out
+// who is an admin.
+const MAGIC_LINK_SENT = { error: null } as const;
+
+export async function loginWithMagicLink(rawEmail: string) {
+  const email = normalizeEmail(rawEmail);
+  if (!email) return MAGIC_LINK_SENT;
+  if (!(await withinLoginLimits("magic", email))) return { error: TOO_MANY };
+
+  // Only admins get a link. Without this the action emailed an OLIVEA-branded
+  // message to any address it was given (and generating a magic link for an
+  // unknown address can create an account).
+  const admins = await selectRows<{ id: string }>("admin_users", {
+    role: "service_role",
+    query: `select=id&email=eq.${encodeURIComponent(email)}&limit=1`,
+  }).catch(() => []);
+  if (admins.length === 0) return MAGIC_LINK_SENT;
+
   const adminClient = createAdminClient();
   const siteUrl = await adminBaseUrl();
 
@@ -75,8 +128,8 @@ export async function loginWithMagicLink(email: string) {
   });
 
   if (error) {
-    // If user doesn't exist in auth, show generic message (don't leak info)
-    return { error: "If an account exists with this email, a magic link has been sent." };
+    console.error("[auth] generateLink failed for an admin email:", error.message);
+    return MAGIC_LINK_SENT;
   }
 
   // Send branded email via Resend
