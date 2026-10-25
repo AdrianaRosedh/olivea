@@ -16,6 +16,8 @@ export type House = {
   /** The action line on the phone chooser: what choosing this house does. */
   cue: { es: string; en: string };
   emblem: string;
+  /** A portrait photograph of the place (the reservation chooser's cards). */
+  photo: string;
 };
 
 export const HOUSES: Record<ReservationType, House> = {
@@ -25,6 +27,7 @@ export const HOUSES: Record<ReservationType, House> = {
     descriptor: { es: "Restaurante de alta cocina", en: "Fine Dining Restaurant" },
     cue: { es: "Reservar mesa", en: "Book a table" },
     emblem: "/brand/alebrije-1-Green.svg",
+    photo: "/images/farm/hero.jpg",
   },
   hotel: {
     name: "Casa Olivea",
@@ -32,6 +35,7 @@ export const HOUSES: Record<ReservationType, House> = {
     descriptor: { es: "Hotel boutique", en: "Boutique Hotel" },
     cue: { es: "Reservar estancia", en: "Book a stay" },
     emblem: "/brand/alebrije-2.svg",
+    photo: "/images/casa/hero.jpg",
   },
   cafe: {
     name: "Olivea Café Wine Bar",
@@ -40,6 +44,7 @@ export const HOUSES: Record<ReservationType, House> = {
     // The café takes no reservations; its pane says so and shows the hours.
     cue: { es: "Sin reservación", en: "Walk-ins welcome" },
     emblem: "/brand/alebrije-3.svg",
+    photo: "/images/cafe/hero.jpg",
   },
 };
 

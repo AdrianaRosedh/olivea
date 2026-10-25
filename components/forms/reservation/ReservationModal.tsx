@@ -461,25 +461,29 @@ function MobileRestaurantSheet({
  */
 function HouseChoice({
   lang,
+  isMobile,
   onChoose,
 }: {
   lang: "es" | "en";
+  isMobile: boolean;
   onChoose: (id: ReservationType) => void;
 }) {
   const reduce = usePrefersReducedMotion();
 
   return (
     <div
-      className="flex-1 min-h-0 overflow-y-auto px-6 pt-2 pb-[max(env(safe-area-inset-bottom),24px)]"
+      className={`min-h-0 overflow-y-auto pt-2 ${
+        isMobile ? "flex-1 px-6 pb-[max(env(safe-area-inset-bottom),24px)]" : "px-10 pb-6"
+      }`}
       style={{
         background:
           "radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--olivea-olive) 7%, transparent), transparent 70%)",
       }}
     >
-      <div className="flex min-h-full flex-col">
+      <div className={`flex flex-col ${isMobile ? "min-h-full" : ""}`}>
         <p
           className="text-center italic text-(--olivea-ink)/75"
-          style={{ fontFamily: "var(--font-serif)", fontSize: 18 }}
+          style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 18 : 21 }}
         >
           {lang === "es" ? "¿Dónde te esperamos?" : "Where shall we welcome you?"}
         </p>
@@ -489,8 +493,15 @@ function HouseChoice({
           <span className="h-px w-10 bg-current" />
         </div>
 
-        {/* pt clears the first emblem, which sits half above its card */}
-        <ul className="my-auto space-y-10 pt-11 pb-7">
+        {/* pt clears the emblems, which sit half above their cards. Phones
+            stack the houses; desktop sets them side by side. */}
+        <ul
+          className={
+            isMobile
+              ? "my-auto space-y-10 pt-11 pb-7"
+              : "mx-auto mt-7 mb-6 grid w-full max-w-5xl grid-cols-3 gap-5 lg:gap-7"
+          }
+        >
           {HOUSE_ORDER.map((id, i) => {
             const house = HOUSES[id];
             return (
@@ -500,11 +511,13 @@ function HouseChoice({
                 animate={{ opacity: 1, y: 0 }}
                 transition={reduce ? { duration: 0 } : { duration: 0.45, ease: EASE, delay: 0.08 + i * 0.08 }}
               >
+                {isMobile ? (
                 <button
                   type="button"
                   onClick={() => onChoose(id)}
                   className={[
-                    "group relative w-full rounded-[28px] px-5 pt-10 pb-4 text-center",
+                    "group relative w-full rounded-[28px] px-5 text-center",
+                    "pt-10 pb-4",
                     "border border-(--olivea-olive)/45",
                     "transition-[background-color,border-color,transform] duration-200",
                     "active:scale-[0.985] active:bg-(--olivea-olive) active:border-(--olivea-olive)",
@@ -524,7 +537,7 @@ function HouseChoice({
                   </span>
                   <span
                     className="relative block text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)"
-                    style={{ fontFamily: "var(--font-serif)", fontSize: 23, fontWeight: 600, lineHeight: 1.15 }}
+                    style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 23 : 25, fontWeight: 600, lineHeight: 1.15 }}
                   >
                     {house.name}
                   </span>
@@ -539,6 +552,53 @@ function HouseChoice({
                     <span aria-hidden="true" className="transition-transform duration-200 group-active:translate-x-0.5">→</span>
                   </span>
                 </button>
+                ) : (
+                  // Desktop: the house's photograph inside the double olive
+                  // frame, its emblem set on the photo's edge like a seal.
+                  <button
+                    type="button"
+                    onClick={() => onChoose(id)}
+                    className={[
+                      "group relative flex h-full w-full flex-col rounded-[28px] p-1.5 text-center",
+                      "border border-(--olivea-olive)/35 bg-white/30",
+                      "transition-[border-color,box-shadow,transform] duration-300",
+                      "hover:-translate-y-0.5 hover:border-(--olivea-olive)/70 hover:shadow-[0_24px_50px_-28px_rgba(40,60,35,0.55)]",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/35 focus-visible:ring-offset-4 focus-visible:ring-offset-(--olivea-cream)",
+                    ].join(" ")}
+                  >
+                    <span className="relative block aspect-5/4 overflow-hidden rounded-[22px]">
+                      <Image
+                        src={house.photo}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1279px) 30vw, 340px"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                      />
+                      <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-transparent" />
+                    </span>
+                    <span className="relative z-10 mx-auto -mt-7 h-14 w-14 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-2">
+                      <span className="relative block h-full w-full">
+                        <Image src={house.emblem} alt="" fill sizes="40px" className="object-contain" />
+                      </span>
+                    </span>
+                    <span
+                      className="mt-2 block px-3 text-(--olivea-olive)"
+                      style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600, lineHeight: 1.15 }}
+                    >
+                      {house.name}
+                    </span>
+                    <span
+                      className="mt-0.5 block italic text-(--olivea-olive)/75"
+                      style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}
+                    >
+                      {house.descriptor[lang]}
+                    </span>
+                    <span className="mx-auto mt-auto inline-flex items-center gap-2 whitespace-nowrap pt-4 pb-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--olivea-olive) lg:text-[10.5px] lg:tracking-[0.24em]">
+                      {house.cue[lang]}
+                      <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </span>
+                  </button>
+                )}
               </motion.li>
             );
           })}
@@ -672,7 +732,9 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
     chooseAgain();
   }, [closeRestaurantOverlay, chooseAgain]);
 
-  const showChoice = isMobile && !typeChosen;
+  // A window opened from a page that belongs to no house (the home page, a
+  // journal post…) asks which house first, on every screen size.
+  const showChoice = !typeChosen;
 
   // Tab handler
   const handleTabClick = useCallback(
@@ -806,7 +868,9 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
               ? "w-full h-full rounded-none"
               : expanded
                 ? "w-full h-full max-w-none rounded-none"
-                : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl"
+                : // The chooser sizes the window to its cards; a booking
+                  // engine needs the full height.
+                  `w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl rounded-2xl ${showChoice ? "max-h-[90vh]" : "h-[90vh]"}`
           }`}
         >
           {/* Header */}
@@ -867,10 +931,10 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
             </div>
           </div>
 
-          {showChoice && <HouseChoice lang={lang} onChoose={handleTabClick} />}
+          {showChoice && <HouseChoice lang={lang} isMobile={isMobile} onChoose={handleTabClick} />}
 
-          {/* Tabs, named after the houses. Kept mounted (only hidden) while a
-              phone shows the chooser, so the panes never remount. */}
+          {/* Tabs, named after the houses. Kept mounted (only hidden) while the
+              chooser shows, so the panes never remount. */}
           <div
             role="tablist"
             className={`shrink-0 bg-(--olivea-cream) ${showChoice ? "hidden" : "flex"} ${
