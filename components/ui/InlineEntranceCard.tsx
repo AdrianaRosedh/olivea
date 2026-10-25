@@ -12,10 +12,11 @@ import {
   type SVGProps,
   type RefObject,
 } from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useSharedTransition, type SectionKey } from "@/contexts/SharedTransitionContext";
 import { INTRO_DONE_EVENT, isIntroPlaying } from "@/hooks/useIntroAnimation";
+import { CASCADE } from "@/lib/introConstants";
 
 /* ========= codec probe (client-only, cached) ========= */
 let PREFERS_WEBM: boolean | null = null;
@@ -95,6 +96,36 @@ const HOVER_EASE_ARRAY = [0.22, 1, 0.36, 1] as const;
 const MAX_TILT_DEG = 5;
 const HOVER_ATTACH_DELAY_MS = 120;
 
+/**
+ * The phone emblem settles onto its card just after the card lands. The labels
+ * match the home list's card variants ("hidden" / "show"), which the emblem
+ * inherits; the desktop row has no such parent, so its emblems stay put. The
+ * list's stagger does not reach this far down, so the delay comes from the
+ * card's place in the list (`custom`).
+ */
+const EMBLEM_ENTRANCE: Variants = {
+  hidden: { opacity: 0, y: 6, scale: 0.86, rotate: -3 },
+  show: (order: number) => {
+    const delay = CASCADE.delaySec + order * CASCADE.staggerSec + CASCADE.emblemLagSec;
+    return {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      rotate: 0,
+      // The spring moves it; the fade is plain, or the spring's bounce
+      // flickers the emblem's opacity.
+      transition: {
+        delay,
+        type: "spring",
+        stiffness: 260,
+        damping: 18,
+        opacity: { delay, duration: 0.25, ease: "easeOut" },
+      },
+    };
+  },
+};
+const EMBLEM_PRESS = { type: "spring", stiffness: 520, damping: 28 } as const;
+
 const SAFARI_UA = /^((?!chrome|android).)*safari/i;
 const subscribeNever = () => () => {};
 
@@ -142,6 +173,9 @@ export interface InlineEntranceCardProps {
    * (CLS 0.13 on a phone).
    */
   size: "compact" | "full";
+
+  /** The card's place in the phone list; times its emblem's entrance. */
+  entranceOrder?: number;
 }
 
 export default function InlineEntranceCard({
@@ -156,6 +190,7 @@ export default function InlineEntranceCard({
   onActivate = () => {},
   fluidDesktop = false,
   size,
+  entranceOrder = 0,
 }: InlineEntranceCardProps) {
   const { startTransition } = useSharedTransition();
   const reduceMotion = usePrefersReducedMotion();
@@ -167,6 +202,9 @@ export default function InlineEntranceCard({
   const isMobile = size === "compact";
 
   const [isHovered, setIsHovered] = useState(false);
+  // While a phone card is held down, its emblem lifts off the card.
+  const [isPressed, setIsPressed] = useState(false);
+  const emblemMoves = isMobile && !reduceMotion;
   const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const rectRef = useRef<DOMRect | null>(null);
@@ -388,7 +426,6 @@ export default function InlineEntranceCard({
     TOP_H: 128,
     CIRCLE: 80,
     UNDERLAY_H: 25,
-    MOBILE_COLLAPSED: 96,
   };
 
   // 🔥 Responsive desktop scaling — live resize via state
@@ -420,15 +457,20 @@ export default function InlineEntranceCard({
   const CIRCLE_SIZE = BASE.CIRCLE * scale;
   const UNDERLAY_H = BASE.UNDERLAY_H * scale;
 
-  const containerHeight = isMobile ? BASE.MOBILE_COLLAPSED : CARD_HEIGHT;
   const topHeight = isMobile ? 0 : TOP_DESKTOP;
-  const bottomHeight = isMobile ? BASE.MOBILE_COLLAPSED : CARD_HEIGHT - TOP_DESKTOP;
+  const bottomHeight = CARD_HEIGHT - TOP_DESKTOP;
 
   const hasLogo = !!Logo || !!logoSrc;
 
+  // The phone card's sizes live in CSS so short screens (`short:` under 700 px
+  // tall, `tiny:` under 600) get a smaller card, emblem and title gap
+  // straight from the server HTML: three cards and the reserve bar must fit.
+  const compactSizes =
+    "[--card-h:110px] [--circle:80px] [--title-top:28px] short:[--card-h:96px] short:[--circle:68px] short:[--title-top:21px] tiny:[--card-h:88px] tiny:[--circle:60px] tiny:[--title-top:17px]";
+
   return (
     <div
-      className={`relative ${className}`}
+      className={`relative ${isMobile ? compactSizes : ""} ${className}`}
       style={{
         // ✅ KEY FIX: fluid desktop widths prevent overflow on mid screens
         width: isMobile
@@ -445,7 +487,7 @@ export default function InlineEntranceCard({
         href={href}
         role="link"
         tabIndex={0}
-        aria-label={`Ir a ${title}`}
+        aria-label={`${isES ? "Ir a" : "Go to"} ${title}`}
         aria-describedby={slug ? `${slug}-desc` : undefined}
         onClick={handleActivate}
         onKeyDown={(e) => {
@@ -455,6 +497,9 @@ export default function InlineEntranceCard({
       >
         <motion.div
           whileTap={{ scale: 0.97 }}
+          onTapStart={emblemMoves ? () => setIsPressed(true) : undefined}
+          onTap={emblemMoves ? () => setIsPressed(false) : undefined}
+          onTapCancel={emblemMoves ? () => setIsPressed(false) : undefined}
           className={`relative overflow-visible cursor-pointer ${isMobile ? "drop-shadow-lg" : ""}`}
           onPointerEnter={handlePointerEnter}
         >
@@ -464,7 +509,7 @@ export default function InlineEntranceCard({
             className="shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
             style={{
               width: "100%",
-              height: Math.round(containerHeight),
+              height: isMobile ? "var(--card-h)" : Math.round(CARD_HEIGHT),
               cursor: "pointer",
               contain: "layout paint style",
               willChange: "transform",
@@ -519,9 +564,9 @@ export default function InlineEntranceCard({
 
               {/* Bottom (cream panel) */}
               <motion.div
-                initial={{ height: bottomHeight }}
+                initial={{ height: isMobile ? "100%" : bottomHeight }}
                 animate={{
-                  height: isHovered ? bottomHeight + UNDERLAY_H + 15 : bottomHeight,
+                  height: isMobile ? "100%" : isHovered ? bottomHeight + UNDERLAY_H + 15 : bottomHeight,
                 }}
                 transition={{ duration: HOVER_DUR, ease: HOVER_EASE_ARRAY }}
                 style={{
@@ -542,9 +587,11 @@ export default function InlineEntranceCard({
                     fontFamily: "var(--font-serif)",
                     // Scales down on very narrow phones (320 px) so the title stays
                     // on one line instead of wrapping into the card's hidden overflow.
-                    fontSize: isMobile ? "clamp(21px, 7.4vw, 28px)" : Math.round(22 * scale),
+                    fontSize: isMobile ? "clamp(20px, 6.5vw, 25px)" : Math.round(22 * scale),
                     fontWeight: 600,
-                    marginTop: 28,
+                    lineHeight: 1.15,
+                    letterSpacing: isMobile ? "0.01em" : undefined,
+                    marginTop: isMobile ? "var(--title-top)" : 28,
                     transform: isHovered ? "translateY(-8px)" : "translateY(0)",
                     transition: `transform ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                   }}
@@ -553,21 +600,40 @@ export default function InlineEntranceCard({
                   {title}
                 </h2>
 
-                {!isMobile && isHovered && (
-                  <p
-                    id={`${slug}-desc`}
-                    style={{
-                      marginTop: 6,
-                      textAlign: "center",
-                      fontSize: 16,
-                      maxWidth: 320,
-                      opacity: isHovered ? 1 : 0,
-                      transition: `opacity ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
-                    }}
-                  >
-                    {description}
-                  </p>
-                )}
+                {/* What the place is. On a phone it sits quietly under the
+                    name, so a guest knows what they are opening before they
+                    tap; on desktop it appears on hover, as it always has. It
+                    stays in the page either way for aria-describedby. */}
+                <p
+                  id={`${slug}-desc`}
+                  style={
+                    isMobile
+                      ? {
+                          margin: 0,
+                          marginTop: 2,
+                          textAlign: "center",
+                          fontFamily: "var(--font-serif)",
+                          fontStyle: "italic",
+                          fontSize: 14.5,
+                          letterSpacing: "0.02em",
+                          lineHeight: 1.2,
+                          whiteSpace: "nowrap",
+                          opacity: 0.68,
+                        }
+                      : {
+                          marginTop: 6,
+                          textAlign: "center",
+                          // One line even on the narrowest desktop card (240 px).
+                          fontSize: 15,
+                          whiteSpace: "nowrap",
+                          maxWidth: 320,
+                          opacity: isHovered ? 1 : 0,
+                          transition: `opacity ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
+                        }
+                  }
+                >
+                  {description}
+                </p>
               </motion.div>
             </div>
 
@@ -602,29 +668,45 @@ export default function InlineEntranceCard({
                 position: "absolute",
                 zIndex: 4,
                 left: "50%",
-                width: Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
-                height: Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
-                borderRadius: "50%",
-                border: "4px solid #e7eae1",
-                background: "#e7eae1",
-                overflow: "hidden",
+                width: isMobile ? "var(--circle)" : Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
+                height: isMobile ? "var(--circle)" : Math.round(isHovered ? CIRCLE_SIZE * 0.7 : CIRCLE_SIZE),
                 top: isHovered ? topHeight * 0.6 : topHeight,
                 transform: "translate(-50%, -50%)",
                 transition: `top ${HOVER_DUR}s ${HOVER_EASE_CSS}, width ${HOVER_DUR}s ${HOVER_EASE_CSS}, height ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
               }}
             >
-              {Logo ? (
-                <Logo width="100%" height="100%" />
-              ) : (
-                <Image
-                  src={logoSrc as string}
-                  alt={logoAlt ?? title}
-                  fill
-                  sizes="96px"
-                  className="object-contain"
-                  priority
-                />
-              )}
+              <motion.div
+                variants={emblemMoves ? EMBLEM_ENTRANCE : undefined}
+                custom={entranceOrder}
+                style={{ width: "100%", height: "100%" }}
+              >
+                <motion.div
+                  animate={emblemMoves ? { y: isPressed ? -5 : 0, scale: isPressed ? 1.06 : 1 } : undefined}
+                  transition={EMBLEM_PRESS}
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    border: "4px solid #e7eae1",
+                    background: "#e7eae1",
+                    overflow: "hidden",
+                  }}
+                >
+                  {Logo ? (
+                    <Logo width="100%" height="100%" />
+                  ) : (
+                    <Image
+                      src={logoSrc as string}
+                      alt={logoAlt ?? title}
+                      fill
+                      sizes="96px"
+                      className="object-contain"
+                      priority
+                    />
+                  )}
+                </motion.div>
+              </motion.div>
             </div>
           )}
 

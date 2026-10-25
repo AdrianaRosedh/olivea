@@ -2,6 +2,9 @@
 
 /* Short screens (small phones, a phone turned sideways): `short:` utilities. */
 @custom-variant short (@media (max-height: 700px));
+/* The shortest screens (an iPhone SE in Safari): `tiny:` utilities. Declared
+   after `short` so it wins where both match. */
+@custom-variant tiny (@media (max-height: 600px));
 
 /* The page's scroll container is <html>. Scroll-linked effects (framer's
    useScroll with a target) measure against it and need it positioned; only

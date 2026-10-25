@@ -8,6 +8,16 @@ export const HERO = {
   baseGapPx: 20,
 } as const;
 
+/** The phone cards' entrance once the intro clears (HomeClient, InlineEntranceCard). */
+export const CASCADE = {
+  /** Before the first card starts to rise. */
+  delaySec: 0.15,
+  /** Between one card and the next. */
+  staggerSec: 0.12,
+  /** How long after its card an emblem starts to settle. */
+  emblemLagSec: 0.18,
+} as const;
+
 export const TIMING = {
   // The green box and the alebrije shrink together over this time.
   morphSec: 0.75,

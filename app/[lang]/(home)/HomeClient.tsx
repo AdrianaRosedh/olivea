@@ -16,10 +16,9 @@ import InlineEntranceCard from "@components/ui/InlineEntranceCard";
 import { useIsDesktop, useIsMobile } from "@/hooks/useMediaQuery";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useIntroAnimation } from "@/hooks/useIntroAnimation";
-import { HERO, SPLASH, TIMING } from "@/lib/introConstants";
+import { CASCADE, HERO, SPLASH, TIMING } from "@/lib/introConstants";
 import IntroBarFixed from "@/components/intro/IntroBarFixed";
 import AlebrijeDraw from "@/components/animations/AlebrijeDraw";
-import LazyShow from "@/components/ui/LazyShow";
 import { watchLCP } from "@/lib/perf/watchLCP";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
 import HeroMedia, { type VideoConfig } from "./HeroMedia";
@@ -30,7 +29,21 @@ const ALEBRIJE_SRC = "/brand/alebrije-1.svg";
 function makeContainerVariants(reduce: boolean): Variants {
   return reduce
     ? { hidden: {}, show: {} }
-    : { hidden: {}, show: { transition: { delayChildren: 0.3, staggerChildren: 0.2 } } };
+    : {
+        hidden: {},
+        show: { transition: { delayChildren: CASCADE.delaySec, staggerChildren: CASCADE.staggerSec } },
+      };
+}
+
+// The phone cards rise one after another as the intro clears; each one lands
+// over the card above it. Their emblems follow (see InlineEntranceCard).
+function makeCardVariants(reduce: boolean): Variants {
+  return reduce
+    ? { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0 } } }
+    : {
+        hidden: { opacity: 0, y: 28 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.19, 1, 0.22, 1] } },
+      };
 }
 
 function makeItemVariants(reduce: boolean): Variants {
@@ -76,6 +89,7 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
   const reduce = usePrefersReducedMotion();
   const containerVariants = useMemo(() => makeContainerVariants(reduce), [reduce]);
   const itemVariants = useMemo(() => makeItemVariants(reduce), [reduce]);
+  const cardVariants = useMemo(() => makeCardVariants(reduce), [reduce]);
 
   useEffect(() => {
     watchLCP();
@@ -111,17 +125,22 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
     loaderHidden,
   } = useIntroAnimation(stacked);
 
+  // Each card carries the place's own name, so guests learn the houses of
+  // OLIVEA, and a few words saying what kind of place it is. The MICHELIN
+  // honours already sit above the reserve button, so the line describes the
+  // place instead. The names are the same in both languages; only the line is
+  // translated.
   const cards = useMemo(() => {
     return isES
       ? {
-          casa: { title: "Duerme con Nosotros", description: "Despierta en el huerto" },
-          farm: { title: "Cena con Nosotros", description: "Menú de degustación con estrella MICHELIN" },
-          cafe: { title: "Pasa el Día", description: "Café · Brunch · Pádel · Cena · Wine Bar" },
+          casa: { title: "Casa Olivea", description: "Hotel boutique" },
+          farm: { title: "Olivea Farm To Table", description: "Restaurante de alta cocina" },
+          cafe: { title: "Olivea Café Wine Bar", description: "Café · brunch · vino" },
         }
       : {
-          casa: { title: "Stay With Us", description: "Wake up in the garden" },
-          farm: { title: "Dine With Us", description: "MICHELIN-starred tasting menu" },
-          cafe: { title: "Spend the Day", description: "Coffee · Brunch · Pádel · Dinner · Wine Bar" },
+          casa: { title: "Casa Olivea", description: "Boutique Hotel" },
+          farm: { title: "Olivea Farm To Table", description: "Fine Dining Restaurant" },
+          cafe: { title: "Olivea Café Wine Bar", description: "Coffee · Brunch · Wine" },
         };
   }, [isES]);
 
@@ -258,11 +277,14 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
             ref={heroBoxRef}
             // Sized by CSS breakpoints, not JavaScript, so it is right in the
             // server HTML on every screen (a JS-measured height made the page
-            // jump once it started: CLS 0.24 on desktop). Never squeezed by the
-            // cards below it; a floor for short screens.
+            // jump once it started: CLS 0.24 on desktop). On a phone the video
+            // gives way, not the cards: when the three cards and the reserve
+            // bar don't fit, it shrinks (down to a floor) so every card stays
+            // on screen. The cards keep their size; the page scrolls only
+            // below the floor.
             className="
-              relative shrink-0 overflow-hidden shadow-xl mt-0 bg-(--olivea-olive) not-italic
-              w-full rounded-3xl h-[max(29vh,150px)] -mb-2.5 lg:h-full lg:mb-0
+              relative shrink lg:shrink-0 overflow-hidden shadow-xl mt-0 bg-(--olivea-olive) not-italic
+              w-full rounded-3xl h-[max(29vh,150px)] min-h-[130px] tiny:min-h-[110px] -mb-2.5 lg:h-full lg:mb-0
             "
           >
             <HeroMedia
@@ -309,39 +331,34 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
             style={{ paddingTop: stacked ? HERO.overlapPx + extraGap : 0 }}
           >
             <nav aria-label={isES ? "Navegación principal" : "Primary navigation"}>
-              <ul className="space-y-12 pb-30">
+              {/* pb-30 keeps the last card clear of the fixed reserve bar. On
+                  the shortest screens the cards close up and each emblem
+                  rests a little over the card above it. */}
+              <ul className="space-y-12 short:space-y-10 tiny:space-y-5 pb-30">
                 {mobileSections.map((sec, index) => (
-                  <li key={sec.href}>
-                    <LazyShow>
-                      <m.div
-                        variants={itemVariants}
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, amount: 0.2 }}
-                        style={
-                          index === 0
-                            ? {
-                                marginTop: stacked ? -HERO.overlapPx : 0,
-                                position: "relative",
-                                zIndex: 20,
-                              }
-                            : undefined
-                        }
-                      >
-                        <InlineEntranceCard
-                          title={sec.title}
-                          href={sec.href}
-                          sectionKey={sec.sectionKey}
-                          description={sec.description}
-                          logoSrc={sec.logoSrc}
-                          // The emblem is decorative: the title already names the card.
-                          logoAlt=""
-                          size="compact"
-                          className={index === 0 ? "relative z-30" : ""}
-                          onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
-                        />
-                      </m.div>
-                    </LazyShow>
+                  // Each card sits above the one before it, so its emblem
+                  // rests over the card above (never under its shadow). The
+                  // whole list sits above the video (z-10 on the list). The list
+                  // drives the entrance: no animate of the cards' own here, or
+                  // the cascade breaks and plays unseen behind the intro.
+                  <li key={sec.href} className="relative" style={{ zIndex: index + 1 }}>
+                    <m.div
+                      variants={cardVariants}
+                      style={index === 0 && stacked ? { marginTop: -HERO.overlapPx } : undefined}
+                    >
+                      <InlineEntranceCard
+                        title={sec.title}
+                        href={sec.href}
+                        sectionKey={sec.sectionKey}
+                        description={sec.description}
+                        logoSrc={sec.logoSrc}
+                        // The emblem is decorative: the title already names the card.
+                        logoAlt=""
+                        size="compact"
+                        entranceOrder={index}
+                        onActivate={() => sessionStorage.setItem("fromHomePage", "true")}
+                      />
+                    </m.div>
                   </li>
                 ))}
               </ul>
