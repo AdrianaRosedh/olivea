@@ -25,7 +25,16 @@ export default function MenuSection({ data, lang }: SectionProps) {
     text: { en: string; es: string };
   }>;
 
-  const emojiMap: Record<number, string> = { 0: "\u2615", 1: "\uD83C\uDF75", 2: "\uD83C\uDF77" };
+  // Picked by what the card is about, not its position: a card added in the
+  // CMS (the bakery, between coffee and matcha) shifted every emoji along.
+  const emojiFor = (label: { en: string; es: string } | undefined): string => {
+    const l = (label?.en ?? "").toLowerCase();
+    if (l.includes("coffee")) return "\u2615";
+    if (l.includes("bakery")) return "\uD83E\uDD50";
+    if (l.includes("matcha")) return "\uD83C\uDF75";
+    if (l.includes("wine")) return "\uD83C\uDF77";
+    return "";
+  };
 
   useEffect(() => {
     const open = () => {
@@ -125,7 +134,8 @@ export default function MenuSection({ data, lang }: SectionProps) {
 
       {/* INFO CARDS */}
       {infoCards.length > 0 && (
-        <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-3">
+        // Four cards sit 2×2 (3 + 1 left the last one alone on its row).
+        <div className={`mt-8 grid gap-5 md:gap-6 ${infoCards.length === 4 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {infoCards.map((card, i) => (
             <div
               key={i}
@@ -133,7 +143,7 @@ export default function MenuSection({ data, lang }: SectionProps) {
             >
               <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
               <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]">
-                {emojiMap[i] ?? ""} {t(card.label, lang)}
+                {emojiFor(card.label)} {t(card.label, lang)}
               </div>
               <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/85">
                 {t(card.text, lang)}

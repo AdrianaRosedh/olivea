@@ -99,7 +99,11 @@ export default function Reveal({
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (el.getBoundingClientRect().top < window.innerHeight) return;
+    // A block already "waiting" must always be watched again: if this effect
+    // runs a second time (React's development double-run, a remount) after
+    // the page has jumped — the /menu shortcut lands on #menu — the block is
+    // above the screen and would otherwise stay invisible for good.
+    if (el.dataset.revealState !== "waiting" && el.getBoundingClientRect().top < window.innerHeight) return;
 
     el.dataset.revealState = "waiting";
     const threshold = amount === "all" ? 1 : amount === "some" ? 0 : amount;

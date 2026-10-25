@@ -193,11 +193,26 @@ function ServiceCard({
         />
       )}
 
-      <h3 className="font-semibold text-sm italic text-(--olivea-olive) mb-2 relative">
+      {/* The title leads: display serif above a smaller body. It was 14px
+          over 20px body text (the base paragraph rule), so the titles
+          disappeared. Sizes are set here so that rule cannot override them. */}
+      <span aria-hidden className="relative block h-px w-7 bg-(--olivea-olive)/35 mb-3" />
+      <h3
+        className="italic text-(--olivea-olive) mb-2 relative"
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontSize: "clamp(21px, 1.55vw, 24px)",
+          fontWeight: 600,
+          lineHeight: 1.2,
+        }}
+      >
         {item.title}
       </h3>
 
-      <p className="text-sm text-(--olivea-ink) leading-relaxed relative">
+      <p
+        className="text-(--olivea-ink) relative"
+        style={{ fontSize: "16.5px", lineHeight: 1.65 }}
+      >
         {item.text}
       </p>
 

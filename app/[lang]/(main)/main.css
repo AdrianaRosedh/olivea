@@ -32,6 +32,17 @@
     letter-spacing: 0.15px;
   }
 
+  /* The same body face for the running text that isn't a <p>: the house
+     pages' paragraph blocks (Sub → .subsection) and field notes (<aside>).
+     They used to inherit the sans-serif, so a page switched faces from one
+     section to the next. */
+  [data-scope="main"] .subsection,
+  [data-scope="main"] aside {
+    font-family: var(--font-lora), serif;
+    font-weight: 400;
+    letter-spacing: 0.15px;
+  }
+
   [data-scope="main"] .lead {
     font-size: 1.125rem;
     line-height: 1.65;

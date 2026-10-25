@@ -277,8 +277,9 @@ export default function SiteBanner() {
                 </button>
               ) : null}
 
-              {/* Label + pulse dot */}
-              <div className="order-2 shrink-0 flex items-center gap-2">
+              {/* Label + pulse dot. On a phone the label moves above the text
+                  (below), so the message itself gets the row. */}
+              <div className="order-2 shrink-0 hidden md:flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
                 <span className="text-[11px] tracking-[0.22em] uppercase text-(--olivea-olive)">
                   {label}
@@ -286,30 +287,32 @@ export default function SiteBanner() {
               </div>
 
               {/* Animated text reveal */}
-              <motion.p
-                className={[
-                  "order-3 md:order-2",
-                  "min-w-0 flex-1",
-                  "text-[13.5px] md:text-[14px]",
-                  "text-(--olivea-ink)",
-                  "opacity-95",
-                  "line-clamp-2 md:line-clamp-1",
-                ].join(" ")}
+              <motion.div
+                className="order-3 md:order-2 min-w-0 flex-1"
                 variants={textVariants}
                 initial={reduce ? false : "hidden"}
                 animate={reduce ? undefined : "show"}
               >
-                {banner.text}
-              </motion.p>
+                <span className="md:hidden flex items-center gap-1.5 text-[10px] tracking-[0.22em] uppercase text-(--olivea-olive)">
+                  <span className="h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
+                  {label}
+                </span>
+                <p className="text-[13.5px] md:text-[14px] text-(--olivea-ink) opacity-95 line-clamp-2 md:line-clamp-1">
+                  {banner.text}
+                </p>
+              </motion.div>
 
               {/* CTA — the reason the banner exists. Without this the notice was
                   a dead end: text and a dismiss button, nothing to act on. */}
               {banner.ctaHref && banner.ctaLabel ? (
+                // On a phone the button is a round arrow, so the message keeps
+                // the row; its words stay its accessible name.
                 <Link
                   href={banner.ctaHref}
-                  className="order-4 md:order-3 shrink-0 inline-flex items-center gap-1.5 rounded-full bg-(--olivea-olive) px-4 py-2 md:py-1.5 text-[12px] md:text-[12.5px] font-semibold uppercase tracking-[0.12em] text-(--olivea-cream) ring-1 ring-(--olivea-olive)/20 hover:bg-(--olivea-clay) transition-colors"
+                  aria-label={banner.ctaLabel}
+                  className="order-4 md:order-3 shrink-0 inline-flex items-center justify-center gap-1.5 rounded-full bg-(--olivea-olive) h-10 w-10 md:h-auto md:w-auto md:px-4 md:py-1.5 text-[12px] md:text-[12.5px] font-semibold uppercase tracking-[0.12em] text-(--olivea-cream) ring-1 ring-(--olivea-olive)/20 hover:bg-(--olivea-clay) transition-colors"
                 >
-                  {banner.ctaLabel}
+                  <span className="hidden md:inline">{banner.ctaLabel}</span>
                   <span aria-hidden className="translate-y-[0.5px]">
                     →
                   </span>
