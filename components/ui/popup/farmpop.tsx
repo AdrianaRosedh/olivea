@@ -337,7 +337,9 @@ export default function Farmpop({
       onKeyDown={onTabKeyDown}
       className={cn(
         "flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-        isMobile ? "px-4 py-1" : "justify-center px-6"
+        // Desktop: the tabs share the row edge to edge, aligned with the frame.
+        // The vertical padding keeps the focus outline inside the scroll box.
+        isMobile ? "px-4 py-1" : "-my-1 px-6 py-1"
       )}
       style={
         isMobile
@@ -363,7 +365,8 @@ export default function Farmpop({
             tabIndex={active ? 0 : -1}
             onClick={() => switchTab(t.id)}
             className={cn(
-              "relative shrink-0 whitespace-nowrap rounded-full px-4 h-9",
+              "relative shrink-0 whitespace-nowrap rounded-full px-4",
+              isMobile ? "h-9" : "h-10 flex-1",
               "text-[11.5px] font-semibold uppercase tracking-[0.16em] transition-colors duration-200",
               active
                 ? "text-(--olivea-cream)"
