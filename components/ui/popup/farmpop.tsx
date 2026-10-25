@@ -4,21 +4,22 @@
 import React, {
   useEffect,
   useMemo,
+  useRef,
   useState,
   useCallback,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import {
-  AnimatePresence,
-  motion,
-  useDragControls,
-  type Variants,
-  type Transition,
-} from "framer-motion";
+import Image from "next/image";
+import { AnimatePresence, motion, type Transition } from "framer-motion";
 import { X } from "lucide-react";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
+import { HOUSES } from "@/lib/houses";
+import { cn } from "@/lib/utils";
 
 type MenuTab = {
   id: string;
@@ -82,12 +83,22 @@ type FarmpopProps = {
   tabs?: MenuTab[]; // list of tabbed menus
   initialTabId?: string;
   label?: string;
-  title?: string; // desktop title
+  title?: string;
+  /** A short line under the title ("Changes with the harvest"). */
+  subtitle?: string;
+  /** Whose menu it is: its emblem heads the window. */
+  house?: ReservationType;
+  /** Show the house's reserve button inside the window, so a guest who has
+   *  read the menu books without closing it first. */
+  reservable?: boolean;
+  lang?: "es" | "en";
   trigger?: ReactNode;
   triggerClassName?: string;
   autoOpenEvent?: string; // e.g., "olivea:menu:open"
   openDelayMs?: number;
 };
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function Farmpop({
   canvaUrl,
@@ -95,6 +106,10 @@ export default function Farmpop({
   initialTabId,
   label = "Ver menú en vivo",
   title = "Menú en vivo",
+  subtitle,
+  house,
+  reservable = false,
+  lang = "es",
   trigger,
   triggerClassName = "",
   autoOpenEvent = "olivea:menu:open",
@@ -107,11 +122,16 @@ export default function Farmpop({
   // it shows (roseiies counts link visits), and loading menus nobody looked at
   // counted them as seen.
   const [opened, setOpened] = useState<ReadonlySet<string>>(() => new Set());
+  // Tabs whose menu has finished loading: until then the frame shows a quiet
+  // placeholder instead of an empty box.
+  const [loaded, setLoaded] = useState<ReadonlySet<string>>(() => new Set());
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window === "undefined"
       ? false
       : window.matchMedia("(max-width: 767px)").matches
   );
+  const reduce = usePrefersReducedMotion();
+  const { openReservationModal } = useReservation();
 
   // ✅ for portal safety (document only exists client-side)
   const [mounted, setMounted] = useState(false);
@@ -144,13 +164,7 @@ export default function Farmpop({
   });
   const [prevId, setPrevId] = useState<string | null>(null);
 
-  // Fade duration (respects prefers-reduced-motion)
-  const FADE_MS = useMemo(() => {
-    if (typeof window === "undefined") return 0;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ? 0
-      : 220;
-  }, []);
+  const FADE_MS = reduce ? 0 : 220;
 
   // keep activeId valid if tab list changes
   useEffect(() => {
@@ -191,32 +205,39 @@ export default function Farmpop({
   // in view rather than reloading every tab visited before.
   useEffect(() => {
     if (!open) return;
-    return () => setOpened(new Set());
+    return () => {
+      setOpened(new Set());
+      setLoaded(new Set());
+    };
   }, [open]);
 
-  // Close on ESC
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
-
-  // Auto-open when navigating with hash/session flags
+  // Auto-open when arriving from /menu (hash + session flag). The flag is
+  // removed only when the menu actually opens: it used to be removed first, so
+  // a re-render in the short wait (the parent passes a new tab list each
+  // render) cancelled the timer and the retry found no flag. The menu then
+  // silently stayed closed for the guest who asked for it.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const shouldOpen = sessionStorage.getItem("olivea:autoopen-menu") === "1";
-    const atMenuHash = window.location.hash === "#menu";
-    if (shouldOpen && atMenuHash) {
-      sessionStorage.removeItem("olivea:autoopen-menu");
-      const savedTab = sessionStorage.getItem("olivea:autoopen-tab");
-      if (savedTab && tabList.some((t) => t.id === savedTab)) {
-        setActiveId(savedTab);
-      }
-      sessionStorage.removeItem("olivea:autoopen-tab");
-      const t = window.setTimeout(() => setOpen(true), openDelayMs + 150);
-      return () => window.clearTimeout(t);
+    let shouldOpen = false;
+    try {
+      shouldOpen = sessionStorage.getItem("olivea:autoopen-menu") === "1";
+    } catch {
+      return;
     }
+    if (!shouldOpen || window.location.hash !== "#menu") return;
+    const t = window.setTimeout(() => {
+      try {
+        sessionStorage.removeItem("olivea:autoopen-menu");
+        const savedTab = sessionStorage.getItem("olivea:autoopen-tab");
+        sessionStorage.removeItem("olivea:autoopen-tab");
+        if (savedTab && tabList.some((tab) => tab.id === savedTab)) setActiveId(savedTab);
+      } catch {
+        // storage off: open on the default tab
+      }
+      warmEmbedConnections(tabList.map((tab) => tab.url));
+      setOpen(true);
+    }, openDelayMs + 150);
+    return () => window.clearTimeout(t);
   }, [tabList, openDelayMs]);
 
   // Warm the embed + font connections on intent so the custom font is already
@@ -230,6 +251,15 @@ export default function Farmpop({
     setOpen(true);
   }, [warm]);
   const closePopup = useCallback(() => setOpen(false), []);
+
+  // Reserving closes the menu and opens the house's booking in the same
+  // moment: the reservation window sits underneath, so it is already there
+  // as the menu fades away.
+  const reserve = useCallback(() => {
+    if (!house) return;
+    setOpen(false);
+    openReservationModal(house);
+  }, [house, openReservationModal]);
 
   // Gentle switch: prev → active; prev clears on transition end
   const switchTab = useCallback(
@@ -249,299 +279,339 @@ export default function Farmpop({
     setPrevId(null);
   };
 
-  // Motion variants
-  const modalVariants: Variants = {
-    hidden: isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
-    visible: isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 },
-    exit: isMobile ? { y: "-100%", opacity: 0 } : { scale: 0.9, opacity: 0 },
-  };
-  const backdropVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    exit: { opacity: 0 },
-  };
+  // Focus starts on the tab in view and stays inside the window; Escape
+  // closes it and focus returns to the button that opened it.
+  const activeTabRef = useRef<HTMLButtonElement | null>(null);
+  const trapRef = useFocusTrap<HTMLDivElement>({
+    active: open,
+    onEscape: closePopup,
+    initialFocusRef: tabList.length >= 2 ? activeTabRef : undefined,
+  });
 
-  const transition: Transition = isMobile
-    ? { type: "spring", stiffness: 200, damping: 25 }
-    : { duration: 0.35, ease: "easeOut" };
+  // The phone's tab row scrolls sideways: keep the chosen tab in view.
+  const tabRowRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const row = tabRowRef.current;
+    const tab = activeTabRef.current;
+    if (!row || !tab) return;
+    const left = tab.offsetLeft - (row.clientWidth - tab.offsetWidth) / 2;
+    row.scrollTo({ left: Math.max(0, left), behavior: reduce ? "auto" : "smooth" });
+  }, [open, activeId, isMobile, reduce]);
 
-  const contentVariants: Variants = {
-    hidden: isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 },
-    visible: isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 },
-    exit: isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 },
-  };
-  const contentTransition: Transition = isMobile
-    ? { duration: 0 }
-    : { duration: 0.25, ease: "easeOut", delay: 0.06 };
-
-  // Mobile drag
-  const dragControls = useDragControls();
-  const CLOSE_PX = 140;
-  const CLOSE_VELOCITY = -600;
-
-  const mobileDragProps = isMobile
-    ? {
-        drag: "y" as const,
-        dragControls,
-        dragListener: false,
-        dragConstraints: { top: -CLOSE_PX, bottom: 0 },
-        dragElastic: 0,
-        dragMomentum: false,
-        onDragEnd: (
-          _: unknown,
-          info: { offset: { y: number }; velocity: { y: number } }
-        ) => {
-          if (
-            info.offset.y < -(CLOSE_PX * 0.6) ||
-            info.velocity.y < CLOSE_VELOCITY
-          ) {
-            setOpen(false);
-          }
-        },
-      }
-    : {};
-
-  const RailTile = ({ t }: { t: MenuTab }) => {
-    const active = activeId === t.id;
-    return (
-      <button
-        role="tab"
-        aria-selected={active}
-        onClick={() => switchTab(t.id)}
-        className={[
-          "group w-full rounded-xl transition-all text-left",
-          "ring-1 ring-black/10",
-          active
-            ? "bg-(--olivea-olive) text-white shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
-            : "bg-white/55 text-(--olivea-ink)/90 hover:bg-white/70",
-        ].join(" ")}
-        style={{ height: 72 }}
-      >
-        <div className="h-full px-4 flex items-center gap-3">
-          <span
-            className={[
-              "h-10 w-0.75 rounded-full",
-              active ? "bg-white" : "bg-transparent group-hover:bg-black/20",
-            ].join(" ")}
-          />
-          <span className="text-[12.5px] uppercase tracking-[0.18em]">
-            {t.label}
-          </span>
-        </div>
-      </button>
-    );
+  // Arrow keys move between tabs, as in any tab list.
+  const onTabKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const i = tabList.findIndex((t) => t.id === activeId);
+    let next = -1;
+    if (e.key === "ArrowRight") next = (i + 1) % tabList.length;
+    else if (e.key === "ArrowLeft") next = (i - 1 + tabList.length) % tabList.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = tabList.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    switchTab(tabList[next].id);
+    requestAnimationFrame(() => activeTabRef.current?.focus());
   };
 
-  const Chip = ({ t }: { t: MenuTab }) => {
-    const active = activeId === t.id;
-    return (
-      <button
-        data-no-drag="true"
-        role="tab"
-        aria-selected={active}
-        onClick={() => switchTab(t.id)}
-        className={[
-          "shrink-0 inline-flex items-center text-[12px] uppercase tracking-[0.18em] pb-1",
-          active
-            ? "text-(--olivea-olive) border-b-2 border-(--olivea-olive)"
-            : "text-(--olivea-ink)/85 hover:text-(--olivea-olive)",
-        ].join(" ")}
-      >
-        {t.label}
-      </button>
-    );
-  };
-
+  const es = lang === "es";
   const headingId = "farmpop-title";
+  const panelId = "farmpop-panel";
+  const tabDomId = (id: string) => `farmpop-tab-${id}`;
+  const emblem = house ? HOUSES[house].emblem : null;
+  const reserveLabel = house ? HOUSES[house].cue[lang] : "";
+  const activeLoaded = loaded.has(activeId);
+
+  const windowMotion = reduce
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : isMobile
+      ? { initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 28 } }
+      : { initial: { opacity: 0, y: 10, scale: 0.98 }, animate: { opacity: 1, y: 0, scale: 1 }, exit: { opacity: 0, y: 6, scale: 0.985 } };
+  const windowTransition: Transition = { duration: isMobile ? 0.34 : 0.3, ease: EASE };
+
+  const tabRow = tabList.length >= 2 && (
+    <div
+      ref={tabRowRef}
+      role="tablist"
+      aria-orientation="horizontal"
+      aria-label={es ? "Cartas" : "Menus"}
+      onKeyDown={onTabKeyDown}
+      className={cn(
+        "flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        isMobile ? "px-4 py-1" : "justify-center px-6"
+      )}
+      style={
+        isMobile
+          ? {
+              // Soft edges say "there is more this way" without an arrow.
+              maskImage: "linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 24px), transparent)",
+              WebkitMaskImage: "linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 24px), transparent)",
+            }
+          : undefined
+      }
+    >
+      {tabList.map((t) => {
+        const active = t.id === activeId;
+        return (
+          <button
+            key={t.id}
+            ref={active ? activeTabRef : undefined}
+            id={tabDomId(t.id)}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            aria-controls={panelId}
+            tabIndex={active ? 0 : -1}
+            onClick={() => switchTab(t.id)}
+            className={cn(
+              "relative shrink-0 whitespace-nowrap rounded-full px-4 h-9",
+              "text-[11.5px] font-semibold uppercase tracking-[0.16em] transition-colors duration-200",
+              active
+                ? "text-(--olivea-cream)"
+                : "text-(--olivea-olive)/85 ring-1 ring-inset ring-(--olivea-olive)/22 hover:bg-(--olivea-olive)/8"
+            )}
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {active && (
+              <motion.span
+                layoutId="farmpop-tab-pill"
+                aria-hidden="true"
+                className="absolute inset-0 rounded-full bg-(--olivea-olive) shadow-[0_6px_16px_-8px_rgba(40,60,35,0.6)]"
+                transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
+              />
+            )}
+            <span className="relative">{t.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const closeButton = (
+    <button
+      type="button"
+      onClick={closePopup}
+      aria-label={es ? "Cerrar menú" : "Close menu"}
+      className={cn(
+        "grid shrink-0 place-items-center rounded-full text-(--olivea-olive)",
+        "ring-1 ring-inset ring-(--olivea-olive)/22 transition-colors",
+        "hover:bg-(--olivea-olive) hover:text-(--olivea-cream)",
+        isMobile ? "h-10 w-10" : "h-11 w-11"
+      )}
+    >
+      <X size={isMobile ? 18 : 19} strokeWidth={1.6} />
+    </button>
+  );
+
+  const heading = (
+    <div className="flex min-w-0 items-center gap-3">
+      {emblem && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "relative shrink-0 rounded-full bg-white/60 ring-1 ring-(--olivea-olive)/18",
+            isMobile ? "h-10 w-10 p-1.5" : "h-12 w-12 p-2"
+          )}
+        >
+          <span className="relative block h-full w-full">
+            <Image src={emblem} alt="" fill sizes="32px" className="object-contain" />
+          </span>
+        </span>
+      )}
+      <div className="min-w-0">
+        <h2
+          id={headingId}
+          className="truncate uppercase leading-none text-(--olivea-olive)"
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontSize: isMobile ? 19 : 24,
+            fontWeight: 400,
+            letterSpacing: "0.2em",
+          }}
+        >
+          {title}
+        </h2>
+        {subtitle && (
+          <span
+            className="mt-1.5 block truncate text-[10.5px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)/60"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {subtitle}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const reserveButton = reservable && house && (
+    <button
+      type="button"
+      onClick={reserve}
+      className={cn(
+        "group inline-flex shrink-0 items-center justify-center gap-2 rounded-full",
+        "bg-(--olivea-olive) text-(--olivea-cream) transition-colors hover:bg-(--olivea-clay)",
+        "shadow-[0_10px_24px_-14px_rgba(40,60,35,0.7)]",
+        "text-[12px] font-semibold uppercase tracking-[0.18em]",
+        isMobile ? "h-12 w-full" : "h-11 px-6"
+      )}
+      style={{ fontFamily: "var(--font-sans)" }}
+    >
+      {reserveLabel}
+      <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5">
+        →
+      </span>
+    </button>
+  );
+
+  // The menu itself, inside a thin olive frame. A tab's iframe is created the
+  // first time it is shown (see `opened`) and cross-fades with the last one.
+  // The placeholder sits underneath: it shows until the menu paints over it,
+  // and a menu that never reports loading (offline) still shows what it has.
+  const frame = (
+    <div
+      id={panelId}
+      role="tabpanel"
+      aria-labelledby={tabList.length >= 2 ? tabDomId(activeId) : headingId}
+      className={cn(
+        "relative min-h-0 flex-1 overflow-hidden ring-1 ring-(--olivea-olive)/18",
+        "bg-(--olivea-shell) shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]",
+        isMobile ? "mx-3 rounded-[18px]" : "mx-6 rounded-[20px]"
+      )}
+      style={{ contain: "layout paint size", transform: "translateZ(0)" }}
+    >
+      <AnimatePresence>
+        {!activeLoaded && (
+          <motion.div
+            key="placeholder"
+            aria-hidden="true"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 grid place-items-center"
+          >
+            <div className="flex flex-col items-center gap-4">
+              {emblem && (
+                <span className={cn("relative h-14 w-14 opacity-60", !reduce && "animate-pulse")}>
+                  <Image src={emblem} alt="" fill sizes="56px" className="object-contain" />
+                </span>
+              )}
+              <span
+                className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)/55"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {es ? "Cargando la carta" : "Loading the menu"}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {tabList
+        .filter((t) => t.id === activeId || opened.has(t.id))
+        .map((t) => {
+          const isActive = t.id === activeId;
+          const isPrev = t.id === prevId;
+
+          return (
+            <div
+              key={t.id}
+              className="absolute inset-0"
+              style={{
+                opacity: isActive ? 1 : 0,
+                transition: FADE_MS ? `opacity ${FADE_MS}ms cubic-bezier(.22,1,.36,1)` : undefined,
+                willChange: "opacity",
+                pointerEvents: isActive ? "auto" : "none",
+                zIndex: isActive ? 20 : isPrev ? 10 : 0,
+              }}
+              onTransitionEnd={isPrev ? handleFadeOutEnd : undefined}
+              aria-hidden={!isActive}
+            >
+              <iframe
+                src={t.url}
+                title={`${es ? "Carta" : "Menu"}: ${t.label}`}
+                className="absolute inset-0 block h-full w-full"
+                style={{ border: 0 }}
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allow="fullscreen"
+                tabIndex={isActive ? 0 : -1}
+                onLoad={() => setLoaded((prev) => (prev.has(t.id) ? prev : new Set(prev).add(t.id)))}
+              />
+            </div>
+          );
+        })}
+    </div>
+  );
 
   const modal = (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence initial={false}>
       {open && (
         <>
           <motion.div
-            className={`fixed inset-0 z-19990 ${
-              isMobile ? "bg-black/40 backdrop-blur-sm" : "bg-black/40"
-            }`}
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.2 }}
+            key="backdrop"
+            className="fixed inset-0 z-19990 bg-black/45 backdrop-blur-[2px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
             onClick={closePopup}
             aria-hidden
           />
 
-          <motion.div
-            className={`fixed inset-0 z-20000 flex ${
-              isMobile
-                ? "items-start justify-center"
-                : "items-center justify-center p-4"
-            }`}
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={transition}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={headingId}
+          <div
+            key="window"
+            className={cn(
+              "pointer-events-none fixed inset-0 z-20000 flex",
+              isMobile ? "items-stretch" : "items-center justify-center p-4"
+            )}
           >
             <motion.div
-              className={[
+              ref={trapRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={headingId}
+              {...windowMotion}
+              transition={windowTransition}
+              className={cn(
+                "pointer-events-auto flex flex-col bg-(--olivea-cream) text-(--olivea-ink)",
                 isMobile
-                  ? "w-full h-[90dvh] rounded-b-2xl overflow-hidden border-b border-black/10"
-                  : "w-11/12 md:w-3/4 lg:w-2/3 max-w-6xl h-[90vh] rounded-2xl overflow-hidden border border-black/10",
-                "bg-(--olivea-cream)",
-                "shadow-[0_20px_60px_-10px_rgba(0,0,0,0.35)] flex flex-col",
-              ].join(" ")}
-              onClick={(e) => e.stopPropagation()}
-              {...mobileDragProps}
+                  ? "h-dvh w-full"
+                  : "h-[min(92vh,980px)] w-[min(1120px,94vw)] rounded-[28px] ring-1 ring-(--olivea-olive)/15 shadow-[0_40px_90px_-30px_rgba(20,30,15,0.55)]"
+              )}
+              style={
+                isMobile
+                  ? {
+                      paddingTop: "max(env(safe-area-inset-top), 14px)",
+                      paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+                    }
+                  : undefined
+              }
             >
-              <motion.div
-                className="flex h-full w-full flex-col"
-                variants={contentVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={contentTransition}
-              >
-                {!isMobile && (
-                  <div className="relative flex items-center px-6 py-4 shrink-0 border-b border-black/10 bg-(--olivea-cream)">
-                    <h2
-                      id={headingId}
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none uppercase tracking-[0.25em]"
-                      style={{
-                        fontFamily: "var(--font-serif)",
-                        fontSize: 28,
-                        fontWeight: 200,
-                      }}
-                    >
-                      {title}
-                    </h2>
-                    <button
-                      onClick={closePopup}
-                      aria-label="Cerrar"
-                      className="ml-auto p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
-                    >
-                      <X size={20} />
-                    </button>
+              {isMobile ? (
+                <>
+                  <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-3">
+                    {heading}
+                    {closeButton}
                   </div>
-                )}
-
-                <div className="flex-1 min-h-0 flex">
-                  {!isMobile && tabList.length >= 2 && (
-                    <aside
-                      className="hidden md:flex flex-col shrink-0 w-65 bg-(--olivea-cream) border-r border-black/10 px-4 py-4 gap-3"
-                      role="tablist"
-                      aria-orientation="vertical"
-                    >
-                      {tabList.map((t) => (
-                        <RailTile key={t.id} t={t} />
-                      ))}
-                      <div className="flex-1" />
-                    </aside>
-                  )}
-
-                  <div
-                    className="relative flex-1 min-h-0 bg-(--olivea-cream)"
-                    style={{
-                      contain: "layout paint size",
-                      transform: "translateZ(0)",
-                      backfaceVisibility: "hidden",
-                    }}
-                  >
-                    {tabList
-                      .filter((t) => t.id === activeId || opened.has(t.id))
-                      .map((t) => {
-                        const isActive = t.id === activeId;
-                        const isPrev = t.id === prevId;
-
-                        const wrapperStyle: React.CSSProperties = {
-                          opacity: isActive ? 1 : 0,
-                          visibility: "visible",
-                          transition: FADE_MS
-                            ? `opacity ${FADE_MS}ms cubic-bezier(.22,1,.36,1)`
-                            : undefined,
-                          willChange: "opacity",
-                          contain: "layout paint size",
-                          transform: "translateZ(0)",
-                          backfaceVisibility: "hidden",
-                          pointerEvents: isActive ? "auto" : "none",
-                          zIndex: isActive ? 20 : isPrev ? 10 : 0,
-                        };
-
-                        return (
-                          <div
-                            key={t.id}
-                            className="absolute inset-0"
-                            style={wrapperStyle}
-                            onTransitionEnd={
-                              isPrev ? handleFadeOutEnd : undefined
-                            }
-                            aria-hidden={!isActive}
-                          >
-                            <iframe
-                              src={t.url}
-                              title={`Menú: ${t.label}`}
-                              className="absolute inset-0 w-full h-full block"
-                              style={{
-                                border: 0,
-                                transform: "translateZ(0)",
-                                backfaceVisibility: "hidden",
-                              }}
-                              loading="lazy"
-                              referrerPolicy="strict-origin-when-cross-origin"
-                              allow="fullscreen"
-                              tabIndex={isActive ? 0 : -1}
-                            />
-                          </div>
-                        );
-                      })}
-
-                  </div>
-                </div>
-
-                {isMobile && tabList.length >= 2 && (
-                  <div
-                    className="relative flex items-center gap-2 px-2 py-2 shrink-0 cursor-grab active:cursor-grabbing border-t border-black/10 bg-white/45"
-                    style={{ touchAction: "none" }}
-                    onPointerDown={(e: React.PointerEvent<HTMLDivElement>) => {
-                      const el = e.target as HTMLElement;
-                      if (el.closest('[data-no-drag="true"]')) return;
-                      dragControls.start(e.nativeEvent);
-                    }}
-                  >
-                    <button
-                      data-no-drag="true"
-                      onClick={closePopup}
-                      aria-label="Cerrar"
-                      className="p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
-                    >
-                      <X size={18} />
-                    </button>
-
-                    <div
-                      data-no-drag="true"
-                      className="flex-1 overflow-x-auto no-scrollbar"
-                    >
-                      <div
-                        className="flex items-center gap-6 px-2"
-                        role="tablist"
-                        aria-orientation="horizontal"
-                      >
-                        {tabList.map((t) => (
-                          <Chip key={t.id} t={t} />
-                        ))}
-                      </div>
+                  {tabRow && <div className="shrink-0 pb-3">{tabRow}</div>}
+                  {frame}
+                  {reserveButton && <div className="shrink-0 px-3 pt-3">{reserveButton}</div>}
+                </>
+              ) : (
+                <>
+                  <div className="flex shrink-0 items-center justify-between gap-6 px-7 pt-6 pb-5">
+                    {heading}
+                    <div className="flex shrink-0 items-center gap-3">
+                      {reserveButton}
+                      {closeButton}
                     </div>
-
-                    <span className="absolute left-1/2 -translate-x-1/2 -top-2 h-1.5 w-12 rounded-full bg-black/15" />
-                    <span className="w-9" />
                   </div>
-                )}
-              </motion.div>
+                  {tabRow && <div className="shrink-0 pb-4">{tabRow}</div>}
+                  {frame}
+                  <div className="h-6 shrink-0" />
+                </>
+              )}
             </motion.div>
-          </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

@@ -238,6 +238,14 @@ export default function PopupHost() {
     // Extra safeguard: never show on journal pages
     if (pathname?.includes("/journal")) return;
 
+    // A guest who opened the menu link (/menu) came for the menu: no
+    // promotion on top of it, for the rest of that visit.
+    try {
+      if (sessionStorage.getItem("olivea:menu-visit") === "1") return;
+    } catch {
+      // storage off: show as usual
+    }
+
     if (isStampFresh(key, suppressDays)) return;
 
     if (typeof document !== "undefined" && document.visibilityState !== "visible") return;

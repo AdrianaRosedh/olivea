@@ -22,6 +22,9 @@ export default function MenuSection({ data, lang }: SectionProps) {
   const imgAlt = t(data.image?.alt, lang) || "The garden";
   const popupTitle = t(data.popupTitle, lang) || "Live menu";
   const popupLabel = t(data.popupLabel, lang) || "View live menu";
+  // The menu has no fixed length: it follows the harvest.
+  const popupSubtitle =
+    t(data.popupSubtitle, lang) || (lang === "es" ? "Cambia con la cosecha" : "Changes with the harvest");
   const menuTabs = (data.menuTabs ?? []) as Array<{
     id: string;
     label: { en: string; es: string };
@@ -107,6 +110,10 @@ export default function MenuSection({ data, lang }: SectionProps) {
           <Farmpop
             title={popupTitle}
             label={popupLabel}
+            subtitle={popupSubtitle}
+            house="restaurant"
+            reservable
+            lang={lang}
             initialTabId="menu"
             tabs={menuTabs.map((tab) => ({
               id: tab.id,

@@ -110,6 +110,8 @@ export default function MenuSection({ data, lang }: SectionProps) {
               title={t(farmpop.title, lang)}
               label={t(farmpop.label, lang)}
               canvaUrl={farmpop.canvaUrl}
+              house="cafe"
+              lang={lang}
               triggerClassName="
                 js-cafe-menu-trigger
                 rounded-full px-7 md:px-8 py-3 text-[13.5px] tracking-[0.20em] uppercase font-semibold
