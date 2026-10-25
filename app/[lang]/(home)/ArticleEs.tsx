@@ -74,8 +74,8 @@ export default function ArticleEs() {
         <p>
           Café de especialidad, pan de casa y desayuno del huerto de día.
           Cuando la tarde baja, el café se vuelve wine bar, con vinos del Valle
-          de Guadalupe y Baja California y tapas del huerto. También canchas de
-          pádel — un espacio tranquilo y sin prisa para pasar el día en Olivea.
+          de Guadalupe y Baja California y tapas del huerto — un espacio
+          tranquilo y sin prisa para pasar el día en Olivea.
         </p>
         <p>
           <Link href="/es/cafe">Explorar Olivea Café Wine Bar →</Link>

@@ -25,7 +25,7 @@ export default function ArticleEn() {
           <dt>Hours</dt><dd>Daily · 7:30 am – 6:15 pm</dd>
           <dt>Coffee</dt><dd>Sourced in Mexico · crafted with technique</dd>
           <dt>Kitchen</dt><dd>Connected to Farm To Table · shared system</dd>
-          <dt>Rhythm</dt><dd>Breakfast · padel · return to calm</dd>
+          <dt>Rhythm</dt><dd>Coffee · brunch · wine</dd>
         </dl>
 
         <p>Our coffee is sourced exclusively from Mexico. We choose it for balance, clarity, and a finish that stays clean — designed to feel calm and unhurried. Roasting in-house is part of a future phase, introduced once the system is ready.</p>
@@ -57,22 +57,6 @@ export default function ArticleEn() {
         <p>Bread here pairs naturally with slow coffee in the morning, and it carries the same standard that lives throughout Olivea. Fermentation is time intelligence: it extends the season with elegance, preserves peak moments, and keeps the menu continuous — always returning what remains back into the system through compost.</p>
       </section>
 
-      {/* ── Padel ── */}
-      <section id="padel-en" aria-labelledby="padel-heading">
-        <h2 id="padel-heading">Padel as Lifestyle</h2>
-        <p>Olivea is a garden ecosystem, and a full experience includes rhythm. Movement helps the day feel clearer. The café brings you back to calm.</p>
-        <p>Padel here is social and curated: coffee, music, good energy — integrated with the property, carried in the same Olivea tone.</p>
-
-        <h3>Courts</h3>
-        <p>We offer both a doubles court and a singles court. Padel is available to Casa Olivea guests and day visitors by reservation, from 8:00 am until daylight hours.</p>
-        <h3>Rhythm &amp; Energy</h3>
-        <p>The atmosphere stays clean, calm, and fun — our music, our pace, and a smooth flow between play and café.</p>
-        <h3>Rackets &amp; Balls</h3>
-        <p>Rackets are available for rent. Casa Olivea guests enjoy rackets as part of their stay. New balls are available for purchase.</p>
-        <h3>Community &amp; Flow</h3>
-        <p>Tuesdays welcome local hospitality industry friends for free play. Courtside, guests enjoy food and beverages from Olivea Café Wine Bar. Café and padel areas are pet friendly.</p>
-      </section>
-
       {/* ── Menu ── */}
       <section id="menu-info-en" aria-labelledby="menu-heading">
         <h2 id="menu-heading">The Menu</h2>
@@ -100,18 +84,8 @@ export default function ArticleEn() {
         <p>Coffee is sourced exclusively from Mexico, crafted with technique and consistency.</p>
         <h3>Do you serve matcha?</h3>
         <p>Yes — ceremonial matcha, prepared with care. Seasonal syrups and jarabes evolve with the garden.</p>
-        <h3>When are padel courts available?</h3>
-        <p>Courts are available by reservation between 8:00 am and 6:00 pm.</p>
-        <h3>How many courts are available?</h3>
-        <p>One doubles court and one singles court.</p>
-        <h3>What equipment is available?</h3>
-        <p>Rackets are available for rent. Casa Olivea guests enjoy rackets as part of their stay. New balls are available for purchase.</p>
-        <h3>Is there a community padel day?</h3>
-        <p>Tuesdays welcome local hospitality industry friends for free play.</p>
-        <h3>What is the courtside experience like?</h3>
-        <p>Courtside, guests enjoy food and beverages from Olivea Café Wine Bar — coffee, music, and a relaxed flow between play and the table.</p>
         <h3>Are pets welcome?</h3>
-        <p>Yes — café and padel areas are pet friendly.</p>
+        <p>Yes — the café areas are pet friendly.</p>
         <h3>Do you have a wine bar?</h3>
         <p>Yes. As the day softens, the café becomes a wine bar, leading with Valle de Guadalupe and Baja California wines alongside our own house wine and tapas from the garden. Walk in, no reservation needed.</p>
         <h3>Do you offer corkage?</h3>

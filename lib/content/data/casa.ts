@@ -298,8 +298,8 @@ const casa: CasaContent = {
         },
         {
           body: {
-            en: "Your stay includes pool access, paddle courts, and daily housekeeping. Breakfast is available at Olivea Café Wine Bar (not included).",
-            es: "Tu estancia incluye acceso a la alberca, canchas de pádel y servicio de limpieza diario. El desayuno está disponible en Olivea Café Wine Bar (no incluido).",
+            en: "Your stay includes pool access and daily housekeeping. Breakfast is available at Olivea Café Wine Bar (not included).",
+            es: "Tu estancia incluye acceso a la alberca y servicio de limpieza diario. El desayuno está disponible en Olivea Café Wine Bar (no incluido).",
           },
           id: "included",
           title: {
@@ -394,8 +394,8 @@ const casa: CasaContent = {
         {
           id: "conectividad",
           text: {
-            en: "Wi-Fi available across the entire property, including suites, patios, and the paddle court. Outlets are distributed thoughtfully in common and private areas.",
-            es: "Wi-Fi disponible en toda la propiedad, incluyendo habitaciones, patios y la cancha de pádel. Hay enchufes distribuidos de forma práctica en áreas comunes y privadas.",
+            en: "Wi-Fi available across the entire property, including suites and patios. Outlets are distributed thoughtfully in common and private areas.",
+            es: "Wi-Fi disponible en toda la propiedad, incluyendo habitaciones y patios. Hay enchufes distribuidos de forma práctica en áreas comunes y privadas.",
           },
           title: {
             en: "Connectivity",
@@ -506,17 +506,6 @@ const casa: CasaContent = {
           q: {
             en: "Do the rooms have a TV?",
             es: "¿Las habitaciones tienen televisión?",
-          },
-        },
-        {
-          a: {
-            en: "Yes — daylight hours, with reservation.",
-            es: "Sí — los huéspedes pueden usar las canchas durante las horas de luz natural, hasta el atardecer, con reservación.",
-          },
-          id: "faq_a4cfe166fcf1",
-          q: {
-            en: "Can I use the paddle courts?",
-            es: "¿Puedo usar las canchas de pádel?",
           },
         },
         {

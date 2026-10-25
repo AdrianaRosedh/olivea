@@ -37,7 +37,6 @@ const cafe: CafeContent = {
       "Valle de Guadalupe",
       "breakfast",
       "house bread",
-      "padel",
     ],
     ogImage: "/images/seo/cafe-og.jpg",
     title: {
@@ -187,8 +186,8 @@ const cafe: CafeContent = {
             es: "Ritmo",
           },
           value: {
-            en: "Breakfast · padel · return to calm",
-            es: "Desayuno · pádel · volver a la calma",
+            en: "Coffee · brunch · wine",
+            es: "Café · brunch · vino",
           },
         },
       ],
@@ -425,10 +424,10 @@ const cafe: CafeContent = {
         },
         {
           alt: {
-            en: "Padel courts at Olivea",
-            es: "Padel courts at Olivea",
+            en: "Thyme in the Olivea garden",
+            es: "Tomillo en el huerto de Olivea",
           },
-          src: "/images/cafe/padel4.jpg",
+          src: "/images/cafe/garden3.jpg",
         },
       ],
       id: "gallery",
@@ -592,63 +591,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "Courts are available by reservation between 8:00am and 6:00pm.",
-            es: "Las canchas están disponibles con reserva entre 8:00am y 6:00pm.",
-          },
-          id: "faq_207fb1968fe1",
-          q: {
-            en: "When are padel courts available?",
-            es: "¿En qué horarios están disponibles las canchas de pádel?",
-          },
-        },
-        {
-          a: {
-            en: "One doubles court and one singles court.",
-            es: "Una cancha de dobles y una cancha de singles.",
-          },
-          id: "faq_9ea67fbd3a5c",
-          q: {
-            en: "How many courts are available?",
-            es: "¿Cuántas canchas tienen?",
-          },
-        },
-        {
-          a: {
-            en: "Rackets are available for rent. Casa Olivea guests enjoy rackets as part of their stay. New balls are available for purchase.",
-            es: "Las palas están disponibles en renta. Los huéspedes de Casa Olivea disfrutan palas como parte de su estancia. Las pelotas nuevas están disponibles para compra.",
-          },
-          id: "faq_a87a8b9b337b",
-          q: {
-            en: "What equipment is available?",
-            es: "¿Qué equipo está disponible?",
-          },
-        },
-        {
-          a: {
-            en: "Tuesdays welcome local hospitality industry friends for free play.",
-            es: "Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo.",
-          },
-          id: "faq_6fa28b3ec68f",
-          q: {
-            en: "Is there a community padel day?",
-            es: "¿Tienen algún día comunitario de pádel?",
-          },
-        },
-        {
-          a: {
-            en: "Courtside, guests enjoy food and beverages from Olivea Café Wine Bar — coffee, music, and a relaxed flow between play and the table.",
-            es: "Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café Wine Bar — café, música y un flujo relajado entre el juego y la mesa.",
-          },
-          id: "faq_6e2b07891553",
-          q: {
-            en: "What is the courtside experience like?",
-            es: "¿Cómo se vive la experiencia alrededor de las canchas?",
-          },
-        },
-        {
-          a: {
-            en: "Yes — café and padel areas are pet friendly.",
-            es: "Sí — las áreas de café y pádel son pet friendly.",
+            en: "Yes — the café areas are pet friendly.",
+            es: "Sí — las áreas del café son pet friendly.",
           },
           id: "faq_a25804441de4",
           q: {

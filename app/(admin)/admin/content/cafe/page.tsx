@@ -49,7 +49,6 @@ const mdxSections = [
   { name: "Experience",  file: "experiencia.es.mdx / experience.en.mdx" },
   { name: "Breakfast",   file: "desayuno.es.mdx / breakfast.en.mdx" },
   { name: "Bread",       file: "pan.es.mdx / bread.en.mdx" },
-  { name: "Padel",       file: "padel.es.mdx / padel.en.mdx" },
   { name: "Gallery",     file: "galeria.es.mdx / gallery.en.mdx" },
   { name: "Menu",        file: "menu.es.mdx / menu.en.mdx" },
   { name: "FAQ",         file: "faq.es.mdx / faq.en.mdx" },

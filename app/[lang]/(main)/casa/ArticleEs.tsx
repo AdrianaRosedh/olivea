@@ -54,7 +54,7 @@ export default function ArticleEs() {
       <section aria-labelledby="servicios-heading">
         <h2 id="servicios-heading">Lo esencial, elegido con cuidado</h2>
         <h3>Conectividad</h3>
-        <p>Wi-Fi disponible en toda la propiedad, incluyendo habitaciones, patios y la cancha de pádel. Los enchufes están ubicados con cuidado en espacios compartidos y privados.</p>
+        <p>Wi-Fi disponible en toda la propiedad, incluyendo habitaciones y patios. Los enchufes están ubicados con cuidado en espacios compartidos y privados.</p>
         <h3>Confort</h3>
         <p>Cortinas blackout, ventilación natural y control de temperatura — cada detalle pensado para proteger tu descanso.</p>
         <h3>Detalles de habitación</h3>
@@ -73,7 +73,7 @@ export default function ArticleEs() {
         <h3>Check-In / Check-Out</h3>
         <p>Check-in desde las 3:00 pm. Check-out a las 11:00 am.</p>
         <h3>Inclusiones</h3>
-        <p>Canchas de pádel, acceso a la alberca y limpieza diaria forman parte de la estancia. El desayuno está disponible en Olivea Café Wine Bar (no incluido).</p>
+        <p>El acceso a la alberca y la limpieza diaria forman parte de la estancia. El desayuno está disponible en Olivea Café Wine Bar (no incluido).</p>
         <h3>Cómo llegar</h3>
         <p>No ofrecemos servicio de transporte al aeropuerto, pero con gusto coordinamos con conductores locales de confianza o te ayudamos a organizar el traslado.</p>
         <h3>Conserjería</h3>
@@ -89,8 +89,6 @@ export default function ArticleEs() {
         <p>Casa Olivea es solo para adultos (18+). Los perros son bienvenidos en áreas designadas.</p>
         <h3>¿Las habitaciones tienen televisión?</h3>
         <p>No, y es intencional. Las suites no tienen televisión. Casa Olivea está pensada para desconectar: mañanas sin prisa, sobremesas largas, el silencio del huerto y el cielo nocturno del Valle de Guadalupe. Preferimos darte espacio para estar presente, no una pantalla para llenarlo.</p>
-        <h3>¿Puedo usar las canchas de pádel?</h3>
-        <p>Sí — los huéspedes pueden usar las canchas durante horas de luz, hasta el atardecer, con reservación.</p>
         <h3>¿Ofrecen transporte al aeropuerto?</h3>
         <p>Podemos coordinar conductores locales de confianza bajo solicitud.</p>
         <h3>¿Son parte de la Guía Michelin?</h3>

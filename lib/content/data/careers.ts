@@ -161,7 +161,7 @@ const careers: CareersContent = {
       chips: ["Front Desk", "Housekeeping", "Concierge"],
     },
     {
-      title: { es: "Café / Padel", en: "Café / Padel" },
+      title: { es: "Café Wine Bar", en: "Café Wine Bar" },
       description: {
         es: "Claridad y ritmo: café, desayunos, tardes ligeras y servicio ágil.",
         en: "Clarity and rhythm: coffee, breakfasts, light afternoons, agile service.",

@@ -73,8 +73,8 @@ export default function ArticleEn() {
         <p>
           Specialty coffee, house bread, and garden breakfast by day. As the
           afternoon softens, the café becomes a wine bar, pouring Valle de
-          Guadalupe and Baja California wine alongside tapas from the garden.
-          Pádel courts too — a calm, unhurried space to spend the day at Olivea.
+          Guadalupe and Baja California wine alongside tapas from the garden —
+          a calm, unhurried space to spend the day at Olivea.
         </p>
         <p>
           <Link href="/en/cafe">Explore Olivea Café Wine Bar →</Link>

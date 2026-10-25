@@ -20,7 +20,7 @@ export const CAREER_AREAS = [
   { value: "boh", es: "BOH / Cocina", en: "BOH / Kitchen" },
   { value: "garden", es: "Huerto / Grounds", en: "Garden / Grounds" },
   { value: "hotel", es: "Hotel / Casa Olivea", en: "Hotel / Casa Olivea" },
-  { value: "cafe", es: "Café / Padel", en: "Café / Padel" },
+  { value: "cafe", es: "Café Wine Bar", en: "Café Wine Bar" },
   // Added because HR was already posting under it. It was the value that
   // exposed the mismatch in the first place.
   { value: "marketing", es: "Marketing", en: "Marketing" },

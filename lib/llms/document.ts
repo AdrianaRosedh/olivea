@@ -161,7 +161,7 @@ const PAGES = [
   ["Homepage", "", "farm hospitality overview"],
   ["Olivea Farm To Table — Restaurant", "/farmtotable", "MICHELIN-starred tasting-menu restaurant"],
   ["Casa Olivea — Farm Stay", "/casa", "boutique farm stay in the garden"],
-  ["Olivea Café Wine Bar", "/cafe", "specialty coffee, house bread, breakfast, wine, pádel"],
+  ["Olivea Café Wine Bar", "/cafe", "specialty coffee, house bread, breakfast, wine"],
   ["Menu", "/menu", "which menus exist, tasting vs casual, pairings, vegetarian"],
   [
     "Philosophy & Sustainability",

@@ -54,7 +54,7 @@ export default function ArticleEn() {
       <section aria-labelledby="services-heading">
         <h2 id="services-heading">Essentials, Thoughtfully Chosen</h2>
         <h3>Connectivity</h3>
-        <p>Wi-Fi is available throughout the property, including all rooms, patios, and the paddle court. Electrical outlets are thoughtfully placed across shared and private spaces.</p>
+        <p>Wi-Fi is available throughout the property, including all rooms and patios. Electrical outlets are thoughtfully placed across shared and private spaces.</p>
         <h3>Comfort</h3>
         <p>Blackout curtains, natural airflow, and climate control — every detail designed to protect your rest.</p>
         <h3>Room Details</h3>
@@ -73,7 +73,7 @@ export default function ArticleEn() {
         <h3>Check-In / Check-Out</h3>
         <p>Check-in from 3:00 pm. Check-out by 11:00 am.</p>
         <h3>Inclusions</h3>
-        <p>Paddle courts, pool access, and daily housekeeping are part of your stay. Breakfast is available at Olivea Café Wine Bar (not included).</p>
+        <p>Pool access and daily housekeeping are part of your stay. Breakfast is available at Olivea Café Wine Bar (not included).</p>
         <h3>Getting Here</h3>
         <p>We don't offer airport pickup, but we're happy to coordinate with trusted local drivers or help you arrange transport.</p>
         <h3>Concierge</h3>
@@ -89,8 +89,6 @@ export default function ArticleEn() {
         <p>Casa Olivea is adults-only (18+). Dogs are welcomed in designated areas.</p>
         <h3>Do the rooms have a TV?</h3>
         <p>No, and it's deliberate. There are no televisions in the suites. Casa Olivea is made for disconnecting: slow mornings, long dinners, the quiet of the garden, and the night sky over Valle de Guadalupe. We'd rather give you room to be present than a screen to fill it.</p>
-        <h3>Can I use the paddle courts?</h3>
-        <p>Yes — guests may use the paddle courts during daylight hours, until sunset, with reservation.</p>
         <h3>Do you offer airport pickup?</h3>
         <p>We can coordinate trusted local drivers upon request.</p>
         <h3>Are you part of the Michelin Guide?</h3>

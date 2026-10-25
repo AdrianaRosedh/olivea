@@ -35,16 +35,6 @@ export const SECTIONS_CAFE_ES: NavSection[] = [
     ],
   },
   {
-    id: "padel",
-    title: "Pádel",
-    subs: [
-      { id: "canchas", title: "Canchas" },
-      { id: "luz", title: "Luz" },
-      { id: "juego", title: "Juego" },
-      { id: "vida", title: "Vida" },
-    ],
-  },
-  {
     id: "gallery",
     title: "Galería",
     subs: [],

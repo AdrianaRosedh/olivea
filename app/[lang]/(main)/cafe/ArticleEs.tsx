@@ -25,7 +25,7 @@ export default function ArticleEs() {
           <dt>Horario</dt><dd>Diario · 7:30 am – 6:15 pm</dd>
           <dt>Café</dt><dd>Origen México · técnica cuidada</dd>
           <dt>Cocina</dt><dd>Conectada a Farm To Table · sistema compartido</dd>
-          <dt>Ritmo</dt><dd>Desayuno · pádel · volver a la calma</dd>
+          <dt>Ritmo</dt><dd>Café · brunch · vino</dd>
         </dl>
 
         <p>Nuestro café proviene exclusivamente de México. Lo elegimos por balance, claridad y un final limpio — diseñado para sentirse sereno y sin prisa. El tueste en casa vive como una fase futura, incorporada cuando el sistema esté listo.</p>
@@ -57,21 +57,6 @@ export default function ArticleEs() {
         <p>El pan acompaña naturalmente el café lento de la mañana y sostiene el mismo estándar que vive en todo Olivea. La fermentación es inteligencia del tiempo: extiende la temporada con elegancia, preserva momentos en su punto, y mantiene continuidad — integrando lo que queda al ciclo del sistema a través de la composta.</p>
       </section>
 
-      {/* ── Pádel ── */}
-      <section id="padel-es" aria-labelledby="padel-heading-es">
-        <h2 id="padel-heading-es">Pádel como estilo de vida</h2>
-        <p>Olivea es un ecosistema del huerto, y una experiencia completa incluye ritmo. El movimiento le da claridad al día. El café te regresa a la calma.</p>
-        <p>El pádel aquí es social y curado: café, música, buena energía — integrado a la propiedad y vivido en el mismo tono Olivea.</p>
-        <h3>Canchas</h3>
-        <p>Contamos con una cancha de dobles y una de singles. El pádel está disponible para huéspedes de Casa Olivea y visitantes del día, previa reservación, de 8:00 a.m. hasta el atardecer.</p>
-        <h3>Ritmo y energía</h3>
-        <p>La atmósfera se mantiene limpia, calmada y divertida — nuestra música, nuestro ritmo, y una transición natural entre juego y café.</p>
-        <h3>Palas y pelotas</h3>
-        <p>Las palas están disponibles en renta. Los huéspedes de Casa Olivea disfrutan palas como parte de su estancia. Las pelotas nuevas están disponibles para compra.</p>
-        <h3>Comunidad y flujo</h3>
-        <p>Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo. Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café Wine Bar. Las áreas de café y pádel son pet friendly.</p>
-      </section>
-
       {/* ── Menú ── */}
       <section id="menu-info-es" aria-labelledby="menu-heading-es">
         <h2 id="menu-heading-es">El menú</h2>
@@ -99,18 +84,8 @@ export default function ArticleEs() {
         <p>El café proviene exclusivamente de México, trabajado con técnica y constancia.</p>
         <h3>¿Sirven matcha?</h3>
         <p>Sí — matcha ceremonial, preparado con cuidado. Los jarabes estacionales evolucionan con el huerto.</p>
-        <h3>¿En qué horarios están disponibles las canchas de pádel?</h3>
-        <p>Las canchas están disponibles con reserva entre 8:00 am y 6:00 pm.</p>
-        <h3>¿Cuántas canchas tienen?</h3>
-        <p>Una cancha de dobles y una cancha de singles.</p>
-        <h3>¿Qué equipo está disponible?</h3>
-        <p>Las palas están disponibles en renta. Los huéspedes de Casa Olivea disfrutan palas como parte de su estancia. Las pelotas nuevas están disponibles para compra.</p>
-        <h3>¿Tienen algún día comunitario de pádel?</h3>
-        <p>Los martes reciben a amigos de la industria local de hospitalidad para juego sin costo.</p>
-        <h3>¿Cómo se vive la experiencia alrededor de las canchas?</h3>
-        <p>Alrededor de las canchas, se disfruta comida y bebidas de Olivea Café Wine Bar — café, música y un flujo relajado entre el juego y la mesa.</p>
         <h3>¿Las mascotas son bienvenidas?</h3>
-        <p>Sí — las áreas de café y pádel son pet friendly.</p>
+        <p>Sí — las áreas del café son pet friendly.</p>
         <h3>¿Tienen wine bar?</h3>
         <p>Sí. Cuando el día baja, el café se vuelve wine bar, con Valle de Guadalupe y Baja California a la cabeza, nuestro vino de la casa y tapas del huerto. Sin reservación: llega directo.</p>
         <h3>¿Ofrecen descorche?</h3>
