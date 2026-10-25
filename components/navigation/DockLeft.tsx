@@ -410,6 +410,18 @@ function CompactDock({
 }) {
   const left = getDockLeftX("compact");
 
+  // The compact rail has no room of its own for names, so a chapter's name
+  // floats beside it. Kept on screen it sat over the hero and the text, so
+  // it now announces the chapter when it changes and steps away; hover or
+  // keyboard focus brings it back. The rail still marks the current chapter.
+  const [announcedId, setAnnouncedId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!activeSection) return;
+    setAnnouncedId(activeSection);
+    const t = window.setTimeout(() => setAnnouncedId(null), 1800);
+    return () => window.clearTimeout(t);
+  }, [activeSection]);
+
   return (
     <nav
       className="fixed z-40 pointer-events-auto"
@@ -442,6 +454,8 @@ function CompactDock({
                   onClick={(e) => onNavigate(e, item.id)}
                   onFocus={() => onHover(item.id)}
                   onBlur={() => onHover(null)}
+                  onMouseEnter={() => onHover(item.id)}
+                  onMouseLeave={() => onHover(null)}
                   className={cn(
                     "relative flex items-center justify-center rounded-xl outline-none transition",
                     "min-h-(--tap)",
@@ -478,7 +492,7 @@ function CompactDock({
 
                 {/* Active / hovered label pill */}
                 <AnimatePresence initial={false}>
-                  {(isActive || hoveredId === item.id) && (
+                  {(announcedId === item.id || hoveredId === item.id) && (
                     <motion.div
                       initial={{ opacity: 0, x: -6, scale: 0.98 }}
                       animate={{ opacity: 1, x: 0, scale: 1 }}

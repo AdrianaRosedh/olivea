@@ -43,6 +43,7 @@ function orbDims(vw: number) {
 const ORB_TOP_MARGIN = 64; // keep clear of the header
 const ORB_BOTTOM_MARGIN = 28; // keep clear of the bottom
 const ORB_BANNER_GAP = 12; // breathing room above the site banner when present
+const ORB_DOCK_GAP = 12; // breathing room from the right-hand quick-nav dock
 const ORB_STORAGE_KEY = "olivea:livegarden:orb:v1";
 
 type OrbSide = "left" | "right";
@@ -213,6 +214,13 @@ export default function LiveGarden() {
   const bannerClearanceRef = useRef(0);
   const [bannerClearance, setBannerClearance] = useState(0);
 
+  // The right-hand quick-nav dock (DockRight, `[data-dock-right]`) shares the
+  // orb's edge, centred vertically; on a short screen its icons reach up to
+  // where the orb rests. Its vertical band, measured like the banner, keeps
+  // the orb above it (or below it when there is no room above).
+  const dockBandRef = useRef<{ top: number; bottom: number } | null>(null);
+  const [dockBandKey, setDockBandKey] = useState("");
+
   const placeOrb = useCallback(
     (s: OrbSide, yy: number, withAnim: boolean) => {
       if (typeof window === "undefined") return;
@@ -220,9 +228,14 @@ export default function LiveGarden() {
       const vh = window.innerHeight;
       const { size, edge } = orbDims(vw);
       const targetX = s === "right" ? vw - size - edge : edge;
-      orbY.set(
-        clampN(yy, ORB_TOP_MARGIN, vh - size - ORB_BOTTOM_MARGIN - bannerClearanceRef.current),
-      );
+      const maxY = vh - size - ORB_BOTTOM_MARGIN - bannerClearanceRef.current;
+      let y = clampN(yy, ORB_TOP_MARGIN, maxY);
+      const band = s === "right" ? dockBandRef.current : null;
+      if (band && y + size > band.top - ORB_DOCK_GAP && y < band.bottom + ORB_DOCK_GAP) {
+        const above = band.top - ORB_DOCK_GAP - size;
+        y = above >= ORB_TOP_MARGIN ? above : Math.min(band.bottom + ORB_DOCK_GAP, maxY);
+      }
+      orbY.set(y);
       if (withAnim && !prefersReduced) {
         animate(orbX, targetX, {
           type: "spring",
@@ -293,6 +306,11 @@ export default function LiveGarden() {
       }
       bannerClearanceRef.current = clearance;
       setBannerClearance(clearance);
+
+      const dock = document.querySelector<HTMLElement>("[data-dock-right]");
+      const d = dock?.getBoundingClientRect();
+      dockBandRef.current = d && d.height > 0 ? { top: d.top, bottom: d.bottom } : null;
+      setDockBandKey(d && d.height > 0 ? `${Math.round(d.top)}:${Math.round(d.bottom)}` : "");
     };
     // A beat after DOM changes so the banner's slide-in has settled its rect.
     const measureSoon = () => window.setTimeout(measure, 60);
@@ -308,13 +326,14 @@ export default function LiveGarden() {
     };
   }, []);
 
-  // When the clearance changes (banner arrives), re-clamp the orb — it moves up
-  // only if it was resting over the banner; an orb already above stays put.
+  // When the clearance or the dock changes (banner arrives, dock appears),
+  // re-clamp the orb — it moves only if it was resting over one of them; an
+  // orb already clear stays put.
   useEffect(() => {
     if (!orbReady) return;
     placeOrb(orbSide, orbY.get(), true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bannerClearance, orbReady]);
+  }, [bannerClearance, dockBandKey, orbReady]);
 
   const handleOrbDragStart = useCallback(() => {
     orbMovedRef.current = true;

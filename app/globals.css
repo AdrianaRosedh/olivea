@@ -208,6 +208,20 @@ html { position: relative; }
   }
 }
 
+/* …except where DockRight does show in that band (its own conditions, in
+   DockRight.useDockRightMode): from 960px with a mouse or trackpad, or in
+   landscape. Reserve its 56px icon column so it never sits on the hero. */
+@media (min-width: 960px) and (max-width: 1024px) and (pointer: fine) and (hover: hover) {
+  :root {
+    --dock-right: 56px;
+  }
+}
+@media (min-width: 960px) and (max-width: 1024px) and (orientation: landscape) {
+  :root {
+    --dock-right: 56px;
+  }
+}
+
 /* Tablet portrait: treat as mobile+ (no docks) */
 @media (max-width: 900px) and (orientation: portrait) {
   :root {
@@ -215,6 +229,25 @@ html { position: relative; }
     --dock-right: 0px;
     --content-max: 860px;
   }
+}
+
+/* Below 960px the site switches to the phone navigation, in any
+   orientation (LayoutShell, useContainerMobileLike): there is no chapter
+   rail and no right dock, so nothing may be reserved for them. Without
+   this a landscape window of 768–960px hid the docks but still reserved
+   their width, and the hero sat pushed right of an empty band.
+   data-layout (set by LayoutShell from the same decision) covers the few
+   pixels where the shell, measured without a classic scrollbar, and this
+   media query disagree. */
+@media (max-width: 959.98px) {
+  :root {
+    --dock-left: 0px;
+    --dock-right: 0px;
+  }
+}
+:root[data-layout="mobile"] {
+  --dock-left: 0px;
+  --dock-right: 0px;
 }
 
 /* Very wide screens */
@@ -344,6 +377,16 @@ html { position: relative; }
   .hero-pill {
     width: calc(100vw - (var(--gutter) * 2));
   }
+}
+
+/* Phone navigation below 960px (see the dock rule above): full width. */
+@media (max-width: 959.98px) {
+  .hero-pill {
+    width: calc(100vw - (var(--gutter) * 2));
+  }
+}
+:root[data-layout="mobile"] .hero-pill {
+  width: calc(100vw - (var(--gutter) * 2));
 }
 
 /* ───────────────────────────────────────────────────────────── */

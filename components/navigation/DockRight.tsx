@@ -35,7 +35,11 @@ function useDockRightMode(): DockMode {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const mqDesktop = window.matchMedia("(min-width: 1025px)");
+    // From 960px the shell shows the desktop layout (LayoutShell), so a mouse
+    // or trackpad gets the desktop dock there too; it was 1025px, which put
+    // always-on labels over the hero in a 960–1024px laptop window.
+    // globals.css reserves its width under the same conditions.
+    const mqDesktop = window.matchMedia("(min-width: 960px)");
     const mqFine = window.matchMedia("(pointer: fine)");
     const mqHover = window.matchMedia("(hover: hover)");
 
@@ -133,6 +137,8 @@ export default function DockRight({ items }: DockRightProps) {
       )}
       style={{ right }}
       aria-label="Quick navigation"
+      // LiveGarden reads this to keep its orb clear of the dock.
+      data-dock-right=""
     >
       {items.map((item) => {
         const active =

@@ -200,6 +200,12 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
 
   const isMobileLike = isMobile || isContainerNarrow;
 
+  // Tell the CSS which layout the shell chose, so dock reservations
+  // (--dock-left / --dock-right in globals.css) follow this exact decision.
+  useEffect(() => {
+    document.documentElement.dataset.layout = isMobileLike ? "mobile" : "desktop";
+  }, [isMobileLike]);
+
   // Spanish at `/`, English at `/en`
   const pathLang: Lang = pathname?.startsWith("/en") ? "en" : "es";
 
