@@ -44,9 +44,38 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 /** Remembers the desktop full-screen choice across sessions. */
 const FULLSCREEN_KEY = "olivea:reservation-fullscreen";
 
-/** Desktop: the booking engines sit in a rounded frame inside the window. */
+/** Desktop: the booking engines sit in the window's double olive frame, the
+ *  same fine rule as the house chooser: a hairline, a narrow cream margin,
+ *  then the engine with its own rounded corners. */
 const ENGINE_FRAME =
-  "md:mx-6 md:mb-6 md:rounded-2xl md:overflow-hidden md:ring-1 md:ring-black/5 md:shadow-[0_8px_30px_rgba(0,0,0,0.06)]";
+  "md:mx-6 md:mb-6 md:rounded-[24px] md:border md:border-(--olivea-olive)/30 md:p-1.5 md:[&>*]:rounded-[18px] md:[&>*]:overflow-hidden";
+
+/* ── Shared ornaments ────────────────────────────────────────────── */
+
+/** Two fine rules and a turned square: the window's divider. */
+function Ornament({ className = "" }: { className?: string }) {
+  return (
+    <div aria-hidden="true" className={`flex items-center justify-center gap-2.5 text-(--olivea-olive)/45 ${className}`}>
+      <span className="h-px w-10 bg-current" />
+      <span className="h-1.5 w-1.5 rotate-45 border border-current" />
+      <span className="h-px w-10 bg-current" />
+    </div>
+  );
+}
+
+/** The signature at the foot of the window's invitations. */
+function Signature({ className = "" }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive)/55 ${className}`}
+    >
+      <span className="h-px w-8 bg-current opacity-60" />
+      Valle de Guadalupe
+      <span className="h-px w-8 bg-current opacity-60" />
+    </div>
+  );
+}
 
 /** The café's opening hours, from the site settings (admin → Horarios). */
 export type CafeHours = Pick<BusinessHours, "schedule" | "slots">;
@@ -266,57 +295,70 @@ function CafePane({ lang, cafeHours }: { lang: "es" | "en"; cafeHours?: CafeHour
   const onCafePage = pathname === cafeHref || (lang === "es" && pathname === "/cafe");
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-10">
-      <div className="mx-auto flex min-h-full max-w-md flex-col items-center justify-center text-center">
-        <span className="relative h-20 w-20 overflow-hidden rounded-full border-4 border-[#e7eae1] bg-[#e7eae1] shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-          <Image src={house.emblem} alt="" fill sizes="80px" className="object-contain" />
-        </span>
-        <h3
-          className="mt-4 text-(--olivea-olive)"
-          style={{ fontFamily: "var(--font-serif)", fontSize: 27, fontWeight: 600, lineHeight: 1.15 }}
-        >
-          {house.name}
-        </h3>
-        <p className="italic text-(--olivea-olive)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}>
-          {house.descriptor[lang]}
-        </p>
+    <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-12 pb-8">
+      <div className="mx-auto flex min-h-full w-full max-w-md flex-col items-center justify-center gap-6 text-center">
+        {/* The invitation in the chooser's double olive frame, the emblem set
+            into its top edge like a seal. */}
+        <div className="relative w-full rounded-[28px] border border-(--olivea-olive)/45 px-7 pt-14 pb-8">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-1.25 rounded-[23px] border border-(--olivea-olive)/18"
+          />
+          <span className="absolute left-1/2 top-0 h-18 w-18 -translate-x-1/2 -translate-y-1/2 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-2.5">
+            <span className="relative block h-full w-full">
+              <Image src={house.emblem} alt="" fill sizes="52px" className="object-contain" />
+            </span>
+          </span>
 
-        <span aria-hidden className="my-7 h-px w-14 bg-(--olivea-olive)/25" />
-
-        <p className="text-(--olivea-ink)" style={{ fontFamily: "var(--font-serif)", fontSize: 21, lineHeight: 1.3 }}>
-          {lang === "es" ? "Por ahora no necesitas reservar." : "For now, there’s no need to reserve."}
-        </p>
-        <p className="mt-1 italic text-(--olivea-ink)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 17 }}>
-          {lang === "es" ? "Ven cuando quieras; te esperamos." : "Come whenever you like; we’ll be waiting."}
-        </p>
-
-        {lines.length > 0 && (
-          <div className="mt-8 w-full rounded-2xl bg-[#e7eae1] px-6 py-5 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-(--olivea-olive)">
-              {lang === "es" ? "Horario" : "Hours"}
-            </p>
-            {lines.map((line) => (
-              <p
-                key={line}
-                className="mt-1.5 text-(--olivea-ink)"
-                style={{ fontFamily: "var(--font-serif)", fontSize: 18 }}
-              >
-                {line}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {!onCafePage && (
-          <Link
-            href={cafeHref}
-            onClick={closeReservationModal}
-            className="mt-7 inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/35 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-(--olivea-olive) transition-colors hover:bg-(--olivea-olive) hover:text-(--olivea-cream)"
+          <h3
+            className="relative text-(--olivea-olive)"
+            style={{ fontFamily: "var(--font-serif)", fontSize: 27, fontWeight: 600, lineHeight: 1.15 }}
           >
-            {lang === "es" ? "Conoce el café" : "Discover the café"}
-            <ArrowRight size={14} />
-          </Link>
-        )}
+            {house.name}
+          </h3>
+          <p className="relative italic text-(--olivea-olive)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}>
+            {house.descriptor[lang]}
+          </p>
+
+          <Ornament className="relative my-6" />
+
+          <p className="relative text-(--olivea-ink)" style={{ fontFamily: "var(--font-serif)", fontSize: 21, lineHeight: 1.3 }}>
+            {lang === "es" ? "Por ahora no necesitas reservar." : "For now, there’s no need to reserve."}
+          </p>
+          <p className="relative mt-1 italic text-(--olivea-ink)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 17 }}>
+            {lang === "es" ? "Ven cuando quieras; te esperamos." : "Come whenever you like; we’ll be waiting."}
+          </p>
+
+          {lines.length > 0 && (
+            <div className="relative mt-7 rounded-[18px] border border-(--olivea-olive)/25 px-6 py-4">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-(--olivea-olive)">
+                {lang === "es" ? "Horario" : "Hours"}
+              </p>
+              {lines.map((line) => (
+                <p
+                  key={line}
+                  className="mt-1.5 text-(--olivea-ink)"
+                  style={{ fontFamily: "var(--font-serif)", fontSize: 18 }}
+                >
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {!onCafePage && (
+            <Link
+              href={cafeHref}
+              onClick={closeReservationModal}
+              className="relative mt-7 inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/45 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive) transition-colors hover:bg-(--olivea-olive) hover:text-(--olivea-cream)"
+            >
+              {lang === "es" ? "Conoce el café" : "Discover the café"}
+              <ArrowRight size={14} />
+            </Link>
+          )}
+        </div>
+
+        <Signature />
       </div>
     </div>
   );
@@ -487,11 +529,7 @@ function HouseChoice({
         >
           {lang === "es" ? "¿Dónde te esperamos?" : "Where shall we welcome you?"}
         </p>
-        <div aria-hidden="true" className="mt-3 flex items-center justify-center gap-2.5 text-(--olivea-olive)/45">
-          <span className="h-px w-10 bg-current" />
-          <span className="h-1.5 w-1.5 rotate-45 border border-current" />
-          <span className="h-px w-10 bg-current" />
-        </div>
+        <Ornament className="mt-3" />
 
         {/* pt clears the emblems, which sit half above their cards. Phones
             stack the houses; desktop sets them side by side. */}
@@ -604,14 +642,7 @@ function HouseChoice({
           })}
         </ul>
 
-        <div
-          aria-hidden="true"
-          className="flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive)/55"
-        >
-          <span className="h-px w-8 bg-current opacity-60" />
-          Valle de Guadalupe
-          <span className="h-px w-8 bg-current opacity-60" />
-        </div>
+        <Signature />
       </div>
     </div>
   );
@@ -954,13 +985,13 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                   className={`group relative flex flex-1 items-center whitespace-nowrap transition-colors ${
                     isMobile
                       ? "flex-col justify-center gap-1 py-2"
-                      : "gap-3.5 rounded-2xl px-4 py-3 text-left"
+                      : "gap-3.5 rounded-[22px] px-4 py-3 text-left"
                   } ${
                     active
                       ? "text-(--olivea-olive)"
                       : isMobile
                         ? "text-(--olivea-ink)"
-                        : "text-(--olivea-ink)/75 hover:bg-[#e7eae1]/55 hover:text-(--olivea-ink)"
+                        : "text-(--olivea-ink)/75 hover:bg-(--olivea-olive)/6 hover:text-(--olivea-ink)"
                   }`}
                 >
                   {/* The selected house sits on a raised card (desktop) or an
@@ -973,7 +1004,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                       className={
                         isMobile
                           ? "absolute bottom-0 left-0 right-0 h-0.75 bg-(--olivea-olive)"
-                          : "absolute inset-0 rounded-2xl bg-[#e7eae1] shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+                          : "absolute inset-0 rounded-[22px] border border-(--olivea-olive)/45 bg-white/25"
                       }
                     />
                   )}
@@ -982,10 +1013,15 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                     className={`relative shrink-0 overflow-hidden ${
                       isMobile
                         ? "h-6 w-6"
-                        : "h-11 w-11 rounded-full border-2 border-[#e7eae1] bg-[#e7eae1]"
+                        : `h-11 w-11 rounded-full border bg-(--olivea-cream) p-1.5 ${
+                            active ? "border-(--olivea-olive)/45" : "border-(--olivea-olive)/20"
+                          }`
                     } ${active ? "" : "opacity-70"}`}
                   >
-                    <Image src={house.emblem} alt="" fill sizes="44px" className="object-contain" />
+                    {/* inner box so the seal's padding frames the emblem */}
+                    <span className="relative block h-full w-full">
+                      <Image src={house.emblem} alt="" fill sizes="44px" className="object-contain" />
+                    </span>
                   </span>
                   {isMobile ? (
                     <span className="relative" style={{ fontFamily: "var(--font-serif)", fontSize: 13 }}>

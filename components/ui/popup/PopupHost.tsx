@@ -18,6 +18,7 @@ import { Phone, X } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { isStampFresh, setStamp } from "@/lib/storage";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { getModalOpen } from "@/components/ui/modalFlag";
 
 /**
  * What the primary button does. A link navigates; an action opens something
@@ -250,7 +251,13 @@ export default function PopupHost() {
 
     if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 
-    const cancel = scheduleAfterEngagement(() => setOpen(true));
+    // A guest already inside a window (booking, the menu) is busy: no promotion
+    // on top of it. Its taps counted as engagement, so the popup used to open
+    // over the reservation window mid-booking. It stays away for this page.
+    const cancel = scheduleAfterEngagement(() => {
+      if (getModalOpen()) return;
+      setOpen(true);
+    });
 
     return () => {
       cancel?.();
