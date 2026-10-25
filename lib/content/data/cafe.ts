@@ -28,8 +28,8 @@ const cafe: CafeContent = {
   },
   meta: {
     description: {
-      en: "Specialty coffee and garden breakfast by day, Valle de Guadalupe wine by evening — at Olivea Café Wine Bar in Baja California.",
-      es: "Café de especialidad y desayuno del huerto de día, vino del Valle de Guadalupe de noche — en Olivea Café Wine Bar, Baja California.",
+      en: "Specialty coffee, garden breakfast, brunch and Valle de Guadalupe wine — at Olivea Café Wine Bar in Baja California.",
+      es: "Café de especialidad, desayuno del huerto, brunch y vino del Valle de Guadalupe — en Olivea Café Wine Bar, Baja California.",
     },
     keywords: [
       "Olivea Café Wine Bar",
@@ -88,8 +88,8 @@ const cafe: CafeContent = {
     },
     {
       bar: {
-        en: "As the afternoon light softens, the café becomes a wine bar. The list leads with Valle de Guadalupe and Baja California — the growers who are, quite literally, our neighbors — alongside our own house wine and a few considered bottles from farther afield, poured next to tapas drawn from the garden. Coffee and wine share one ethos here: slow, precise, rooted in place. Farm to table, Valle de Guadalupe to the glass — a calm continuation of the day, from the morning's first espresso to the evening's last pour.",
-        es: "Cuando la luz de la tarde baja, el café se vuelve wine bar. La carta abre con Valle de Guadalupe y Baja California — los productores que son, literalmente, nuestros vecinos — junto a nuestro vino de la casa y algunas botellas seleccionadas de otras regiones, servidas con tapas del huerto. El café y el vino comparten una misma ética: lento, preciso, arraigado a la tierra. Del huerto a la mesa, del Valle de Guadalupe a la copa — una continuación calmada del día, del primer espresso de la mañana a la última copa de la noche.",
+        en: "As the afternoon light softens, the café becomes a wine bar. The list leads with Valle de Guadalupe and Baja California — the growers who are, quite literally, our neighbors — alongside our own house wine and a few considered bottles from farther afield, poured next to tapas drawn from the garden. Coffee and wine share one ethos here: slow, precise, rooted in place. Farm to table, Valle de Guadalupe to the glass — a calm continuation of the day, from the morning's first espresso to the afternoon's last pour.",
+        es: "Cuando la luz de la tarde baja, el café se vuelve wine bar. La carta abre con Valle de Guadalupe y Baja California — los productores que son, literalmente, nuestros vecinos — junto a nuestro vino de la casa y algunas botellas seleccionadas de otras regiones, servidas con tapas del huerto. El café y el vino comparten una misma ética: lento, preciso, arraigado a la tierra. Del huerto a la mesa, del Valle de Guadalupe a la copa — una continuación calmada del día, del primer espresso de la mañana a la última copa de la tarde.",
         id: {
           en: "bar",
           es: "barra",
@@ -142,8 +142,8 @@ const cafe: CafeContent = {
         src: "/images/cafe/cafe.jpg",
       },
       origin: {
-        en: "Olivea Café Wine Bar is the most relaxed expression of the Olivea ecosystem — where mornings unfold slowly over coffee, evenings settle in over a glass of Valle de Guadalupe wine, movement stays human, and the garden remains the source. It carries the same leaders, the same standards, and the same philosophy as Casa Olivea and Olivea Farm To Table.",
-        es: "Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma sobre un café, la noche se asienta con una copa de vino del Valle de Guadalupe, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.",
+        en: "Olivea Café Wine Bar is the most relaxed expression of the Olivea ecosystem — where mornings unfold slowly over coffee, afternoons settle in over a glass of Valle de Guadalupe wine, movement stays human, and the garden remains the source. It carries the same leaders, the same standards, and the same philosophy as Casa Olivea and Olivea Farm To Table.",
+        es: "Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma sobre un café, la tarde se asienta con una copa de vino del Valle de Guadalupe, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.",
       },
       sectionId: {
         en: "experiencia",
@@ -156,8 +156,8 @@ const cafe: CafeContent = {
             es: "Horario",
           },
           value: {
-            en: "Daily · 7:30am – 5:30pm",
-            es: "Diario · 7:30am – 5:30pm",
+            en: "Daily · 7:15am – 4:00pm",
+            es: "Diario · 7:15am – 4:00pm",
           },
         },
         {
@@ -192,8 +192,8 @@ const cafe: CafeContent = {
         },
       ],
       subtitle: {
-        en: "Slow coffee. Slow food. Local wine. Calm energy that runs from morning to evening — built as practice, as daily discipline.",
-        es: "Café lento. Comida lenta. Vino local. Energía calmada que va de la mañana a la noche — práctica cotidiana, disciplina suave.",
+        en: "Slow coffee. Slow food. Local wine. Calm energy that runs from morning into the afternoon — built as practice, as daily discipline.",
+        es: "Café lento. Comida lenta. Vino local. Energía calmada que va de la mañana a la tarde — práctica cotidiana, disciplina suave.",
       },
     },
     {
@@ -536,8 +536,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "Olivea Café Wine Bar is open daily, 7:30 am to 6:15 pm. The kitchen runs 8 am to 4 pm with the menu available through the day, and wine is poured from 10 am.",
-            es: "Olivea Café Wine Bar abre todos los días de 7:30 am a 6:15 pm. La cocina va de 8 am a 4 pm, con el menú disponible durante el día, y el vino se sirve a partir de las 10 am.",
+            en: "Olivea Café Wine Bar is open daily, 7:15 am to 4:00 pm. The kitchen runs 8 am to 4 pm with the menu available through the day, and wine is poured from 10 am.",
+            es: "Olivea Café Wine Bar abre todos los días de 7:15 am a 4:00 pm. La cocina va de 8 am a 4 pm, con el menú disponible durante el día, y el vino se sirve a partir de las 10 am.",
           },
           id: "faq_e4d6d83937ed",
           q: {

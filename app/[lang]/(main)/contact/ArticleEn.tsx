@@ -84,7 +84,7 @@ export default function ArticleEn() {
         <h2>Casa Olivea &amp; Olivea Café Wine Bar</h2>
         <dl>
           <dt>Hours</dt>
-          <dd>Wed–Mon 7:30–2:30 · Tue 7:30–9:30</dd>
+          <dd>Daily 7:15 am – 4:00 pm</dd>
           <dt>Phone</dt>
           <dd>
             <a href="tel:+526463882369">(646) 388-2369</a>

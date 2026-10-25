@@ -23,7 +23,7 @@
     "error": "Error al cargar el menú:",
     "meta": {
       "title": "OLIVEA Café Wine Bar | Café y Vino en Valle de Guadalupe",
-      "description": "Café de especialidad y desayuno del huerto de día, vino del Valle de Guadalupe de noche — en Olivea Café Wine Bar, Baja California.",
+      "description": "Café de especialidad, desayuno del huerto, brunch y vino del Valle de Guadalupe — en Olivea Café Wine Bar, Baja California.",
       "keywords": [
         "Olivea Café Wine Bar",
         "café",
@@ -85,7 +85,7 @@
   },
   "hours": {
     "farmToTable": "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
-    "cafe": "Diario 7:30–6:15",
+    "cafe": "Diario 7:15 am – 4:00 pm",
     "casa": "Abierto a diario · reserva en línea"
   },
   "footerNote": "Para eventos especiales o coordinación de grupos, escríbenos por email y te ayudamos a organizarlo.",

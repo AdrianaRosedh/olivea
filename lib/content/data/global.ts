@@ -43,11 +43,11 @@ const global: GlobalSettings = {
       venue: "cafe",
       label: { es: "Olivea Café Wine Bar", en: "Olivea Café Wine Bar" },
       schedule: {
-        es: "Diario 7:30–6:15",
-        en: "Daily 7:30–6:15",
+        es: "Diario 7:15 am – 4:00 pm",
+        en: "Daily 7:15 am – 4:00 pm",
       },
       slots: [
-        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "07:30", closes: "18:15" },
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "07:15", closes: "16:00" },
       ],
       sortOrder: 1,
     },

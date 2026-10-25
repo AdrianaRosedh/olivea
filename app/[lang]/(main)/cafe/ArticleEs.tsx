@@ -19,10 +19,10 @@ export default function ArticleEs() {
       <section id="experiencia-es" aria-labelledby="exp-heading-es">
         <h2 id="exp-heading-es">El ritmo diario de Olivea</h2>
         <p>Café lento. Comida lenta. Energía calmada — práctica cotidiana, disciplina suave.</p>
-        <p>Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma sobre un café, la noche se asienta con una copa de vino del Valle de Guadalupe, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.</p>
+        <p>Olivea Café Wine Bar es la expresión más relajada del ecosistema Olivea — donde la mañana se despliega con calma sobre un café, la tarde se asienta con una copa de vino del Valle de Guadalupe, el movimiento se siente humano, y el huerto sigue marcando el rumbo. Comparte los mismos líderes, los mismos estándares y la misma filosofía que Casa Olivea y Olivea Farm To Table.</p>
 
         <dl>
-          <dt>Horario</dt><dd>Diario · 7:30 am – 6:15 pm</dd>
+          <dt>Horario</dt><dd>Diario · 7:15 am – 4:00 pm</dd>
           <dt>Café</dt><dd>Origen México · técnica cuidada</dd>
           <dt>Cocina</dt><dd>Conectada a Farm To Table · sistema compartido</dd>
           <dt>Ritmo</dt><dd>Café · brunch · vino</dd>
@@ -36,7 +36,7 @@ export default function ArticleEs() {
           <p>En Olivea, la sustentabilidad es eficiencia: respeto hecho práctico. El café comparte ingredientes, trabajo de fermentación y un ciclo continuo con Farm To Table — huerto → cocina → composta → regreso a la tierra.</p>
         </aside>
 
-        <p>Cuando la luz de la tarde baja, el café se vuelve wine bar. La carta abre con Valle de Guadalupe y Baja California — los productores que son, literalmente, nuestros vecinos — junto a nuestro vino de la casa y algunas botellas seleccionadas de otras regiones, servidas con tapas del huerto. El café y el vino comparten una misma ética: lento, preciso, arraigado a la tierra. Del huerto a la mesa, del Valle de Guadalupe a la copa — una continuación calmada del día, del primer espresso de la mañana a la última copa de la noche.</p>
+        <p>Cuando la luz de la tarde baja, el café se vuelve wine bar. La carta abre con Valle de Guadalupe y Baja California — los productores que son, literalmente, nuestros vecinos — junto a nuestro vino de la casa y algunas botellas seleccionadas de otras regiones, servidas con tapas del huerto. El café y el vino comparten una misma ética: lento, preciso, arraigado a la tierra. Del huerto a la mesa, del Valle de Guadalupe a la copa — una continuación calmada del día, del primer espresso de la mañana a la última copa de la tarde.</p>
       </section>
 
       {/* ── Desayuno ── */}
@@ -75,7 +75,7 @@ export default function ArticleEs() {
         <h3>¿Para quién es Olivea Café Wine Bar?</h3>
         <p>En Casa Olivea, el día comienza aquí. Quienes visitan por el día también son bienvenidos — el café es una puerta de entrada al ritmo Olivea.</p>
         <h3>¿Cuál es el horario de Olivea Café Wine Bar?</h3>
-        <p>Olivea Café Wine Bar abre todos los días de 7:30 am a 6:15 pm. La cocina va de 8 am a 4 pm, con el menú disponible durante el día, y el vino se sirve a partir de las 10 am.</p>
+        <p>Olivea Café Wine Bar abre todos los días de 7:15 am a 4:00 pm. La cocina va de 8 am a 4 pm, con el menú disponible durante el día, y el vino se sirve a partir de las 10 am.</p>
         <h3>¿Qué estilo de desayuno ofrecen?</h3>
         <p>El desayuno es mayormente salado, con alma mexicana — pensado para sentirse calmado, nutritivo e intencional.</p>
         <h3>¿Cómo funciona el desayuno para huéspedes de Casa Olivea?</h3>

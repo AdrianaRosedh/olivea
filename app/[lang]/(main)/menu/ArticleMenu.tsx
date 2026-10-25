@@ -60,12 +60,12 @@ export default function ArticleMenu({ lang }: { lang: Lang }) {
         <h2>Olivea Café Wine Bar</h2>
         <p>
           {isEs
-            ? "Café de especialidad, pan de casa, desayunos y brunch junto al huerto. También ofrece servicio de tarde con wine bar y cena casual."
-            : "Specialty coffee, house bread, breakfast, and brunch next to the garden. Also offers afternoon service with wine bar and casual dinner."}
+            ? "Café de especialidad, pan de casa, desayunos y brunch junto al huerto. Por la tarde, el café se vuelve wine bar."
+            : "Specialty coffee, house bread, breakfast, and brunch next to the garden. In the afternoon, the café becomes a wine bar."}
         </p>
         <dl>
           <dt>{isEs ? "Horario" : "Hours"}</dt>
-          <dd>{isEs ? "Mié–Lun 7:30–2:30 · Mar 7:30–9:30" : "Wed–Mon 7:30–2:30 · Tue 7:30–9:30"}</dd>
+          <dd>{isEs ? "Diario 7:15 am – 4:00 pm" : "Daily 7:15 am – 4:00 pm"}</dd>
           <dt>{isEs ? "Teléfono" : "Phone"}</dt>
           <dd><a href="tel:+5246463882369">(646) 388-2369</a></dd>
         </dl>
