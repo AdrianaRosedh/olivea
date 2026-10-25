@@ -12,7 +12,7 @@ import React, {
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion, type Transition } from "framer-motion";
-import { X } from "lucide-react";
+import { Maximize2, Minimize2, X } from "lucide-react";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -99,6 +99,9 @@ type FarmpopProps = {
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+/** Remembers the desktop full-screen choice, as the reservation window does. */
+const FULLSCREEN_KEY = "olivea:menu-fullscreen";
 
 export default function Farmpop({
   canvaUrl,
@@ -389,6 +392,51 @@ export default function Farmpop({
     </div>
   );
 
+  // Desktop only: the menu can fill the screen, like the reservation window.
+  // The choice is remembered. Only the size changes, so open menus keep their
+  // place; the resize animates only when the guest clicks.
+  const [expanded, setExpanded] = useState(false);
+  const [animateResize, setAnimateResize] = useState(false);
+  useEffect(() => {
+    try {
+      setExpanded(localStorage.getItem(FULLSCREEN_KEY) === "1");
+    } catch {
+      /* storage off: windowed */
+    }
+  }, []);
+  const toggleExpanded = useCallback(() => {
+    setAnimateResize(true);
+    setExpanded((prev) => {
+      try {
+        localStorage.setItem(FULLSCREEN_KEY, prev ? "0" : "1");
+      } catch {
+        /* storage off: the toggle still works for this visit */
+      }
+      return !prev;
+    });
+  }, []);
+  const fullScreen = expanded && !isMobile;
+  const expandLabel = fullScreen
+    ? es ? "Salir de pantalla completa" : "Exit full screen"
+    : es ? "Pantalla completa" : "Full screen";
+
+  const expandButton = (
+    <button
+      type="button"
+      onClick={toggleExpanded}
+      aria-pressed={fullScreen}
+      aria-label={expandLabel}
+      title={expandLabel}
+      className={cn(
+        "grid h-11 w-11 shrink-0 place-items-center rounded-full text-(--olivea-olive)",
+        "ring-1 ring-inset ring-(--olivea-olive)/22 transition-colors",
+        "hover:bg-(--olivea-olive) hover:text-(--olivea-cream)"
+      )}
+    >
+      {fullScreen ? <Minimize2 size={17} strokeWidth={1.6} /> : <Maximize2 size={17} strokeWidth={1.6} />}
+    </button>
+  );
+
   const closeButton = (
     <button
       type="button"
@@ -564,7 +612,7 @@ export default function Farmpop({
             key="window"
             className={cn(
               "pointer-events-none fixed inset-0 z-20000 flex",
-              isMobile ? "items-stretch" : "items-center justify-center p-4"
+              isMobile ? "items-stretch" : cn("items-center justify-center", fullScreen ? "p-0" : "p-4")
             )}
           >
             <motion.div
@@ -576,9 +624,12 @@ export default function Farmpop({
               transition={windowTransition}
               className={cn(
                 "pointer-events-auto flex flex-col bg-(--olivea-cream) text-(--olivea-ink)",
+                !isMobile && animateResize && !reduce && "transition-[width,height,border-radius] duration-300 ease-out",
                 isMobile
                   ? "h-dvh w-full"
-                  : "h-[min(92vh,980px)] w-[min(1120px,94vw)] rounded-[28px] ring-1 ring-(--olivea-olive)/15 shadow-[0_40px_90px_-30px_rgba(20,30,15,0.55)]"
+                  : fullScreen
+                    ? "h-dvh w-screen rounded-none"
+                    : "h-[min(92vh,980px)] w-[min(1120px,94vw)] rounded-[28px] ring-1 ring-(--olivea-olive)/15 shadow-[0_40px_90px_-30px_rgba(20,30,15,0.55)]"
               )}
               style={
                 isMobile
@@ -605,6 +656,7 @@ export default function Farmpop({
                     {heading}
                     <div className="flex shrink-0 items-center gap-3">
                       {reserveButton}
+                      {expandButton}
                       {closeButton}
                     </div>
                   </div>
