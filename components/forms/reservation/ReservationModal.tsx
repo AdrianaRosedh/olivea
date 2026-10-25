@@ -20,6 +20,7 @@ import {
   type ReservationType,
 } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
+import { openTableUrl } from "./OpentableWidget";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 import Image from "next/image";
@@ -38,9 +39,6 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /** Remembers the desktop full-screen choice across sessions. */
 const FULLSCREEN_KEY = "olivea:reservation-fullscreen";
-
-const OPENTABLE_URL =
-  "https://www.opentable.com.mx/booking/restref/availability?lang=es-MX&restRef=1313743&otSource=Restaurant%20website";
 
 const stopWheelPropagation: WheelEventHandler<HTMLDivElement> = (e) => {
   e.stopPropagation();
@@ -168,11 +166,11 @@ function RestaurantPane({
             Olivea Farm To Table
           </span>
 
-          {/* Always-available booking link. The OpenTable iframe below can
-              render blank (third-party embed/cookie limits on OT's side), so
-              guarantee a working path to reserve. */}
+          {/* Always-available booking link. OpenTable's page below runs as a
+              third-party frame, and some browsers (Safari) limit it, so there
+              is always a direct path to reserve. */}
           <a
-            href={OPENTABLE_URL}
+            href={openTableUrl(lang)}
             target="_blank"
             rel="noopener noreferrer"
             className="ml-auto inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--olivea-olive) hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors whitespace-nowrap"
@@ -212,16 +210,18 @@ function RestaurantPane({
           className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
         >
           <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink) mb-2">
-            Reservación restaurante
+            {lang === "es" ? "Reservación restaurante" : "Restaurant reservation"}
           </p>
           <p className="text-sm font-medium text-(--olivea-ink) mb-1">
-            Busca mesa en Olivea Farm To Table
+            {lang === "es" ? "Busca mesa en Olivea Farm To Table" : "Find a table at Olivea Farm To Table"}
           </p>
           <p className="text-xs text-(--olivea-ink) mb-3">
-            Toca para abrir OpenTable en pantalla completa.
+            {lang === "es"
+              ? "Toca para reservar en pantalla completa."
+              : "Tap to reserve in full screen."}
           </p>
           <span className="text-xs font-semibold underline underline-offset-4">
-            Abrir en pantalla completa
+            {lang === "es" ? "Abrir en pantalla completa" : "Open in full screen"}
           </span>
         </button>
       </div>
@@ -355,12 +355,12 @@ function MobileRestaurantSheet({
             </span>
 
             <a
-              href={OPENTABLE_URL}
+              href={openTableUrl(lang)}
               target="_blank"
               rel="noopener noreferrer"
               className="mr-2 w-9 h-9 flex items-center justify-center rounded-full border border-(--olivea-olive)/30"
-              aria-label={lang === "es" ? "Abrir en Safari" : "Open in Safari"}
-              title={lang === "es" ? "Abrir en Safari" : "Open in Safari"}
+              aria-label={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
+              title={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
             >
               <ExternalLink size={18} />
             </a>
