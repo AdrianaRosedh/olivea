@@ -1,4 +1,5 @@
 // components/seo/StructuredDataServer.tsx
+import { MICHELIN } from "@/lib/michelin";
 import { canonicalUrl, SITE, SITE_ADDRESS, SITE_GEO } from "@/lib/site";
 import { getContent } from "@/lib/content";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
@@ -16,15 +17,7 @@ const GOOGLE_MAPS = {
   cafe: "https://maps.app.goo.gl/gYH1qsUourCZqXiX6",
 };
 
-// ✅ Official sources (from your /press page links)
-const MICHELIN = {
-  restaurant:
-    "https://guide.michelin.com/en/baja-california/ensenada_2059847/restaurant/olivea-farm-to-table",
-  hotel:
-    "https://guide.michelin.com/mx/es/hotels-stays/Ensenada/casa-olivea-14762",
-  mexicoSelection:
-    "https://www.michelin.com/en/publications/products-and-services/the-michelin-guide-mexico-2025-selection",
-};
+// ✅ Official sources, shared with the press page (lib/michelin.ts)
 
 const RECOGNITION: Recognition[] = [
   {

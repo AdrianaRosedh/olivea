@@ -84,7 +84,7 @@
     "casaTitle": "Casa Olivea"
   },
   "hours": {
-    "farmToTable": "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
+    "farmToTable": "Mié–Jue 4–7 pm · Vie–Sáb 1:30–7:30 pm · Dom 1–6 pm",
     "cafe": "Diario 7:15 am – 4:00 pm",
     "casa": "Abierto a diario · reserva en línea"
   },
@@ -193,14 +193,14 @@
         "Estrella Verde",
         "MICHELIN Guide"
       ],
-      "ogImage": "/images/seo/default-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   },
   "metadata": {
     "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, hotel listado en MICHELIN Guide y café en Valle de Guadalupe, Baja California.",
     "siteName": "OLIVEA Hospitalidad del Huerto",
     "twitter": "@OLIVEAFARMTOTABLE",
-    "ogDefault": "/images/seo/default-og.jpg"
+    "ogDefault": "/images/seo/seo-og.jpg"
   },
   "drawer": {
     "main": {
@@ -229,7 +229,7 @@
     "meta": {
       "title": "Página no encontrada | OLIVEA",
       "description": "La página que buscas no existe. Regresa al inicio de OLIVEA.",
-      "ogImage": "/images/seo/default-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   }
 }

@@ -56,7 +56,8 @@ export default function ArticleEn() {
         <h2>Olivea Farm To Table — MICHELIN-Starred Restaurant</h2>
         <p>
           A tasting-menu restaurant rooted in the garden. Awarded a MICHELIN
-          Star and a MICHELIN Green Star for sustainability in 2025. Chef
+          Star and a MICHELIN Green Star for sustainability in 2025, both kept
+          in the 2026 selection. Chef
           Daniel Nates leads a kitchen that works directly with what the
           territory gives — Baja California coast, desert, and garden — using
           technique, restraint, and memory. We grow our own mushrooms and
@@ -104,7 +105,7 @@ export default function ArticleEn() {
       <section aria-label="Awards">
         <h2>Awards &amp; Recognition</h2>
         <ul>
-          <li>MICHELIN Star &amp; Green Star (2025) — Olivea Farm To Table</li>
+          <li>MICHELIN Star &amp; Green Star (2025, 2026) — Olivea Farm To Table</li>
           <li>Casa Olivea listed in MICHELIN Guide Hotels &amp; Stays</li>
           <li>México Gastronómico Sustainability Award 2026 — Culinaria Mexicana</li>
           <li>Wall Street Journal — Best Travel Destinations 2026</li>

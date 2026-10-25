@@ -84,7 +84,7 @@
       "casaTitle": "Casa Olivea"
     },
     "hours": {
-      "farmToTable": "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7",
+      "farmToTable": "Wed–Thu 4–7 pm · Fri–Sat 1:30–7:30 pm · Sun 1–6 pm",
       "cafe": "Daily 7:15 am – 4:00 pm",
       "casa": "Open daily · book online"
     },
@@ -200,7 +200,7 @@
     "description": "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café in Valle de Guadalupe, Baja California.",
     "siteName": "OLIVEA Farm Hospitality",
     "twitter": "@OLIVEAFARMTOTABLE",
-    "ogDefault": "/images/seo/default-og.jpg"
+    "ogDefault": "/images/seo/seo-og.jpg"
   },
   "drawer": {
     "main": {
@@ -229,7 +229,7 @@
     "meta": {
       "title": "Page not found | OLIVEA",
       "description": "The page you’re looking for doesn’t exist. Return to OLIVEA home.",
-      "ogImage": "/images/seo/default-og.jpg"
+      "ogImage": "/images/seo/seo-og.jpg"
     }
   }
 }

@@ -113,8 +113,8 @@ const farmtotable: FarmToTableContent = {
             es: "Formato",
           },
           value: {
-            en: "Tasting menu · 9 courses",
-            es: "Menú degustación · 9 tiempos",
+            en: "Tasting menu · courses set by the harvest",
+            es: "Menú degustación · tiempos según la cosecha",
           },
         },
         {
@@ -429,8 +429,8 @@ const farmtotable: FarmToTableContent = {
     },
     {
       body: {
-        en: "A **9-course tasting menu**, composed as a single journey. Each dish has a **pairing designed in parallel** — from the Valley or the garden — because the drink is part of the story, not an accompaniment.",
-        es: "Un **menú degustación de 9 tiempos**, concebido como un solo recorrido. Cada plato tiene un **maridaje diseñado en paralelo** — del Valle o del huerto — porque la bebida es parte de la historia, no un acompañamiento.",
+        en: "A **tasting menu with no fixed number of courses** — its length follows what the harvest gives — composed as a single journey. Each dish has a **pairing designed in parallel** — from the Valley or the garden — because the drink is part of the story, not an accompaniment.",
+        es: "Un **menú degustación sin número fijo de tiempos** — su extensión sigue lo que da la cosecha — concebido como un solo recorrido. Cada plato tiene un **maridaje diseñado en paralelo** — del Valle o del huerto — porque la bebida es parte de la historia, no un acompañamiento.",
       },
       heading: {
         en: "The menu",

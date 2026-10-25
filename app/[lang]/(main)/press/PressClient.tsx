@@ -16,6 +16,7 @@ import { tt } from "./lib/pressText";
 
 import PressKitHero from "./PressKitHero";
 import PressMediaGallery from "./PressMediaGallery";
+import MichelinBand from "./components/MichelinBand";
 
 export default function PressClient({
   lang,
@@ -81,8 +82,10 @@ export default function PressClient({
                 "pr-2 sm:pr-0"
               )}
             >
+              <MichelinBand lang={lang} />
+
               {/* Featured / Most recent */}
-              <div className="mt-6 sm:mt-10">
+              <div className="mt-10 sm:mt-12">
                 <div className="text-[12px] uppercase tracking-[0.26em] text-(--olivea-olive)">
                   {tt(lang, "Más reciente", "Most recent")}
                 </div>

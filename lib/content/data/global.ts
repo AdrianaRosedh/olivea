@@ -28,13 +28,13 @@ const global: GlobalSettings = {
       venue: "farmtotable",
       label: { es: "Olivea Farm To Table", en: "Olivea Farm To Table" },
       schedule: {
-        es: "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7",
-        en: "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7",
+        es: "Mié–Jue 4–7 pm · Vie–Sáb 1:30–7:30 pm · Dom 1–6 pm",
+        en: "Wed–Thu 4–7 pm · Fri–Sat 1:30–7:30 pm · Sun 1–6 pm",
       },
       slots: [
-        { days: ["Wednesday"], opens: "17:00", closes: "20:00" },
-        { days: ["Friday"], opens: "14:30", closes: "20:30" },
-        { days: ["Sunday"], opens: "14:00", closes: "19:00" },
+        { days: ["Wednesday", "Thursday"], opens: "16:00", closes: "19:00" },
+        { days: ["Friday", "Saturday"], opens: "13:30", closes: "19:30" },
+        { days: ["Sunday"], opens: "13:00", closes: "18:00" },
       ],
       sortOrder: 0,
     },

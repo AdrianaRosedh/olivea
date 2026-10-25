@@ -175,7 +175,7 @@ const PAGES = [
   ["roseiies — Technology behind Olivea", "/roseiies", "the studio powering Olivea's live systems"],
 ] as const;
 
-const RECOGNITION = `- [MICHELIN Guide — One MICHELIN Star + Green Star (Olivea Farm To Table, 2025)](https://guide.michelin.com/en/baja-california/ensenada_2059847/restaurant/olivea-farm-to-table)
+const RECOGNITION = `- [MICHELIN Guide — One MICHELIN Star + Green Star (Olivea Farm To Table, awarded 2025, kept in the 2026 selection)](https://guide.michelin.com/en/baja-california/ensenada_2059847/restaurant/olivea-farm-to-table)
 - [MICHELIN Guide — Hotels & Stays (Casa Olivea)](https://guide.michelin.com/mx/es/hotels-stays/Ensenada/casa-olivea-14762)
 - [México Gastronómico Sustainability Award 2026 — Culinaria Mexicana](https://www.culinariamexicana.com.mx/guia-mexico-gastronomico-2026-2/)
 - [The Wall Street Journal — Best Travel Destinations 2026](https://www.wsj.com/lifestyle/travel/best-travel-destinations-vacation-2026-16c79c69)

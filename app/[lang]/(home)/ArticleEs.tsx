@@ -58,7 +58,8 @@ export default function ArticleEs() {
         <p>
           Un restaurante de menú de degustación arraigado al huerto.
           Galardonado con una Estrella MICHELIN y una Estrella Verde MICHELIN
-          por sostenibilidad en 2025. El Chef Daniel Nates lidera una cocina
+          por sostenibilidad en 2025, ambas refrendadas en la selección 2026.
+          El Chef Daniel Nates lidera una cocina
           que trabaja directamente con lo que el territorio ofrece — costa de
           Baja California, desierto y huerto — con técnica, mesura y memoria.
           Cultivamos nuestros propios hongos y trabajamos koji y fermentaciones
@@ -106,7 +107,7 @@ export default function ArticleEs() {
       <section aria-label="Reconocimientos">
         <h2>Reconocimientos y Premios</h2>
         <ul>
-          <li>Estrella MICHELIN y Estrella Verde (2025) — Olivea Farm To Table</li>
+          <li>Estrella MICHELIN y Estrella Verde (2025, 2026) — Olivea Farm To Table</li>
           <li>Casa Olivea en MICHELIN Guide Hotels &amp; Stays</li>
           <li>Premio México Gastronómico de Sustentabilidad 2026 — Culinaria Mexicana</li>
           <li>Wall Street Journal — Best Travel Destinations 2026</li>
