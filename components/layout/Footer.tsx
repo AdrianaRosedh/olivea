@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import Cookies from "js-cookie";
-import { AnimatePresence, motion } from "framer-motion";
-import { GlobeIcon } from "lucide-react";
+import { motion } from "framer-motion";
+import LocaleSwitcher from "@/components/navigation/LocaleSwitcher";
+import InstagramChooser from "@/components/ui/InstagramChooser";
 import {
   YouTubeIcon,
   InstagramIcon,
@@ -15,6 +15,7 @@ import {
   PinterestIcon,
 } from "@/components/icons/SocialIcons";
 import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
+import defaultGlobal from "@/lib/content/data/global";
 
 interface FooterProps {
   dict: AppDictionary;
@@ -32,14 +33,14 @@ const SOCIAL_ICON_MAP: Record<string, ReactNode> = {
   pinterest: <PinterestIcon />,
 };
 
-const FALLBACK_SOCIALS: SocialItem[] = [
-  { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube", icon: <YouTubeIcon /> },
-  { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram", icon: <InstagramIcon /> },
-  { id: "tt", href: "https://www.tiktok.com/@familiaolivea", label: "TikTok", icon: <TikTokIcon /> },
-  { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn", icon: <LinkedInIcon /> },
-  { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify", icon: <SpotifyIcon /> },
-  { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest", icon: <PinterestIcon /> },
-];
+// The site's one default list (lib/content/data/global.ts) — the same one the
+// phone drawer and the structured data use — shown until the admin sets its own.
+const FALLBACK_SOCIALS: SocialItem[] = defaultGlobal.socials.map((s) => ({
+  id: s.platform,
+  href: s.url,
+  label: s.label,
+  icon: SOCIAL_ICON_MAP[s.platform] ?? <InstagramIcon />,
+}));
 
 type SocialItem = {
   id: string;
@@ -48,15 +49,6 @@ type SocialItem = {
   icon: ReactNode;
 };
 
-// ✅ Trigger a real <a> click so SubtleContentFade can intercept & animate.
-function fadeNavigate(href: string) {
-  const a = document.createElement("a");
-  a.href = href;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
 
 export default function Footer({ dict, socials }: FooterProps) {
   const pathname = usePathname() ?? "/es";
@@ -64,8 +56,6 @@ export default function Footer({ dict, socials }: FooterProps) {
   const firstSeg = pathname.split("/")[1];
   const lang: "en" | "es" = firstSeg === "en" ? "en" : "es";
 
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -170,23 +160,6 @@ export default function Footer({ dict, socials }: FooterProps) {
 
   const [lift, setLift] = useState(0);
 
-  // subtle one-time attention to language toggle
-  const [hintLang, setHintLang] = useState(true);
-  useEffect(() => {
-    const t = window.setTimeout(() => setHintLang(false), 1400);
-    return () => window.clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: PointerEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", handleClickOutside, { passive: true });
-    return () => document.removeEventListener("pointerdown", handleClickOutside);
-  }, []);
-
   useEffect(() => {
     function calcLift() {
       const bubble =
@@ -237,29 +210,6 @@ export default function Footer({ dict, socials }: FooterProps) {
       window.removeEventListener("scroll", calcLift);
     };
   }, []);
-
-  const switchLocale = (newLang: "en" | "es") => {
-    if (newLang === lang) {
-      setOpen(false);
-      return;
-    }
-
-    Cookies.set("NEXT_LOCALE", newLang, { path: "/" });
-
-    const segments = pathname.split("/");
-    let newPath: string;
-
-    if (segments[1] === "en" || segments[1] === "es") {
-      segments[1] = newLang;
-      newPath = segments.join("/") || `/${newLang}`;
-    } else {
-      const suffix = pathname.startsWith("/") ? pathname : `/${pathname}`;
-      newPath = `/${newLang}${suffix === "/" ? "" : suffix}`;
-    }
-
-    setOpen(false);
-    fadeNavigate(newPath);
-  };
 
   const rightsText = lang === "en" ? "All rights reserved" : "Todos los derechos reservados";
 
@@ -319,12 +269,15 @@ export default function Footer({ dict, socials }: FooterProps) {
       ref={footerRef}
       className={[
         "fixed bottom-0 left-0 w-full z-200",
-        "bg-transparent backdrop-blur-md",
+        "backdrop-blur-md",
         "text-(--olivea-ink) font-light tracking-wide pointer-events-auto isolate",
       ].join(" ")}
       style={{
         // safe-area padding for iPhone bottoms (also gives breathing room)
         paddingBottom: "calc(env(safe-area-inset-bottom) + 2px)",
+        // A wash of the page's own ground. Transparent, the page text scrolled
+        // visibly under the links and icons; the blur alone didn't hide it.
+        background: "color-mix(in srgb, var(--olivea-shell) 96%, transparent)",
         // NB: --fd is deliberately NOT declared here. The fit effect owns it
         // via setProperty, and a value in this object would be re-applied on
         // every React render — silently resetting the density back to 1 the
@@ -333,6 +286,15 @@ export default function Footer({ dict, socials }: FooterProps) {
         fontSize: "max(9.5px, calc(12px * var(--fd, 1)))",
       }}
     >
+      {/* Text fades into the bar instead of meeting it at a hard edge */}
+      <div
+        className="pointer-events-none absolute -top-7 left-0 right-0 h-7"
+        style={{
+          background: "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--olivea-shell) 96%, transparent))",
+        }}
+        aria-hidden="true"
+      />
+
       {/* subtle top divider haze */}
       <div
         className="pointer-events-none absolute top-0 left-0 right-0 h-px opacity-70"
@@ -371,91 +333,14 @@ export default function Footer({ dict, socials }: FooterProps) {
         >
           <div
             className="relative flex flex-nowrap items-center whitespace-nowrap"
-            ref={dropdownRef}
             style={{
               transform: lift ? `translateY(-${lift}px)` : undefined,
               transition: "transform 200ms ease",
               gap: "max(6px, calc(10px * var(--fd, 1)))",
             }}
           >
-            {/* Language toggle */}
-            <button
-              type="button"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen((v) => !v);
-              }}
-              aria-haspopup="menu"
-              aria-expanded={open}
-              className={[
-                "group relative flex items-center gap-1.5",
-                // smaller padding on tiny screens
-                "px-2 py-1.5 sm:px-3",
-                "rounded-md text-[0.95em] font-medium",
-                "transition-[transform,box-shadow,background-color,color,border-color] duration-200",
-                "border border-[rgba(0,0,0,0.06)]",
-                "hover:bg-(--olivea-olive) hover:text-white",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40",
-                // never let it be too wide
-                "max-w-40",
-              ].join(" ")}
-              style={{
-                boxShadow: open || hintLang ? "0 0 0 3px rgba(94,118,88,0.16)" : undefined,
-              }}
-            >
-              <span
-                className="absolute -left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full"
-                style={{
-                  background: "rgba(94,118,88,0.85)",
-                  opacity: open ? 0.95 : 0.55,
-                }}
-                aria-hidden="true"
-              />
-              <span
-                className="pointer-events-none absolute -inset-2 rounded-xl opacity-0 transition-opacity duration-300"
-                style={{
-                  opacity: open ? 1 : hintLang ? 0.55 : 0,
-                  background:
-                    "radial-gradient(circle at 30% 30%, rgba(94,118,88,0.18), rgba(94,118,88,0.0) 65%)",
-                }}
-                aria-hidden="true"
-              />
-              <GlobeIcon className="w-4 h-4 text-current transition-colors shrink-0" />
-              {lang.toUpperCase()}
-            </button>
-
-            <AnimatePresence>
-              {open && (
-                <motion.div
-                  onPointerDown={(e) => e.stopPropagation()}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  className={[
-                    "absolute bottom-full mb-2 left-0",
-                    "bg-[#e7eae1] backdrop-blur-md",
-                    "border border-gray-200 rounded-md shadow-lg",
-                    "z-500 w-32 pointer-events-auto overflow-hidden",
-                  ].join(" ")}
-                >
-                  <button
-                    type="button"
-                    onClick={() => switchLocale("en")}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-olive) hover:text-white transition-colors"
-                  >
-                    🇺🇸 English
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => switchLocale("es")}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-(--olivea-olive) hover:text-white transition-colors"
-                  >
-                    🇲🇽 Español
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Language: the same ES | EN toggle as the phone menu */}
+            <LocaleSwitcher currentLang={lang} tone="light" />
 
             <nav
               aria-label={lang === "es" ? "Navegación del pie de página" : "Footer navigation"}
@@ -497,7 +382,7 @@ export default function Footer({ dict, socials }: FooterProps) {
 
         {/* CENTER: social dock — content-sized so it stays truly centred */}
         <div ref={centerRef} className="flex min-w-0 items-center justify-self-center">
-          <FooterSocialDock items={socialItems} />
+          <FooterSocialDock items={socialItems} lang={lang} />
         </div>
 
         {/* RIGHT: rights */}
@@ -517,7 +402,7 @@ export default function Footer({ dict, socials }: FooterProps) {
 }
 
 /** --- Footer Social Dock --- */
-function FooterSocialDock({ items }: { items: SocialItem[] }) {
+function FooterSocialDock({ items, lang }: { items: SocialItem[]; lang: "es" | "en" }) {
   return (
     // Never wraps: with six icons, wrapping is what pushed the bar to a second
     // line. They shrink with --fd instead.
@@ -525,19 +410,36 @@ function FooterSocialDock({ items }: { items: SocialItem[] }) {
       className="flex flex-nowrap items-center justify-center"
       style={{ gap: "max(3px, calc(11px * var(--fd, 1)))" }}
     >
-      {items.map((it) => (
-        <FooterSocialIcon key={it.id} item={it} />
-      ))}
+      {items.map((it) =>
+        // Three houses, three Instagram accounts: the icon asks which one.
+        it.id === "instagram" ? (
+          <InstagramChooser
+            key={it.id}
+            lang={lang}
+            triggerClassName="flex items-center justify-center rounded-full text-(--olivea-olive) transition-transform duration-200 hover:scale-[1.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40"
+            triggerStyle={{ width: SOCIAL_CELL, height: SOCIAL_CELL }}
+          >
+            <span className="leading-none" style={{ fontSize: SOCIAL_ICON }}>
+              {it.icon}
+            </span>
+          </InstagramChooser>
+        ) : (
+          <FooterSocialIcon key={it.id} item={it} />
+        )
+      )}
     </div>
   );
 }
+
+const SOCIAL_CELL = "max(22px, calc(34px * var(--fd, 1)))";
+const SOCIAL_ICON = "max(14px, calc(21px * var(--fd, 1)))";
 
 function FooterSocialIcon({ item }: { item: SocialItem }) {
   // Sized off the bar's density factor rather than the viewport. The old
   // clamp(…, 6.8vw, …) sat at its 36px ceiling for every width the footer
   // actually renders at, so widening or narrowing the window changed nothing.
-  const CELL = "max(22px, calc(34px * var(--fd, 1)))";
-  const ICON = "max(14px, calc(21px * var(--fd, 1)))";
+  const CELL = SOCIAL_CELL;
+  const ICON = SOCIAL_ICON;
 
   return (
     <motion.a

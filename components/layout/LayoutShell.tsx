@@ -391,6 +391,15 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
         style={{
           paddingLeft: "max(var(--gutter), env(safe-area-inset-left))",
           paddingRight: "max(var(--gutter), env(safe-area-inset-right))",
+          // Phones: the page ends above the chapter bar (up to ~95px with its
+          // title row) and the promo, so the last line and button can always
+          // be scrolled into view; pb-20 left them underneath. A fixed
+          // allowance for the bar, not its live height: that height grows at
+          // the end of the page, and padding that followed it would move the
+          // end, hide the row again, and loop.
+          ...(!isHome && isMobileLike
+            ? { paddingBottom: "calc(env(safe-area-inset-bottom) + 116px + var(--olivea-banner-clear, 0px))" }
+            : null),
         }}
       >
         <SubtleContentFade duration={0.65}>

@@ -457,8 +457,11 @@ export function PressDockDesktop({
 
   return (
     <nav
-      className="hidden md:block fixed left-4 lg:left-6 z-40 pointer-events-auto"
-      style={{ top: 255 }}
+      className="hidden md:block fixed left-3 lg:left-5 z-40 p-1 pointer-events-auto overflow-y-auto overscroll-contain"
+      // Scrolls within the space above the footer and the promo bar instead
+      // of running under them. The 4px padding (offset in top/left) keeps
+      // the card's outline inside the scroll edge.
+      style={{ top: 251, maxHeight: "calc(100vh - 251px - 72px - var(--olivea-banner-clear, 0px))" }}
       aria-label="Press dock"
     >
       <Reveal distance={10} delay={0.25}>

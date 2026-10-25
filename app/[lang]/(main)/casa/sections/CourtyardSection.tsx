@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import StickyBlock from "@/components/scroll/StickyBlock";
-import Reveal from "@/components/scroll/Reveal";
+import Reveal, { entrance } from "@/components/scroll/Reveal";
 import { motion } from "framer-motion";
 import type { SectionProps } from "./types";
 import { t } from "./md";
@@ -43,10 +43,7 @@ export default function CourtyardSection({ data, lang }: SectionProps) {
 
           <motion.div
             className="mt-6"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, delay: 0.1 }}
+            {...entrance(0.1)}
           >
             {paragraphs.map((p, i) => (
               <p key={p.id ?? i} id={p.id} className={i > 0 ? "mt-4" : undefined}>
@@ -59,10 +56,7 @@ export default function CourtyardSection({ data, lang }: SectionProps) {
         {/* Image column */}
         <motion.div
           className="w-full md:w-1/2"
-          initial={{ opacity: 0, x: 60 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.8, delay: 0.15 }}
+          {...entrance(0.15)}
         >
           <div className="relative w-full h-[50vh] overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_34px_90px_rgba(0,0,0,0.32)]">
             <Image

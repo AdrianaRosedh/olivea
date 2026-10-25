@@ -136,7 +136,10 @@ export default function MobileAudioFeedback() {
 
     // Event listeners
     document.addEventListener("touchstart", handleUserInteraction, { passive: true })
-    document.addEventListener("click", () => { handleUserInteraction(); playSound() })
+    // The sound starts after the tap's first frame: on the first tap, starting
+    // audio playback cost ~40 ms in WebKit and landed inside whatever the tap
+    // opened (the phone menu's reveal).
+    document.addEventListener("click", () => { handleUserInteraction(); requestAnimationFrame(() => setTimeout(playSound, 0)) })
     window.addEventListener("scroll", handleScroll, { passive: true })
     const container = document.querySelector<HTMLElement>(".scroll-container")
     if (container) container.addEventListener("scroll", handleScroll, { passive: true })

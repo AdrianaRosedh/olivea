@@ -142,13 +142,39 @@ export default function SiteBanner() {
     return () => window.clearTimeout(t);
   }, [banner, hidden, reduce, isDesktop]);
 
-  if (!banner || hidden || !armed) return null;
+  // While the banner shows, publish how much room it takes at the bottom so
+  // the phone's floating dock (MobileNav) rises above it instead of sitting
+  // on its arrow button. Cleared when the banner goes.
+  const visible = !!banner && !hidden && armed;
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!visible) {
+      root.style.removeProperty("--olivea-banner-clear");
+      return;
+    }
+    const card = document.querySelector<HTMLElement>("[data-olivea-banner-root] .pointer-events-auto");
+    if (!card) return;
+    const publish = () => root.style.setProperty("--olivea-banner-clear", `${Math.round(card.getBoundingClientRect().height) + 10}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(card);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--olivea-banner-clear");
+    };
+  }, [visible]);
+
+  if (!visible) return null;
 
   const label = labelFor(banner.type, lang);
 
-  // Bottom positioning: mobile above bottom nav; desktop above fixed footer
+  // Bottom positioning: mobile above bottom nav; desktop above fixed footer.
+  // On a phone it sits on the chapter bar's MEASURED height (--mobile-dock-h,
+  // safe area included). A fixed 72px left it behind the bar whenever the bar
+  // grew its title row at the end of a page. Pages without the bar keep 72px.
   const rootStyle = {
-    bottom: `calc(env(safe-area-inset-bottom) + ${MOBILE_BOTTOMBAR_OFFSET_PX}px)`,
+    bottom: `calc(var(--mobile-dock-h, calc(env(safe-area-inset-bottom) + ${MOBILE_BOTTOMBAR_OFFSET_PX - 8}px)) + 8px)`,
+    transition: "bottom 220ms cubic-bezier(0.22, 1, 0.36, 1)",
   } as const;
 
   // Typed variants (strict TS friendly)
@@ -197,7 +223,9 @@ export default function SiteBanner() {
 
   return (
     <div
-      className="fixed inset-x-0 z-50 pointer-events-none"
+      // Above the footer (200), whose fade would otherwise wash its lower
+      // edge; below every overlay and modal (999+).
+      className="fixed inset-x-0 z-210 pointer-events-none"
       style={rootStyle}
       data-olivea-banner-root
     >
@@ -260,14 +288,14 @@ export default function SiteBanner() {
               <div className="olivea-banner-sheen" />
             </div>
 
-            <div className="flex items-center gap-3 px-4 py-3 md:py-2.5">
+            <div className="flex items-center gap-2.5 md:gap-3 px-2.5 md:px-4 py-2 md:py-2.5">
               {/* Dismiss — LEFT on mobile, RIGHT on desktop */}
               {banner.dismissible ? (
                 <button
                   type="button"
                   onClick={dismiss}
                   aria-label={lang === "es" ? "Cerrar" : "Close"}
-                  className="order-1 md:order-4 shrink-0 h-10 w-10 md:h-9 md:w-9 inline-flex items-center justify-center rounded-full bg-white/80 ring-1 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/95 transition"
+                  className="order-1 md:order-4 shrink-0 h-9 w-9 inline-flex items-center justify-center rounded-full bg-white/80 ring-1 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/95 transition"
                 >
                   <X
                     size={18}
@@ -277,8 +305,8 @@ export default function SiteBanner() {
                 </button>
               ) : null}
 
-              {/* Label + pulse dot. On a phone the label moves above the text
-                  (below), so the message itself gets the row. */}
+              {/* Label + pulse dot (desktop). On a phone the promo is one slim
+                  line: the dot leads the message and the label is left out. */}
               <div className="order-2 shrink-0 hidden md:flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
                 <span className="text-[11px] tracking-[0.22em] uppercase text-(--olivea-olive)">
@@ -293,12 +321,10 @@ export default function SiteBanner() {
                 initial={reduce ? false : "hidden"}
                 animate={reduce ? undefined : "show"}
               >
-                <span className="md:hidden flex items-center gap-1.5 text-[10px] tracking-[0.22em] uppercase text-(--olivea-olive)">
-                  <span className="h-1.5 w-1.5 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
-                  {label}
-                </span>
-                <p className="text-[13.5px] md:text-[14px] text-(--olivea-ink) opacity-95 line-clamp-2 md:line-clamp-1">
-                  {banner.text}
+                <p className="flex items-center gap-2 text-[13.5px] md:text-[14px] text-(--olivea-ink) opacity-95">
+                  <span className="md:hidden h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
+                  <span className="sr-only md:hidden">{label}: </span>
+                  <span className="truncate">{banner.text}</span>
                 </p>
               </motion.div>
 
@@ -310,7 +336,7 @@ export default function SiteBanner() {
                 <Link
                   href={banner.ctaHref}
                   aria-label={banner.ctaLabel}
-                  className="order-4 md:order-3 shrink-0 inline-flex items-center justify-center gap-1.5 rounded-full bg-(--olivea-olive) h-10 w-10 md:h-auto md:w-auto md:px-4 md:py-1.5 text-[12px] md:text-[12.5px] font-semibold uppercase tracking-[0.12em] text-(--olivea-cream) ring-1 ring-(--olivea-olive)/20 hover:bg-(--olivea-clay) transition-colors"
+                  className="order-4 md:order-3 shrink-0 inline-flex items-center justify-center gap-1.5 rounded-full bg-(--olivea-olive) h-9 w-9 md:h-auto md:w-auto md:px-4 md:py-1.5 text-[12px] md:text-[12.5px] font-semibold uppercase tracking-[0.12em] text-(--olivea-cream) ring-1 ring-(--olivea-olive)/20 hover:bg-(--olivea-clay) transition-colors"
                 >
                   <span className="hidden md:inline">{banner.ctaLabel}</span>
                   <span aria-hidden className="translate-y-[0.5px]">

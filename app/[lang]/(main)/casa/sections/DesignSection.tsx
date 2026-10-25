@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import StickyBlock from "@/components/scroll/StickyBlock";
-import Reveal from "@/components/scroll/Reveal";
+import Reveal, { entrance } from "@/components/scroll/Reveal";
 import { motion } from "framer-motion";
 import ScrollDrift from "@/components/scroll/ScrollDrift";
 import type { SectionProps } from "./types";
@@ -73,10 +73,7 @@ export default function DesignSection({ data, lang }: SectionProps) {
               key={p.id ?? i}
               id={p.id}
               className="mt-6"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.7, delay: 0.1 + i * 0.08 }}
+              {...entrance(0.1 + i * 0.08)}
             >
               <p>{t(p, lang)}</p>
             </motion.div>

@@ -373,7 +373,12 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
               />
             </div>
 
-            <span className="font-corm-hero italic mt-3 text-(--olivea-mist) text-2xl lg:text-[26px] tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)] pointer-events-none">
+            {/* Two shadows: a close one keeps the thin italic crisp, a wide
+                soft one calms the moving leaves behind it. */}
+            <span
+              className="font-corm-hero italic mt-3 text-(--olivea-mist) text-2xl lg:text-[28px] tracking-wide pointer-events-none"
+              style={{ textShadow: "0 1px 2px rgba(0,0,0,0.45), 0 2px 18px rgba(0,0,0,0.38)" }}
+            >
               {heroAlt}
             </span>
 

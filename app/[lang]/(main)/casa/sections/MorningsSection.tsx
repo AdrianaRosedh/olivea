@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import StickyBlock from "@/components/scroll/StickyBlock";
-import Reveal from "@/components/scroll/Reveal";
+import Reveal, { entrance } from "@/components/scroll/Reveal";
 import { motion } from "framer-motion";
 import type { SectionProps } from "./types";
 import { t } from "./md";
@@ -53,10 +53,7 @@ export default function MorningsSection({ data, lang }: SectionProps) {
           <motion.div
             key={col.id}
             id={col.id}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, delay: i * 0.12 }}
+            {...entrance(i * 0.12)}
           >
             <p className="font-medium">{t(col.subHeading, lang)}</p>
             <p className="mt-3">{t(col.body, lang)}</p>

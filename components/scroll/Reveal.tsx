@@ -17,6 +17,13 @@
 //   nothing flickers) and plays the same entrance when it scrolls into view.
 //
 // ★ Reduced motion: the CSS shows everything at once, no entrance.
+//
+// ★ ONE ENTRANCE. Every block rises the same 16px over the same 0.45s with
+//   the same easing; "fade" is the only other look. The presets, distances
+//   and durations callers still pass used to give each section its own
+//   motion (blur, slides from the side, up to 0.9s), so a fast scroller saw
+//   half-faded text. They are accepted and mapped onto this one entrance.
+//   Blocks animated with framer-motion use `entrance()` below for the same.
 // ─────────────────────────────────────────────────────────────────────
 
 import {
@@ -41,7 +48,9 @@ export type RevealPreset =
 
 export type RevealProps = {
   preset?: RevealPreset;
+  /** @deprecated Every block shares ENTRANCE.distance; kept so callers compile. */
   distance?: number; // px
+  /** @deprecated Every block shares ENTRANCE.duration; kept so callers compile. */
   duration?: number; // s
   delay?: number; // s
   once?: boolean;
@@ -53,35 +62,39 @@ export type RevealProps = {
   style?: CSSProperties;
 };
 
+export const ENTRANCE = {
+  distance: 16, // px
+  duration: 0.45, // s
+  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+  /** A block never waits longer than this once it is reached. */
+  maxDelay: 0.3, // s
+} as const;
+
+/** The same entrance for a framer-motion block: spread onto `motion.*`. */
+export function entrance(delay = 0) {
+  return {
+    initial: { opacity: 0, y: ENTRANCE.distance },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-40px" },
+    transition: {
+      duration: ENTRANCE.duration,
+      ease: ENTRANCE.ease,
+      delay: Math.min(delay, ENTRANCE.maxDelay),
+    },
+  } as const;
+}
+
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-/** The starting offset of each preset, as CSS variables the keyframes read. */
-function startVars(preset: RevealPreset, distance: number): Record<string, string> {
-  switch (preset) {
-    case "up":
-      return { "--reveal-y": `${distance}px` };
-    case "down":
-      return { "--reveal-y": `${-distance}px` };
-    case "left":
-      return { "--reveal-x": `${-distance}px` };
-    case "right":
-      return { "--reveal-x": `${distance}px` };
-    case "scale-in":
-      return { "--reveal-scale": "0.96" };
-    case "zoom-out":
-      return { "--reveal-scale": "1.06" };
-    case "blur-up":
-      return { "--reveal-y": `${distance}px`, "--reveal-blur": "6px" };
-    default:
-      return {};
-  }
+/** The starting offset, as CSS variables the keyframes read: a plain fade,
+ *  or the one shared rise for every other preset. */
+function startVars(preset: RevealPreset): Record<string, string> {
+  return preset === "fade" ? {} : { "--reveal-y": `${ENTRANCE.distance}px` };
 }
 
 export default function Reveal({
   children,
   preset = "up",
-  distance = 24,
-  duration = 0.7,
   delay = 0,
   once = true,
   amount = "some",
@@ -131,9 +144,9 @@ export default function Reveal({
 
   const style = {
     ...extraStyle,
-    ...startVars(preset, distance),
-    "--reveal-duration": `${duration}s`,
-    "--reveal-delay": `${Number(delay.toFixed(3))}s`,
+    ...startVars(preset),
+    "--reveal-duration": `${ENTRANCE.duration}s`,
+    "--reveal-delay": `${Number(Math.min(delay, ENTRANCE.maxDelay).toFixed(3))}s`,
   } as CSSProperties;
 
   return (

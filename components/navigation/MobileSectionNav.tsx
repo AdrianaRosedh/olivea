@@ -252,6 +252,11 @@ export default function MobileSectionNav({
 
     rebuildTargets();
 
+    // Re-checks once scrolling has stopped. The candidate only commits when a
+    // later check confirms it, and without this nothing came after the last
+    // scroll event: the bar kept the chapter from before the guest stopped.
+    let settleTO: number | null = null;
+
     const pickActive = () => {
       if (isManualNavigation) return;
 
@@ -263,7 +268,18 @@ export default function MobileSectionNav({
       let candidate: string | null = null;
       let best = Number.POSITIVE_INFINITY;
 
-      for (const el of targets) {
+      // At the end of the page the last chapter on screen is the active one.
+      // Its heading usually can't reach the top (the page ends first), so the
+      // rule below kept naming the chapter before it ("Menú" on the FAQ).
+      const doc = document.documentElement;
+      const atEnd = window.scrollY + window.innerHeight >= doc.scrollHeight - BOTTOM_THRESHOLD_PX;
+      if (atEnd) {
+        for (const el of targets) {
+          if (el.getBoundingClientRect().top < window.innerHeight * 0.85) candidate = el.id || null;
+        }
+      }
+
+      if (!candidate) for (const el of targets) {
         const top = el.getBoundingClientRect().top - header;
         if (top <= 24) {
           const dist = Math.abs(top);
@@ -291,6 +307,8 @@ export default function MobileSectionNav({
       if (pendingIdRef.current !== candidate) {
         pendingIdRef.current = candidate;
         pendingAtRef.current = now;
+        if (settleTO) window.clearTimeout(settleTO);
+        settleTO = window.setTimeout(pickActive, STABLE_MS + 20);
         return;
       }
       if (now - pendingAtRef.current >= STABLE_MS) {
@@ -325,6 +343,7 @@ export default function MobileSectionNav({
       window.removeEventListener("resize", handler);
       window.clearTimeout(t1);
       window.clearTimeout(t2);
+      if (settleTO) window.clearTimeout(settleTO);
     };
   }, [activeId, isManualNavigation, rebuildTargets, setActiveSection]);
 

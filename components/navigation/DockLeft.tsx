@@ -719,14 +719,18 @@ function ExpandedDock({
 
   return (
     <nav
-      className="hidden md:flex fixed z-40 pointer-events-auto"
+      className="hidden md:flex items-center fixed z-40 pointer-events-auto"
       // Honest width: the box matches the space the layout reserves
       // (--content-w subtracts it), so the dock can never sit on top of
       // content or swallow clicks meant for it.
+      //
+      // Centered in the band between the logo and the footer, not on the
+      // whole screen: on a 900px-tall window a chapter with its sub-items
+      // open grew the rail up under the logo (Navbar: 18px + LOGO_W).
       style={{
         left,
-        top: "50%",
-        transform: "translateY(-50%)",
+        top: "calc(env(safe-area-inset-top) + 18px + clamp(96px, 10.5vw, 230px) + 16px)",
+        bottom: "72px",
         width: "var(--dock-left-expanded)",
       }}
       aria-label={tt(lang, "Capítulos", "Chapters")}

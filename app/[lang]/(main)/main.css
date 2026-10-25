@@ -175,11 +175,13 @@
   }
 }
 
-/* Desktop typography upscale */
+/* Desktop typography upscale. The paragraph blocks (.subsection) are body
+   text too: left out, they stayed at 18px beside 20px paragraphs. */
 @media (min-width: 1024px) {
   [data-scope="main"] p,
   [data-scope="main"] li,
-  [data-scope="main"] blockquote {
+  [data-scope="main"] blockquote,
+  [data-scope="main"] .subsection {
     font-size: 1.25rem;
   }
 

@@ -9,6 +9,7 @@ import MobileDrawer from "@/components/navigation/MobileDrawer";
 import { MobileNav } from "@/components/navigation/MobileNav";
 import { useReservation } from "@/contexts/ReservationContext";
 import { reserveDefault } from "@/lib/sections";
+import { clearMenuKeepOpen, peekMenuKeepOpen } from "@/lib/menuLanguageSwitch";
 import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 
 type DrawerOrigin = { x: number; y: number };
@@ -33,13 +34,30 @@ export default function MobileNavbar({
     return firstSeg === "en" ? "en" : "es";
   }, [pathname]);
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  // Starts open after a language switch made from inside the menu: this
+  // component mounts fresh under the new [lang], and the guest should land in
+  // the same open menu, now translated, not on the page as if it reloaded.
+  const [drawerOpen, setDrawerOpen] = useState(peekMenuKeepOpen);
   const [drawerOrigin, setDrawerOrigin] = useState<DrawerOrigin | undefined>(undefined);
 
   const toggleDrawer = useCallback(() => {
     navigator.vibrate?.(10);
+    clearMenuKeepOpen();
     setDrawerOpen((v) => !v);
   }, []);
+
+  const closeDrawer = useCallback(() => {
+    clearMenuKeepOpen();
+    setDrawerOpen(false);
+  }, []);
+
+  // Once the menu has reappeared after a language switch, the note has done
+  // its job; clear it shortly after so a later page change closes as usual.
+  useEffect(() => {
+    if (!drawerOpen || !peekMenuKeepOpen()) return;
+    const t = window.setTimeout(clearMenuKeepOpen, 1500);
+    return () => window.clearTimeout(t);
+  }, [drawerOpen]);
 
   const handleReserve = useCallback(() => {
     const id = reserveDefault(pathname); // "casa" | "farmtotable" | "cafe" | null
@@ -51,8 +69,10 @@ export default function MobileNavbar({
     openReservationModal(id ? map[id] : undefined);
   }, [openReservationModal, pathname]);
 
-  // Close drawer on navigation change (prevents stale open drawer)
+  // Close drawer on navigation change (prevents stale open drawer), except
+  // the language switch made from the menu itself.
   useEffect(() => {
+    if (peekMenuKeepOpen()) return;
     setDrawerOpen(false);
   }, [pathname]);
 
@@ -78,7 +98,7 @@ export default function MobileNavbar({
 
       <MobileDrawer
         isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={closeDrawer}
         lang={lang}
         dict={dictionary}
         origin={drawerOrigin}

@@ -24,7 +24,9 @@ export default function FaqSection({ data, lang }: SectionProps) {
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
     >
-      <ModernFAQ items={faqItems} />
+      <ModernFAQ
+        initialCount={6}
+        moreLabel={lang === "es" ? `Ver las ${items.length} preguntas` : `See all ${items.length} questions`} items={faqItems} />
     </StickyBlock>
   );
 }

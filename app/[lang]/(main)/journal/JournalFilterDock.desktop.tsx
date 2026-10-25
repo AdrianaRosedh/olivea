@@ -164,10 +164,19 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
     return ["all", ...Array.from(s).sort((a, b) => Number(b) - Number(a))];
   }, [posts]);
 
-  const readTimes = useMemo(
-    () => ["all", "quick", "medium", "deep"] as const,
-    []
-  );
+  // Only the lengths some article actually has: a choice that can only
+  // empty the list is not a filter.
+  const readTimes = useMemo(() => {
+    const bucket = (m: number) => (m <= 3 ? "quick" : m <= 6 ? "medium" : "deep");
+    const have = new Set(posts.map((p) => bucket(p.readingMinutes)));
+    return (["all", "quick", "medium", "deep"] as const).filter((k) => k === "all" || have.has(k));
+  }, [posts]);
+
+  // A group with a single real value ("Todos" + one pillar, one year) can't
+  // narrow anything, so it isn't shown until the journal has a second one.
+  const showPillar = pillars.length > 2;
+  const showYear = years.length > 2;
+  const showTime = readTimes.length > 2;
 
   const anyActive =
     q.trim() ||
@@ -204,7 +213,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
   };
 
   const sectionLabel = cn(
-    "text-[12px] uppercase tracking-[0.30em]",
+    "text-[11px] uppercase tracking-[0.26em]",
     "text-(--olivea-olive)"
   );
 
@@ -221,14 +230,14 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
   );
 
   const chipBase = cn(
-    "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
+    "px-3 py-1.5 rounded-full text-[13px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/14",
     "bg-white/16 text-(--olivea-olive)",
     "hover:bg-white/26 hover:text-(--olivea-olive) hover:opacity-100"
   );
 
   const chipActive = cn(
-    "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
+    "px-3 py-1.5 rounded-full text-[13px] leading-none transition",
     "ring-1 ring-(--olivea-olive)/28",
     "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
   );
@@ -297,24 +306,11 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
             exit="collapsed"
             className="mt-6"
           >
-            <div className="flex items-center justify-between">
-              <div className={sectionLabel}>{t.filters}</div>
-              <button
-                type="button"
-                onClick={() => setMoreOpen((v) => !v)}
-                className={subtleLink}
-              >
-                {moreOpen ? t.less : t.more}
-              </button>
-            </div>
-
             {/* Pillars */}
-            <div className="mt-2">
+            {showPillar ? (
+            <div className="mt-5 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.pillar}</div>
-                <button type="button" onClick={() => setPillar("all")} className={subtleLink}>
-                  {labelAll(lang)}
-                </button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {topPillarPicks.map((p) => {
@@ -333,13 +329,13 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
               </div>
             </div>
 
+            ) : null}
+
             {/* Year */}
-            <div className="mt-5">
+            {showYear ? (
+            <div className="mt-5 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.year}</div>
-                <button type="button" onClick={() => setYear("all")} className={subtleLink}>
-                  {labelAll(lang)}
-                </button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {topYearPicks.map((y) => {
@@ -358,13 +354,13 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
               </div>
             </div>
 
+            ) : null}
+
             {/* Reading time */}
-            <div className="mt-5">
+            {showTime ? (
+            <div className="mt-5 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.time}</div>
-                <button type="button" onClick={() => setTime("all")} className={subtleLink}>
-                  {labelAll(lang)}
-                </button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {readTimes.map((k) => {
@@ -392,8 +388,10 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
               </div>
             </div>
 
+            ) : null}
+
             {/* Sort */}
-            <div className="mt-5">
+            <div className="mt-5 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.sort}</div>
               </div>
@@ -418,9 +416,6 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
             <div className="mt-5">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.tag}</div>
-                <button type="button" onClick={() => setTag("all")} className={subtleLink}>
-                  {labelAll(lang)}
-                </button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {topTagPicks.map((x) => {
@@ -438,6 +433,16 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                 })}
               </div>
             </div>
+
+            {restPillars.length || restYears.length || restTags.length ? (
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                className={cn("mt-3", subtleLink)}
+              >
+                {moreOpen ? t.less : t.more}
+              </button>
+            ) : null}
 
             <AnimatePresence initial={false}>
               {moreOpen ? (
@@ -643,11 +648,11 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
           <div className="relative pl-5">
             <div className="absolute left-2 top-1 bottom-1 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/18 to-transparent" />
 
+            {/* The list scrolls inside the space between its top and the footer
+                (and the promo bar, when one is showing), never under them. */}
             <div
-              className={cn(
-                collapsed ? "overflow-visible" : "max-h-[calc(100vh-240px)] overflow-auto",
-                "pr-2"
-              )}
+              className={cn(collapsed ? "overflow-visible" : "overflow-auto overscroll-contain", "pr-2")}
+              style={collapsed ? undefined : { maxHeight: `calc(100vh - ${topOffset}px - 72px - var(--olivea-banner-clear, 0px))` }}
             >
               <div className="flex items-center justify-between">
                 <button

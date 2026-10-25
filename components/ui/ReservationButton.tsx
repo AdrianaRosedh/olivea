@@ -84,7 +84,7 @@ export default function ReservationButton({
         width={16}
         height={18}
         style={{ width: 16, height: 18 }}
-        className="brightness-0 invert opacity-80"
+        className="brightness-0 invert opacity-95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
       />
       <Image
         src="/images/press/awards/michelin-green-star.svg"
@@ -92,13 +92,16 @@ export default function ReservationButton({
         width={19}
         height={18}
         style={{ width: 19, height: 18 }}
-        className="brightness-0 invert opacity-80"
+        className="brightness-0 invert opacity-95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
       />
       <span
-        className="text-[12px] tracking-[0.12em] uppercase"
+        className="text-[12.5px] tracking-[0.12em] uppercase"
         style={{
           fontFamily: "var(--font-sans)",
-          color: "rgba(255,255,255,0.8)",
+          color: "rgba(255,255,255,0.95)",
+          // Same two shadows as the tagline above: legible on the video
+          // without a box behind it.
+          textShadow: "0 1px 2px rgba(0,0,0,0.5), 0 2px 14px rgba(0,0,0,0.4)",
         }}
       >
         {isES

@@ -4,6 +4,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,12 +23,7 @@ import {
   animate,
   type PanInfo,
 } from "framer-motion";
-import {
-  Calendar,
-  MessageSquare,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Calendar, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { reserveDefault } from "@/lib/sections";
 
@@ -44,6 +40,13 @@ const GAP = 8;
 const PAD = 7;
 const TEXT_PAD_X = 10;
 const PILL_GAP = 8;
+
+// Reserve speaks like the desktop Reservar button: serif capitals, spaced.
+const RESERVE_TEXT = "text-[12.5px] font-semibold uppercase tracking-[0.2em] font-(family-name:--font-serif)";
+const CHAT_TEXT = "text-[14px] font-medium tracking-[0.02em]";
+
+// The chat status dot and its gap, beside the label.
+const DOT_W = 16;
 
 const MAX_AWAY_COLLAPSED = 28;
 const MAX_AWAY_EXPANDED = 40;
@@ -88,8 +91,10 @@ function clamp(n: number, min: number, max: number): number {
 }
 
 function approxDockH(): number {
-  const rows = 4 * ROW;
-  const gaps = 3 * GAP;
+  // Handle, Reserve, Chat. The open/close toggle and the drag grip used to be
+  // two separate rows; one handle now does both.
+  const rows = 3 * ROW;
+  const gaps = 2 * GAP;
   const pad = 2 * PAD;
   return rows + gaps + pad + 8;
 }
@@ -160,7 +165,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
   const pathname = usePathname();
 
   const [chatAvailable, setChatAvailable] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -185,17 +189,19 @@ export function MobileNav({ isDrawerOpen }: Props) {
           reserve: "Reservar",
           live: "En Vivo",
           chat: "Chat",
-          move: "Mover",
-          open: "Abrir",
-          close: "Cerrar",
+          chatOn: "en línea",
+          chatOff: "abre 8:00",
+          open: "Mostrar acciones; arrastra para mover",
+          close: "Ocultar acciones",
         }
       : {
           reserve: "Reserve",
           live: "Live",
           chat: "Chat",
-          move: "Move",
-          open: "Open",
-          close: "Close",
+          chatOn: "online",
+          chatOff: "opens 8:00",
+          open: "Show actions; drag to move",
+          close: "Hide actions",
         };
   }, [lang]);
 
@@ -211,11 +217,13 @@ export function MobileNav({ isDrawerOpen }: Props) {
       pathname.includes("/diario") ||
       pathname.includes("/posts"));
 
+  const chatLabel = `${labels.chat} · ${chatAvailable ? labels.chatOn : labels.chatOff}`;
+
   const [wReserve, setWReserve] = useState(64);
   const [wChat, setWChat] = useState(34);
 
   const pillWReserve = ROW + PILL_GAP + wReserve + TEXT_PAD_X * 2;
-  const pillWChat = ROW + PILL_GAP + wChat + TEXT_PAD_X * 2;
+  const pillWChat = ROW + PILL_GAP + DOT_W + wChat + TEXT_PAD_X * 2;
 
   const compactW = ROW + PAD * 2;
   const expandedW = Math.max(pillWReserve, pillWChat, ROW) + PAD * 2;
@@ -269,6 +277,16 @@ export function MobileNav({ isDrawerOpen }: Props) {
     return () => window.clearInterval(id);
   }, []);
 
+  // Set when a drag starts, so the click that ends it doesn't toggle the
+  // labels; cleared just after that click.
+  const draggedRef = useRef(false);
+  // Where a press on the handle began, to tell a tap from a drag.
+  const pressRef = useRef<{ x: number; y: number } | null>(null);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+  // The dock's offset from its new edge at the moment it is dropped, so it
+  // glides from where the finger left it instead of jumping.
+  const snapFromRef = useRef<number | null>(null);
+
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("olivea_mobile_dock_pos_v17");
@@ -288,46 +306,12 @@ export function MobileNav({ isDrawerOpen }: Props) {
   }, []);
 
   useEffect(() => {
-    setVisible(false);
     setExpanded(false);
     setIsDragging(false);
     mvX.set(0);
     mvY.set(pos.y);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
-
-  // ✅ RAF-throttled scroll watcher (biggest scroll-lag win)
-  useEffect(() => {
-    const threshold = isContentHeavy ? 140 : 110;
-
-    let raf = 0;
-    let lastVisible = false;
-
-    const compute = () => {
-      raf = 0;
-      if (isDragging) return;
-      if (document.documentElement.dataset.scrollLocked === "1") return;
-
-      const next = (window.scrollY || 0) > threshold;
-      if (next !== lastVisible) {
-        lastVisible = next;
-        setVisible(next);
-      }
-    };
-
-    const onScroll = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(compute);
-    };
-
-    compute();
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => {
-      if (raf) window.cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, [isContentHeavy, isDragging]);
 
   const [dragConstraints, setDragConstraints] = useState({
     top: -500,
@@ -359,7 +343,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
   }, [expanded, pos.side]);
 
   useEffect(() => {
-    if (!visible) return;
     recomputeConstraints();
     window.addEventListener("resize", recomputeConstraints);
     window.addEventListener("orientationchange", recomputeConstraints);
@@ -371,7 +354,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
       window.visualViewport?.removeEventListener("resize", recomputeConstraints);
       window.visualViewport?.removeEventListener("scroll", recomputeConstraints);
     };
-  }, [visible, recomputeConstraints]);
+  }, [recomputeConstraints]);
 
   const onReserve = useCallback(() => {
     track("Reservation Opened", {
@@ -388,7 +371,6 @@ export function MobileNav({ isDrawerOpen }: Props) {
   useEffect(() => {
     const handler = () => {
       if (isDrawerOpen || outlineOpen) return;
-      setVisible(true);
       if (isDragging) return;
       onReserve();
     };
@@ -422,9 +404,9 @@ export function MobileNav({ isDrawerOpen }: Props) {
   }, [chatAvailable, expanded, lang]);
 
   const onDragStart = useCallback(() => {
+    draggedRef.current = true;
     setExpanded(false);
     setIsDragging(true);
-    setVisible(true);
   }, []);
 
   const onDragEnd = useCallback(
@@ -432,22 +414,48 @@ export function MobileNav({ isDrawerOpen }: Props) {
       const vw = window.innerWidth;
       const nextSide: DockSide = info.point.x < vw / 2 ? "left" : "right";
 
-      const clampedY = clampDockY(mvY.get());
-      mvY.set(clampedY);
+      // The drag moves the springs (sx, sy) directly; mvX/mvY never saw it.
+      // Reading them saved the old spot and left the dock where it was
+      // dropped, partly off the screen after switching sides.
+      const clampedY = clampDockY(sy.get());
+      mvY.jump(clampedY);
+      sy.jump(clampedY);
 
-      const clampedX = clampDockX(mvX.get(), nextSide, false);
-      mvX.set(clampedX);
+      const r = dockRef.current?.getBoundingClientRect();
+      snapFromRef.current = r
+        ? nextSide === "left"
+          ? r.left - 12
+          : r.right - (vw - 12)
+        : 0;
 
       const next: DockPos = { side: nextSide, y: clampedY };
       setPos(next);
       sessionStorage.setItem("olivea_mobile_dock_pos_v17", JSON.stringify(next));
 
-      animate(mvX, 0, { type: "spring", ...SPRING });
-
       setIsDragging(false);
+      // A touch drag ends without a click; don't let the flag swallow the next tap.
+      window.setTimeout(() => {
+        draggedRef.current = false;
+      }, 0);
     },
-    [mvX, mvY]
+    [mvY, sy]
   );
+
+  // Once the dock is anchored to its new edge, start from where it was
+  // dropped and glide in.
+  useLayoutEffect(() => {
+    const from = snapFromRef.current;
+    if (from == null) return;
+    snapFromRef.current = null;
+    mvX.jump(from);
+    sx.jump(from);
+    animate(mvX, 0, { type: "spring", ...SPRING });
+  }, [pos, mvX, sx]);
+
+  const toggleExpanded = useCallback(() => {
+    setExpanded((v) => !v);
+    requestAnimationFrame(() => recomputeConstraints());
+  }, [recomputeConstraints]);
 
   const handleStyle = { touchAction: "none" } satisfies CSSProperties;
 
@@ -469,11 +477,15 @@ export function MobileNav({ isDrawerOpen }: Props) {
     const isReserve = tone === "reserve";
     const isLive = tone === "live";
 
-    const boxBg = isReserve
-      ? "bg-(--olivea-olive) ring-1 ring-black/5"
-      : "bg-white/10 ring-1 ring-white/12";
+    // Reserve wears the desktop Reservar button's signature shape: soft
+    // corners on the left, a full round end on the right.
+    const radius = isReserve ? "rounded-l-[11px] rounded-r-[18px]" : "rounded-[18px]";
 
-    const fg = isReserve ? "text-white" : "text-(--olivea-olive)";
+    const boxBg = isReserve
+      ? "bg-(--olivea-olive) ring-1 ring-black/5 shadow-[0_6px_14px_-8px_rgba(40,60,35,0.7)]"
+      : "bg-white/60 ring-1 ring-(--olivea-olive)/12";
+
+    const fg = isReserve ? "text-(--olivea-cream)" : "text-(--olivea-olive)";
 
     const icon = isReserve ? (
       <Calendar className="h-4 w-4" />
@@ -489,6 +501,12 @@ export function MobileNav({ isDrawerOpen }: Props) {
       <MessageSquare className="h-4 w-4" />
     );
 
+    // Calm status: olive when someone is answering, a quiet grey outside
+    // hours. Red read as an error.
+    const dotTone = chatAvailable
+      ? "bg-(--olivea-olive) ring-2 ring-(--olivea-olive)/20"
+      : "bg-(--olivea-olive)/30";
+
     return (
       <motion.button
         type="button"
@@ -497,14 +515,15 @@ export function MobileNav({ isDrawerOpen }: Props) {
         // an icon, which a screen reader announced as just "button".
         aria-label={label}
         className={cn(
-          "relative isolate rounded-[18px]",
+          "relative isolate",
+          radius,
           "inline-flex items-center",
           expanded
             ? sideRight
               ? "justify-end"
               : "justify-start"
             : "justify-start",
-          "active:scale-[0.99] transition-transform",
+          "active:scale-[0.97] transition-transform",
           "h-9"
         )}
         style={{ width: expanded ? pillW : ROW }}
@@ -512,7 +531,7 @@ export function MobileNav({ isDrawerOpen }: Props) {
         transition={{ type: "spring", ...SPRING }}
       >
         <motion.span
-          className={cn("absolute inset-0 rounded-[18px]", boxBg)}
+          className={cn("absolute inset-0", radius, boxBg)}
           layout
           transition={{ type: "spring", ...SPRING }}
         />
@@ -540,19 +559,13 @@ export function MobileNav({ isDrawerOpen }: Props) {
                 paddingRight: sideRight ? PILL_GAP : TEXT_PAD_X,
               }}
             >
-              <span className="text-[14px] font-medium tracking-[0.02em]">
-                {label}
-              </span>
-
               {showDot ? (
                 <span
                   aria-hidden="true"
-                  className={cn(
-                    "ml-3 block h-2.5 w-2.5 rounded-full border border-white/70",
-                    chatAvailable ? "bg-green-500" : "bg-red-500"
-                  )}
+                  className={cn("mr-2 block h-2 w-2 rounded-full", dotTone)}
                 />
               ) : null}
+              <span className={cn("whitespace-nowrap", isReserve ? RESERVE_TEXT : CHAT_TEXT)}>{label}</span>
             </motion.span>
           )}
         </AnimatePresence>
@@ -561,9 +574,9 @@ export function MobileNav({ isDrawerOpen }: Props) {
           <span
             aria-hidden="true"
             className={cn(
-              "absolute right-2 top-2 z-10",
-              "block h-2 w-2 rounded-full border border-white/70",
-              chatAvailable ? "bg-green-500" : "bg-red-500"
+              "absolute right-1.5 top-1.5 z-10",
+              "block h-2 w-2 rounded-full border border-white/80",
+              dotTone
             )}
           />
         ) : null}
@@ -571,17 +584,12 @@ export function MobileNav({ isDrawerOpen }: Props) {
     );
   }
 
-  const ToggleIcon = sideRight
-    ? expanded
-      ? ChevronRight
-      : ChevronLeft
-    : expanded
-    ? ChevronLeft
-    : ChevronRight;
-
   return (
+    // Always on screen (owner, 2026-10-25): Reserve and Chat used to appear
+    // only after scrolling past the top and, briefly, tucked away while
+    // reading. Guests lost them. It steps aside only for the menu and the
+    // chapter outline (above).
     <AnimatePresence>
-      {visible && (
         <>
           {/* Pulse animation for live dot */}
           <style dangerouslySetInnerHTML={{ __html: `
@@ -594,12 +602,12 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
           <MeasureText
             text={labels.reserve}
-            className="text-[14px] font-medium tracking-[0.02em]"
+            className={RESERVE_TEXT}
             onWidth={setWReserve}
           />
           <MeasureText
-            text={labels.chat}
-            className="text-[14px] font-medium tracking-[0.02em]"
+            text={chatLabel}
+            className={CHAT_TEXT}
             onWidth={setWChat}
           />
 
@@ -607,7 +615,11 @@ export function MobileNav({ isDrawerOpen }: Props) {
             className={cn(
               "fixed md:hidden z-200 pointer-events-none",
               sideRight ? "right-3" : "left-3",
-              "bottom-[calc(env(safe-area-inset-bottom,0px)+var(--mobile-nav-h,84px)+10px)]",
+              // Sits on the chapter bar's measured height (it grows a title
+              // row at the end of a page) and rises above the promo banner
+              // while it shows (SiteBanner sets --olivea-banner-clear).
+              "bottom-[calc(var(--mobile-dock-h,calc(env(safe-area-inset-bottom,0px)+84px))+10px+var(--olivea-banner-clear,0px))]",
+              "transition-[bottom] duration-200 ease-out",
               isContentHeavy ? "opacity-95" : ""
             )}
             initial={{ opacity: 0, x: sideRight ? 18 : -18, y: 8 }}
@@ -617,15 +629,17 @@ export function MobileNav({ isDrawerOpen }: Props) {
           >
             <motion.div
               className={cn(
-                "pointer-events-auto select-none",
-                "rounded-[20px] overflow-hidden",
-                // ✅ cheaper on Android: less blur + slightly stronger background
+                "relative pointer-events-auto select-none",
+                "rounded-[22px] overflow-hidden",
+                // The house glass: the cream of the promo bar and the press
+                // band, a hairline olive edge and a soft olive shadow.
                 coarsePointer
-                  ? "bg-white/16 backdrop-blur-md"
-                  : "bg-white/8 backdrop-blur-xl",
-                "ring-1 ring-white/14",
-                "shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+                  ? "bg-(--olivea-cream)/92 backdrop-blur-md"
+                  : "bg-(--olivea-cream)/80 backdrop-blur-xl",
+                "ring-1 ring-(--olivea-olive)/14",
+                "shadow-[0_18px_40px_-22px_rgba(40,60,35,0.5)]"
               )}
+              ref={dockRef}
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -657,22 +671,45 @@ export function MobileNav({ isDrawerOpen }: Props) {
                   )}
                   style={{ gap: GAP }}
                 >
+                  {/* One handle: tap shows the labels, drag moves the dock
+                      (it was two rows, a "<" toggle and a separate grip). */}
                   <button
                     type="button"
-                    onClick={() => {
-                      setExpanded((v) => !v);
-                      requestAnimationFrame(() => recomputeConstraints());
-                    }}
                     aria-label={expanded ? labels.close : labels.open}
+                    aria-expanded={expanded}
+                    style={handleStyle}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      pressRef.current = { x: e.clientX, y: e.clientY };
+                      dragControls.start(e);
+                    }}
+                    // A tap is read from the press itself: with the drag
+                    // wired to this handle, a touch never produces a click.
+                    onPointerUp={(e) => {
+                      const from = pressRef.current;
+                      pressRef.current = null;
+                      if (!from || draggedRef.current) return;
+                      if (Math.hypot(e.clientX - from.x, e.clientY - from.y) > 8) return;
+                      toggleExpanded();
+                    }}
+                    // Keyboard (Enter / Space) still arrives as a click.
+                    onClick={(e) => {
+                      if (e.detail === 0) toggleExpanded();
+                    }}
                     className={cn(
-                      "w-9 h-9 rounded-[18px]",
+                      "w-9 h-9 rounded-[18px] cursor-grab active:cursor-grabbing",
                       "inline-flex items-center justify-center",
-                      "bg-white/10",
-                      "ring-1 ring-white/12",
-                      "active:scale-[0.98] transition-transform"
+                      "active:bg-(--olivea-olive)/8 transition-colors"
                     )}
                   >
-                    <ToggleIcon className="h-4 w-4 text-(--olivea-olive) opacity-85" />
+                    <span className="grid grid-cols-3 gap-0.75" aria-hidden="true">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <span
+                          key={i}
+                          className="h-0.75 w-0.75 rounded-full bg-(--olivea-olive)/50"
+                        />
+                      ))}
+                    </span>
                   </button>
 
                   <ActionRow
@@ -684,44 +721,17 @@ export function MobileNav({ isDrawerOpen }: Props) {
 
                   <ActionRow
                     tone="chat"
-                    label={labels.chat}
+                    label={chatLabel}
                     pillW={pillWChat}
                     onClick={onChat}
                     showDot
                   />
-
-                  <button
-                    type="button"
-                    aria-label={labels.move}
-                    style={handleStyle}
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      dragControls.start(e);
-                    }}
-                    className={cn(
-                      "w-9 h-9 rounded-[18px]",
-                      "inline-flex items-center justify-center",
-                      "active:bg-white/10 transition-colors"
-                    )}
-                  >
-                    <span
-                      className="grid grid-cols-3 gap-0.75"
-                      aria-hidden="true"
-                    >
-                      {Array.from({ length: 9 }).map((_, i) => (
-                        <span
-                          key={i}
-                          className="h-0.75 w-0.75 rounded-full bg-(--olivea-olive)/40"
-                        />
-                      ))}
-                    </span>
-                  </button>
                 </div>
               </motion.div>
+
             </motion.div>
           </motion.div>
         </>
-      )}
     </AnimatePresence>
   );
 }

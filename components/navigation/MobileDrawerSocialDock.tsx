@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
   YouTubeIcon,
   InstagramIcon,
@@ -8,54 +9,47 @@ import {
   SpotifyIcon,
   PinterestIcon,
 } from "@/components/icons/SocialIcons";
+import defaultGlobal from "@/lib/content/data/global";
+import InstagramChooser from "@/components/ui/InstagramChooser";
 
-type Item = {
-  id: "yt" | "ig" | "tt" | "li" | "sp" | "pt";
-  href: string;
-  label: string;
+const ICONS: Record<string, ReactNode> = {
+  youtube: <YouTubeIcon size={20} />,
+  instagram: <InstagramIcon size={20} />,
+  tiktok: <TikTokIcon size={20} />,
+  linkedin: <LinkedInIcon size={20} />,
+  spotify: <SpotifyIcon size={20} />,
+  pinterest: <PinterestIcon size={20} />,
 };
 
-const SOCIAL: Item[] = [
-  { id: "yt", href: "https://www.youtube.com/@GrupoOlivea", label: "YouTube" },
-  { id: "ig", href: "https://instagram.com/oliveafarmtotable/", label: "Instagram" },
-  { id: "tt", href: "https://www.tiktok.com/@grupoolivea", label: "TikTok" },
-  { id: "li", href: "https://www.linkedin.com/company/inmobiliaria-casa-olivea/", label: "LinkedIn" },
-  { id: "sp", href: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8", label: "Spotify" },
-  { id: "pt", href: "https://mx.pinterest.com/familiaolivea/", label: "Pinterest" },
-];
-
-function iconFor(id: Item["id"]) {
-  switch (id) {
-    case "yt":
-      return <YouTubeIcon size={20} />;
-    case "ig":
-      return <InstagramIcon size={20} />;
-    case "tt":
-      return <TikTokIcon size={20} />;
-    case "li":
-      return <LinkedInIcon size={20} />;
-    case "sp":
-      return <SpotifyIcon size={20} />;
-    case "pt":
-      return <PinterestIcon size={20} />;
-  }
-}
-
-export default function MobileDrawerSocialDock() {
+// The same list as the desktop footer (lib/content/data/global.ts). This had
+// its own copy, and its TikTok link had drifted to a different account.
+export default function MobileDrawerSocialDock({ lang }: { lang: "es" | "en" }) {
   return (
     <div className="flex gap-5">
-      {SOCIAL.map((it) => (
+      {defaultGlobal.socials.map((it) =>
+        // Three houses, three Instagram accounts: the icon asks which one.
+        it.platform === "instagram" ? (
+          <InstagramChooser
+            key={it.platform}
+            lang={lang}
+            inline
+            triggerClassName="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
+          >
+            {ICONS.instagram}
+          </InstagramChooser>
+        ) : (
         <a
-          key={it.id}
-          href={it.href}
+          key={it.platform}
+          href={it.url}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={it.label}
           className="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
         >
-          {iconFor(it.id)}
+          {ICONS[it.platform] ?? ICONS.instagram}
         </a>
-      ))}
+        )
+      )}
     </div>
   );
 }

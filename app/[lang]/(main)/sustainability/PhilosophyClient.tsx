@@ -4,6 +4,7 @@
 import { useEffect, useMemo, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import {
   motion,
   useScroll,
@@ -23,6 +24,40 @@ const FloatingPracticesCardGSAP = dynamic(
   { ssr: false, loading: () => null },
 );
 import PhilosophyMobileNav from "./PhilosophyMobileNav";
+
+/* --------- one photograph per chapter, from the existing library --------- */
+
+// Keyed by the chapter's id: chapters come from the CMS, so one without a
+// photo here (a new chapter, or Technology, which nothing in the library
+// shows honestly) simply opens without one.
+const CHAPTER_PHOTOS: Record<
+  string,
+  { src: string; position?: string; alt: { es: string; en: string } }
+> = {
+  origins: {
+    src: "/images/farm/gardenold.jpg",
+    position: "50% 60%",
+    alt: { es: "Trabajando el huerto de Olivea", en: "Working Olivea's garden" },
+  },
+  vision: {
+    src: "/images/farm/entrance.jpg",
+    position: "50% 45%",
+    alt: { es: "La entrada de Olivea Farm To Table", en: "The entrance to Olivea Farm To Table" },
+  },
+  sustainability: {
+    src: "/images/farm/garden.jpg",
+    alt: { es: "Camas de cultivo del huerto de Olivea", en: "Raised beds in Olivea's garden" },
+  },
+  gastronomy: {
+    src: "/images/farm/kitchen.jpg",
+    alt: { es: "La cocina de Olivea Farm To Table en servicio", en: "Olivea Farm To Table's kitchen during service" },
+  },
+  community: {
+    src: "/images/casa/garden.jpg",
+    position: "50% 55%",
+    alt: { es: "Un integrante del equipo con verduras del huerto", en: "A team member with vegetables from the garden" },
+  },
+};
 
 function paragraphs(body: string) {
   return body
@@ -348,14 +383,21 @@ export default function PhilosophyClient({
                 >
                   {/* Header */}
                   <div className="max-w-[92ch]">
-                    <div className="flex items-center gap-3">
-                      <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
-                        {tt(lang, "Capítulo", "Chapter")}{" "}
-                        <span className="tabular-nums text-(--olivea-honey-text)">
-                          {String(idx + 1).padStart(2, "0")}
-                        </span>
+                    <div className="flex items-end gap-4">
+                      <span
+                        aria-hidden="true"
+                        className="tabular-nums leading-[0.8] text-(--olivea-honey-text)"
+                        style={{ fontFamily: "var(--font-serif)", fontWeight: 400, fontSize: "clamp(56px, 6.2vw, 96px)" }}
+                      >
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                      <div className="flex flex-1 items-center gap-3 pb-1.5">
+                        <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
+                          {tt(lang, "Capítulo", "Chapter")}
+                          <span className="sr-only"> {idx + 1}</span>
+                        </div>
+                        <div className="h-px flex-1 bg-linear-to-r from-(--olivea-olive)/20 to-transparent" />
                       </div>
-                      <div className="h-px flex-1 bg-linear-to-r from-(--olivea-olive)/20 to-transparent" />
                     </div>
 
                     {/* ✅ Switch marker lives directly under the chapter # row (desktop only) */}
@@ -381,10 +423,8 @@ export default function PhilosophyClient({
 
                     {s.subtitle ? (
                       <p
-                        className={cn(
-                          "mt-2 text-[16px] leading-relaxed",
-                          inkSoft
-                        )}
+                        className="mt-4 border-l-2 border-(--olivea-honey)/45 pl-5 italic text-(--olivea-olive)"
+                        style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(22px, 1.7vw, 28px)", lineHeight: 1.3 }}
                       >
                         {s.subtitle}
                       </p>
@@ -403,6 +443,18 @@ export default function PhilosophyClient({
                   >
                     {/* Body */}
                     <div className="space-y-6">
+                      {CHAPTER_PHOTOS[s.id] ? (
+                        <figure className="relative mb-10 aspect-4/3 overflow-hidden rounded-3xl ring-1 ring-(--olivea-olive)/10 shadow-[0_18px_44px_-30px_rgba(40,60,35,0.45)]">
+                          <Image
+                            src={CHAPTER_PHOTOS[s.id].src}
+                            alt={CHAPTER_PHOTOS[s.id].alt[lang]}
+                            fill
+                            sizes="(min-width: 1024px) 560px, 100vw"
+                            className="object-cover"
+                            style={{ objectPosition: CHAPTER_PHOTOS[s.id].position ?? "50% 50%" }}
+                          />
+                        </figure>
+                      ) : null}
                       {paragraphs(s.body).map((p, i) => (
                         <p
                           key={i}

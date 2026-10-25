@@ -28,7 +28,9 @@ export default function FaqSection({ data, lang }: SectionProps) {
         </Reveal>
       }
     >
-      <ModernFAQ items={faqItems} />
+      <ModernFAQ
+        initialCount={6}
+        moreLabel={lang === "es" ? `Ver las ${items.length} preguntas` : `See all ${items.length} questions`} items={faqItems} />
     </StickyBlock>
   );
 }

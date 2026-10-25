@@ -1,22 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { useId, useState } from "react";
+import { motion } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { cn } from "@/lib/utils";
 
 const languages = [
-  { code: "es", label: "Español" },
-  { code: "en", label: "English" },
+  { code: "es", short: "ES", label: "Español" },
+  { code: "en", short: "EN", label: "English" },
 ] as const;
 
 type LocaleCode = (typeof languages)[number]["code"];
 
 interface LocaleSwitcherProps {
   currentLang: LocaleCode;
+  /** "dark": cream on the olive menu. "light": olive on the cream page. */
+  tone?: "dark" | "light";
+  /** Sized in em, so it scales with its surroundings (the desktop footer
+   *  shrinks its whole row on narrow windows). */
   className?: string;
+  /** Called just before the language changes (the phone menu uses it to
+   *  stay open). With it, the switch navigates directly instead of through
+   *  the page's content fade, which would only be hidden behind the menu. */
+  onSwitch?: (locale: LocaleCode) => void;
 }
 
 // ✅ Trigger a real <a> click so SubtleContentFade can intercept & animate.
@@ -29,118 +36,92 @@ function fadeNavigate(href: string) {
   a.remove();
 }
 
+/**
+ * ES | EN as one toggle. With two languages a dropdown was a menu of one:
+ * tap, read, tap again. Both choices now show at once; the pill slides to the
+ * one chosen, then the page changes language.
+ */
 export default function LocaleSwitcher({
   currentLang,
-  className = "",
+  tone = "dark",
+  className,
+  onSwitch,
 }: LocaleSwitcherProps) {
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-
   const pathname = usePathname();
-
-  // Close when route changes (feels cleaner in drawers)
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  const close = useCallback(() => setOpen(false), []);
-  const toggle = useCallback(() => setOpen((v) => !v), []);
-
-  // Outside click + Escape
-  useEffect(() => {
-    function onMouseDown(e: MouseEvent) {
-      const target = e.target as Node;
-      if (dropdownRef.current && !dropdownRef.current.contains(target)) close();
-    }
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") close();
-    }
-
-    document.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [close]);
+  const router = useRouter();
+  const pillId = useId();
+  // Moves the pill at once; the page follows a moment later so the slide is seen.
+  const [shown, setShown] = useState<LocaleCode>(currentLang);
 
   function switchLocale(locale: LocaleCode) {
+    if (locale === shown) return;
+    setShown(locale);
     Cookies.set("NEXT_LOCALE", locale, { path: "/" });
-
     const newPath =
       pathname?.replace(/^\/(en|es)(?=\/|$)/, `/${locale}`) || `/${locale}`;
-
-    setOpen(false);
-    fadeNavigate(newPath); // ✅ fade on /es <-> /en
+    window.setTimeout(() => {
+      if (onSwitch) {
+        onSwitch(locale);
+        router.push(newPath, { scroll: false });
+      } else {
+        fadeNavigate(newPath);
+      }
+    }, 180);
   }
 
-  const otherLanguages = languages.filter((l) => l.code !== currentLang);
+  const dark = tone === "dark";
 
   return (
-    <div ref={dropdownRef} className="relative inline-flex">
-      <motion.button
-        type="button"
-        onClick={toggle}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        whileTap={{ scale: 0.96 }}
-        transition={{ type: "spring", stiffness: 220, damping: 18 }}
-        className={cn(
-          "flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold uppercase tracking-wide",
-          "transition-colors duration-300",
-          className ||
-            "border-(--olivea-olive) text-(--olivea-olive) hover:bg-(--olivea-olive) hover:text-white"
-        )}
-      >
-        {currentLang.toUpperCase()}
-
-        <motion.span
-          aria-hidden="true"
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.18 }}
-          className="inline-flex"
-        >
-          <ChevronDown size={16} />
-        </motion.span>
-      </motion.button>
-
-      {/* Dropdown: POPS UPWARD */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            role="menu"
-            initial={{ opacity: 0, y: 8, scale: 0.98, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: 8, scale: 0.98, filter: "blur(6px)" }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+    <div
+      role="radiogroup"
+      aria-label={currentLang === "es" ? "Idioma" : "Language"}
+      className={cn(
+        "relative inline-flex items-center rounded-full p-[0.2em]",
+        dark ? "ring-1 ring-(--olivea-cream)/45" : "ring-1 ring-(--olivea-olive)/30",
+        className
+      )}
+    >
+      {languages.map(({ code, short, label }) => {
+        const active = shown === code;
+        return (
+          <button
+            key={code}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={label}
+            lang={code}
+            onClick={() => switchLocale(code)}
             className={cn(
-              "absolute right-0 bottom-full mb-3 z-50",
-              "min-w-42.5 overflow-hidden rounded-2xl",
-              "bg-(--olivea-cream) ring-1 ring-(--olivea-olive)/30 shadow-md"
+              "relative z-0 rounded-full px-[0.95em] py-[0.38em]",
+              "text-[0.85em] font-semibold tracking-[0.14em] leading-none",
+              "transition-colors duration-200",
+              "focus-visible:outline-none focus-visible:ring-2",
+              dark ? "focus-visible:ring-(--olivea-cream)/60" : "focus-visible:ring-(--olivea-olive)/40",
+              active
+                ? dark
+                  ? "text-(--olivea-olive)"
+                  : "text-(--olivea-cream)"
+                : dark
+                  ? "text-(--olivea-cream)/75 hover:text-(--olivea-cream)"
+                  : "text-(--olivea-olive)/75 hover:text-(--olivea-olive)"
             )}
-            style={{ transformOrigin: "bottom right" }}
           >
-            {otherLanguages.map(({ code, label }) => (
-              <motion.button
-                key={code}
-                type="button"
-                role="menuitem"
-                onClick={() => switchLocale(code)}
-                whileTap={{ scale: 0.98 }}
+            {active ? (
+              <motion.span
+                layoutId={pillId}
+                aria-hidden="true"
                 className={cn(
-                  "block w-full text-left px-4 py-3 text-sm",
-                  "text-(--olivea-olive)",
-                  "hover:bg-(--olivea-olive) hover:text-white transition-colors",
-                  "border-t border-(--olivea-olive)/15 first:border-t-0"
+                  "absolute inset-0 -z-10 rounded-full",
+                  dark ? "bg-(--olivea-cream)" : "bg-(--olivea-olive)"
                 )}
-              >
-                {label}
-              </motion.button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+                transition={{ type: "spring", stiffness: 520, damping: 40 }}
+              />
+            ) : null}
+            {short}
+          </button>
+        );
+      })}
     </div>
   );
 }

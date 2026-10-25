@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { entrance } from "@/components/scroll/Reveal";
 
 export type FAQItem = {
   q: string;
@@ -11,8 +12,26 @@ export type FAQItem = {
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-export default function ModernFAQ({ items }: { items: FAQItem[] }) {
+/**
+ * With `initialCount`, only the first questions show and a quiet button opens
+ * the rest in place: a page with 18–20 questions read as a wall. Every
+ * question still reaches search engines and AI assistants through the page's
+ * FAQ JSON-LD and server-rendered article, which list them all.
+ */
+export default function ModernFAQ({
+  items,
+  initialCount,
+  moreLabel,
+}: {
+  items: FAQItem[];
+  initialCount?: number;
+  /** Button text for the rest, e.g. "Ver las 18 preguntas". */
+  moreLabel?: string;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const limited = !showAll && initialCount != null && items.length > initialCount + 1;
+  const visible = limited ? items.slice(0, initialCount) : items;
 
   const toggle = (i: number) => {
     setOpenIndex((prev) => (prev === i ? null : i));
@@ -20,16 +39,13 @@ export default function ModernFAQ({ items }: { items: FAQItem[] }) {
 
   return (
     <div className="space-y-4 mt-6">
-      {items.map((item, i) => {
+      {visible.map((item, i) => {
         const open = openIndex === i;
 
         return (
           <motion.div
             key={`${i}-${item.q}`}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: EASE, delay: i * 0.04 }}
-            viewport={{ once: true }}
+            {...entrance(Math.min(i % 6, 5) * 0.04)}
             className="
               rounded-xl border border-black/10
               bg-white/10 backdrop-blur-sm
@@ -80,6 +96,19 @@ export default function ModernFAQ({ items }: { items: FAQItem[] }) {
           </motion.div>
         );
       })}
+
+      {limited && (
+        <div className="pt-2 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShowAll(true)}
+            className="inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/30 px-5 py-2.5 text-[12.5px] font-semibold uppercase tracking-[0.14em] text-(--olivea-olive) hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+          >
+            {moreLabel ?? `+ ${items.length - visible.length}`}
+            <ChevronDown className="w-4 h-4" aria-hidden="true" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

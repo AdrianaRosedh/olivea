@@ -450,8 +450,14 @@ function MobileRestaurantSheet({
 
 /**
  * What a phone shows when the guest has not chosen a house yet: the three
- * houses, dressed like the home page cards, so reserving starts from OLIVEA
- * as a whole rather than from one booking engine.
+ * houses as a printed invitation, so reserving starts from OLIVEA as a whole
+ * rather than from one booking engine.
+ *
+ * It used to repeat the home page cards (filled cream, drop shadow) without
+ * the video and green button that frame them there, and read as the home page
+ * stripped bare. Now: a fine double olive rule per house, the emblem set into
+ * the frame like a seal, an action line, a press that inks the card, and the
+ * three centred with a signature at the foot.
  */
 function HouseChoice({
   lang,
@@ -463,49 +469,90 @@ function HouseChoice({
   const reduce = usePrefersReducedMotion();
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-2 pb-[max(env(safe-area-inset-bottom),28px)]">
-      <p
-        className="text-center italic text-(--olivea-ink)/70"
-        style={{ fontFamily: "var(--font-serif)", fontSize: 17 }}
-      >
-        {lang === "es" ? "¿Dónde te esperamos?" : "Where shall we welcome you?"}
-      </p>
+    <div
+      className="flex-1 min-h-0 overflow-y-auto px-6 pt-2 pb-[max(env(safe-area-inset-bottom),24px)]"
+      style={{
+        background:
+          "radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--olivea-olive) 7%, transparent), transparent 70%)",
+      }}
+    >
+      <div className="flex min-h-full flex-col">
+        <p
+          className="text-center italic text-(--olivea-ink)/75"
+          style={{ fontFamily: "var(--font-serif)", fontSize: 18 }}
+        >
+          {lang === "es" ? "¿Dónde te esperamos?" : "Where shall we welcome you?"}
+        </p>
+        <div aria-hidden="true" className="mt-3 flex items-center justify-center gap-2.5 text-(--olivea-olive)/45">
+          <span className="h-px w-10 bg-current" />
+          <span className="h-1.5 w-1.5 rotate-45 border border-current" />
+          <span className="h-px w-10 bg-current" />
+        </div>
 
-      <ul className="mt-12 space-y-12">
-        {HOUSE_ORDER.map((id, i) => {
-          const house = HOUSES[id];
-          return (
-            <motion.li
-              key={id}
-              initial={reduce ? false : { opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={reduce ? { duration: 0 } : { duration: 0.45, ease: EASE, delay: 0.08 + i * 0.08 }}
-            >
-              <button
-                type="button"
-                onClick={() => onChoose(id)}
-                className="relative w-full rounded-3xl border-4 border-[#e7eae1] bg-[#e7eae1] px-4 pt-10 pb-4 text-center shadow-[0_12px_32px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform"
+        {/* pt clears the first emblem, which sits half above its card */}
+        <ul className="my-auto space-y-10 pt-11 pb-7">
+          {HOUSE_ORDER.map((id, i) => {
+            const house = HOUSES[id];
+            return (
+              <motion.li
+                key={id}
+                initial={reduce ? false : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={reduce ? { duration: 0 } : { duration: 0.45, ease: EASE, delay: 0.08 + i * 0.08 }}
               >
-                <span className="absolute left-1/2 top-0 h-16 w-16 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full border-4 border-[#e7eae1] bg-[#e7eae1]">
-                  <Image src={house.emblem} alt="" fill sizes="64px" className="object-contain" />
-                </span>
-                <span
-                  className="block text-(--olivea-olive)"
-                  style={{ fontFamily: "var(--font-serif)", fontSize: 23, fontWeight: 600, lineHeight: 1.15 }}
+                <button
+                  type="button"
+                  onClick={() => onChoose(id)}
+                  className={[
+                    "group relative w-full rounded-[28px] px-5 pt-10 pb-4 text-center",
+                    "border border-(--olivea-olive)/45",
+                    "transition-[background-color,border-color,transform] duration-200",
+                    "active:scale-[0.985] active:bg-(--olivea-olive) active:border-(--olivea-olive)",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/35 focus-visible:ring-offset-4 focus-visible:ring-offset-(--olivea-cream)",
+                  ].join(" ")}
                 >
-                  {house.name}
-                </span>
-                <span
-                  className="mt-0.5 block italic text-(--olivea-olive)/70"
-                  style={{ fontFamily: "var(--font-serif)", fontSize: 14.5 }}
-                >
-                  {house.descriptor[lang]}
-                </span>
-              </button>
-            </motion.li>
-          );
-        })}
-      </ul>
+                  {/* inner hairline: the second rule of the frame */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-1.25 rounded-[23px] border border-(--olivea-olive)/18 transition-colors duration-200 group-active:border-(--olivea-cream)/25"
+                  />
+                  {/* the emblem, set into the frame like a seal */}
+                  <span className="absolute left-1/2 top-0 h-15 w-15 -translate-x-1/2 -translate-y-1/2 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-2">
+                    <span className="relative block h-full w-full">
+                      <Image src={house.emblem} alt="" fill sizes="44px" className="object-contain" />
+                    </span>
+                  </span>
+                  <span
+                    className="relative block text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)"
+                    style={{ fontFamily: "var(--font-serif)", fontSize: 23, fontWeight: 600, lineHeight: 1.15 }}
+                  >
+                    {house.name}
+                  </span>
+                  <span
+                    className="relative mt-0.5 block italic text-(--olivea-olive)/75 transition-colors duration-200 group-active:text-(--olivea-cream)/85"
+                    style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}
+                  >
+                    {house.descriptor[lang]}
+                  </span>
+                  <span className="relative mt-3 inline-flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.24em] text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)">
+                    {house.cue[lang]}
+                    <span aria-hidden="true" className="transition-transform duration-200 group-active:translate-x-0.5">→</span>
+                  </span>
+                </button>
+              </motion.li>
+            );
+          })}
+        </ul>
+
+        <div
+          aria-hidden="true"
+          className="flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive)/55"
+        >
+          <span className="h-px w-8 bg-current opacity-60" />
+          Valle de Guadalupe
+          <span className="h-px w-8 bg-current opacity-60" />
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import StickyBlock from "@/components/scroll/StickyBlock";
-import Reveal from "@/components/scroll/Reveal";
+import Reveal, { entrance } from "@/components/scroll/Reveal";
 import { motion } from "framer-motion";
 import type { SectionProps } from "./types";
 import { t } from "./md";
@@ -29,10 +29,7 @@ export default function PracticalSection({ data, lang }: SectionProps) {
             key={card.id}
             id={card.id}
             className="bg-white/10 backdrop-blur-md rounded-2xl border border-black/10 p-6 shadow"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.6, delay: i * 0.1 }}
+            {...entrance(i * 0.1)}
           >
             <p className="text-sm font-semibold tracking-wide uppercase">
               {t(card.title, lang)}

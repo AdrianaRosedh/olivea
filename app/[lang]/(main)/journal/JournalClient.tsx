@@ -223,7 +223,7 @@ export default function JournalClient({
             <div
               className={cn(
                 `${RAIL} mx-auto`,
-                "xl:ml-86",
+                "lg:ml-16 xl:ml-86",
                 "md:mr-(--dock-right)",
                 "pr-2 sm:pr-0"
               )}
@@ -325,9 +325,11 @@ export default function JournalClient({
               ) : null}
 
               <section id="posts" className="mt-8 sm:mt-10">
+                {/* As many 320px+ columns as fit between the docks. A fixed
+                    three (360px minimum) ran under the right dock at 1440px. */}
                 <div
                   className={cn(
-                    "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[repeat(3,minmax(360px,1fr))] gap-6 sm:gap-10"
+                    "grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-6 sm:gap-10"
                   )}
                   style={{ gridAutoRows: "1fr" }}
                 >

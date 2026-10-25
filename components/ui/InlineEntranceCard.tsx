@@ -225,6 +225,11 @@ export default function InlineEntranceCard({
 
   // derive video name from href segment (existing behavior)
   const videoBase = slug;
+  // A still of the house fills the desktop card's top window, so it never
+  // reads as an empty frame; the hover video fades in over it.
+  const still = !isMobile
+    ? ({ casa: "/images/casa/hero.jpg", farmtotable: "/images/farm/hero.jpg", cafe: "/images/cafe/hero.jpg" } as Record<string, string>)[slug]
+    : undefined;
   const base = !isMobile && videoBase ? `${videoBase}-HD` : "";
 
   const prefersWebm = getPrefersWebm();
@@ -537,6 +542,16 @@ export default function InlineEntranceCard({
                   transition: `height ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                 }}
               >
+                {still && (
+                  <Image
+                    src={still}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1600px) 360px, 280px"
+                    className="object-cover"
+                    style={{ zIndex: 1 }}
+                  />
+                )}
                 {!isMobile && !reduceMotion && (
                   <video
                     ref={videoRef}

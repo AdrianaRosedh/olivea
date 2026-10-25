@@ -31,7 +31,7 @@ html { position: relative; }
   }
 }
 [data-reveal] {
-  animation: olivea-reveal var(--reveal-duration, 0.7s) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s) both;
+  animation: olivea-reveal var(--reveal-duration, 0.45s) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s) both;
 }
 [data-reveal][data-reveal-state="waiting"] {
   animation: none;
@@ -605,7 +605,6 @@ body.lcp-demote .fixed-lcp {
 :is(a, button, [role="button"], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: 2px solid var(--olivea-olive);
   outline-offset: 2px;
-  border-radius: inherit;
 }
 
 /* Opt-out: add .focus-custom to elements with their own ring */

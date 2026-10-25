@@ -24,6 +24,8 @@ export default function FaqSection({ data, lang }: SectionProps) {
       }
     >
       <ModernFAQ
+        initialCount={6}
+        moreLabel={lang === "es" ? `Ver las ${items.length} preguntas` : `See all ${items.length} questions`}
         items={items.map((item) => ({
           q: t(item.q, lang),
           a: <p>{tm(item.a, lang)}</p>,
