@@ -71,6 +71,11 @@ export default function SiteBanner() {
   // Delayed appearance
   const [armed, setArmed] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  // Phones: past the first screen the promo shrinks to a small pill at the
+  // left (dot + label), so the bottom of the screen is not three bars deep.
+  // It never disappears: a tap opens the line again, and it opens by itself
+  // back near the top of the page.
+  const [compact, setCompact] = useState(false);
 
   // Desktop detection (only for delay timing)
   useEffect(() => {
@@ -142,6 +147,28 @@ export default function SiteBanner() {
     return () => window.clearTimeout(t);
   }, [banner, hidden, reduce, isDesktop]);
 
+  useEffect(() => {
+    if (isDesktop) {
+      setCompact(false);
+      return;
+    }
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (y > window.innerHeight * 0.9) setCompact(true);
+        else if (y < window.innerHeight * 0.4) setCompact(false);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [isDesktop]);
+
   // While the banner shows, publish how much room it takes at the bottom so
   // the phone's floating dock (MobileNav) rises above it instead of sitting
   // on its arrow button. Cleared when the banner goes.
@@ -156,9 +183,17 @@ export default function SiteBanner() {
     if (!card) return;
     const publish = () => root.style.setProperty("--olivea-banner-clear", `${Math.round(card.getBoundingClientRect().height) + 10}px`);
     publish();
-    const ro = new ResizeObserver(publish);
+    // Report on the next frame: while the bar animates between its full line
+    // and the compact pill, writing the variable inside the observer moved
+    // the dock in the same frame ("ResizeObserver loop" in the console).
+    let raf = 0;
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(publish);
+    });
     ro.observe(card);
     return () => {
+      cancelAnimationFrame(raf);
       ro.disconnect();
       root.style.removeProperty("--olivea-banner-clear");
     };
@@ -266,12 +301,14 @@ export default function SiteBanner() {
         }
       `}</style>
 
-      <div className="mx-auto w-full max-w-275 px-3 md:px-4">
+      <div className={`mx-auto flex w-full max-w-275 px-3 md:px-4 ${compact ? "justify-start" : ""}`}>
         <AnimatePresence>
           <motion.div
+            layout={!reduce}
+            transition={{ layout: { duration: 0.32, ease: EASE } }}
             className={[
               "pointer-events-auto",
-              "relative w-full",
+              compact ? "relative w-auto" : "relative w-full",
               "rounded-2xl",
               "bg-(--olivea-cream)/96",
               "backdrop-blur-md",
@@ -288,6 +325,17 @@ export default function SiteBanner() {
               <div className="olivea-banner-sheen" />
             </div>
 
+            {compact ? (
+              <button
+                type="button"
+                onClick={() => setCompact(false)}
+                aria-label={`${label}: ${banner.text}`}
+                className="relative flex h-11 items-center gap-2 px-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)"
+              >
+                <span aria-hidden className="h-2 w-2 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
+                {label}
+              </button>
+            ) : (
             <div className="flex items-center gap-2.5 md:gap-3 px-2.5 md:px-4 py-2 md:py-2.5">
               {/* Dismiss — LEFT on mobile, RIGHT on desktop */}
               {banner.dismissible ? (
@@ -345,6 +393,7 @@ export default function SiteBanner() {
                 </Link>
               ) : null}
             </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

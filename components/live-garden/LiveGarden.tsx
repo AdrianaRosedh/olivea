@@ -441,15 +441,17 @@ export default function LiveGarden() {
                 alt=""
                 aria-hidden="true"
                 draggable={false}
-                className="relative w-full h-full rounded-full ring-1 ring-white/45 pointer-events-none"
+                // A cream rim and an olive hairline set the roseiies mark in
+                // the site's palette, as the house emblems are set in seals.
+                className="relative w-full h-full rounded-full border-2 border-(--olivea-cream) ring-1 ring-(--olivea-olive)/35 pointer-events-none"
               />
               {/* live badge */}
               <span className="absolute top-1 right-1 flex h-3 w-3">
                 <span
-                  className="absolute inset-0 rounded-full bg-green-400"
+                  className="absolute inset-0 rounded-full bg-(--olivea-olive)"
                   style={{ animation: "live-pulse 2s ease-out infinite" }}
                 />
-                <span className="relative h-3 w-3 rounded-full bg-green-400 ring-2 ring-(--olivea-cream)" />
+                <span className="relative h-3 w-3 rounded-full bg-(--olivea-olive) ring-2 ring-(--olivea-cream)" />
               </span>
             </button>
 
@@ -517,10 +519,10 @@ export default function LiveGarden() {
                 <div className="flex items-center gap-3">
                   <span className="relative flex h-2 w-2">
                     <span
-                      className="absolute inset-0 rounded-full bg-green-400"
+                      className="absolute inset-0 rounded-full bg-(--olivea-olive)"
                       style={{ animation: "live-pulse 2s ease-out infinite" }}
                     />
-                    <span className="relative rounded-full h-2 w-2 bg-green-400" />
+                    <span className="relative rounded-full h-2 w-2 bg-(--olivea-olive)" />
                   </span>
                   <h2 className="text-sm md:text-base font-medium tracking-wide uppercase" style={{ color: "var(--olivea-olive)" }}>
                     {isEn ? "Olivea — Live" : "Olivea — En Vivo"}

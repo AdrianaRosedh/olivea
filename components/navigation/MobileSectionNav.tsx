@@ -440,7 +440,7 @@ export default function MobileSectionNav({
               "w-full",
               "relative overflow-hidden",
               "ring-1 ring-(--olivea-olive)/18",
-              "bg-(--olivea-cream)/80 backdrop-blur-md",
+              "bg-(--olivea-cream)/92 backdrop-blur-md",
               "shadow-[0_18px_44px_rgba(18,24,16,0.12)]",
               "rounded-t-2xl"
             )}

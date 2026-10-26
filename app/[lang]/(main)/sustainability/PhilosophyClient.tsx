@@ -114,8 +114,8 @@ function linkifyNames(text: string, lang: Lang): ReactNode {
           : {})}
         className={cn(
           "underline underline-offset-4",
-          "decoration-(--olivea-honey)/60",
-          "hover:decoration-(--olivea-honey)",
+          "decoration-(--olivea-olive)/60",
+          "hover:decoration-(--olivea-olive)",
           "transition-colors"
         )}
       >
@@ -386,7 +386,7 @@ export default function PhilosophyClient({
                     <div className="flex items-end gap-4">
                       <span
                         aria-hidden="true"
-                        className="tabular-nums leading-[0.8] text-(--olivea-honey-text)"
+                        className="tabular-nums leading-[0.8] text-(--olivea-olive)"
                         style={{ fontFamily: "var(--font-serif)", fontWeight: 400, fontSize: "clamp(56px, 6.2vw, 96px)" }}
                       >
                         {String(idx + 1).padStart(2, "0")}
@@ -423,7 +423,7 @@ export default function PhilosophyClient({
 
                     {s.subtitle ? (
                       <p
-                        className="mt-4 border-l-2 border-(--olivea-honey)/45 pl-5 italic text-(--olivea-olive)"
+                        className="mt-4 border-l-2 border-(--olivea-olive)/45 pl-5 italic text-(--olivea-olive)"
                         style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(22px, 1.7vw, 28px)", lineHeight: 1.3 }}
                       >
                         {s.subtitle}
@@ -482,7 +482,7 @@ export default function PhilosophyClient({
                     </div>
                   </div>
 
-                  <div className="mt-14 h-px bg-linear-to-r from-transparent via-(--olivea-honey)/25 to-transparent" />
+                  <div className="mt-14 h-px bg-linear-to-r from-transparent via-(--olivea-olive)/25 to-transparent" />
                 </Reveal>
               ))}
             </div>
@@ -543,8 +543,8 @@ export default function PhilosophyClient({
                   className={cn(
                     "inline-flex items-center justify-center",
                     "rounded-2xl px-6 py-3.5 sm:py-3",
-                    "bg-(--olivea-ivory)/70 ring-1 ring-(--olivea-honey)/30",
-                    "text-[12px] uppercase tracking-[0.28em] text-(--olivea-honey-text)",
+                    "bg-(--olivea-ivory)/70 ring-1 ring-(--olivea-olive)/30",
+                    "text-[12px] uppercase tracking-[0.28em] text-(--olivea-olive)",
                     "hover:bg-(--olivea-ivory)/95 transition"
                   )}
                 >

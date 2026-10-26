@@ -670,8 +670,8 @@ export default function InlineEntranceCard({
               initial={{ y: 0 }}
               animate={isHovered ? { y: UNDERLAY_H } : { y: 0 }}
               transition={{ duration: 0.3, ease: HOVER_EASE_ARRAY }}
-              className={`absolute bottom-0 left-0 w-full h-16 flex items-center justify-center pt-7 pointer-events-none ${
-                isSafari ? "bg-white/40" : "bg-white/30 backdrop-blur-sm"
+              className={`absolute bottom-0 left-0 w-full h-16 flex items-center justify-center pt-7 pointer-events-none ring-1 ring-(--olivea-olive)/15 ${
+                isSafari ? "bg-(--olivea-cream)/90" : "bg-(--olivea-cream)/80 backdrop-blur-sm"
               }`}
               style={{
                 height: 64,
@@ -680,7 +680,11 @@ export default function InlineEntranceCard({
                 zIndex: -1,
               }}
             >
-              <span style={{ fontFamily: "var(--font-serif)", color: "#000000" }} className="font-semibold">
+              {/* The site's action line: olive small caps, as on the chooser. */}
+              <span
+                className="text-[11px] font-semibold uppercase tracking-[0.24em] text-(--olivea-olive)"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
                 {ctaText}
               </span>
             </motion.div>
