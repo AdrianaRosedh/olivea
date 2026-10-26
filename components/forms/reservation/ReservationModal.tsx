@@ -564,12 +564,13 @@ function HouseChoice({
         </p>
         <Ornament className="mt-3" />
 
-        {/* Phones stack compact rows; desktop sets the houses side by side,
-            as many columns as fit (three today, room for more). */}
+        {/* Phones and tablets stack the houses as rows that share the screen's
+            height (compact on a small phone, roomier with a photo on a wide
+            one); desktop sets them side by side, as many columns as fit. */}
         <ul
           className={
             isMobile
-              ? "my-auto space-y-3 pt-6 pb-6"
+              ? "my-5 flex flex-1 flex-col gap-3"
               : "mx-auto mt-7 mb-6 grid w-full max-w-5xl grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] gap-5 lg:gap-7"
           }
         >
@@ -578,54 +579,62 @@ function HouseChoice({
             return (
               <motion.li
                 key={id}
+                className={isMobile ? "flex min-h-[88px] max-h-[240px] flex-1 min-[480px]:max-h-[260px]" : undefined}
                 initial={reduce ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={reduce ? { duration: 0 } : { duration: 0.45, ease: EASE, delay: 0.08 + i * 0.08 }}
               >
                 {isMobile ? (
-                  // Phone: one compact row per house in the double olive frame,
-                  // emblem seal at the left, so every house fits on screen
-                  // with the browser's toolbars showing, and more houses can
-                  // be added without pushing any below the fold. (Tall cards
-                  // with the seal above them left the third house cut off.)
+                  // Phone and tablet: one row per house in the double olive
+                  // frame. Rows share the height, so a tablet is not a narrow
+                  // band of small rows in empty space, and a small phone still
+                  // fits every house (88px each, with the browser's toolbars
+                  // showing). From 480px wide the house's photo opens the
+                  // row, its emblem set on the photo's edge like a seal.
                   <button
                     type="button"
                     onClick={() => onChoose(id)}
                     className={[
-                      "group relative flex w-full items-center gap-3.5 rounded-[24px] py-3 pl-3 pr-3.5 text-left",
+                      "group relative flex w-full items-stretch overflow-hidden rounded-[24px] text-left",
                       "border border-(--olivea-olive)/45",
                       "transition-[background-color,border-color,transform] duration-200",
                       "active:scale-[0.985] active:bg-(--olivea-olive) active:border-(--olivea-olive)",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/35 focus-visible:ring-offset-4 focus-visible:ring-offset-(--olivea-cream)",
                     ].join(" ")}
                   >
+                    <span className="relative hidden w-[40%] shrink-0 overflow-hidden min-[480px]:block">
+                      <Image src={house.photo} alt="" fill sizes="(max-width: 767px) 40vw, 300px" className="object-cover" />
+                    </span>
                     {/* inner hairline: the second rule of the frame */}
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-1 rounded-[20px] border border-(--olivea-olive)/18 transition-colors duration-200 group-active:border-(--olivea-cream)/25"
+                      className="pointer-events-none absolute inset-1 z-10 rounded-[20px] border border-(--olivea-olive)/18 transition-colors duration-200 group-active:border-(--olivea-cream)/25 min-[480px]:border-(--olivea-cream)/40"
                     />
-                    <span className="relative h-14 w-14 shrink-0 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-2">
-                      <span className="relative block h-full w-full">
-                        <Image src={house.emblem} alt="" fill sizes="40px" className="object-contain" />
+                    <span className="relative flex min-w-0 flex-1 items-center gap-3.5 py-3 pl-3.5 pr-3.5 min-[380px]:gap-4.5 min-[480px]:gap-5 min-[480px]:pl-0 min-[480px]:pr-6">
+                      <span className="relative z-20 h-[clamp(64px,20vw,92px)] w-[clamp(64px,20vw,92px)] shrink-0 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-2.5 min-[380px]:p-3 min-[480px]:-ml-9 min-[480px]:h-[72px] min-[480px]:w-[72px]">
+                        <span className="relative block h-full w-full">
+                          <Image src={house.emblem} alt="" fill sizes="48px" className="object-contain" />
+                        </span>
                       </span>
-                    </span>
-                    <span className="relative min-w-0 flex-1">
-                      <span
-                        className="block text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)"
-                        // One line down to 320px-wide phones.
-                        style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(17px, 5.3vw, 20px)", fontWeight: 600, lineHeight: 1.12 }}
-                      >
-                        {house.name}
-                      </span>
-                      <span
-                        className="block italic text-(--olivea-olive)/75 transition-colors duration-200 group-active:text-(--olivea-cream)/85"
-                        style={{ fontFamily: "var(--font-serif)", fontSize: 14.5, lineHeight: 1.3 }}
-                      >
-                        {house.descriptor[lang]}
-                      </span>
-                      <span className="mt-1.5 flex items-center gap-2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)">
-                        {house.cue[lang]}
-                        <span aria-hidden="true" className="transition-transform duration-200 group-active:translate-x-0.5">→</span>
+                      <span className="relative min-w-0 flex-1">
+                        <span
+                          // The text grows with the row: one line down to 320px
+                          // phones, larger as the screen gives room.
+                          className="block text-[clamp(17px,5.9vw,24px)] text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream) min-[480px]:text-[clamp(24px,4.4vw,32px)]"
+                          style={{ fontFamily: "var(--font-serif)", fontWeight: 600, lineHeight: 1.12 }}
+                        >
+                          {house.name}
+                        </span>
+                        <span
+                          className="mt-0.5 block text-[clamp(14.5px,4.2vw,17px)] italic text-(--olivea-olive)/75 transition-colors duration-200 group-active:text-(--olivea-cream)/85 min-[480px]:mt-1 min-[480px]:text-[clamp(17px,2.8vw,20px)]"
+                          style={{ fontFamily: "var(--font-serif)", lineHeight: 1.3 }}
+                        >
+                          {house.descriptor[lang]}
+                        </span>
+                        <span className="mt-2 flex items-center gap-2 whitespace-nowrap text-[clamp(10px,2.9vw,11.5px)] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream) min-[480px]:mt-3.5 min-[480px]:text-[12.5px]">
+                          {house.cue[lang]}
+                          <span aria-hidden="true" className="transition-transform duration-200 group-active:translate-x-0.5">→</span>
+                        </span>
                       </span>
                     </span>
                   </button>
@@ -952,10 +961,11 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                 </span>
               )}
               <span
-                className="uppercase tracking-[0.25em]"
+                className="uppercase tracking-[0.2em] sm:tracking-[0.25em]"
                 style={{
                   fontFamily: "var(--font-serif)",
-                  fontSize: isMobile ? 22 : 28,
+                  // Narrow phones: smaller, so "RESERVACIONES" clears the close button.
+                  fontSize: isMobile ? "clamp(17px, 5.6vw, 22px)" : 28,
                   fontWeight: 200,
                 }}
               >
