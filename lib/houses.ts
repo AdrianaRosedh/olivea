@@ -56,5 +56,12 @@ export const HOUSE_ORDER: ReservationType[] = ["restaurant", "hotel", "cafe"];
 export const HOUSE_INSTAGRAM: Record<ReservationType, string> = {
   restaurant: "oliveafarmtotable",
   hotel: "casaolivea",
-  cafe: "oliveacafe",
+  cafe: "oliveacafewine",
+};
+
+/** The houses' Spotify playlists (not every house has one). The Spotify icon
+ *  asks which, like Instagram. */
+export const HOUSE_SPOTIFY: Partial<Record<ReservationType, string>> = {
+  restaurant: "https://open.spotify.com/playlist/7gSBISusOLByXgVnoYkpf8",
+  cafe: "https://open.spotify.com/playlist/2hSsQrXDw957snOBoeiwD7",
 };

@@ -1,21 +1,48 @@
 "use client";
 
-// components/ui/InstagramChooser.tsx
+// components/ui/HouseLinkChooser.tsx
 // ─────────────────────────────────────────────────────────────────────
-// OLIVEA has three Instagram accounts, one per house. The Instagram icon
-// (desktop footer, phone menu) used to open only the restaurant's; it now opens
-// a small card asking which house, each with its emblem, name and @handle.
+// OLIVEA's houses each have their own Instagram account, and two have their
+// own Spotify playlist. The icon (desktop footer, phone menu) used to open
+// only the restaurant's; it opens a small card asking which house, each with
+// its emblem, name and handle or "Playlist".
 // ─────────────────────────────────────────────────────────────────────
 
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { HOUSES, HOUSE_INSTAGRAM, HOUSE_ORDER } from "@/lib/houses";
+import { HOUSES, HOUSE_INSTAGRAM, HOUSE_ORDER, HOUSE_SPOTIFY } from "@/lib/houses";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { cn } from "@/lib/utils";
 
+type Kind = "instagram" | "spotify";
+
+/** Each kind's links, in the houses' usual order. */
+function linksFor(kind: Kind, lang: "es" | "en") {
+  return HOUSE_ORDER.flatMap((id) => {
+    if (kind === "instagram") {
+      const handle = HOUSE_INSTAGRAM[id];
+      return [{ id, href: `https://www.instagram.com/${handle}/`, sub: `@${handle}` }];
+    }
+    const url = HOUSE_SPOTIFY[id];
+    return url ? [{ id, href: url, sub: lang === "es" ? "Playlist" : "Playlist" }] : [];
+  });
+}
+
+const COPY: Record<Kind, { title: Record<"es" | "en", string>; trigger: Record<"es" | "en", string> }> = {
+  instagram: {
+    title: { es: "Síguenos en Instagram", en: "Follow us on Instagram" },
+    trigger: { es: "Instagram: elige la casa", en: "Instagram: choose the house" },
+  },
+  spotify: {
+    title: { es: "Escucha en Spotify", en: "Listen on Spotify" },
+    trigger: { es: "Spotify: elige la playlist", en: "Spotify: choose the playlist" },
+  },
+};
+
 type Props = {
+  kind: Kind;
   lang: "es" | "en";
   /** The icon the trigger shows, styled by the caller to match its row. */
   children: ReactNode;
@@ -29,7 +56,7 @@ type Props = {
 
 const CARD_W = 256;
 
-export default function InstagramChooser({ lang, children, triggerClassName, triggerStyle, inline = false }: Props) {
+export default function HouseLinkChooser({ kind, lang, children, triggerClassName, triggerStyle, inline = false }: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -78,7 +105,8 @@ export default function InstagramChooser({ lang, children, triggerClassName, tri
     };
   }, [open]);
 
-  const title = lang === "es" ? "Síguenos en Instagram" : "Follow us on Instagram";
+  const title = COPY[kind].title[lang];
+  const links = linksFor(kind, lang);
 
   const panel = (
     <AnimatePresence>
@@ -112,13 +140,12 @@ export default function InstagramChooser({ lang, children, triggerClassName, tri
             {title}
           </span>
           <ul>
-            {HOUSE_ORDER.map((id) => {
+            {links.map(({ id, href, sub }) => {
               const house = HOUSES[id];
-              const handle = HOUSE_INSTAGRAM[id];
               return (
                 <li key={id}>
                   <a
-                    href={`https://www.instagram.com/${handle}/`}
+                    href={href}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setOpen(false)}
@@ -141,7 +168,7 @@ export default function InstagramChooser({ lang, children, triggerClassName, tri
                         {house.name}
                       </span>
                       <span className="block truncate text-[12px] text-(--olivea-olive)/70" style={{ fontFamily: "var(--font-sans)" }}>
-                        @{handle}
+                        {sub}
                       </span>
                     </span>
                     <span aria-hidden="true" className="ml-auto text-(--olivea-olive)/50">
@@ -162,7 +189,7 @@ export default function InstagramChooser({ lang, children, triggerClassName, tri
       <button
         ref={triggerRef}
         type="button"
-        aria-label={lang === "es" ? "Instagram: elige la casa" : "Instagram: choose the house"}
+        aria-label={COPY[kind].trigger[lang]}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}

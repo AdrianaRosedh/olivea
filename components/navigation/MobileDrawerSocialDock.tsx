@@ -10,7 +10,7 @@ import {
   PinterestIcon,
 } from "@/components/icons/SocialIcons";
 import defaultGlobal from "@/lib/content/data/global";
-import InstagramChooser from "@/components/ui/InstagramChooser";
+import HouseLinkChooser from "@/components/ui/HouseLinkChooser";
 
 const ICONS: Record<string, ReactNode> = {
   youtube: <YouTubeIcon size={20} />,
@@ -27,16 +27,17 @@ export default function MobileDrawerSocialDock({ lang }: { lang: "es" | "en" }) 
   return (
     <div className="flex gap-5">
       {defaultGlobal.socials.map((it) =>
-        // Three houses, three Instagram accounts: the icon asks which one.
-        it.platform === "instagram" ? (
-          <InstagramChooser
+        // One account or playlist per house: the icon asks which one.
+        it.platform === "instagram" || it.platform === "spotify" ? (
+          <HouseLinkChooser
             key={it.platform}
+            kind={it.platform}
             lang={lang}
             inline
             triggerClassName="text-(--olivea-shell) opacity-75 hover:opacity-100 transition-opacity"
           >
-            {ICONS.instagram}
-          </InstagramChooser>
+            {ICONS[it.platform]}
+          </HouseLinkChooser>
         ) : (
         <a
           key={it.platform}

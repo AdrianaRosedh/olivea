@@ -152,7 +152,7 @@ export default async function StructuredDataServer() {
       ],
       sameAs: [
         "https://www.instagram.com/oliveafarmtotable",
-        "https://www.instagram.com/oliveacafe",
+        "https://www.instagram.com/oliveacafewine",
         "https://www.instagram.com/casaolivea",
         "https://www.facebook.com/oliveafarmtotable",
         "https://www.facebook.com/oliveacafe",

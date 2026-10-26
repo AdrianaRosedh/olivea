@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import LocaleSwitcher from "@/components/navigation/LocaleSwitcher";
-import InstagramChooser from "@/components/ui/InstagramChooser";
+import HouseLinkChooser from "@/components/ui/HouseLinkChooser";
 import {
   YouTubeIcon,
   InstagramIcon,
@@ -411,10 +411,11 @@ function FooterSocialDock({ items, lang }: { items: SocialItem[]; lang: "es" | "
       style={{ gap: "max(3px, calc(11px * var(--fd, 1)))" }}
     >
       {items.map((it) =>
-        // Three houses, three Instagram accounts: the icon asks which one.
-        it.id === "instagram" ? (
-          <InstagramChooser
+        // One account or playlist per house: the icon asks which one.
+        it.id === "instagram" || it.id === "spotify" ? (
+          <HouseLinkChooser
             key={it.id}
+            kind={it.id}
             lang={lang}
             triggerClassName="flex items-center justify-center rounded-full text-(--olivea-olive) transition-transform duration-200 hover:scale-[1.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/40"
             triggerStyle={{ width: SOCIAL_CELL, height: SOCIAL_CELL }}
@@ -422,7 +423,7 @@ function FooterSocialDock({ items, lang }: { items: SocialItem[]; lang: "es" | "
             <span className="leading-none" style={{ fontSize: SOCIAL_ICON }}>
               {it.icon}
             </span>
-          </InstagramChooser>
+          </HouseLinkChooser>
         ) : (
           <FooterSocialIcon key={it.id} item={it} />
         )
