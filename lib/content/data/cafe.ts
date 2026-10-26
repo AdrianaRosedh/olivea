@@ -469,6 +469,7 @@ const cafe: CafeContent = {
             en: "Who is Olivea Café Wine Bar for?",
             es: "¿Para quién es Olivea Café Wine Bar?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -480,6 +481,7 @@ const cafe: CafeContent = {
             en: "What are the café hours?",
             es: "¿Cuál es el horario de Olivea Café Wine Bar?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -491,6 +493,7 @@ const cafe: CafeContent = {
             en: "What is the breakfast style?",
             es: "¿Qué estilo de desayuno ofrecen?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -502,6 +505,7 @@ const cafe: CafeContent = {
             en: "How does breakfast work for Casa Olivea guests?",
             es: "¿Cómo funciona el desayuno para huéspedes de Casa Olivea?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -513,6 +517,7 @@ const cafe: CafeContent = {
             en: "Where does the coffee come from?",
             es: "¿De dónde proviene el café?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -524,6 +529,7 @@ const cafe: CafeContent = {
             en: "Do you serve matcha?",
             es: "¿Sirven matcha?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -535,6 +541,7 @@ const cafe: CafeContent = {
             en: "Are pets welcome?",
             es: "¿Las mascotas son bienvenidas?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -546,6 +553,7 @@ const cafe: CafeContent = {
             en: "Do you have a wine bar?",
             es: "¿Tienen wine bar?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -557,6 +565,7 @@ const cafe: CafeContent = {
             en: "Do you offer corkage?",
             es: "¿Ofrecen descorche?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -568,6 +577,7 @@ const cafe: CafeContent = {
             en: "Can I order wine by the glass?",
             es: "¿Puedo pedir vino por copa?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -579,6 +589,7 @@ const cafe: CafeContent = {
             en: "What is Olivea Café Wine Bar?",
             es: "¿Qué es Olivea Café Wine Bar?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -590,6 +601,7 @@ const cafe: CafeContent = {
             en: "Does Olivea Café Wine Bar serve breakfast?",
             es: "¿Olivea Café Wine Bar sirve desayuno?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -601,6 +613,7 @@ const cafe: CafeContent = {
             en: "Do I need a reservation to visit Olivea Café Wine Bar?",
             es: "¿Necesito reservación para visitar Olivea Café Wine Bar?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -612,6 +625,7 @@ const cafe: CafeContent = {
             en: "What is the difference between Olivea Café Wine Bar and Olivea Farm To Table?",
             es: "¿Cuál es la diferencia entre Olivea Café Wine Bar y Olivea Farm To Table?",
           },
+          topic: "place",
         },
         {
           a: {
@@ -623,6 +637,7 @@ const cafe: CafeContent = {
             en: "Where is Olivea Café Wine Bar located?",
             es: "¿Dónde está Olivea Café Wine Bar?",
           },
+          topic: "place",
         },
         {
           a: {
@@ -634,6 +649,7 @@ const cafe: CafeContent = {
             en: "Do you bake your own bread and pastries?",
             es: "¿Hornean su propio pan y repostería?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -645,6 +661,7 @@ const cafe: CafeContent = {
             en: "Can I come just to relax?",
             es: "¿Puedo venir solo a relajarme?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -656,6 +673,7 @@ const cafe: CafeContent = {
             en: "Can I walk through the garden?",
             es: "¿Puedo recorrer el huerto?",
           },
+          topic: "place",
         },
         {
           a: {
@@ -667,6 +685,7 @@ const cafe: CafeContent = {
             en: "Do you serve something light in the afternoon?",
             es: "¿Sirven algo ligero por la tarde?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -678,6 +697,7 @@ const cafe: CafeContent = {
             en: "Do you make your own ferments?",
             es: "¿Hacen sus propias fermentaciones?",
           },
+          topic: "experience",
         },
       ],
     },

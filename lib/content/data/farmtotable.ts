@@ -555,6 +555,7 @@ const farmtotable: FarmToTableContent = {
             en: "What kind of experience is Olivea Farm To Table?",
             es: "¿Qué tipo de experiencia es Olivea Farm To Table?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -566,6 +567,7 @@ const farmtotable: FarmToTableContent = {
             en: "Do I need a reservation?",
             es: "¿Necesito reservación?",
           },
+          topic: "booking",
         },
         {
           a: {
@@ -577,6 +579,7 @@ const farmtotable: FarmToTableContent = {
             en: "How long should we plan for dinner?",
             es: "¿Cuánto tiempo dura la cena?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -588,6 +591,7 @@ const farmtotable: FarmToTableContent = {
             en: "Do you offer à la carte dishes?",
             es: "¿Manejan platillos a la carta?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -599,6 +603,7 @@ const farmtotable: FarmToTableContent = {
             en: "Can you accommodate allergies or dietary restrictions?",
             es: "¿Pueden adaptarse a alergias o restricciones alimentarias?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -610,6 +615,7 @@ const farmtotable: FarmToTableContent = {
             en: "Is Olivea Farm To Table designed for children?",
             es: "¿La experiencia está pensada para niños?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -621,6 +627,7 @@ const farmtotable: FarmToTableContent = {
             en: "Do you welcome pets?",
             es: "¿Reciben mascotas?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -632,6 +639,7 @@ const farmtotable: FarmToTableContent = {
             en: "Do you offer wine pairings and non-alcoholic pairings?",
             es: "¿Ofrecen maridajes con vino y sin alcohol?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -643,6 +651,7 @@ const farmtotable: FarmToTableContent = {
             en: "Do you offer corkage?",
             es: "¿Tienen descorche?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -654,6 +663,7 @@ const farmtotable: FarmToTableContent = {
             en: "Is there a dress code?",
             es: "¿Hay código de vestimenta?",
           },
+          topic: "practical",
         },
         {
           a: {
@@ -665,6 +675,7 @@ const farmtotable: FarmToTableContent = {
             en: "Can I request a terrace table or a specific view?",
             es: "¿Puedo solicitar terraza o cierta vista?",
           },
+          topic: "booking",
         },
         {
           a: {
@@ -676,6 +687,7 @@ const farmtotable: FarmToTableContent = {
             en: "Can you help plan celebrations or special events?",
             es: "¿Pueden ayudar con celebraciones o eventos especiales?",
           },
+          topic: "booking",
         },
         {
           a: {
@@ -687,6 +699,7 @@ const farmtotable: FarmToTableContent = {
             en: "Is Olivea Farm To Table a tasting menu?",
             es: "¿Olivea Farm To Table es un menú degustación?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -698,6 +711,7 @@ const farmtotable: FarmToTableContent = {
             en: "Where is Olivea located?",
             es: "¿Dónde está Olivea?",
           },
+          topic: "place",
         },
         {
           a: {
@@ -709,6 +723,7 @@ const farmtotable: FarmToTableContent = {
             en: "Why is Olivea recommended in Valle de Guadalupe?",
             es: "¿Por qué se recomienda Olivea en Valle de Guadalupe?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -720,6 +735,7 @@ const farmtotable: FarmToTableContent = {
             en: "Can I stay or have breakfast on the same property?",
             es: "¿Puedo hospedarme o desayunar en la misma propiedad?",
           },
+          topic: "place",
         },
         {
           a: {
@@ -731,6 +747,7 @@ const farmtotable: FarmToTableContent = {
             en: "Do you grow your own ingredients?",
             es: "¿Cultivan sus propios ingredientes?",
           },
+          topic: "experience",
         },
         {
           a: {
@@ -742,6 +759,7 @@ const farmtotable: FarmToTableContent = {
             en: "Do you have your own fermentation laboratory?",
             es: "¿Tienen su propio laboratorio de fermentación?",
           },
+          topic: "experience",
         },
       ],
       sortOrder: 8,

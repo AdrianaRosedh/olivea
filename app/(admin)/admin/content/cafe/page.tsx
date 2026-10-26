@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { newFaqId } from "@/lib/seo/faq";
+import { asFaqTopic } from "@/lib/faqTopics";
 import { Coffee, FileCode2, ExternalLink, UtensilsCrossed, ArrowRight } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import cafeContent from "@/lib/content/data/cafe";
@@ -23,6 +24,7 @@ type FaqEntry = {
   id?: string;
   question: { es: string; en: string };
   answer: { es: string; en: string };
+  topic?: string;
 };
 
 function sectionItemsToFaqEntries(items: unknown): FaqEntry[] {
@@ -33,6 +35,7 @@ function sectionItemsToFaqEntries(items: unknown): FaqEntry[] {
       id: typeof item.id === "string" ? item.id : newFaqId(),
       question: (item.q as { es: string; en: string }) ?? { es: "", en: "" },
       answer: (item.a as { es: string; en: string }) ?? { es: "", en: "" },
+      topic: asFaqTopic(item.topic),
     };
   });
 }
@@ -41,7 +44,10 @@ function faqEntriesToSectionItems(entries: FaqEntry[]) {
   // Carry the id through. Dropping it here is what made entries addressable
   // only by position: a saved list came back with fresh identities, so another
   // editor's in-flight reference pointed at whatever had moved into that slot.
-  return entries.map((e) => ({ id: e.id ?? newFaqId(), q: e.question, a: e.answer }));
+  return entries.map((e) => {
+    const topic = asFaqTopic(e.topic);
+    return { id: e.id ?? newFaqId(), q: e.question, a: e.answer, ...(topic ? { topic } : {}) };
+  });
 }
 
 const mdxSections = [

@@ -11,6 +11,7 @@ import {
 import EditableBilingual from "./EditableBilingual";
 import { useAdminLocale, resolveLabel, type MaybeB } from "@/lib/admin/i18n";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { FAQ_TOPICS, asFaqTopic } from "@/lib/faqTopics";
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -18,6 +19,8 @@ interface FaqEntry {
   id?: string;
   question: { es: string; en: string };
   answer: { es: string; en: string };
+  /** Groups the question on the page (see lib/faqTopics). */
+  topic?: string;
   [key: string]: unknown;
 }
 
@@ -136,6 +139,11 @@ export default function EditableFAQ({
                   <span className="text-sm text-stone-700 font-medium truncate flex-1">
                     {preview}
                   </span>
+                  {asFaqTopic(item.topic) && (
+                    <span className="shrink-0 rounded-full bg-[var(--olivea-olive)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--olivea-olive)]">
+                      {FAQ_TOPICS.find((tp) => tp.id === item.topic)?.label[locale === "en" ? "en" : "es"]}
+                    </span>
+                  )}
 
                   <div className="flex items-center gap-1 flex-shrink-0">
                     {idx > 0 && (
@@ -171,6 +179,33 @@ export default function EditableFAQ({
                 {/* Expanded editor */}
                 {isExpanded && (
                   <div className="px-4 pb-4 pt-2 border-t border-stone-100 space-y-4">
+                    {/* The topic it is grouped under on the page: a picker,
+                        so the groups never split over spelling. */}
+                    <div>
+                      <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                        {t({ es: "Tema", en: "Topic" })}
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[{ id: "", label: { es: "Sin tema", en: "No topic" } }, ...FAQ_TOPICS].map((tp) => {
+                          const on = (asFaqTopic(item.topic) ?? "") === tp.id;
+                          return (
+                            <button
+                              key={tp.id || "none"}
+                              type="button"
+                              aria-pressed={on}
+                              onClick={() => updateItem(idx, { topic: tp.id || undefined })}
+                              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                                on
+                                  ? "bg-[var(--olivea-olive)] text-white"
+                                  : "border border-stone-200 text-stone-600 hover:border-[var(--olivea-olive)]/50"
+                              }`}
+                            >
+                              {tp.label[locale === "en" ? "en" : "es"]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                     <EditableBilingual
                       label={{ es: "Pregunta", en: "Question" }}
                       as="h4"

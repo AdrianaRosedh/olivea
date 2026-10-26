@@ -3,12 +3,14 @@ import Reveal from "@/components/scroll/Reveal";
 import ModernFAQ from "@/components/ui/ModernFAQ";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
+import { asFaqTopic } from "@/lib/faqTopics";
 
 export default function FaqSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang) || "Before you reserve";
   const items = (data.items ?? []) as Array<{
     q: { en: string; es: string };
     a: { en: string; es: string };
+    topic?: string;
   }>;
 
   return (
@@ -24,11 +26,13 @@ export default function FaqSection({ data, lang }: SectionProps) {
       }
     >
       <ModernFAQ
+        lang={lang}
         initialCount={6}
         moreLabel={lang === "es" ? `Ver las ${items.length} preguntas` : `See all ${items.length} questions`}
         items={items.map((item) => ({
           q: t(item.q, lang),
           a: <p>{tm(item.a, lang)}</p>,
+          topic: asFaqTopic(item.topic),
         }))}
       />
     </StickyBlock>

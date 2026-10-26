@@ -7,6 +7,7 @@
 
 import { selectRows, selectOne, upsertRows, deleteRows, updateRows } from "./client";
 import { newFaqId } from "@/lib/seo/faq";
+import { asFaqTopic, type FaqTopic } from "@/lib/faqTopics";
 import type { SaveResult } from "@/lib/admin/save-result";
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "./config";
@@ -236,6 +237,7 @@ type CasaFaqRow = {
   page: string;
   question: { es: string; en: string };
   answer: { es: string; en: string };
+  topic: FaqTopic | null;
   sort_order: number;
 };
 
@@ -243,6 +245,8 @@ type FaqStoreItem = {
   id?: string;
   q?: { es?: string; en?: string };
   a?: { es?: string; en?: string };
+  /** The page groups questions by topic (lib/faqTopics). */
+  topic?: FaqTopic;
 };
 
 async function readCasaSections(): Promise<Record<string, unknown>[]> {
@@ -274,6 +278,7 @@ function toRows(items: FaqStoreItem[]): CasaFaqRow[] {
     page: "casa",
     question: { es: it.q?.es ?? "", en: it.q?.en ?? "" },
     answer: { es: it.a?.es ?? "", en: it.a?.en ?? "" },
+    topic: asFaqTopic(it.topic) ?? null,
     sort_order: i,
   }));
 }
@@ -281,10 +286,12 @@ function toRows(items: FaqStoreItem[]): CasaFaqRow[] {
 function toItem(row: Record<string, unknown>, id: string): FaqStoreItem {
   const q = (row.question ?? {}) as { es?: string; en?: string };
   const a = (row.answer ?? {}) as { es?: string; en?: string };
+  const topic = asFaqTopic(row.topic);
   return {
     id,
     q: { es: q.es ?? "", en: q.en ?? "" },
     a: { es: a.es ?? "", en: a.en ?? "" },
+    ...(topic ? { topic } : {}),
   };
 }
 

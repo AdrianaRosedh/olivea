@@ -3,17 +3,20 @@ import Reveal from "@/components/scroll/Reveal";
 import ModernFAQ from "@/components/ui/ModernFAQ";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
+import { asFaqTopic } from "@/lib/faqTopics";
 
 export default function FaqSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang) || "Good to Know";
   const items = (data.items ?? []) as Array<{
     q: { en: string; es: string };
     a: { en: string; es: string };
+    topic?: string;
   }>;
 
   const faqItems = items.map((item) => ({
     q: t(item.q, lang),
     a: tm(item.a, lang),
+    topic: asFaqTopic(item.topic),
   }));
 
   return (
@@ -29,6 +32,7 @@ export default function FaqSection({ data, lang }: SectionProps) {
       }
     >
       <ModernFAQ
+        lang={lang}
         initialCount={6}
         moreLabel={lang === "es" ? `Ver las ${items.length} preguntas` : `See all ${items.length} questions`} items={faqItems} />
     </StickyBlock>

@@ -10,6 +10,7 @@ import {
 } from "@/lib/supabase/actions";
 import casaContent from "@/lib/content/data/casa";
 import { faqSectionOf } from "@/lib/seo/faq";
+import { FAQ_TOPICS, asFaqTopic, type FaqTopic } from "@/lib/faqTopics";
 import {
   HelpCircle,
   Plus,
@@ -37,6 +38,8 @@ interface FaqItem {
   page: string;
   question: BilingualText;
   answer: BilingualText;
+  /** Groups the question on the page (lib/faqTopics). */
+  topic?: FaqTopic | null;
   sort_order: number;
 }
 
@@ -123,6 +126,46 @@ function BilingualInput({
 /* ------------------------------------------------------------------ */
 /*  FAQ card                                                           */
 /* ------------------------------------------------------------------ */
+
+/** The topic a question is grouped under on the page: a picker, so the groups
+ *  never split over spelling. */
+function TopicPicker({
+  value,
+  onChange,
+}: {
+  value: FaqTopic | null | undefined;
+  onChange: (v: FaqTopic | null) => void;
+}) {
+  const { t, locale } = useAdminLocale();
+  const current = asFaqTopic(value) ?? null;
+  return (
+    <div>
+      <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-[var(--olivea-clay)]">
+        {t({ es: "Tema", en: "Topic" })}
+      </span>
+      <div className="flex flex-wrap gap-1.5">
+        {[{ id: null, label: { es: "Sin tema", en: "No topic" } }, ...FAQ_TOPICS].map((tp) => {
+          const on = current === tp.id;
+          return (
+            <button
+              key={tp.id ?? "none"}
+              type="button"
+              aria-pressed={on}
+              onClick={() => onChange(tp.id)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                on
+                  ? "bg-[var(--olivea-olive)] text-white"
+                  : "border border-black/10 text-[var(--olivea-ink)]/70 hover:border-[var(--olivea-olive)]/50"
+              }`}
+            >
+              {tp.label[locale === "en" ? "en" : "es"]}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function FaqCard({
   item,
@@ -272,6 +315,10 @@ function FaqCard({
         <div className="mt-5 space-y-4 border-t border-black/5 pt-5">
           {editing ? (
             <>
+              <TopicPicker
+                value={draft.topic}
+                onChange={(v) => setDraft((d) => ({ ...d, topic: v }))}
+              />
               <BilingualInput
                 label={t({ es: "Pregunta", en: "Question" })}
                 esValue={draft.question.es}
@@ -347,6 +394,7 @@ function fallbackFaq(): FaqItem[] {
     page: "casa",
     question: (f.q ?? f.question ?? { es: "", en: "" }) as BilingualText,
     answer: (f.a ?? f.answer ?? { es: "", en: "" }) as BilingualText,
+    topic: asFaqTopic((f as { topic?: unknown }).topic) ?? null,
     sort_order: i + 1,
   }));
 }
@@ -391,6 +439,7 @@ export default function CasaFaqPage() {
       page: updated.page,
       question: updated.question,
       answer: updated.answer,
+      topic: updated.topic,
       sort_order: updated.sort_order,
     });
     await load();
@@ -418,6 +467,7 @@ export default function CasaFaqPage() {
       page: a.page,
       question: a.question,
       answer: a.answer,
+      topic: a.topic,
       sort_order: b.sort_order,
     });
     await saveCasaFaqItem({
@@ -425,6 +475,7 @@ export default function CasaFaqPage() {
       page: b.page,
       question: b.question,
       answer: b.answer,
+      topic: b.topic,
       sort_order: a.sort_order,
     });
     await load();
@@ -441,6 +492,7 @@ export default function CasaFaqPage() {
         page: newDraft.page,
         question: newDraft.question,
         answer: newDraft.answer,
+        topic: newDraft.topic,
         sort_order: maxOrder + 1,
       });
       setNewDraft(emptyDraft());
@@ -491,6 +543,10 @@ export default function CasaFaqPage() {
         <div className={`${cls.card} ring-[var(--olivea-olive)]/20 ring-2`}>
           <h2 className={`${cls.heading} mb-4`}>{t({ es: "Nueva pregunta frecuente", en: "New FAQ Item" })}</h2>
           <div className="space-y-4">
+            <TopicPicker
+              value={newDraft.topic}
+              onChange={(v) => setNewDraft((d) => ({ ...d, topic: v }))}
+            />
             <BilingualInput
               label={t({ es: "Pregunta", en: "Question" })}
               esValue={newDraft.question.es}
