@@ -38,43 +38,24 @@ export function openTableUrl(lang: "es" | "en"): string {
 // OpenTable's page posts {"type":"APP_READY"} to the embedding page once its
 // booking app has drawn (1–4 s). A frame can report "loaded" and still show
 // nothing: in some Chrome browsers (2026-10-25) OpenTable never draws inside
-// another site, because of the cookies Chrome hands it there. A credentialless
-// second try (fresh cookie jar) drew once, then OpenTable's bot protection
-// refused the next ones (each looks like a brand-new visitor), so it was
-// dropped.
+// another site, because of the cookies Chrome hands it there. (A
+// credentialless second try drew once, then OpenTable's bot protection refused
+// it; dropped.)
 //
-// What works everywhere is OpenTable as a page of its own, in a window over
-// the site (about 1.5 s). So: no APP_READY in READY_WAIT_MS → offer that
-// window, and remember this browser for REMEMBER_MS; next time the pane goes
-// straight to the window (opened at once on desktop, from the guest's click).
-// A late APP_READY (slow network, not a blocked browser) shows the booking
-// after all and forgets the mark.
+// So every opening tries the booking inside the window first, with the loader
+// up. With no APP_READY in READY_WAIT_MS the pane offers OpenTable in its own
+// window, which always works; it opens only when the guest asks. A late
+// APP_READY (a slow network) still shows the booking. Nothing is remembered
+// between visits: an earlier version skipped the inside try for a browser
+// that had failed once and opened OpenTable by itself on Reserve, which took
+// guests away from the window instead of letting it try.
 const READY_WAIT_MS = 5_000;
-const WINDOW_KEY = "olivea:opentable-window-until";
-const REMEMBER_MS = 7 * 24 * 60 * 60 * 1000;
 const OPENTABLE_ORIGIN = /^https:\/\/www\.opentable\.com(\.mx)?$/;
 
 function isAppReady(data: unknown): boolean {
   try {
     const msg = typeof data === "string" ? JSON.parse(data) : data;
     return (msg as { type?: unknown } | null)?.type === "APP_READY";
-  } catch {
-    return false;
-  }
-}
-
-function rememberWindow(on: boolean) {
-  try {
-    if (on) localStorage.setItem(WINDOW_KEY, String(Date.now() + REMEMBER_MS));
-    else localStorage.removeItem(WINDOW_KEY);
-  } catch {
-    /* storage off: it simply tries the frame again next time */
-  }
-}
-
-function windowRemembered(): boolean {
-  try {
-    return Number(localStorage.getItem(WINDOW_KEY) ?? 0) > Date.now();
   } catch {
     return false;
   }
@@ -107,17 +88,7 @@ export function openOpenTableWindow(e: React.MouseEvent<HTMLAnchorElement>): voi
   if (openPopup(e.currentTarget.href)) e.preventDefault();
 }
 
-function OpenTableWidgetImpl({
-  lang = "es",
-  active = true,
-}: {
-  lang?: "es" | "en";
-  /** The pane is on screen (not pre-mounted behind another house). */
-  active?: boolean;
-}) {
-  // "window": this browser cannot show OpenTable inside the site. Client-only
-  // (the widget never renders on the server), so reading storage here is safe.
-  const [mode, setMode] = useState<"frame" | "window">(() => (windowRemembered() ? "window" : "frame"));
+function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
   const [ready, setReady] = useState(false);
   const [stalled, setStalled] = useState(false);
   const [popupOpened, setPopupOpened] = useState(false);
@@ -128,65 +99,51 @@ function OpenTableWidgetImpl({
   const url = openTableUrl(lang);
 
   useEffect(() => {
+    // The mark an earlier version stored ("skip the frame on this browser");
+    // nothing reads it any more.
+    try {
+      localStorage.removeItem("olivea:opentable-window-until");
+    } catch {
+      /* storage off */
+    }
     const onMessage = (e: MessageEvent) => {
       if (!OPENTABLE_ORIGIN.test(e.origin) || e.source !== frameRef.current?.contentWindow) return;
-      if (!isAppReady(e.data)) return;
-      setReady(true);
-      rememberWindow(false);
+      if (isAppReady(e.data)) setReady(true);
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
   useEffect(() => {
-    if (mode !== "frame" || ready) return;
-    const t = window.setTimeout(() => {
-      setStalled(true);
-      rememberWindow(true);
-    }, READY_WAIT_MS);
+    if (ready) return;
+    const t = window.setTimeout(() => setStalled(true), READY_WAIT_MS);
     return () => window.clearTimeout(t);
-  }, [mode, ready, attempt]);
-
-  // A remembered browser on desktop: the guest's click (Reserve, or the Farm
-  // To Table card or tab) opens OpenTable's window at once. Only while the
-  // pane is on screen, and only on a real click (the browser would block it
-  // otherwise). Phones show the button instead: a tab opening by itself
-  // there feels like being thrown off the site.
-  useEffect(() => {
-    if (mode !== "window" || !active) return;
-    const desktop = window.matchMedia("(min-width: 768px) and (pointer: fine)").matches;
-    const fromClick = navigator.userActivation?.isActive ?? false;
-    if (desktop && fromClick && openPopup(url)) setPopupOpened(true);
-  }, [mode, active, url]);
+  }, [ready, attempt]);
 
   const tryHereAgain = () => {
-    rememberWindow(false);
     setReady(false);
     setStalled(false);
     setPopupOpened(false);
-    setMode("frame");
     setAttempt((n) => n + 1);
   };
 
-  const showWindowCard = mode === "window" || (stalled && !ready);
+  const showWindowCard = stalled && !ready;
 
   return (
     <div className="relative w-full h-full min-h-0 bg-(--olivea-cream)" data-lenis-prevent>
       {/* Brand placeholder until OpenTable says it has drawn, so the pane
           never shows a blank or half-drawn frame. */}
-      {mode === "frame" && (
-        <div
-          aria-hidden
-          className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-(--olivea-cream) text-(--olivea-olive) transition-opacity duration-500 ${
-            ready || stalled ? "opacity-0 pointer-events-none" : "opacity-100"
-          }`}
-        >
-          <span className="h-7 w-7 rounded-full border-2 border-(--olivea-olive)/25 border-t-(--olivea-olive) animate-spin" />
-          <span className="text-xs uppercase tracking-[0.18em] opacity-80">
-            {lang === "en" ? "Loading reservations…" : "Cargando reservaciones…"}
-          </span>
-        </div>
-      )}
+      <div
+        aria-hidden
+        className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-(--olivea-cream) text-(--olivea-olive) transition-opacity duration-500 ${
+          ready || stalled ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
+      >
+        <span className="h-7 w-7 rounded-full border-2 border-(--olivea-olive)/25 border-t-(--olivea-olive) animate-spin" />
+        <span className="text-xs uppercase tracking-[0.18em] opacity-80">
+          {lang === "en" ? "Loading reservations…" : "Cargando reservaciones…"}
+        </span>
+      </div>
 
       {showWindowCard && (
         <div
@@ -236,24 +193,21 @@ function OpenTableWidgetImpl({
       {/* `allow` hands the wallet and passkey features to OpenTable's payment
           step, as for the hotel. The sandbox keeps OpenTable from navigating
           the site; allow-storage-access-by-user-activation lets Safari grant
-          its cookies after a tap, if OpenTable asks for them. Not loaded at
-          all in "window" mode. */}
-      {mode === "frame" && (
-        <iframe
-          key={attempt}
-          ref={frameRef}
-          title={
-            lang === "en"
-              ? "Reserve at Olivea Farm To Table on OpenTable"
-              : "Reservar en Olivea Farm To Table en OpenTable"
-          }
-          src={url}
-          className="block w-full h-full border-0"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allow="payment *; publickey-credentials-get *; clipboard-write"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-top-navigation-by-user-activation allow-storage-access-by-user-activation"
-        />
-      )}
+          its cookies after a tap, if OpenTable asks for them. */}
+      <iframe
+        key={attempt}
+        ref={frameRef}
+        title={
+          lang === "en"
+            ? "Reserve at Olivea Farm To Table on OpenTable"
+            : "Reservar en Olivea Farm To Table en OpenTable"
+        }
+        src={url}
+        className="block w-full h-full border-0"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allow="payment *; publickey-credentials-get *; clipboard-write"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-top-navigation-by-user-activation allow-storage-access-by-user-activation"
+      />
     </div>
   );
 }

@@ -177,14 +177,11 @@ function RestaurantPane({
   lang,
   isMobile,
   mounted,
-  active,
   onOpenOverlay,
 }: {
   lang: "es" | "en";
   isMobile: boolean;
   mounted: boolean;
-  /** The pane is on screen (open, chosen, not behind the chooser). */
-  active: boolean;
   onOpenOverlay: () => void;
 }) {
   if (!isMobile) {
@@ -212,7 +209,7 @@ function RestaurantPane({
           aria-label="Olivea Farm To Table"
           onWheelCapture={stopWheelPropagation}
         >
-          {mounted && <OpentableWidget lang={lang} active={active} />}
+          {mounted && <OpentableWidget lang={lang} />}
         </div>
       </>
     );
@@ -506,7 +503,7 @@ function MobileRestaurantSheet({
 
           <div className="w-full flex-1 min-h-0 overflow-hidden">
             <div className="w-full h-full">
-              <OpentableWidget lang={lang} active={visible} />
+              <OpentableWidget lang={lang} />
             </div>
           </div>
         </motion.div>
@@ -1112,7 +1109,6 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                 lang={lang}
                 isMobile={isMobile}
                 mounted={mounted.restaurant}
-                active={isOpen && !showChoice && reservationType === "restaurant"}
                 onOpenOverlay={openRestaurantOverlay}
               />
             </div>
