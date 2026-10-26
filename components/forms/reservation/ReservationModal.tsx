@@ -1018,7 +1018,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
           <div
             role="tablist"
             className={`shrink-0 bg-(--olivea-cream) ${showChoice ? "hidden" : "flex"} ${
-              isMobile ? "px-4" : "gap-3 px-6 pt-2 pb-4"
+              isMobile ? "px-4" : "gap-3 px-6 pb-3"
             }`}
           >
             {HOUSE_ORDER.map((id) => {
@@ -1034,7 +1034,8 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                   className={`group relative flex flex-1 items-center whitespace-nowrap transition-colors ${
                     isMobile
                       ? "flex-col justify-center gap-1 py-2"
-                      : "gap-3.5 rounded-[22px] px-4 py-3 text-left"
+                      : // Slim pills: the booking below gets the height.
+                        "gap-3 rounded-full py-1.5 pl-1.5 pr-5 text-left"
                   } ${
                     active
                       ? "text-(--olivea-olive)"
@@ -1053,7 +1054,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                       className={
                         isMobile
                           ? "absolute bottom-0 left-0 right-0 h-0.75 bg-(--olivea-olive)"
-                          : "absolute inset-0 rounded-[22px] border border-(--olivea-olive)/45 bg-white/25"
+                          : "absolute inset-0 rounded-full border border-(--olivea-olive)/45 bg-white/25"
                       }
                     />
                   )}
@@ -1062,14 +1063,14 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                     className={`relative shrink-0 overflow-hidden ${
                       isMobile
                         ? "h-6 w-6"
-                        : `h-11 w-11 rounded-full border bg-(--olivea-cream) p-1.5 ${
+                        : `h-9 w-9 rounded-full border bg-(--olivea-cream) p-1.5 ${
                             active ? "border-(--olivea-olive)/45" : "border-(--olivea-olive)/20"
                           }`
                     } ${active ? "" : "opacity-70"}`}
                   >
                     {/* inner box so the seal's padding frames the emblem */}
                     <span className="relative block h-full w-full">
-                      <Image src={house.emblem} alt="" fill sizes="44px" className="object-contain" />
+                      <Image src={house.emblem} alt="" fill sizes="36px" className="object-contain" />
                     </span>
                   </span>
                   {isMobile ? (
@@ -1077,16 +1078,16 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                       {house.tab}
                     </span>
                   ) : (
-                    <span className="relative flex min-w-0 flex-col">
+                    <span className="relative flex min-w-0 flex-col leading-tight">
                       <span
                         className={`truncate uppercase tracking-[0.14em] ${active ? "font-semibold" : ""}`}
-                        style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}
+                        style={{ fontFamily: "var(--font-serif)", fontSize: 14 }}
                       >
                         {house.tab}
                       </span>
                       <span
                         className="truncate italic opacity-75"
-                        style={{ fontFamily: "var(--font-serif)", fontSize: 13.5 }}
+                        style={{ fontFamily: "var(--font-serif)", fontSize: 12.5 }}
                       >
                         {house.descriptor[lang]}
                       </span>
