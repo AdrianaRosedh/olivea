@@ -36,11 +36,18 @@ export function openTableUrl(lang: "es" | "en"): string {
 }
 
 // OpenTable's page posts {"type":"APP_READY"} to the embedding page once its
-// booking app has drawn (about 2s in Chrome and Safari). A frame can report
-// "loaded" and still show nothing: an ad blocker or a browser's privacy
-// setting can stop OpenTable's app inside another site, and the guest saw a
-// blank pane. With no APP_READY in this long, the pane offers the booking on
-// OpenTable itself instead.
+// booking app has drawn (about 2–5 s). A frame can report "loaded" and still
+// show nothing, and the guest saw a blank pane.
+//
+// The cause, found in a Chrome where it happened (2026-10-25): the cookies
+// Chrome hands OpenTable inside another site. The same page in the same
+// Chrome drew fine as a `credentialless` frame, which starts from a fresh,
+// temporary cookie jar of its own. So the pane first loads the ordinary frame
+// (a guest signed in to OpenTable keeps their session); with no APP_READY in
+// PLAIN_WAIT_MS it reloads once as credentialless where the browser supports
+// it (Chrome, Edge); only then, after READY_TIMEOUT_MS more, does it offer the
+// booking on OpenTable itself.
+const PLAIN_WAIT_MS = 5_000;
 const READY_TIMEOUT_MS = 10_000;
 const OPENTABLE_ORIGIN = /^https:\/\/www\.opentable\.com(\.mx)?$/;
 
@@ -54,9 +61,10 @@ function isAppReady(data: unknown): boolean {
 }
 
 function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
-  const [loaded, setLoaded] = useState(false);
   const [ready, setReady] = useState(false);
   const [stalled, setStalled] = useState(false);
+  // Second try: a credentialless frame (see above).
+  const [fresh, setFresh] = useState(false);
   // Bumped by "Try again": a new key remounts the frame and restarts the wait.
   const [attempt, setAttempt] = useState(0);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -73,24 +81,30 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
 
   useEffect(() => {
     if (ready) return;
-    const t = window.setTimeout(() => setStalled(true), READY_TIMEOUT_MS);
+    const canRetryFresh = !fresh && "credentialless" in HTMLIFrameElement.prototype;
+    const t = window.setTimeout(
+      () => (canRetryFresh ? setFresh(true) : setStalled(true)),
+      canRetryFresh ? PLAIN_WAIT_MS : READY_TIMEOUT_MS
+    );
     return () => window.clearTimeout(t);
-  }, [ready, attempt]);
+  }, [ready, attempt, fresh]);
 
   const retry = () => {
-    setLoaded(false);
     setReady(false);
     setStalled(false);
+    setFresh(false);
     setAttempt((n) => n + 1);
   };
 
   return (
     <div className="relative w-full h-full min-h-0 bg-(--olivea-cream)" data-lenis-prevent>
-      {/* Brand placeholder until the page paints, so the pane never flashes blank. */}
+      {/* Brand placeholder until OpenTable says it has drawn, so the pane
+          never shows a blank or half-drawn frame, nor the switch to the
+          second try. */}
       <div
         aria-hidden
         className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-(--olivea-cream) text-(--olivea-olive) transition-opacity duration-500 ${
-          loaded || ready ? "opacity-0 pointer-events-none" : "opacity-100"
+          ready || stalled ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
         <span className="h-7 w-7 rounded-full border-2 border-(--olivea-olive)/25 border-t-(--olivea-olive) animate-spin" />
@@ -139,15 +153,17 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
           the site; allow-storage-access-by-user-activation lets Safari grant
           its cookies after a tap, if OpenTable asks for them. */}
       <iframe
-        key={attempt}
+        key={`${attempt}-${fresh}`}
         ref={frameRef}
+        // React DOM treats `credentialless` as a boolean attribute; its types
+        // don't list it yet, hence the spread.
+        {...(fresh ? { credentialless: true } : {})}
         title={
           lang === "en"
             ? "Reserve at Olivea Farm To Table on OpenTable"
             : "Reservar en Olivea Farm To Table en OpenTable"
         }
         src={openTableUrl(lang)}
-        onLoad={() => setLoaded(true)}
         className="block w-full h-full border-0"
         referrerPolicy="strict-origin-when-cross-origin"
         allow="payment *; publickey-credentials-get *; clipboard-write"
