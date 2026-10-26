@@ -37,20 +37,31 @@ export function openTableUrl(lang: "es" | "en"): string {
 
 // OpenTable's page posts {"type":"APP_READY"} to the embedding page once its
 // booking app has drawn (1–4 s). A frame can report "loaded" and still show
-// nothing: in some Chrome browsers (2026-10-25) OpenTable never draws inside
-// another site, because of the cookies Chrome hands it there. (A
-// credentialless second try drew once, then OpenTable's bot protection refused
-// it; dropped.)
+// nothing: in a Chrome that blocks third-party cookies (2026-10-25) OpenTable
+// never draws inside another site. The same page draws there as a
+// `credentialless` frame, which starts from a fresh, temporary cookie jar of
+// its own (measured: 5.7 s). An earlier attempt at that looked unreliable,
+// but only because dozens of test loads in a few minutes had made OpenTable's
+// bot protection refuse the network; a guest loads it once or twice.
 //
-// So every opening tries the booking inside the window first, with the loader
-// up. With no APP_READY in READY_WAIT_MS the pane offers OpenTable in its own
-// window, which always works; it opens only when the guest asks. A late
-// APP_READY (a slow network) still shows the booking. Nothing is remembered
-// between visits: an earlier version skipped the inside try for a browser
-// that had failed once and opened OpenTable by itself on Reserve, which took
-// guests away from the window instead of letting it try.
-const READY_WAIT_MS = 5_000;
+// So, always inside the window, loader up the whole time:
+//  1. the ordinary frame (a guest signed in to OpenTable keeps their session);
+//  2. no APP_READY in PLAIN_WAIT_MS → the same page as a credentialless frame
+//     (Chrome, Edge), and this browser is remembered (FRESH_KEY) so its next
+//     opening starts there instead of waiting again;
+//  3. still nothing in READY_WAIT_MS (10 s, as when it last worked on every
+//     device; a phone on a slow line needs it) → "Book on OpenTable", which
+//     opens only when pressed. A late APP_READY shows the booking anyway.
+// When OpenTable refuses a whole network (its bot protection does that for
+// a while after many loads from one address), every device on that Wi-Fi
+// sees the button; that is OpenTable, not this code.
+const PLAIN_WAIT_MS = 5_000;
+const READY_WAIT_MS = 10_000;
+const FRESH_KEY = "olivea:opentable-fresh";
 const OPENTABLE_ORIGIN = /^https:\/\/www\.opentable\.com(\.mx)?$/;
+
+const supportsFresh = () =>
+  typeof HTMLIFrameElement !== "undefined" && "credentialless" in HTMLIFrameElement.prototype;
 
 function isAppReady(data: unknown): boolean {
   try {
@@ -92,6 +103,20 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
   const [ready, setReady] = useState(false);
   const [stalled, setStalled] = useState(false);
   const [popupOpened, setPopupOpened] = useState(false);
+  // The fresh-cookie frame (see above). Starts there on a browser that needed
+  // it before. Client-only (the widget never renders on the server), so
+  // reading storage here is safe.
+  const [fresh, setFresh] = useState(() => {
+    try {
+      return supportsFresh() && localStorage.getItem(FRESH_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const freshRef = useRef(fresh);
+  useEffect(() => {
+    freshRef.current = fresh;
+  }, [fresh]);
   // Bumped by "Try here again": a new key remounts the frame.
   const [attempt, setAttempt] = useState(0);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -99,7 +124,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
   const url = openTableUrl(lang);
 
   useEffect(() => {
-    // The mark an earlier version stored ("skip the frame on this browser");
+    // A mark an earlier version stored ("open OpenTable's window instead");
     // nothing reads it any more.
     try {
       localStorage.removeItem("olivea:opentable-window-until");
@@ -108,7 +133,14 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
     }
     const onMessage = (e: MessageEvent) => {
       if (!OPENTABLE_ORIGIN.test(e.origin) || e.source !== frameRef.current?.contentWindow) return;
-      if (isAppReady(e.data)) setReady(true);
+      if (!isAppReady(e.data)) return;
+      setReady(true);
+      try {
+        if (freshRef.current) localStorage.setItem(FRESH_KEY, "1");
+        else localStorage.removeItem(FRESH_KEY);
+      } catch {
+        /* storage off: it simply tries the ordinary frame first next time */
+      }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -116,9 +148,13 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
 
   useEffect(() => {
     if (ready) return;
-    const t = window.setTimeout(() => setStalled(true), READY_WAIT_MS);
+    const retryFresh = !fresh && supportsFresh();
+    const t = window.setTimeout(
+      () => (retryFresh ? setFresh(true) : setStalled(true)),
+      retryFresh ? PLAIN_WAIT_MS : READY_WAIT_MS
+    );
     return () => window.clearTimeout(t);
-  }, [ready, attempt]);
+  }, [ready, fresh, attempt]);
 
   const tryHereAgain = () => {
     setReady(false);
@@ -195,8 +231,11 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
           the site; allow-storage-access-by-user-activation lets Safari grant
           its cookies after a tap, if OpenTable asks for them. */}
       <iframe
-        key={attempt}
+        key={`${attempt}-${fresh}`}
         ref={frameRef}
+        // React DOM treats `credentialless` as a boolean attribute; its types
+        // don't list it yet, hence the spread.
+        {...(fresh ? { credentialless: true } : {})}
         title={
           lang === "en"
             ? "Reserve at Olivea Farm To Table on OpenTable"
