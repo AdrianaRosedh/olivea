@@ -132,7 +132,7 @@ function HotelPane({
             style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
             id="hotel-pane-title"
           >
-            Casa Olivea — Reservaciones
+            {lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
           </span>
         </div>
       )}
@@ -146,17 +146,18 @@ function HotelPane({
               className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
             >
               <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink) mb-2">
-                Motor de reservaciones
+                {lang === "es" ? "Reservación hotel" : "Hotel reservation"}
               </p>
               <p className="text-sm font-medium text-(--olivea-ink) mb-1">
-                Gestiona tu reserva de Casa Olivea
+                {lang === "es" ? "Reserva tu estancia en Casa Olivea" : "Book your stay at Casa Olivea"}
               </p>
               <p className="text-xs text-(--olivea-ink) mb-3">
-                Toca para abrir el motor seguro de Cloudbeds en pantalla
-                completa.
+                {lang === "es"
+                  ? "Toca para reservar en pantalla completa."
+                  : "Tap to book in full screen."}
               </p>
               <span className="text-xs font-semibold underline underline-offset-4">
-                Abrir en pantalla completa
+                {lang === "es" ? "Abrir en pantalla completa" : "Open in full screen"}
               </span>
             </button>
           </div>
@@ -369,6 +370,53 @@ function CafePane({ lang, cafeHours }: { lang: "es" | "en"; cafeHours?: CafeHour
 
 /* ── Mobile Hotel Overlay ────────────────────────────────────────── */
 
+/** The phone booking sheets' header: the house's emblem in its olive seal,
+ *  its name in the serif and what the sheet does, as in the chooser, instead
+ *  of a line of small caps. */
+function SheetHeader({
+  house,
+  lang,
+  onClose,
+  children,
+}: {
+  house: ReservationType;
+  lang: "es" | "en";
+  onClose: () => void;
+  /** Extra round buttons, before Close. */
+  children?: React.ReactNode;
+}) {
+  const h = HOUSES[house];
+  return (
+    <div className="flex shrink-0 items-center gap-3 border-b border-(--olivea-olive)/15 bg-(--olivea-cream) px-4 py-3">
+      <span className="relative h-11 w-11 shrink-0 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-1.5">
+        <span className="relative block h-full w-full">
+          <Image src={h.emblem} alt="" fill sizes="32px" className="object-contain" />
+        </span>
+      </span>
+      <span className="min-w-0 flex-1">
+        <span
+          className="block truncate text-(--olivea-olive)"
+          style={{ fontFamily: "var(--font-serif)", fontSize: 19, fontWeight: 600, lineHeight: 1.15 }}
+        >
+          {h.name}
+        </span>
+        <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)/65">
+          {h.cue[lang]}
+        </span>
+      </span>
+      {children}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={lang === "es" ? "Cerrar" : "Close"}
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) shadow-sm transition-transform active:scale-95"
+      >
+        <X size={19} strokeWidth={1.6} />
+      </button>
+    </div>
+  );
+}
+
 function MobileHotelSheet({
   lang,
   visible,
@@ -395,22 +443,10 @@ function MobileHotelSheet({
           : "opacity-0 pointer-events-none"
       }`}
     >
-      <div className="flex items-center px-4 py-3 bg-(--olivea-cream)">
-        <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)">
-          {lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
-        </span>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={lang === "es" ? "Cerrar" : "Close"}
-          className="ml-3 w-9 h-9 flex items-center justify-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) shadow-sm active:scale-95 transition-all"
-        >
-          <X size={20} strokeWidth={1.6} />
-        </button>
-      </div>
+      <SheetHeader house="hotel" lang={lang} onClose={onClose} />
 
       <div
-        className="w-full h-[calc(100%-44px)] overflow-auto no-scrollbar"
+        className="w-full flex-1 min-h-0 overflow-auto"
         style={{
           WebkitOverflowScrolling: "touch",
           overscrollBehavior: "contain",
@@ -454,32 +490,19 @@ function MobileRestaurantSheet({
           animate={{ opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.2, ease: EASE } }}
           exit={{ opacity: 0, y: reduce ? 0 : 16, transition: { duration: reduce ? 0 : 0.18, ease: EASE } }}
         >
-          <div className="flex items-center px-4 py-3 bg-(--olivea-cream) shrink-0">
-            <span className="flex-1 text-center text-xs uppercase tracking-[0.18em] text-(--olivea-ink)">
-              Olivea Farm To Table — OpenTable
-            </span>
-
+          <SheetHeader house="restaurant" lang={lang} onClose={onClose}>
             <a
               href={openTableUrl(lang)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={openOpenTableWindow}
-              className="mr-2 w-9 h-9 flex items-center justify-center rounded-full border border-(--olivea-olive)/30"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-(--olivea-olive)/35 text-(--olivea-olive)"
               aria-label={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
               title={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
             >
-              <ExternalLink size={18} />
+              <ExternalLink size={17} />
             </a>
-
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label={lang === "es" ? "Cerrar" : "Close"}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) shadow-sm active:scale-95 transition-all"
-            >
-              <X size={20} strokeWidth={1.6} />
-            </button>
-          </div>
+          </SheetHeader>
 
           <div className="w-full flex-1 min-h-0 overflow-hidden">
             <div className="w-full h-full">

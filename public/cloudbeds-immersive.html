@@ -231,6 +231,75 @@
         border-color: #445946 !important;
       }
 
+      /* ─────────────────────────────────────────────
+         THE OLIVE OUTLINE LOOK (as the reservation window's chooser and
+         panes): fine olive hairlines instead of grey borders, cream
+         instead of grey placeholders, olive instead of black.
+         Cloudbeds' class names are hashes that change between releases;
+         these rules hold onto its stable hooks only: data-testid
+         attributes, its cb-* classes and roles.
+      ───────────────────────────────────────────── */
+
+      /* Header: a hairline under it, search pills outlined in olive */
+      .olivea-shell [data-testid="header"] {
+        border-bottom: 1px solid rgba(94, 118, 88, 0.15) !important;
+        box-shadow: none !important;
+      }
+      .olivea-shell :is(
+          [data-testid="header-search-panel-date-picker"],
+          [data-testid="landing-search-panel-date-picker"],
+          [data-testid="header-search-panel-promocode-button"],
+          [data-testid="header-search-panel-filters"]
+        ) {
+        background: rgba(255, 255, 255, 0.55) !important;
+        box-shadow: inset 0 0 0 1px rgba(94, 118, 88, 0.3) !important;
+      }
+
+      /* Cards: room, cart, property info */
+      .olivea-shell .cb-card {
+        border: 1px solid rgba(94, 118, 88, 0.3) !important;
+        box-shadow: none !important;
+      }
+      .olivea-shell hr.chakra-divider {
+        border-color: rgba(94, 118, 88, 0.15) !important;
+      }
+
+      /* The cart's white box around its card: let the card's outline be the
+         only frame. */
+      .olivea-shell aside > div:has(> [data-testid="shopping-cart-card"]),
+      .olivea-shell aside div:has(> [data-testid="shopping-cart-card"]) {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+      }
+
+      /* Empty cart: the grey bed in olive, the line in italic */
+      .olivea-shell [data-testid="shopping-cart-card-empty"] svg path[fill="#BBC0CA"] {
+        fill: rgba(94, 118, 88, 0.6) !important;
+      }
+      .olivea-shell [data-testid="shopping-cart-card-empty"] p {
+        font-style: italic !important;
+        opacity: 0.8;
+      }
+
+      /* A photo that has not arrived yet: cream, not grey */
+      .olivea-shell .cb-image-fallback {
+        background: rgba(94, 118, 88, 0.08) !important;
+        color: rgba(94, 118, 88, 0.45) !important;
+      }
+
+      /* "Comparar tarifas": olive, not black. Cloudbeds draws it in a portal
+         outside the shell, so this rule is not scoped to it. */
+      [data-testid="rate-checker-open-toggle"] {
+        background: var(--olivea-olive) !important;
+        color: var(--olivea-cream) !important;
+        box-shadow: 0 10px 24px -14px rgba(40, 60, 35, 0.7) !important;
+      }
+      [data-testid="rate-checker-open-toggle"] * {
+        color: var(--olivea-cream) !important;
+        stroke: currentColor;
+      }
+
       @keyframes olivea-fade-in {
         from { opacity: 0; transform: translateY(6px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -249,5 +318,18 @@
         ></cb-immersive-experience>
       </div>
     </div>
+    <!-- The reservation window opens this page with ?lang=en on the English
+         site. The engine read only the fixed lang="es" above, so English
+         guests got "1 Huésped" and "Buscar". Set it before the engine's
+         script (deferred) runs. -->
+    <script>
+      (function () {
+        var lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "es";
+        var el = document.querySelector("cb-immersive-experience");
+        if (el) el.setAttribute("lang", lang);
+        document.documentElement.lang = lang;
+        if (lang === "en") document.title = "Casa Olivea Reservations";
+      })();
+    </script>
   </body>
 </html>
