@@ -48,6 +48,9 @@ export function openTableUrl(lang: "es" | "en"): string {
 // it (Chrome, Edge); only then, after READY_TIMEOUT_MS more, does it offer the
 // booking on OpenTable itself.
 const PLAIN_WAIT_MS = 5_000;
+/** Set when the second try was what worked on this browser, so the next
+ *  opening goes straight to it instead of waiting PLAIN_WAIT_MS again. */
+const FRESH_KEY = "olivea:opentable-fresh";
 const READY_TIMEOUT_MS = 10_000;
 const OPENTABLE_ORIGIN = /^https:\/\/www\.opentable\.com(\.mx)?$/;
 
@@ -60,11 +63,49 @@ function isAppReady(data: unknown): boolean {
   }
 }
 
+/**
+ * Opens OpenTable's booking page in its own window over the site, centred on
+ * it, instead of a new tab: the guest books, closes it, and is still on
+ * OLIVEA. OpenTable always works as a page of its own, even where a browser
+ * keeps it from drawing inside ours. Meant as the link's onClick: if the
+ * browser refuses the window (a popup blocker), the link opens normally in a
+ * new tab. Phones open it as a tab either way.
+ */
+export function openOpenTableWindow(e: React.MouseEvent<HTMLAnchorElement>): void {
+  // Leave modified clicks (new tab, new window) to the browser.
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  const w = Math.min(560, window.screen.availWidth);
+  const h = Math.min(860, window.screen.availHeight - 40);
+  const left = Math.round(window.screenX + Math.max(0, (window.outerWidth - w) / 2));
+  const top = Math.round(window.screenY + Math.max(0, (window.outerHeight - h) / 2));
+  const win = window.open(
+    e.currentTarget.href,
+    "olivea-opentable",
+    `popup,width=${w},height=${h},left=${left},top=${top}`
+  );
+  if (!win) return; // blocked: the link's own new tab takes over
+  // The window must not be able to steer this page (rel="noopener" does not
+  // apply to window.open with features).
+  win.opener = null;
+  win.focus();
+  e.preventDefault();
+}
+
 function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
   const [ready, setReady] = useState(false);
   const [stalled, setStalled] = useState(false);
-  // Second try: a credentialless frame (see above).
-  const [fresh, setFresh] = useState(false);
+  // Second try: a credentialless frame (see above). Starts there on a browser
+  // where that is what worked before. Client-only (the widget never renders on
+  // the server), so reading storage here is safe.
+  const [fresh, setFresh] = useState(() => {
+    try {
+      return localStorage.getItem(FRESH_KEY) === "1" && "credentialless" in HTMLIFrameElement.prototype;
+    } catch {
+      return false;
+    }
+  });
+  const freshRef = useRef(fresh);
+  freshRef.current = fresh;
   // Bumped by "Try again": a new key remounts the frame and restarts the wait.
   const [attempt, setAttempt] = useState(0);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -73,7 +114,14 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (!OPENTABLE_ORIGIN.test(e.origin) || e.source !== frameRef.current?.contentWindow) return;
-      if (isAppReady(e.data)) setReady(true);
+      if (!isAppReady(e.data)) return;
+      setReady(true);
+      try {
+        if (freshRef.current) localStorage.setItem(FRESH_KEY, "1");
+        else localStorage.removeItem(FRESH_KEY);
+      } catch {
+        /* storage off: it simply waits again next time */
+      }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -133,6 +181,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
             href={openTableUrl(lang)}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={openOpenTableWindow}
             className="inline-flex h-12 items-center gap-2 rounded-full bg-(--olivea-olive) px-7 text-[12px] font-semibold uppercase tracking-[0.18em] text-(--olivea-cream) shadow-[0_10px_24px_-14px_rgba(40,60,35,0.7)] transition-colors hover:bg-(--olivea-clay)"
           >
             {es ? "Reservar en OpenTable" : "Book on OpenTable"}

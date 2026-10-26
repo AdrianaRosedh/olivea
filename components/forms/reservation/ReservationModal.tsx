@@ -20,7 +20,9 @@ import {
   type ReservationType,
 } from "@/contexts/ReservationContext";
 import dynamic from "next/dynamic";
-import { openTableUrl } from "./OpentableWidget";
+// Static, not lazy: the module is already in this chunk (its helpers are
+// imported here), and a lazy boundary only delayed the frame's first request.
+import OpentableWidget, { openOpenTableWindow, openTableUrl } from "./OpentableWidget";
 import { HOUSES, HOUSE_ORDER } from "@/lib/houses";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
@@ -32,9 +34,6 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 // Client-only widgets (already memoized)
 const CloudbedsWidget = dynamic(() => import("./CloudbedsWidget"), {
-  ssr: false,
-});
-const OpentableWidget = dynamic(() => import("./OpentableWidget"), {
   ssr: false,
 });
 
@@ -196,6 +195,7 @@ function RestaurantPane({
             href={openTableUrl(lang)}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={openOpenTableWindow}
             className="inline-flex items-center gap-1.5 text-xs text-(--olivea-ink)/60 underline-offset-4 hover:text-(--olivea-olive) hover:underline whitespace-nowrap"
           >
             {lang === "es" ? "Reservar directamente en OpenTable" : "Reserve directly on OpenTable"}
@@ -460,6 +460,7 @@ function MobileRestaurantSheet({
               href={openTableUrl(lang)}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={openOpenTableWindow}
               className="mr-2 w-9 h-9 flex items-center justify-center rounded-full border border-(--olivea-olive)/30"
               aria-label={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
               title={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
@@ -515,11 +516,20 @@ function HouseChoice({
   return (
     <div
       className={`min-h-0 overflow-y-auto pt-2 ${
-        isMobile ? "flex-1 px-6 pb-[max(env(safe-area-inset-bottom),24px)]" : "px-10 pb-6"
+        isMobile ? "flex-1 px-4 pb-[max(env(safe-area-inset-bottom),24px)]" : "px-10 pb-6"
       }`}
       style={{
         background:
           "radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--olivea-olive) 7%, transparent), transparent 70%)",
+        // Phones: the list's foot fades, so a house below the fold (on a small
+        // screen, or once there are more houses) reads as "scroll for more".
+        // When everything fits, the fade falls on empty padding.
+        ...(isMobile
+          ? {
+              maskImage: "linear-gradient(to bottom, #000 calc(100% - 28px), transparent)",
+              WebkitMaskImage: "linear-gradient(to bottom, #000 calc(100% - 28px), transparent)",
+            }
+          : {}),
       }}
     >
       <div className={`flex flex-col ${isMobile ? "min-h-full" : ""}`}>
@@ -531,13 +541,13 @@ function HouseChoice({
         </p>
         <Ornament className="mt-3" />
 
-        {/* pt clears the emblems, which sit half above their cards. Phones
-            stack the houses; desktop sets them side by side. */}
+        {/* Phones stack compact rows; desktop sets the houses side by side,
+            as many columns as fit (three today, room for more). */}
         <ul
           className={
             isMobile
-              ? "my-auto space-y-10 pt-11 pb-7"
-              : "mx-auto mt-7 mb-6 grid w-full max-w-5xl grid-cols-3 gap-5 lg:gap-7"
+              ? "my-auto space-y-3 pt-6 pb-6"
+              : "mx-auto mt-7 mb-6 grid w-full max-w-5xl grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] gap-5 lg:gap-7"
           }
         >
           {HOUSE_ORDER.map((id, i) => {
@@ -550,46 +560,52 @@ function HouseChoice({
                 transition={reduce ? { duration: 0 } : { duration: 0.45, ease: EASE, delay: 0.08 + i * 0.08 }}
               >
                 {isMobile ? (
-                <button
-                  type="button"
-                  onClick={() => onChoose(id)}
-                  className={[
-                    "group relative w-full rounded-[28px] px-5 text-center",
-                    "pt-10 pb-4",
-                    "border border-(--olivea-olive)/45",
-                    "transition-[background-color,border-color,transform] duration-200",
-                    "active:scale-[0.985] active:bg-(--olivea-olive) active:border-(--olivea-olive)",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/35 focus-visible:ring-offset-4 focus-visible:ring-offset-(--olivea-cream)",
-                  ].join(" ")}
-                >
-                  {/* inner hairline: the second rule of the frame */}
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-1.25 rounded-[23px] border border-(--olivea-olive)/18 transition-colors duration-200 group-active:border-(--olivea-cream)/25"
-                  />
-                  {/* the emblem, set into the frame like a seal */}
-                  <span className="absolute left-1/2 top-0 h-15 w-15 -translate-x-1/2 -translate-y-1/2 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-2">
-                    <span className="relative block h-full w-full">
-                      <Image src={house.emblem} alt="" fill sizes="44px" className="object-contain" />
+                  // Phone: one compact row per house in the double olive frame,
+                  // emblem seal at the left, so every house fits on screen
+                  // with the browser's toolbars showing, and more houses can
+                  // be added without pushing any below the fold. (Tall cards
+                  // with the seal above them left the third house cut off.)
+                  <button
+                    type="button"
+                    onClick={() => onChoose(id)}
+                    className={[
+                      "group relative flex w-full items-center gap-3.5 rounded-[24px] py-3 pl-3 pr-3.5 text-left",
+                      "border border-(--olivea-olive)/45",
+                      "transition-[background-color,border-color,transform] duration-200",
+                      "active:scale-[0.985] active:bg-(--olivea-olive) active:border-(--olivea-olive)",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/35 focus-visible:ring-offset-4 focus-visible:ring-offset-(--olivea-cream)",
+                    ].join(" ")}
+                  >
+                    {/* inner hairline: the second rule of the frame */}
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-1 rounded-[20px] border border-(--olivea-olive)/18 transition-colors duration-200 group-active:border-(--olivea-cream)/25"
+                    />
+                    <span className="relative h-14 w-14 shrink-0 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-2">
+                      <span className="relative block h-full w-full">
+                        <Image src={house.emblem} alt="" fill sizes="40px" className="object-contain" />
+                      </span>
                     </span>
-                  </span>
-                  <span
-                    className="relative block text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)"
-                    style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 23 : 25, fontWeight: 600, lineHeight: 1.15 }}
-                  >
-                    {house.name}
-                  </span>
-                  <span
-                    className="relative mt-0.5 block italic text-(--olivea-olive)/75 transition-colors duration-200 group-active:text-(--olivea-cream)/85"
-                    style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}
-                  >
-                    {house.descriptor[lang]}
-                  </span>
-                  <span className="relative mt-3 inline-flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.24em] text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)">
-                    {house.cue[lang]}
-                    <span aria-hidden="true" className="transition-transform duration-200 group-active:translate-x-0.5">→</span>
-                  </span>
-                </button>
+                    <span className="relative min-w-0 flex-1">
+                      <span
+                        className="block text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)"
+                        // One line down to 320px-wide phones.
+                        style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(17px, 5.3vw, 20px)", fontWeight: 600, lineHeight: 1.12 }}
+                      >
+                        {house.name}
+                      </span>
+                      <span
+                        className="block italic text-(--olivea-olive)/75 transition-colors duration-200 group-active:text-(--olivea-cream)/85"
+                        style={{ fontFamily: "var(--font-serif)", fontSize: 14.5, lineHeight: 1.3 }}
+                      >
+                        {house.descriptor[lang]}
+                      </span>
+                      <span className="mt-1.5 flex items-center gap-2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream)">
+                        {house.cue[lang]}
+                        <span aria-hidden="true" className="transition-transform duration-200 group-active:translate-x-0.5">→</span>
+                      </span>
+                    </span>
+                  </button>
                 ) : (
                   // Desktop: the house's photograph inside the double olive
                   // frame, its emblem set on the photo's edge like a seal.

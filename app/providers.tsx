@@ -54,7 +54,21 @@ function ConditionalLiveGarden() {
   return <LiveGarden />;
 }
 
-/** Load & render reservation modal only when it's open (saves a chunk on idle pages). */
+/** Open the connection to a booking engine's host ahead of the click: DNS,
+ *  TCP and TLS are then done when the frame asks for its first page. Added
+ *  once per host; harmless if the guest never opens the window. */
+function preconnectOnce(href: string) {
+  if (document.head.querySelector(`link[rel="preconnect"][href="${href}"]`)) return;
+  const link = document.createElement("link");
+  link.rel = "preconnect";
+  link.href = href;
+  document.head.appendChild(link);
+}
+
+/** The reservation window: its code loads once the page has settled, so the
+ *  first Reserve opens at once instead of first downloading the window (about
+ *  a second, measured on the live site). Nothing inside it loads until it
+ *  opens: the booking engines start only then. */
 const ConditionalReservationModal = ({ cafeHours }: { cafeHours?: CafeHours | null }) => {
   const { isOpen } = useReservation();
   // The window speaks the page's language. "/" is the Spanish site (rewrite),
@@ -66,17 +80,32 @@ const ConditionalReservationModal = ({ cafeHours }: { cafeHours?: CafeHours | nu
   const [shouldMount, setShouldMount] = useState(false); // ⬅️ latch
 
   useEffect(() => {
-    const prewarm = () => setWarm(true);
+    const prewarm = () => {
+      setWarm(true);
+      preconnectOnce("https://www.opentable.com.mx");
+      preconnectOnce("https://hotels.cloudbeds.com");
+    };
 
     const onPointerOver = (e: PointerEvent) => {
       const t = e.target as HTMLElement | null;
-      if (t?.closest?.("[data-reserve-intent]")) setWarm(true);
+      if (t?.closest?.("[data-reserve-intent]")) prewarm();
     };
 
     window.addEventListener("pointerover", onPointerOver, { passive: true });
     window.addEventListener("olivea:reserve-intent", prewarm as EventListener);
 
+    // Load the window's code once the page is idle, a few seconds in, so it
+    // never competes with the page's own first load.
+    let idle = 0;
+    const settle = window.setTimeout(() => {
+      const ric = window.requestIdleCallback;
+      if (ric) idle = ric(() => setWarm(true), { timeout: 3000 });
+      else setWarm(true);
+    }, 3000);
+
     return () => {
+      window.clearTimeout(settle);
+      if (idle) window.cancelIdleCallback?.(idle);
       window.removeEventListener("pointerover", onPointerOver);
       window.removeEventListener(
         "olivea:reserve-intent",
