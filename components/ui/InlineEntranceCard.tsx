@@ -197,7 +197,8 @@ export default function InlineEntranceCard({
   const isSafari = useIsSafari();
 
   const isES = href.startsWith("/es");
-  const ctaText = isES ? "Haz Click" : "Click Me";
+  // The card opens the house's page: say so, rather than "Click Me".
+  const ctaText = isES ? "Descubrir →" : "Discover →";
 
   const isMobile = size === "compact";
 
@@ -606,9 +607,18 @@ export default function InlineEntranceCard({
                     fontWeight: 600,
                     lineHeight: 1.15,
                     letterSpacing: isMobile ? "0.01em" : undefined,
-                    marginTop: isMobile ? "var(--title-top)" : 28,
-                    transform: isHovered ? "translateY(-8px)" : "translateY(0)",
-                    transition: `transform ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
+                    // Desktop: clear the emblem, whose lower half sits in this
+                    // panel and grows with the card. A fixed 28px let it cover
+                    // the top of the name from 1400px wide (scale 1.3+). On hover
+                    // the emblem shrinks and lifts, and the name rises into the
+                    // space so the description below it fits.
+                    marginTop: isMobile
+                      ? "var(--title-top)"
+                      : isHovered
+                        ? Math.round(14 * scale)
+                        : Math.round(CIRCLE_SIZE / 2 - 12 + 5),
+                    transform: isMobile && isHovered ? "translateY(-8px)" : "translateY(0)",
+                    transition: `transform ${HOVER_DUR}s ${HOVER_EASE_CSS}, margin-top ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                   }}
                   className="not-italic"
                 >
