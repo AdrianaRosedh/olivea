@@ -55,10 +55,10 @@
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": "Menú degustación con Una Estrella MICHELIN y Estrella Verde, nacido del huerto en Valle de Guadalupe.",
+    "description": "Menú holístico de degustación con Una Estrella MICHELIN y Estrella Verde, nacido del huerto en Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación.",
+      "description": "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú holístico de degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación.",
       "ogImage": "/images/seo/farm-og.jpg"
     }
   }, 
@@ -188,6 +188,7 @@
         "Ensenada",
         "restaurante MICHELIN",
         "hospedaje Valle de Guadalupe",
+        "menú holístico",
         "menú degustación",
         "Estrella MICHELIN",
         "Estrella Verde",
@@ -197,7 +198,7 @@
     }
   },
   "metadata": {
-    "description": "Restaurante de menú degustación con Una Estrella MICHELIN y Estrella Verde, hotel listado en MICHELIN Guide y café en Valle de Guadalupe, Baja California.",
+    "description": "Restaurante de menú holístico de degustación con Una Estrella MICHELIN y Estrella Verde, hotel listado en MICHELIN Guide y café en Valle de Guadalupe, Baja California.",
     "siteName": "OLIVEA Hospitalidad del Huerto",
     "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/seo-og.jpg"

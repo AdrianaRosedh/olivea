@@ -108,8 +108,8 @@ const casa: CasaContent = {
           es: "Cada detalle está pensado para tu confort: camas amplias, sábanas suaves y texturas naturales. Agua filtrada en botellas reutilizables cada día, cero ruido visual, y el sueño llega fácil.",
         },
         {
-          en: "Your evening is Olivea Farm To Table, a MICHELIN-starred tasting menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, beside the garden, to wake to it the next morning.",
-          es: "La cena es Olivea Farm To Table, un menú degustación con estrella MICHELIN que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, junto al huerto, para amanecer frente a él.",
+          en: "Your evening is Olivea Farm To Table, a MICHELIN-starred holistic menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, beside the garden, to wake to it the next morning.",
+          es: "La cena es Olivea Farm To Table, un menú holístico con estrella MICHELIN que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, junto al huerto, para amanecer frente a él.",
         },
       ],
       sectionId: {

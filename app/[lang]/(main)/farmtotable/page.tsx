@@ -37,8 +37,8 @@ export async function generateMetadata({
 
   const fallbackTitle = "Olivea Farm To Table";
   const fallbackDescription = isEs
-    ? "Restaurante de menú degustación con estrella MICHELIN, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Con hospedaje y café en la misma propiedad. Donde el huerto es la esencia."
-    : "MICHELIN-starred tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. With farm stay and café on the same property. Where the garden is the essence.";
+    ? "Restaurante de menú holístico de degustación con estrella MICHELIN, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Con hospedaje y café en la misma propiedad. Donde el huerto es la esencia."
+    : "MICHELIN-starred holistic tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. With farm stay and café on the same property. Where the garden is the essence.";
 
   const title = dict.farmtotable?.meta?.title ?? fallbackTitle;
   const description = dict.farmtotable?.meta?.description ?? fallbackDescription;
@@ -122,8 +122,8 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     description:
       fttData.meta?.description?.[L] ??
       (L === "es"
-        ? "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación."
-        : "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only."),
+        ? "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú holístico de degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación."
+        : "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a holistic tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only."),
     isPartOf: { "@id": ENTITY_IDS.website },
     about: { "@id": ENTITY_IDS.restaurant },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },

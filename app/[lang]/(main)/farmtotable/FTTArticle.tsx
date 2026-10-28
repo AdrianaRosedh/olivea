@@ -50,8 +50,8 @@ export default function FTTArticle({ lang, sections }: { lang: Lang; sections: S
         itemProp="servesCuisine"
         content={
           es
-            ? "Menú degustación, Del huerto a la mesa, Cocina de Baja California"
-            : "Tasting menu, Farm to table, Baja California cuisine"
+            ? "Menú holístico, Menú degustación, Del huerto a la mesa, Cocina de Baja California"
+            : "Holistic menu, Tasting menu, Farm to table, Baja California cuisine"
         }
       />
 

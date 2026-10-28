@@ -39,8 +39,8 @@ export default function ArticleMenu({ lang }: { lang: Lang }) {
         <h2>Olivea Farm To Table</h2>
         <p>
           {isEs
-            ? "Menú de degustación de temporada. Cocina guiada por el huerto y el territorio de Baja California — costa, desierto y jardín. Restaurante con Estrella MICHELIN y Estrella Verde. Abierto para cena con reservación previa."
-            : "Seasonal tasting menu. Cuisine guided by the garden and the territory of Baja California — coast, desert, and garden. MICHELIN Star and Green Star restaurant. Open for dinner with advance reservation."}
+            ? "Menú holístico de temporada. Cocina guiada por el huerto y el territorio de Baja California — costa, desierto y jardín. Restaurante con Estrella MICHELIN y Estrella Verde. Abierto para cena con reservación previa."
+            : "Seasonal holistic menu. Cuisine guided by the garden and the territory of Baja California — coast, desert, and garden. MICHELIN Star and Green Star restaurant. Open for dinner with advance reservation."}
         </p>
         <dl>
           <dt>{isEs ? "Horario" : "Hours"}</dt>

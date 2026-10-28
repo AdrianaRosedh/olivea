@@ -21,7 +21,7 @@ export default function ArticleEn() {
         </h1>
         <p>
           <em>
-            MICHELIN-starred tasting restaurant, farm stay, and café born from
+            MICHELIN-starred holistic-menu restaurant, farm stay, and café born from
             a working garden. Where the garden is the essence.
           </em>
         </p>
@@ -55,7 +55,7 @@ export default function ArticleEn() {
       <section aria-label="Olivea Farm To Table">
         <h2>Olivea Farm To Table — MICHELIN-Starred Restaurant</h2>
         <p>
-          A tasting-menu restaurant rooted in the garden. Awarded a MICHELIN
+          A holistic tasting-menu restaurant rooted in the garden. Awarded a MICHELIN
           Star and a MICHELIN Green Star for sustainability in 2025, both kept
           in the 2026 selection. Chef
           Daniel Nates leads a kitchen that works directly with what the

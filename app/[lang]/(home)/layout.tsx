@@ -20,8 +20,8 @@ export async function generateMetadata(
   const title = isEs ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality";
 
   const description = isEs
-    ? "Olivea: hospitalidad del huerto en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, hospedaje y café nacidos del huerto en Baja California. Donde el huerto es la esencia."
-    : "Olivea: farm hospitality in Valle de Guadalupe — MICHELIN-starred tasting restaurant, farm stay, and café rooted in a working garden in Baja California. Where the garden is the essence.";
+    ? "Olivea: hospitalidad del huerto en Valle de Guadalupe — restaurante de menú holístico con estrella MICHELIN, hospedaje y café nacidos del huerto en Baja California. Donde el huerto es la esencia."
+    : "Olivea: farm hospitality in Valle de Guadalupe — MICHELIN-starred holistic-menu restaurant, farm stay, and café rooted in a working garden in Baja California. Where the garden is the essence.";
 
   const canonicalPath = isEs ? "/es" : "/en";
   const url = canonicalUrl(canonicalPath);

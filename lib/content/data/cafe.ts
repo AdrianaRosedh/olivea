@@ -605,8 +605,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "No. Olivea Café Wine Bar is walk-in and open every day. A reservation is only needed for the tasting menu at Olivea Farm To Table.",
-            es: "No. Olivea Café Wine Bar es de entrada libre y abre todos los días. La reservación solo es necesaria para el menú degustación en Olivea Farm To Table.",
+            en: "No. Olivea Café Wine Bar is walk-in and open every day. A reservation is only needed for the holistic menu at Olivea Farm To Table.",
+            es: "No. Olivea Café Wine Bar es de entrada libre y abre todos los días. La reservación solo es necesaria para el menú holístico en Olivea Farm To Table.",
           },
           id: "faq_a72c2c7c2229",
           q: {
@@ -617,8 +617,8 @@ const cafe: CafeContent = {
         },
         {
           a: {
-            en: "Olivea Café Wine Bar is the casual daytime experience: walk-in specialty coffee, our own bakery, breakfast, brunch and wine. Olivea Farm To Table is the MICHELIN-starred restaurant, serving a tasting menu by reservation. Both share the same garden on the same property.",
-            es: "Olivea Café Wine Bar es la experiencia casual de día: café de especialidad, panadería propia, desayuno, brunch y vino, de entrada libre. Olivea Farm To Table es el restaurante con estrella MICHELIN, con un menú degustación bajo reservación. Ambos comparten el mismo huerto en la misma propiedad.",
+            en: "Olivea Café Wine Bar is the casual daytime experience: walk-in specialty coffee, our own bakery, breakfast, brunch and wine. Olivea Farm To Table is the MICHELIN-starred restaurant, serving a holistic menu by reservation. Both share the same garden on the same property.",
+            es: "Olivea Café Wine Bar es la experiencia casual de día: café de especialidad, panadería propia, desayuno, brunch y vino, de entrada libre. Olivea Farm To Table es el restaurante con estrella MICHELIN, con un menú holístico bajo reservación. Ambos comparten el mismo huerto en la misma propiedad.",
           },
           id: "faq_15f1e57a9816",
           q: {

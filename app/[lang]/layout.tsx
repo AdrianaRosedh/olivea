@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
   title: "OLIVEA | Hospitalidad del Huerto en Valle de Guadalupe",
   description:
-    "OLIVEA: hospitalidad del huerto en Valle de Guadalupe — restaurante de degustación con estrella MICHELIN, hospedaje y café nacidos del huerto. Donde el huerto es la esencia.",
+    "OLIVEA: hospitalidad del huerto en Valle de Guadalupe — restaurante de menú holístico con estrella MICHELIN, hospedaje y café nacidos del huerto. Donde el huerto es la esencia.",
 
   alternates: {
     languages: {

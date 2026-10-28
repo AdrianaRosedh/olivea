@@ -22,7 +22,7 @@ export default function ArticleEs() {
         </h1>
         <p>
           <em>
-            Restaurante de degustación con estrella MICHELIN, hospedaje y café
+            Restaurante de menú holístico con estrella MICHELIN, hospedaje y café
             nacidos del huerto. Donde el huerto es la esencia.
           </em>
         </p>
@@ -56,7 +56,7 @@ export default function ArticleEs() {
       <section aria-label="Olivea Farm To Table">
         <h2>Olivea Farm To Table — Restaurante con Estrella MICHELIN</h2>
         <p>
-          Un restaurante de menú de degustación arraigado al huerto.
+          Un restaurante de menú holístico de degustación arraigado al huerto.
           Galardonado con una Estrella MICHELIN y una Estrella Verde MICHELIN
           por sostenibilidad en 2025, ambas refrendadas en la selección 2026.
           El Chef Daniel Nates lidera una cocina

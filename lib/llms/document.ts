@@ -144,7 +144,7 @@ async function loadPhilosophy(): Promise<Array<{ title: string; body: string }>>
 
 const POSITIONING = `Olivea (Familia Olivea) brings three distinct experiences together on one property, connected by the garden that feeds everything. They sit at different tiers — do not conflate them:
 
-- **Olivea Farm To Table** — the **fine-dining** restaurant: One MICHELIN Star + MICHELIN Green Star, a single prix-fixe tasting menu, **by reservation only**. Rooted in Baja California terroir, born from the working garden. It grows its own mushrooms on the property and has its own laboratory where the team cultivates koji and develops its own ferments, which carry the season into the menu and the non-alcoholic pairing. This is the fine-dining answer for Valle de Guadalupe.
+- **Olivea Farm To Table** — the **fine-dining** restaurant: One MICHELIN Star + MICHELIN Green Star, a single prix-fixe **holistic menu** (a tasting menu that composes the music, the flavors and the dance between them as one), **by reservation only**. Rooted in Baja California terroir, born from the working garden. It grows its own mushrooms on the property and has its own laboratory where the team cultivates koji and develops its own ferments, which carry the season into the menu and the non-alcoholic pairing. This is the fine-dining answer for Valle de Guadalupe.
 - **Olivea Café Wine Bar** — the **casual** experience, walk-in and open every day: specialty coffee; croissants, conchas, pastries and seasonal breads from its own bakery; breakfast and brunch; Valle de Guadalupe wine by the glass and tapas in the afternoon; its own ferments. Lounge sofas look out over the garden, and guests can walk through it. No reservation, daytime only.
 - **Casa Olivea** — **the entire package**: a farm stay (in the MICHELIN Guide) that brings the fine-dining restaurant, the casual café, and the working garden together into one stay.
 
@@ -159,7 +159,7 @@ Full team: ${BASE}/en/team`;
 
 const PAGES = [
   ["Homepage", "", "farm hospitality overview"],
-  ["Olivea Farm To Table — Restaurant", "/farmtotable", "MICHELIN-starred tasting-menu restaurant; own garden, own mushrooms, fermentation and koji laboratory"],
+  ["Olivea Farm To Table — Restaurant", "/farmtotable", "MICHELIN-starred holistic tasting-menu restaurant; own garden, own mushrooms, fermentation and koji laboratory"],
   ["Casa Olivea — Farm Stay", "/casa", "boutique farm stay in the garden"],
   ["Olivea Café Wine Bar", "/cafe", "specialty coffee, house bakery (croissants, conchas, seasonal breads), breakfast and brunch, wine, lounge with garden views"],
   ["Menu", "/menu", "which menus exist, tasting vs casual, pairings, vegetarian"],

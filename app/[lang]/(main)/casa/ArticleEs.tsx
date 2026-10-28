@@ -20,7 +20,7 @@ export default function ArticleEs() {
         <p>Catorce habitaciones parte del ecosistema del huerto, cada una con el nombre de una planta aromática o un árbol, cada una abierta al huerto, los olivos y la luz del desierto de Baja California. Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.</p>
         <p>Cada detalle está pensado para tu confort: camas amplias, sábanas suaves y texturas naturales. Agua filtrada en botellas reutilizables cada día, cero ruido visual, y el sueño llega fácil.</p>
         <p>La luz cambia a lo largo del día. Por la mañana, se filtra suave a través de las cortinas. Por la noche, se asienta, cálida, indirecta, que conecta con la tierra.</p>
-        <p>La cena es Olivea Farm To Table, un menú degustación con estrella <strong>MICHELIN</strong> que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, junto al huerto, para amanecer frente a él.</p>
+        <p>La cena es Olivea Farm To Table, un menú holístico con estrella <strong>MICHELIN</strong> que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, junto al huerto, para amanecer frente a él.</p>
       </section>
 
       {/* ── Diseño ── */}

@@ -22,14 +22,14 @@ const farmtotable: FarmToTableContent = {
     },
     page: "farmtotable",
     subheadline: {
-      en: "MICHELIN-starred tasting menu, born from the garden.",
-      es: "Menú degustación con estrella MICHELIN, nacido del huerto.",
+      en: "MICHELIN-starred holistic menu, born from the garden.",
+      es: "Menú holístico con estrella MICHELIN, nacido del huerto.",
     },
   },
   meta: {
     description: {
-      en: "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only.",
-      es: "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación.",
+      en: "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a holistic tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only.",
+      es: "Restaurante con una Estrella MICHELIN y Estrella Verde en Valle de Guadalupe: menú holístico de degustación nacido de nuestro huerto, nuestros propios hongos y un laboratorio de fermentación y koji. Solo con reservación.",
     },
     ogImage: "/images/seo/farm-og.jpg",
     title: {
@@ -98,8 +98,8 @@ const farmtotable: FarmToTableContent = {
         src: "/images/farm/garden.jpg",
       },
       origin: {
-        en: "Olivea Farm To Table is a **tasting menu** shaped by the garden. The kitchen reads climate and soil; the table translates that landscape into memory through time, technique, and restraint. **Every evening begins in the garden itself** — a walk through the rows where the meal was grown, so the first course arrives already familiar.",
-        es: "Olivea Farm To Table es un **menú degustación** nacido del huerto. La cocina interpreta la tierra y el clima; la mesa traduce ese paisaje en memoria, a través del tiempo, la técnica y la contención. **Cada noche empieza en el huerto** — un recorrido por las hileras donde creció la cena, para que el primer plato llegue como algo ya conocido.",
+        en: "Olivea Farm To Table is a **holistic menu** shaped by the garden. The kitchen reads climate and soil; the table translates that landscape into memory through time, technique, and restraint. **Every evening begins in the garden itself** — a walk through the rows where the meal was grown, so the first course arrives already familiar.",
+        es: "Olivea Farm To Table es un **menú holístico** nacido del huerto. La cocina interpreta la tierra y el clima; la mesa traduce ese paisaje en memoria, a través del tiempo, la técnica y la contención. **Cada noche empieza en el huerto** — un recorrido por las hileras donde creció la cena, para que el primer plato llegue como algo ya conocido.",
       },
       sectionId: {
         en: "experience",
@@ -113,8 +113,8 @@ const farmtotable: FarmToTableContent = {
             es: "Formato",
           },
           value: {
-            en: "Tasting menu · courses set by the harvest",
-            es: "Menú degustación · tiempos según la cosecha",
+            en: "Holistic menu · courses set by the harvest",
+            es: "Menú holístico · tiempos según la cosecha",
           },
         },
         {
@@ -149,8 +149,8 @@ const farmtotable: FarmToTableContent = {
         },
       ],
       subtitle: {
-        en: "A single tasting menu, composed in seasons — guided by soil, climate, and time.",
-        es: "Un solo menú degustación, compuesto por estaciones — guiado por la tierra, el clima y el tiempo.",
+        en: "A single holistic menu, composed in seasons — guided by soil, climate, and time.",
+        es: "Un solo menú holístico, compuesto por estaciones — guiado por la tierra, el clima y el tiempo.",
       },
       values: {
         en: "Traceability, water stewardship, and circular thinking guide our decisions. Sustainability is practiced as daily discipline — measured, specific, and grounded in the realities of the land. The experience unfolds slowly, designed for adults who can dedicate **~3 hours** to the table. The evening need not end there: the suites of **Casa Olivea** open onto the same garden — dine, walk a few steps, and wake up there.",
@@ -184,8 +184,8 @@ const farmtotable: FarmToTableContent = {
           es: "**Bajo la dirección del Chef Ejecutivo Daniel Nates,** la cocina trabaja en diálogo cercano con el territorio — leyendo el suelo, el clima y la temporada como punto de partida de cada plato.",
         },
         {
-          en: "We work with a single seasonal tasting menu. Creativity lives inside the season: what is abundant, what is delicate, and what is ready to be carried forward.",
-          es: "Trabajamos con un solo menú degustación de temporada. La creatividad vive dentro del ciclo: lo abundante, lo delicado y aquello que merece continuar su camino.",
+          en: "We work with a single seasonal holistic menu. Creativity lives inside the season: what is abundant, what is delicate, and what is ready to be carried forward.",
+          es: "Trabajamos con un solo menú holístico de temporada. La creatividad vive dentro del ciclo: lo abundante, lo delicado y aquello que merece continuar su camino.",
         },
       ],
       sectionId: {
@@ -429,8 +429,8 @@ const farmtotable: FarmToTableContent = {
     },
     {
       body: {
-        en: "A **tasting menu with no fixed number of courses** — its length follows what the harvest gives — composed as a single journey. Each dish has a **pairing designed in parallel** — from the Valley or the garden — because the drink is part of the story, not an accompaniment.",
-        es: "Un **menú degustación sin número fijo de tiempos** — su extensión sigue lo que da la cosecha — concebido como un solo recorrido. Cada plato tiene un **maridaje diseñado en paralelo** — del Valle o del huerto — porque la bebida es parte de la historia, no un acompañamiento.",
+        en: "A **holistic menu**: the music, the flavors and the dance between them, composed as a single journey. It has **no fixed number of courses** — its length follows what the harvest gives. Each dish has a **pairing designed in parallel** — the **Premium Pairing**, with wines from the Valley and around the world, or the alcohol-free **Garden Pairing** — because the drink is part of the story, not an accompaniment.",
+        es: "Un **menú holístico**: la música, los sabores y la danza entre ellos, pensados como un solo recorrido. **Sin número fijo de tiempos** — su extensión sigue lo que da la cosecha. Cada plato tiene un **maridaje diseñado en paralelo** — el **Maridaje Premium**, con vinos del Valle y del mundo, o el **Maridaje del Huerto**, sin alcohol — porque la bebida es parte de la historia, no un acompañamiento.",
       },
       heading: {
         en: "The menu",
@@ -447,22 +447,22 @@ const farmtotable: FarmToTableContent = {
       infoCards: [
         {
           body: {
-            en: "Our **fermentation** team designs a non-alcoholic pairing with garden ingredients: live ferments, shrubs, infusions, and mocktails that shift with the season.",
-            es: "Nuestro equipo de **fermentación** diseña un maridaje sin alcohol con ingredientes del huerto: fermentos vivos, shrubs, infusiones y mocktails que cambian con la temporada.",
+            en: "Alcohol-free, created by our **fermentation** team with garden ingredients: live ferments, shrubs, infusions, and mocktails that shift with the season.",
+            es: "Sin alcohol, creado por nuestro equipo de **fermentación** con ingredientes del huerto: fermentos vivos, shrubs, infusiones y mocktails que cambian con la temporada.",
           },
           title: {
-            en: "Garden to glass",
-            es: "Del huerto al vaso",
+            en: "Garden Pairing",
+            es: "Maridaje del Huerto",
           },
         },
         {
           body: {
-            en: "A curated wine journey through the Valle de Guadalupe, paired course by course. Corkage: **$500 MXN per bottle, or $900 MXN for a magnum**.",
-            es: "Un recorrido de vinos seleccionados del Valle de Guadalupe, maridados tiempo a tiempo. Descorche: **$500 MXN por botella, o $900 MXN por mágnum**.",
+            en: "With alcohol, course by course: wines from the Valle de Guadalupe alongside selected international labels. Corkage: **$500 MXN per bottle, or $900 MXN for a magnum**.",
+            es: "Con alcohol, tiempo a tiempo: vinos del Valle de Guadalupe y etiquetas internacionales seleccionadas. Descorche: **$500 MXN por botella, o $900 MXN por mágnum**.",
           },
           title: {
-            en: "Valley wines & corkage",
-            es: "Vinos del Valle y descorche",
+            en: "Premium Pairing & corkage",
+            es: "Maridaje Premium y descorche",
           },
         },
         {
@@ -547,8 +547,8 @@ const farmtotable: FarmToTableContent = {
       items: [
         {
           a: {
-            en: "Olivea Farm To Table is a **seasonal tasting menu** shaped by our garden and nearby producers. The experience is designed as a complete journey—paced, immersive, and guided by the season.",
-            es: "Olivea Farm To Table es un **menú degustación estacional** guiado por nuestro huerto y productores cercanos. El recorrido está diseñado como un solo viaje—con ritmo, profundidad y precisión.",
+            en: "Olivea Farm To Table is a **seasonal holistic menu** shaped by our garden and nearby producers. The experience is designed as a complete journey—paced, immersive, and guided by the season.",
+            es: "Olivea Farm To Table es un **menú holístico de temporada** guiado por nuestro huerto y productores cercanos. El recorrido está diseñado como un solo viaje—con ritmo, profundidad y precisión.",
           },
           id: "faq_6421ddb01939",
           q: {
@@ -559,8 +559,8 @@ const farmtotable: FarmToTableContent = {
         },
         {
           a: {
-            en: "Yes—Olivea Farm To Table is **by reservation only**. The tasting menu is prepared around each evening's confirmed tables, so we are not able to receive walk-ins. Reserve through the **Reserve** button on this page, and note any allergies, dietary needs, or celebrations with your booking so the kitchen can prepare.",
-            es: "Sí—Olivea Farm To Table es **solo con reservación**. El menú degustación se prepara en torno a las mesas confirmadas de cada noche, por lo que no podemos recibir visitas sin reservar. Reserva con el botón **Reservar** de esta página, e indica en tu reservación cualquier alergia, restricción alimentaria o celebración para que la cocina pueda prepararse.",
+            en: "Yes—Olivea Farm To Table is **by reservation only**. The holistic menu is prepared around each evening's confirmed tables, so we are not able to receive walk-ins. Reserve through the **Reserve** button on this page, and note any allergies, dietary needs, or celebrations with your booking so the kitchen can prepare.",
+            es: "Sí—Olivea Farm To Table es **solo con reservación**. El menú holístico se prepara en torno a las mesas confirmadas de cada noche, por lo que no podemos recibir visitas sin reservar. Reserva con el botón **Reservar** de esta página, e indica en tu reservación cualquier alergia, restricción alimentaria o celebración para que la cocina pueda prepararse.",
           },
           id: "faq_d3d788687882",
           q: {
@@ -583,8 +583,8 @@ const farmtotable: FarmToTableContent = {
         },
         {
           a: {
-            en: "The menu is served as a **single tasting journey**. This structure allows the kitchen to cook with precision and continuity across the season.",
-            es: "El menú se sirve como un **solo recorrido degustación**. Esta estructura permite cocinar con continuidad y precisión a lo largo de la temporada.",
+            en: "The menu is served as a **single holistic journey**: the flavors, the music and the dance between them. This structure allows the kitchen to cook with precision and continuity across the season.",
+            es: "El menú se sirve como un **solo recorrido holístico**: los sabores, la música y la danza entre ellos. Esta estructura permite cocinar con continuidad y precisión a lo largo de la temporada.",
           },
           id: "faq_c153f0ad09f6",
           q: {
@@ -631,8 +631,8 @@ const farmtotable: FarmToTableContent = {
         },
         {
           a: {
-            en: "Yes. We offer a wine journey through Valle de Guadalupe and a **non-alcoholic pairing** designed through flavor science.",
-            es: "Sí. Ofrecemos un recorrido de vinos por el Valle y un **maridaje sin alcohol** diseñado con ciencia del sabor.",
+            en: "Yes, two: the **Premium Pairing**, with wines from Valle de Guadalupe and selected international labels, and the **Garden Pairing**, alcohol-free, created by our team with garden ingredients and flavor science.",
+            es: "Sí, dos: el **Maridaje Premium**, con vinos del Valle de Guadalupe y etiquetas internacionales seleccionadas, y el **Maridaje del Huerto**, sin alcohol, creado por nuestro equipo con ingredientes del huerto y ciencia del sabor.",
           },
           id: "faq_ffd39070ef6b",
           q: {
@@ -691,8 +691,8 @@ const farmtotable: FarmToTableContent = {
         },
         {
           a: {
-            en: "Yes. We offer a tasting-menu experience guided by seasonality and the garden.",
-            es: "Sí. Ofrecemos una experiencia de menú degustación guiada por la temporada y el huerto.",
+            en: "Yes, and we call it a **holistic menu**: the music, the flavors and the dance between them, guided by the season and the garden.",
+            es: "Sí, y lo llamamos **menú holístico**: la música, los sabores y la danza entre ellos, guiados por la temporada y el huerto.",
           },
           id: "faq_153f22a0adb8",
           q: {
@@ -715,8 +715,8 @@ const farmtotable: FarmToTableContent = {
         },
         {
           a: {
-            en: "Olivea is MICHELIN-recognized and has been featured by international publications. It's a tasting-menu experience rooted in the garden and the territory of Baja California.",
-            es: "Olivea cuenta con reconocimiento MICHELIN y ha sido destacada por publicaciones internacionales. Es una experiencia de menú degustación arraigada al huerto y al territorio de Baja California.",
+            en: "Olivea is MICHELIN-recognized and has been featured by international publications. It's a holistic-menu experience rooted in the garden and the territory of Baja California.",
+            es: "Olivea cuenta con reconocimiento MICHELIN y ha sido destacada por publicaciones internacionales. Es una experiencia de menú holístico arraigada al huerto y al territorio de Baja California.",
           },
           id: "faq_cadf79a4939f",
           q: {
@@ -739,8 +739,8 @@ const farmtotable: FarmToTableContent = {
         },
         {
           a: {
-            en: "Yes. The tasting menu is born from our own working garden, and we grow our own mushrooms on the property.",
-            es: "Sí. El menú degustación nace de nuestro propio huerto, y cultivamos nuestros propios hongos en la propiedad.",
+            en: "Yes. The holistic menu is born from our own working garden, and we grow our own mushrooms on the property.",
+            es: "Sí. El menú holístico nace de nuestro propio huerto, y cultivamos nuestros propios hongos en la propiedad.",
           },
           id: "faq_ftt_ingredients",
           q: {

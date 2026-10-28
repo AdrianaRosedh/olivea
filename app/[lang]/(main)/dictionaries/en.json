@@ -55,10 +55,10 @@
   },
   "farmtotable": {
     "title": "Olivea Farm To Table",
-    "description": "One MICHELIN Star & MICHELIN Green Star tasting menu shaped by a living garden in Valle de Guadalupe.",
+    "description": "One MICHELIN Star & MICHELIN Green Star holistic tasting menu shaped by a living garden in Valle de Guadalupe.",
     "meta": {
       "title": "OLIVEA Farm To Table",
-      "description": "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only.",
+      "description": "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a holistic tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only.",
       "ogImage": "/images/seo/farm-og.jpg"
     }
   },
@@ -188,6 +188,7 @@
         "Ensenada",
         "MICHELIN restaurant",
         "farm stay Baja California",
+        "holistic menu",
         "tasting menu",
         "MICHELIN Star",
         "MICHELIN Green Star",
@@ -197,7 +198,7 @@
     }
   },
   "metadata": {
-    "description": "One MICHELIN Star & MICHELIN Green Star tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café in Valle de Guadalupe, Baja California.",
+    "description": "One MICHELIN Star & MICHELIN Green Star holistic tasting-menu restaurant, boutique hotel listed in the MICHELIN Guide, and café in Valle de Guadalupe, Baja California.",
     "siteName": "OLIVEA Farm Hospitality",
     "twitter": "@OLIVEAFARMTOTABLE",
     "ogDefault": "/images/seo/seo-og.jpg"

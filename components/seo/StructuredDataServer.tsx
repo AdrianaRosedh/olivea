@@ -252,11 +252,11 @@ export default async function StructuredDataServer() {
       "@id": ENTITY_IDS.restaurant,
       name: "Olivea Farm To Table",
       alternateName: "Olivea FTT",
-      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. It grows its own mushrooms on the property and works with koji and its own ferments in its own laboratory. The fine-dining heart of Olivea; the casual daytime café (Olivea Café Wine Bar) and the farm stay (Casa Olivea) share the same property.",
+      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe holistic tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. It grows its own mushrooms on the property and works with koji and its own ferments in its own laboratory. The fine-dining heart of Olivea; the casual daytime café (Olivea Café Wine Bar) and the farm stay (Casa Olivea) share the same property.",
       // ✅ Google's dining-style hints. schema.org has no "fine dining" type, so
       // the tier is carried by priceRange ($$$$), the description, cuisine, and
       // these keywords — kept unambiguous so Search/AI never read it as casual.
-      keywords: "fine dining, alta cocina, MICHELIN Star, tasting menu, menú degustación, prix fixe, farm-to-table, del huerto, reservation only, Valle de Guadalupe",
+      keywords: "fine dining, alta cocina, MICHELIN Star, holistic menu, menú holístico, tasting menu, menú degustación, prix fixe, farm-to-table, del huerto, reservation only, Valle de Guadalupe",
       url: canonicalUrl("/es/farmtotable"),
       mainEntityOfPage: canonicalUrl("/es/farmtotable"),
       telephone: "+52-6463836402",
