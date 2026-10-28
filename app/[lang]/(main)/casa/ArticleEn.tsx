@@ -17,10 +17,10 @@ export default function ArticleEn() {
       {/* ── Rooms ── */}
       <section aria-labelledby="rooms-heading">
         <h2 id="rooms-heading">Our Suites</h2>
-        <p>Fourteen suites, part of the garden ecosystem, each named for an aromatic plant or tree, each opening to the huerto, the olive rows, and the desert light of Baja California. You do not book a room here; you stay within the ecosystem the garden feeds.</p>
+        <p>Fourteen suites, part of the garden ecosystem, each named for an aromatic plant or tree, set around a central courtyard and its pool, with the garden and the olive rows just behind. You do not book a room here; you stay within the ecosystem the garden feeds.</p>
         <p>Every detail is designed for comfort: king-size beds, soft linens, and natural textures. Filtered water in reusable bottles each day, zero visual noise, and sleep comes easy.</p>
         <p>Light shifts throughout the day. In the morning, it filters softly through curtains. In the evening, it settles, warm, indirect, grounding.</p>
-        <p>Your evening is Olivea Farm To Table, a <strong>MICHELIN</strong>-starred holistic menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, beside the garden, to wake to it the next morning.</p>
+        <p>Your evening is Olivea Farm To Table, a <strong>MICHELIN</strong>-starred holistic menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, a few steps from the garden, to walk it again the next morning.</p>
       </section>
 
       {/* ── Design ── */}
@@ -44,7 +44,7 @@ export default function ArticleEn() {
       <section aria-labelledby="mornings-heading">
         <h2 id="mornings-heading">Mornings at Olivea</h2>
         <h3>Breakfast</h3>
-        <p>Guests are welcome to start the day at Olivea Café Wine Bar, where the kitchen serves a seasonal continental breakfast — house-made bread, vegetables from our garden, and a selection of local and in-house preparations, fresh and rooted in the garden.</p>
+        <p>Guests are welcome to start the day at Olivea Café Wine Bar, where the kitchen serves a seasonal breakfast — house-made bread, vegetables from our garden, and a selection of local and in-house preparations, fresh and rooted in the garden.</p>
         <p>Breakfast at the café is not included in your stay.</p>
         <h3>Coffee &amp; Olivea Café Wine Bar</h3>
         <p>For guests seeking a broader or more expressive morning experience, Olivea Café Wine Bar offers an expanded breakfast menu alongside a full selection of crafted coffee drinks. Espresso-based beverages, specialty preparations, and additional breakfast plates are available directly at the café.</p>
@@ -88,11 +88,11 @@ export default function ArticleEn() {
         <h3>Do you allow children or pets?</h3>
         <p>Casa Olivea is adults-only (18+). Dogs are welcomed in designated areas.</p>
         <h3>Do the rooms have a TV?</h3>
-        <p>No, and it's deliberate. There are no televisions in the suites. Casa Olivea is made for disconnecting: slow mornings, long dinners, the quiet of the garden, and the night sky over Valle de Guadalupe. We'd rather give you room to be present than a screen to fill it.</p>
+        <p>No, and it's deliberate. There are no televisions in the suites. Casa Olivea is made for disconnecting: slow mornings, long dinners, the calm of the garden, and the night sky over Valle de Guadalupe. We'd rather give you room to be present than a screen to fill it.</p>
         <h3>Do you offer airport pickup?</h3>
         <p>We can coordinate trusted local drivers upon request.</p>
         <h3>Are you part of the Michelin Guide?</h3>
-        <p>Casa Olivea appears in the Michelin Guide, and our restaurant Olivea Farm To Table holds a Michelin Star and Green Star.</p>
+        <p>Yes. Casa Olivea is part of the MICHELIN Guide, and our restaurant, Olivea Farm To Table, holds a MICHELIN Star and the MICHELIN Green Star, its recognition for sustainability.</p>
       </section>
     </article>
   );

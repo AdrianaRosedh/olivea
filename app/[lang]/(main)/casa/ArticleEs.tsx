@@ -17,10 +17,10 @@ export default function ArticleEs() {
       {/* ── Habitaciones ── */}
       <section aria-labelledby="habitaciones-heading">
         <h2 id="habitaciones-heading">Habitaciones</h2>
-        <p>Catorce habitaciones parte del ecosistema del huerto, cada una con el nombre de una planta aromática o un árbol, cada una abierta al huerto, los olivos y la luz del desierto de Baja California. Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.</p>
+        <p>Catorce habitaciones parte del ecosistema del huerto, cada una con el nombre de una planta aromática o un árbol, alrededor de un patio central con su alberca, con el huerto y los olivos justo detrás. Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.</p>
         <p>Cada detalle está pensado para tu confort: camas amplias, sábanas suaves y texturas naturales. Agua filtrada en botellas reutilizables cada día, cero ruido visual, y el sueño llega fácil.</p>
         <p>La luz cambia a lo largo del día. Por la mañana, se filtra suave a través de las cortinas. Por la noche, se asienta, cálida, indirecta, que conecta con la tierra.</p>
-        <p>La cena es Olivea Farm To Table, un menú holístico con estrella <strong>MICHELIN</strong> que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, junto al huerto, para amanecer frente a él.</p>
+        <p>La cena es Olivea Farm To Table, un menú holístico con estrella <strong>MICHELIN</strong> que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, a unos pasos del huerto, para recorrerlo de nuevo a la mañana siguiente.</p>
       </section>
 
       {/* ── Diseño ── */}
@@ -44,7 +44,7 @@ export default function ArticleEs() {
       <section aria-labelledby="mananas-heading">
         <h2 id="mananas-heading">Mañanas en Olivea</h2>
         <h3>Desayuno</h3>
-        <p>Los huéspedes pueden comenzar el día en Olivea Café Wine Bar, donde la cocina sirve un desayuno continental de temporada — pan de casa, verduras de nuestro huerto y una selección de preparaciones locales e internas, frescas y enraizadas en el huerto.</p>
+        <p>Los huéspedes pueden comenzar el día en Olivea Café Wine Bar, donde la cocina sirve un desayuno de temporada — pan de casa, verduras de nuestro huerto y una selección de preparaciones locales e internas, frescas y enraizadas en el huerto.</p>
         <p>El desayuno en el café no está incluido en la estancia.</p>
         <h3>Café y Olivea Café Wine Bar</h3>
         <p>Para huéspedes que buscan una experiencia matutina más amplia o expresiva, Olivea Café Wine Bar ofrece un menú de desayuno expandido junto con una selección completa de bebidas de café preparadas. Bebidas a base de espresso, preparaciones especiales y platos adicionales de desayuno están disponibles directamente en el café.</p>
@@ -88,11 +88,11 @@ export default function ArticleEs() {
         <h3>¿Aceptan niños o mascotas?</h3>
         <p>Casa Olivea es solo para adultos (18+). Los perros son bienvenidos en áreas designadas.</p>
         <h3>¿Las habitaciones tienen televisión?</h3>
-        <p>No, y es intencional. Las suites no tienen televisión. Casa Olivea está pensada para desconectar: mañanas sin prisa, sobremesas largas, el silencio del huerto y el cielo nocturno del Valle de Guadalupe. Preferimos darte espacio para estar presente, no una pantalla para llenarlo.</p>
+        <p>No, y es intencional. Las suites no tienen televisión. Casa Olivea está pensada para desconectar: mañanas sin prisa, sobremesas largas, la calma del huerto y el cielo nocturno del Valle de Guadalupe. Preferimos darte espacio para estar presente, no una pantalla para llenarlo.</p>
         <h3>¿Ofrecen transporte al aeropuerto?</h3>
         <p>Podemos coordinar conductores locales de confianza bajo solicitud.</p>
         <h3>¿Son parte de la Guía Michelin?</h3>
-        <p>Casa Olivea aparece en la Guía Michelin, y nuestro restaurante Olivea Farm To Table tiene una Estrella Michelin y una Estrella Verde.</p>
+        <p>Sí. Casa Olivea forma parte de la Guía MICHELIN, y nuestro restaurante, Olivea Farm To Table, tiene una Estrella MICHELIN y la Estrella Verde MICHELIN, su reconocimiento a la sostenibilidad.</p>
       </section>
     </article>
   );

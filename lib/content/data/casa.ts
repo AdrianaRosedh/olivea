@@ -24,7 +24,7 @@ const casa: CasaContent = {
   meta: {
     description: {
       en: "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay inside the farm. Where the garden is the essence.",
-      es: "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate dentro del huerto. Donde el huerto es la esencia.",
+      es: "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate junto al huerto. Donde el huerto es la esencia.",
     },
     keywords: [
       "Casa Olivea",
@@ -100,16 +100,16 @@ const casa: CasaContent = {
       },
       paragraphs: [
         {
-          en: "Fourteen suites, part of the garden ecosystem, each named for an aromatic plant or tree, each opening to the huerto, the olive rows, and the desert light of Baja California. You do not book a room here; you stay within the ecosystem the garden feeds.",
-          es: "Catorce habitaciones parte del ecosistema del huerto, cada una con el nombre de una planta aromática o un árbol, cada una abierta al huerto, los olivos y la luz del desierto de Baja California. Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.",
+          en: "Fourteen suites, part of the garden ecosystem, each named for an aromatic plant or tree, set around a central courtyard and its pool, with the garden and the olive rows just behind. You do not book a room here; you stay within the ecosystem the garden feeds.",
+          es: "Catorce habitaciones parte del ecosistema del huerto, cada una con el nombre de una planta aromática o un árbol, alrededor de un patio central con su alberca, con el huerto y los olivos justo detrás. Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.",
         },
         {
           en: "Every detail is designed for comfort: king-size beds, soft linens, and natural textures. Filtered water in reusable bottles each day, zero visual noise, and sleep comes easy.",
           es: "Cada detalle está pensado para tu confort: camas amplias, sábanas suaves y texturas naturales. Agua filtrada en botellas reutilizables cada día, cero ruido visual, y el sueño llega fácil.",
         },
         {
-          en: "Your evening is Olivea Farm To Table, a MICHELIN-starred holistic menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, beside the garden, to wake to it the next morning.",
-          es: "La cena es Olivea Farm To Table, un menú holístico con estrella MICHELIN que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, junto al huerto, para amanecer frente a él.",
+          en: "Your evening is Olivea Farm To Table, a MICHELIN-starred holistic menu that opens with a walk through the garden, steps from your door. When dinner ends there is no drive and nothing to leave: you are already home, a few steps from the garden, to walk it again the next morning.",
+          es: "La cena es Olivea Farm To Table, un menú holístico con estrella MICHELIN que empieza con un recorrido por el huerto, a unos pasos de tu puerta. Cuando la cena termina no hay que manejar ni despedirse de nada: ya estás en casa, a unos pasos del huerto, para recorrerlo de nuevo a la mañana siguiente.",
         },
       ],
       sectionId: {
@@ -143,8 +143,8 @@ const casa: CasaContent = {
             es: "Entorno",
           },
           value: {
-            en: "Overlooking the huerto · garden views",
-            es: "Frente al huerto · vista al jardín",
+            en: "Overlooking the pool · central courtyard",
+            es: "Frente a la alberca · patio central",
           },
         },
         {
@@ -159,8 +159,8 @@ const casa: CasaContent = {
         },
       ],
       subtitle: {
-        en: "Fourteen suites, composed for rest, shaped by light, silence, and the huerto.",
-        es: "Catorce habitaciones, compuestas para el descanso, moldeadas por la luz, el silencio y el huerto.",
+        en: "Fourteen suites, composed for rest, shaped by light and the garden.",
+        es: "Catorce habitaciones, compuestas para el descanso, moldeadas por la luz y el huerto.",
       },
     },
     {
@@ -241,8 +241,8 @@ const casa: CasaContent = {
       columns: [
         {
           body: {
-            en: "Guests are welcome to start the day at Olivea Café Wine Bar, where the kitchen serves a seasonal continental breakfast — house-made bread, vegetables from our garden, and a selection of local and house-prepared accompaniments, fresh and rooted in the garden.",
-            es: "Los huéspedes pueden comenzar el día en Olivea Café Wine Bar, donde la cocina sirve un desayuno continental de temporada — pan hecho en casa, vegetales de nuestro huerto y una selección de acompañamientos locales y de la casa, fresco y enraizado en el huerto.",
+            en: "Guests are welcome to start the day at Olivea Café Wine Bar, where the kitchen serves a seasonal breakfast — house-made bread, vegetables from our garden, and a selection of local and house-prepared accompaniments, fresh and rooted in the garden.",
+            es: "Los huéspedes pueden comenzar el día en Olivea Café Wine Bar, donde la cocina sirve un desayuno de temporada — pan hecho en casa, vegetales de nuestro huerto y una selección de acompañamientos locales y de la casa, fresco y enraizado en el huerto.",
           },
           id: "breakfast",
           note: {
@@ -499,8 +499,8 @@ const casa: CasaContent = {
         },
         {
           a: {
-            en: "No, and it's deliberate. There are no televisions in the suites. Casa Olivea is made for disconnecting: slow mornings, long dinners, the quiet of the garden, and the night sky over Valle de Guadalupe. We'd rather give you room to be present than a screen to fill it.",
-            es: "No, y es intencional. Las suites no tienen televisión. Casa Olivea está pensada para desconectar: mañanas sin prisa, sobremesas largas, el silencio del huerto y el cielo nocturno del Valle de Guadalupe. Preferimos darte espacio para estar presente, no una pantalla para llenarlo.",
+            en: "No, and it's deliberate. There are no televisions in the suites. Casa Olivea is made for disconnecting: slow mornings, long dinners, the calm of the garden, and the night sky over Valle de Guadalupe. We'd rather give you room to be present than a screen to fill it.",
+            es: "No, y es intencional. Las suites no tienen televisión. Casa Olivea está pensada para desconectar: mañanas sin prisa, sobremesas largas, la calma del huerto y el cielo nocturno del Valle de Guadalupe. Preferimos darte espacio para estar presente, no una pantalla para llenarlo.",
           },
           id: "faq_584f32fdeff2",
           q: {
@@ -521,8 +521,8 @@ const casa: CasaContent = {
         },
         {
           a: {
-            en: "Yes, Michelin Star and Green Star.",
-            es: "Casa Olivea aparece en la Guía Michelin y nuestro restaurante Olivea Farm To Table cuenta con Estrella Michelin y Estrella Verde.",
+            en: "Yes. Casa Olivea is part of the MICHELIN Guide, and our restaurant, Olivea Farm To Table, holds a MICHELIN Star and the MICHELIN Green Star, its recognition for sustainability.",
+            es: "Sí. Casa Olivea forma parte de la Guía MICHELIN, y nuestro restaurante, Olivea Farm To Table, tiene una Estrella MICHELIN y la Estrella Verde MICHELIN, su reconocimiento a la sostenibilidad.",
           },
           id: "faq_fa67af33f873",
           q: {
@@ -532,7 +532,7 @@ const casa: CasaContent = {
         },
         {
           a: {
-            en: "Casa Olivea is a farm stay integrated with the garden and connected to Olivea Farm To Table — ideal for experiencing farm hospitality: stay, dine, and wake up inside the garden.",
+            en: "Casa Olivea is a farm stay integrated with the garden and connected to Olivea Farm To Table — ideal for experiencing farm hospitality: stay, dine, and wake up on the farm.",
             es: "Casa Olivea es un hospedaje integrado al huerto y conectado a Olivea Farm To Table, ideal para vivir la hospitalidad del huerto: hospedaje, gastronomía y naturaleza en el mismo lugar.",
           },
           id: "faq_49c7722508de",
