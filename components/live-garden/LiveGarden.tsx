@@ -96,7 +96,28 @@ const pulseKeyframes = `
   50% { transform: scale(2.2); opacity: 0; }
   100% { transform: scale(1); opacity: 0; }
 }
+/* The roseiies orb's colour drifts, as eiie's does across roseiies. The field
+   is the orb's own colour (its picture with the mark taken out), so the hues
+   never change, only where they sit. Transform only, so it is composited:
+   a sway, a drift and a slow breath on coprime timings, so it never
+   visibly loops. Zoomed only as far as covering the circle needs: more
+   crops out the teal and the light, and the orb reads redder than it is. */
+@keyframes orb-sway { 0%, 100% { transform: rotate(-22deg); } 50% { transform: rotate(24deg); } }
+@keyframes orb-drift {
+  0%, 100% { transform: translate(-2%, 1.5%) scale(1.05); }
+  33% { transform: translate(2%, -2%) scale(1.06); }
+  66% { transform: translate(1.5%, 2%) scale(1.05); }
+}
+.orb-field-sway { animation: orb-sway 9.5s ease-in-out infinite; }
+.orb-field-drift { animation: orb-drift 13s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .orb-field-sway, .orb-field-drift, .orb-live-pulse { animation: none !important; }
+}
 `;
+
+/** The roseiies woggle (brand/RING.svg in the roseiies repo). */
+const WOGGLE_PATH =
+  "M226.92,12.39c-4.32-3.93-9.28-6.96-14.84-9.15-5.52-2.16-11.31-3.24-17.23-3.24s-11.67,1.08-17.1,3.24c-5.38,2.18-10.2,5.22-14.39,9.15-.95.88-2.64,2.64-2.64,2.64,0,0-19.88,20.96-40.05,20.96h-.63c-20.17,0-40.05-20.96-40.05-20.96,0,0-1.65-1.76-2.6-2.64-4.18-3.93-9.01-6.96-14.39-9.15-5.42-2.16-11.12-3.24-17.1-3.24s-11.72,1.08-17.23,3.24c-5.56,2.18-10.52,5.22-14.84,9.15-4.32,3.93-7.72,8.53-10.16,13.81-2.44,5.29-3.68,11.05-3.68,17.28s1.24,12.04,3.68,17.46c2.44,5.42,5.84,10.09,10.16,14.02,4.32,3.93,9.28,6.96,14.84,9.15,5.52,2.16,11.31,3.24,17.23,3.24s11.67-1.15,17.1-3.45c5.38-2.3,10.2-5.42,14.39-9.35.91-.85,2.6-2.64,2.6-2.64,18.48-21.52,40.05-20.55,40.05-20.55h.63s21.81-1.16,40.05,20.55c0,0,1.72,1.79,2.64,2.64,4.18,3.93,9.01,7.05,14.39,9.35,5.42,2.3,11.12,3.45,17.1,3.45s11.72-1.08,17.23-3.24c5.56-2.18,10.52-5.22,14.84-9.15,4.32-3.93,7.72-8.59,10.16-14.02,2.44-5.42,3.68-11.24,3.68-17.46s-1.24-12-3.68-17.28c-2.44-5.29-5.84-9.88-10.16-13.81Z";
 
 // ─── Map container (iframe embed) ───────────────────────────────────
 
@@ -434,21 +455,32 @@ export default function LiveGarden() {
                     : "0 14px 34px -16px rgba(0,0,0,0.45)",
                 }}
               />
-              {/* roseiies orb (the woggle) */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/roseiies-mark.webp"
-                alt=""
+              {/* roseiies orb: its colour drifting under the white woggle.
+                  A cream rim and an olive hairline set it in the site's
+                  palette, as the house emblems are set in seals. */}
+              <span
                 aria-hidden="true"
-                draggable={false}
-                // A cream rim and an olive hairline set the roseiies mark in
-                // the site's palette, as the house emblems are set in seals.
-                className="relative w-full h-full rounded-full border-2 border-(--olivea-cream) ring-1 ring-(--olivea-olive)/35 pointer-events-none"
-              />
+                data-roseiies-orb=""
+                className="relative block w-full h-full overflow-hidden rounded-full border-2 border-(--olivea-cream) ring-1 ring-(--olivea-olive)/35 pointer-events-none"
+              >
+                <span className="orb-field-sway absolute inset-0">
+                  <span
+                    className="orb-field-drift absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: "url(/images/roseiies-field.webp)" }}
+                  />
+                </span>
+                <svg
+                  viewBox="0 0 240.75 87.34"
+                  className="absolute left-1/2 top-1/2 w-[61.5%] -translate-x-1/2 -translate-y-1/2"
+                  fill="#fff"
+                >
+                  <path d={WOGGLE_PATH} />
+                </svg>
+              </span>
               {/* live badge */}
               <span className="absolute top-1 right-1 flex h-3 w-3">
                 <span
-                  className="absolute inset-0 rounded-full bg-(--olivea-olive)"
+                  className="orb-live-pulse absolute inset-0 rounded-full bg-(--olivea-olive)"
                   style={{ animation: "live-pulse 2s ease-out infinite" }}
                 />
                 <span className="relative h-3 w-3 rounded-full bg-(--olivea-olive) ring-2 ring-(--olivea-cream)" />
