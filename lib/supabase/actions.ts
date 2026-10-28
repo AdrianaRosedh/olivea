@@ -482,6 +482,24 @@ const pageRevalidations: Record<PageTable, string[]> = {
   roseiies_content: ["/es/roseiies", "/en/roseiies"],
 };
 
+// Pages built partly from ANOTHER table's content, refreshed alongside the
+// table's own pages so an admin save reaches them too: the home and Menu
+// search articles show each house's description, and the AI summary
+// (/llms.txt) quotes their FAQs and facts. Not pinged to IndexNow — the
+// edited page is.
+const AI_SUMMARY = ["/llms.txt", "/llms-full.txt"];
+const derivedRevalidations: Partial<Record<PageTable, string[]>> = {
+  farmtotable_content: ["/es", "/en", "/es/menu", "/en/menu", ...AI_SUMMARY],
+  casa_content: ["/es", "/en", ...AI_SUMMARY],
+  cafe_content: ["/es", "/en", "/es/menu", "/en/menu", ...AI_SUMMARY],
+  sustainability_content: AI_SUMMARY,
+  team_content: AI_SUMMARY,
+};
+
+function revalidateDerived(table: PageTable) {
+  for (const path of derivedRevalidations[table] ?? []) revalidatePath(path);
+}
+
 // Which sections may read / write each page document (see requireSections).
 const TABLE_SECTIONS: Record<PageTable, { read: string[]; write: string[] }> = {
   farmtotable_content: { read: ["pages.farmtotable", "content.menu"], write: ["pages.farmtotable", "content.menu"] },
@@ -585,6 +603,7 @@ export async function savePageContent(
         revalidatePath(path);
       }
     }
+    revalidateDerived(table);
     await pingIndexNowForPaths(pageRevalidations[table] ?? []);
     return { ok: true, version: touched[0]?.updated_at ?? null };
   }
@@ -598,6 +617,7 @@ export async function savePageContent(
       revalidatePath(path);
     }
   }
+  revalidateDerived(table);
   // Notify IndexNow (Bing -> Copilot + ChatGPT Search) of the changed URLs.
   await pingIndexNowForPaths(pageRevalidations[table] ?? []);
   return { ok: true, version: null };
@@ -680,7 +700,8 @@ function assertPressId(id: string): void {
   }
 }
 
-const PRESS_REVALIDATE = ["/es/press", "/en/press"];
+// The home search article lists the awards, so it refreshes with the press page.
+const PRESS_REVALIDATE = ["/es/press", "/en/press", "/es", "/en"];
 
 function revalidatePress() {
   for (const p of PRESS_REVALIDATE) revalidatePath(p);

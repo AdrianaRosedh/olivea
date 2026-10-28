@@ -2,87 +2,69 @@
 // Server component — semantic HTML for crawlers, AI assistants, and no-JS clients.
 // The /menu page is a client-side redirect to /farmtotable#menu, so crawlers see nothing.
 // This article provides the essential menu context.
+//
+// Built from the CMS: each house's own page description and its hours from
+// /admin/hours. The hand-written version had drifted (it still listed the
+// restaurant as open Wednesday, Friday and Sunday after Thursday and Saturday
+// were added).
 
 import Link from "next/link";
+import { getContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 
-export default function ArticleMenu({ lang }: { lang: Lang }) {
+const HOUSES = [
+  { key: "farmtotable", name: "Olivea Farm To Table", cta: { en: "View the Farm To Table menu", es: "Ver el menú de Farm To Table" } },
+  { key: "cafe", name: "Olivea Café Wine Bar", cta: { en: "View the Café menu", es: "Ver el menú del Café" } },
+] as const;
+
+export default async function ArticleMenu({ lang }: { lang: Lang }) {
   const isEs = lang === "es";
+  const [global, ...houses] = await Promise.all([
+    getContent("global").catch(() => null),
+    ...HOUSES.map((h) => getContent(h.key).catch(() => null)),
+  ]);
+  const address = global?.contactInfo?.address ? t(lang, global.contactInfo.address) : "";
 
   return (
     <article
       aria-label={isEs ? "Menú OLIVEA" : "OLIVEA Menu"}
       className="ssr-article"
-      lang={isEs ? "es" : undefined}
+      lang={isEs ? "es" : "en"}
       itemScope
       itemType="https://schema.org/Menu"
     >
       <meta itemProp="name" content={isEs ? "Menú OLIVEA" : "OLIVEA Menu"} />
 
       <header>
-        <h1>
-          {isEs
-            ? "Menú — OLIVEA en Valle de Guadalupe"
-            : "Menu — OLIVEA in Valle de Guadalupe"}
-        </h1>
-        <p>
-          <em>
-            {isEs
-              ? "Menú de temporada de Olivea Farm To Table y Olivea Café Wine Bar — cocina arraigada al huerto en Valle de Guadalupe, Baja California."
-              : "Seasonal menu for Olivea Farm To Table and Olivea Café Wine Bar — garden-rooted cuisine in Valle de Guadalupe, Baja California."}
-          </em>
-        </p>
+        <h1>{isEs ? "Menú — OLIVEA en Valle de Guadalupe" : "Menu — OLIVEA in Valle de Guadalupe"}</h1>
       </header>
 
-      {/* ── Farm To Table ── */}
-      <section aria-label="Olivea Farm To Table">
-        <h2>Olivea Farm To Table</h2>
-        <p>
-          {isEs
-            ? "Menú holístico de temporada. Cocina guiada por el huerto y el territorio de Baja California — costa, desierto y jardín. Restaurante con Estrella MICHELIN y Estrella Verde. Abierto para cena con reservación previa."
-            : "Seasonal holistic menu. Cuisine guided by the garden and the territory of Baja California — coast, desert, and garden. MICHELIN Star and Green Star restaurant. Open for dinner with advance reservation."}
-        </p>
-        <dl>
-          <dt>{isEs ? "Horario" : "Hours"}</dt>
-          <dd>{isEs ? "Mié 5–8 · Vie 2:30–8:30 · Dom 2–7" : "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7"}</dd>
-          <dt>{isEs ? "Teléfono" : "Phone"}</dt>
-          <dd><a href="tel:+5246463836402">(646) 383-6402</a></dd>
-        </dl>
-        <p>
-          <Link href={`/${lang}/farmtotable`}>
-            {isEs ? "Ver menú completo de Farm To Table →" : "View full Farm To Table menu →"}
-          </Link>
-        </p>
-      </section>
+      {HOUSES.map((h, i) => {
+        const meta = houses[i]?.meta;
+        const hours = global?.hours?.find((x) => x.venue === h.key)?.schedule;
+        return (
+          <section key={h.key} aria-label={h.name}>
+            <h2>{h.name}</h2>
+            {meta && <p>{t(lang, meta.description)}</p>}
+            {hours && (
+              <dl>
+                <dt>{isEs ? "Horario" : "Hours"}</dt>
+                <dd>{t(lang, hours)}</dd>
+              </dl>
+            )}
+            <p>
+              <Link href={`/${lang}/${h.key}`}>{h.cta[lang]} →</Link>
+            </p>
+          </section>
+        );
+      })}
 
-      {/* ── Café ── */}
-      <section aria-label="Olivea Café Wine Bar">
-        <h2>Olivea Café Wine Bar</h2>
-        <p>
-          {isEs
-            ? "Café de especialidad, pan de casa, desayunos y brunch junto al huerto. Por la tarde, el café se vuelve wine bar."
-            : "Specialty coffee, house bread, breakfast, and brunch next to the garden. In the afternoon, the café becomes a wine bar."}
-        </p>
-        <dl>
-          <dt>{isEs ? "Horario" : "Hours"}</dt>
-          <dd>{isEs ? "Diario 7:15 am – 4:00 pm" : "Daily 7:15 am – 4:00 pm"}</dd>
-          <dt>{isEs ? "Teléfono" : "Phone"}</dt>
-          <dd><a href="tel:+5246463882369">(646) 388-2369</a></dd>
-        </dl>
-        <p>
-          <Link href={`/${lang}/cafe`}>
-            {isEs ? "Ver menú completo del Café →" : "View full Café menu →"}
-          </Link>
-        </p>
-      </section>
-
-      {/* ── Location ── */}
-      <section aria-label={isEs ? "Ubicación" : "Location"}>
-        <h2>{isEs ? "Ubicación" : "Location"}</h2>
-        <p>
-          Carretera Ensenada-Tecate Km 92.5, 22766 Villa de Juárez, Baja California, {isEs ? "México" : "Mexico"}.
-        </p>
-      </section>
+      {address && (
+        <section aria-label={isEs ? "Ubicación" : "Location"}>
+          <h2>{isEs ? "Ubicación" : "Location"}</h2>
+          <p>{address}</p>
+        </section>
+      )}
     </article>
   );
 }

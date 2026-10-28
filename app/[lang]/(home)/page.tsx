@@ -4,8 +4,7 @@ import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import { getContent, listContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 import HomeClient from "./HomeClient";
-import ArticleEn from "./ArticleEn";
-import ArticleEs from "./ArticleEs";
+import HomeArticle from "./HomeArticle";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -66,7 +65,7 @@ export default async function Page({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const Article = lang === "en" ? ArticleEn : ArticleEs;
+  const L: Lang = lang === "en" ? "en" : "es";
 
   // Pass video config from content layer → client component as serializable props
   // Try hero_videos collection first (Supabase), fall back to home.video (static)
@@ -77,11 +76,11 @@ export default async function Page({
   return (
     <>
       {/* Server-rendered article: full semantic content for crawlers,
-          AI assistants, screen readers, and no-JS clients.
+          AI assistants, screen readers, and no-JS clients, built from the CMS.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
-      <Article />
+      <HomeArticle lang={L} />
       <HomeClient
-        lang={lang === "en" ? "en" : "es"}
+        lang={L}
         videoConfig={video ? {
           version: video.version,
           mobile: video.mobile,

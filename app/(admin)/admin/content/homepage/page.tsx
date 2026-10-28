@@ -232,6 +232,111 @@ function VideoForm({
   );
 }
 
+/* ─── SEO Section ────────────────────────────────────────────────── */
+
+interface HomeMeta {
+  title: { es: string; en: string };
+  description: { es: string; en: string };
+}
+
+/** The home page's title and description in Google, in link previews, and as
+ *  the opening of the home article search engines and AI assistants read. */
+function SeoMetaEditor() {
+  const { t } = useAdminLocale();
+  const fallback = staticHome.meta;
+  const [meta, setMeta] = useState<HomeMeta>({
+    title: { ...fallback.title },
+    description: { ...fallback.description },
+  });
+  // The rest of the stored meta (share image, keywords) is kept as it is.
+  const [rest, setRest] = useState<Record<string, unknown>>({});
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const row = (await getHomeContent()) as Record<string, unknown> | null;
+        const m = row?.meta as Record<string, unknown> | undefined;
+        if (m) {
+          setRest(m);
+          setMeta({
+            title: (m.title as HomeMeta["title"]) ?? fallback.title,
+            description: (m.description as HomeMeta["description"]) ?? fallback.description,
+          });
+        }
+      } catch {
+        // Keep fallback
+      }
+    })();
+  }, [fallback.title, fallback.description]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await saveHomeContent({ meta: { ...rest, ...meta } });
+      setStatus("saved");
+      setTimeout(() => setStatus("idle"), 2500);
+    } catch {
+      setStatus("error");
+    }
+    setSaving(false);
+  };
+
+  const patch = (key: keyof HomeMeta, lang: "es" | "en", value: string) =>
+    setMeta((m) => ({ ...m, [key]: { ...m[key], [lang]: value } }));
+
+  return (
+    <section className={CARD}>
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <Type size={18} className="text-[var(--olivea-olive)]" />
+          <h2 className={HEADING}>{t({ es: "SEO — Google y asistentes de IA", en: "SEO — Google & AI assistants" })}</h2>
+        </div>
+        <button className={BTN_PRIMARY} onClick={handleSave} disabled={saving}>
+          {saving ? <Loader2 size={14} className="animate-spin" /> : t({ es: "Guardar SEO", en: "Save SEO" })}
+        </button>
+      </div>
+
+      {status === "saved" && (
+        <div className="mb-4 rounded-xl bg-emerald-50/80 ring-1 ring-emerald-200 px-4 py-2 text-sm text-emerald-700">
+          {t({ es: "SEO guardado", en: "SEO saved" })}
+        </div>
+      )}
+      {status === "error" && (
+        <div className="mb-4 rounded-xl bg-red-50/80 ring-1 ring-red-200 px-4 py-2 text-sm text-red-700">
+          {t({ es: "No se pudo guardar — revisa tu conexión e inténtalo de nuevo", en: "Save failed — check your connection and try again" })}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {(
+          [
+            ["title", { es: "Título SEO", en: "Meta Title" }],
+            ["description", { es: "Descripción SEO", en: "Meta Description" }],
+          ] as const
+        ).map(([key, label]) => (
+          <div key={key}>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">{t(label)}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(["es", "en"] as const).map((lang) => (
+                <div key={lang} className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">{lang.toUpperCase()}</span>
+                  {key === "description" ? (
+                    <textarea className={INPUT} rows={3} value={meta[key][lang]} onChange={(e) => patch(key, lang, e.target.value)} />
+                  ) : (
+                    <input className={INPUT} value={meta[key][lang]} onChange={(e) => patch(key, lang, e.target.value)} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /* ─── Hero Text Section ──────────────────────────────────────────── */
 
 interface Bilingual { es: string; en: string }
@@ -537,6 +642,7 @@ export default function HomepageHeroEditor() {
       )}
 
       {/* ── Hero text content ────────────────────────────── */}
+      <SeoMetaEditor />
       <HeroTextEditor />
 
       {/* ── Active preview ────────────────────────────────── */}

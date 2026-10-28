@@ -23,8 +23,8 @@ const casa: CasaContent = {
   },
   meta: {
     description: {
-      en: "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay inside the farm. Where the garden is the essence.",
-      es: "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate junto al huerto. Donde el huerto es la esencia.",
+      en: "Farm stay in the MICHELIN Guide, beside a working garden in Valle de Guadalupe, Baja California, steps from our MICHELIN-starred Olivea Farm To Table.",
+      es: "Hospedaje en la Guía MICHELIN, junto al huerto en Valle de Guadalupe, Baja California, a pasos de Olivea Farm To Table, con estrella MICHELIN.",
     },
     keywords: [
       "Casa Olivea",

@@ -40,11 +40,14 @@ export async function generateMetadata({
     ? "Café de especialidad, pan de casa y desayunos junto al huerto de Olivea en Valle de Guadalupe, Baja California. Donde el huerto es la esencia."
     : "Specialty coffee, house bread, and breakfast next to the Olivea garden in Valle de Guadalupe, Baja California. Where the garden is the essence.";
 
-  const title = dict.cafe?.meta?.title ?? fallbackTitle;
-  const description = dict.cafe?.meta?.description ?? fallbackDescription;
+  // Supabase meta first (what /admin edits); the static dictionary and the
+  // lines above only cover a missing row.
+  const meta = (await getContent("cafe").catch(() => null))?.meta;
+  const title = meta?.title?.[L] || dict.cafe?.meta?.title || fallbackTitle;
+  const description = meta?.description?.[L] || dict.cafe?.meta?.description || fallbackDescription;
 
   const ogImage =
-    dict.cafe?.meta?.ogImage ?? dict.metadata?.ogDefault ?? "/images/seo/cafe-og.jpg";
+    meta?.ogImage || dict.cafe?.meta?.ogImage || dict.metadata?.ogDefault || "/images/seo/cafe-og.jpg";
 
   const canonicalPath = `/${L}/cafe`;
   const url = canonicalUrl(canonicalPath);

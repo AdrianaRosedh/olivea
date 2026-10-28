@@ -40,13 +40,14 @@ export async function generateMetadata({
     ? "Restaurante de menú holístico de degustación con estrella MICHELIN, arraigado en un huerto vivo en Valle de Guadalupe, Baja California. Con hospedaje y café en la misma propiedad. Donde el huerto es la esencia."
     : "MICHELIN-starred holistic tasting-menu restaurant rooted in a working garden in Valle de Guadalupe, Baja California. With farm stay and café on the same property. Where the garden is the essence.";
 
-  const title = dict.farmtotable?.meta?.title ?? fallbackTitle;
-  const description = dict.farmtotable?.meta?.description ?? fallbackDescription;
+  // Supabase meta first (what /admin edits); the static dictionary and the
+  // lines above only cover a missing row.
+  const meta = (await getContent("farmtotable").catch(() => null))?.meta;
+  const title = meta?.title?.[L] || dict.farmtotable?.meta?.title || fallbackTitle;
+  const description = meta?.description?.[L] || dict.farmtotable?.meta?.description || fallbackDescription;
 
   const ogImage =
-    dict.farmtotable?.meta?.ogImage ??
-    dict.metadata?.ogDefault ??
-    "/images/seo/farm-og.jpg";
+    meta?.ogImage || dict.farmtotable?.meta?.ogImage || dict.metadata?.ogDefault || "/images/seo/farm-og.jpg";
 
   const canonicalPath = `/${L}/farmtotable`;
   const url = canonicalUrl(canonicalPath);

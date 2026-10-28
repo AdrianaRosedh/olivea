@@ -17,19 +17,12 @@ export async function generateMetadata(
   const { lang } = await params;
   const isEs = lang === "es";
 
-  const title = isEs ? "OLIVEA · Hospitalidad del Huerto" : "OLIVEA · Farm Hospitality";
-
-  const description = isEs
-    ? "Olivea: hospitalidad del huerto en Valle de Guadalupe — restaurante de menú holístico con estrella MICHELIN, hospedaje y café nacidos del huerto en Baja California. Donde el huerto es la esencia."
-    : "Olivea: farm hospitality in Valle de Guadalupe — MICHELIN-starred holistic-menu restaurant, farm stay, and café rooted in a working garden in Baja California. Where the garden is the essence.";
-
+  // Title, description and share card come from the home page's
+  // generateMetadata, which reads them from home_content (what /admin edits).
+  // A second, hard-coded copy here was dead text that could only mislead.
   const canonicalPath = isEs ? "/es" : "/en";
-  const url = canonicalUrl(canonicalPath);
-  const ogImage = canonicalUrl(shareImagePath("/images/seo/cover.jpg"));
 
   return {
-    title,
-    description,
     metadataBase: new URL(SITE.canonicalBaseUrl),
     robots: { index: true, follow: true },
     alternates: {
@@ -40,28 +33,6 @@ export async function generateMetadata(
         es: "/es",
         en: "/en",
       },
-    },
-    openGraph: {
-      title,
-      description,
-      type: "website",
-      url,
-      siteName: "OLIVEA",
-      locale: isEs ? "es_MX" : "en_US",
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: "OLIVEA",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [ogImage],
     },
   };
 }

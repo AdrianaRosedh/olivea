@@ -9,8 +9,7 @@ import { ENTITY_IDS } from "@/components/seo/StructuredDataServer";
 import { getContent } from "@/lib/content";
 import CasaContent from "./CasaContent";
 import type { SectionData } from "./sections/types";
-import ArticleEn from "./ArticleEn";
-import ArticleEs from "./ArticleEs";
+import CasaArticle from "./CasaArticle";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
 
 type CasaMetaShape = {
@@ -41,11 +40,14 @@ export async function generateMetadata({
     ? "Hospedaje integrado al huerto y al restaurante Olivea Farm To Table en Valle de Guadalupe, Baja California. Hospédate junto al huerto. Donde el huerto es la esencia."
     : "A farm stay integrated with the garden and Olivea Farm To Table in Valle de Guadalupe, Baja California. Stay beside the garden. Where the garden is the essence.";
 
-  const title = dict.casa?.meta?.title ?? fallbackTitle;
-  const description = dict.casa?.meta?.description ?? fallbackDescription;
+  // Supabase meta first (what /admin edits); the static dictionary and the
+  // lines above only cover a missing row.
+  const meta = (await getContent("casa").catch(() => null))?.meta;
+  const title = meta?.title?.[L] || dict.casa?.meta?.title || fallbackTitle;
+  const description = meta?.description?.[L] || dict.casa?.meta?.description || fallbackDescription;
 
   const ogImage =
-    dict.casa?.meta?.ogImage ?? dict.metadata?.ogDefault ?? "/images/seo/casa-og.jpg";
+    meta?.ogImage || dict.casa?.meta?.ogImage || dict.metadata?.ogDefault || "/images/seo/casa-og.jpg";
 
   const canonicalPath = `/${L}/casa`;
   const url = canonicalUrl(canonicalPath);
@@ -87,7 +89,6 @@ export const viewport: Viewport = {
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params;
   const L: Lang = raw === "es" ? "es" : "en";
-  const Article = L === "en" ? ArticleEn : ArticleEs;
 
   // Fetch Supabase-driven sections (falls back gracefully)
   const casaContent = await getContent("casa");
@@ -105,14 +106,17 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     "@type": "WebPage",
     "@id": `${pageUrl}#webpage`,
     url: pageUrl,
+    // The CMS meta, so the page's own JSON-LD says what its <title> says.
     name:
-      L === "es"
+      casaContent.meta?.title?.[L] ||
+      (L === "es"
         ? "Casa Olivea | Hospedaje del Huerto en Valle de Guadalupe"
-        : "Casa Olivea | Farm Stay in Valle de Guadalupe",
+        : "Casa Olivea | Farm Stay in Valle de Guadalupe"),
     description:
-      L === "es"
+      casaContent.meta?.description?.[L] ||
+      (L === "es"
         ? "Hospedaje integrado al huerto y al restaurante con estrella MICHELIN en Valle de Guadalupe, Baja California."
-        : "Farm stay integrated with a working garden and MICHELIN-starred restaurant in Valle de Guadalupe, Baja California.",
+        : "Farm stay integrated with a working garden and MICHELIN-starred restaurant in Valle de Guadalupe, Baja California."),
     isPartOf: { "@id": ENTITY_IDS.website },
     about: { "@id": ENTITY_IDS.hotel },
     breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
@@ -146,9 +150,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
       <FaqJsonLd id={faqId} items={faq} />
 
       {/* Server-rendered article: full semantic content for crawlers,
-          AI assistants, screen readers, and no-JS clients.
+          AI assistants, screen readers, and no-JS clients, built from the
+          same CMS sections as the page.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
-      <Article />
+      <CasaArticle lang={L} sections={casaContent.sections as SectionData[]} />
 
       {/* The fallback is no longer a parallel MDX tree. lib/content/data is
           regenerated from the CMS at build time, so `sections` is populated
