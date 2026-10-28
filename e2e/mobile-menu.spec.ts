@@ -114,7 +114,11 @@ test("a menu link navigates, closes the menu and unlocks the page", async ({ pag
 
 test("the logo on an English page goes to the English home", async ({ page, baseURL }) => {
   await open(page, "/en/team", baseURL!);
-  await expect(page.locator('a[aria-label="Home"]').filter({ visible: true }).first()).toHaveAttribute("href", "/en");
+  // The phone navbar mounts once the page's JavaScript runs (as openMenu
+  // allows for); on a busy CI runner that took more than the default 5 s.
+  await expect(page.locator('a[aria-label="Home"]').filter({ visible: true }).first()).toHaveAttribute("href", "/en", {
+    timeout: 15_000,
+  });
 });
 
 test("every visible button has a name a screen reader can say", async ({ page, baseURL }) => {
