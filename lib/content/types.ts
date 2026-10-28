@@ -101,6 +101,9 @@ export interface OrganizationListing {
   knowsAbout?: string[];
   /** Profiles Google should treat as the same entity (Instagram, Facebook…). */
   sameAs?: string[];
+  /** Team roster ids Google names as Olivea's founder and leaders. */
+  founderId?: string;
+  leaderIds?: string[];
 }
 
 export interface GlobalSettings {

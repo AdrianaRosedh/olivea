@@ -11,6 +11,7 @@ import { useReservation } from "@/contexts/ReservationContext";
 import { reserveDefault } from "@/lib/sections";
 import { clearMenuKeepOpen, peekMenuKeepOpen } from "@/lib/menuLanguageSwitch";
 import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
+import type { SiteChrome } from "@/components/layout/siteChrome";
 
 type DrawerOrigin = { x: number; y: number };
 
@@ -21,9 +22,12 @@ export default function MobileNavbar({
    * (used for iPad portrait + split view when LayoutShell decides “mobile-like”)
    */
   enabled = true,
+  chrome,
 }: {
   dictionary: AppDictionary;
   enabled?: boolean;
+  /** Menu links, copyright and socials from /admin. */
+  chrome?: SiteChrome;
 }) {
   const pathname = usePathname() ?? "/es";
   const { openReservationModal } = useReservation();
@@ -102,6 +106,7 @@ export default function MobileNavbar({
         lang={lang}
         dict={dictionary}
         origin={drawerOrigin}
+        chrome={chrome}
       />
 
       <MobileNav isDrawerOpen={drawerOpen} />

@@ -67,8 +67,8 @@ const team: TeamContent = {
     en: "Team",
   },
   description: {
-    es: "Hospitalidad del huerto en Valle de Guadalupe — nuestra historia, filosofía y las personas detrás de la visión.",
-    en: "Farm-to-table hospitality in Valle de Guadalupe — our story, philosophy, and the people behind the vision.",
+    es: "Nuestra historia, filosofía y las personas detrás de la visión.",
+    en: "Farm-to-table hospitality in Valle de Guadalupe—our story, philosophy, and the people behind the vision.",
   },
 };
 

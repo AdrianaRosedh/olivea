@@ -17,6 +17,8 @@ import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 const MotionLink = motion.create(Link);
 
 // Social dock is dynamic so its inline-SVG icon module only loads when the drawer opens.
+import { copyrightParts, type SiteChrome } from "@/components/layout/siteChrome";
+
 const MobileDrawerSocialDock = dynamic(
   () => import("./MobileDrawerSocialDock"),
   { ssr: false, loading: () => null }
@@ -28,6 +30,9 @@ interface Props {
   lang: "en" | "es";
   dict: AppDictionary;
   origin?: { x: number; y: number };
+  /** The "more" links, copyright and socials from /admin (Mobile Navigation,
+   *  Brand & Identity); the built-in ones cover a missing record. */
+  chrome?: SiteChrome;
 
   /**
    * Optional: called when the drawer is FULLY unmounted (after exit animation),
@@ -69,6 +74,7 @@ export default function MobileDrawer({
   dict,
   origin,
   onExitComplete,
+  chrome,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -110,6 +116,7 @@ export default function MobileDrawer({
   );
 
   const moreLinks = useMemo(() => {
+    if (chrome?.moreLinks.length) return chrome.moreLinks;
     return [
       { href: `/${lang}/press`, label: lang === "es" ? "Prensa" : "Press" },
       {
@@ -127,7 +134,7 @@ export default function MobileDrawer({
         label: lang === "es" ? "Carreras" : "Careers",
       },
     ];
-  }, [lang]);
+  }, [lang, chrome]);
 
   // Progressive enhancement: the items are real <a href> (crawlable + "open in
   // new tab" works), but a normal left-click keeps the drawer's close-then-
@@ -432,7 +439,7 @@ export default function MobileDrawer({
                     <motion.div
                       variants={item}
                     >
-                      <MobileDrawerSocialDock lang={lang} />
+                      <MobileDrawerSocialDock lang={lang} socials={chrome?.socials} />
                     </motion.div>
 
                     {/* Everything the desktop footer offers: Legal, the cookie
@@ -495,9 +502,19 @@ export default function MobileDrawer({
                       variants={item}
                       className="text-xs text-(--olivea-shell) opacity-70 text-center"
                     >
-                      © {new Date().getFullYear()} Inmobiliaria MYA by DH.
-                      <br />
-                      {rightsText}
+                      {chrome?.copyright ? (
+                        <>
+                          {copyrightParts(chrome.copyright)[0]}
+                          <br />
+                          {copyrightParts(chrome.copyright)[1]}
+                        </>
+                      ) : (
+                        <>
+                          © {new Date().getFullYear()} Inmobiliaria MYA by DH.
+                          <br />
+                          {rightsText}
+                        </>
+                      )}
                     </motion.p>
                   </div>
                 </motion.div>

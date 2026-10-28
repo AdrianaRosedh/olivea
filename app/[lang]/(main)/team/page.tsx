@@ -33,13 +33,15 @@ async function pageMetadata({ params }: PageProps): Promise<Metadata> {
 
   const maybeteam = (dict as { team?: unknown }).team;
 
-  const baseTitle = isTeamDict(maybeteam)
-    ? maybeteam.title
-    : lang === "es"
-      ? "Equipo"
-      : "Team";
+  // The Team record in /admin first; the static dictionary only covers a
+  // missing row.
+  const cms = await getContent("team").catch(() => null);
+  const baseTitle =
+    cms?.title?.[lang] ||
+    (isTeamDict(maybeteam) ? maybeteam.title : lang === "es" ? "Equipo" : "Team");
 
-  const description = isTeamDict(maybeteam) ? maybeteam.description : "";
+  const description =
+    cms?.description?.[lang] || (isTeamDict(maybeteam) ? maybeteam.description : "");
 
   const title = withBrand(baseTitle);
   const path = `/${lang}/team`;
@@ -94,6 +96,11 @@ export default async function TeamPage({ params }: PageProps) {
         description: "",
         leadersTitle: lang === "es" ? "Líderes de Olivea" : "Leaders of Olivea",
       };
+
+  // Title and description from the Team record in /admin.
+  const cms = await getContent("team").catch(() => null);
+  if (cms?.title?.[lang]) team.title = cms.title[lang];
+  if (cms?.description?.[lang]) team.description = cms.description[lang];
 
   const members = await loadTeam();
 

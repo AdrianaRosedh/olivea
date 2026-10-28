@@ -3,42 +3,7 @@ import { MICHELIN } from "@/lib/michelin";
 import { canonicalUrl, SITE, SITE_ADDRESS, SITE_GEO } from "@/lib/site";
 import { getContent } from "@/lib/content";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
-
-type Recognition = {
-  name: string;
-  publisher?: string;
-  url?: string;
-};
-
-// ✅ Official sources, shared with the press page (lib/michelin.ts)
-
-const RECOGNITION: Recognition[] = [
-  {
-    name: "MICHELIN Guide — One MICHELIN Star",
-    publisher: "MICHELIN Guide",
-    url: MICHELIN.restaurant,
-  },
-  {
-    name: "MICHELIN Guide — MICHELIN Green Star",
-    publisher: "MICHELIN Guide",
-    url: MICHELIN.mexicoSelection,
-  },
-  {
-    name: "MICHELIN Guide (Hotels & Stays) — Casa Olivea",
-    publisher: "MICHELIN Guide",
-    url: MICHELIN.hotel,
-  },
-  {
-    name: "Featured in The Wall Street Journal — Best Travel Destinations 2026",
-    publisher: "The Wall Street Journal",
-    url: canonicalUrl("/es/press"),
-  },
-  {
-    name: "Featured in Baja Flavors — Mesas de Vida",
-    publisher: "Baja Flavors",
-    url: canonicalUrl("/es/press"),
-  },
-];
+import { loadPressItems } from "@/app/[lang]/(main)/press/load";
 
 // ─── Canonical @id anchors (single source of truth) ───────────────
 // Every reference across head.tsx, per-page head.tsx, and this file
@@ -154,14 +119,38 @@ export default async function StructuredDataServer() {
 
   const geo = { "@type": "GeoCoordinates", ...SITE_GEO };
 
-  const recognitionWorks = RECOGNITION.map((r) => ({
+  // Awards and press from /admin/press; people from the Team roster, named
+  // as founder and leaders in Brand & Identity → Olivea on Google.
+  const [press, team] = await Promise.all([
+    loadPressItems("en").catch(() => []),
+    getContent("team").catch(() => null),
+  ]);
+  const recognitionWorks = press.map((r) => ({
     "@type": "CreativeWork",
-    name: r.name,
-    ...(r.publisher
-      ? { publisher: { "@type": "Organization", name: r.publisher } }
-      : {}),
-    ...(r.url ? { url: r.url } : {}),
+    name: r.title,
+    publisher: { "@type": "Organization", name: r.issuer },
+    ...(r.links[0]?.href ? { url: r.links[0].href } : {}),
   }));
+  const restaurantAwards = press
+    .filter((r) => r.kind === "award" && r.for === "restaurant")
+    .map((r) => r.title);
+
+  const roster = team?.members ?? [];
+  const person = (id: string | undefined) => {
+    const m = roster.find((x) => x.id === id);
+    if (!m) return null;
+    return {
+      "@type": "Person",
+      "@id": `${base}/team/${m.id}#person`,
+      name: m.name,
+      ...(m.role?.en ? { jobTitle: m.role.en } : {}),
+      url: canonicalUrl(`/es/team/${m.id}`),
+    };
+  };
+  const founder = person(org.founderId);
+  const leaders = (org.leaderIds ?? []).map(person).filter((p): p is NonNullable<typeof p> => !!p);
+  const chef = leaders.find((p) => /chef/i.test(p.jobTitle ?? ""));
+  const ceo = leaders.find((p) => /\bCEO\b/.test(p.jobTitle ?? ""));
 
   const graph = [
     // ─── Organization (parent entity) ───────────────────────────
@@ -199,29 +188,8 @@ export default async function StructuredDataServer() {
       ...(org.areaServed ? { areaServed: { "@type": "Place", name: org.areaServed } } : {}),
       ...opt("knowsAbout", org.knowsAbout),
       // ✅ Key people as linked Person entities (resolve to /team/<id> pages)
-      founder: {
-        "@type": "Person",
-        "@id": `${base}/team/ange#person`,
-        name: "Ange Joy",
-        jobTitle: "Founder & Designer",
-        url: canonicalUrl("/es/team/ange"),
-      },
-      employee: [
-        {
-          "@type": "Person",
-          "@id": `${base}/team/adrianarose#person`,
-          name: "Adriana Rose",
-          jobTitle: "CEO — Technology & Vision",
-          url: canonicalUrl("/es/team/adrianarose"),
-        },
-        {
-          "@type": "Person",
-          "@id": `${base}/team/danielnates#person`,
-          name: "Daniel Nates",
-          jobTitle: "Executive Chef",
-          url: canonicalUrl("/es/team/danielnates"),
-        },
-      ],
+      ...(founder ? { founder } : {}),
+      ...opt("employee", leaders),
     },
 
     // ─── roseiies (Adriana Rose's hospitality-intelligence studio) ───
@@ -233,11 +201,7 @@ export default async function StructuredDataServer() {
       description:
         "Hospitality intelligence studio founded by Adriana Rose, CEO of Olivea — applying technology and design to hospitality, beginning with the Olivea ecosystem.",
       url: "https://roseiies.com",
-      founder: {
-        "@type": "Person",
-        "@id": `${base}/team/adrianarose#person`,
-        name: "Adriana Rose",
-      },
+      ...(ceo ? { founder: { "@type": "Person", "@id": ceo["@id"], name: ceo.name } } : {}),
     },
 
     // ─── WebSite ────────────────────────────────────────────────
@@ -295,13 +259,7 @@ export default async function StructuredDataServer() {
       ...maps(listing.restaurant.mapsUrl, MICHELIN.restaurant),
       acceptsReservations: true,
       // ✅ chef as an entity — common AI query for a MICHELIN restaurant
-      employee: {
-        "@type": "Person",
-        "@id": `${base}/team/danielnates#person`,
-        name: "Daniel Nates",
-        jobTitle: "Executive Chef",
-        url: canonicalUrl("/es/team/danielnates"),
-      },
+      ...(chef ? { employee: chef } : {}),
       // ✅ ReserveAction — lets AI/Google surface a "reserve a table" action
       potentialAction: {
         "@type": "ReserveAction",
@@ -320,7 +278,7 @@ export default async function StructuredDataServer() {
           name: "Reservation at Olivea Farm To Table",
         },
       },
-      award: ["One MICHELIN Star", "MICHELIN Green Star"],
+      ...opt("award", restaurantAwards),
       // NOTE: deliberately NO self-applied aggregateRating. Per Google's
       // review-snippet policy, a business rating itself is self-serving and makes
       // the page ineligible for review stars. Google surfaces the Business Profile

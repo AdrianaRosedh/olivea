@@ -5,12 +5,12 @@ import type { SustainabilityContent } from "../types";
 const sustainability: SustainabilityContent = {
   meta: {
     title: {
-      es: "Filosofía de Olivea | Sustentabilidad",
-      en: "Olivea's Philosophy | Sustainability",
+      es: "Filosofía | OLIVEA",
+      en: "Philosophy | OLIVEA",
     },
     description: {
-      es: "Rellenables, cuidado del agua, abastecimiento responsable y composta — cómo Olivea reduce residuos y apoya productores locales en Valle de Guadalupe.",
-      en: "Refillables, water care, responsible sourcing and compost — how Olivea reduces waste and supports local producers in Valle de Guadalupe.",
+      es: "Por qué Olivea se llama Olivea — del latín oliva, el olivo — y la filosofía detrás: origen, identidad, eficiencia, innovación, gastronomía y comunidad en Valle de Guadalupe, del huerto a la mesa.",
+      en: "Why Olivea is called Olivea — from the Latin oliva, the olive — and the philosophy behind it: origins, identity, efficiency, innovation, gastronomy, and community in Valle de Guadalupe, from garden to table.",
     },
     ogImage: "/images/seo/seo-og.jpg",
     keywords: ["sustainability", "refillables", "compost", "local producers", "Valle de Guadalupe"],

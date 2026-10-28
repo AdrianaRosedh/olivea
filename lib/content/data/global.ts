@@ -13,6 +13,8 @@ const global: GlobalSettings = {
   // Fallback for global_settings.organization — edit in Brand & Identity.
   organization: {
     "alternateName": "Familia Olivea",
+    "founderId": "ange",
+    "leaderIds": ["adrianarose", "danielnates"],
     "description": "Farm hospitality in Valle de Guadalupe, Baja California — MICHELIN-starred restaurant, farm stay, and café born from a working garden.",
     "telephone": "+52 646 383 6402",
     "areaServed": "Valle de Guadalupe, Ensenada, Baja California, Mexico",

@@ -6,6 +6,8 @@ import type { ReactNode } from "react";
 import StructuredDataServer from "@/components/seo/StructuredDataServer";
 import SitemapNav from "@/components/seo/SitemapNav";
 import LayoutShell from "@/components/layout/LayoutShell";
+import type { SiteChrome } from "@/components/layout/siteChrome";
+import { getContent } from "@/lib/content";
 import PopupHost from "@/components/ui/popup/PopupHost";
 import SiteBanner from "@/components/ui/banner/SiteBanner";
 import { fontsClass, lora } from "@/app/fonts";
@@ -63,6 +65,24 @@ export default async function LangLayout({
   const isEs = lang === "es";
   const prefix = isEs ? "es" : "en";
 
+  // The mobile menu's "more" links, the copyright line and the social icons
+  // come from /admin (Mobile Navigation, Brand & Identity). Empty or missing
+  // values fall back to the components' built-in ones.
+  const [drawer, global] = await Promise.all([
+    getContent("drawer").catch(() => null),
+    getContent("global").catch(() => null),
+  ]);
+  const pickL = (b?: { es?: string; en?: string }) => (b?.[lang] || b?.es || "").trim();
+  const chrome: SiteChrome = {
+    moreLinks: [...(drawer?.moreLinks ?? [])]
+      .filter((l) => l.visible !== false)
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((l) => ({ href: `/${prefix}${l.href}`, label: pickL(l.label) }))
+      .filter((l) => l.label),
+    copyright: pickL(drawer?.copyright),
+    socials: global?.socials ?? [],
+  };
+
   // ✅ SiteNavigationElement on ALL pages (not just home) for Google sitelinks
   const nav = [
     { name: "Casa Olivea", url: canonicalUrl(`/${prefix}/casa`) },
@@ -98,7 +118,7 @@ export default async function LangLayout({
           screen-reader-only <nav> is what crawlers follow between pages. */}
       <SitemapNav lang={lang} />
       <ClientPrewarm />
-      <LayoutShell lang={lang} dictionary={dict}>
+      <LayoutShell lang={lang} dictionary={dict} socials={chrome.socials} chrome={chrome}>
         {children}
       </LayoutShell>
       {/* "We're hiring" pill — auto-shows when a role is live (HR-toggleable). */}

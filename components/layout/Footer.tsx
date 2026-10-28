@@ -14,12 +14,15 @@ import {
   SpotifyIcon,
   PinterestIcon,
 } from "@/components/icons/SocialIcons";
+import { copyrightParts } from "@/components/layout/siteChrome";
 import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 import defaultGlobal from "@/lib/content/data/global";
 
 interface FooterProps {
   dict: AppDictionary;
   socials?: { platform: string; url: string; label: string }[];
+  /** From /admin (Mobile Navigation); may contain {year}. */
+  copyright?: string;
 }
 
 // Map social platform name → inline SVG icon component.
@@ -50,7 +53,7 @@ type SocialItem = {
 };
 
 
-export default function Footer({ dict, socials }: FooterProps) {
+export default function Footer({ dict, socials, copyright }: FooterProps) {
   const pathname = usePathname() ?? "/es";
 
   const firstSeg = pathname.split("/")[1];
@@ -391,9 +394,19 @@ export default function Footer({ dict, socials }: FooterProps) {
           className="min-w-0 justify-self-end whitespace-nowrap text-right leading-snug"
         >
           <span className="cursor-default transition-colors hover:text-(--olivea-olive)">
-            <span>© {new Date().getFullYear()} Inmobiliaria MYA by DH.</span>
-            <span className="mx-1 inline-block align-middle opacity-60">•</span>
-            <span>{rightsText}</span>
+            {copyright ? (
+              <>
+                <span>{copyrightParts(copyright)[0]}</span>
+                <span className="mx-1 inline-block align-middle opacity-60">•</span>
+                <span>{copyrightParts(copyright)[1].replace(/\.$/, "")}</span>
+              </>
+            ) : (
+              <>
+                <span>© {new Date().getFullYear()} Inmobiliaria MYA by DH.</span>
+                <span className="mx-1 inline-block align-middle opacity-60">•</span>
+                <span>{rightsText}</span>
+              </>
+            )}
           </span>
         </div>
       </div>

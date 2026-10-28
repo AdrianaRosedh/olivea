@@ -499,7 +499,8 @@ const derivedRevalidations: Partial<Record<PageTable, string[]>> = {
   casa_content: ["layout:/", ...AI_SUMMARY],
   cafe_content: ["layout:/", ...AI_SUMMARY],
   sustainability_content: AI_SUMMARY,
-  team_content: AI_SUMMARY,
+  // Google's structured data (every page) names the leaders from the roster.
+  team_content: ["layout:/", ...AI_SUMMARY],
   menu_content: AI_SUMMARY,
 };
 
@@ -766,6 +767,8 @@ const PRESS_REVALIDATE = ["/es/press", "/en/press", "/es", "/en", "/llms.txt", "
 
 function revalidatePress() {
   for (const p of PRESS_REVALIDATE) revalidatePath(p);
+  // Google's structured data, on every page, lists the awards too.
+  revalidatePath("/", "layout");
 }
 
 export async function getPressItemsAdmin() {

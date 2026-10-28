@@ -5,6 +5,7 @@ import ArticlePress from "./ArticlePress";
 import { loadPressItems, loadPressManifest } from "./load";
 import type { Lang } from "./pressTypes";
 import { localeAlternates, withShare } from "@/lib/site";
+import { getContent, t } from "@/lib/content";
 
 async function pageMetadata({
   params,
@@ -14,13 +15,12 @@ async function pageMetadata({
   const p = await params;
   const lang: Lang = p.lang === "en" ? "en" : "es";
 
+  // Press's SEO fields in /admin (press_content.meta).
+  const { meta } = await getContent("press");
   return {
     alternates: localeAlternates(lang, "/press"),
-    title: lang === "es" ? "Prensa | OLIVEA" : "Press | OLIVEA",
-    description:
-      lang === "es"
-        ? "Reconocimientos, menciones en medios y recursos oficiales de prensa de Olivea — hospitalidad del huerto, restaurante con estrella MICHELIN y hospedaje en Valle de Guadalupe."
-        : "Awards, media coverage, and official press resources for Olivea — farm hospitality, MICHELIN-starred restaurant, and farm stay in Valle de Guadalupe.",
+    title: t(lang, meta.title),
+    description: t(lang, meta.description),
   };
 }
 
@@ -40,7 +40,7 @@ export default async function PressPage({
       {/* Server-rendered article: full semantic content for crawlers,
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
-      <ArticlePress lang={lang} items={items} />
+      <ArticlePress lang={lang} items={items} content={await getContent("press")} />
       <PressClient lang={lang} items={items} manifest={manifest} />
     </>
   );

@@ -21,12 +21,21 @@ const ICONS: Record<string, ReactNode> = {
   pinterest: <PinterestIcon size={20} />,
 };
 
-// The same list as the desktop footer (lib/content/data/global.ts). This had
-// its own copy, and its TikTok link had drifted to a different account.
-export default function MobileDrawerSocialDock({ lang }: { lang: "es" | "en" }) {
+// The same list as the desktop footer: global_settings.socials, edited in
+// /admin → Brand & Identity. This had its own copy, and its TikTok link had
+// drifted to a different account.
+export default function MobileDrawerSocialDock({
+  lang,
+  socials,
+}: {
+  lang: "es" | "en";
+  /** From /admin (Brand & Identity); the built-in list covers a missing one. */
+  socials?: Array<{ platform: string; url: string; label: string }>;
+}) {
+  const list = socials?.length ? socials : defaultGlobal.socials;
   return (
     <div className="flex gap-5">
-      {defaultGlobal.socials.map((it) =>
+      {list.map((it) =>
         // One account or playlist per house: the icon asks which one.
         it.platform === "instagram" || it.platform === "spotify" ? (
           <HouseLinkChooser

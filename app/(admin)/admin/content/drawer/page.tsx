@@ -35,7 +35,7 @@ function DrawerVisual() {
         <div className="h-px bg-white/10" />
         <div className="space-y-2">
           <EditableBilingual
-            label={{ es: "Derechos de autor", en: "Copyright" }} as="small"
+            label={{ es: "Derechos de autor ({year} = año actual)", en: "Copyright ({year} = current year)" }} as="small"
             value={(get("copyright") ?? { es: "", en: "" }) as { es: string; en: string }}
             onChange={(v) => set("copyright", v)}
             className="text-xs text-white/50"

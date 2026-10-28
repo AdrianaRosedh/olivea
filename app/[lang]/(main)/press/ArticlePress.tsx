@@ -2,15 +2,20 @@
 // Server component — semantic HTML for crawlers, AI assistants, and no-JS clients.
 
 import type { PressItem, Lang } from "./pressTypes";
+import type { PressContent } from "@/lib/content/types";
 
 export default function ArticlePress({
   lang,
   items,
+  content,
 }: {
   lang: Lang;
   items: PressItem[];
+  /** The Press record in /admin: its title and intro lead the article. */
+  content: PressContent;
 }) {
   const isEs = lang === "es";
+  const pick = (b?: { en?: string; es?: string }) => (b?.[lang] || b?.es || "").trim();
 
   const awards = items.filter((i) => i.kind === "award");
   const mentions = items.filter((i) => i.kind === "mention");
@@ -26,16 +31,12 @@ export default function ArticlePress({
       <meta itemProp="author" content="OLIVEA" />
 
       <header>
-        <h1 itemProp="headline">
-          {isEs ? "Prensa — OLIVEA" : "Press — OLIVEA"}
-        </h1>
-        <p>
-          <em>
-            {isEs
-              ? "Reconocimientos, menciones en medios y recursos de prensa de Olivea — hospitalidad del huerto, restaurante con estrella MICHELIN y hospedaje en Valle de Guadalupe."
-              : "Awards, media coverage, and press resources for Olivea — farm hospitality, MICHELIN-starred restaurant, and farm stay in Valle de Guadalupe."}
-          </em>
-        </p>
+        <h1 itemProp="headline">{pick(content.title)} — OLIVEA</h1>
+        {pick(content.tagline) && (
+          <p>
+            <em>{pick(content.tagline)}</em>
+          </p>
+        )}
       </header>
 
       {/* ── Awards ── */}

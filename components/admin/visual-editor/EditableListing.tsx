@@ -7,7 +7,8 @@
 // GoogleListingCard sits on each house's admin page (listing column);
 // OrganizationListingCard sits in Brand & Identity (global_settings.organization).
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { getPageContent } from "@/lib/supabase/actions";
 import { Search } from "lucide-react";
 import { useAdminLocale, type MaybeB } from "@/lib/admin/i18n";
 import { INPUT, Field, StringList } from "./PlainFields";
@@ -143,6 +144,64 @@ export function OrganizationListingCard({
         onChange={(x) => set("sameAs", x)}
         addLabel={{ es: "Agregar perfil", en: "Add profile" }}
       />
+      <PeoplePicker
+        founderId={v.founderId}
+        leaderIds={v.leaderIds}
+        onChange={(founderId, leaderIds) => onChange({ ...v, founderId, leaderIds })}
+      />
     </Card>
+  );
+}
+
+/** Google names Olivea's founder and leaders from the Team roster; their
+ *  names, roles and pages come from there. */
+function PeoplePicker({
+  founderId,
+  leaderIds,
+  onChange,
+}: {
+  founderId?: string;
+  leaderIds?: string[];
+  onChange: (founderId: string | undefined, leaderIds: string[]) => void;
+}) {
+  const { t } = useAdminLocale();
+  const [roster, setRoster] = useState<Array<{ id: string; name: string }>>([]);
+  useEffect(() => {
+    getPageContent("team_content")
+      .then((row) => {
+        const members = ((row as { members?: Array<{ id: string; name: string }> } | null)?.members ?? []).filter((m) => m.id && m.name);
+        setRoster(members);
+      })
+      .catch(() => setRoster([]));
+  }, []);
+  const leaders = leaderIds ?? [];
+  const toggle = (id: string) =>
+    onChange(founderId, leaders.includes(id) ? leaders.filter((x) => x !== id) : [...leaders, id]);
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <Field label={{ es: "Fundadora / fundador", en: "Founder" }}>
+        <select className={INPUT} value={founderId ?? ""} onChange={(e) => onChange(e.target.value || undefined, leaders)}>
+          <option value="">—</option>
+          {roster.map((m) => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
+      </Field>
+      <fieldset className="space-y-1">
+        <legend className="text-xs font-bold uppercase tracking-wider text-stone-500">{t({ es: "Líderes", en: "Leaders" })}</legend>
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1">
+          {roster.map((m) => (
+            <label key={m.id} className="inline-flex items-center gap-1.5 text-sm text-stone-700">
+              <input type="checkbox" checked={leaders.includes(m.id)} onChange={() => toggle(m.id)} />
+              {m.name}
+            </label>
+          ))}
+        </div>
+        <span className="block text-[11px] text-stone-400">
+          {t({ es: "Sus nombres y puestos salen del Equipo", en: "Names and roles come from the Team roster" })}
+        </span>
+      </fieldset>
+    </div>
   );
 }

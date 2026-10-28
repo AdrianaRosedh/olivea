@@ -8,6 +8,7 @@ import { philosophyFaqLd } from "./faq";
 import { canonicalUrl, withShare } from "@/lib/site";
 import type { Lang } from "./philosophyTypes";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
+import { getContent, t } from "@/lib/content";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -21,15 +22,13 @@ async function pageMetadata({
   const p = await params;
   const lang: Lang = p.lang === "en" ? "en" : "es";
 
-  const title = lang === "es" ? "Filosofía | OLIVEA" : "Philosophy | OLIVEA";
-  // Leads with the name because that is what people actually ask — an
+  // The Philosophy record's SEO fields in /admin (sustainability_content.meta).
+  // They lead with the name because that is what people actually ask — an
   // assistant asked "why is it called Olivea?" answered by guessing at olive
-  // trees, since nothing in the title or description matched the question even
-  // though the page has explained the name all along.
-  const description =
-    lang === "es"
-      ? "Por qué Olivea se llama Olivea — del latín oliva, el olivo — y la filosofía detrás: origen, identidad, eficiencia, innovación, gastronomía y comunidad en Valle de Guadalupe, del huerto a la mesa."
-      : "Why Olivea is called Olivea — from the Latin oliva, the olive — and the philosophy behind it: origins, identity, efficiency, innovation, gastronomy, and community in Valle de Guadalupe, from garden to table.";
+  // trees until the title and description matched the question.
+  const { meta } = await getContent("sustainability");
+  const title = t(lang, meta.title);
+  const description = t(lang, meta.description);
 
   const path = `/${lang}/sustainability`;
   const canonical = canonicalUrl(path);

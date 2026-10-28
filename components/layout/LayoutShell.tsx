@@ -16,6 +16,7 @@ import SubtleContentFade from "@/components/transitions/SubtleContentFade";
 
 import { useContainerMobileLike } from "@/hooks/useContainerBreakpoint";
 import type { Lang, AppDictionary } from "@/app/[lang]/(main)/dictionaries";
+import type { SiteChrome } from "@/components/layout/siteChrome";
 
 /* =========================
    Navbar split
@@ -124,6 +125,8 @@ interface LayoutShellProps {
   lang: Lang;
   dictionary: AppDictionary;
   socials?: { platform: string; url: string; label: string }[];
+  /** Menu links, copyright and socials from /admin (see siteChrome.ts). */
+  chrome?: SiteChrome;
   children: React.ReactNode;
 }
 
@@ -187,7 +190,7 @@ async function loadSections(identity: Identity, lang: Lang): Promise<SectionShap
   return data;
 }
 
-function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) {
+function LayoutShell({ lang, dictionary, socials, chrome, children }: LayoutShellProps) {
   const lenis = useLenis();
   const pathname = usePathname();
 
@@ -354,7 +357,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
       {!isHome && (
         <ClientOnly>
           {isMobileLike ? (
-            <MobileNavbar dictionary={dictionary} />
+            <MobileNavbar dictionary={dictionary} chrome={chrome} />
           ) : (
             <DesktopNavbar lang={lang} dictionary={dictionary} />
           )}
@@ -427,7 +430,7 @@ function LayoutShell({ lang, dictionary, socials, children }: LayoutShellProps) 
       </main>
 
       {/* FOOTER */}
-      {!isHome && !isMobileLike && <Footer dict={dictionary} socials={socials} />}
+      {!isHome && !isMobileLike && <Footer dict={dictionary} socials={socials} copyright={chrome?.copyright} />}
 
       {/* DOCKS */}
       {!isHome && !isMobileLike && (
