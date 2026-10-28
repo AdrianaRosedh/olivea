@@ -58,7 +58,7 @@ export default function ArticleEn() {
         <h3>Comfort</h3>
         <p>Blackout curtains, natural airflow, and climate control — every detail designed to protect your rest.</p>
         <h3>Room Details</h3>
-        <p>A coffee machine in every suite, with two pods each night. Filtered water in reusable bottles, refillable amenities, and our own house scent — botanical, balanced, and understated.</p>
+        <p>A coffee machine in every suite, with two pods each night; we collect the used pods and recycle them. Filtered water in reusable bottles, refillable amenities, and our own house scent — botanical, balanced, and understated.</p>
         <h3>Accessible Design</h3>
         <p>All rooms at Casa Olivea are located on the ground floor, ensuring easy access without steps or level changes.</p>
         <h3>Concierge</h3>
