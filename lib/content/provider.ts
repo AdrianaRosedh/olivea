@@ -21,6 +21,7 @@ import type {
   CareersContent,
   LegalContent,
   TeamContent,
+  MenuContent,
   NotFoundContent,
   JournalPost,
   JournalArticle,
@@ -53,6 +54,7 @@ export interface ContentMap {
   careers: CareersContent;
   legal: LegalContent;
   team: TeamContent;
+  menu: MenuContent;
   notFound: NotFoundContent;
   global: GlobalSettings;
   drawer: DrawerContent;
@@ -164,6 +166,7 @@ class SupabaseContentSource implements ContentSource {
     careers: "careers_content",
     legal: "legal_content",
     team: "team_content",
+    menu: "menu_content",
     notFound: "not_found_content",
     global: "global_settings",
     drawer: "drawer_content",

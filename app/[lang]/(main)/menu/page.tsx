@@ -7,7 +7,8 @@ import MenuDeepLinkClient from "./MenuDeepLinkClient";
 import ArticleMenu from "./ArticleMenu";
 import FaqJsonLd from "@/components/seo/FaqJsonLd";
 import FaqProse from "@/components/seo/FaqProse";
-import { menuFaq } from "./faq";
+import { getContent, t } from "@/lib/content";
+import { toFaqItems } from "@/lib/seo/faq";
 
 export async function generateStaticParams() {
   return (["en", "es"] as const).map((lang) => ({ lang }));
@@ -22,10 +23,10 @@ async function pageMetadata({
   const lang: Lang = raw === "en" ? "en" : "es";
   const isEs = lang === "es";
 
-  const title = isEs ? "Menú | OLIVEA" : "Menu | OLIVEA";
-  const description = isEs
-    ? "Menú de temporada de Olivea Farm To Table y Olivea Café Wine Bar — cocina arraigada al huerto en Valle de Guadalupe."
-    : "Seasonal menu for Olivea Farm To Table and Olivea Café Wine Bar — garden-rooted cuisine in Valle de Guadalupe.";
+  // From menu_content, edited in /admin/content/menu-page.
+  const { meta } = await getContent("menu");
+  const title = t(lang, meta.title);
+  const description = t(lang, meta.description);
 
   const path = `/${lang}/menu`;
   const url = canonicalUrl(path);
@@ -56,6 +57,8 @@ export default async function MenuPage({
 }) {
   const { lang } = await params;
   const L: Lang = lang === "en" ? "en" : "es";
+  // The page's FAQ lives in menu_content (edited in /admin/content/menu-page).
+  const faq = toFaqItems((await getContent("menu")).faq, L);
 
   return (
     <>
@@ -69,12 +72,12 @@ export default async function MenuPage({
           page a search for "Olivea menu" lands on. */}
       <div className="ssr-article">
         <FaqProse
-          items={menuFaq(L)}
+          items={faq}
           heading={L === "es" ? "Preguntas frecuentes" : "Common questions"}
           label={L === "es" ? "Preguntas frecuentes" : "Common questions"}
         />
       </div>
-      <FaqJsonLd id={canonicalUrl(`/${L}/menu#faq`)} items={menuFaq(L)} />
+      <FaqJsonLd id={canonicalUrl(`/${L}/menu#faq`)} items={faq} />
       {/* useSearchParams() needs a boundary now that the tree actually renders
           on the server; without it the whole page opts out of prerendering. */}
       <Suspense fallback={null}>

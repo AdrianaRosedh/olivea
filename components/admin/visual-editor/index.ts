@@ -4,3 +4,4 @@ export { default as EditableImage } from "./EditableImage";
 export { default as EditableJSON } from "./EditableJSON";
 export { default as EditableSections } from "./EditableSections";
 export { default as EditableFAQ } from "./EditableFAQ";
+export { storedToEditorFaq, editorToStoredFaq, type EditorFaqEntry } from "./faqAdapters";

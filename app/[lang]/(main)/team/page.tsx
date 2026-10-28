@@ -4,6 +4,8 @@ import { loadLocale } from "@/lib/i18n";
 import { SITE, canonicalUrl, withShare } from "@/lib/site";
 import TeamClient, { type TeamDict } from "./TeamClient";
 import { loadTeam } from "./teamData";
+import { toFaqItems } from "@/lib/seo/faq";
+import { getContent } from "@/lib/content";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";
 import TeamArticle from "./TeamArticle";
 
@@ -95,22 +97,10 @@ export default async function TeamPage({ params }: PageProps) {
 
   const members = await loadTeam();
 
-  // ✅ Entity FAQ — the exact "who is X" questions AI gets, answered from our facts.
+  // ✅ Entity FAQ — the exact "who is X" questions AI gets, answered from our
+  // facts. Kept in team_content.faq and edited in /admin/content/team.
   const faqId = canonicalUrl(`/${lang}/team#faq`);
-  const faq: FaqItem[] =
-    lang === "es"
-      ? [
-          { q: "¿Quién es el chef de Olivea?", a: "Daniel Nates es el Chef Ejecutivo de Olivea Farm To Table, el restaurante con estrella MICHELIN en Valle de Guadalupe. Dirige un menú holístico arraigado al huerto y al territorio de Baja California." },
-          { q: "¿Quién fundó Olivea?", a: "Ange Joy es la fundadora y diseñadora de Olivea — dio forma a los espacios, la estética y el espíritu de bienvenida del restaurante, el hospedaje y el café." },
-          { q: "¿Quién es la CEO de Olivea?", a: "Adriana Rose es la CEO de Olivea (Tecnología y Visión) y la arquitecta de su ecosistema. También es la fundadora de roseiies, el estudio de inteligencia en hospitalidad detrás de la tecnología de Olivea." },
-          { q: "¿Qué es roseiies?", a: "roseiies es el estudio de inteligencia en hospitalidad y tecnología fundado por Adriana Rose, CEO de Olivea. Construye los menús vivos, el mapa del huerto y los sistemas operativos de Olivea." },
-        ]
-      : [
-          { q: "Who is the chef at Olivea?", a: "Daniel Nates is the Executive Chef of Olivea Farm To Table, the MICHELIN-starred restaurant in Valle de Guadalupe. He leads a garden-led holistic menu rooted in Baja California." },
-          { q: "Who founded Olivea?", a: "Ange Joy is the founder and designer of Olivea — she shaped the spaces, the aesthetic, and the spirit of welcome across the restaurant, farm stay, and café." },
-          { q: "Who is the CEO of Olivea?", a: "Adriana Rose is the CEO of Olivea (Technology & Vision) and the architect of its ecosystem. She is also the founder of roseiies, the hospitality-intelligence studio behind Olivea's technology." },
-          { q: "What is roseiies?", a: "roseiies is the hospitality-intelligence and technology studio founded by Adriana Rose, CEO of Olivea. It builds Olivea's living menus, garden map, and operational systems." },
-        ];
+  const faq: FaqItem[] = toFaqItems((await getContent("team")).faq, lang);
 
   return (
     <main className="w-full px-6 sm:px-10 py-10">

@@ -389,11 +389,27 @@ export interface TeamMember {
 }
 
 /** Team page */
+/** A question kept on a page's own record and edited in /admin. */
+export interface PageFaqEntry {
+  id: string;
+  q: Bilingual;
+  a: Bilingual;
+}
+
 export interface TeamContent {
   meta: PageMeta;
   title: Bilingual;
   description: Bilingual;
   members?: TeamMember[];
+  /** "Who is who" questions — the page's FAQ and its FAQPage markup. */
+  faq?: PageFaqEntry[];
+}
+
+/** The /menu page: its Google title and description, and its FAQ. */
+export interface MenuContent {
+  meta: PageMeta;
+  faq: PageFaqEntry[];
+  updatedAt?: string;
 }
 
 /** Not Found (404) */

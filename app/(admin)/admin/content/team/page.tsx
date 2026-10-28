@@ -7,6 +7,9 @@ import {
   useEditor,
   MetaSection,
   EditableBilingual,
+  EditableFAQ,
+  storedToEditorFaq,
+  editorToStoredFaq,
 } from "@/components/admin/visual-editor";
 import TeamRosterEditor, { type RosterMember } from "@/components/admin/TeamRosterEditor";
 
@@ -80,6 +83,16 @@ function TeamVisual() {
           onChange={(v) => set("members", v)}
         />
       </section>
+
+      {/* The page's "who is who" questions — shown on /team and in its
+          FAQPage markup, which is what search engines and AI assistants
+          quote when asked who leads Olivea. */}
+      <EditableFAQ
+        label={{ es: "Preguntas frecuentes", en: "FAQ" }}
+        value={storedToEditorFaq(get("faq"))}
+        onChange={(entries) => set("faq", editorToStoredFaq(entries))}
+        collapsed={false}
+      />
 
     </div>
   );

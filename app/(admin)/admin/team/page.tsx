@@ -152,6 +152,7 @@ const SECTION_LABELS_B: Record<string, B> = {
   "pages.sustainability": { es: "Sustentabilidad",      en: "Sustainability" },
   "pages.press":          { es: "Prensa",               en: "Press" },
   "pages.team":           { es: "Página del Equipo",    en: "Team Page" },
+  "pages.menu":           { es: "Página del Menú",      en: "Menu Page" },
   "pages.contact":        { es: "Contacto",             en: "Contact" },
   "pages.careers":        { es: "Trabaja con Nosotros", en: "Careers" },
   "pages.innovation":     { es: "Innovación",           en: "Innovation" },

@@ -65,6 +65,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "pages.sustainability", label: "Sustainability",           icon: "Leaf",            category: "pages",   href: "/admin/content/sustainability" },
   { key: "pages.press",          label: "Press",                    icon: "Newspaper",       category: "pages",   href: "/admin/content/press" },
   { key: "pages.team",           label: "Team Page",                icon: "Users",           category: "pages",   href: "/admin/content/team" },
+  { key: "pages.menu",           label: "Menu Page",                icon: "UtensilsCrossed", category: "pages",   href: "/admin/content/menu-page" },
   { key: "pages.contact",        label: "Contact",                  icon: "Mail",            category: "pages",   href: "/admin/content/contact" },
   { key: "pages.careers",        label: "Careers",                  icon: "Briefcase",       category: "pages",   href: "/admin/content/careers" },
   { key: "pages.innovation",     label: "Innovation",               icon: "Sparkles",        category: "pages",   href: "/admin/content/innovation" },
