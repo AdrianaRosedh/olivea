@@ -612,7 +612,7 @@ export default function MobileSectionNav({
                     </button>
                   </div>
 
-                  <div className="max-h-[62vh] overflow-auto px-2 pb-3">
+                  <div className="olivea-scroll max-h-[62vh] overflow-auto px-2 pb-3">
                     {items.map((m) => {
                       const isMainActive = activeMain?.id === m.id;
                       return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useLayoutEffect, useRef } from "react";
 import {
   motion,
   AnimatePresence,
@@ -11,13 +11,23 @@ import { tt } from "@/lib/i18n";
 import { publicDateYear } from "@/lib/date/public-date";
 import type { JournalFilterDockProps } from "./JournalFilterDock";
 import {
-  Search,
   X,
   SlidersHorizontal,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import {
+  DOCK_TOP,
+  DockHeader,
+  FilterSearch,
+  chipClass,
+  dockIconButton,
+  dockShell,
+  filterLabel,
+  filterLink,
+  sidePanel,
+} from "@/components/ui/filters/FilterKit";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -47,24 +57,29 @@ function labelAll(lang: JournalFilterDockProps["lang"]) {
   return lang === "es" ? "Todos" : "All";
 }
 
-function getNavbarEl(): HTMLElement | null {
-  if (typeof document === "undefined") return null;
-
-  const header = document.querySelector("header");
-  if (header instanceof HTMLElement) return header;
-
-  const candidates = [
-    "[data-navbar]",
-    "[data-desktop-navbar]",
-    "nav[aria-label*='Primary']",
-    "nav",
-  ];
-  for (const sel of candidates) {
-    const el = document.querySelector(sel);
-    if (el instanceof HTMLElement) return el;
-  }
-  return null;
+/** Room left under `top` before the footer and, when it shows, the promo bar. */
+function roomBelow(top: number): number {
+  const banner =
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--olivea-banner-clear")) || 0;
+  return window.innerHeight - top - 72 - banner - 12;
 }
+
+/**
+ * How far to lift a panel that opens beside the dock so it ends above the
+ * footer instead of running under it (never above 90px from the top).
+ */
+function useLiftToFit(ref: React.RefObject<HTMLElement | null>, open: boolean): number {
+  const [lift, setLift] = useState(0);
+  useLayoutEffect(() => {
+    if (!open || !ref.current) return;
+    const el = ref.current;
+    const anchor = (el.offsetParent as HTMLElement | null)?.getBoundingClientRect().top ?? 0;
+    const over = el.offsetHeight - roomBelow(anchor);
+    setLift(over > 0 ? -Math.min(over, Math.max(0, anchor - 90)) : 0);
+  }, [open, ref]);
+  return lift;
+}
+
 
 export default function JournalFilterDockDesktop(props: JournalFilterDockProps) {
   const {
@@ -90,58 +105,78 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
 
   // “More” = extra chips sections
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const moreShift = useLiftToFit(moreRef, moreOpen);
+
+  // The dock never scrolls. It measures its full height against the room
+  // under it; when it does not fit, the filters fold under the pill and open
+  // beside it instead.
+  const dockRef = useRef<HTMLDivElement>(null);
+  const dockHeight = useRef(0);
+  const [fits, setFits] = useState(true);
+  const [floatOpen, setFloatOpen] = useState(false);
+  const floatRef = useRef<HTMLDivElement>(null);
+  const floatShift = useLiftToFit(floatRef, floatOpen);
 
   // Full dock collapse (xl+)
   const [collapsed, setCollapsed] = useState(false);
 
   // Compact popover (lg)
   const [compactOpen, setCompactOpen] = useState(false);
+  const compactRef = useRef<HTMLDivElement>(null);
+  const compactShift = useLiftToFit(compactRef, compactOpen);
 
-  // Smart top offset (lower)
-  const [topOffset, setTopOffset] = useState(280);
-
-  const computeTop = useCallback(() => {
-    if (typeof window === "undefined") return;
-
-    const nav = getNavbarEl();
-    const navH = nav?.getBoundingClientRect().height ?? 0;
-
-    // Lower baseline than before (so it never fights the left logo)
-    const baseGap = window.scrollY > 8 ? 78 : 108;
-    const next = Math.round(Math.min(420, Math.max(240, navH + baseGap)));
-    setTopOffset(next);
-  }, []);
-
-  const computeAutoCollapse = useCallback(() => {
-    if (typeof window === "undefined") return;
-    const vh = window.innerHeight;
-    const vw = window.innerWidth;
-
-    // Only auto-collapse on short desktops
-    const should = vh < 760 || (vw < 1320 && vh < 860);
-    setCollapsed(should);
-  }, []);
+  // Starts where the Press and Team docks do, just under the logo.
+  const topOffset = DOCK_TOP;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    computeTop();
-    computeAutoCollapse();
-
-    const onResize = () => {
-      computeTop();
-      computeAutoCollapse();
-      setCompactOpen(false);
-    };
-
+    const onResize = () => setCompactOpen(false);
     window.addEventListener("resize", onResize, { passive: true });
-    window.addEventListener("scroll", computeTop, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
-    return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", computeTop);
+  const folded = collapsed || !fits;
+
+  useEffect(() => {
+    const check = () => {
+      if (!collapsed && fits && dockRef.current) dockHeight.current = dockRef.current.offsetHeight;
+      if (!dockHeight.current) return;
+      const room = roomBelow(topOffset);
+      // A little hysteresis, so it does not flicker at the boundary.
+      setFits((was) => (was ? dockHeight.current <= room : dockHeight.current <= room - 16));
     };
-  }, [computeTop, computeAutoCollapse]);
+    check();
+    window.addEventListener("resize", check);
+    // The promo bar publishes its height on <html> as it comes and goes.
+    const mo = new MutationObserver(check);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
+    return () => {
+      window.removeEventListener("resize", check);
+      mo.disconnect();
+    };
+  }, [collapsed, fits, topOffset, posts]);
+
+  // Panels beside the dock close on Escape or a click elsewhere.
+  useEffect(() => {
+    if (!moreOpen && !floatOpen) return;
+    const close = () => {
+      setMoreOpen(false);
+      setFloatOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    const onDown = (e: PointerEvent) => {
+      const target = e.target as Element | null;
+      if (!target?.closest('nav[aria-label="Journal filters"], nav[aria-label="Journal filters compact"]')) close();
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, [moreOpen, floatOpen]);
 
   const pillars = useMemo(() => {
     const s = new Set<string>();
@@ -149,10 +184,12 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
     return ["all", ...Array.from(s).sort()];
   }, [posts]);
 
+  // Most used first, so the few shown in the dock are the ones that narrow
+  // the most; the rest open beside it.
   const tags = useMemo(() => {
-    const s = new Set<string>();
-    posts.forEach((p) => (p.tags ?? []).forEach((t) => s.add(t)));
-    return ["all", ...Array.from(s).sort((a, b) => a.localeCompare(b))];
+    const n = new Map<string, number>();
+    posts.forEach((p) => (p.tags ?? []).forEach((t) => n.set(t, (n.get(t) ?? 0) + 1)));
+    return ["all", ...Array.from(n.keys()).sort((a, b) => (n.get(b)! - n.get(a)!) || a.localeCompare(b))];
   }, [posts]);
 
   const years = useMemo(() => {
@@ -194,8 +231,8 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
     searchLabel: lang === "es" ? "Buscar artículos" : "Search articles",
     ph:
       lang === "es"
-        ? "Título, autor, tag, tema…"
-        : "Title, author, tag, topic…",
+        ? "Buscar: título, autor, tag…"
+        : "Search: title, author, tag…",
     pillar: lang === "es" ? "Pilar" : "Pillar",
     tag: "Tag",
     year: lang === "es" ? "Año" : "Year",
@@ -212,35 +249,12 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
     count: lang === "es" ? "artículos" : "articles",
   };
 
-  const sectionLabel = cn(
-    "text-[11px] uppercase tracking-[0.26em]",
-    "text-(--olivea-olive)"
-  );
-
-  const capsule = cn(
-    "rounded-full",
-    "bg-white/22",
-    "ring-1 ring-(--olivea-olive)/16",
-    "backdrop-blur-[2px]"
-  );
-
-  const subtleLink = cn(
-    "text-[12px] text-(--olivea-olive) hover:opacity-100",
-    "underline underline-offset-4 decoration-(--olivea-olive)/25 hover:decoration-(--olivea-olive)/45"
-  );
-
-  const chipBase = cn(
-    "px-3 py-1.5 rounded-full text-[13px] leading-none transition",
-    "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/16 text-(--olivea-olive)",
-    "hover:bg-white/26 hover:text-(--olivea-olive) hover:opacity-100"
-  );
-
-  const chipActive = cn(
-    "px-3 py-1.5 rounded-full text-[13px] leading-none transition",
-    "ring-1 ring-(--olivea-olive)/28",
-    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
-  );
+  // The shared filter kit's look (Press and Team use the same).
+  const sectionLabel = filterLabel;
+  const subtleLink = filterLink;
+  const chipBase = chipClass(false, "sm");
+  const chipActive = chipClass(true, "sm");
+  const capsule = "rounded-full bg-white/22 ring-1 ring-(--olivea-olive)/16 backdrop-blur-[2px]";
 
   const topPillarPicks = useMemo(() => pillars.slice(0, 6), [pillars]);
   const restPillars = useMemo(() => pillars.slice(6), [pillars]);
@@ -248,67 +262,44 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
   const topYearPicks = useMemo(() => years.slice(0, 6), [years]);
   const restYears = useMemo(() => years.slice(6), [years]);
 
-  const topTagPicks = useMemo(() => tags.slice(0, 10), [tags]);
-  const restTags = useMemo(() => tags.slice(10), [tags]);
+  const topTagPicks = useMemo(() => tags.slice(0, 7), [tags]);
+  const restTags = useMemo(() => tags.slice(7), [tags]);
 
   /**
-   * ✅ One panel renderer used by BOTH full dock and compact popover.
-   * IMPORTANT: This panel DOES NOT render the “pill header”.
-   * That prevents the “double header” you’re seeing.
+   * One panel used by both the full dock and the compact popover. It renders
+   * no pill header of its own (that doubled the header once).
+   *
+   * Called as a function, not mounted as <FiltersPanel />: declared inside
+   * this component, it was a new component type on every render, so React
+   * remounted it on each keystroke and the search field lost focus after the
+   * first letter.
    */
-  const FiltersPanel = ({ showCollapsePanel }: { showCollapsePanel: boolean }) => (
+  const renderFilters = ({ showCollapsePanel }: { showCollapsePanel: boolean }) => (
     <div className="px-0">
-      {/* Search */}
-      <div className="mt-3">
-        <div className={sectionLabel}>{t.search}</div>
-        <div className={cn("mt-2 px-4 py-2.5", capsule)}>
-          <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 opacity-85 shrink-0 text-(--olivea-olive)" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t.ph}
-              aria-label={t.searchLabel}
-              className={cn(
-                "w-full bg-transparent outline-none",
-                "text-[13px] text-(--olivea-olive)",
-                "placeholder:text-(--olivea-clay)/65"
-              )}
-            />
-            {q.trim() ? (
-              <button
-                type="button"
-                onClick={() => setQ("")}
-                className={cn(
-                  "h-7 w-7 rounded-full",
-                  "inline-flex items-center justify-center",
-                  "bg-white/18 ring-1 ring-(--olivea-olive)/14",
-                  "text-(--olivea-olive) opacity-85 hover:opacity-100 transition"
-                )}
-                aria-label={tt(lang, "Borrar", "Clear")}
-                title={tt(lang, "Borrar", "Clear")}
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      {/* Search (its placeholder says what it is; the field has its own label) */}
+      <FilterSearch
+        className="mt-3"
+        value={q}
+        onChange={setQ}
+        placeholder={t.ph}
+        label={t.searchLabel}
+        clearLabel={tt(lang, "Borrar", "Clear")}
+      />
 
       {/* Collapsible filters section (only collapsible on xl full dock) */}
       <AnimatePresence initial={false}>
-        {showCollapsePanel && collapsed ? null : (
+        {showCollapsePanel && folded ? null : (
           <motion.div
             key="filters"
             variants={panelV}
             initial="collapsed"
             animate="open"
             exit="collapsed"
-            className="mt-6"
+            className="mt-4"
           >
             {/* Pillars */}
             {showPillar ? (
-            <div className="mt-5 first:mt-0">
+            <div className="mt-4 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.pillar}</div>
               </div>
@@ -333,7 +324,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
 
             {/* Year */}
             {showYear ? (
-            <div className="mt-5 first:mt-0">
+            <div className="mt-4 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.year}</div>
               </div>
@@ -358,7 +349,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
 
             {/* Reading time */}
             {showTime ? (
-            <div className="mt-5 first:mt-0">
+            <div className="mt-4 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.time}</div>
               </div>
@@ -391,7 +382,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
             ) : null}
 
             {/* Sort */}
-            <div className="mt-5 first:mt-0">
+            <div className="mt-4 first:mt-0">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.sort}</div>
               </div>
@@ -413,7 +404,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
             </div>
 
             {/* Tags */}
-            <div className="mt-5">
+            <div className="mt-4">
               <div className="flex items-center justify-between">
                 <div className={sectionLabel}>{t.tag}</div>
               </div>
@@ -438,20 +429,27 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
               <button
                 type="button"
                 onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
                 className={cn("mt-3", subtleLink)}
               >
-                {moreOpen ? t.less : t.more}
+                {t.more}
               </button>
             ) : null}
 
             <AnimatePresence initial={false}>
               {moreOpen ? (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.22, ease: EASE }}
-                  className="mt-4 rounded-2xl bg-white/18 ring-1 ring-(--olivea-olive)/14 backdrop-blur-[2px] p-3"
+                  ref={moreRef}
+                  role="group"
+                  aria-label={tt(lang, "Más filtros", "More filters")}
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -6 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                  // Beside the dock, over the page, so a near-solid surface.
+                  // Wide enough that a long tag list wraps instead of growing.
+                  className={cn(sidePanel, "absolute left-full top-0 z-10 ml-3 w-96 max-w-[calc(100vw-24rem)] p-4")}
+                  style={{ top: moreShift }}
                 >
                   {restPillars.length ? (
                     <>
@@ -504,7 +502,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                       <div className="mt-4 text-[11px] text-(--olivea-olive)">
                         {tt(lang, "Más tags", "More tags")}
                       </div>
-                      <div className="mt-2 max-h-40 overflow-auto pr-1">
+                      <div className="mt-2">
                         <div className="flex flex-wrap gap-2">
                           {restTags.map((x) => {
                             const active = tag === x;
@@ -544,7 +542,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
         )}
       </AnimatePresence>
 
-      {showCollapsePanel && collapsed && anyActive ? (
+      {showCollapsePanel && folded && anyActive ? (
         <button
           type="button"
           onClick={onClear}
@@ -577,16 +575,12 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
           <button
             type="button"
             onClick={() => setCompactOpen((v) => !v)}
-            className={cn(
-              "inline-flex items-center justify-center",
-              "h-11 w-11 rounded-full",
-              "bg-white/26 ring-1 ring-(--olivea-olive)/18 backdrop-blur-[2px]",
-              "text-(--olivea-olive) hover:bg-white/34 transition"
-            )}
+            aria-expanded={compactOpen}
+            className={cn(dockShell, "grid h-12 w-12 place-items-center text-(--olivea-olive) transition hover:bg-white/30")}
             aria-label={t.filters}
             title={t.filters}
           >
-            <SlidersHorizontal className="h-5 w-5 opacity-90" />
+            <SlidersHorizontal className="h-4 w-4" />
           </button>
 
           <AnimatePresence>
@@ -596,36 +590,26 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -8 }}
                 transition={{ duration: 0.2, ease: EASE }}
-                className={cn(
-                  "absolute left-14 top-0",
-                  "w-90 max-w-[calc(100vw-120px)]",
-                  "rounded-3xl",
-                  "bg-white/72 ring-1 ring-(--olivea-olive)/18 backdrop-blur-[10px]",
-                  "shadow-[0_22px_55px_rgba(40,60,35,0.20)]"
-                )}
+                ref={compactRef}
+                className={cn(sidePanel, "absolute left-15 top-0 w-80 max-w-[calc(100vw-120px)]")}
+                style={{ top: compactShift }}
               >
-                <div className="flex items-center justify-between px-4 pt-4">
-                  <div className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
-                    {t.filters}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setCompactOpen(false)}
-                    className={cn(
-                      "h-9 w-9 rounded-full",
-                      "inline-flex items-center justify-center",
-                      "bg-white/70 ring-1 ring-(--olivea-olive)/16",
-                      "text-(--olivea-olive) opacity-90 hover:opacity-100 transition"
-                    )}
-                    aria-label={tt(lang, "Cerrar", "Close")}
-                    title={tt(lang, "Cerrar", "Close")}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                <div className="px-4 pt-4">
+                  <DockHeader label={tt(lang, "Cuaderno", "Journal")} meta={`${count} ${t.count}`}>
+                    <button
+                      type="button"
+                      onClick={() => setCompactOpen(false)}
+                      className={dockIconButton}
+                      aria-label={tt(lang, "Cerrar", "Close")}
+                      title={tt(lang, "Cerrar", "Close")}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </DockHeader>
                 </div>
 
-                <div className="max-h-[calc(100vh-260px)] overflow-auto p-4 pt-2">
-                  <FiltersPanel showCollapsePanel={false} />
+                <div className="p-4 pt-1">
+                  {renderFilters({ showCollapsePanel: false })}
                 </div>
               </motion.div>
             ) : null}
@@ -643,50 +627,44 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
           variants={dockV}
           initial={reduce ? false : "hidden"}
           animate="show"
-          className={cn("w-64 xl:w-72 2xl:w-80")}
+          className="w-73"
         >
-          <div className="relative pl-5">
-            <div className="absolute left-2 top-1 bottom-1 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/18 to-transparent" />
-
-            {/* The list scrolls inside the space between its top and the footer
-                (and the promo bar, when one is showing), never under them. */}
-            <div
-              className={cn(collapsed ? "overflow-visible" : "overflow-auto overscroll-contain", "pr-2")}
-              style={collapsed ? undefined : { maxHeight: `calc(100vh - ${topOffset}px - 72px - var(--olivea-banner-clear, 0px))` }}
-            >
-              <div className="flex items-center justify-between">
+          <div className="relative">
+            <div ref={dockRef} className={cn(dockShell, "px-3.5 pb-3.5 pt-3.5")}>
+              <DockHeader label={tt(lang, "Cuaderno", "Journal")} meta={`${count} ${t.count}`}>
                 <button
                   type="button"
-                  onClick={() => setCollapsed((v) => !v)}
-                  className={cn(
-                    "w-full inline-flex items-center justify-between gap-3",
-                    "px-3 py-2 rounded-full",
-                    "bg-white/22 ring-1 ring-(--olivea-olive)/16 backdrop-blur-[2px]",
-                    "text-(--olivea-olive) hover:bg-white/30 transition"
-                  )}
-                  aria-label={collapsed ? (lang === "es" ? "Expandir" : "Expand") : (lang === "es" ? "Colapsar" : "Collapse")}
-                  title={collapsed ? (lang === "es" ? "Expandir" : "Expand") : (lang === "es" ? "Colapsar" : "Collapse")}
+                  // Short screens: the filters open beside the dock instead.
+                  onClick={() => (fits ? setCollapsed((v) => !v) : setFloatOpen((v) => !v))}
+                  aria-expanded={fits ? !collapsed : floatOpen}
+                  className={dockIconButton}
+                  aria-label={folded && !floatOpen ? tt(lang, "Expandir", "Expand") : tt(lang, "Colapsar", "Collapse")}
+                  title={folded && !floatOpen ? tt(lang, "Expandir", "Expand") : tt(lang, "Colapsar", "Collapse")}
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <SlidersHorizontal className="h-4 w-4 opacity-85" />
-                    <span className="text-[12px] uppercase tracking-[0.30em]">
-                      {t.filters}
-                    </span>
-                    <span className="text-[12px]">
-                      {count} {t.count}
-                    </span>
-                  </span>
-
-                  {collapsed ? (
-                    <ChevronRight className="h-4 w-4 opacity-85" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 opacity-85" />
-                  )}
+                  {folded && !floatOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
-              </div>
+              </DockHeader>
 
-              <FiltersPanel showCollapsePanel />
+              {renderFilters({ showCollapsePanel: true })}
             </div>
+
+            <AnimatePresence>
+              {!fits && floatOpen ? (
+                <motion.div
+                  ref={floatRef}
+                  role="group"
+                  aria-label={t.filters}
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -6 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                  className={cn(sidePanel, "absolute left-full top-0 z-10 ml-3 w-80 px-4 pb-4")}
+                  style={{ top: floatShift }}
+                >
+                  {renderFilters({ showCollapsePanel: false })}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </div>
         </motion.div>
       </nav>

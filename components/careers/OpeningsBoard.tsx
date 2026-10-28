@@ -402,7 +402,7 @@ function OpeningDialog({
             </div>
 
             {/* Body — the only scroller in the dialog */}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8">
+            <div className="olivea-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8">
               {v.description && (
                 <section>
                   <h3 className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)">

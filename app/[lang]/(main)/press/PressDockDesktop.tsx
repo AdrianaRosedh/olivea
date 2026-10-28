@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Identity, ItemKind, Lang } from "./pressTypes";
 import { tt } from "./lib/pressText";
 import {
-  Search,
   SlidersHorizontal,
   X,
   ArrowUp,
@@ -17,8 +16,23 @@ import {
   Layers,
 } from "lucide-react";
 import Reveal from "@/components/scroll/Reveal";
+import {
+  DOCK_TOP,
+  DockHeader,
+  FilterChip,
+  FilterGroup,
+  FilterSearch,
+  dockIconButton,
+  dockShell,
+  filterLabel,
+  filterLink,
+  sidePanel,
+} from "@/components/ui/filters/FilterKit";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/** The fixed footer bar below it. */
+const FOOTER_H = 72;
 
 export interface PressDockDesktopProps {
   lang: Lang;
@@ -40,18 +54,19 @@ export interface PressDockDesktopProps {
   onNav: (e: React.MouseEvent, id: string) => void;
 }
 
+/** One line per section; what it holds is in the tooltip. */
 function JumpButton({
   id,
   icon,
   title,
-  subtitle,
+  hint,
   tone = "neutral",
   onNav,
 }: {
   id: string;
   icon: React.ReactNode;
   title: string;
-  subtitle?: string;
+  hint?: string;
   tone?: "neutral" | "primary";
   onNav: (e: React.MouseEvent, id: string) => void;
 }) {
@@ -59,24 +74,16 @@ function JumpButton({
     <button
       type="button"
       onClick={(e) => onNav(e as unknown as React.MouseEvent, id)}
+      title={hint}
       className={cn(
-        "w-full text-left rounded-2xl px-3 py-3 ring-1 transition",
+        "w-full h-10 px-3 flex items-center gap-2 text-left rounded-xl ring-1 transition",
         tone === "primary"
-          ? "bg-(--olivea-olive) text-(--olivea-cream) ring-black/10 shadow-[0_10px_22px_rgba(40,60,35,0.16)] hover:brightness-[1.03]"
+          ? "bg-(--olivea-olive) text-(--olivea-cream) ring-black/10 shadow-[0_8px_18px_rgba(40,60,35,0.16)] hover:brightness-[1.03]"
           : "bg-white/12 text-(--olivea-olive) ring-(--olivea-olive)/14 hover:bg-white/18"
       )}
     >
-      <div className="flex items-center gap-2">
-        <span className={cn("opacity-85", tone === "primary" ? "text-(--olivea-cream)" : "text-(--olivea-olive)")}>
-          {icon}
-        </span>
-        <span className="text-[13px] font-medium">{title}</span>
-      </div>
-      {subtitle ? (
-        <div className={cn("mt-1 text-[12px]", tone === "primary" ? "" : "text-(--olivea-olive)")}>
-          {subtitle}
-        </div>
-      ) : null}
+      <span className="shrink-0" aria-hidden="true">{icon}</span>
+      <span className="truncate text-[13px] font-medium">{title}</span>
     </button>
   );
 }
@@ -102,23 +109,54 @@ export function PressDockDesktop({
 }: PressDockDesktopProps) {
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const panelShell = cn(
-    "rounded-3xl",
-    "bg-(--olivea-cream)/62 backdrop-blur-md",
-    "ring-1 ring-(--olivea-olive)/14",
-    "shadow-[0_10px_28px_rgba(18,24,16,0.10)]"
-  );
+  // The dock never scrolls. The full panel shows when it fits between the
+  // logo and the footer (and the promo bar, when one shows); otherwise the
+  // icon rail stands in for it, and search and filters open beside it.
+  const navRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const panelHeight = useRef(0);
+  const [fits, setFits] = useState(true);
+  const rail = collapsed || !fits;
 
-  const sectionLabel = cn(
-    "text-[10px] uppercase tracking-[0.28em]",
-    "text-(--olivea-olive)"
-  );
+  useEffect(() => {
+    const root = document.documentElement;
+    const check = () => {
+      if (panelRef.current) panelHeight.current = panelRef.current.offsetHeight;
+      if (!panelHeight.current) return;
+      const banner = parseFloat(getComputedStyle(root).getPropertyValue("--olivea-banner-clear")) || 0;
+      // 12px of air below it, and a little hysteresis so it does not flicker
+      // between the two at the boundary.
+      const room = window.innerHeight - DOCK_TOP - FOOTER_H - banner - 12;
+      setFits((was) => (was ? panelHeight.current <= room : panelHeight.current <= room - 16));
+    };
+    check();
+    window.addEventListener("resize", check);
+    // The promo bar publishes its height on <html> as it comes and goes.
+    const mo = new MutationObserver(check);
+    mo.observe(root, { attributes: true, attributeFilter: ["style"] });
+    return () => {
+      window.removeEventListener("resize", check);
+      mo.disconnect();
+    };
+  }, [collapsed, count, lang]);
 
-  const inputShell = cn(
-    "rounded-2xl",
-    "bg-white/14 ring-1 ring-(--olivea-olive)/14",
-    "backdrop-blur-[2px]"
-  );
+  // The filter panel beside the dock closes on Escape or a click elsewhere.
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMoreOpen(false);
+    const onDown = (e: PointerEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setMoreOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, [moreOpen]);
+
+
+
 
   const iconBtn = (active?: boolean) =>
     cn(
@@ -126,21 +164,11 @@ export function PressDockDesktop({
       "ring-1 transition",
       active
         ? "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
-        : "bg-white/10 ring-(--olivea-olive)/14 text-(--olivea-olive)/85 hover:bg-white/16 hover:ring-(--olivea-olive)/22"
+        : "bg-white/10 ring-(--olivea-olive)/14 text-(--olivea-olive) hover:bg-white/16 hover:ring-(--olivea-olive)/22"
     );
 
-  const chipBase = cn(
-    "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
-    "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/12 text-(--olivea-olive)",
-    "hover:bg-white/18 hover:text-(--olivea-olive) hover:opacity-100"
-  );
 
-  const chipActive = cn(
-    "px-2.5 py-1 rounded-full text-[11px] leading-none transition",
-    "ring-1 ring-(--olivea-olive)/26",
-    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
-  );
+
 
   const kindLabel = (k: ItemKind) => {
     if (k === "all") return tt(lang, "Todo", "All");
@@ -158,248 +186,158 @@ export function PressDockDesktop({
 
   const topYearPicks = years.slice(0, 4);
 
+  const searchField = (
+    <FilterSearch
+      value={q}
+      onChange={setQ}
+      placeholder={tt(lang, "Buscar: título, medio, tag…", "Search: title, outlet, tag…")}
+      label={tt(lang, "Buscar en prensa", "Search press coverage")}
+      clearLabel={tt(lang, "Borrar", "Clear")}
+    />
+  );
+
+  const identityChips = (
+    <div className="flex flex-wrap gap-2">
+      {(["all", "olivea", "hotel", "restaurant", "cafe"] as Identity[]).map((x) => (
+        <FilterChip key={x} size="sm" active={identity === x} onClick={() => setIdentity(x)}>
+          {identLabel(x)}
+        </FilterChip>
+      ))}
+    </div>
+  );
+
   const DesktopExpanded = (
     <motion.div
-      className={cn(panelShell, "w-73")}
+      ref={panelRef}
+      className={cn(dockShell, "w-73")}
       initial={false}
       animate={{ width: "18.25rem" }}
       transition={{ duration: 0.26, ease: EASE }}
       style={{ overflow: "hidden" }}
     >
-      {/* header */}
-      <div className="px-4 pt-4 pb-3 flex items-start justify-between">
-        <div className="min-w-0">
-          <div className={sectionLabel}>{tt(lang, "Prensa", "Press")}</div>
-          <div className="mt-1 text-[12px] text-(--olivea-olive)">
-            {count} {tt(lang, "items", "items")}
-          </div>
-        </div>
+      {/* header + search */}
+      <div className="px-3.5 pt-3.5 pb-3">
+        <DockHeader label={tt(lang, "Prensa", "Press")} meta={`${count} ${tt(lang, "items", "items")}`}>
+            {anyFiltersOn ? (
+              <button
+                type="button"
+                onClick={resetAll}
+                className={dockIconButton}
+                aria-label={tt(lang, "Limpiar", "Reset")}
+                title={tt(lang, "Limpiar", "Reset")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
 
-        <div className="flex items-center gap-2">
-          {anyFiltersOn ? (
             <button
               type="button"
-              onClick={resetAll}
-              className={cn(
-                "h-10 w-10 rounded-2xl grid place-items-center",
-                "bg-white/16 ring-1 ring-(--olivea-olive)/14",
-                "text-(--olivea-olive) hover:bg-white/22 transition"
-              )}
-              aria-label={tt(lang, "Limpiar", "Reset")}
-              title={tt(lang, "Limpiar", "Reset")}
+              onClick={toggleCollapsed}
+              className={dockIconButton}
+              aria-label={tt(lang, "Colapsar", "Collapse")}
+              title={tt(lang, "Colapsar", "Collapse")}
             >
-              <X className="h-4 w-4 opacity-85" />
+              <Layers className="h-4 w-4" />
             </button>
-          ) : null}
+        </DockHeader>
 
-          <button
-            type="button"
-            onClick={toggleCollapsed}
-            className={cn(
-              "h-10 w-10 rounded-2xl grid place-items-center",
-              "bg-white/16 ring-1 ring-(--olivea-olive)/14",
-              "text-(--olivea-olive) hover:bg-white/22 transition"
-            )}
-            aria-label={tt(lang, "Colapsar", "Collapse")}
-            title={tt(lang, "Colapsar", "Collapse")}
-          >
-            <Layers className="h-4 w-4 opacity-85" />
-          </button>
-        </div>
-      </div>
-
-      {/* search */}
-      <div className="px-4 pb-4">
-        <div className={sectionLabel}>{tt(lang, "Buscar", "Search")}</div>
-        <div className={cn("mt-2 px-3 py-2.5 flex items-center gap-2", inputShell)}>
-          <Search className="h-4 w-4 opacity-85 text-(--olivea-olive) shrink-0" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={tt(lang, "Título, medio, tag…", "Title, outlet, tag…")}
-            aria-label={tt(lang, "Buscar en prensa", "Search press coverage")}
-            className={cn(
-              "w-full bg-transparent outline-none",
-              "text-[13px] text-(--olivea-olive)",
-              "placeholder:text-(--olivea-clay)/65"
-            )}
-          />
-          {q ? (
-            <button
-              type="button"
-              onClick={() => setQ("")}
-              className={cn(
-                "h-7 w-7 rounded-full grid place-items-center",
-                "bg-white/18 ring-1 ring-(--olivea-olive)/14",
-                "text-(--olivea-olive) opacity-85 hover:opacity-100 transition"
-              )}
-              aria-label={tt(lang, "Borrar", "Clear")}
-              title={tt(lang, "Borrar", "Clear")}
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          ) : null}
-        </div>
+        <div className="mt-2.5">{searchField}</div>
       </div>
 
       {/* jump */}
-      <div className="px-4 pb-4">
-        <div className={sectionLabel}>{tt(lang, "Secciones", "Sections")}</div>
-        <div className="mt-2 grid grid-cols-1 gap-2">
+      <div className="px-3.5 pb-3">
+        <div className={filterLabel}>{tt(lang, "Secciones", "Sections")}</div>
+        <div className="mt-2 grid grid-cols-1 gap-1.5">
           <JumpButton
             id="awards"
             icon={<Award className="h-4 w-4" />}
             title={tt(lang, "Reconocimientos", "Awards")}
-            subtitle={tt(lang, "Premios & guías", "Awards & guides")}
+            hint={tt(lang, "Premios & guías", "Awards & guides")}
             onNav={onNav}
           />
           <JumpButton
             id="mentions"
             icon={<Newspaper className="h-4 w-4" />}
             title={tt(lang, "Menciones", "Press mentions")}
-            subtitle={tt(lang, "Artículos & notas", "Articles & notes")}
+            hint={tt(lang, "Artículos & notas", "Articles & notes")}
             onNav={onNav}
           />
           <JumpButton
             id="presskit"
             icon={<FolderArchive className="h-4 w-4" />}
             title={tt(lang, "Press Kit y Media", "Press Kit & Media")}
-            subtitle={tt(lang, "Descargas oficiales", "Official downloads")}
+            hint={tt(lang, "Descargas oficiales", "Official downloads")}
             tone="primary"
             onNav={onNav}
           />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
             <JumpButton
               id="contact"
               icon={<Mail className="h-4 w-4" />}
               title={tt(lang, "Contacto", "Contact")}
-              subtitle={tt(lang, "PR & medios", "Media & PR")}
+              hint={tt(lang, "PR & medios", "Media & PR")}
               onNav={onNav}
             />
             <JumpButton
               id="top"
               icon={<ArrowUp className="h-4 w-4" />}
               title={tt(lang, "Arriba", "Top")}
-              subtitle={tt(lang, "Inicio", "Top")}
+              hint={tt(lang, "Inicio", "Top")}
               onNav={onNav}
             />
           </div>
         </div>
       </div>
 
-      {/* filters */}
-      <div className="px-4 pb-4">
+      {/* filters: who it is about here; type and year open beside the dock */}
+      <div className="px-3.5 pb-3.5">
         <div className="flex items-center justify-between">
-          <div className={sectionLabel}>{tt(lang, "Filtrar", "Filter")}</div>
+          <div className={filterLabel}>{tt(lang, "Filtrar", "Filter")}</div>
           <button
             type="button"
             onClick={() => setMoreOpen((v) => !v)}
-            className="text-[12px] text-(--olivea-olive) hover:opacity-100 underline underline-offset-4"
+            aria-expanded={moreOpen}
+            className={filterLink}
           >
-            {moreOpen ? tt(lang, "Menos", "Less") : tt(lang, "Más", "More")}
+            {tt(lang, "Más", "More")}
           </button>
         </div>
-
-        {/* Identity */}
-        <div className="mt-2 flex flex-wrap gap-2">
-          {(["all", "olivea", "hotel", "restaurant", "cafe"] as Identity[]).map((x) => (
-            <button
-              key={x}
-              type="button"
-              onClick={() => setIdentity(x)}
-              className={identity === x ? chipActive : chipBase}
-            >
-              {identLabel(x)}
-            </button>
-          ))}
-        </div>
-
-        <AnimatePresence>
-          {moreOpen ? (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.25, ease: EASE }}
-              className={cn("mt-3 rounded-2xl bg-white/10 ring-1 ring-(--olivea-olive)/14 p-3")}
-            >
-              {/* Type */}
-              <div className="text-[11px] text-(--olivea-olive)">
-                {tt(lang, "Tipo", "Type")}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {(["all", "award", "mention"] as ItemKind[]).map((k) => (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => setKind(k)}
-                    className={kind === k ? chipActive : chipBase}
-                  >
-                    {kindLabel(k)}
-                  </button>
-                ))}
-              </div>
-
-              {/* Year */}
-              <div className="mt-3 text-[11px] text-(--olivea-olive)">
-                {tt(lang, "Año", "Year")}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setYear("all")}
-                  className={year === "all" ? chipActive : chipBase}
-                >
-                  {tt(lang, "Todos", "All")}
-                </button>
-                {topYearPicks.map((y) => (
-                  <button
-                    key={y}
-                    type="button"
-                    onClick={() => setYear(y)}
-                    className={year === y ? chipActive : chipBase}
-                  >
-                    {y}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+        <div className="mt-2">{identityChips}</div>
       </div>
     </motion.div>
   );
 
   const DesktopCollapsed = (
     <motion.div
-      className={cn(panelShell, "w-16")}
+      className={cn(dockShell, "w-16")}
       initial={false}
       animate={{ width: "4rem" }}
       transition={{ duration: 0.26, ease: EASE }}
       style={{ overflow: "hidden" }}
     >
       <div className="px-2 py-3 flex flex-col items-center gap-2">
-        <button
-          type="button"
-          onClick={toggleCollapsed}
-          className={iconBtn(true)}
-          aria-label={tt(lang, "Expandir", "Expand")}
-          title={tt(lang, "Expandir", "Expand")}
-        >
-          <Layers className="h-4 w-4 opacity-90" />
-        </button>
+        {/* Expanding is only offered when the full panel has room. */}
+        {fits ? (
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            className={iconBtn(true)}
+            aria-label={tt(lang, "Expandir", "Expand")}
+            title={tt(lang, "Expandir", "Expand")}
+          >
+            <Layers className="h-4 w-4" />
+          </button>
+        ) : null}
 
         <button
           type="button"
-          onClick={() => {
-            toggleCollapsed();
-            setMoreOpen(true);
-          }}
-          className={iconBtn(moreOpen)}
-          aria-label={tt(lang, "Filtros", "Filters")}
-          title={tt(lang, "Filtros", "Filters")}
+          onClick={() => setMoreOpen((v) => !v)}
+          aria-expanded={moreOpen}
+          className={iconBtn(moreOpen || anyFiltersOn)}
+          aria-label={tt(lang, "Buscar y filtrar", "Search and filter")}
+          title={tt(lang, "Buscar y filtrar", "Search and filter")}
         >
-          <SlidersHorizontal className="h-4 w-4 opacity-85" />
+          <SlidersHorizontal className="h-4 w-4" />
         </button>
 
         <button
@@ -409,7 +347,7 @@ export function PressDockDesktop({
           aria-label={tt(lang, "Reconocimientos", "Awards")}
           title={tt(lang, "Reconocimientos", "Awards")}
         >
-          <Award className="h-4 w-4 opacity-85" />
+          <Award className="h-4 w-4" />
         </button>
 
         <button
@@ -419,7 +357,7 @@ export function PressDockDesktop({
           aria-label={tt(lang, "Prensa", "Press")}
           title={tt(lang, "Prensa", "Press")}
         >
-          <Newspaper className="h-4 w-4 opacity-85" />
+          <Newspaper className="h-4 w-4" />
         </button>
 
         <button
@@ -429,7 +367,7 @@ export function PressDockDesktop({
           aria-label={tt(lang, "Press Kit", "Press Kit")}
           title={tt(lang, "Press Kit", "Press Kit")}
         >
-          <FolderArchive className="h-4 w-4 opacity-90" />
+          <FolderArchive className="h-4 w-4" />
         </button>
 
         <button
@@ -439,7 +377,7 @@ export function PressDockDesktop({
           aria-label={tt(lang, "Contacto", "Contact")}
           title={tt(lang, "Contacto", "Contact")}
         >
-          <Mail className="h-4 w-4 opacity-85" />
+          <Mail className="h-4 w-4" />
         </button>
 
         <button
@@ -449,24 +387,74 @@ export function PressDockDesktop({
           aria-label={tt(lang, "Arriba", "Top")}
           title={tt(lang, "Arriba", "Top")}
         >
-          <ArrowUp className="h-4 w-4 opacity-85" />
+          <ArrowUp className="h-4 w-4" />
         </button>
       </div>
     </motion.div>
   );
 
+  // Beside the dock: type and year, plus search and who it is about when the
+  // rail stands in for the full panel.
+  const MorePanel = (
+    <motion.div
+      key="press-more"
+      role="group"
+      aria-label={tt(lang, "Filtros de prensa", "Press filters")}
+      initial={{ opacity: 0, x: -6 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -6 }}
+      transition={{ duration: 0.2, ease: EASE }}
+      className={cn(sidePanel, "absolute top-1 left-full ml-2 w-64 p-3.5 space-y-3")}
+    >
+      {rail ? (
+        <>
+          {searchField}
+          {identityChips}
+        </>
+      ) : null}
+
+      <FilterGroup label={tt(lang, "Tipo", "Type")}>
+        {(["all", "award", "mention"] as ItemKind[]).map((k) => (
+          <FilterChip key={k} size="sm" active={kind === k} onClick={() => setKind(k)}>
+            {kindLabel(k)}
+          </FilterChip>
+        ))}
+      </FilterGroup>
+
+      <FilterGroup label={tt(lang, "Año", "Year")}>
+        <FilterChip size="sm" active={year === "all"} onClick={() => setYear("all")}>
+          {tt(lang, "Todos", "All")}
+        </FilterChip>
+        {topYearPicks.map((y) => (
+          <FilterChip key={y} size="sm" active={year === y} onClick={() => setYear(y)}>
+            {y}
+          </FilterChip>
+        ))}
+      </FilterGroup>
+
+      {anyFiltersOn ? (
+        <button
+          type="button"
+          onClick={resetAll}
+          className={filterLink}
+        >
+          {tt(lang, "Limpiar filtros", "Clear filters")}
+        </button>
+      ) : null}
+    </motion.div>
+  );
+
   return (
     <nav
-      className="hidden md:block fixed left-3 lg:left-5 z-40 p-1 pointer-events-auto overflow-y-auto overscroll-contain"
-      // Scrolls within the space above the footer and the promo bar instead
-      // of running under them. The 4px padding (offset in top/left) keeps
-      // the card's outline inside the scroll edge.
-      style={{ top: 251, maxHeight: "calc(100vh - 251px - 72px - var(--olivea-banner-clear, 0px))" }}
+      ref={navRef}
+      className="hidden md:block fixed left-3 lg:left-5 z-40 p-1 pointer-events-auto"
+      style={{ top: DOCK_TOP }}
       aria-label="Press dock"
     >
       <Reveal distance={10} delay={0.25}>
-        {collapsed ? DesktopCollapsed : DesktopExpanded}
+        {rail ? DesktopCollapsed : DesktopExpanded}
       </Reveal>
+      <AnimatePresence>{moreOpen ? MorePanel : null}</AnimatePresence>
     </nav>
   );
 }

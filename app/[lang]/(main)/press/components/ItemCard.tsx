@@ -75,7 +75,7 @@ export default function ItemCard({
                   {identityLabel(lang, it.for)}
                 </span>
                 {it.section ? (
-                  <span className="opacity-85">{it.section}</span>
+                  <span>{it.section}</span>
                 ) : null}
               </div>
             </div>

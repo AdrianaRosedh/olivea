@@ -297,7 +297,7 @@ function CafePane({ lang, cafeHours }: { lang: "es" | "en"; cafeHours?: CafeHour
   const onCafePage = pathname === cafeHref || (lang === "es" && pathname === "/cafe");
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-12 pb-8">
+    <div className="olivea-scroll flex-1 min-h-0 overflow-y-auto px-6 pt-12 pb-8">
       <div className="mx-auto flex min-h-full w-full max-w-md flex-col items-center justify-center gap-6 text-center">
         {/* The invitation in the chooser's double olive frame, the emblem set
             into its top edge like a seal. */}
@@ -545,7 +545,7 @@ function HouseChoice({
 
   return (
     <div
-      className={`min-h-0 overflow-y-auto pt-2 ${
+      className={`olivea-scroll min-h-0 overflow-y-auto pt-2 ${
         isMobile ? "flex-1 px-4 pb-[max(env(safe-area-inset-bottom),24px)]" : "px-10 pb-6"
       }`}
       style={{

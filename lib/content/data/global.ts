@@ -85,13 +85,28 @@ const global: GlobalSettings = {
       venue: "casa",
       label: { es: "Casa Olivea", en: "Casa Olivea" },
       schedule: {
-        es: "Abierto a diario · reserva en línea",
-        en: "Open daily · book online",
+        es: "Recepción 7am–10pm · reserva en línea",
+        en: "Reception 7am–10pm · book online",
       },
       slots: [
-        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "00:00", closes: "23:59" },
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "07:00", closes: "22:00" },
       ],
+      checkinTime: "15:00",
+      checkoutTime: "11:00",
       sortOrder: 2,
+    },
+    {
+      id: "h4",
+      venue: "chat",
+      label: { es: "Chat", en: "Chat" },
+      schedule: {
+        es: "Todos los días 8:00–21:30",
+        en: "Daily 8:00 am – 9:30 pm",
+      },
+      slots: [
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "08:00", closes: "21:30" },
+      ],
+      sortOrder: 3,
     },
   ],
   socials: [

@@ -896,7 +896,7 @@ export default function TeamClient({
                           </div>
 
                           <div
-                            className="px-6 py-8 overflow-auto lg:pl-10"
+                            className="olivea-scroll px-6 py-8 overflow-auto lg:pl-10"
                             onWheelCapture={(e) => e.stopPropagation()}
                             style={{
                               WebkitOverflowScrolling: "touch",
@@ -1042,7 +1042,7 @@ export default function TeamClient({
 
                             {/* bio only scrolls */}
                             <div
-                              className="mt-6 flex-1 overflow-auto pr-2"
+                              className="olivea-scroll mt-6 flex-1 overflow-auto pr-2"
                               style={{
                                 WebkitOverflowScrolling: "touch",
                                 overscrollBehavior: "contain",

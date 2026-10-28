@@ -3,18 +3,27 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AnimatePresence,
   motion,
   useScroll,
   useMotionValueEvent,
 } from "framer-motion";
 import Image from "next/image";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tt, type Lang } from "@/lib/i18n";
-import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
-import { setModalOpen } from "@/components/ui/modalFlag";
 import Reveal from "@/components/scroll/Reveal";
+import {
+  DOCK_TOP,
+  DockHeader,
+  dockIconButton,
+  dockShell,
+  FilterBar,
+  FilterButton,
+  FilterChip,
+  FilterGroup,
+  FilterSheet,
+  filterLabel,
+} from "@/components/ui/filters/FilterKit";
 
 export type TeamCategory = "all" | "hotel" | "restaurant" | "cafe";
 
@@ -49,6 +58,7 @@ export default function TeamDockLeft({
      ========================= */
 
   const [sheetOpen, setSheetOpen] = useState(false);
+  const closeSheet = useCallback(() => setSheetOpen(false), []);
 
   const { scrollY } = useScroll();
   const lastY = useRef<number>(0);
@@ -94,156 +104,46 @@ export default function TeamDockLeft({
     }
   });
 
-  useEffect(() => {
-    if (!sheetOpen) return;
-
-    setModalOpen(true);
-    lockBodyScroll();
-
-    return () => {
-      unlockBodyScroll();
-      setModalOpen(false);
-    };
-  }, [sheetOpen]);
-
-  const TOP_OFFSET_CLASS = "top-14";
-  const BAR_HEIGHT_SPACER = "h-16";
-
-  const chipBaseMobile = cn(
-    "px-3 py-2 rounded-full text-[13px] leading-none transition",
-    "ring-1 ring-(--olivea-olive)/14",
-    "bg-white/14 text-(--olivea-olive)",
-    "hover:bg-white/24 hover:text-(--olivea-olive) hover:opacity-100"
-  );
-
-  const chipActiveMobile = cn(
-    "px-3 py-2 rounded-full text-[13px] leading-none transition",
-    "ring-1 ring-(--olivea-olive)/26",
-    "bg-white/75 ring-(--olivea-olive)/45 text-(--olivea-olive) font-medium"
-  );
-
   const mobileBar = (
     <>
-      <div className={cn("md:hidden", BAR_HEIGHT_SPACER)} />
+      <div className="md:hidden h-16" />
 
-      <motion.div
-        className={cn("md:hidden fixed left-0 right-0 z-210", TOP_OFFSET_CLASS, "pointer-events-none")}
-        animate={barHidden ? "hidden" : "show"}
-        variants={{ show: { y: 0, opacity: 1 }, hidden: { y: -48, opacity: 0 } }}
-        transition={{ duration: barHidden ? 0.38 : 0.18, ease: EASE }}
-      >
-        <div className="px-3 pt-2 pointer-events-auto">
-          <div
-            className={cn(
-              "rounded-2xl",
-              "bg-(--olivea-cream)/72 backdrop-blur-md",
-              "ring-1 ring-(--olivea-olive)/14",
-              "shadow-[0_10px_30px_rgba(18,24,16,0.10)]"
-            )}
-          >
-            <div className="px-3 py-2 flex items-center gap-2">
-              <div className="min-w-0 flex-1">
-                <div className="text-[11px] uppercase tracking-[0.24em] text-(--olivea-olive)">
-                  {tt(lang, "Equipo", "Team")}
-                </div>
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="text-[13px] text-(--olivea-olive) font-medium truncate">
-                    {label(category)}
-                  </span>
-                  <span className="text-[12px] text-(--olivea-olive)">{count}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSheetOpen(true)}
-                className={cn(
-                  "inline-flex items-center justify-center",
-                  "h-10 w-10 rounded-full",
-                  "bg-(--olivea-cream)/60 ring-1 ring-(--olivea-olive)/14 backdrop-blur-md",
-                  "text-(--olivea-olive) hover:bg-white/45 transition"
-                )}
-                aria-label={tt(lang, "Filtros", "Filters")}
-                title={tt(lang, "Filtros", "Filters")}
-              >
-                <SlidersHorizontal className="h-4 w-4 opacity-80" />
-              </button>
-            </div>
+      <FilterBar hidden={barHidden} className="md:hidden z-210 top-14">
+        <div className="min-w-0 flex-1 px-1">
+          <div className={filterLabel}>{tt(lang, "Equipo", "Team")}</div>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="truncate text-[13px] font-medium text-(--olivea-olive)">{label(category)}</span>
+            <span className="text-[12px] text-(--olivea-olive)">{count}</span>
           </div>
         </div>
+        <FilterButton
+          onClick={() => setSheetOpen(true)}
+          label={tt(lang, "Filtros", "Filters")}
+          activeCount={category === "all" ? 0 : 1}
+        />
+      </FilterBar>
 
-        <AnimatePresence>
-          {sheetOpen ? (
-            <>
-              <motion.button
-                type="button"
-                className="fixed inset-0 z-220 bg-black/25 pointer-events-auto"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setSheetOpen(false)}
-                aria-label={tt(lang, "Cerrar", "Close")}
-              />
-
-              <motion.div
-                className={cn(
-                  "fixed z-221 left-0 right-0 bottom-0 pointer-events-auto",
-                  "rounded-t-3xl",
-                  "bg-(--olivea-cream)/72 backdrop-blur-md",
-                  "ring-1 ring-(--olivea-olive)/14",
-                  "shadow-[0_-16px_40px_rgba(18,24,16,0.18)]"
-                )}
-                initial={{ y: 420, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 420, opacity: 0 }}
-                transition={{ duration: 0.28, ease: EASE }}
-                role="dialog"
-                aria-modal="true"
-              >
-                <div className="px-4 pt-3 pb-4">
-                  <div className="mx-auto h-1 w-10 rounded-full bg-(--olivea-olive)/15" />
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[12px] uppercase tracking-[0.30em] text-(--olivea-olive)">
-                      {tt(lang, "Filtros", "Filters")}
-                    </span>
-
-                    <button
-                      type="button"
-                      onClick={() => setSheetOpen(false)}
-                      className={cn(
-                        "inline-flex items-center justify-center",
-                        "h-9 w-9 rounded-full",
-                        "bg-white/40 ring-1 ring-(--olivea-olive)/14",
-                        "text-(--olivea-olive) hover:bg-white/55 transition"
-                      )}
-                      aria-label={tt(lang, "Cerrar", "Close")}
-                    >
-                      <X className="h-4 w-4 opacity-80" />
-                    </button>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-2 pb-[max(12px,env(safe-area-inset-bottom))]">
-                    {chips.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => {
-                          setCategory(c);
-                          setSheetOpen(false);
-                        }}
-                        className={category === c ? chipActiveMobile : chipBaseMobile}
-                      >
-                        {label(c)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </>
-          ) : null}
-        </AnimatePresence>
-      </motion.div>
+      <FilterSheet
+        open={sheetOpen}
+        onClose={closeSheet}
+        title={tt(lang, "Filtros", "Filters")}
+        closeLabel={tt(lang, "Cerrar", "Close")}
+      >
+        <FilterGroup label={tt(lang, "Casa", "House")}>
+          {chips.map((c) => (
+            <FilterChip
+              key={c}
+              active={category === c}
+              onClick={() => {
+                setCategory(c);
+                closeSheet();
+              }}
+            >
+              {label(c)}
+            </FilterChip>
+          ))}
+        </FilterGroup>
+      </FilterSheet>
     </>
   );
 
@@ -377,49 +277,44 @@ export default function TeamDockLeft({
   const desktopDock = (
     <nav
       className="hidden md:block fixed left-4 lg:left-6 z-40 pointer-events-auto"
-      style={{ top: 250 }}
+      style={{ top: DOCK_TOP }}
       aria-label="Team filter"
     >
       <Reveal distance={10} delay={0.25}>
         <motion.div
-          animate={{ width: collapsed ? 56 : 188 }}
+          animate={{ width: collapsed ? 56 : 196 }}
           transition={{ duration: 0.26, ease: EASE }}
-          className={cn(
-            "rounded-3xl",
-            "bg-(--olivea-cream)/55 backdrop-blur-md",
-            "ring-1 ring-(--olivea-olive)/14",
-            "shadow-[0_10px_28px_rgba(18,24,16,0.10)]"
-          )}
+          className={dockShell}
           style={{ overflow: "hidden" }}
         >
           {/* header */}
-          <div className={cn("flex items-center", collapsed ? "justify-center p-2.5" : "justify-between px-3 py-3")}>
-            {!collapsed ? (
-              <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.28em] text-(--olivea-olive)">
-                  {tt(lang, "Filtro", "Filter")}
-                </div>
-                <div className="mt-1 text-[10px] text-(--olivea-olive)">
-                  {count} {tt(lang, "personas", "people")}
-                </div>
-              </div>
-            ) : null}
-
-            <button
-              type="button"
-              onClick={toggleCollapsed}
-              className={cn(
-                "inline-flex items-center justify-center",
-                "h-10 w-10 rounded-2xl",
-                "bg-white/22 ring-1 ring-(--olivea-olive)/14",
-                "text-(--olivea-olive) hover:bg-white/35 transition"
-              )}
-              aria-label={collapsed ? tt(lang, "Expandir", "Expand") : tt(lang, "Colapsar", "Collapse")}
-              title={collapsed ? tt(lang, "Expandir", "Expand") : tt(lang, "Colapsar", "Collapse")}
-            >
-              <SlidersHorizontal className="h-4 w-4 opacity-85" />
-            </button>
-          </div>
+          {collapsed ? (
+            <div className="flex justify-center p-2.5">
+              <button
+                type="button"
+                onClick={toggleCollapsed}
+                className={dockIconButton}
+                aria-label={tt(lang, "Expandir", "Expand")}
+                title={tt(lang, "Expandir", "Expand")}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="px-3 py-3">
+              <DockHeader stacked label={tt(lang, "Equipo", "Team")} meta={`${count} ${tt(lang, "personas", "people")}`}>
+                <button
+                  type="button"
+                  onClick={toggleCollapsed}
+                  className={dockIconButton}
+                  aria-label={tt(lang, "Colapsar", "Collapse")}
+                  title={tt(lang, "Colapsar", "Collapse")}
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                </button>
+              </DockHeader>
+            </div>
+          )}
 
           {/* pills */}
           <div className={cn(collapsed ? "px-2 pb-3" : "px-3 pb-3")}>
@@ -430,7 +325,7 @@ export default function TeamDockLeft({
             </div>
 
             {!collapsed ? (
-              <div className="mt-3 text-[10.5px] text-(--olivea-olive) leading-snug">
+              <div className="mt-3 text-[11px] text-(--olivea-olive) leading-snug">
                 {tt(lang, "Incluye a los líderes en cada filtro.", "Includes the leaders in every filter.")}
               </div>
             ) : null}
