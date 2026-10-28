@@ -258,7 +258,15 @@ export interface ContactContent {
   labels: {
     address: Bilingual;
     email: Bilingual;
+    phone?: Bilingual;
+    hours?: Bilingual;
+    events?: Bilingual;
+    faqHeading?: Bilingual;
   };
+  /** Answers may contain {hours}, {address}, {email}, {phone} and
+   *  {restaurantPhone}, filled from /admin/hours, site settings and the
+   *  restaurant's Google listing. Edited in /admin → Contact. */
+  faq?: PageFaqEntry[];
   sections: {
     farmToTableTitle: Bilingual;
     cafeTitle: Bilingual;

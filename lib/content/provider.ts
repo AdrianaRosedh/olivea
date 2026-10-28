@@ -430,6 +430,7 @@ class SupabaseContentSource implements ContentSource {
       sections: r.sections as ContactContent["sections"],
       footerNote: r.footer_note as ContactContent["footerNote"],
       map: r.map as ContactContent["map"],
+      faq: (r.faq ?? undefined) as ContactContent["faq"],
     };
   }
 

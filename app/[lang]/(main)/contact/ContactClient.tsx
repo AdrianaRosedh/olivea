@@ -28,7 +28,7 @@ type Props = {
   lang: Lang;
   t: ContactDict;
   /** Admin-editable via global_settings.contact_info (Supabase). */
-  contactInfo: { email: string; phone: string; restaurantPhone: string };
+  contactInfo: { email: string; phone: string; restaurantPhone: string; address: string; mapsUrl: string };
 };
 
 /** "+52 646 388 2369" → "tel:+526463882369" */
@@ -45,8 +45,8 @@ function formatLocalPhone(phone: string) {
 
 export default function ContactClient({ lang, t, contactInfo }: Props) {
 
-  const address = "Carretera Ensenada-Tecate Km 92.5, 22766 Villa de Juárez, Baja California";
-  const mapsUrl = "https://maps.app.goo.gl/oySkL6k7G7t5VFus5";
+  // Site settings (/admin → Brand & Identity → contact info).
+  const { address, mapsUrl } = contactInfo;
   const email = contactInfo.email;
   const mainTel = telHref(contactInfo.phone);
 

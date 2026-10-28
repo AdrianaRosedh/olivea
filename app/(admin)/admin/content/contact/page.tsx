@@ -8,6 +8,9 @@ import {
   useEditor,
   MetaSection,
   EditableBilingual,
+  EditableFAQ,
+  storedToEditorFaq,
+  editorToStoredFaq
 } from "@/components/admin/visual-editor";
 import { useAdminLocale } from "@/lib/admin/i18n";
 
@@ -89,6 +92,10 @@ function ContactVisual() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <EditableBilingual label={{ es: "Etiqueta de dirección", en: "Address Label" }} as="span" value={labels.address ?? { es: "", en: "" }} onChange={(v) => set("labels.address", v)} className="text-sm text-stone-600" />
           <EditableBilingual label={{ es: "Etiqueta de correo", en: "Email Label" }} as="span" value={labels.email ?? { es: "", en: "" }} onChange={(v) => set("labels.email", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Etiqueta de teléfono", en: "Phone Label" }} as="span" value={labels.phone ?? { es: "", en: "" }} onChange={(v) => set("labels.phone", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Etiqueta de horario", en: "Hours Label" }} as="span" value={labels.hours ?? { es: "", en: "" }} onChange={(v) => set("labels.hours", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Título de eventos especiales", en: "Special Events Heading" }} as="span" value={labels.events ?? { es: "", en: "" }} onChange={(v) => set("labels.events", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Título de preguntas frecuentes", en: "FAQ Heading" }} as="span" value={labels.faqHeading ?? { es: "", en: "" }} onChange={(v) => set("labels.faqHeading", v)} className="text-sm text-stone-600" />
         </div>
       </section>
 
@@ -120,6 +127,22 @@ function ContactVisual() {
           className="text-sm text-stone-600 italic leading-relaxed"
           multiline
           placeholder={t({ es: "Texto de la nota al pie…", en: "Footer note text..." })}
+        />
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────── */}
+      <section className="space-y-2">
+        <p className="text-xs text-stone-500 leading-relaxed">
+          {t({
+            es: "En las respuestas puedes escribir {hours}, {address}, {email}, {phone} o {restaurantPhone}: se llenan solos con Horarios, la información de contacto y la ficha de Google del restaurante. Si falta el dato, esa pregunta no se muestra.",
+            en: "Answers can use {hours}, {address}, {email}, {phone} or {restaurantPhone}: they fill in from Operating Hours, the contact info and the restaurant's Google listing. If the value is missing, that question is left out.",
+          })}
+        </p>
+        <EditableFAQ
+          label={{ es: "Preguntas frecuentes", en: "FAQ" }}
+          value={storedToEditorFaq(get("faq"))}
+          onChange={(entries) => set("faq", editorToStoredFaq(entries))}
+          collapsed={false}
         />
       </section>
 
