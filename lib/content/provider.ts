@@ -436,6 +436,7 @@ class SupabaseContentSource implements ContentSource {
       tagline: r.tagline as GlobalSettings["tagline"],
       defaultLocale: r.default_locale as "es" | "en",
       contactInfo: r.contact_info as GlobalSettings["contactInfo"],
+      organization: (r.organization ?? undefined) as GlobalSettings["organization"],
       hours: r.hours as GlobalSettings["hours"],
       socials: r.socials as GlobalSettings["socials"],
       defaultOgImage: r.default_og_image as string,

@@ -1,10 +1,11 @@
 "use client";
 
+import type { OrganizationListing } from "@/lib/content/types";
 import { Globe } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import globalContent from "@/lib/content/data/global";
 import { useAdminLocale } from "@/lib/admin/i18n";
-import { VisualPageEditor, useEditor, EditableBilingual, EditableImage, EditableJSON } from "@/components/admin/visual-editor";
+import { VisualPageEditor, useEditor, EditableBilingual, EditableImage, EditableJSON, OrganizationListingCard } from "@/components/admin/visual-editor";
 
 function GlobalVisual() {
   const { get, set } = useEditor();
@@ -66,6 +67,11 @@ function GlobalVisual() {
           />
         </div>
       </section>
+
+      <OrganizationListingCard
+        value={get("organization") as OrganizationListing | undefined}
+        onChange={(v) => set("organization", v)}
+      />
 
       {/* Structured data */}
       <EditableJSON label={t({ es: "Información de contacto", en: "Contact Info" })} value={get("contactInfo")} onChange={(v) => set("contactInfo", v)} rows={8} collapsed />

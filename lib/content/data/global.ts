@@ -10,6 +10,33 @@ const global: GlobalSettings = {
     en: "Where the garden is the essence.",
   },
   defaultLocale: "es",
+  // Fallback for global_settings.organization — edit in Brand & Identity.
+  organization: {
+    "alternateName": "Familia Olivea",
+    "description": "Farm hospitality in Valle de Guadalupe, Baja California — MICHELIN-starred restaurant, farm stay, and café born from a working garden.",
+    "telephone": "+52 646 383 6402",
+    "areaServed": "Valle de Guadalupe, Ensenada, Baja California, Mexico",
+    "knowsAbout": [
+      "Farm hospitality",
+      "Farm-to-table dining",
+      "Agritourism",
+      "Valle de Guadalupe wine region",
+      "Baja California gastronomy",
+      "Fermentation and koji",
+      "In-house mushroom cultivation",
+      "Bread and pastry"
+    ],
+    "sameAs": [
+      "https://www.instagram.com/oliveafarmtotable",
+      "https://www.instagram.com/oliveacafewine",
+      "https://www.instagram.com/casaolivea",
+      "https://www.facebook.com/oliveafarmtotable",
+      "https://www.facebook.com/oliveacafe",
+      "https://www.facebook.com/casaolivea",
+      "https://www.youtube.com/grupoolivea",
+      "https://www.tiktok.com/@familiaolivea"
+    ]
+  },
   contactInfo: {
     address: {
       es: "Carretera Ensenada-Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, México",

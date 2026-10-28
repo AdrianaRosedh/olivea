@@ -10,13 +10,6 @@ type Recognition = {
   url?: string;
 };
 
-// ✅ Google Maps entity anchors (your URLs)
-const GOOGLE_MAPS = {
-  restaurant: "https://maps.app.goo.gl/c2RsfNfQom2Jg73P7",
-  hotel: "https://maps.app.goo.gl/CnKY7KYNN5yxYtfi8",
-  cafe: "https://maps.app.goo.gl/gYH1qsUourCZqXiX6",
-};
-
 // ✅ Official sources, shared with the press page (lib/michelin.ts)
 
 const RECOGNITION: Recognition[] = [
@@ -65,6 +58,47 @@ export default async function StructuredDataServer() {
   // Opening hours are admin-editable via global_settings → JSON-LD stays in
   // sync without a developer. There is no fallback; see hoursOf below.
   const settings = await getContent("global").catch(() => null);
+
+  // Each house's Google listing (description, phone, price, Maps link,
+  // cuisines, amenities) and Olivea's own entry are edited in /admin — the
+  // "Google listing" card on each house page, and Brand & Identity. Same rule
+  // as hours below: a field left empty is omitted, never invented.
+  const [fttContent, casaContent, cafeContent] = await Promise.all([
+    getContent("farmtotable").catch(() => null),
+    getContent("casa").catch(() => null),
+    getContent("cafe").catch(() => null),
+  ]);
+  const listing = {
+    restaurant: fttContent?.listing ?? {},
+    hotel: casaContent?.listing ?? {},
+    cafe: cafeContent?.listing ?? {},
+  };
+  const org = settings?.organization ?? {};
+
+  /** "+52 646 383 6402" → "+52-6463836402"; other numbers as "+<digits>". */
+  const tel = (phone?: string) => {
+    const d = phone?.replace(/\D/g, "") ?? "";
+    if (!d) return undefined;
+    return d.startsWith("52") && d.length === 12 ? `+52-${d.slice(2)}` : `+${d}`;
+  };
+  /** { key: value } when the value is set (non-empty string or list), else {}. */
+  const opt = (key: string, value: unknown) =>
+    value === undefined || value === "" || (Array.isArray(value) && value.length === 0)
+      ? {}
+      : { [key]: value };
+  const amenities = (names?: string[]) =>
+    opt(
+      "amenityFeature",
+      (names ?? []).filter(Boolean).map((name) => ({
+        "@type": "LocationFeatureSpecification",
+        name,
+        value: true,
+      })),
+    );
+  const maps = (url: string | undefined, ...more: string[]) => ({
+    ...opt("hasMap", url),
+    ...opt("sameAs", [url, ...more].filter(Boolean)),
+  });
   const toSpecs = (venue: string) => {
     const slots = settings?.hours?.find((h) => h.venue === venue)?.slots;
     if (!slots?.length) return null;
@@ -135,8 +169,8 @@ export default async function StructuredDataServer() {
       "@type": "Organization",
       "@id": ENTITY_IDS.organization,
       name: "Olivea",
-      alternateName: "Familia Olivea",
-      description: "Farm hospitality in Valle de Guadalupe, Baja California — MICHELIN-starred restaurant, farm stay, and café born from a working garden.",
+      ...opt("alternateName", org.alternateName),
+      ...opt("description", org.description),
       url: base,
       logo: {
         "@type": "ImageObject",
@@ -150,37 +184,20 @@ export default async function StructuredDataServer() {
         { "@id": ENTITY_IDS.hotel },
         { "@id": ENTITY_IDS.cafe },
       ],
-      sameAs: [
-        "https://www.instagram.com/oliveafarmtotable",
-        "https://www.instagram.com/oliveacafewine",
-        "https://www.instagram.com/casaolivea",
-        "https://www.facebook.com/oliveafarmtotable",
-        "https://www.facebook.com/oliveacafe",
-        "https://www.facebook.com/casaolivea",
-        "https://www.youtube.com/grupoolivea",
-        "https://www.tiktok.com/@familiaolivea",
-      ],
-      contactPoint: {
-        "@type": "ContactPoint",
-        telephone: "+52-6463836402",
-        contactType: "Customer Service",
-        availableLanguage: ["Spanish", "English"],
-      },
+      ...opt("sameAs", org.sameAs),
+      ...(tel(org.telephone)
+        ? {
+            contactPoint: {
+              "@type": "ContactPoint",
+              telephone: tel(org.telephone),
+              contactType: "Customer Service",
+              availableLanguage: ["Spanish", "English"],
+            },
+          }
+        : {}),
       // ✅ Location context for regional SEO
-      areaServed: {
-        "@type": "Place",
-        name: "Valle de Guadalupe, Ensenada, Baja California, Mexico",
-      },
-      knowsAbout: [
-        "Farm hospitality",
-        "Farm-to-table dining",
-        "Agritourism",
-        "Valle de Guadalupe wine region",
-        "Baja California gastronomy",
-        "Fermentation and koji",
-        "In-house mushroom cultivation",
-        "Bread and pastry",
-      ],
+      ...(org.areaServed ? { areaServed: { "@type": "Place", name: org.areaServed } } : {}),
+      ...opt("knowsAbout", org.knowsAbout),
       // ✅ Key people as linked Person entities (resolve to /team/<id> pages)
       founder: {
         "@type": "Person",
@@ -251,19 +268,20 @@ export default async function StructuredDataServer() {
       "@type": "Restaurant",
       "@id": ENTITY_IDS.restaurant,
       name: "Olivea Farm To Table",
-      alternateName: "Olivea FTT",
-      description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe holistic tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. It grows its own mushrooms on the property and works with koji and its own ferments in its own laboratory. The fine-dining heart of Olivea; the casual daytime café (Olivea Café Wine Bar) and the farm stay (Casa Olivea) share the same property.",
+      ...opt("alternateName", listing.restaurant.alternateName),
+      ...opt("description", listing.restaurant.description),
       // ✅ Google's dining-style hints. schema.org has no "fine dining" type, so
       // the tier is carried by priceRange ($$$$), the description, cuisine, and
       // these keywords — kept unambiguous so Search/AI never read it as casual.
-      keywords: "fine dining, alta cocina, MICHELIN Star, holistic menu, menú holístico, tasting menu, menú degustación, prix fixe, farm-to-table, del huerto, reservation only, Valle de Guadalupe",
+      ...opt("keywords", listing.restaurant.keywords),
       url: canonicalUrl("/es/farmtotable"),
       mainEntityOfPage: canonicalUrl("/es/farmtotable"),
-      telephone: "+52-6463836402",
+      ...opt("telephone", tel(listing.restaurant.telephone)),
       image: canonicalUrl("/images/seo/farm-og.jpg"),
       address: commonAddress,
       geo,
-      servesCuisine: ["Fine dining", "Tasting menu", "Farm-to-table", "Contemporary Mexican", "Baja California"],
+      ...opt("servesCuisine", listing.restaurant.servesCuisine),
+      ...amenities(listing.restaurant.amenities),
       // ✅ menu — the property Google documents for food establishments (menu URL)
       menu: canonicalUrl("/es/menu"),
       // ✅ containsPlace + parentOrganization for entity graph
@@ -272,11 +290,9 @@ export default async function StructuredDataServer() {
         { "@id": ENTITY_IDS.cafe },
       ],
       parentOrganization: { "@id": ENTITY_IDS.organization },
-      // Fine dining — top price tier. Was "$$$" (upscale-casual), which
-      // undersold a One-MICHELIN-Star prix-fixe tasting-menu restaurant.
-      priceRange: "$$$$",
-      hasMap: GOOGLE_MAPS.restaurant,
-      sameAs: [GOOGLE_MAPS.restaurant, MICHELIN.restaurant],
+      // Fine dining — top price tier ($$$$); "$$$" reads as upscale-casual.
+      ...opt("priceRange", listing.restaurant.priceRange),
+      ...maps(listing.restaurant.mapsUrl, MICHELIN.restaurant),
       acceptsReservations: true,
       // ✅ chef as an entity — common AI query for a MICHELIN restaurant
       employee: {
@@ -319,25 +335,19 @@ export default async function StructuredDataServer() {
       additionalType: "https://schema.org/Resort",
       "@id": ENTITY_IDS.hotel,
       name: "Casa Olivea",
-      description: "The complete Olivea experience — a farm stay that brings together the One-MICHELIN-Star Olivea Farm To Table restaurant, the casual Olivea Café Wine Bar, and the working garden into a single stay in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
+      ...opt("description", listing.hotel.description),
       url: canonicalUrl("/es/casa"),
       mainEntityOfPage: canonicalUrl("/es/casa"),
-      telephone: "+52-6463882369",
+      ...opt("telephone", tel(listing.hotel.telephone)),
       image: canonicalUrl("/images/seo/casa-og.jpg"),
       address: commonAddress,
       geo,
-      priceRange: "$$$",
-      hasMap: GOOGLE_MAPS.hotel,
-      sameAs: [GOOGLE_MAPS.hotel, MICHELIN.hotel],
+      ...opt("priceRange", listing.hotel.priceRange),
+      ...maps(listing.hotel.mapsUrl, MICHELIN.hotel),
       subjectOf: recognitionWorks,
       containedInPlace: { "@id": ENTITY_IDS.restaurant },
       parentOrganization: { "@id": ENTITY_IDS.organization },
-      amenityFeature: [
-        { "@type": "LocationFeatureSpecification", name: "Working garden", value: true },
-        { "@type": "LocationFeatureSpecification", name: "Farm-to-table restaurant", value: true },
-        { "@type": "LocationFeatureSpecification", name: "Specialty café", value: true },
-        { "@type": "LocationFeatureSpecification", name: "In-room coffee machine", value: true },
-      ],
+      ...amenities(listing.hotel.amenities),
       ...hoursOf("casa"),
       ...stayTimesOf("casa"),
     },
@@ -347,25 +357,19 @@ export default async function StructuredDataServer() {
       "@type": ["CafeOrCoffeeShop", "BarOrPub"],
       "@id": ENTITY_IDS.cafe,
       name: "Olivea Café Wine Bar",
-      description: "Café and wine bar on Olivea's working-garden property in Valle de Guadalupe, Baja California, open every day, walk-in. Specialty coffee; croissants, conchas, pastries and seasonal breads from its own bakery; breakfast and brunch; Valle de Guadalupe and Baja California wine by the glass and tapas from the garden in the afternoon; its own ferments, shared with Olivea Farm To Table. Lounge sofas look out over the garden, which guests can walk through. The relaxed counterpart to the One-MICHELIN-Star Olivea Farm To Table restaurant.",
-      keywords: "café, wine bar, specialty coffee, bakery, panadería, croissants, conchas, seasonal bread, brunch, breakfast, Valle de Guadalupe wine, Baja California wine, lounge, garden, walk-in, cafetería",
+      ...opt("description", listing.cafe.description),
+      ...opt("keywords", listing.cafe.keywords),
       url: canonicalUrl("/es/cafe"),
       mainEntityOfPage: canonicalUrl("/es/cafe"),
-      telephone: "+52-6463882369",
+      ...opt("telephone", tel(listing.cafe.telephone)),
       image: canonicalUrl("/images/seo/cafe-og.jpg"),
       address: commonAddress,
       geo,
-      servesCuisine: ["Coffee", "Bakery", "Pastries", "Breakfast", "Brunch", "Wine", "Mexican"],
-      amenityFeature: [
-        { "@type": "LocationFeatureSpecification", name: "Lounge with sofas", value: true },
-        { "@type": "LocationFeatureSpecification", name: "Garden views", value: true },
-        { "@type": "LocationFeatureSpecification", name: "Walk through the working garden", value: true },
-        { "@type": "LocationFeatureSpecification", name: "In-house bakery", value: true },
-      ],
+      ...opt("servesCuisine", listing.cafe.servesCuisine),
+      ...amenities(listing.cafe.amenities),
       menu: canonicalUrl("/es/menu"),
-      priceRange: "$$",
-      hasMap: GOOGLE_MAPS.cafe,
-      sameAs: [GOOGLE_MAPS.cafe],
+      ...opt("priceRange", listing.cafe.priceRange),
+      ...maps(listing.cafe.mapsUrl),
       subjectOf: recognitionWorks,
       // ✅ Café is also contained in the restaurant property
       containedInPlace: { "@id": ENTITY_IDS.restaurant },

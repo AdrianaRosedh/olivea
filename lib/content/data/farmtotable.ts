@@ -26,6 +26,22 @@ const farmtotable: FarmToTableContent = {
       es: "Menú holístico con estrella MICHELIN, nacido del huerto.",
     },
   },
+  listing: {
+    alternateName: "Olivea FTT",
+    amenities: [],
+    description: "One MICHELIN Star fine-dining restaurant serving a single prix-fixe holistic tasting menu born from its own working garden — by reservation only, in Valle de Guadalupe, Baja California. It grows its own mushrooms on the property and works with koji and its own ferments in its own laboratory. The fine-dining heart of Olivea; the casual daytime café (Olivea Café Wine Bar) and the farm stay (Casa Olivea) share the same property.",
+    keywords: "fine dining, alta cocina, MICHELIN Star, holistic menu, menú holístico, tasting menu, menú degustación, prix fixe, farm-to-table, del huerto, reservation only, Valle de Guadalupe",
+    mapsUrl: "https://maps.app.goo.gl/c2RsfNfQom2Jg73P7",
+    priceRange: "$$$$",
+    servesCuisine: [
+      "Fine dining",
+      "Tasting menu",
+      "Farm-to-table",
+      "Contemporary Mexican",
+      "Baja California",
+    ],
+    telephone: "+52 646 383 6402",
+  },
   meta: {
     description: {
       en: "One MICHELIN Star and Green Star restaurant in Valle de Guadalupe: a holistic tasting menu born from our own garden, our own mushrooms, and a fermentation and koji laboratory. By reservation only.",

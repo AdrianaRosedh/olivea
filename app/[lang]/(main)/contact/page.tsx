@@ -14,22 +14,24 @@ import { contactFaq } from "./faq";
 import ContactClient from "./ContactClient";
 
 // Confirmed with ownership (June 2026): main contact is the Casa line.
-// Farm To Table's direct line (646 383 6402) is separate and stays in the
-// component. The CMS (global_settings.contact_info) can override these.
+// Farm To Table's direct line is separate: it is the phone in the restaurant's
+// Google listing (/admin → Olivea Farm to Table → Google listing). The CMS
+// (global_settings.contact_info) holds the main line.
 const FALLBACK_CONTACT = {
   email: "hola@casaolivea.com",
   phone: "+52 646 388 2369",
+  restaurantPhone: "+52 646 383 6402",
 };
 
 async function loadContactInfo() {
-  try {
-    const g = await getContent("global");
-    const email = g?.contactInfo?.email?.trim();
-    const phone = g?.contactInfo?.phone?.trim();
-    if (email && phone) return { email, phone };
-  } catch {
-    // fall through to static values
-  }
+  const [g, ftt] = await Promise.all([
+    getContent("global").catch(() => null),
+    getContent("farmtotable").catch(() => null),
+  ]);
+  const email = g?.contactInfo?.email?.trim();
+  const phone = g?.contactInfo?.phone?.trim();
+  const restaurantPhone = ftt?.listing?.telephone?.trim() || FALLBACK_CONTACT.restaurantPhone;
+  if (email && phone) return { email, phone, restaurantPhone };
   return FALLBACK_CONTACT;
 }
 import ArticleEn from "./ArticleEn";

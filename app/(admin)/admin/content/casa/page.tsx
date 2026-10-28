@@ -1,5 +1,6 @@
 "use client";
 
+import type { BusinessListing } from "@/lib/content/types";
 import { Home, FileCode2, ExternalLink } from "lucide-react";
 import { newFaqId } from "@/lib/seo/faq";
 import { asFaqTopic } from "@/lib/faqTopics";
@@ -15,6 +16,7 @@ import {
   EditableSections,
   EditableJSON,
   EditableFAQ,
+  GoogleListingCard,
 } from "@/components/admin/visual-editor";
 
 interface SectionShape {
@@ -114,6 +116,11 @@ function CasaVisual() {
         <EditableBilingual label={{ es: "Título SEO", en: "Meta Title" }} as="small" value={meta?.title ?? { es: "", en: "" }} onChange={(v) => set("meta.title", v)} className="text-sm text-stone-600" />
         <EditableBilingual label={{ es: "Descripción SEO", en: "Meta Description" }} as="small" value={meta?.description ?? { es: "", en: "" }} onChange={(v) => set("meta.description", v)} className="text-sm text-stone-600" multiline />
       </MetaSection>
+
+      <GoogleListingCard
+        value={get("listing") as BusinessListing | undefined}
+        onChange={(v) => set("listing", v)}
+      />
 
       <section className="relative rounded-2xl overflow-hidden">
         <EditableImage

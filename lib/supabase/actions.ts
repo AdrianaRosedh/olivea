@@ -490,16 +490,21 @@ const pageRevalidations: Record<PageTable, string[]> = {
 // (/llms.txt) quotes their FAQs and facts. Not pinged to IndexNow — the
 // edited page is.
 const AI_SUMMARY = ["/llms.txt", "/llms-full.txt"];
+// The houses' Google listing (structured data) renders in both site layouts,
+// so a house save refreshes every page ("layout:/").
 const derivedRevalidations: Partial<Record<PageTable, string[]>> = {
-  farmtotable_content: ["/es", "/en", "/es/menu", "/en/menu", ...AI_SUMMARY],
-  casa_content: ["/es", "/en", ...AI_SUMMARY],
-  cafe_content: ["/es", "/en", "/es/menu", "/en/menu", ...AI_SUMMARY],
+  farmtotable_content: ["layout:/", ...AI_SUMMARY],
+  casa_content: ["layout:/", ...AI_SUMMARY],
+  cafe_content: ["layout:/", ...AI_SUMMARY],
   sustainability_content: AI_SUMMARY,
   team_content: AI_SUMMARY,
 };
 
 function revalidateDerived(table: PageTable) {
-  for (const path of derivedRevalidations[table] ?? []) revalidatePath(path);
+  for (const path of derivedRevalidations[table] ?? []) {
+    if (path.startsWith("layout:")) revalidatePath(path.slice("layout:".length), "layout");
+    else revalidatePath(path);
+  }
 }
 
 // Which sections may read / write each page document (see requireSections).

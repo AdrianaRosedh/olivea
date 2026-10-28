@@ -26,6 +26,28 @@ const cafe: CafeContent = {
       es: "Café de casa, pan y mañanas sin prisa en Valle de Guadalupe.",
     },
   },
+  listing: {
+    amenities: [
+      "Lounge with sofas",
+      "Garden views",
+      "Walk through the working garden",
+      "In-house bakery",
+    ],
+    description: "Café and wine bar on Olivea's working-garden property in Valle de Guadalupe, Baja California, open every day, walk-in. Specialty coffee; croissants, conchas, pastries and seasonal breads from its own bakery; breakfast and brunch; Valle de Guadalupe and Baja California wine by the glass and tapas from the garden in the afternoon; its own ferments, shared with Olivea Farm To Table. Lounge sofas look out over the garden, which guests can walk through. The relaxed counterpart to the One-MICHELIN-Star Olivea Farm To Table restaurant.",
+    keywords: "café, wine bar, specialty coffee, bakery, panadería, croissants, conchas, seasonal bread, brunch, breakfast, Valle de Guadalupe wine, Baja California wine, lounge, garden, walk-in, cafetería",
+    mapsUrl: "https://maps.app.goo.gl/gYH1qsUourCZqXiX6",
+    priceRange: "$$",
+    servesCuisine: [
+      "Coffee",
+      "Bakery",
+      "Pastries",
+      "Breakfast",
+      "Brunch",
+      "Wine",
+      "Mexican",
+    ],
+    telephone: "+52 646 388 2369",
+  },
   meta: {
     description: {
       en: "Specialty coffee, croissants, conchas and seasonal breads baked in-house, breakfast and brunch, and Valle de Guadalupe wine beside the garden. No reservation needed.",

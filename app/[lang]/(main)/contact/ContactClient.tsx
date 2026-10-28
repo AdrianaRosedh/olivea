@@ -28,7 +28,7 @@ type Props = {
   lang: Lang;
   t: ContactDict;
   /** Admin-editable via global_settings.contact_info (Supabase). */
-  contactInfo: { email: string; phone: string };
+  contactInfo: { email: string; phone: string; restaurantPhone: string };
 };
 
 /** "+52 646 388 2369" → "tel:+526463882369" */
@@ -180,10 +180,10 @@ export default function ContactClient({ lang, t, contactInfo }: Props) {
                     <div className="mt-3 flex items-center gap-3">
                       <Phone className="w-5 h-5 text-(--olivea-olive)" />
                       <a
-                        href="tel:+526463836402"
+                        href={telHref(contactInfo.restaurantPhone)}
                         className="text-sm underline decoration-(--olivea-olive)/30 hover:decoration-(--olivea-olive)"
                       >
-                        (646) 383-6402
+                        {formatLocalPhone(contactInfo.restaurantPhone)}
                       </a>
                     </div>
 

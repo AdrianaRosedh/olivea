@@ -3,10 +3,10 @@
 // The /menu page is a client-side redirect to /farmtotable#menu, so crawlers see nothing.
 // This article provides the essential menu context.
 //
-// Built from the CMS: each house's own page description and its hours from
-// /admin/hours. The hand-written version had drifted (it still listed the
-// restaurant as open Wednesday, Friday and Sunday after Thursday and Saturday
-// were added).
+// Built from the CMS: each house's own page description, its hours from
+// /admin/hours and its phone from its Google listing. The hand-written version
+// had drifted (it still listed the restaurant as open Wednesday, Friday and
+// Sunday after Thursday and Saturday were added).
 
 import Link from "next/link";
 import { getContent, t } from "@/lib/content";
@@ -42,14 +42,25 @@ export default async function ArticleMenu({ lang }: { lang: Lang }) {
       {HOUSES.map((h, i) => {
         const meta = houses[i]?.meta;
         const hours = global?.hours?.find((x) => x.venue === h.key)?.schedule;
+        const phone = houses[i]?.listing?.telephone;
         return (
           <section key={h.key} aria-label={h.name}>
             <h2>{h.name}</h2>
             {meta && <p>{t(lang, meta.description)}</p>}
-            {hours && (
+            {(hours || phone) && (
               <dl>
-                <dt>{isEs ? "Horario" : "Hours"}</dt>
-                <dd>{t(lang, hours)}</dd>
+                {hours && (
+                  <>
+                    <dt>{isEs ? "Horario" : "Hours"}</dt>
+                    <dd>{t(lang, hours)}</dd>
+                  </>
+                )}
+                {phone && (
+                  <>
+                    <dt>{isEs ? "Teléfono" : "Phone"}</dt>
+                    <dd><a href={`tel:${phone.replace(/[^+\d]/g, "")}`}>{phone}</a></dd>
+                  </>
+                )}
               </dl>
             )}
             <p>

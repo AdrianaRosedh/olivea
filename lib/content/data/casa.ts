@@ -21,6 +21,18 @@ const casa: CasaContent = {
     },
     page: "casa",
   },
+  listing: {
+    amenities: [
+      "Working garden",
+      "Farm-to-table restaurant",
+      "Specialty café",
+      "In-room coffee machine",
+    ],
+    description: "The complete Olivea experience — a farm stay that brings together the One-MICHELIN-Star Olivea Farm To Table restaurant, the casual Olivea Café Wine Bar, and the working garden into a single stay in Valle de Guadalupe, Baja California. Farm hospitality where the garden is the essence.",
+    mapsUrl: "https://maps.app.goo.gl/CnKY7KYNN5yxYtfi8",
+    priceRange: "$$$",
+    telephone: "+52 646 388 2369",
+  },
   meta: {
     description: {
       en: "Farm stay in the MICHELIN Guide, beside a working garden in Valle de Guadalupe, Baja California, steps from our MICHELIN-starred Olivea Farm To Table.",

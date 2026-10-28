@@ -76,6 +76,33 @@ export interface SocialLink {
   label: string;
 }
 
+/** How a house appears to Google and AI assistants (schema.org listing).
+ *  Edited in the "Google listing" card on the house's admin page. Plain
+ *  English: Google reads the structured data in one language. */
+export interface BusinessListing {
+  description?: string;
+  alternateName?: string;
+  keywords?: string;
+  /** e.g. "+52 646 383 6402" */
+  telephone?: string;
+  /** "$" to "$$$$" */
+  priceRange?: string;
+  mapsUrl?: string;
+  servesCuisine?: string[];
+  amenities?: string[];
+}
+
+/** Olivea as a whole, for Google's knowledge panel. Edited in Brand & Identity. */
+export interface OrganizationListing {
+  alternateName?: string;
+  description?: string;
+  telephone?: string;
+  areaServed?: string;
+  knowsAbout?: string[];
+  /** Profiles Google should treat as the same entity (Instagram, Facebook…). */
+  sameAs?: string[];
+}
+
 export interface GlobalSettings {
   siteName: string;
   tagline: Bilingual; // "Where the garden is the essence."
@@ -85,6 +112,7 @@ export interface GlobalSettings {
   socials: SocialLink[];
   defaultOgImage: string;
   twitterHandle: string;
+  organization?: OrganizationListing;
 }
 
 /* ── Navigation ── */
@@ -183,6 +211,7 @@ export interface HomeContent {
 /** Farm To Table page */
 export interface FarmToTableContent {
   meta: PageMeta;
+  listing?: BusinessListing;
   hero: HeroBlock;
   sections: ContentSection[];
   faq: FaqItem[];
@@ -193,6 +222,7 @@ export interface FarmToTableContent {
 /** Casa Olivea page */
 export interface CasaContent {
   meta: PageMeta;
+  listing?: BusinessListing;
   hero: HeroBlock;
   sections: ContentSection[];
   /**
@@ -208,6 +238,7 @@ export interface CasaContent {
 /** Café page */
 export interface CafeContent {
   meta: PageMeta;
+  listing?: BusinessListing;
   hero: HeroBlock;
   sections: ContentSection[];
   faq: FaqItem[];

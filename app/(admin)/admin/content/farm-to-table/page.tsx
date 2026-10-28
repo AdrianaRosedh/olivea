@@ -1,5 +1,6 @@
 "use client";
 
+import type { BusinessListing } from "@/lib/content/types";
 import Link from "next/link";
 import { newFaqId } from "@/lib/seo/faq";
 import { asFaqTopic } from "@/lib/faqTopics";
@@ -16,6 +17,7 @@ import {
   EditableSections,
   EditableJSON,
   EditableFAQ,
+  GoogleListingCard,
 } from "@/components/admin/visual-editor";
 
 /** Section storage uses { q, a } per item. EditableFAQ uses { question, answer }. */
@@ -124,6 +126,12 @@ function FarmToTableVisual() {
           className="text-sm text-stone-600" multiline
         />
       </MetaSection>
+
+      <GoogleListingCard
+        value={get("listing") as BusinessListing | undefined}
+        onChange={(v) => set("listing", v)}
+        cuisine
+      />
 
       {/* ── Hero image ──────────────────────────────────────── */}
       <section className="relative rounded-2xl overflow-hidden">
