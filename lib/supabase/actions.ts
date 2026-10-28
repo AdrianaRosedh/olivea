@@ -457,6 +457,7 @@ type PageTable =
   | "legal_content"
   | "team_content"
   | "menu_content"
+  | "ai_summary"
   | "not_found_content"
   | "global_settings"
   | "drawer_content"
@@ -474,6 +475,7 @@ const pageRevalidations: Record<PageTable, string[]> = {
   legal_content: ["/es/legal", "/en/legal"],
   team_content: ["/es/team", "/en/team"],
   menu_content: ["/es/menu", "/en/menu"],
+  ai_summary: ["/llms.txt", "/llms-full.txt"],
   not_found_content: ["/es", "/en"],
   // These three feed the dictionary CMS overlay in app/(main)/[lang]/layout.tsx,
   // so they affect every page under the layout — revalidate the whole tree.
@@ -498,6 +500,7 @@ const derivedRevalidations: Partial<Record<PageTable, string[]>> = {
   cafe_content: ["layout:/", ...AI_SUMMARY],
   sustainability_content: AI_SUMMARY,
   team_content: AI_SUMMARY,
+  menu_content: AI_SUMMARY,
 };
 
 function revalidateDerived(table: PageTable) {
@@ -518,6 +521,7 @@ const TABLE_SECTIONS: Record<PageTable, { read: string[]; write: string[] }> = {
   legal_content: { read: ["pages.legal"], write: ["pages.legal"] },
   team_content: { read: ["pages.team"], write: ["pages.team"] },
   menu_content: { read: ["pages.menu", "content.menu"], write: ["pages.menu", "content.menu"] },
+  ai_summary: { read: ["settings.aisummary"], write: ["settings.aisummary"] },
   not_found_content: { read: ["pages.notfound"], write: ["pages.notfound"] },
   // Hours reads the settings row; it saves through saveHours (hours column only).
   global_settings: { read: ["settings.global", "settings.hours"], write: ["settings.global"] },
@@ -708,8 +712,9 @@ function assertPressId(id: string): void {
   }
 }
 
-// The home search article lists the awards, so it refreshes with the press page.
-const PRESS_REVALIDATE = ["/es/press", "/en/press", "/es", "/en"];
+// The home search article and the AI summary list the awards, so they refresh
+// with the press page.
+const PRESS_REVALIDATE = ["/es/press", "/en/press", "/es", "/en", "/llms.txt", "/llms-full.txt"];
 
 function revalidatePress() {
   for (const p of PRESS_REVALIDATE) revalidatePath(p);

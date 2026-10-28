@@ -13,20 +13,13 @@ import Link from "next/link";
 import { getContent, t } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 import { loadPressItems } from "@/app/[lang]/(main)/press/load";
+import { recognitionLabel } from "@/lib/seo/awards";
 
 const HOUSES = [
   { key: "casa", name: "Casa Olivea", href: "casa", cta: { en: "Explore Casa Olivea", es: "Conocer Casa Olivea" } },
   { key: "farmtotable", name: "Olivea Farm To Table", href: "farmtotable", cta: { en: "Explore Farm To Table", es: "Conocer Farm To Table" } },
   { key: "cafe", name: "Olivea Café Wine Bar", href: "cafe", cta: { en: "Explore Olivea Café Wine Bar", es: "Conocer Olivea Café Wine Bar" } },
 ] as const;
-
-/** True when the award title already names its issuer ("MB100 — Marco Beteta"),
- *  so the line does not repeat it. */
-function namesIssuer(title: string, issuer: string): boolean {
-  const words = (s: string) => s.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu) ?? [];
-  const inTitle = new Set(words(title));
-  return words(issuer).every((w) => inTitle.has(w));
-}
 
 export default async function HomeArticle({ lang }: { lang: Lang }) {
   const es = lang === "es";
@@ -94,8 +87,7 @@ export default async function HomeArticle({ lang }: { lang: Lang }) {
           <ul>
             {awards.map((a) => (
               <li key={a.id}>
-                {namesIssuer(a.title, a.issuer) ? a.title : `${a.title} — ${a.issuer}`} (
-                {a.publishedAt.slice(0, 4)})
+                {recognitionLabel(a)}
               </li>
             ))}
           </ul>

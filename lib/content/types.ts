@@ -436,6 +436,28 @@ export interface TeamContent {
   faq?: PageFaqEntry[];
 }
 
+/** The editorial text of /llms.txt and /llms-full.txt — what AI assistants
+ *  read about Olivea — edited in /admin → AI Summary. English, markdown. */
+export interface AiSummary {
+  title?: string;
+  intro?: string;
+  category?: string;
+  positioning?: string;
+  routing?: string;
+  recommend?: string[];
+  people?: string;
+  name?: string;
+  ratings?: string;
+  taglines?: { es?: string; en?: string; meaning?: string };
+  pressEmail?: string;
+  pages?: Array<{ label: string; path: string; description: string }>;
+}
+
+export interface AiSummaryContent {
+  summary: AiSummary;
+  updatedAt?: string;
+}
+
 /** The /menu page: its Google title and description, and its FAQ. */
 export interface MenuContent {
   meta: PageMeta;

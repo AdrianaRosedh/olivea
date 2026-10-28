@@ -18,6 +18,7 @@ type PageTable =
   | "legal_content"
   | "team_content"
   | "menu_content"
+  | "ai_summary"
   | "not_found_content"
   | "global_settings"
   | "drawer_content"
