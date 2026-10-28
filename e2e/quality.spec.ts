@@ -258,6 +258,17 @@ for (const path of PAGES) {
             const r = el.getBoundingClientRect();
             stack = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2);
           }
+          // Under another layer (an announcement popup that opened while the
+          // page was read, a dialog): not on screen to judge. The Café check
+          // failed on one CI attempt and passed on the retry for this reason.
+          // Only a layer pinned to the screen counts: a card's invisible
+          // full-size link sits on top of its own text and must not hide it.
+          const top = stack[0];
+          if (top && !el.contains(top) && !top.contains(el)) {
+            let pinned: Element | null = top;
+            while (pinned && getComputedStyle(pinned).position !== "fixed") pinned = pinned.parentElement;
+            if (pinned && !pinned.contains(el)) return null;
+          }
           const at = stack.findIndex((s) => s === el || s.contains(el));
           const under: Element[] = [];
           if (at >= 0) under.push(...stack.slice(at));
