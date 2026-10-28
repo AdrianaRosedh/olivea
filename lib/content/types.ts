@@ -206,6 +206,8 @@ export interface HomeContent {
     ctaRestaurant: Bilingual;
     ctaCasa: Bilingual;
     image: SiteImage;
+    /** The recognition line by the home Reserve button. */
+    badge?: Bilingual;
   };
   /** Active hero video set — admin can swap video without deploys */
   video: HeroVideo;
@@ -290,6 +292,8 @@ export interface SustainabilityContent {
   title: Bilingual;
   description: Bilingual;
   sections: SustainabilitySection[];
+  /** The Philosophy page's questions (FAQ and FAQPage markup). */
+  faq?: PageFaqEntry[];
 }
 
 /** Press page */
@@ -299,6 +303,14 @@ export interface PressContent {
   tagline: Bilingual;
   description: Bilingual[];
   articles: PressArticle[];
+  /** The MICHELIN band atop the Press page (column michelin_band). */
+  michelin_band?: {
+    guideLabel?: Bilingual;
+    heading?: Bilingual;
+    restaurant?: Bilingual;
+    hotel?: Bilingual;
+    linkLabel?: Bilingual;
+  };
 }
 
 export interface PressArticle {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Newspaper, ExternalLink, Plus, Trash2 } from "lucide-react";
+import { Newspaper, ExternalLink } from "lucide-react";
 import SectionGuard from "@/components/admin/SectionGuard";
 import pressContent from "@/lib/content/data/press";
 import { useAdminLocale, STR } from "@/lib/admin/i18n";
@@ -19,21 +19,7 @@ function PressVisual() {
   const meta = get("meta") as { title?: Bilingual; description?: Bilingual } | undefined;
 
   // Description is an array of bilingual paragraphs
-  const description = (get("description") ?? []) as Bilingual[];
-
-  const updateParagraph = (idx: number, v: Bilingual) => {
-    const updated = [...description];
-    updated[idx] = v;
-    set("description", updated);
-  };
-
-  const addParagraph = () => {
-    set("description", [...description, { es: "", en: "" }]);
-  };
-
-  const removeParagraph = (idx: number) => {
-    set("description", description.filter((_, i) => i !== idx));
-  };
+  const band = (get("michelin_band") ?? {}) as Partial<Record<"guideLabel" | "heading" | "restaurant" | "hotel" | "linkLabel", Bilingual>>;
 
   return (
     <div className="space-y-6">
@@ -48,49 +34,16 @@ function PressVisual() {
         <EditableBilingual label={{ es: "Lema", en: "Tagline" }} as="p" value={(get("tagline") ?? { es: "", en: "" }) as Bilingual} onChange={(v) => set("tagline", v)} className="text-base text-stone-600 italic" multiline />
       </section>
 
-      {/* ── Description paragraphs ── */}
-      <section className="rounded-2xl bg-white/40 ring-1 ring-black/5 overflow-hidden">
-        <div className="px-5 py-3 border-b border-stone-200/60 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
-            {t({ es: "Párrafos de descripción", en: "Description Paragraphs" })}
-          </span>
-          <span className="text-[10px] text-stone-400">
-            {description.length} {description.length === 1 ? t({ es: "párrafo", en: "paragraph" }) : t({ es: "párrafos", en: "paragraphs" })}
-          </span>
-        </div>
-        <div className="px-5 py-4 space-y-4">
-          {description.map((para, idx) => (
-            <div key={`p-${idx}-${para.es.slice(0, 20)}`} className="relative group rounded-xl bg-white/60 ring-1 ring-stone-200/80 p-4">
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                  {t({ es: "Párrafo", en: "Paragraph" })} {idx + 1}
-                </span>
-                <button
-                  onClick={() => removeParagraph(idx)}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-stone-400 hover:text-red-500 transition-all"
-                  title={t({ es: "Quitar párrafo", en: "Remove paragraph" })}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <EditableBilingual
-                label={{ es: `Párrafo ${idx + 1}`, en: `Paragraph ${idx + 1}` }}
-                as="p"
-                value={para}
-                onChange={(v) => updateParagraph(idx, v)}
-                className="text-sm text-stone-600 leading-relaxed"
-                multiline
-              />
-            </div>
-          ))}
-
-          <button
-            onClick={addParagraph}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-stone-300 text-stone-500 text-xs font-semibold uppercase tracking-wider hover:border-[var(--olivea-olive)] hover:text-[var(--olivea-olive)] hover:bg-[var(--olivea-olive)]/[0.03] transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            {t({ es: "Agregar párrafo", en: "Add Paragraph" })}
-          </button>
+      {/* ── MICHELIN band (top of the Press page) ── */}
+      <section className="rounded-2xl bg-white/40 ring-1 ring-black/5 p-6 space-y-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">{t({ es: "Banda MICHELIN", en: "MICHELIN band" })}</h3>
+        <p className="text-xs text-stone-500">{t({ es: "Abre la página de prensa. Sin título, la banda no se muestra.", en: "Opens the Press page. Without a heading, the band is hidden." })}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <EditableBilingual label={{ es: "Etiqueta", en: "Label" }} as="span" value={band.guideLabel ?? { es: "", en: "" }} onChange={(v) => set("michelin_band.guideLabel", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Título", en: "Heading" }} as="span" value={band.heading ?? { es: "", en: "" }} onChange={(v) => set("michelin_band.heading", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Línea del restaurante", en: "Restaurant line" }} as="span" value={band.restaurant ?? { es: "", en: "" }} onChange={(v) => set("michelin_band.restaurant", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Línea de Casa Olivea", en: "Casa Olivea line" }} as="span" value={band.hotel ?? { es: "", en: "" }} onChange={(v) => set("michelin_band.hotel", v)} className="text-sm text-stone-600" />
+          <EditableBilingual label={{ es: "Texto del enlace", en: "Link text" }} as="span" value={band.linkLabel ?? { es: "", en: "" }} onChange={(v) => set("michelin_band.linkLabel", v)} className="text-sm text-stone-600" />
         </div>
       </section>
 

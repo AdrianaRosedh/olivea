@@ -10,7 +10,8 @@
 // markup, with Person microdata and a link to each member's own page.
 //
 // Driven by the live roster passed in from the page (team_content.members via
-// loadTeam), never the static fallback array, so it cannot drift from the CMS.
+// loadTeam), never the static fallback array, so it cannot drift from the CMS;
+// its heading and intro are the Team record's title and description.
 // ─────────────────────────────────────────────────────────────────────
 import Link from "next/link";
 import type { LeaderProfile } from "./teamData";
@@ -20,9 +21,14 @@ type Lang = "es" | "en";
 export default function TeamArticle({
   members,
   lang,
+  title,
+  intro,
 }: {
   members: LeaderProfile[];
   lang: Lang;
+  /** The Team record's title and description (/admin → Team). */
+  title: string;
+  intro?: string;
 }) {
   const isEs = lang === "es";
 
@@ -33,18 +39,12 @@ export default function TeamArticle({
       lang={lang}
     >
       <header>
-        <h1>
-          {isEs
-            ? "El equipo de Olivea — Valle de Guadalupe, Baja California"
-            : "The Olivea Team — Valle de Guadalupe, Baja California"}
-        </h1>
-        <p>
-          <em>
-            {isEs
-              ? "Las personas detrás del restaurante con estrella MICHELIN, el hospedaje y el café wine bar. Cada perfil tiene su propia página."
-              : "The people behind the MICHELIN-starred restaurant, the farm stay, and the café wine bar. Each profile has its own page."}
-          </em>
-        </p>
+        <h1>{title} — OLIVEA</h1>
+        {intro && (
+          <p>
+            <em>{intro}</em>
+          </p>
+        )}
       </header>
 
       {members.map((m) => {

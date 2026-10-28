@@ -81,6 +81,7 @@ export default async function Page({
       <HomeArticle lang={L} />
       <HomeClient
         lang={L}
+        badge={home.hero?.badge ? t(L, home.hero.badge) : undefined}
         videoConfig={video ? {
           version: video.version,
           mobile: video.mobile,

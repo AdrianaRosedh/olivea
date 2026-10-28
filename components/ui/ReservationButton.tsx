@@ -11,9 +11,12 @@ import { cn } from "@/lib/utils";
 interface ReservationButtonProps {
   className?: string;
   forceMobile?: boolean;
+  /** The recognition line under the button, from /admin → Homepage. */
+  badge?: string;
 }
 
 export default function ReservationButton({
+  badge,
   className = "",
   forceMobile = false,
 }: ReservationButtonProps) {
@@ -23,6 +26,8 @@ export default function ReservationButton({
   // and startsWith("/es") called it English.
   const isES = !pathname?.startsWith("/en");
   const label = isES ? "RESERVAR" : "RESERVE";
+  const badgeText =
+    badge ?? (isES ? "Una Estrella MICHELIN · Estrella Verde" : "One MICHELIN Star · Green Star");
 
   // The home page belongs to no single house: let the guest choose.
   const handleClick = () => {
@@ -68,9 +73,7 @@ export default function ReservationButton({
           opacity: 0.7,
         }}
       >
-        {isES
-          ? "Una Estrella MICHELIN · Estrella Verde"
-          : "One MICHELIN Star · Green Star"}
+        {badgeText}
       </span>
     </div>
   );
@@ -104,9 +107,7 @@ export default function ReservationButton({
           textShadow: "0 1px 2px rgba(0,0,0,0.5), 0 2px 14px rgba(0,0,0,0.4)",
         }}
       >
-        {isES
-          ? "Una Estrella MICHELIN · Estrella Verde"
-          : "One MICHELIN Star · Green Star"}
+        {badgeText}
       </span>
     </div>
   );

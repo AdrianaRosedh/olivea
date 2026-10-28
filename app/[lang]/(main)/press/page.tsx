@@ -34,14 +34,15 @@ export default async function PressPage({
 
   const items = await loadPressItems(lang);
   const manifest = loadPressManifest();
+  const press = await getContent("press");
 
   return (
     <>
       {/* Server-rendered article: full semantic content for crawlers,
           AI assistants, screen readers, and no-JS clients.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
-      <ArticlePress lang={lang} items={items} content={await getContent("press")} />
-      <PressClient lang={lang} items={items} manifest={manifest} />
+      <ArticlePress lang={lang} items={items} content={press} />
+      <PressClient lang={lang} items={items} manifest={manifest} michelinBand={press.michelin_band} />
     </>
   );
 }

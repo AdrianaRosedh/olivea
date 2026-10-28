@@ -82,7 +82,16 @@ function useMobileHeroGap(): number {
   return gap;
 }
 
-export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; videoConfig?: VideoConfig }) {
+export default function HomeClient({
+  lang,
+  videoConfig,
+  badge,
+}: {
+  lang: "es" | "en";
+  videoConfig?: VideoConfig;
+  /** The recognition line by the Reserve button, from /admin → Homepage. */
+  badge?: string;
+}) {
   // No manual preload of the alebrije. On Vercel, Next adds a deployment tag
   // (?dpl=…) to the logo <img> but not to a hand-written preload, so the two
   // never matched and the preload was a wasted download with a console
@@ -352,7 +361,7 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
               backdrop-blur-sm
             "
           >
-            <ReservationButton forceMobile className="w-full" />
+            <ReservationButton forceMobile className="w-full" badge={badge} />
           </div>
 
           {/* Desktop flow */}
@@ -404,7 +413,7 @@ export default function HomeClient({ lang, videoConfig }: { lang: "es" | "en"; v
             </nav>
 
             <div className="mt-8 lg:mt-16 pointer-events-auto">
-              <ReservationButton />
+              <ReservationButton badge={badge} />
             </div>
           </div>
         </main>

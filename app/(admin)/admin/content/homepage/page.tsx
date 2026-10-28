@@ -346,6 +346,7 @@ interface HomeHero {
   subtitle: Bilingual;
   ctaRestaurant: Bilingual;
   ctaCasa: Bilingual;
+  badge: Bilingual;
 }
 
 function HeroTextEditor() {
@@ -356,7 +357,11 @@ function HeroTextEditor() {
     subtitle: { ...fallback.subtitle },
     ctaRestaurant: { ...fallback.ctaRestaurant },
     ctaCasa: { ...fallback.ctaCasa },
+    badge: { es: fallback.badge?.es ?? "", en: fallback.badge?.en ?? "" },
   });
+  // The rest of the stored hero (image…) is kept as it is. Saving only the
+  // fields above used to replace the whole hero and drop them.
+  const [rest, setRest] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
 
@@ -368,11 +373,13 @@ function HeroTextEditor() {
           const r = row as Record<string, unknown>;
           const h = r.hero as Record<string, unknown> | undefined;
           if (h) {
+            setRest(h);
             setHero({
               title: (h.title as Bilingual) ?? fallback.title,
               subtitle: (h.subtitle as Bilingual) ?? fallback.subtitle,
               ctaRestaurant: (h.ctaRestaurant as Bilingual) ?? fallback.ctaRestaurant,
               ctaCasa: (h.ctaCasa as Bilingual) ?? fallback.ctaCasa,
+              badge: (h.badge as Bilingual) ?? { es: fallback.badge?.es ?? "", en: fallback.badge?.en ?? "" },
             });
           }
         }
@@ -380,12 +387,12 @@ function HeroTextEditor() {
         // Keep fallback
       }
     })();
-  }, [fallback.title, fallback.subtitle, fallback.ctaRestaurant, fallback.ctaCasa]);
+  }, [fallback.title, fallback.subtitle, fallback.ctaRestaurant, fallback.ctaCasa, fallback.badge]);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await saveHomeContent({ hero });
+      await saveHomeContent({ hero: { ...rest, ...hero } });
       setStatus("saved");
       setTimeout(() => setStatus("idle"), 2500);
     } catch {
@@ -477,6 +484,21 @@ function HeroTextEditor() {
             <div className="space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">EN</span>
               <input className={INPUT} value={hero.ctaCasa.en} onChange={(e) => patch("ctaCasa", "en", e.target.value)} />
+            </div>
+          </div>
+        </div>
+
+        {/* Recognition badge */}
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--olivea-clay)] mb-2">{t({ es: "Línea de reconocimiento (junto a Reservar)", en: "Recognition line (by Reserve)" })}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">ES</span>
+              <input className={INPUT} value={hero.badge.es} onChange={(e) => patch("badge", "es", e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--olivea-clay)]/60">EN</span>
+              <input className={INPUT} value={hero.badge.en} onChange={(e) => patch("badge", "en", e.target.value)} />
             </div>
           </div>
         </div>

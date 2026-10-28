@@ -17,15 +17,19 @@ import { tt } from "./lib/pressText";
 import PressKitHero from "./PressKitHero";
 import PressMediaGallery from "./PressMediaGallery";
 import MichelinBand from "./components/MichelinBand";
+import type { PressContent } from "@/lib/content/types";
 
 export default function PressClient({
   lang,
   items,
   manifest,
+  michelinBand,
 }: {
   lang: Lang;
   items: PressItem[];
   manifest: PressManifest;
+  /** The MICHELIN band's text, from /admin → Press. */
+  michelinBand?: PressContent["michelin_band"];
 }) {
   const [q, setQ] = useState("");
   const [kind, setKind] = useState<ItemKind>("all");
@@ -82,7 +86,7 @@ export default function PressClient({
                 "pr-2 sm:pr-0"
               )}
             >
-              <MichelinBand lang={lang} />
+              <MichelinBand lang={lang} band={michelinBand} />
 
               {/* Featured / Most recent */}
               <div className="mt-10 sm:mt-12">

@@ -116,7 +116,7 @@ export default async function TeamPage({ params }: PageProps) {
       {/* Server-rendered roster for crawlers and no-JS clients; hidden once
           React hydrates. The visible page is a tab UI, so without this the
           eleven bios never appear in the HTML. */}
-      <TeamArticle members={members} lang={lang as "es" | "en"} />
+      <TeamArticle members={members} lang={lang as "es" | "en"} title={team.title} intro={team.description} />
       <TeamClient lang={lang} team={team} members={members} />
     </main>
   );

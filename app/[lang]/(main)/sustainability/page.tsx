@@ -1,8 +1,8 @@
 // app/(main)/[lang]/sustainability/page.tsx
 import type { Metadata } from "next";
 import PhilosophyClient from "./PhilosophyClient";
-import ArticleEn from "./ArticleEn";
-import ArticleEs from "./ArticleEs";
+import PhilosophyArticle from "./PhilosophyArticle";
+import { toFaqItems } from "@/lib/seo/faq";
 import { loadPhilosophySectionsCms } from "./load";
 import { philosophyFaqLd } from "./faq";
 import { canonicalUrl, withShare } from "@/lib/site";
@@ -72,16 +72,22 @@ export default async function SustainabilityPage({
 }) {
   const p = await params;
   const lang: Lang = p.lang === "en" ? "en" : "es";
-  const sections = await loadPhilosophySectionsCms(lang);
-  const Article = lang === "en" ? ArticleEn : ArticleEs;
-  const faqLd = philosophyFaqLd(lang, canonicalUrl(`/${lang}/sustainability`));
+  const [sections, content] = await Promise.all([
+    loadPhilosophySectionsCms(lang),
+    getContent("sustainability"),
+  ]);
+  // Questions from /admin → Philosophy: the article and the FAQPage markup
+  // carry the same text.
+  const faq = toFaqItems(content.faq, lang);
+  const faqLd = philosophyFaqLd(lang, canonicalUrl(`/${lang}/sustainability`), faq);
 
   return (
     <>
       {/* Server-rendered article: full semantic content for crawlers,
-          AI assistants, screen readers, and no-JS clients.
+          AI assistants, screen readers, and no-JS clients, built from the
+          same CMS chapters as the page.
           Hidden via CSS once JS hydrates (see .ssr-article in globals.css). */}
-      <Article />
+      <PhilosophyArticle lang={lang} content={content} sections={sections} faq={faq} />
       <PhilosophyClient lang={lang} sections={sections} />
 
       {/* Assistants answer from whatever they can retrieve and attribute. The

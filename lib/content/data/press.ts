@@ -24,6 +24,29 @@ const press: PressContent = {
     en: "Awards, media coverage, and press resources for Olivea — farm hospitality, MICHELIN-starred restaurant, and farm stay in Valle de Guadalupe.",
   },
   description: [],
+  // Fallback for press_content.michelin_band — edit in /admin → Press.
+  michelin_band: {
+    "guideLabel": {
+      "es": "Guía MICHELIN",
+      "en": "MICHELIN Guide"
+    },
+    "heading": {
+      "es": "Una Estrella MICHELIN · Estrella Verde MICHELIN",
+      "en": "One MICHELIN Star · MICHELIN Green Star"
+    },
+    "restaurant": {
+      "es": "Olivea Farm To Table · 2025 y 2026",
+      "en": "Olivea Farm To Table · 2025 and 2026"
+    },
+    "hotel": {
+      "es": "Casa Olivea · en la Guía MICHELIN (hoteles)",
+      "en": "Casa Olivea · in the MICHELIN Guide (hotels)"
+    },
+    "linkLabel": {
+      "es": "Ver en la Guía MICHELIN",
+      "en": "View in the MICHELIN Guide"
+    }
+  },
   articles: [],  // MDX-based articles in press/content/
 };
 

@@ -24,6 +24,10 @@ const home: HomeContent = {
     ],
   },
   hero: {
+    badge: {
+      es: "Una Estrella MICHELIN · Estrella Verde",
+      en: "One MICHELIN Star · Green Star",
+    },
     title: {
       es: "OLIVEA",
       en: "OLIVEA",

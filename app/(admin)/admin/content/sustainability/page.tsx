@@ -10,6 +10,9 @@ import {
   useEditor,
   MetaSection,
   EditableBilingual,
+  EditableFAQ,
+  storedToEditorFaq,
+  editorToStoredFaq,
 } from "@/components/admin/visual-editor";
 
 /* ── Fallback for the page-level fields only ──
@@ -40,6 +43,14 @@ function SustainabilityVisual() {
         <EditableBilingual label={{ es: "Título", en: "Title" }} as="h1" value={(get("title") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("title", v)} className="text-2xl md:text-3xl font-serif text-stone-800" />
         <EditableBilingual label={{ es: "Descripción", en: "Description" }} as="p" value={(get("description") ?? { es: "", en: "" }) as { es: string; en: string }} onChange={(v) => set("description", v)} className="text-base text-stone-600 leading-relaxed max-w-2xl mx-auto" multiline />
       </section>
+
+      {/* ── Questions (FAQ on the page and in its FAQPage markup) ── */}
+      <EditableFAQ
+        label={{ es: "Preguntas frecuentes", en: "FAQ" }}
+        value={storedToEditorFaq(get("faq"))}
+        onChange={(entries) => set("faq", editorToStoredFaq(entries))}
+        collapsed={false}
+      />
 
       {/* ── Philosophy chapters ──
           Separate editor with its own save, because these live in a different
