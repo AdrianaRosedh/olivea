@@ -77,6 +77,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "content.journal",      label: "Journal",                  icon: "BookOpen",        category: "content", href: "/admin/journal" },
   { key: "content.menu",         label: "Menus & Links",            icon: "UtensilsCrossed", category: "content", href: "/admin/menu" },
   { key: "content.pressitems",   label: "Press Coverage",           icon: "Newspaper",       category: "content", href: "/admin/press" },
+  { key: "content.events",       label: "Events",                   icon: "CalendarDays",    category: "content", href: "/admin/events" },
   { key: "settings.hours",       label: "Operating Hours",          icon: "Clock",           category: "content", href: "/admin/hours" },
   { key: "content.media",        label: "Photos & Media",           icon: "Image",           category: "content", href: "/admin/media" },
   // Setup — rarely changed

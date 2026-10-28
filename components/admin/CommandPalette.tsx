@@ -49,6 +49,8 @@ import {
   Clock,
   Megaphone,
   ScrollText,
+  CalendarDays,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 
@@ -76,6 +78,8 @@ const iconMap: Record<string, LucideIcon> = {
   Clock,
   Megaphone,
   ScrollText,
+  CalendarDays,
+  Sparkles,
 };
 
 const categoryIcons: Record<string, LucideIcon> = {

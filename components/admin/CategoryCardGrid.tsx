@@ -30,6 +30,7 @@ import {
   ScrollText,
   Sparkles,
   Fingerprint,
+  CalendarDays,
 } from "lucide-react";
 import {
   categoryMeta,
@@ -120,7 +121,7 @@ const iconMap: Record<string, React.ElementType> = {
   Video, UtensilsCrossed, Home, Coffee, Mail, Leaf, Newspaper,
   Briefcase, Scale, Users, AlertCircle,
   BookOpen, Bell, Flag, HelpCircle, Image, Globe, Menu, PanelBottom,
-  Megaphone, Clock, FileText, ScrollText, Sparkles, Fingerprint,
+  Megaphone, Clock, FileText, ScrollText, Sparkles, Fingerprint, CalendarDays,
 };
 
 function resolveIcon(name: string): React.ElementType {

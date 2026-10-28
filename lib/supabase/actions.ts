@@ -701,6 +701,54 @@ export async function deleteSustainabilitySection(id: string) {
   revalidatePath("/en/sustainability");
 }
 
+// ── Events (collection) ─────────────────────────────────────────────
+// Rows in events drive dated pages such as /mesa-invitada (see lib/events.ts).
+
+const EVENT_ID_RE = /^[a-z0-9][a-z0-9-]{1,80}$/;
+function assertEventId(id: string): void {
+  if (!EVENT_ID_RE.test(id)) throw new Error(`Invalid event id: ${id}`);
+}
+
+const EVENT_REVALIDATE = ["/es/mesa-invitada", "/en/mesa-invitada"];
+
+function revalidateEvents() {
+  for (const p of EVENT_REVALIDATE) revalidatePath(p);
+}
+
+export async function getEventsAdmin() {
+  await requireAdmin();
+  await requireSections(["content.events"], "viewer");
+  return selectRows("events", { role: "service_role", query: "order=event_date.desc" });
+}
+
+export async function saveEvent(item: Record<string, unknown>) {
+  await requireEditor();
+  await requireSections(["content.events"], "editor");
+  assertEventId(String(item.id ?? ""));
+  await upsertRows("events", item, { onConflict: "id" });
+  await logAudit({ action: "save", resourceType: "event", resourceId: String(item.id) });
+  revalidateEvents();
+  await pingIndexNowForPaths(EVENT_REVALIDATE);
+}
+
+export async function toggleEvent(id: string, enabled: boolean) {
+  await requireEditor();
+  await requireSections(["content.events"], "editor");
+  assertEventId(id);
+  await updateRows("events", `id=eq.${encodeURIComponent(id)}`, { enabled });
+  await logAudit({ action: enabled ? "enable" : "disable", resourceType: "event", resourceId: id });
+  revalidateEvents();
+}
+
+export async function deleteEvent(id: string) {
+  await requireManager();
+  await requireSections(["content.events"], "editor");
+  assertEventId(id);
+  await deleteRows("events", `id=eq.${encodeURIComponent(id)}`);
+  await logAudit({ action: "delete", resourceType: "event", resourceId: id });
+  revalidateEvents();
+}
+
 // ── Press Items (collection) ────────────────────────────────────────
 // Rows in press_items are the press page's primary source (the MDX
 // files remain as a fallback when the table is empty/unreachable).
