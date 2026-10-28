@@ -336,6 +336,7 @@ export default async function StructuredDataServer() {
         { "@type": "LocationFeatureSpecification", name: "Working garden", value: true },
         { "@type": "LocationFeatureSpecification", name: "Farm-to-table restaurant", value: true },
         { "@type": "LocationFeatureSpecification", name: "Specialty café", value: true },
+        { "@type": "LocationFeatureSpecification", name: "In-room coffee machine", value: true },
       ],
       ...hoursOf("casa"),
       ...stayTimesOf("casa"),

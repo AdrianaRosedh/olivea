@@ -58,7 +58,7 @@ export default function ArticleEs() {
         <h3>Confort</h3>
         <p>Cortinas blackout, ventilación natural y control de temperatura — cada detalle pensado para proteger tu descanso.</p>
         <h3>Detalles de habitación</h3>
-        <p>Agua filtrada en botellas reutilizables, amenidades rellenables y nuestro aroma de casa — botánico, equilibrado y discreto.</p>
+        <p>Cafetera en cada habitación, con dos cápsulas por noche. Agua filtrada en botellas reutilizables, amenidades rellenables y nuestro aroma de casa — botánico, equilibrado y discreto.</p>
         <h3>Diseño accesible</h3>
         <p>Todas las habitaciones de Casa Olivea están ubicadas en planta baja, asegurando acceso fácil sin escalones ni cambios de nivel.</p>
         <h3>Conserjería</h3>

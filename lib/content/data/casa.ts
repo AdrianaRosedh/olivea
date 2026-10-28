@@ -416,8 +416,8 @@ const casa: CasaContent = {
         {
           id: "detalles-habitacion",
           text: {
-            en: "Filtered water in reusable bottles, refillable amenities, and our own botanical house scent — balance and simplicity.",
-            es: "Agua filtrada en botellas reutilizables, amenidades rellenables y nuestra esencia botánica propia — equilibrio y sencillez.",
+            en: "A coffee machine in every suite, with two pods each night; filtered water in reusable bottles, refillable amenities, and our own botanical house scent — balance and simplicity.",
+            es: "Cafetera en cada habitación, con dos cápsulas por noche; agua filtrada en botellas reutilizables, amenidades rellenables y nuestra esencia botánica propia — equilibrio y sencillez.",
           },
           title: {
             en: "Room Details",
