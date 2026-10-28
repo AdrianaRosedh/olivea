@@ -143,7 +143,9 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
     const check = () => {
       if (!collapsed && fits && dockRef.current) dockHeight.current = dockRef.current.offsetHeight;
       if (!dockHeight.current) return;
-      const room = roomBelow(topOffset);
+      // The dock's real top: it sits under the logo, which grows with the screen.
+      const top = dockRef.current?.getBoundingClientRect().top ?? 0;
+      const room = roomBelow(top);
       // A little hysteresis, so it does not flicker at the boundary.
       setFits((was) => (was ? dockHeight.current <= room : dockHeight.current <= room - 16));
     };
@@ -156,7 +158,7 @@ export default function JournalFilterDockDesktop(props: JournalFilterDockProps) 
       window.removeEventListener("resize", check);
       mo.disconnect();
     };
-  }, [collapsed, fits, topOffset, posts]);
+  }, [collapsed, fits, posts]);
 
   // Panels beside the dock close on Escape or a click elsewhere.
   useEffect(() => {

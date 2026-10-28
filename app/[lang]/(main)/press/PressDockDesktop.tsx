@@ -126,7 +126,8 @@ export function PressDockDesktop({
       const banner = parseFloat(getComputedStyle(root).getPropertyValue("--olivea-banner-clear")) || 0;
       // 12px of air below it, and a little hysteresis so it does not flicker
       // between the two at the boundary.
-      const room = window.innerHeight - DOCK_TOP - FOOTER_H - banner - 12;
+      const top = navRef.current?.getBoundingClientRect().top ?? 0;
+      const room = window.innerHeight - top - FOOTER_H - banner - 12;
       setFits((was) => (was ? panelHeight.current <= room : panelHeight.current <= room - 16));
     };
     check();
@@ -448,7 +449,9 @@ export function PressDockDesktop({
     <nav
       ref={navRef}
       className="hidden md:block fixed left-3 lg:left-5 z-40 p-1 pointer-events-auto"
-      style={{ top: DOCK_TOP }}
+      // Its 4px padding keeps the card's outline clear; the card itself lines
+      // up with the other docks.
+      style={{ top: `calc(${DOCK_TOP} - 4px)` }}
       aria-label="Press dock"
     >
       <Reveal distance={10} delay={0.25}>

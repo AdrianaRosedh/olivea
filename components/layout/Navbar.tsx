@@ -17,6 +17,7 @@ import type { AppDictionary } from "@/app/[lang]/(main)/dictionaries";
 import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import { buildCenterNavItems, reserveDefault } from "@/lib/sections";
 import { motion, AnimatePresence } from "framer-motion";
+import { LOGO_MARGIN_TOP, LOGO_W, NAV_TOP_OFFSET } from "@/components/layout/logoGeometry";
 
 interface NavbarProps {
   lang: "en" | "es";
@@ -130,14 +131,12 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
 
   // --- Geometry / spacing
   const NAV_H = "clamp(80px, 9vh, 112px)";
-  const LOGO_W = "clamp(96px, 10.5vw, 230px)";
   const INSET_LEFT = 12; // px — breathing room left of pills
   const INSET_RIGHT = 20; // px — breathing room right of reserve button
   const RADIUS = 9999;
 
-  // More space from top (works with fixed children)
-  const TOP_GAP = 18; // px
-  const TOP_OFFSET = `calc(env(safe-area-inset-top) + ${TOP_GAP}px)`;
+  // More space from top (works with fixed children); shared with the docks.
+  const TOP_OFFSET = NAV_TOP_OFFSET;
 
   // Measure INNER pill surface + Reserve to size the glass (exclude logo)
   const reserveWrapRef = useRef<HTMLDivElement>(null);
@@ -260,7 +259,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
           style={{
             width: LOGO_W,
             height: LOGO_W,
-            marginTop: "clamp(2px, 0.9vh, 10px)",
+            marginTop: LOGO_MARGIN_TOP,
           }}
         >
           <Image

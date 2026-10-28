@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import BodyPortal from "@/components/ui/BodyPortal";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
+import { UNDER_LOGO } from "@/components/layout/logoGeometry";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -363,8 +364,9 @@ export function JumpRow({ icon, label, onClick }: { icon: ReactNode; label: stri
 
 /* ── Desktop docks ─────────────────────────────────────────────────── */
 
-/** Where every desktop dock starts: just under the fixed logo (~177px). */
-export const DOCK_TOP = 200;
+/** Where every desktop dock starts: a clear gap under the logo, which grows
+ *  with the screen (CSS, from components/layout/logoGeometry). */
+export const DOCK_TOP = UNDER_LOGO;
 
 /** The docks' frosted card (Press, Journal, Team). */
 export const dockShell =
