@@ -6,6 +6,12 @@ import { test, expect, type Page } from "@playwright/test";
 // quickly (it used to take ~2.3–2.6 s, mostly a flat green pause).
 
 const SECTIONS = ["farmtotable", "casa", "cafe"] as const;
+
+// The promise is 2.5 s (it measures ~1.85 s on a laptop, ~2.05 s with the CPU
+// slowed 4x). GitHub's runners draw without a GPU, so the same build takes
+// 2.5–3.6 s there whatever the code does, and the guard failed or passed by
+// runner luck. CI gets room for that; anything slower is still a regression.
+const PAGE_WITHIN_MS = process.env.CI ? 4_000 : 2_500;
 const LOGO = { farmtotable: "herofarm.svg", casa: "herocasa.svg", cafe: "herocafe.svg" } as const;
 
 async function openHome(page: Page, baseURL: string) {
@@ -47,7 +53,7 @@ for (const section of SECTIONS) {
       null,
       { timeout: 5_000 }
     );
-    expect(Date.now() - started).toBeLessThan(2_500);
+    expect(Date.now() - started).toBeLessThan(PAGE_WITHIN_MS);
 
     // The destination logo sits where the transition logo was.
     const dest = await page.evaluate((name) => {
