@@ -11,6 +11,8 @@ import {
   type CSSProperties,
 } from "react";
 import { usePathname } from "next/navigation";
+import { useChatSlots, useUiText } from "@/lib/uiText/context";
+import { chatOpensAt, isChatOpen } from "@/lib/chatHours";
 import { useReservation } from "@/contexts/ReservationContext";
 import type { ReservationType } from "@/contexts/ReservationContext";
 import { track } from "@vercel/analytics";
@@ -50,18 +52,6 @@ const DOT_W = 16;
 
 const MAX_AWAY_COLLAPSED = 28;
 const MAX_AWAY_EXPANDED = 40;
-
-function getTijuanaMinutesNow(): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Tijuana",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(new Date());
-  const hh = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-  const mm = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
-  return hh * 60 + mm;
-}
 
 function getMobileNavH(): number {
   if (typeof window === "undefined") return 84;
@@ -183,27 +173,21 @@ export function MobileNav({ isDrawerOpen }: Props) {
     return pathname.startsWith("/en") ? "en" : "es";
   }, [pathname]);
 
-  const labels = useMemo(() => {
-    return lang === "es"
-      ? {
-          reserve: "Reservar",
-          live: "En Vivo",
-          chat: "Chat",
-          chatOn: "en línea",
-          chatOff: "abre 8:00",
-          open: "Mostrar acciones; arrastra para mover",
-          close: "Ocultar acciones",
-        }
-      : {
-          reserve: "Reserve",
-          live: "Live",
-          chat: "Chat",
-          chatOn: "online",
-          chatOff: "opens 8:00",
-          open: "Show actions; drag to move",
-          close: "Hide actions",
-        };
-  }, [lang]);
+  // Wording and hours from /admin (Interface text; Operating Hours → Chat).
+  const t = useUiText(lang);
+  const chatSlots = useChatSlots();
+  const labels = useMemo(
+    () => ({
+      reserve: t("chat.reserve"),
+      live: t("chat.live"),
+      chat: t("chat.chat"),
+      chatOn: t("chat.online"),
+      chatOff: t("chat.opensAt").replace("{time}", chatOpensAt(chatSlots)),
+      open: t("chat.dockOpen"),
+      close: t("chat.dockClose"),
+    }),
+    [t, chatSlots]
+  );
 
   // Undefined on a page that belongs to no house: the guest chooses.
   const reserveSection = pathname ? reserveDefault(pathname) : null;
@@ -268,14 +252,11 @@ export function MobileNav({ isDrawerOpen }: Props) {
   }, []);
 
   useEffect(() => {
-    const updateChat = () => {
-      const minutes = getTijuanaMinutesNow();
-      setChatAvailable(minutes >= 8 * 60 && minutes <= 21 * 60 + 30);
-    };
+    const updateChat = () => setChatAvailable(isChatOpen(chatSlots));
     updateChat();
     const id = window.setInterval(updateChat, 60_000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [chatSlots]);
 
   // Set when a drag starts, so the click that ends it doesn't toggle the
   // labels; cleared just after that click.

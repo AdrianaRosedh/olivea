@@ -19,6 +19,7 @@ import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useReservation, type ReservationType } from "@/contexts/ReservationContext";
 import { HOUSES } from "@/lib/houses";
+import { useHouseText } from "@/lib/uiText/context";
 import { cn } from "@/lib/utils";
 
 type MenuTab = {
@@ -119,6 +120,8 @@ export default function Farmpop({
   openDelayMs = 80,
 }: FarmpopProps) {
   const [open, setOpen] = useState(false);
+  // The house's action line, from admin → Interface text → Houses.
+  const houseText = useHouseText(lang);
   // Tabs opened since the modal opened. A tab's iframe is created the first
   // time it is shown and kept while the modal stays open, so switching back is
   // instant. Unopened tabs never load: each embed is a page view for the menu
@@ -321,7 +324,7 @@ export default function Farmpop({
   const panelId = "farmpop-panel";
   const tabDomId = (id: string) => `farmpop-tab-${id}`;
   const emblem = house ? HOUSES[house].emblem : null;
-  const reserveLabel = house ? HOUSES[house].cue[lang] : "";
+  const reserveLabel = house ? houseText(house).cue : "";
   const activeLoaded = loaded.has(activeId);
 
   const windowMotion = reduce

@@ -79,6 +79,7 @@ export const categoryItems: Record<AdminCategory, CategoryItem[]> = {
   setup: [
     { href: "/admin/content/global", icon: "Globe", label: { es: "Marca e Identidad", en: "Brand & Identity" }, description: { es: "Nombre del sitio, lema, redes sociales, imagen OG, contacto", en: "Site name, tagline, social URLs, default OG image, contact info" } },
     { href: "/admin/content/drawer", icon: "Menu", label: { es: "Navegación Móvil", en: "Mobile Navigation" }, description: { es: "Elementos del menú móvil desplegable", en: "Items shown in the mobile drawer menu" } },
+    { href: "/admin/content/ui-text", icon: "Type", label: { es: "Textos de la interfaz", en: "Interface Text" }, description: { es: "Nombres de las casas, ventana de reservación, chat, aviso de cookies, redes de cada casa", en: "House names, reservation window, chat, cookie notice, each house's socials" } },
     { href: "/admin/content/footer", icon: "PanelBottom", label: { es: "Pie de Página", en: "Footer" }, description: { es: "Textos y grupos de enlaces del pie de página", en: "Footer copy and link groups" } },
     { href: "/admin/content/legal", icon: "Scale", label: { es: "Páginas Legales", en: "Legal Pages" }, description: { es: "Aviso de privacidad, términos y cookies", en: "Privacy policy, terms, cookie statement" } },
     { href: "/admin/content/not-found", icon: "AlertCircle", label: { es: "Página 404", en: "404 Page" }, description: { es: "Mensaje cuando un visitante llega a una página inexistente", en: "Message shown when a visitor hits a missing page" } },

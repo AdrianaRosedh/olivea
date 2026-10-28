@@ -32,7 +32,9 @@ export default function ContactArticle({
   const address = t(info?.address);
   const email = info?.email?.trim();
   const phone = info?.phone?.trim();
-  const venues = [...(global?.hours ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
+  const venues = [...(global?.hours ?? [])]
+    .filter((h) => h.venue !== "chat")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
     <article
@@ -93,7 +95,7 @@ export default function ContactArticle({
 
       {venues.map((v) => {
         const schedule = t(v.schedule);
-        const venuePhone = listings[v.venue]?.telephone?.trim();
+        const venuePhone = v.venue === "chat" ? undefined : listings[v.venue]?.telephone?.trim();
         if (!schedule && !venuePhone) return null;
         return (
           <section key={v.venue} aria-label={t(v.label)}>

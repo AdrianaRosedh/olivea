@@ -19,6 +19,7 @@ type PageTable =
   | "team_content"
   | "menu_content"
   | "ai_summary"
+  | "ui_text"
   | "not_found_content"
   | "global_settings"
   | "drawer_content"

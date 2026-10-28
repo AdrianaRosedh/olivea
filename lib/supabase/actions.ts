@@ -458,6 +458,7 @@ type PageTable =
   | "team_content"
   | "menu_content"
   | "ai_summary"
+  | "ui_text"
   | "not_found_content"
   | "global_settings"
   | "drawer_content"
@@ -476,6 +477,7 @@ const pageRevalidations: Record<PageTable, string[]> = {
   team_content: ["/es/team", "/en/team"],
   menu_content: ["/es/menu", "/en/menu"],
   ai_summary: ["/llms.txt", "/llms-full.txt"],
+  ui_text: ["layout:/"],
   not_found_content: ["/es", "/en"],
   // These three feed the dictionary CMS overlay in app/(main)/[lang]/layout.tsx,
   // so they affect every page under the layout — revalidate the whole tree.
@@ -523,6 +525,7 @@ const TABLE_SECTIONS: Record<PageTable, { read: string[]; write: string[] }> = {
   team_content: { read: ["pages.team"], write: ["pages.team"] },
   menu_content: { read: ["pages.menu", "content.menu"], write: ["pages.menu", "content.menu"] },
   ai_summary: { read: ["settings.aisummary"], write: ["settings.aisummary"] },
+  ui_text: { read: ["settings.uitext"], write: ["settings.uitext"] },
   not_found_content: { read: ["pages.notfound"], write: ["pages.notfound"] },
   // Hours reads the settings row; it saves through saveHours (hours column only).
   global_settings: { read: ["settings.global", "settings.hours"], write: ["settings.global"] },

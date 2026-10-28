@@ -36,6 +36,9 @@ const venueOptions = [
   { value: "farmtotable", label: "Olivea Farm to Table" },
   { value: "casa", label: "Casa Olivea" },
   { value: "cafe", label: "Olivea Café Wine Bar" },
+  // When the website's chat buttons show as available. Not a place, so it
+  // stays out of Google's data, the Contact page and the AI summary.
+  { value: "chat", label: "Chat" },
 ] as const;
 
 /* ── Days (schema.org weekday names) ── */

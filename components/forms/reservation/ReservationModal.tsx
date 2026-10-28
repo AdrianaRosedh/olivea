@@ -24,6 +24,7 @@ import dynamic from "next/dynamic";
 // imported here), and a lazy boundary only delayed the frame's first request.
 import OpentableWidget, { openOpenTableWindow, openTableUrl } from "./OpentableWidget";
 import { HOUSES, HOUSE_ORDER } from "@/lib/houses";
+import { useHouseText, useUiText } from "@/lib/uiText/context";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/ui/scrollLock";
 import { setModalOpen } from "@/components/ui/modalFlag";
 import Image from "next/image";
@@ -63,14 +64,14 @@ function Ornament({ className = "" }: { className?: string }) {
 }
 
 /** The signature at the foot of the window's invitations. */
-function Signature({ className = "" }: { className?: string }) {
+function Signature({ text, className = "" }: { text: string; className?: string }) {
   return (
     <div
       aria-hidden="true"
       className={`flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive)/55 ${className}`}
     >
       <span className="h-px w-8 bg-current opacity-60" />
-      Valle de Guadalupe
+      {text}
       <span className="h-px w-8 bg-current opacity-60" />
     </div>
   );
@@ -121,6 +122,7 @@ function HotelPane({
   mounted: boolean;
   onOpenOverlay: () => void;
 }) {
+  const t = useUiText(lang);
   if (!mounted) return null;
 
   return (
@@ -132,7 +134,7 @@ function HotelPane({
             style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
             id="hotel-pane-title"
           >
-            {lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
+            {t("reservation.hotel.sheetTitle")}
           </span>
         </div>
       )}
@@ -146,18 +148,16 @@ function HotelPane({
               className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
             >
               <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink) mb-2">
-                {lang === "es" ? "Reservación hotel" : "Hotel reservation"}
+                {t("reservation.hotel.kicker")}
               </p>
               <p className="text-sm font-medium text-(--olivea-ink) mb-1">
-                {lang === "es" ? "Reserva tu estancia en Casa Olivea" : "Book your stay at Casa Olivea"}
+                {t("reservation.hotel.cardTitle")}
               </p>
               <p className="text-xs text-(--olivea-ink) mb-3">
-                {lang === "es"
-                  ? "Toca para reservar en pantalla completa."
-                  : "Tap to book in full screen."}
+                {t("reservation.hotel.tap")}
               </p>
               <span className="text-xs font-semibold underline underline-offset-4">
-                {lang === "es" ? "Abrir en pantalla completa" : "Open in full screen"}
+                {t("reservation.openFullscreen")}
               </span>
             </button>
           </div>
@@ -184,6 +184,7 @@ function RestaurantPane({
   mounted: boolean;
   onOpenOverlay: () => void;
 }) {
+  const t = useUiText(lang);
   if (!isMobile) {
     return (
       <>
@@ -199,7 +200,7 @@ function RestaurantPane({
             onClick={openOpenTableWindow}
             className="inline-flex items-center gap-1.5 text-xs text-(--olivea-ink)/60 underline-offset-4 hover:text-(--olivea-olive) hover:underline whitespace-nowrap"
           >
-            {lang === "es" ? "Reservar directamente en OpenTable" : "Reserve directly on OpenTable"}
+            {t("reservation.restaurant.direct")}
             <ExternalLink size={13} />
           </a>
         </div>
@@ -223,7 +224,7 @@ function RestaurantPane({
           style={{ fontSize: "clamp(0.8rem,1.8vw,1rem)" }}
           id="restaurant-pane-title"
         >
-          Olivea Farm To Table — OpenTable
+          {t("reservation.restaurant.paneTitle")}
         </span>
       </div>
 
@@ -234,18 +235,16 @@ function RestaurantPane({
           className="w-full max-w-md rounded-2xl border border-(--olivea-olive)/30 bg-(--olivea-cream)/80 px-4 py-5 text-left shadow-sm active:scale-[0.99] transition-transform"
         >
           <p className="text-xs uppercase tracking-[0.18em] text-(--olivea-ink) mb-2">
-            {lang === "es" ? "Reservación restaurante" : "Restaurant reservation"}
+            {t("reservation.restaurant.kicker")}
           </p>
           <p className="text-sm font-medium text-(--olivea-ink) mb-1">
-            {lang === "es" ? "Busca mesa en Olivea Farm To Table" : "Find a table at Olivea Farm To Table"}
+            {t("reservation.restaurant.cardTitle")}
           </p>
           <p className="text-xs text-(--olivea-ink) mb-3">
-            {lang === "es"
-              ? "Toca para reservar en pantalla completa."
-              : "Tap to reserve in full screen."}
+            {t("reservation.restaurant.tap")}
           </p>
           <span className="text-xs font-semibold underline underline-offset-4">
-            {lang === "es" ? "Abrir en pantalla completa" : "Open in full screen"}
+            {t("reservation.openFullscreen")}
           </span>
         </button>
       </div>
@@ -259,7 +258,7 @@ const WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 
 /** "Todos los días · 7:15 a.m. – 4:00 p.m." from the settings' slots; the
  *  schedule text when there are none. Client-only (the window never SSRs). */
-function hoursLines(hours: CafeHours | null | undefined, lang: "es" | "en"): string[] {
+function hoursLines(hours: CafeHours | null | undefined, lang: "es" | "en", everyDay: string): string[] {
   const locale = lang === "es" ? "es-MX" : "en-US";
   const time = (hhmm: string) => {
     const [h, m] = hhmm.split(":").map(Number);
@@ -277,7 +276,7 @@ function hoursLines(hours: CafeHours | null | undefined, lang: "es" | "en"): str
   return slots.map((slot) => {
     const days =
       slot.days.length === 7
-        ? lang === "es" ? "Todos los días" : "Every day"
+        ? everyDay
         : slot.days.map(dayName).join(", ");
     return `${days} · ${time(slot.opens)} – ${time(slot.closes)}`;
   });
@@ -288,10 +287,12 @@ function hoursLines(hours: CafeHours | null | undefined, lang: "es" | "en"): str
  * booking engine: come whenever, and these are the hours.
  */
 function CafePane({ lang, cafeHours }: { lang: "es" | "en"; cafeHours?: CafeHours | null }) {
+  const t = useUiText(lang);
+  const houseText = useHouseText(lang);
   const { closeReservationModal } = useReservation();
   const pathname = usePathname();
-  const house = HOUSES.cafe;
-  const lines = hoursLines(cafeHours, lang);
+  const house = { ...HOUSES.cafe, ...houseText("cafe") };
+  const lines = hoursLines(cafeHours, lang, t("reservation.cafe.everyDay"));
   const cafeHref = lang === "es" ? "/es/cafe" : "/en/cafe";
   const onCafePage = pathname === cafeHref || (lang === "es" && pathname === "/cafe");
 
@@ -318,22 +319,22 @@ function CafePane({ lang, cafeHours }: { lang: "es" | "en"; cafeHours?: CafeHour
             {house.name}
           </h3>
           <p className="relative italic text-(--olivea-olive)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}>
-            {house.descriptor[lang]}
+            {house.descriptor}
           </p>
 
           <Ornament className="relative my-6" />
 
           <p className="relative text-(--olivea-ink)" style={{ fontFamily: "var(--font-serif)", fontSize: 21, lineHeight: 1.3 }}>
-            {lang === "es" ? "Por ahora no necesitas reservar." : "For now, there’s no need to reserve."}
+            {t("reservation.cafe.noNeed")}
           </p>
           <p className="relative mt-1 italic text-(--olivea-ink)/70" style={{ fontFamily: "var(--font-serif)", fontSize: 17 }}>
-            {lang === "es" ? "Ven cuando quieras; te esperamos." : "Come whenever you like; we’ll be waiting."}
+            {t("reservation.cafe.welcome")}
           </p>
 
           {lines.length > 0 && (
             <div className="relative mt-7 rounded-[18px] border border-(--olivea-olive)/25 px-6 py-4">
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-(--olivea-olive)">
-                {lang === "es" ? "Horario" : "Hours"}
+                {t("reservation.cafe.hours")}
               </p>
               {lines.map((line) => (
                 <p
@@ -353,13 +354,13 @@ function CafePane({ lang, cafeHours }: { lang: "es" | "en"; cafeHours?: CafeHour
               onClick={closeReservationModal}
               className="relative mt-7 inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/45 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive) transition-colors hover:bg-(--olivea-olive) hover:text-(--olivea-cream)"
             >
-              {lang === "es" ? "Conoce el café" : "Discover the café"}
+              {t("reservation.cafe.discover")}
               <ArrowRight size={14} />
             </Link>
           )}
         </div>
 
-        <Signature />
+        <Signature text={t("reservation.signature")} />
       </div>
     </div>
   );
@@ -382,7 +383,9 @@ function SheetHeader({
   /** Extra round buttons, before Close. */
   children?: React.ReactNode;
 }) {
-  const h = HOUSES[house];
+  const t = useUiText(lang);
+  const houseText = useHouseText(lang);
+  const h = { ...HOUSES[house], ...houseText(house) };
   return (
     <div className="flex shrink-0 items-center gap-3 border-b border-(--olivea-olive)/15 bg-(--olivea-cream) px-4 py-3">
       <span className="relative h-11 w-11 shrink-0 rounded-full border border-(--olivea-olive)/45 bg-(--olivea-cream) p-1.5">
@@ -398,14 +401,14 @@ function SheetHeader({
           {h.name}
         </span>
         <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)/65">
-          {h.cue[lang]}
+          {h.cue}
         </span>
       </span>
       {children}
       <button
         type="button"
         onClick={onClose}
-        aria-label={lang === "es" ? "Cerrar" : "Close"}
+        aria-label={t("reservation.close")}
         className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-(--olivea-olive) text-(--olivea-cream) shadow-sm transition-transform active:scale-95"
       >
         <X size={19} strokeWidth={1.6} />
@@ -423,6 +426,7 @@ function MobileHotelSheet({
   visible: boolean;
   onClose: () => void;
 }) {
+  const t = useUiText(lang);
   const trapRef = useFocusTrap<HTMLDivElement>({
     active: visible,
     onEscape: onClose,
@@ -433,7 +437,7 @@ function MobileHotelSheet({
       ref={trapRef}
       role="dialog"
       aria-modal="true"
-      aria-label={lang === "es" ? "Casa Olivea — Reservaciones" : "Casa Olivea — Reservations"}
+      aria-label={t("reservation.hotel.sheetTitle")}
       className={`fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col transition-opacity duration-300 pwa-safe-top pwa-safe-bottom ${
         visible
           ? "opacity-100 pointer-events-auto"
@@ -468,6 +472,7 @@ function MobileRestaurantSheet({
   visible: boolean;
   onClose: () => void;
 }) {
+  const t = useUiText(lang);
   const trapRef = useFocusTrap<HTMLDivElement>({
     active: visible,
     onEscape: onClose,
@@ -481,7 +486,7 @@ function MobileRestaurantSheet({
           ref={trapRef}
           role="dialog"
           aria-modal="true"
-          aria-label={lang === "es" ? "Olivea Farm To Table — Reservaciones" : "Olivea Farm To Table — Reservations"}
+          aria-label={t("reservation.restaurant.sheetTitle")}
           className="fixed inset-0 z-1400 bg-(--olivea-cream) flex flex-col pwa-safe-top pwa-safe-bottom"
           initial={{ opacity: 0, y: reduce ? 0 : 16 }}
           animate={{ opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.2, ease: EASE } }}
@@ -494,8 +499,8 @@ function MobileRestaurantSheet({
               rel="noopener noreferrer"
               onClick={openOpenTableWindow}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-(--olivea-olive)/35 text-(--olivea-olive)"
-              aria-label={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
-              title={lang === "es" ? "Abrir en OpenTable" : "Open on OpenTable"}
+              aria-label={t("reservation.restaurant.openOnOpenTable")}
+              title={t("reservation.restaurant.openOnOpenTable")}
             >
               <ExternalLink size={17} />
             </a>
@@ -534,6 +539,8 @@ function HouseChoice({
   isMobile: boolean;
   onChoose: (id: ReservationType) => void;
 }) {
+  const t = useUiText(lang);
+  const houseText = useHouseText(lang);
   const reduce = usePrefersReducedMotion();
 
   return (
@@ -560,7 +567,7 @@ function HouseChoice({
           className="text-center italic text-(--olivea-ink)/75"
           style={{ fontFamily: "var(--font-serif)", fontSize: isMobile ? 18 : 21 }}
         >
-          {lang === "es" ? "¿Dónde te esperamos?" : "Where shall we welcome you?"}
+          {t("reservation.chooser")}
         </p>
         <Ornament className="mt-3" />
 
@@ -575,7 +582,7 @@ function HouseChoice({
           }
         >
           {HOUSE_ORDER.map((id, i) => {
-            const house = HOUSES[id];
+            const house = { ...HOUSES[id], ...houseText(id) };
             return (
               <motion.li
                 key={id}
@@ -629,10 +636,10 @@ function HouseChoice({
                           className="mt-0.5 block text-[clamp(14.5px,4.2vw,17px)] italic text-(--olivea-olive)/75 transition-colors duration-200 group-active:text-(--olivea-cream)/85 min-[480px]:mt-1 min-[480px]:text-[clamp(17px,2.8vw,20px)]"
                           style={{ fontFamily: "var(--font-serif)", lineHeight: 1.3 }}
                         >
-                          {house.descriptor[lang]}
+                          {house.descriptor}
                         </span>
                         <span className="mt-2 flex items-center gap-2 whitespace-nowrap text-[clamp(10px,2.9vw,11.5px)] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive) transition-colors duration-200 group-active:text-(--olivea-cream) min-[480px]:mt-3.5 min-[480px]:text-[12.5px]">
-                          {house.cue[lang]}
+                          {house.cue}
                           <span aria-hidden="true" className="transition-transform duration-200 group-active:translate-x-0.5">→</span>
                         </span>
                       </span>
@@ -677,10 +684,10 @@ function HouseChoice({
                       className="mt-0.5 block italic text-(--olivea-olive)/75"
                       style={{ fontFamily: "var(--font-serif)", fontSize: 15 }}
                     >
-                      {house.descriptor[lang]}
+                      {house.descriptor}
                     </span>
                     <span className="mx-auto mt-auto inline-flex items-center gap-2 whitespace-nowrap pt-4 pb-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--olivea-olive) lg:text-[10.5px] lg:tracking-[0.24em]">
-                      {house.cue[lang]}
+                      {house.cue}
                       <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                     </span>
                   </button>
@@ -690,7 +697,7 @@ function HouseChoice({
           })}
         </ul>
 
-        <Signature />
+        <Signature text={t("reservation.signature")} />
       </div>
     </div>
   );
@@ -704,6 +711,8 @@ interface ReservationModalProps {
 }
 
 export default function ReservationModal({ lang, cafeHours }: ReservationModalProps) {
+  const t = useUiText(lang);
+  const houseText = useHouseText(lang);
   const reduce = usePrefersReducedMotion();
   const {
     isOpen,
@@ -935,7 +944,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
         }}
         role="dialog"
         aria-modal="true"
-        aria-label={lang === "es" ? "Reservaciones" : "Reservations"}
+        aria-label={t("reservation.title")}
       >
         <div
           className={`bg-(--olivea-cream) flex flex-col overflow-hidden ${
@@ -969,7 +978,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                   fontWeight: 200,
                 }}
               >
-                {lang === "es" ? "Reservaciones" : "Reservations"}
+                {t("reservation.title")}
               </span>
             </h2>
             <div className="ml-auto flex items-center gap-1">
@@ -979,22 +988,10 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                   onClick={toggleExpanded}
                   aria-pressed={expanded}
                   aria-label={
-                    expanded
-                      ? lang === "es"
-                        ? "Salir de pantalla completa"
-                        : "Exit full screen"
-                      : lang === "es"
-                        ? "Pantalla completa"
-                        : "Full screen"
+                    t(expanded ? "reservation.exitFullscreen" : "reservation.fullscreen")
                   }
                   title={
-                    expanded
-                      ? lang === "es"
-                        ? "Salir de pantalla completa"
-                        : "Exit full screen"
-                      : lang === "es"
-                        ? "Pantalla completa"
-                        : "Full screen"
+                    t(expanded ? "reservation.exitFullscreen" : "reservation.fullscreen")
                   }
                   className="p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
                 >
@@ -1003,7 +1000,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
               )}
               <button
                 onClick={closeReservationModal}
-                aria-label={lang === "es" ? "Cerrar" : "Close"}
+                aria-label={t("reservation.close")}
                 className="p-2 rounded-full hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
               >
                 <X size={20} />
@@ -1023,7 +1020,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
           >
             {HOUSE_ORDER.map((id) => {
               const active = reservationType === id;
-              const house = HOUSES[id];
+              const house = { ...HOUSES[id], ...houseText(id) };
               return (
                 <button
                   key={id}
@@ -1089,7 +1086,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
                         className="truncate italic opacity-75"
                         style={{ fontFamily: "var(--font-serif)", fontSize: 12.5 }}
                       >
-                        {house.descriptor[lang]}
+                        {house.descriptor}
                       </span>
                     </span>
                   )}

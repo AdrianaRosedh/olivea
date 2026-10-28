@@ -23,6 +23,7 @@ import { watchLCP } from "@/lib/perf/watchLCP";
 import type { SectionKey } from "@/contexts/SharedTransitionContext";
 import type { ReservationType } from "@/contexts/ReservationContext";
 import { HOUSES } from "@/lib/houses";
+import { useHouseText } from "@/lib/uiText/context";
 import HeroMedia, { type VideoConfig } from "./HeroMedia";
 
 const ALEBRIJE_SRC = "/brand/alebrije-1.svg";
@@ -137,13 +138,14 @@ export default function HomeClient({
   } = useIntroAnimation(stacked);
 
   // Each card carries the place's own name, so guests learn the houses of
-  // OLIVEA, and a few words saying what kind of place it is (lib/houses.ts,
-  // shared with the reservation window).
+  // OLIVEA, and a few words saying what kind of place it is (admin → Interface
+  // text → Houses, shared with the reservation window).
+  const houseText = useHouseText(lang);
   const sections = useMemo<SectionDef[]>(() => {
     const card = (id: ReservationType, href: string, sectionKey: SectionKey): SectionDef => ({
       href: `${basePath}/${href}`,
-      title: HOUSES[id].name,
-      description: HOUSES[id].descriptor[lang],
+      title: houseText(id).name,
+      description: houseText(id).descriptor,
       logoSrc: HOUSES[id].emblem,
       sectionKey,
     });
@@ -152,7 +154,7 @@ export default function HomeClient({
       card("restaurant", "farmtotable", "farmtotable"),
       card("cafe", "cafe", "cafe"),
     ];
-  }, [basePath, lang]);
+  }, [basePath, houseText]);
 
   const mobileSections = useMemo(() => {
     return stacked ? [sections[1], sections[0], sections[2]] : sections;

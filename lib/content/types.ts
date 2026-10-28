@@ -47,7 +47,8 @@ export interface HoursSlot {
 
 export interface BusinessHours {
   id: string;
-  venue: "farmtotable" | "casa" | "cafe";
+  /** "chat" holds the live chat's hours (shown by the chat buttons). */
+  venue: "farmtotable" | "casa" | "cafe" | "chat";
   label: Bilingual;
   schedule: Bilingual; // e.g. "Wed 5–8 · Fri 2:30–8:30 · Sun 2–7"
   /** Structured slots that drive openingHoursSpecification in JSON-LD (optional). */

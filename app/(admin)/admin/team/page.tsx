@@ -154,6 +154,7 @@ const SECTION_LABELS_B: Record<string, B> = {
   "pages.team":           { es: "Página del Equipo",    en: "Team Page" },
   "pages.menu":           { es: "Página del Menú",      en: "Menu Page" },
   "settings.aisummary":   { es: "Resumen para IA",      en: "AI Summary" },
+  "settings.uitext":      { es: "Textos de la interfaz", en: "Interface Text" },
   "content.events":       { es: "Eventos",              en: "Events" },
   "pages.contact":        { es: "Contacto",             en: "Contact" },
   "pages.careers":        { es: "Trabaja con Nosotros", en: "Careers" },

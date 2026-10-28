@@ -84,6 +84,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "settings.global",      label: "Brand & Identity",         icon: "Globe",           category: "settings", href: "/admin/content/global" },
   { key: "settings.navigation",  label: "Mobile Navigation",        icon: "Menu",            category: "settings", href: "/admin/content/drawer" },
   { key: "settings.footer",      label: "Footer",                   icon: "PanelBottom",     category: "settings", href: "/admin/content/footer" },
+  { key: "settings.uitext",      label: "Interface Text",           icon: "Type",            category: "settings", href: "/admin/content/ui-text" },
   { key: "settings.aisummary",   label: "AI Summary",               icon: "Sparkles",        category: "settings", href: "/admin/content/ai-summary" },
   { key: "pages.legal",          label: "Legal Pages",              icon: "Scale",           category: "settings", href: "/admin/content/legal" },
   { key: "pages.notfound",       label: "404 Page",                 icon: "AlertCircle",     category: "settings", href: "/admin/content/not-found" },

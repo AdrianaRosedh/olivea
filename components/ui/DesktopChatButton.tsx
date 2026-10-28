@@ -12,6 +12,8 @@ import { MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { cn } from "@/lib/utils";
+import { useChatSlots, useUiText } from "@/lib/uiText/context";
+import { isChatOpen } from "@/lib/chatHours";
 import {
   subscribeModalOpen,
   getModalOpen,
@@ -36,6 +38,9 @@ function seededBlobRadius(seed: string) {
 
 export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatButtonProps) {
   const [chatAvailable, setChatAvailable] = useState(false);
+  // Wording and hours from /admin (Interface text; Operating Hours → Chat).
+  const t = useUiText(lang);
+  const chatSlots = useChatSlots();
   const [hovered, setHovered] = useState(false);
   const [extraBottom, setExtraBottom] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -104,15 +109,12 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
 
   useEffect(() => {
     const updateAvailability = () => {
-      const now = new Date().toLocaleString("en-US", { timeZone: "America/Tijuana", hour12: false });
-      const dt = new Date(now);
-      const minutesNow = dt.getHours() * 60 + dt.getMinutes();
-      setChatAvailable(minutesNow >= 480 && minutesNow <= 1290);
+      setChatAvailable(isChatOpen(chatSlots));
     };
     updateAvailability();
     const interval = setInterval(updateAvailability, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [chatSlots]);
 
   useEffect(() => {
     const candidates = [
@@ -174,11 +176,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
     };
   }, [avoidSelector]);
 
-  const labels = {
-    en: { available: "Live Chat — Available", unavailable: "Chat — Out of Office Hours", open: "Open Chat" },
-    es: { available: "Chat en Vivo — Disponible", unavailable: "Chat — Fuera de Horario", open: "Abrir Chat" },
-  };
-  const currentLabel = chatAvailable ? labels[lang].available : labels[lang].unavailable;
+  const currentLabel = t(chatAvailable ? "chat.desktopAvailable" : "chat.desktopClosed");
 
   const handleClick = () => {
     const globalToggle = document.getElementById("chatbot-toggle") as HTMLElement | null;
@@ -234,7 +232,7 @@ export default function DesktopChatButton({ lang, avoidSelector }: DesktopChatBu
           stiffness={200}
           damping={16}
           hoverScale={1.06}
-          aria-label={labels[lang].open}
+          aria-label={t("chat.desktopOpen")}
           onClick={handleClick}
           className={cn(
             "relative w-14 h-14 text-(--olivea-cream)",

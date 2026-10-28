@@ -25,8 +25,8 @@ export default function MichelinBand({
       className="mt-6 sm:mt-10 rounded-3xl bg-[#e7eae1] ring-1 ring-(--olivea-olive)/12 px-6 py-7 sm:px-10 sm:py-9 shadow-[0_18px_50px_-34px_rgba(0,0,0,0.35)]"
     >
       <div className="flex items-center gap-3">
-        <Image src="/images/press/awards/michelin.svg" alt="" width={34} height={34} />
-        <Image src="/images/press/awards/michelin-green-star.svg" alt="" width={34} height={34} />
+        <Image src="/images/press/awards/michelin.svg" alt="" width={34} height={37} />
+        <Image src="/images/press/awards/michelin-green-star.svg" alt="" width={34} height={32} />
         <span className="text-[11px] uppercase tracking-[0.26em] text-(--olivea-olive)/80">
           {t(band?.guideLabel)}
         </span>

@@ -51,6 +51,7 @@ import {
   ScrollText,
   CalendarDays,
   Sparkles,
+  Type,
   type LucideIcon,
 } from "lucide-react";
 
@@ -80,6 +81,7 @@ const iconMap: Record<string, LucideIcon> = {
   ScrollText,
   CalendarDays,
   Sparkles,
+  Type,
 };
 
 const categoryIcons: Record<string, LucideIcon> = {

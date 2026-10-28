@@ -1,11 +1,15 @@
 // components/forms/reservation/CloudbedsWidget.tsx
 "use client";
 
+import { useUiText } from "@/lib/uiText/context";
+
 export default function CloudbedsWidget({
   lang = "es",
 }: {
   lang?: "es" | "en";
 }) {
+  // Its name for screen readers, from /admin → Interface text.
+  const t = useUiText(lang);
   // Later you can read this in cloudbeds-immersive.html via ?lang=
   const src =
     lang === "en"
@@ -23,7 +27,7 @@ export default function CloudbedsWidget({
           feature that was never named here cannot be delegated onward. */}
       <iframe
         src={src}
-        title="Reservas Casa Olivea"
+        title={t("reservation.hotel.engineTitle")}
         className="w-full h-full border-0"
         loading="lazy"
         scrolling="yes"

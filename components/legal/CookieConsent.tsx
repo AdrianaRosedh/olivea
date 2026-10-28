@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { setConsentSettled } from "@/components/legal/consentFlag";
+import { useUiText } from "@/lib/uiText/context";
 
 const CONSENT_COOKIE = "olivea_consent";
 const CONSENT_DAYS = 180;
@@ -46,6 +47,8 @@ export default function CookieConsent() {
   const pathname = usePathname();
   const es = !pathname?.startsWith("/en");
   const lang = es ? "es" : "en";
+  // Wording from /admin → Interface text (Cookie notice).
+  const t = useUiText(lang);
   const [open, setOpen] = useState(false);
 
   // First visit (no stored choice) → reveal after a beat, so it settles in
@@ -125,7 +128,7 @@ export default function CookieConsent() {
       <div
         role="dialog"
         aria-live="polite"
-        aria-label={es ? "Aviso de cookies" : "Cookie notice"}
+        aria-label={t("cookies.label")}
         className="pointer-events-auto w-full sm:max-w-sm"
       >
         <div className="rounded-2xl border border-[var(--olivea-olive)]/10 bg-[var(--olivea-cream)]/95 p-5 short:p-3.5 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.28)] backdrop-blur-md">
@@ -133,32 +136,30 @@ export default function CookieConsent() {
             className="text-[15px] short:text-[14px] font-semibold text-[var(--olivea-ink)]"
             style={{ fontFamily: "var(--font-serif)" }}
           >
-            {es ? "Cuidamos tu privacidad" : "We value your privacy"}
+            {t("cookies.title")}
           </h2>
           <p className="mt-1.5 short:mt-1 text-[12.5px] short:text-[12px] leading-relaxed short:leading-snug text-[var(--olivea-ink)]">
-            {es
-              ? "Usamos cookies para entender cómo se usa el sitio y mejorar tu experiencia. Tú decides — las esenciales siempre están activas."
-              : "We use cookies to understand how the site is used and improve your experience. Your choice — essential ones are always on."}
+            {t("cookies.body")}
           </p>
           <div className="mt-4 short:mt-2.5 flex items-center gap-2">
             <button
               onClick={() => choose(true)}
               className="flex-1 rounded-full bg-[var(--olivea-olive)] px-4 py-2 short:py-1.5 text-[12.5px] font-medium text-[var(--olivea-cream)] transition-colors hover:bg-[var(--olivea-clay)]"
             >
-              {es ? "Aceptar" : "Accept"}
+              {t("cookies.accept")}
             </button>
             <button
               onClick={() => choose(false)}
               className="flex-1 rounded-full border border-[var(--olivea-olive)]/25 px-4 py-2 short:py-1.5 text-[12.5px] font-medium text-[var(--olivea-ink)] transition-colors hover:bg-white/60"
             >
-              {es ? "Solo esenciales" : "Essential only"}
+              {t("cookies.essential")}
             </button>
           </div>
           <Link
             href={`/${lang}/legal`}
             className="mt-3 inline-block text-[11px] text-[var(--olivea-ink)] underline underline-offset-2 transition-colors hover:text-[var(--olivea-olive)]"
           >
-            {es ? "Política de cookies" : "Cookie policy"}
+            {t("cookies.policy")}
           </Link>
         </div>
       </div>

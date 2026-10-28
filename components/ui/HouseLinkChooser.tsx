@@ -12,34 +12,24 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { HOUSES, HOUSE_INSTAGRAM, HOUSE_ORDER, HOUSE_SPOTIFY } from "@/lib/houses";
+import { HOUSES, HOUSE_ORDER } from "@/lib/houses";
+import { useHouseText, useUiText } from "@/lib/uiText/context";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { cn } from "@/lib/utils";
 
 type Kind = "instagram" | "spotify";
 
-/** Each kind's links, in the houses' usual order. */
-function linksFor(kind: Kind, lang: "es" | "en") {
+/** Each kind's links, in the houses' usual order. The accounts, playlists
+ *  and wording are edited in /admin → Interface text. */
+function linksFor(kind: Kind, house: ReturnType<typeof useHouseText>, sub: string) {
   return HOUSE_ORDER.flatMap((id) => {
+    const h = house(id);
     if (kind === "instagram") {
-      const handle = HOUSE_INSTAGRAM[id];
-      return [{ id, href: `https://www.instagram.com/${handle}/`, sub: `@${handle}` }];
+      return h.instagram ? [{ id, href: `https://www.instagram.com/${h.instagram}/`, sub: `@${h.instagram}`, name: h.name }] : [];
     }
-    const url = HOUSE_SPOTIFY[id];
-    return url ? [{ id, href: url, sub: lang === "es" ? "Playlist" : "Playlist" }] : [];
+    return h.spotify ? [{ id, href: h.spotify, sub, name: h.name }] : [];
   });
 }
-
-const COPY: Record<Kind, { title: Record<"es" | "en", string>; trigger: Record<"es" | "en", string> }> = {
-  instagram: {
-    title: { es: "Síguenos en Instagram", en: "Follow us on Instagram" },
-    trigger: { es: "Instagram: elige la casa", en: "Instagram: choose the house" },
-  },
-  spotify: {
-    title: { es: "Escucha en Spotify", en: "Listen on Spotify" },
-    trigger: { es: "Spotify: elige la playlist", en: "Spotify: choose the playlist" },
-  },
-};
 
 type Props = {
   kind: Kind;
@@ -105,8 +95,10 @@ export default function HouseLinkChooser({ kind, lang, children, triggerClassNam
     };
   }, [open]);
 
-  const title = COPY[kind].title[lang];
-  const links = linksFor(kind, lang);
+  const t = useUiText(lang);
+  const house = useHouseText(lang);
+  const title = t(kind === "instagram" ? "social.instagram.title" : "social.spotify.title");
+  const links = linksFor(kind, house, t("social.spotify.sub"));
 
   const panel = (
     <AnimatePresence>
@@ -140,8 +132,8 @@ export default function HouseLinkChooser({ kind, lang, children, triggerClassNam
             {title}
           </span>
           <ul>
-            {links.map(({ id, href, sub }) => {
-              const house = HOUSES[id];
+            {links.map(({ id, href, sub, name }) => {
+              const emblem = HOUSES[id].emblem;
               return (
                 <li key={id}>
                   <a
@@ -157,7 +149,7 @@ export default function HouseLinkChooser({ kind, lang, children, triggerClassNam
                   >
                     <span className="relative h-9 w-9 shrink-0 rounded-full bg-white/70 p-1.5 ring-1 ring-(--olivea-olive)/15">
                       <span className="relative block h-full w-full">
-                        <Image src={house.emblem} alt="" fill sizes="24px" className="object-contain" />
+                        <Image src={emblem} alt="" fill sizes="24px" className="object-contain" />
                       </span>
                     </span>
                     <span className="min-w-0">
@@ -165,7 +157,7 @@ export default function HouseLinkChooser({ kind, lang, children, triggerClassNam
                         className="block truncate leading-tight"
                         style={{ fontFamily: "var(--font-serif)", fontSize: 16, fontWeight: 600 }}
                       >
-                        {house.name}
+                        {name}
                       </span>
                       <span className="block truncate text-[12px] text-(--olivea-olive)/70" style={{ fontFamily: "var(--font-sans)" }}>
                         {sub}
@@ -189,7 +181,7 @@ export default function HouseLinkChooser({ kind, lang, children, triggerClassNam
       <button
         ref={triggerRef}
         type="button"
-        aria-label={COPY[kind].trigger[lang]}
+        aria-label={t(kind === "instagram" ? "social.instagram.trigger" : "social.spotify.trigger")}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}

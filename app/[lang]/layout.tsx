@@ -11,6 +11,8 @@ import { SITE, canonicalUrl, shareImagePath } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
 import VhSetter from "@/components/ui/VhSetter";
 import CookieConsent from "@/components/legal/CookieConsent";
+import { loadUiText } from "@/lib/uiText/server";
+import { UiTextProvider } from "@/lib/uiText/context";
 import DeferredGtag from "@/components/analytics/DeferredGtag";
 
 export const viewport: Viewport = {
@@ -129,6 +131,10 @@ export default async function LocaleRootLayout({
   const settings = await getContent("global").catch(() => null);
   const cafe = settings?.hours?.find((h) => h.venue === "cafe");
   const cafeHours = cafe ? { schedule: cafe.schedule, slots: cafe.slots } : null;
+  // Interface text (admin → Interface text) and the chat's hours, for the
+  // browser components every page shares: reservation window, chat, cookies.
+  const uiTextValues = await loadUiText();
+  const chatSlots = settings?.hours?.find((h) => h.venue === "chat")?.slots;
 
   return (
     <html lang={lang} className={fontsClass} suppressHydrationWarning>
@@ -234,9 +240,11 @@ export default async function LocaleRootLayout({
         <VhSetter />
 
         <PathTracker />
-        <AppProviders cafeHours={cafeHours}>{children}</AppProviders>
+        <UiTextProvider value={{ text: uiTextValues, chatSlots }}>
+          <AppProviders cafeHours={cafeHours}>{children}</AppProviders>
 
-        <CookieConsent />
+          <CookieConsent />
+        </UiTextProvider>
         {/* Only on Vercel, where /_vercel/insights exists. Anywhere else (local
             builds, the Wi-Fi preview) the script 404'd and the browser refused
             it on every page: three console errors per page, nothing measured. */}

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { ExternalLink } from "lucide-react";
+import { useUiText } from "@/lib/uiText/context";
 
 /**
  * OpenTable's full booking page, inside the reservation modal — the same way
@@ -120,7 +121,8 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
   // Bumped by "Try here again": a new key remounts the frame.
   const [attempt, setAttempt] = useState(0);
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const es = lang === "es";
+  // Wording from /admin → Interface text (OpenTable inside the window).
+  const t = useUiText(lang);
   const url = openTableUrl(lang);
 
   useEffect(() => {
@@ -177,7 +179,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
       >
         <span className="h-7 w-7 rounded-full border-2 border-(--olivea-olive)/25 border-t-(--olivea-olive) animate-spin" />
         <span className="text-xs uppercase tracking-[0.18em] opacity-80">
-          {lang === "en" ? "Loading reservations…" : "Cargando reservaciones…"}
+          {t("opentable.loading")}
         </span>
       </div>
 
@@ -190,16 +192,10 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
             className="max-w-sm italic text-(--olivea-ink)/80"
             style={{ fontFamily: "var(--font-serif)", fontSize: 19, lineHeight: 1.35 }}
           >
-            {popupOpened
-              ? es ? "Tu reservación está abierta en la ventana de OpenTable." : "Your booking is open in the OpenTable window."
-              : es ? "Reserva en una ventana de OpenTable." : "Book in an OpenTable window."}
+            {t(popupOpened ? "opentable.card.openedTitle" : "opentable.card.title")}
           </p>
           <span className="-mt-2 max-w-sm text-[13px] text-(--olivea-ink)/65">
-            {popupOpened
-              ? es ? "Al terminar, ciérrala y sigues aquí." : "When you’re done, close it and you’re still here."
-              : es
-                ? "Este navegador no deja que OpenTable se muestre dentro de nuestra página; en su propia ventana carga en un instante."
-                : "This browser won’t let OpenTable show inside our page; in its own window it loads in a moment."}
+            {t(popupOpened ? "opentable.card.openedNote" : "opentable.card.note")}
           </span>
           <a
             href={url}
@@ -211,9 +207,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
             }}
             className="inline-flex h-12 items-center gap-2 rounded-full bg-(--olivea-olive) px-7 text-[12px] font-semibold uppercase tracking-[0.18em] text-(--olivea-cream) shadow-[0_10px_24px_-14px_rgba(40,60,35,0.7)] transition-colors hover:bg-(--olivea-clay)"
           >
-            {popupOpened
-              ? es ? "Volver a abrir OpenTable" : "Open OpenTable again"
-              : es ? "Reservar en OpenTable" : "Book on OpenTable"}
+            {t(popupOpened ? "opentable.card.openedCta" : "opentable.card.cta")}
             <ExternalLink size={15} aria-hidden="true" />
           </a>
           <button
@@ -221,7 +215,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
             onClick={tryHereAgain}
             className="text-[11px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)/70 underline-offset-4 hover:underline"
           >
-            {es ? "Intentar aquí de nuevo" : "Try here again"}
+            {t("opentable.card.retry")}
           </button>
         </div>
       )}
@@ -236,11 +230,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
         // React DOM treats `credentialless` as a boolean attribute; its types
         // don't list it yet, hence the spread.
         {...(fresh ? { credentialless: true } : {})}
-        title={
-          lang === "en"
-            ? "Reserve at Olivea Farm To Table on OpenTable"
-            : "Reservar en Olivea Farm To Table en OpenTable"
-        }
+        title={t("opentable.frameTitle")}
         src={url}
         className="block w-full h-full border-0"
         referrerPolicy="strict-origin-when-cross-origin"
