@@ -91,7 +91,7 @@ export default function ModernFAQ({
                   "text-[11.5px] font-semibold uppercase tracking-[0.16em] transition-colors duration-200",
                   active
                     ? "text-(--olivea-cream)"
-                    : "text-(--olivea-olive)/85 ring-1 ring-inset ring-(--olivea-olive)/22 hover:bg-(--olivea-olive)/8",
+                    : "text-(--olivea-olive) ring-1 ring-inset ring-(--olivea-olive)/22 hover:bg-(--olivea-olive)/8",
                 ].join(" ")}
                 style={{ fontFamily: "var(--font-sans)" }}
               >
@@ -105,7 +105,8 @@ export default function ModernFAQ({
                 )}
                 <span className="relative">
                   {g.label}
-                  <span className="ml-1.5 opacity-60">{count}</span>
+                  {/* Lighter weight, not faded: a faded count fell to 2:1. */}
+                  <span className="ml-1.5 font-normal">{count}</span>
                 </span>
               </button>
             );

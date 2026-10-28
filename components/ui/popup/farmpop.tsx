@@ -376,7 +376,7 @@ export default function Farmpop({
               "text-[11.5px] font-semibold uppercase tracking-[0.16em] transition-colors duration-200",
               active
                 ? "text-(--olivea-cream)"
-                : "text-(--olivea-olive)/85 ring-1 ring-inset ring-(--olivea-olive)/22 hover:bg-(--olivea-olive)/8"
+                : "text-(--olivea-olive) ring-1 ring-inset ring-(--olivea-olive)/22 hover:bg-(--olivea-olive)/8"
             )}
             style={{ fontFamily: "var(--font-sans)" }}
           >
@@ -486,7 +486,7 @@ export default function Farmpop({
         </h2>
         {subtitle && (
           <span
-            className="mt-1.5 block truncate text-[10.5px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)/60"
+            className="mt-1.5 block truncate text-[10.5px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             {subtitle}
@@ -549,7 +549,7 @@ export default function Farmpop({
                 </span>
               )}
               <span
-                className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)/55"
+                className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)"
                 style={{ fontFamily: "var(--font-sans)" }}
               >
                 {es ? "Cargando la carta" : "Loading the menu"}

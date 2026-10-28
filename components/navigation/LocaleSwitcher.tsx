@@ -103,8 +103,8 @@ export default function LocaleSwitcher({
                   ? "text-(--olivea-olive)"
                   : "text-(--olivea-cream)"
                 : dark
-                  ? "text-(--olivea-cream)/75 hover:text-(--olivea-cream)"
-                  : "text-(--olivea-olive)/75 hover:text-(--olivea-olive)"
+                  ? "text-(--olivea-cream)"
+                  : "text-(--olivea-olive)"
             )}
           >
             {active ? (

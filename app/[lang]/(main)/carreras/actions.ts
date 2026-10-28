@@ -4,7 +4,7 @@ import { z } from "zod";
 import { headers } from "next/headers";
 import { rateLimitDistributed } from "@/lib/rate-limit";
 import { sendCareersEmail, sendApplicationReceivedEmail } from "@/lib/email/send";
-import { submitApplication } from "@/lib/supabase/careers-actions";
+import { submitApplication } from "@/lib/supabase/careers-submit";
 import { canonicalUrl } from "@/lib/site";
 import {
   uploadResume,

@@ -10,7 +10,7 @@ import {
   areaLabel,
   canonicalArea,
 } from "@/lib/careers/areas";
-import { RESUME_ACCEPT, RESUME_MAX_BYTES } from "@/lib/supabase/resume-storage";
+import { RESUME_ACCEPT, RESUME_MAX_BYTES } from "@/lib/supabase/resume-rules";
 type State = { success?: boolean; errors?: ApplicationErrors };
 
 const initialState: State = { success: false, errors: {} };

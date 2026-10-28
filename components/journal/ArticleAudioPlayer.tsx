@@ -118,7 +118,7 @@ export default function ArticleAudioPlayer({
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="w-12 text-xs tabular-nums opacity-70">{fmt(t)}</span>
+          <span className="w-12 text-xs tabular-nums">{fmt(t)}</span>
 
           <input
             aria-label="Audio progress"
@@ -131,7 +131,7 @@ export default function ArticleAudioPlayer({
             disabled={!ready}
           />
 
-          <span className="w-12 text-right text-xs tabular-nums opacity-70">
+          <span className="w-12 text-right text-xs tabular-nums">
             {fmt(d || 0)}
           </span>
         </div>

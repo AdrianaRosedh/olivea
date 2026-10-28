@@ -136,6 +136,8 @@ for (const path of PAGES) {
           const b = el.getBoundingClientRect();
           if (b.width < 40 || b.height < 16 || b.top >= innerHeight || b.bottom <= 0) continue;
           if (b.left >= innerWidth || b.right <= 0 || el.closest("[aria-hidden='true']")) continue;
+          // Shown on hover and keyboard focus by design (the home cards' line).
+          if (el.closest("[data-hover-reveal]")) continue;
           const ownText = [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? "").trim().length > 2);
           if (!ownText) continue;
           let o = 1;
@@ -220,10 +222,17 @@ for (const path of PAGES) {
 
       const failures = await page.evaluate(() => {
         type RGBA = [number, number, number, number];
+        // Any CSS colour, read back through a canvas: Tailwind v4 writes
+        // translucent colours as oklab(), which a plain rgb() parser skipped.
+        const ink = document.createElement("canvas").getContext("2d", { willReadFrequently: true })!;
         const parse = (c: string): RGBA | null => {
-          const m = c.match(/[\d.]+/g);
-          if (!m || !c.startsWith("rgb")) return null;
-          return [+m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3]];
+          if (!c || c === "transparent") return null;
+          ink.clearRect(0, 0, 1, 1);
+          ink.fillStyle = "#000";
+          ink.fillStyle = c;
+          ink.fillRect(0, 0, 1, 1);
+          const [r, g, b, a] = ink.getImageData(0, 0, 1, 1).data;
+          return [r, g, b, a / 255];
         };
         const lum = ([r, g, b]: RGBA) => {
           const f = (v: number) => {
@@ -238,10 +247,24 @@ for (const path of PAGES) {
           fg[2] * fg[3] + bg[2] * (1 - fg[3]),
           1,
         ];
-        /** Solid background behind an element, or null if it sits on an image/gradient. */
-        const background = (el: Element): RGBA | null => {
+        /** Solid background behind an element, or null if it sits on an image/gradient.
+         *  Read from what is painted under the text's centre, not only its
+         *  ancestors: a selected tab's pill is a sibling layer behind the label. */
+        const background = (el: Element, x: number, y: number): RGBA | null => {
+          let stack = document.elementsFromPoint(x, y);
+          if (!stack.some((s) => s === el || s.contains(el))) {
+            // Off screen nothing is painted to ask about: bring it into view.
+            el.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
+            const r = el.getBoundingClientRect();
+            stack = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          }
+          const at = stack.findIndex((s) => s === el || s.contains(el));
+          const under: Element[] = [];
+          if (at >= 0) under.push(...stack.slice(at));
+          else for (let a: Element | null = el; a; a = a.parentElement) under.push(a);
           const layers: RGBA[] = [];
-          for (let a: Element | null = el; a; a = a.parentElement) {
+          for (const a of under) {
+            if (/^(VIDEO|IMG|CANVAS|PICTURE)$/.test(a.tagName)) return null; // over a photo
             const cs = getComputedStyle(a);
             if (cs.backgroundImage !== "none") return null;
             const c = parse(cs.backgroundColor);
@@ -256,7 +279,16 @@ for (const path of PAGES) {
         };
 
         const out: string[] = [];
-        for (const el of document.querySelectorAll<HTMLElement>("body *")) {
+        // What is on screen first: reading text further down scrolls the page,
+        // and a scroll moves the chapter docks' highlight (fixed, always on
+        // screen) mid-transition.
+        const all = [...document.querySelectorAll<HTMLElement>("body *")];
+        const onScreen = (e: Element) => {
+          const r = e.getBoundingClientRect();
+          return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+        };
+        const ordered = [...all.filter(onScreen), ...all.filter((e) => !onScreen(e))];
+        for (const el of ordered) {
           const own = [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? "").trim().length > 1);
           if (!own || el.closest("[aria-hidden='true'], .ssr-article, .sr-only, video, svg, iframe")) continue;
           if (el.closest("button:disabled, [aria-disabled='true']")) continue;
@@ -270,6 +302,19 @@ for (const path of PAGES) {
           for (let a: Element | null = el; a; a = a.parentElement) opacity *= Number(getComputedStyle(a).opacity);
           if (opacity < 0.05) continue; // not shown (closed menus, hover-only)
 
+          // Scrolled out of sight inside its own panel (a dock taller than
+          // the room it is given): clipped, so not on screen to judge.
+          const mx = b.left + b.width / 2;
+          const my = b.top + b.height / 2;
+          let clipped = false;
+          for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+            const o = getComputedStyle(a);
+            if (o.overflowX === "visible" && o.overflowY === "visible") continue;
+            const r = a.getBoundingClientRect();
+            if (mx < r.left || mx > r.right || my < r.top || my > r.bottom) { clipped = true; break; }
+          }
+          if (clipped) continue;
+
           // Text drawn over a photo or video (not its own ancestor): no solid background to judge.
           const cx = b.left + b.width / 2;
           const cy = b.top + b.height / 2;
@@ -277,7 +322,7 @@ for (const path of PAGES) {
           if (stack.some((s) => /^(VIDEO|IMG|CANVAS|PICTURE)$/.test(s.tagName) && !s.contains(el))) continue;
 
           const fg = parse(cs.color);
-          const bg = background(el);
+          const bg = background(el, cx, cy);
           if (!fg || !bg) continue;
           const text = over([fg[0], fg[1], fg[2], fg[3] * opacity], bg);
           const [hi, lo] = [lum(text), lum(bg)].sort((x, y) => y - x);

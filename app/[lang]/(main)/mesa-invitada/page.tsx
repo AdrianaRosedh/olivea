@@ -197,14 +197,14 @@ export default async function MesaInvitadaPage({ params }: Params) {
                       <span className="font-serif text-[38px] leading-none tabular-nums lining-nums">
                         {event.dinnerPrice != null && mxn(event.dinnerPrice)}
                       </span>
-                      <span className="text-[11px] uppercase tracking-[0.2em] opacity-80">{c.perPerson}</span>
+                      <span className="text-[11px] uppercase tracking-[0.2em]">{c.perPerson}</span>
                     </div>
                     <div className="mt-auto pt-6">
                       <a href={event.bookingUrl} target="_blank" rel="noopener" className={primary}>
                         {c.dinnerCta}
                         <ArrowUpRight size={15} strokeWidth={1.75} aria-hidden />
                       </a>
-                      <span className="mt-2.5 block text-[11px] uppercase tracking-[0.2em] text-(--olivea-olive)/70">{c.dinnerVia}</span>
+                      <span className="mt-2.5 block text-[11px] uppercase tracking-[0.2em] text-(--olivea-olive)">{c.dinnerVia}</span>
                     </div>
                   </div>
                 </Reveal>
@@ -223,14 +223,14 @@ export default async function MesaInvitadaPage({ params }: Params) {
                       <span className="font-serif text-[38px] leading-none tabular-nums lining-nums">
                         {event.stayPrice != null && mxn(event.stayPrice)}
                       </span>
-                      <span className="text-[11px] uppercase tracking-[0.2em] opacity-80">{c.plusTax}</span>
+                      <span className="text-[11px] uppercase tracking-[0.2em]">{c.plusTax}</span>
                     </div>
                     <div className="mt-auto pt-6">
                       <a href={whatsappHref} target="_blank" rel="noopener" className={primary}>
                         <MessageCircle size={15} strokeWidth={1.75} aria-hidden />
                         {c.stayCta}
                       </a>
-                      <span className="mt-2.5 block text-[11px] uppercase tracking-[0.2em] text-(--olivea-olive)/70">{c.stayVia}</span>
+                      <span className="mt-2.5 block text-[11px] uppercase tracking-[0.2em] text-(--olivea-olive)">{c.stayVia}</span>
                     </div>
                   </div>
                 </Reveal>}

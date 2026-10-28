@@ -8,6 +8,7 @@
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { selectRows, countRows } from "@/lib/supabase/client";
 import { requireSession } from "@/lib/auth/session";
+import { hasRole } from "@/lib/auth/types";
 
 export interface DashboardData {
   stats: {
@@ -36,7 +37,10 @@ export interface DashboardData {
 
 export async function getDashboardData(): Promise<DashboardData> {
   // Require authenticated admin session
-  await requireSession();
+  const session = await requireSession();
+  // The activity feed is the audit trail, which /admin/audit-log keeps to
+  // managers and above; the rest of the dashboard is for every role.
+  const seesActivity = hasRole(session.role, "manager");
 
   if (!isSupabaseConfigured) {
     // Return mock data for local dev without Supabase
@@ -151,7 +155,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   // ── Recent activity — pulled from admin_audit_log ──
   const activity: DashboardData["recentActivity"] = [];
-  try {
+  if (seesActivity) try {
     const logs = await selectRows<{
       id: string;
       user_id: string | null;

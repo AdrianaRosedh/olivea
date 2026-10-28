@@ -68,7 +68,7 @@ function Signature({ text, className = "" }: { text: string; className?: string 
   return (
     <div
       aria-hidden="true"
-      className={`flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive)/55 ${className}`}
+      className={`flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-(--olivea-olive) ${className}`}
     >
       <span className="h-px w-8 bg-current opacity-60" />
       {text}
@@ -198,7 +198,7 @@ function RestaurantPane({
             target="_blank"
             rel="noopener noreferrer"
             onClick={openOpenTableWindow}
-            className="inline-flex items-center gap-1.5 text-xs text-(--olivea-ink)/60 underline-offset-4 hover:text-(--olivea-olive) hover:underline whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 text-xs text-(--olivea-ink) underline-offset-4 hover:text-(--olivea-olive) hover:underline whitespace-nowrap"
           >
             {t("reservation.restaurant.direct")}
             <ExternalLink size={13} />
@@ -400,7 +400,7 @@ function SheetHeader({
         >
           {h.name}
         </span>
-        <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)/65">
+        <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)">
           {h.cue}
         </span>
       </span>
@@ -965,7 +965,7 @@ export default function ReservationModal({ lang, cafeHours }: ReservationModalPr
           <div className={`relative flex items-center px-6 shrink-0 ${isMobile ? "py-4" : "h-20"}`}>
             <h2 className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               {!isMobile && (
-                <span className="text-[11px] uppercase tracking-[0.42em] text-(--olivea-olive)/80">
+                <span className="text-[11px] uppercase tracking-[0.42em] text-(--olivea-olive)">
                   Olivea
                 </span>
               )}

@@ -36,7 +36,7 @@ export default function StatChips({
         const { headline, detail } = splitFact(value);
         return (
           <div key={label} className="border-l border-(--olivea-olive)/25 pl-4">
-            <dt className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)/75">{label}</dt>
+            <dt className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)">{label}</dt>
             <dd className="mt-2">
               <span
                 className="block text-(--olivea-olive)"

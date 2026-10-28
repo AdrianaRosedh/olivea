@@ -310,7 +310,7 @@ export default function SiteBanner() {
               "pointer-events-auto",
               compact ? "relative w-auto" : "relative w-full",
               "rounded-2xl",
-              "bg-(--olivea-cream)/96",
+              "bg-(--olivea-cream)",
               "backdrop-blur-md",
               "ring-1 ring-(--olivea-olive)/16",
               "shadow-[0_18px_54px_-40px_rgba(0,0,0,0.30)]",
@@ -369,7 +369,7 @@ export default function SiteBanner() {
                 initial={reduce ? false : "hidden"}
                 animate={reduce ? undefined : "show"}
               >
-                <p className="flex items-center gap-2 text-[13.5px] md:text-[14px] text-(--olivea-ink) opacity-95">
+                <p className="flex items-center gap-2 text-[13.5px] md:text-[14px] text-(--olivea-ink)">
                   <span className="md:hidden h-1.5 w-1.5 shrink-0 rounded-full bg-(--olivea-olive)/55 olivea-banner-dot" />
                   <span className="sr-only md:hidden">{label}: </span>
                   <span className="truncate">{banner.text}</span>

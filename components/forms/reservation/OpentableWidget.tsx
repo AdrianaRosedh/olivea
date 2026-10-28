@@ -178,7 +178,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
         }`}
       >
         <span className="h-7 w-7 rounded-full border-2 border-(--olivea-olive)/25 border-t-(--olivea-olive) animate-spin" />
-        <span className="text-xs uppercase tracking-[0.18em] opacity-80">
+        <span className="text-xs uppercase tracking-[0.18em]">
           {t("opentable.loading")}
         </span>
       </div>
@@ -194,7 +194,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
           >
             {t(popupOpened ? "opentable.card.openedTitle" : "opentable.card.title")}
           </p>
-          <span className="-mt-2 max-w-sm text-[13px] text-(--olivea-ink)/65">
+          <span className="-mt-2 max-w-sm text-[13px] text-(--olivea-ink)">
             {t(popupOpened ? "opentable.card.openedNote" : "opentable.card.note")}
           </span>
           <a
@@ -213,7 +213,7 @@ function OpenTableWidgetImpl({ lang = "es" }: { lang?: "es" | "en" }) {
           <button
             type="button"
             onClick={tryHereAgain}
-            className="text-[11px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive)/70 underline-offset-4 hover:underline"
+            className="text-[11px] font-semibold uppercase tracking-[0.2em] text-(--olivea-olive) underline-offset-4 hover:underline"
           >
             {t("opentable.card.retry")}
           </button>

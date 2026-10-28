@@ -12,7 +12,7 @@
 
 import { randomUUID } from "node:crypto";
 import { requireSectionAccess } from "@/lib/auth/session";
-import { selectRows } from "@/lib/supabase/client";
+import { selectRows, assertUUID } from "@/lib/supabase/client";
 import {
   isSupabaseConfigured,
   SUPABASE_URL,
@@ -82,7 +82,7 @@ export async function getSecureDocAccessLog(limit = 500): Promise<SecureDocAcces
   const [views, docs] = await Promise.all([
     selectRows<ViewRow>("secure_document_views", {
       role: "service_role",
-      query: `order=viewed_at.desc&limit=${limit}`,
+      query: `order=viewed_at.desc&limit=${Math.min(Math.max(Math.trunc(Number(limit)) || 500, 1), 1000)}`,
     }),
     selectRows<DocRow>("secure_documents", {
       role: "service_role",
@@ -294,6 +294,7 @@ export interface DocPatch {
 
 export async function updateSecureDocument(id: string, patch: DocPatch): Promise<{ ok: boolean }> {
   await requireSectionAccess(SECURE_DOCS_SECTION, "editor");
+  assertUUID(id);
   if (!isSupabaseConfigured) return { ok: false };
 
   const body: Record<string, unknown> = {};
@@ -322,6 +323,7 @@ export async function updateSecureDocument(id: string, patch: DocPatch): Promise
 
 export async function setDocumentPasscode(id: string, passcode: string | null): Promise<{ ok: boolean }> {
   await requireSectionAccess(SECURE_DOCS_SECTION, "editor");
+  assertUUID(id);
   if (!isSupabaseConfigured) return { ok: false };
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/admin_set_document_passcode`, {
     method: "POST",
@@ -334,6 +336,7 @@ export async function setDocumentPasscode(id: string, passcode: string | null): 
 
 export async function deleteSecureDocument(id: string): Promise<{ ok: boolean }> {
   await requireSectionAccess(SECURE_DOCS_SECTION, "editor");
+  assertUUID(id);
   if (!isSupabaseConfigured) return { ok: false };
 
   // Look up the storage path so we can remove the file too.

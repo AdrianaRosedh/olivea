@@ -213,6 +213,30 @@ export default function MobileDrawer({
   }
   const visibility: "visible" | "hidden" = isOpen || !closeDone ? "visible" : "hidden";
 
+  // The close is finished when the circle has drawn back to nothing: hide the
+  // panel and tell the navbar (it re-reads its tone for what is underneath).
+  const finishCloseRef = useRef<() => void>(() => {});
+  finishCloseRef.current = () => {
+    setCloseDone(true);
+    onExitComplete?.();
+    window.dispatchEvent(new Event("olivea:drawer-exit"));
+  };
+
+  // A close with nothing to animate never sends transitionend: closed before
+  // the opening had drawn a frame (a double tap), the circle is already at
+  // zero and the panel stayed "visible", and the navbar never heard. Finish
+  // it here when, two frames into the close, nothing is animating.
+  useEffect(() => {
+    if (isOpen || closeDone) return;
+    let raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => {
+        const panel = panelRef.current;
+        if (panel && panel.getAnimations().length === 0) finishCloseRef.current();
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [isOpen, closeDone]);
+
   return (
         <>
           {/* Backdrop */}
@@ -262,9 +286,7 @@ export default function MobileDrawer({
                     ? cs.opacity === "0"
                     : /^circle\(0px/.test(cs.clipPath);
                   if (!finished) return;
-                  setCloseDone(true);
-                  onExitComplete?.();
-                  window.dispatchEvent(new Event("olivea:drawer-exit"));
+                  finishCloseRef.current();
                 }}
                 inert={!isOpen}
                 style={{
@@ -500,7 +522,7 @@ export default function MobileDrawer({
 
                     <motion.p
                       variants={item}
-                      className="text-xs text-(--olivea-shell) opacity-70 text-center"
+                      className="text-xs text-(--olivea-shell) text-center"
                     >
                       {chrome?.copyright ? (
                         <>

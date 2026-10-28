@@ -15,6 +15,14 @@ const toggle = (page: Page) => page.locator("button[aria-expanded]").filter({ vi
 const menu = (page: Page, lang: "es" | "en" = "es") =>
   page.locator(`[role=dialog][aria-label="${lang === "es" ? "Menú" : "Menu"}"]`);
 
+// Closed, the menu stays in the page (mounting it on every tap made the
+// opening circle jump on phones) but hidden and inert: nothing in it can be
+// seen, tapped, focused or read out.
+const expectClosed = async (page: Page, lang: "es" | "en" = "es") => {
+  await expect(menu(page, lang)).toBeHidden();
+  await expect(menu(page, lang)).toHaveAttribute("inert", "");
+};
+
 async function open(page: Page, path: string, baseURL: string) {
   await page.context().addCookies([{ name: "olivea_consent", value: "granted", url: baseURL }]);
   // The announcement popup opens on the first tap; keep it out of these tests.
@@ -52,7 +60,7 @@ test("opens and closes cleanly, labelled in the page's language, and leaves the 
   await expect
     .poll(() =>
       page.evaluate(() => {
-        const o = document.querySelector('img[src*="roseiies-mark"]');
+        const o = document.querySelector("[data-roseiies-orb]");
         if (!o) return "gone";
         return o.getBoundingClientRect().width > 0 ? "visible" : "gone";
       })
@@ -67,7 +75,7 @@ test("opens and closes cleanly, labelled in the page's language, and leaves the 
     } else {
       await page.keyboard.press("Escape");
     }
-    await expect(menu(page)).toHaveCount(0);
+    await expectClosed(page);
     await expect.poll(() => pageLocked(page), { message: `page unlocked after closing by ${close}` }).toBe(false);
     expect(await page.evaluate(() => Math.round(window.scrollY))).toBe(1200);
   }
@@ -100,7 +108,7 @@ test("a menu link navigates, closes the menu and unlocks the page", async ({ pag
   await openMenu(page);
   await menu(page).locator('a[href="/es/journal"]').click();
   await page.waitForURL("**/es/journal");
-  await expect(menu(page)).toHaveCount(0);
+  await expectClosed(page);
   await expect.poll(() => pageLocked(page)).toBe(false);
 });
 

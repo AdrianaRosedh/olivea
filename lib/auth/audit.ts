@@ -3,8 +3,11 @@
 // Audit logging helper. Call from any admin server action that mutates
 // data. Failures are non-blocking — we never break a save just because
 // the audit insert hit an error.
+//
+// Not a "use server" module: every export of one is a public endpoint, and
+// anyone could then write entries into the audit trail. Only server actions
+// that have already checked the caller import this.
 // ─────────────────────────────────────────────────────────────────────
-"use server";
 
 import { insertRows } from "@/lib/supabase/client";
 import { getSession } from "./session";

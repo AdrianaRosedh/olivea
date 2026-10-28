@@ -127,8 +127,9 @@ export default function FTTArticle({ lang, sections }: { lang: Lang; sections: S
         <section id={`gallery-${lang}`} aria-label={es ? "Galería" : "Gallery"}>
           <h2>{es ? "Galería" : "Gallery"}</h2>
           <ul>
-            {images.map((img) => (
-              <li key={img.src}>{t(img.alt, lang)}</li>
+            {/* By position: one photo can sit in the gallery twice. */}
+            {images.map((img, i) => (
+              <li key={`${i}-${img.src}`}>{t(img.alt, lang)}</li>
             ))}
           </ul>
         </section>

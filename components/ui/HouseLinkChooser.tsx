@@ -126,7 +126,7 @@ export default function HouseLinkChooser({ kind, lang, children, triggerClassNam
         >
           {/* A span, not a <p>: the site's paragraph rules restyle every <p>. */}
           <span
-            className="block px-2.5 pt-1.5 pb-2 text-[10.5px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)/75"
+            className="block px-2.5 pt-1.5 pb-2 text-[10.5px] font-semibold uppercase tracking-[0.22em] text-(--olivea-olive)"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             {title}
@@ -159,7 +159,7 @@ export default function HouseLinkChooser({ kind, lang, children, triggerClassNam
                       >
                         {name}
                       </span>
-                      <span className="block truncate text-[12px] text-(--olivea-olive)/70" style={{ fontFamily: "var(--font-sans)" }}>
+                      <span className="block truncate text-[12px] text-(--olivea-olive)" style={{ fontFamily: "var(--font-sans)" }}>
                         {sub}
                       </span>
                     </span>

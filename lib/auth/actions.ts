@@ -26,8 +26,13 @@ async function adminBaseUrl(): Promise<string> {
   const h = await headers();
   const raw = h.get("x-forwarded-host") ?? h.get("host") ?? "";
   const hostname = raw.split(":")[0];
-  if (hostname === "localhost" || hostname.endsWith(".localhost") || hostname === "127.0.0.1") {
-    return `http://${raw}`; // local dev (any port)
+  // Local dev only, and only a well-formed local host[:port]: a header such
+  // as "evil.com/x?.localhost" also ends in ".localhost".
+  if (
+    process.env.NODE_ENV !== "production" &&
+    /^(([a-z0-9-]+\.)*localhost|127\.0\.0\.1)(:\d{1,5})?$/i.test(raw)
+  ) {
+    return `http://${raw}`;
   }
   const adminHostname = process.env.ADMIN_HOSTNAME ?? "admin.oliveafarmtotable.com";
   if (hostname === adminHostname) {

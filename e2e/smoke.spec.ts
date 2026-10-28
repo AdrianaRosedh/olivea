@@ -67,10 +67,17 @@ test.describe("content pages", () => {
     expect(broken).toEqual([]);
   });
 
+  // Hours are edited in /admin/hours, so no fixed wording: each house's
+  // section in the contact article carries a schedule with a time range.
   test("contact shows venue hours", async ({ page }) => {
     await page.goto("/es/contact");
-    await expect(page.getByText("Mié 5–8").first()).toBeAttached();
-    await expect(page.getByText(/Mié–Lun 7:30–2:30/).first()).toBeAttached();
+    const schedules = await page.locator(".ssr-article section").evaluateAll((sections) =>
+      sections
+        .filter((s) => /Farm To Table|Café|Casa Olivea/.test(s.querySelector("h2")?.textContent ?? ""))
+        .map((s) => [...s.querySelectorAll("dd")].map((d) => d.textContent ?? "").join(" "))
+        .filter((t) => /\d{1,2}(:\d{2})?\s*(am|pm)?\s*[–-]\s*\d/.test(t))
+    );
+    expect(schedules).toHaveLength(3);
   });
 
   test("sustainability renders the six chapters", async ({ page }) => {

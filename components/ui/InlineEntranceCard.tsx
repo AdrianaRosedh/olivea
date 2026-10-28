@@ -8,6 +8,7 @@ import {
   useCallback,
   useRef,
   useSyncExternalStore,
+  useId,
   type ComponentType,
   type SVGProps,
   type RefObject,
@@ -203,6 +204,8 @@ export default function InlineEntranceCard({
   const isMobile = size === "compact";
 
   const [isHovered, setIsHovered] = useState(false);
+  // Keyboard focus shows the description too, as hover does for a pointer.
+  const [isFocused, setIsFocused] = useState(false);
   // While a phone card is held down, its emblem lifts off the card.
   const [isPressed, setIsPressed] = useState(false);
   const emblemMoves = isMobile && !reduceMotion;
@@ -223,6 +226,10 @@ export default function InlineEntranceCard({
 
   const lastSeg = href.replace(/\/+$/, "").split("/").pop() || "";
   const slug = lastSeg || sectionKey;
+  // The home page renders each card twice (phone list and desktop row, one
+  // hidden by CSS), so the description id is per instance, not per house.
+  const instanceId = useId();
+  const descId = `${slug}-desc-${instanceId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   // derive video name from href segment (existing behavior)
   const videoBase = slug;
@@ -494,8 +501,10 @@ export default function InlineEntranceCard({
         role="link"
         tabIndex={0}
         aria-label={`${isES ? "Ir a" : "Go to"} ${title}`}
-        aria-describedby={slug ? `${slug}-desc` : undefined}
+        aria-describedby={descId}
         onClick={handleActivate}
+        onFocus={(e) => setIsFocused(e.currentTarget.matches(":focus-visible"))}
+        onBlur={() => setIsFocused(false)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") handleActivate(e);
         }}
@@ -630,7 +639,8 @@ export default function InlineEntranceCard({
                     tap; on desktop it appears on hover, as it always has. It
                     stays in the page either way for aria-describedby. */}
                 <p
-                  id={`${slug}-desc`}
+                  id={descId}
+                  data-hover-reveal={isMobile ? undefined : ""}
                   style={
                     isMobile
                       ? {
@@ -652,7 +662,7 @@ export default function InlineEntranceCard({
                           fontSize: 15,
                           whiteSpace: "nowrap",
                           maxWidth: 320,
-                          opacity: isHovered ? 1 : 0,
+                          opacity: isHovered || isFocused ? 1 : 0,
                           transition: `opacity ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                         }
                   }

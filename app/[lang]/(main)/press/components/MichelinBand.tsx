@@ -27,7 +27,7 @@ export default function MichelinBand({
       <div className="flex items-center gap-3">
         <Image src="/images/press/awards/michelin.svg" alt="" width={34} height={37} />
         <Image src="/images/press/awards/michelin-green-star.svg" alt="" width={34} height={32} />
-        <span className="text-[11px] uppercase tracking-[0.26em] text-(--olivea-olive)/80">
+        <span className="text-[11px] uppercase tracking-[0.26em] text-(--olivea-olive)">
           {t(band?.guideLabel)}
         </span>
       </div>

@@ -370,7 +370,7 @@ export default function PhilosophyDockLeft({
                       "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/25",
                       "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-cream)",
                       isActive
-                        ? "bg-(--olivea-olive)/10"
+                        ? "bg-white/55 ring-1 ring-inset ring-(--olivea-olive)/20"
                         : "hover:bg-(--olivea-olive)/6"
                     )}
                     aria-current={isActive ? "page" : undefined}

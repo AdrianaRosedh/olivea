@@ -18,6 +18,8 @@ function layout(opts: {
   body: string;
   footer?: string;
 }) {
+  // Preheaders are plain text and some carry what an applicant typed (their
+  // name), so they are escaped here, once, for every email.
   const { preheader, body, footer } = opts;
 
   return `<!DOCTYPE html>
@@ -51,7 +53,7 @@ function layout(opts: {
   </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f5f0; -webkit-text-size-adjust: none; text-size-adjust: none;">
-  ${preheader ? `<div style="display:none;font-size:1px;color:#f4f5f0;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">${preheader}</div>` : ""}
+  ${preheader ? `<div style="display:none;font-size:1px;color:#f4f5f0;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">${escapeHtml(preheader)}</div>` : ""}
 
   <!-- Outer wrapper -->
   <table role="presentation" class="email-bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f5f0;">
@@ -136,7 +138,8 @@ function defaultFooter() {
 
 /* ── Reusable elements ── */
 
-function primaryButton(label: string, href: string) {
+function primaryButton(label: string, rawHref: string) {
+  const href = escapeHtml(rawHref);
   return `
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 28px auto 0;">
       <tr>
@@ -282,7 +285,7 @@ export function magicLinkEmail(opts: { magicLinkUrl: string; email: string }) {
 
     <p class="email-muted" style="margin: 16px 0 0; font-size: 11px; color: #9ca896; text-align: center; line-height: 16px; word-break: break-all;">
       Or copy this link:<br />
-      <a href="${opts.magicLinkUrl}" style="color: #566d51; font-size: 11px;">${opts.magicLinkUrl}</a>
+      <a href="${escapeHtml(opts.magicLinkUrl)}" style="color: #566d51; font-size: 11px;">${escapeHtml(opts.magicLinkUrl)}</a>
     </p>`;
 
   return layout({
