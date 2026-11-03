@@ -19,6 +19,7 @@ import Reveal from "@/components/scroll/Reveal";
 import { canonicalUrl, localeAlternates, withShare } from "@/lib/site";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
 import ShareButton from "./ShareButton";
+import ReserveLinks from "./ReserveLinks";
 import { currentEvent, type OliveaEvent } from "@/lib/events";
 import { getContent } from "@/lib/content";
 import { notFound } from "next/navigation";
@@ -132,23 +133,26 @@ export default async function MesaInvitadaPage({ params }: Params) {
 
       <section className="mx-auto w-full max-w-300 px-6 sm:px-8 lg:px-10 pt-8 md:pt-14 pb-20">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-14 items-start">
-          {/* Poster */}
-          <div className="lg:col-span-5">
-            <div className="relative overflow-hidden rounded-[22px] ring-1 ring-black/10 shadow-[0_40px_90px_-50px_rgba(0,0,0,0.55)] bg-(--olivea-forest)">
-              {event.poster && <Image
-                src={event.poster}
-                alt={c.posterAlt}
-                width={1620}
-                height={2025}
-                priority
-                sizes="(max-width: 1024px) 100vw, 480px"
-                className="h-auto w-full"
-              />}
+          {/* Poster — only while the dinner is ahead: the prices are printed
+              on it, and nothing on the image says the date has passed. */}
+          {!past && (
+            <div className="lg:col-span-5">
+              <div className="relative overflow-hidden rounded-[22px] ring-1 ring-black/10 shadow-[0_40px_90px_-50px_rgba(0,0,0,0.55)] bg-(--olivea-forest)">
+                {event.poster && <Image
+                  src={event.poster}
+                  alt={c.posterAlt}
+                  width={1620}
+                  height={2025}
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 480px"
+                  className="h-auto w-full"
+                />}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Details + booking */}
-          <div className="lg:col-span-7">
+          <div className={past ? "lg:col-span-8" : "lg:col-span-7"}>
             <Reveal preset="fade">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <span className={`${label} text-(--olivea-olive)`}>{c.kicker}</span>
@@ -158,7 +162,9 @@ export default async function MesaInvitadaPage({ params }: Params) {
 
             <Reveal preset="up" delay={0.05}>
               <h1 className="mt-4 font-serif italic text-[44px] leading-[1.02] md:text-[62px] text-(--olivea-forest)">
-                {c.title}
+                {/* The title sells the stay package; once the dinner has
+                    passed, the heading names only the dinner. */}
+                {past && c.occasion ? (L === "es" ? `Cena de ${c.occasion}` : `A ${c.occasion} dinner`) : c.title}
               </h1>
             </Reveal>
 
@@ -186,6 +192,15 @@ export default async function MesaInvitadaPage({ params }: Params) {
             {past ? (
               <div className="mt-9 sm:max-w-xl rounded-[26px] bg-white/45 ring-1 ring-(--olivea-olive)/14 p-6 md:p-7 text-[15.5px] leading-[1.75] text-(--olivea-ink)/90">
                 {c.pastNote}
+                <ReserveLinks
+                  lead={L === "es" ? "Mientras tanto, te esperamos" : "In the meantime, join us"}
+                  links={[
+                    { type: "restaurant", label: L === "es" ? "Reservar en Farm To Table" : "Book Farm To Table" },
+                    { type: "hotel", label: L === "es" ? "Reservar en Casa Olivea" : "Book Casa Olivea" },
+                  ]}
+                  className={primary}
+                  labelClassName={`${label} text-(--olivea-honey-text)`}
+                />
               </div>
             ) : (
               <div className="mt-9 grid gap-5 sm:max-w-xl">
