@@ -195,8 +195,8 @@ export default async function MesaInvitadaPage({ params }: Params) {
                 <ReserveLinks
                   lead={L === "es" ? "Mientras tanto, te esperamos" : "In the meantime, join us"}
                   links={[
-                    { type: "restaurant", label: L === "es" ? "Reservar en Farm To Table" : "Book Farm To Table" },
-                    { type: "hotel", label: L === "es" ? "Reservar en Casa Olivea" : "Book Casa Olivea" },
+                    { type: "restaurant", label: L === "es" ? "Reservar mesa" : "Book a table" },
+                    { type: "hotel", label: L === "es" ? "Reservar estancia" : "Book a stay" },
                   ]}
                   className={primary}
                   labelClassName={`${label} text-(--olivea-honey-text)`}
