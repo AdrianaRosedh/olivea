@@ -18,7 +18,8 @@ export default function ReserveLinks({ lead, links, className, labelClassName }:
   const { openReservationModal } = useReservation();
   return (
     <div className="mt-6 flex flex-col gap-3">
-      <span className={labelClassName}>{lead}</span>
+      {/* Balanced, so a wrap on a phone doesn't strand one word. */}
+      <span className={`${labelClassName} text-balance`}>{lead}</span>
       <div className="flex flex-col sm:flex-row gap-3">
         {links.map((l) => (
           <button key={l.type} type="button" onClick={() => openReservationModal(l.type)} className={className}>
