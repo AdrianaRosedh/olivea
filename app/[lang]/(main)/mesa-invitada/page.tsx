@@ -38,14 +38,20 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const current = await currentEvent(SERIES);
   if (!current) return {};
   const { event, past } = current;
+  // A past dinner's title, description and share card say it happened, not
+  // what it costs: the metaTitle sells the stay, and the share card has both
+  // prices printed on it — and that card is what a WhatsApp or Instagram link
+  // preview shows, with nothing around it to say the date has passed.
+  const pastTitle = [line(event, "eventName", L), line(event, "occasion", L)].filter(Boolean).join(" · ");
   return withShare(
     {
-      title: line(event, "metaTitle", L),
-      // A past dinner's description says it happened, not what it costs.
+      title: past ? pastTitle || line(event, "metaTitle", L) : line(event, "metaTitle", L),
       description: past ? line(event, "pastNote", L) || line(event, "metaDescription", L) : line(event, "metaDescription", L),
       alternates: localeAlternates(lang, "/mesa-invitada"),
     },
-    { lang, path: "/mesa-invitada", image: event.shareImage, alt: line(event, "posterAlt", L) }
+    past
+      ? { lang, path: "/mesa-invitada" }
+      : { lang, path: "/mesa-invitada", image: event.shareImage, alt: line(event, "posterAlt", L) }
   );
 }
 
