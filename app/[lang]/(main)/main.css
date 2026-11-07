@@ -189,6 +189,15 @@
     font-size: 1.375rem;
     line-height: 1.7;
   }
+
+  /* Comfortable measure for the house pages' full-width paragraph blocks.
+     Spanning the whole content column they ran past 100 characters a line
+     at 20px. Sub blocks hold only running text (no images or grids), so
+     capping them leaves photos and fact strips at full width. Two-column
+     blocks are already narrower than this and are unaffected. */
+  [data-scope="main"] .subsection {
+    max-width: 66ch;
+  }
 }
 
 /* ───────────────────────────────────────────────────────────── */
@@ -337,5 +346,121 @@
     [data-scope="main"] .section-center {
       min-height: 100dvh;
     }
+  }
+}
+/* ───────────────────────────────────────────────────────────── */
+/* Editorial look (Casa, Farm To Table, Café Wine Bar; desktop).  */
+/* Scoped to [data-editorial] on each page's Content root. Note   */
+/* cards (data-note-card) and question rows (data-faq-item)       */
+/* become ruled lists instead of boxes. Photos keep their soft    */
+/* rounded corners on purpose; their shadows were removed at the  */
+/* source (the frames carry data-photo-frame).                    */
+@media (min-width: 1024px) {
+  [data-editorial] .grid:has(> [data-note-card]) {
+    column-gap: 56px !important;
+    row-gap: 36px !important;
+  }
+  [data-editorial] [data-note-card] {
+    background: none !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    border-top: 1px solid color-mix(in srgb, var(--olivea-olive) 28%, transparent) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 18px 0 0 !important;
+  }
+  /* Decorative accents inside a card (sheen, side bar, small rule) give
+     way to the ruled line. */
+  [data-editorial] [data-note-card] > :is(span[aria-hidden], .absolute) {
+    display: none !important;
+  }
+  /* A card's lead line (Stay Info) reads as a small spaced label. */
+  [data-editorial] [data-note-card] > p:first-child {
+    font-size: 11.5px !important;
+    letter-spacing: 0.2em;
+    color: var(--olivea-olive);
+  }
+  /* Note copy reads as supporting text, a step below the 20px body. */
+  [data-editorial] [data-note-card] p:not(:first-child) {
+    font-size: 1.125rem !important;
+    opacity: 0.85;
+  }
+
+  /* Questions: hairline rows, no boxes. */
+  [data-editorial] [data-faq-item] {
+    border: 0 !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--olivea-olive) 22%, transparent) !important;
+    border-radius: 0 !important;
+    background: none !important;
+  }
+  [data-editorial] [data-faq-item] > button {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  [data-editorial] [data-faq-icon] {
+    border-color: transparent !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* Gentle motion details (desktop, motion allowed).               */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* Photographs lean in very slowly while the pointer rests on them:
+     a 3% zoom over 1.6s inside their own rounded frame. Only the frame
+     under the pointer reacts (a gallery strip holds several). */
+  [data-editorial] [data-photo-frame] img[data-nimg="fill"] {
+    transition: transform 1.6s var(--ease-cinematic-out);
+  }
+  [data-editorial] [data-photo-frame]:hover img[data-nimg="fill"] {
+    transform: scale(1.03);
+  }
+
+  /* Links inside running text on the house pages: the normal underline
+     at rest, and a firmer line that draws in from the left on hover.
+     Buttons opt out by not being inside running text. */
+  [data-editorial] :is(p, li, blockquote, .subsection, dd) a:not([data-note-card]) {
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+    text-underline-offset: 0.18em;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.45s var(--ease-cinematic-out);
+  }
+  [data-editorial] :is(p, li, blockquote, .subsection, dd) a:not([data-note-card]):hover {
+    background-size: 100% 1px;
+    text-decoration-color: transparent;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* Chapter headings ink in as they scroll into view (desktop): a  */
+/* faint olive wash fills with full olive from left to right.     */
+/* components/scroll/SectionHeading.tsx writes --ink (0 → 1)      */
+/* after hydration; it defaults to 1 here, so without script,     */
+/* with reduced motion or on phones the heading is simply plain.  */
+@media (min-width: 1024px) and (forced-colors: none) {
+  [data-editorial] section:not(#hero) h2[data-ink] {
+    background-image: linear-gradient(
+      90deg,
+      var(--olivea-olive) 0%,
+      var(--olivea-olive) 42%,
+      color-mix(in srgb, var(--olivea-olive) 24%, transparent) 58%,
+      color-mix(in srgb, var(--olivea-olive) 24%, transparent) 100%
+    );
+    /* Sized to the words, not the column, so a short title inks across
+       its own length instead of finishing in the first instant. */
+    width: fit-content;
+    max-width: 100%;
+    background-size: 250% 100%;
+    background-position: calc(100% - var(--ink, 1) * 100%) 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  /* Selected heading text stays readable on the olive selection. */
+  [data-editorial] section:not(#hero) h2[data-ink]::selection {
+    -webkit-text-fill-color: var(--olivea-cream);
   }
 }

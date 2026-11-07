@@ -22,6 +22,7 @@ export default function GallerySection({ data, lang }: SectionProps) {
       title={null}
     >
       <GalleryGrid
+        lang={lang}
         topImages={topImages.map((img) => ({
           src: img.src,
           alt: t(img.alt, lang),

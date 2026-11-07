@@ -492,7 +492,9 @@ export default function PopupHost() {
                             fill
                             sizes="(max-width: 768px) 100vw, 640px"
                             className="object-cover object-center"
-                            priority={false}
+                            // The popup is the largest thing on screen once
+                            // it opens; load its photo straight away.
+                            loading="eager"
                           />
                         ) : null}
 

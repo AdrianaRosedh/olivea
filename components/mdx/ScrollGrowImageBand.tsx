@@ -188,17 +188,20 @@ export default function ScrollGrowImageBand({
   return (
     <motion.div
       ref={setTargetNode}
+      data-photo-frame=""
       className={[
         "relative mt-10 w-full mx-auto overflow-hidden",
         maxWClassName,
         "rounded-[26px] md:rounded-[40px]",
-        "ring-1 ring-black/10",
-        "shadow-[0_18px_54px_rgba(0,0,0,0.20)] md:shadow-[0_28px_78px_rgba(0,0,0,0.22)]",
         "bg-(--olivea-cream)/95",
+        // Phones show a fixed height. Set from CSS (not after hydration) so
+        // the server HTML already has it and the band never jumps on load.
+        mobileMode === "static" ? "max-md:h-(--band-mobile-h)!" : "",
         className,
       ].join(" ")}
       style={{
         height: h,
+        ["--band-mobile-h" as string]: mobileH,
         opacity: reduce ? 1 : cardOpacity,
         // ✅ entire CARD reveals up on mobile
         y: !reduce && isMobile ? cardY : 0,

@@ -1,7 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
 import { canonicalUrl } from "@/lib/site";
-import { loadTeam } from "@/app/[lang]/(main)/team/teamData";
+import { loadTeam } from "@/app/[lang]/(main)/team/teamData.server";
 import { listJournalIndex } from "@/lib/journal/load";
 
 async function getTeamIds(): Promise<string[]> {

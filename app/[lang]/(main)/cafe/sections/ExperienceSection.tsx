@@ -6,6 +6,8 @@ import FieldNote from "@/components/mdx/FieldNote";
 import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
+import LiveGardenLink from "@/components/live-garden/LiveGardenLink";
 
 export default function ExperienceSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "experiencia";
@@ -31,9 +33,9 @@ export default function ExperienceSection({ data, lang }: SectionProps) {
       {/* Title block */}
       <div className="max-w-[860px]">
         <Reveal preset="up" delay={0.08}>
-          <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+          <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">
             {heading}
-          </h2>
+          </SectionHeading>
         </Reveal>
 
         {subtitle && (
@@ -55,6 +57,11 @@ export default function ExperienceSection({ data, lang }: SectionProps) {
           {origin}
         </Sub>
       )}
+
+      {/* The opening invites guests to walk the garden: let them see it live. */}
+      <Reveal preset="fade" delay={0.1}>
+        <LiveGardenLink lang={lang} source="link-cafe" className="mt-4" />
+      </Reveal>
 
       {/* Specs */}
       {stats.length > 0 && (

@@ -37,4 +37,13 @@ describe("sanitizeHtml", () => {
       '<a href="https://example.com" target="_blank" rel="noopener noreferrer">Visit</a>',
     );
   });
+
+  it("keeps only the editor's own classes and drops ids", () => {
+    expect(sanitizeHtml('<div class="fixed inset-0 z-50 j-wide" id="main-content">x</div>')).toBe(
+      '<div class="j-wide">x</div>',
+    );
+    expect(sanitizeHtml('<figure class="float-left"><img src="/a.jpg" alt="" /></figure>')).toBe(
+      '<figure class="float-left"><img src="/a.jpg" alt="" /></figure>',
+    );
+  });
 });

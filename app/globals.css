@@ -62,6 +62,9 @@ html { position: relative; }
   --olivea-olive: #566d51;
   --olivea-ink: #566d51;
   --olivea-white: #f1f1f1;
+
+  /* House motion curve — the CSS twin of easeCinematicOut in lib/animations.ts. */
+  --ease-cinematic-out: cubic-bezier(0.22, 1, 0.36, 1);
   --olivea-soil: #566d51;
   --olivea-mist: #e7eae1;
   --olivea-sand: #dcd5c3;
@@ -138,7 +141,6 @@ html { position: relative; }
   --dock-label-fs: 11px;     /* CAPÍTULOS header  */
   --dock-num-fs: 12px;       /* chapter numbers   */
   --dock-title-fs: 18px;     /* chapter titles    */
-  --dock-sub-fs: 13px;       /* subsection links  */
   --dock-item-gap: 20px;     /* space between chapters (was gap-5) */
 
   /* Single source of truth for scroll-to-section offset.
@@ -565,6 +567,10 @@ html.pwa-standalone .pwa-safe-bottom {
 .ssr-article-hero {
   width: 100%;
   height: auto;
+  /* The share-image frame (1200×630); the photo is cropped to it rather than
+     stretched when its own proportions differ. */
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
   border-radius: 0.75rem;
   margin-top: 1rem;
 }
@@ -665,4 +671,132 @@ body.lcp-demote .fixed-lcp {
 .prose blockquote {
   font-size: inherit;
   line-height: calc(var(--line-height-body) * 1em);
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* Text selection in the house colours: olive ground, cream type, */
+/* instead of the browser's default blue.                         */
+::selection {
+  background: var(--olivea-olive);
+  color: var(--olivea-cream);
+}
+
+/* Olivea cursor (components/ui/OliveaCursor.tsx). The class is only on
+   while the drawn cursor is visible; fields, disabled controls and embedded
+   frames keep their native cursor. */
+html.olivea-cursor-on [data-scope="main"],
+html.olivea-cursor-on [data-scope="main"] * {
+  cursor: none !important;
+}
+html.olivea-cursor-on [data-scope="main"] :is(input, textarea, select, [contenteditable="true"]) {
+  cursor: auto !important;
+}
+html.olivea-cursor-on [data-scope="main"] :is(:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed !important;
+}
+.olivea-cursor-ring {
+  border-color: color-mix(in srgb, var(--olivea-olive) 55%, transparent);
+  /* A faint light edge so the ring still reads over dark photographs. */
+  box-shadow: 0 0 0 1px rgba(241, 241, 241, 0.28);
+  background: transparent;
+  will-change: transform;
+  transition: opacity 0.3s, background-color 0.3s, border-color 0.3s;
+  animation: olivea-cursor-breathe 7s ease-in-out infinite alternate;
+}
+.olivea-cursor-ring[data-hover="1"] {
+  background: color-mix(in srgb, var(--olivea-olive) 12%, transparent);
+  border-color: color-mix(in srgb, var(--olivea-olive) 35%, transparent);
+}
+.olivea-cursor-dot {
+  background: var(--olivea-olive);
+  box-shadow: 0 0 0 1.5px rgba(241, 241, 241, 0.55);
+  will-change: transform;
+  transition: opacity 0.2s, width 0.2s, height 0.2s;
+}
+.olivea-cursor-dot[data-hover="1"] {
+  width: 4px;
+  height: 4px;
+}
+/* The ring's slow organic breath: never quite a circle. */
+@keyframes olivea-cursor-breathe {
+  0%   { border-radius: 46% 54% 52% 48% / 50% 46% 54% 50%; }
+  50%  { border-radius: 54% 46% 47% 53% / 46% 54% 48% 52%; }
+  100% { border-radius: 49% 51% 55% 45% / 53% 48% 52% 47%; }
+}
+
+/* Rolling button labels (components/ui/RollText.tsx). The incoming copy is
+   generated content with empty alt text ("" after the slash), so it is never
+   read aloud or copied. */
+.olivea-roll {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: top;
+  /* Room for the letters so the clip never shaves them. */
+  padding-block: 0.08em;
+  margin-block: -0.08em;
+}
+.olivea-roll > span,
+.olivea-roll::after {
+  grid-area: 1 / 1;
+  transition: transform 0.55s var(--ease-cinematic-out);
+}
+.olivea-roll::after {
+  content: attr(data-text);
+  content: attr(data-text) / "";
+  transform: translateY(110%);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :is(a, button):is(:hover, :focus-visible) .olivea-roll > span {
+    transform: translateY(-110%);
+  }
+  :is(a, button):is(:hover, :focus-visible) .olivea-roll::after {
+    transform: translateY(0);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* Shared editorial text pieces, used by the statement moments,  */
+/* page sign-off, gallery viewer and questions. Small text uses  */
+/* full olive (4.7:1 on the cream ground) so it stays readable.  */
+.olivea-eyebrow {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--olivea-olive);
+}
+.olivea-hairline {
+  display: block;
+  height: 1px;
+  width: 3rem;
+  margin-inline: auto;
+  background: color-mix(in srgb, var(--olivea-olive) 35%, transparent);
+}
+.olivea-display-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--olivea-olive);
+}
+.olivea-pill-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--olivea-olive) 35%, transparent);
+  padding: 0.75rem 1.75rem;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--olivea-olive);
+  transition: background-color 0.3s, color 0.3s;
+}
+.olivea-pill-button:hover,
+.olivea-pill-button:focus-visible {
+  background: var(--olivea-olive);
+  color: var(--olivea-cream);
+}
+.olivea-pill-button:focus-visible {
+  outline: 2px solid var(--olivea-olive);
+  outline-offset: 3px;
 }

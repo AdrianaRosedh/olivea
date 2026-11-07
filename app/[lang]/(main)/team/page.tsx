@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { loadLocale } from "@/lib/i18n";
 import { SITE, canonicalUrl, withShare } from "@/lib/site";
 import TeamClient, { type TeamDict } from "./TeamClient";
-import { loadTeam } from "./teamData";
+import { loadTeam } from "./teamData.server";
 import { toFaqItems } from "@/lib/seo/faq";
 import { getContent } from "@/lib/content";
 import FaqJsonLd, { type FaqItem } from "@/components/seo/FaqJsonLd";

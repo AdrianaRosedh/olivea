@@ -110,7 +110,9 @@ export default function ScrollDrift({
   // - desktop: x to 0 (then drift takes over via style)
   const animate = shouldReveal
     ? isMobile
-      ? { opacity: inView ? 1 : 0, y: inView ? 0 : mobileEnterY }
+      ? // x: 0 clears the sideways offset from the first (pre-media-query)
+        // render, which assumes desktop; phones only ever slide up.
+        { opacity: inView ? 1 : 0, y: inView ? 0 : mobileEnterY, x: 0 }
       : { opacity: inView ? 1 : 0, x: inView ? 0 : enterFromX }
     : undefined;
 

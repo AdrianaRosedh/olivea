@@ -4,6 +4,7 @@
 // Uses the Storage REST API — no @supabase/supabase-js dependency.
 // ─────────────────────────────────────────────────────────────────────
 
+import "server-only";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "./config";
 
 /** Buckets the admin writes to. Both are public-read, service-role-write. */

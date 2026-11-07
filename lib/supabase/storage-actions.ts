@@ -5,7 +5,8 @@
 "use server";
 
 import { uploadFile, deleteFile, storagePublicUrl, VIDEO_BUCKET } from "./storage";
-import { isSupabaseConfigured, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "./config";
+import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "./config";
+import { authSkipped } from "@/lib/auth/dev-bypass";
 import {
   extensionForUploadType,
   sniffRasterImageType,
@@ -13,13 +14,13 @@ import {
 } from "@/lib/uploads/file-types";
 
 async function requireEditor() {
-  if (!isSupabaseConfigured) return;
+  if (authSkipped()) return;
   const { requireSectionAccess } = await import("@/lib/auth/session");
   await requireSectionAccess("content.media", "editor");
 }
 
 async function requireManager() {
-  if (!isSupabaseConfigured) return;
+  if (authSkipped()) return;
   const { requireRole, requireSectionAccess } = await import("@/lib/auth/session");
   await requireSectionAccess("content.media", "editor");
   await requireRole("manager");

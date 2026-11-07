@@ -30,7 +30,7 @@ export type NavOverride = Array<{
 interface DockLeftProps {
   identity: Identity;
   sectionsOverride: NavOverride;
-  lang?: Lang;
+  lang: Lang;
 }
 
 type Mode = "hidden" | "compact" | "expanded";
@@ -184,15 +184,15 @@ function useDockMode(): Mode {
 }
 
 /**
- * Tracks which section/subsection is in the viewport center band.
- * Uses a single shared IntersectionObserver for all targets.
+ * Tracks which chapter is in the viewport center band. Sub-chapter anchors
+ * are observed too and resolve to their parent chapter, so a long chapter
+ * stays lit while you read its middle. One shared IntersectionObserver.
  */
 function useActiveSection(
   items: DockItem[],
   subToParent: Record<string, string>
 ) {
   const [activeSection, setActiveSection] = useState(items[0]?.id ?? "");
-  const [activeSub, setActiveSub] = useState<string | null>(null);
 
   // sync default when items change
   useEffect(() => {
@@ -201,42 +201,34 @@ function useActiveSection(
       if (prev && items.some((x) => x.id === prev)) return prev;
       return items[0].id;
     });
-    setActiveSub(null);
   }, [items]);
 
   // IntersectionObserver for scroll-spy
   useEffect(() => {
     if (!items.length) return;
 
-    const elMeta = new Map<Element, { id: string; kind: "main" | "sub" }>();
+    // Element → the chapter it belongs to.
+    const elMeta = new Map<Element, string>();
 
     for (const it of items) {
       const el = findElement(it.id);
-      if (el) elMeta.set(el, { id: it.id, kind: "main" });
+      if (el) elMeta.set(el, it.id);
     }
-    for (const subId of Object.keys(subToParent)) {
+    for (const [subId, parentId] of Object.entries(subToParent)) {
       const el = findElement(subId);
-      if (el) elMeta.set(el, { id: subId, kind: "sub" });
+      if (el) elMeta.set(el, parentId);
     }
 
     if (elMeta.size === 0) return;
 
     let raf = 0;
-    let pending: { id: string; kind: "main" | "sub" } | null = null;
+    let pending: string | null = null;
 
     const flush = () => {
       raf = 0;
       if (!pending) return;
-      const { id, kind } = pending;
+      setActiveSection(pending);
       pending = null;
-
-      if (kind === "sub") {
-        setActiveSub(id);
-        setActiveSection(subToParent[id]);
-      } else {
-        setActiveSub(null);
-        setActiveSection(id);
-      }
     };
 
     const io = new IntersectionObserver(
@@ -270,50 +262,15 @@ function useActiveSection(
     };
   }, [items, subToParent]);
 
-  return { activeSection, activeSub };
+  return { activeSection };
 }
 
 /* ── Motion variants ─────────────────────────────────────────────── */
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const EASE_IN_OUT: [number, number, number, number] = [0.4, 0, 0.2, 1];
-const EASE_IN: [number, number, number, number] = [0.12, 0, 0.39, 0];
 
 const dockV: Variants = {
   hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE_OUT } },
-};
-
-const subContainerVariants: Variants = {
-  open: {
-    opacity: 1,
-    height: "auto",
-    marginTop: 10,
-    transition: {
-      when: "beforeChildren",
-      staggerChildren: 0.05,
-      ease: EASE_IN_OUT,
-      duration: 0.24,
-    },
-  },
-  collapsed: {
-    opacity: 0,
-    height: 0,
-    marginTop: 0,
-    transition: {
-      when: "afterChildren",
-      ease: EASE_IN_OUT,
-      duration: 0.18,
-    },
-  },
-};
-
-const subItemVariants: Variants = {
-  open: { opacity: 1, y: 0, transition: { duration: 0.22, ease: EASE_OUT } },
-  collapsed: {
-    opacity: 0,
-    y: -8,
-    transition: { duration: 0.14, ease: EASE_IN },
-  },
 };
 
 /* ── Visual positioning: keep dock near content on ultrawide ────── */
@@ -519,21 +476,17 @@ function CompactDock({
 function ExpandedItem({
   item,
   isActive,
-  activeSub,
   hoveredId,
   hoverEnabled,
   reduce,
-  subs,
   onNavigate,
   onHover,
 }: {
   item: DockItem;
   isActive: boolean;
-  activeSub: string | null;
   hoveredId: string | null;
   hoverEnabled: boolean;
   reduce: boolean;
-  subs: Array<{ id: string; label: string }>;
   onNavigate: (e: React.MouseEvent, id: string) => void;
   onHover: (id: string | null) => void;
 }) {
@@ -542,7 +495,7 @@ function ExpandedItem({
   const isSwapping = hoverEnabled && isHovered;
 
   return (
-    <div className={cn("flex flex-col", isActive ? "mb-4" : "mb-0")}>
+    <div className="flex flex-col">
       <a
         href={`#${item.id}`}
         onClick={(e) => onNavigate(e, item.id)}
@@ -636,58 +589,6 @@ function ExpandedItem({
         </div>
       </a>
 
-      {/* Subsections */}
-      <AnimatePresence initial={false}>
-        {isActive && subs.length > 0 && (
-          <motion.div
-            key="subs"
-            initial="collapsed"
-            animate="open"
-            exit="collapsed"
-            variants={subContainerVariants}
-            className="ml-14 overflow-hidden"
-          >
-            <div className="relative pl-4">
-              <div className="absolute left-0 top-2 bottom-2 w-px bg-linear-to-b from-transparent via-(--olivea-olive)/10 to-transparent" />
-              <div className="flex flex-col gap-3">
-                {subs.map((sub) => {
-                  const isSubActive = sub.id === activeSub;
-
-                  return (
-                    <motion.a
-                      key={sub.id}
-                      href={`#${sub.id}`}
-                      onClick={(e) => onNavigate(e, sub.id)}
-                      variants={subItemVariants}
-                      style={{ fontSize: "var(--dock-sub-fs)" }}
-                      className={cn(
-                        "relative block leading-snug tracking-[0.02em]",
-                        "rounded-sm outline-none transition-colors",
-                        "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/20",
-                        "focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-white)",
-                        isSubActive
-                          ? "text-(--olivea-olive) font-semibold"
-                          : "text-(--olivea-olive)"
-                      )}
-                      aria-current={isSubActive ? "page" : undefined}
-                    >
-                      <span
-                        className={cn(
-                          "absolute -left-3 top-[0.62em] h-1 w-2 rounded-full",
-                          isSubActive
-                            ? "bg-(--olivea-olive)/40"
-                            : "bg-transparent"
-                        )}
-                      />
-                      {sub.label}
-                    </motion.a>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -696,21 +597,17 @@ function ExpandedItem({
 function ExpandedDock({
   items,
   activeSection,
-  activeSub,
   hoveredId,
   reduce,
   lang,
-  subsForSection,
   onNavigate,
   onHover,
 }: {
   items: DockItem[];
   activeSection: string;
-  activeSub: string | null;
   hoveredId: string | null;
   reduce: boolean;
   lang: Lang;
-  subsForSection: (id: string) => Array<{ id: string; label: string }>;
   onNavigate: (e: React.MouseEvent, id: string) => void;
   onHover: (id: string | null) => void;
 }) {
@@ -759,11 +656,9 @@ function ExpandedDock({
               key={item.id}
               item={item}
               isActive={item.id === activeSection}
-              activeSub={activeSub}
               hoveredId={hoveredId}
               hoverEnabled={hoverEnabled}
               reduce={reduce}
-              subs={subsForSection(item.id)}
               onNavigate={onNavigate}
               onHover={onHover}
             />
@@ -777,7 +672,7 @@ function ExpandedDock({
 /* ── Main Component ──────────────────────────────────────────────── */
 export default function DockLeft({
   sectionsOverride,
-  lang = "es",
+  lang,
 }: DockLeftProps) {
   const reduce = usePrefersReducedMotion();
   const mode = useDockMode();
@@ -793,12 +688,6 @@ export default function DockLeft({
     [sectionsOverride]
   );
 
-  const subsForSection = useCallback(
-    (sectionId: string) =>
-      (sectionsOverride ?? []).find((s) => s.id === sectionId)?.subs ?? [],
-    [sectionsOverride]
-  );
-
   const subToParent = useMemo(() => {
     const map: Record<string, string> = {};
     for (const s of sectionsOverride ?? []) {
@@ -808,7 +697,10 @@ export default function DockLeft({
   }, [sectionsOverride]);
 
   /* ── Active section tracking ──────────────────────────────────── */
-  const { activeSection, activeSub } = useActiveSection(items, subToParent);
+  // Sub-chapters are no longer listed in the desktop rail (chapters only, so
+  // the column stays calm); scrolling through a sub-chapter still lights its
+  // parent via subToParent.
+  const { activeSection } = useActiveSection(items, subToParent);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   /* ── Scroll navigation ────────────────────────────────────────── */
@@ -938,11 +830,9 @@ export default function DockLeft({
     <ExpandedDock
       items={items}
       activeSection={activeSection}
-      activeSub={activeSub}
       hoveredId={hoveredId}
       reduce={reduce}
       lang={lang}
-      subsForSection={subsForSection}
       onNavigate={handleNav}
       onHover={setHoveredId}
     />

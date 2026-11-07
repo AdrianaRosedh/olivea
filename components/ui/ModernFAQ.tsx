@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { entrance } from "@/components/scroll/Reveal";
 import { FAQ_TOPICS, type FaqTopic } from "@/lib/faqTopics";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import RollText from "@/components/ui/RollText";
 
 export type FAQItem = {
   q: string;
@@ -121,6 +122,7 @@ export default function ModernFAQ({
           <motion.div
             key={`${group}-${i}-${item.q}`}
             {...entrance(Math.min(i % 6, 5) * 0.04)}
+            data-faq-item=""
             // The house's olive hairline, as on the chooser and the facts
             // band; a touch firmer while the answer is open.
             className={[
@@ -145,6 +147,7 @@ export default function ModernFAQ({
 
               <span
                 aria-hidden="true"
+                data-faq-icon=""
                 className={[
                   "grid h-8 w-8 shrink-0 place-items-center rounded-full border transition-colors duration-200",
                   open
@@ -188,9 +191,9 @@ export default function ModernFAQ({
           <button
             type="button"
             onClick={() => setShowAll(true)}
-            className="inline-flex items-center gap-2 rounded-full border border-(--olivea-olive)/30 px-5 py-2.5 text-[12.5px] font-semibold uppercase tracking-[0.14em] text-(--olivea-olive) hover:bg-(--olivea-olive) hover:text-(--olivea-cream) transition-colors"
+            className="olivea-pill-button px-5! py-2.5! tracking-[0.14em]!"
           >
-            {moreLabel ?? `+ ${items.length - visible.length}`}
+            <RollText>{moreLabel ?? `+ ${items.length - visible.length}`}</RollText>
             <ChevronDown className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>

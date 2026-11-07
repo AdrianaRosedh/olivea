@@ -24,6 +24,7 @@ const FloatingPracticesCardGSAP = dynamic(
   { ssr: false, loading: () => null },
 );
 import PhilosophyMobileNav from "./PhilosophyMobileNav";
+import LiveGardenLink from "@/components/live-garden/LiveGardenLink";
 
 /* --------- one photograph per chapter, from the existing library --------- */
 
@@ -467,6 +468,11 @@ export default function PhilosophyClient({
                           {linkifyNames(p, lang)}
                         </p>
                       ))}
+                      {/* Water, energy and the cycle back to the garden: the
+                          live map shows that garden as it is today. */}
+                      {s.id === "sustainability" && (
+                        <LiveGardenLink lang={lang} source="link-philosophy" />
+                      )}
                     </div>
 
                     {/* Right rail: invisible anchor (desktop only) */}

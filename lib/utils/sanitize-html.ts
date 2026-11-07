@@ -18,8 +18,16 @@ export const ALLOWED_TAGS = [
   "iframe",
 ] as const;
 
+/**
+ * The only classes the journal editor writes (image layouts and embed
+ * wrappers). Anything else is stripped, so stored HTML can't borrow the site's
+ * utility classes (e.g. "fixed inset-0 z-50") to overlay the page. `id` is not
+ * allowed at all: articles don't use it, and it invites DOM clobbering.
+ */
+const ALLOWED_CLASSES = ["j-wide", "float-left", "float-right", "gallery", "video-embed", "embed-block"];
+
 const ALLOWED_ATTRIBUTES: sanitize.IOptions["allowedAttributes"] = {
-  "*": ["class", "id", "title"],
+  "*": ["class", "title"],
   a: ["href", "target", "rel"],
   img: [
     "src", "alt", "width", "height", "loading", "decoding",
@@ -38,6 +46,7 @@ const ALLOWED_ATTRIBUTES: sanitize.IOptions["allowedAttributes"] = {
 const OPTIONS: sanitize.IOptions = {
   allowedTags: [...ALLOWED_TAGS],
   allowedAttributes: ALLOWED_ATTRIBUTES,
+  allowedClasses: { "*": ALLOWED_CLASSES },
   allowedSchemes: ["http", "https", "mailto", "tel"],
   allowedSchemesByTag: {
     img: ["http", "https"],

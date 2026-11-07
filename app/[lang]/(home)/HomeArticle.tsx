@@ -56,7 +56,11 @@ export default async function HomeArticle({ lang }: { lang: Lang }) {
           width={1200}
           height={630}
           className="ssr-article-hero"
-          priority={false}
+          // Search engines read this copy; visitors' browsers hide it once the
+          // page hydrates, so it must never compete with the real hero: lazy
+          // (a hidden image is then never fetched) and sized for the screen.
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, 1200px"
         />
       </header>
 

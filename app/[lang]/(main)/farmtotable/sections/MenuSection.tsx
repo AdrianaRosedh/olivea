@@ -4,17 +4,7 @@ import Farmpop from "@/components/ui/popup/farmpop";
 import CardParallax from "@/components/mdx/CardParallax";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
-
-const tabEmojis: Record<string, string> = {
-  menu: "\uD83C\uDF7D\uFE0F",
-  pairing: "\uD83C\uDF3F",
-  "non-alcoholic": "\uD83C\uDF75",
-  spirits: "\uD83E\uDD43",
-  wine: "\uD83C\uDF77",
-  drinks: "\uD83C\uDF79",
-};
-
-const cardEmojis = ["\uD83C\uDF3F", "\uD83C\uDF77", "\uD83C\uDF31", "\uD83E\uDED2"];
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function MenuSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang);
@@ -43,16 +33,15 @@ export default function MenuSection({ data, lang }: SectionProps) {
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start overflow-hidden"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">{heading}</h2>
+          <SectionHeading className="text-2xl md:text-4xl font-semibold">{heading}</SectionHeading>
         </Reveal>
       }
     >
       <div className="relative mt-6">
         <div
-          className="
+          data-photo-frame="" className="
             md:hidden
             relative overflow-hidden rounded-[22px]
-            ring-1 ring-black/10
             h-[190px]
           "
         >
@@ -76,10 +65,9 @@ export default function MenuSection({ data, lang }: SectionProps) {
         </div>
 
         <div
-          className="
+          data-photo-frame="" className="
             hidden md:block
             relative overflow-hidden rounded-[22px]
-            ring-1 ring-black/10
             h-[300px]
           "
         >
@@ -119,7 +107,6 @@ export default function MenuSection({ data, lang }: SectionProps) {
               id: tab.id,
               label: t(tab.label, lang),
               url: tab.canvaUrl,
-              emoji: tabEmojis[tab.id] || "\uD83C\uDF7D\uFE0F",
             }))}
             triggerClassName="
               rounded-full px-7 md:px-8 py-3 text-[13.5px] tracking-[0.20em] uppercase font-semibold
@@ -133,15 +120,15 @@ export default function MenuSection({ data, lang }: SectionProps) {
         <div className="mt-7 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent" />
       </div>
 
-      <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-2">
         {infoCards.map((card, i) => (
           <div
             key={i}
-            className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6"
+            data-note-card="" className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6"
           >
             <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
             <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]">
-              {cardEmojis[i] ?? "\uD83C\uDF3F"} {t(card.title, lang)}
+              {t(card.title, lang)}
             </div>
             <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/85">
               {tm(card.body, lang)}

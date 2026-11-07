@@ -20,7 +20,7 @@ export type UiTextEntry = {
   plain?: boolean;
 };
 
-export type UiTextGroup = "houses" | "reservation" | "opentable" | "chat" | "cookies" | "social";
+export type UiTextGroup = "houses" | "reservation" | "opentable" | "chat" | "cookies" | "social" | "editorial" | "garden";
 
 export const UI_TEXT_GROUPS: Record<UiTextGroup, { es: string; en: string }> = {
   houses: { es: "Casas", en: "Houses" },
@@ -29,6 +29,8 @@ export const UI_TEXT_GROUPS: Record<UiTextGroup, { es: string; en: string }> = {
   chat: { es: "Chat", en: "Chat" },
   cookies: { es: "Aviso de cookies", en: "Cookie notice" },
   social: { es: "Redes de cada casa", en: "Each house's socials" },
+  editorial: { es: "Momentos editoriales y galería", en: "Editorial moments and gallery" },
+  garden: { es: "Huerto en vivo (mapa roseiies)", en: "Live garden (roseiies map)" },
 };
 
 const e = (group: UiTextGroup, label: UiTextEntry["label"], es: string, en: string): UiTextEntry => ({ group, label, es, en });
@@ -121,6 +123,41 @@ export const UI_TEXT = {
   "cookies.accept": e("cookies", { es: "Aceptar", en: "Accept" }, "Aceptar", "Accept"),
   "cookies.essential": e("cookies", { es: "Solo esenciales", en: "Essential only" }, "Solo esenciales", "Essential only"),
   "cookies.policy": e("cookies", { es: "Enlace a la política", en: "Policy link" }, "Política de cookies", "Cookie policy"),
+
+  // ── Editorial moments on the house pages: the large statement line between
+  //    chapters (with its photo), the closing sign-off, and the photo viewer.
+  "editorial.statement.hotel.line": e("editorial", { es: "Casa Olivea — frase destacada", en: "Casa Olivea — statement line" }, "Aquí no se reserva un cuarto: se pertenece al ecosistema que el huerto nutre.", "You do not book a room here; you stay within the ecosystem the garden feeds."),
+  "editorial.statement.hotel.image": p("editorial", { es: "Casa Olivea — foto de la frase (ruta)", en: "Casa Olivea — statement photo (path)" }, "/images/casa/patio5.jpg"),
+  "editorial.statement.hotel.alt": e("editorial", { es: "Casa Olivea — descripción de la foto", en: "Casa Olivea — photo description" }, "Corredor de arcos de Casa Olivea entre olivos y plantas del huerto", "Arched corridor of Casa Olivea framed by olive trees and garden plants"),
+  "editorial.statement.restaurant.line": e("editorial", { es: "Farm To Table — frase destacada", en: "Farm To Table — statement line" }, "Cada noche empieza en el huerto.", "Every evening begins in the garden itself."),
+  "editorial.statement.restaurant.image": p("editorial", { es: "Farm To Table — foto de la frase (ruta)", en: "Farm To Table — statement photo (path)" }, "/images/farm/garden10.jpg"),
+  "editorial.statement.restaurant.alt": e("editorial", { es: "Farm To Table — descripción de la foto", en: "Farm To Table — photo description" }, "Un chef comparte verduras recién cosechadas con un invitado en el huerto al atardecer, con las montañas detrás", "A chef sharing just-picked greens with a guest in the garden at dusk, mountains behind"),
+  "editorial.statement.cafe.line": e("editorial", { es: "Café — frase destacada", en: "Café — statement line" }, "Café lento. Pan de casa. Vino local.", "Slow coffee. House bread. Local wine."),
+  "editorial.statement.cafe.image": p("editorial", { es: "Café — foto de la frase (ruta)", en: "Café — statement photo (path)" }, "/images/cafe/matcha.jpg"),
+  "editorial.statement.cafe.alt": e("editorial", { es: "Café — descripción de la foto", en: "Café — photo description" }, "Manos sosteniendo una taza de matcha con arte latte, delantal de lino detrás", "Hands holding a cup of matcha with latte art, linen apron behind"),
+  "editorial.signoff.line": e("editorial", { es: "Cierre de página — frase", en: "Page sign-off — line" }, "Donde el huerto es la esencia", "Where the garden is the essence"),
+  "editorial.signoff.place": p("editorial", { es: "Cierre de página — lugar", en: "Page sign-off — place" }, "Valle de Guadalupe, Baja California"),
+  "editorial.signoff.localTime": e("editorial", { es: "Cierre de página — hora local", en: "Page sign-off — local time" }, "Hora local", "Local time"),
+  "editorial.signoff.cta.hotel": e("editorial", { es: "Cierre de Casa Olivea — botón", en: "Casa Olivea sign-off — button" }, "Reserva tu estancia", "Reserve your stay"),
+  "editorial.signoff.cta.restaurant": e("editorial", { es: "Cierre de Farm To Table — botón", en: "Farm To Table sign-off — button" }, "Reserva tu mesa", "Reserve your table"),
+  "editorial.signoff.cta.cafe": e("editorial", { es: "Cierre del Café — botón", en: "Café sign-off — button" }, "Planea tu visita", "Plan your visit"),
+  "editorial.gallery.dialog": e("editorial", { es: "Visor de fotos — nombre (lectores de pantalla)", en: "Photo viewer — name (screen readers)" }, "Galería", "Gallery"),
+  "editorial.gallery.open": e("editorial", { es: "Galería — abrir foto (lectores de pantalla)", en: "Gallery — open photo (screen readers)" }, "Ver foto", "View photo"),
+  "editorial.gallery.prev": e("editorial", { es: "Visor de fotos — anterior", en: "Photo viewer — previous" }, "Foto anterior", "Previous photo"),
+  "editorial.gallery.next": e("editorial", { es: "Visor de fotos — siguiente", en: "Photo viewer — next" }, "Foto siguiente", "Next photo"),
+  "editorial.gallery.close": e("editorial", { es: "Visor de fotos — cerrar", en: "Photo viewer — close" }, "Cerrar", "Close"),
+
+  // ── The live garden map (the roseiies orb and the links that open it).
+  "garden.label": e("garden", { es: "Botón del mapa — nombre", en: "Map button — name" }, "Huerto en vivo", "Live garden"),
+  "garden.cue": e("garden", { es: "Botón del mapa — invitación", en: "Map button — invitation" }, "Vean qué crece hoy", "See what's growing today"),
+  "garden.orbAria": e("garden", { es: "Botón del mapa — para lectores de pantalla", en: "Map button — for screen readers" }, "Abrir el mapa en vivo del huerto", "Open the live garden map"),
+  "garden.link": e("garden", { es: "Enlace en las páginas — texto", en: "Link on the pages — text" }, "Ver el huerto en vivo", "See the garden live"),
+  "garden.mapTitle": e("garden", { es: "Mapa — título", en: "Map — title" }, "Olivea — En vivo", "Olivea — Live"),
+  "garden.mapSubtitle": e("garden", { es: "Mapa — subtítulo", en: "Map — subtitle" }, "Explora nuestra propiedad y descubre qué crece en el huerto ahora mismo.", "Explore our property and discover what's growing in the garden right now."),
+  "garden.mapFrameTitle": e("garden", { es: "Mapa — nombre del marco (lectores de pantalla)", en: "Map — frame name (screen readers)" }, "Mapa en vivo del huerto Olivea", "Olivea live garden map"),
+  "garden.loading": e("garden", { es: "Mapa — cargando", en: "Map — loading" }, "Cargando mapa…", "Loading map…"),
+  "garden.close": e("garden", { es: "Mapa — cerrar", en: "Map — close" }, "Cerrar mapa", "Close map"),
+  "garden.poweredBy": e("garden", { es: "Mapa — “hecho con”", en: "Map — “powered by”" }, "Hecho con", "Powered by"),
 } as const satisfies Record<string, UiTextEntry>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

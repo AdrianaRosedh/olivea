@@ -7,6 +7,7 @@ import StatChips from "@/components/mdx/StatChips";
 import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function RoomsSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "rooms";
@@ -34,9 +35,9 @@ export default function RoomsSection({ data, lang }: SectionProps) {
       {/* Title block — matches ExperienceSection: heading, subtitle, divider */}
       <div className="max-w-[860px]">
         <Reveal preset="up" delay={0.08}>
-          <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+          <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">
             {heading}
-          </h2>
+          </SectionHeading>
         </Reveal>
 
         {subtitle && (

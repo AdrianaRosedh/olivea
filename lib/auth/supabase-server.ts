@@ -4,6 +4,7 @@
 // Uses @supabase/ssr for cookie-based session management in Next.js.
 // ─────────────────────────────────────────────────────────────────────
 
+import "server-only";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";

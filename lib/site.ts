@@ -97,6 +97,9 @@ export const SITE_ADDRESS = {
   addressCountry: "MX",
 } as const;
 
+/** The houses' local time zone (Valle de Guadalupe, Baja California). */
+export const SITE_TIMEZONE = "America/Tijuana";
+
 export const SITE_GEO = {
   latitude: 31.9909261,
   longitude: -116.6420781,

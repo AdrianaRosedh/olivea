@@ -6,6 +6,7 @@ import { rateLimitDistributed } from "@/lib/rate-limit";
 import { sendCareersEmail, sendApplicationReceivedEmail } from "@/lib/email/send";
 import { submitApplication } from "@/lib/supabase/careers-submit";
 import { canonicalUrl } from "@/lib/site";
+import { getLiveJobOpenings } from "@/lib/supabase/careers-actions";
 import {
   uploadResume,
   sniffResumeType,
@@ -191,11 +192,22 @@ export async function handleSubmit(
     cv = { bytes, name: cvFile.name || "cv", kind };
   }
 
+  // The posting's title, looked up from its id on the server. The form also
+  // sends a title, but it is never trusted: it ends up in an email to the
+  // address the applicant typed, so a client-chosen title would let anyone
+  // send Olivea-branded mail with their own text.
+  const openingTitle = data.openingId
+    ? await getLiveJobOpenings()
+        .then((list) => list.find((o) => o.id === data.openingId))
+        .then((o) => (o ? (data.lang === "en" ? o.titleEn || o.titleEs : o.titleEs || o.titleEn) : undefined))
+        .catch(() => undefined)
+    : undefined;
+
   // 4) Save application to Supabase
   const coverNote = [
     // First line when it exists, so the pipeline's note preview leads with
     // the posting rather than with Q1.
-    data.openingTitle ? `Vacante: ${data.openingTitle}` : "",
+    openingTitle ? `Vacante: ${openingTitle}` : "",
     data.q1 ? `Q1: ${data.q1}` : "",
     data.q2 ? `Q2: ${data.q2}` : "",
     data.q3 ? `Q3: ${data.q3}` : "",
@@ -245,7 +257,7 @@ export async function handleSubmit(
     await sendCareersEmail({
       to,
       replyTo: data.email,
-      openingTitle: data.openingTitle || undefined,
+      openingTitle,
       lang: data.lang ?? "es",
       cv: cv ? { filename: cv.name, bytes: cv.bytes, kind: cv.kind } : undefined,
       applicant: {
@@ -275,7 +287,7 @@ export async function handleSubmit(
     to: data.email,
     name: data.name,
     lang: data.lang ?? "es",
-    openingTitle: data.openingTitle || undefined,
+    openingTitle,
     statusUrl: statusToken
       ? canonicalUrl(`/${data.lang ?? "es"}/carreras/estado/${statusToken}`)
       : undefined,

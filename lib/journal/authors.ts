@@ -1,6 +1,6 @@
 // lib/journal/authors.ts
 import type { Lang } from "@/app/[lang]/(main)/dictionaries";
-import { getLeader, getSortedTeam, loadLeader, type LeaderProfile } from "@/app/[lang]/(main)/team/teamData";
+import { getLeader, getSortedTeam, type LeaderProfile } from "@/app/[lang]/(main)/team/teamData";
 import { AUTHOR_EXTRAS } from "@/content/journal/authorExtras";
 import type { AuthorExtra } from "@/content/journal/authorExtras";
 
@@ -36,7 +36,7 @@ function inferWorksFor(team: LeaderProfile | undefined): string | undefined {
   return hasI18n(team.org) ? "Olivea" : undefined;
 }
 
-function fromTeam(id: string, team: LeaderProfile): ResolvedAuthorProfile {
+export function fromTeam(id: string, team: LeaderProfile): ResolvedAuthorProfile {
   return {
     id,
     name: team.name,
@@ -49,7 +49,7 @@ function fromTeam(id: string, team: LeaderProfile): ResolvedAuthorProfile {
   };
 }
 
-function fromExtras(id: string, extra: AuthorExtra): ResolvedAuthorProfile {
+export function fromExtras(id: string, extra: AuthorExtra): ResolvedAuthorProfile {
   return {
     id,
     name: extra.name,
@@ -69,7 +69,7 @@ function fromExtras(id: string, extra: AuthorExtra): ResolvedAuthorProfile {
  */
 export function getAuthorProfile(id: string): ResolvedAuthorProfile | null {
   // Synchronous variant — uses static TEAM fallback only.
-  // Server callers should prefer loadAuthorProfile() to honor admin DB edits.
+  // Server callers should prefer loadAuthorProfile() (authors.server.ts) to honor admin DB edits.
   const team = getLeader(id);
   if (team) return fromTeam(id, team);
 
@@ -107,17 +107,6 @@ export function listAuthorProfiles(): Array<{
   }));
   const seen = new Set(team.map((t) => t.id));
   return [...team, ...extras.filter((e) => !seen.has(e.id))];
-}
-
-/** Async variant: prefers DB-stored team roster, falls back to TEAM/AUTHOR_EXTRAS. */
-export async function loadAuthorProfile(id: string): Promise<ResolvedAuthorProfile | null> {
-  const team = await loadLeader(id);
-  if (team) return fromTeam(id, team);
-
-  const extra = AUTHOR_EXTRAS[id];
-  if (extra) return fromExtras(id, extra);
-
-  return null;
 }
 
 export function localizedAuthorTitle(profile: ResolvedAuthorProfile, lang: Lang): string | undefined {

@@ -10,6 +10,7 @@
 // never a URL, and the admin gets a short-lived signed link when it needs one.
 // ─────────────────────────────────────────────────────────────────────
 
+import "server-only";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase/config";
 
 const BUCKET = "applicant-cvs";

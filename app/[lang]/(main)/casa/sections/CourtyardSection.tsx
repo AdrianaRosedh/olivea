@@ -4,8 +4,10 @@ import Image from "next/image";
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal, { entrance } from "@/components/scroll/Reveal";
 import { motion } from "framer-motion";
+import ScrollDrift from "@/components/scroll/ScrollDrift";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function CourtyardSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "courtyard";
@@ -16,7 +18,7 @@ export default function CourtyardSection({ data, lang }: SectionProps) {
 
   const titleNode = (
     <Reveal preset="up">
-      <h2 className="text-2xl md:text-4xl font-semibold leading-tight md:hidden">{heading}</h2>
+      <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight md:hidden">{heading}</SectionHeading>
     </Reveal>
   );
 
@@ -33,7 +35,7 @@ export default function CourtyardSection({ data, lang }: SectionProps) {
         <div className="w-full md:w-1/2">
           <div className="hidden md:block">
             <Reveal preset="up">
-              <h2 className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</h2>
+              <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</SectionHeading>
             </Reveal>
           </div>
 
@@ -53,23 +55,23 @@ export default function CourtyardSection({ data, lang }: SectionProps) {
           </motion.div>
         </div>
 
-        {/* Image column */}
-        <motion.div
-          className="w-full md:w-1/2"
-          {...entrance(0.15)}
-        >
-          <div className="relative w-full h-[50vh] overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_34px_90px_rgba(0,0,0,0.32)]">
-            <Image
-              src={imgSrc}
-              alt={imgAlt}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-              quality={80}
-              priority
-            />
-          </div>
-        </motion.div>
+        {/* Image column — drifts in from the right as you scroll, mirroring
+            the Design chapter's photo (which drifts in from the left). */}
+        <div className="w-full md:w-1/2">
+          <ScrollDrift fromX={48} toX={-22} reveal align="right" className="w-full">
+            <div data-photo-frame="" className="relative w-full h-[50vh] overflow-hidden rounded-[28px]">
+              <Image
+                src={imgSrc}
+                alt={imgAlt}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                quality={80}
+                priority
+              />
+            </div>
+          </ScrollDrift>
+        </div>
       </div>
     </StickyBlock>
   );

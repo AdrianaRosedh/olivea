@@ -2,6 +2,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { rateLimitDistributed, clientIp } from "@/lib/rate-limit";
 import { type Lang } from "@/lib/i18n";
+import { SITE_GEO } from "@/lib/site";
 
 export const runtime = "nodejs";
 function normalizeLang(raw: string | null): Lang {
@@ -13,13 +14,22 @@ const copy = {
     title: "Olivea Locator",
     address2Short: "Ensenada, Baja California, México",
     address2Long: "Ensenada, Baja California, México",
+    openMaps: "Abrir en Google Maps",
   },
   en: {
     title: "Olivea Locator",
     address2Short: "Ensenada, Baja California, Mexico",
     address2Long: "Ensenada, Baja California, Mexico",
+    openMaps: "Open in Google Maps",
   },
-} satisfies Record<Lang, { title: string; address2Short: string; address2Long: string }>;
+} satisfies Record<Lang, { title: string; address2Short: string; address2Long: string; openMaps: string }>;
+
+/** Shown in the map frame when no Maps key is configured (e.g. a local or
+ *  preview deployment): a calm link to the location instead of an error. */
+function fallbackPage(lang: Lang): string {
+  const href = `https://www.google.com/maps/search/?api=1&query=${SITE_GEO.latitude},${SITE_GEO.longitude}`;
+  return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${copy[lang].title}</title><style>html,body{margin:0;height:100%}body{display:grid;place-items:center;background:#e7eae1;font-family:system-ui,sans-serif}a{color:#566d51;border:1px solid rgba(86,109,81,.4);border-radius:999px;padding:.75rem 1.5rem;text-decoration:none;letter-spacing:.12em;text-transform:uppercase;font-size:12px}a:hover{background:#566d51;color:#e7eae1}</style></head><body><a href="${href}" target="_blank" rel="noopener noreferrer">${copy[lang].openMaps}</a></body></html>`;
+}
 
 export async function GET(req: NextRequest) {
   const ip = clientIp(req);
@@ -37,11 +47,15 @@ export async function GET(req: NextRequest) {
   const key = process.env.NEXT_PUBLIC_GOOGLE_STATIC_MAPS_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID;
 
+  const lang = normalizeLang(req.nextUrl.searchParams.get("lang"));
+
   if (!key) {
-    return new NextResponse("Internal server error", { status: 500 });
+    return new NextResponse(fallbackPage(lang), {
+      status: 200,
+      headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+    });
   }
 
-  const lang = normalizeLang(req.nextUrl.searchParams.get("lang"));
   const t = copy[lang];
 
   const html = `<!DOCTYPE html>

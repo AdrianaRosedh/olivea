@@ -58,8 +58,12 @@ export default function CafeArticle({ lang, sections }: { lang: Lang; sections: 
           alt={t(hero.image?.alt, lang) || "Olivea Café Wine Bar"}
           width={1200}
           height={630}
-          priority
           className="ssr-article-hero"
+          // Search engines read this copy; visitors' browsers hide it once the
+          // page hydrates, so it must never compete with the real hero: lazy
+          // (a hidden image is then never fetched) and sized for the screen.
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, 1200px"
         />
       </header>
 

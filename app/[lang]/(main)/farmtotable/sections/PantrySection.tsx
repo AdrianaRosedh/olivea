@@ -3,6 +3,8 @@ import Reveal from "@/components/scroll/Reveal";
 import ServicesGrid from "@/components/mdx/ServicesGrid";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
+import LiveGardenLink from "@/components/live-garden/LiveGardenLink";
 
 export default function PantrySection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "pantry";
@@ -22,9 +24,9 @@ export default function PantrySection({ data, lang }: SectionProps) {
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">
+          <SectionHeading className="text-2xl md:text-4xl font-semibold">
             {heading}
-          </h2>
+          </SectionHeading>
         </Reveal>
       }
     >
@@ -36,6 +38,8 @@ export default function PantrySection({ data, lang }: SectionProps) {
             </p>
           ))}
         </div>
+        {/* The garden is this chapter's subject: an invitation to see it live. */}
+        <LiveGardenLink lang={lang} source="link-farmtotable" className="mt-5" />
       </Reveal>
 
       <ServicesGrid

@@ -5,10 +5,8 @@ import LinktreeClient from "./LinktreeClient";
 import { absoluteUrl, SITE } from "@/lib/site";
 import { type Lang } from "@/lib/i18n";
 
-import {
-  loadLeader,
-  type LeaderProfile,
-} from "@/app/[lang]/(main)/team/teamData";
+import type { LeaderProfile } from "@/app/[lang]/(main)/team/teamData";
+import { loadLeader } from "@/app/[lang]/(main)/team/teamData.server";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
 const normalizeLang = (raw: string): Lang => (raw === "en" ? "en" : "es");
 const safeStr = (x: unknown): string => (typeof x === "string" ? x : "");

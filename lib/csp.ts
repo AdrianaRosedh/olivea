@@ -1,8 +1,19 @@
 // lib/csp.ts
 //
-// Static CSP string for next.config.js headers().
-// The middleware (proxy.ts) builds its own CSP dynamically per-route;
-// this file only provides the catch-all header value.
+// The site's Content-Security-Policy, in two strengths that share every
+// directive except script-src:
+//
+//  - STATIC_CSP (next.config.ts headers): the public pages. They are static /
+//    ISR and cached at the CDN, so there is no per-request nonce to give
+//    inline scripts; script-src keeps 'unsafe-inline' plus a host allowlist.
+//  - strictCsp(nonce) (proxy.ts): the admin portal and the secure-document
+//    viewer, which render per request anyway. Scripts run only if they carry
+//    that request's nonce (Next.js adds it to its own scripts automatically)
+//    or are loaded by one that does ('strict-dynamic'). An injected inline
+//    script has no nonce and is refused.
+//
+// style-src keeps 'unsafe-inline' in both: server-rendered style="" attributes
+// are used throughout, and script execution is what the strict policy guards.
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -22,9 +33,11 @@ const SUPABASE_ORIGIN = (() => {
  * Includes the Google Maps domains the /olivea-locator map iframe needs
  * (extended component library on ajax.googleapis.com + Maps JS API + tiles).
  */
-function buildStaticCsp(): string {
-  const scriptUnsafeEval = isDev ? " 'unsafe-eval'" : "";
+/** Third-party script hosts the pages use (booking, payments, analytics, maps). */
+const SCRIPT_HOSTS =
+  "https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://connect.facebook.net https://www.opentable.com.mx https://ajax.googleapis.com https://maps.googleapis.com https://roseiies.com https://*.tokenex.com https://js.stripe.com https://m.stripe.network https://js.braintreegateway.com https://assets.braintreegateway.com https://www.paypal.com https://www.paypalobjects.com https://payment-element.cloudbeds.com https://checkoutshopper-live.adyen.com https://maf.pagosonline.net https://js.authorize.net https://js.dlocal.com";
 
+function buildCsp(scriptSrc: string): string {
   // Payment domains (tokenex / stripe / braintree / paypal / payment-element)
   // are required by the Cloudbeds payment SDK. The booking engine renders its
   // card fields INLINE — see public/cloudbeds-immersive.html — so those hosted
@@ -42,7 +55,7 @@ function buildStaticCsp(): string {
     "frame-ancestors 'self'",
     "form-action 'self'",
     `connect-src 'self' data: ${SUPABASE_ORIGIN} https://va.vercel-scripts.com https://*.vercel-insights.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://www.google.com.mx https://challenges.cloudflare.com https://www.facebook.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx https://*.execute-api.us-west-2.amazonaws.com https://www.canva.com https://connect.facebook.net https://*.canva.com https://clientstream.launchdarkly.com https://events.launchdarkly.com https://app.launchdarkly.com https://api.cloudbeds.com https://api.us1.cloudbeds.com https://api.us2.cloudbeds.com https://payment-element.cloudbeds.com https://*.tokenex.com https://api.stripe.com https://js.stripe.com https://m.stripe.network https://api.braintreegateway.com https://client-analytics.braintreegateway.com https://www.paypal.com https://checkoutshopper-live.adyen.com https://maf.pagosonline.net https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://maps.googleapis.com https://maps.gstatic.com https://roseiies.com https://roseiies-tenant.vercel.app`,
-    `script-src 'self' 'unsafe-inline'${scriptUnsafeEval} https://va.vercel-scripts.com 'wasm-unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://connect.facebook.net https://www.opentable.com.mx https://ajax.googleapis.com https://maps.googleapis.com https://roseiies.com https://*.tokenex.com https://js.stripe.com https://m.stripe.network https://js.braintreegateway.com https://assets.braintreegateway.com https://www.paypal.com https://www.paypalobjects.com https://payment-element.cloudbeds.com https://checkoutshopper-live.adyen.com https://maf.pagosonline.net https://js.authorize.net https://js.dlocal.com`,
+    `script-src ${scriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://www.opentable.com https://www.opentable.com.mx`,
     `img-src 'self' data: blob: ${SUPABASE_ORIGIN} https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://www.google.com.mx https://www.facebook.com https://static1.cloudbeds.com https://hotels.cloudbeds.com https://plugins.whistle.cloudbeds.com https://images.unsplash.com https://www.opentable.com https://www.opentable.com.mx https://*.canva.com https://lh3.googleusercontent.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://*.cloudbeds.com https://maps.gstatic.com https://*.googleapis.com https://roseiies.com https://roseiies-tenant.vercel.app`,
     // Admin-uploaded popup loops live in the Supabase `site-video` bucket;
@@ -59,4 +72,15 @@ function buildStaticCsp(): string {
   return directives.join("; ");
 }
 
-export const STATIC_CSP = buildStaticCsp();
+const UNSAFE_EVAL = isDev ? " 'unsafe-eval'" : "";
+
+/** Public pages: inline scripts allowed (static pages have no nonce). */
+export const STATIC_CSP = buildCsp(`'self' 'unsafe-inline'${UNSAFE_EVAL} https://va.vercel-scripts.com 'wasm-unsafe-eval' ${SCRIPT_HOSTS}`);
+
+/**
+ * Admin + secure documents: nonce-based. The host list stays for browsers
+ * that predate 'strict-dynamic' (modern ones ignore it when it is present).
+ */
+export function strictCsp(nonce: string): string {
+  return buildCsp(`'self' 'nonce-${nonce}' 'strict-dynamic'${UNSAFE_EVAL} https://va.vercel-scripts.com 'wasm-unsafe-eval' ${SCRIPT_HOSTS}`);
+}

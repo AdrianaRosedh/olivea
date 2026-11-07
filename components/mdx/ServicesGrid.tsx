@@ -141,6 +141,7 @@ function ServiceCard({
     <motion.article
       ref={ref}
       id={item.id}
+      data-note-card=""
       transition={{ duration: 0.35, ease: EASE }}
       style={
         reduce

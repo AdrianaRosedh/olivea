@@ -7,6 +7,7 @@ import Farmpop from "@/components/ui/popup/farmpop";
 import CardParallax from "@/components/mdx/CardParallax";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function MenuSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang) || "The menu";
@@ -24,17 +25,6 @@ export default function MenuSection({ data, lang }: SectionProps) {
     label: { en: string; es: string };
     text: { en: string; es: string };
   }>;
-
-  // Picked by what the card is about, not its position: a card added in the
-  // CMS (the bakery, between coffee and matcha) shifted every emoji along.
-  const emojiFor = (label: { en: string; es: string } | undefined): string => {
-    const l = (label?.en ?? "").toLowerCase();
-    if (l.includes("coffee")) return "\u2615";
-    if (l.includes("bakery")) return "\uD83E\uDD50";
-    if (l.includes("matcha")) return "\uD83C\uDF75";
-    if (l.includes("wine")) return "\uD83C\uDF77";
-    return "";
-  };
 
   useEffect(() => {
     const open = () => {
@@ -56,14 +46,14 @@ export default function MenuSection({ data, lang }: SectionProps) {
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start overflow-hidden"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">{heading}</h2>
+          <SectionHeading className="text-2xl md:text-4xl font-semibold">{heading}</SectionHeading>
         </Reveal>
       }
     >
       {/* IMAGE */}
       <div className="relative mt-6">
         {/* Mobile */}
-        <div className="md:hidden relative overflow-hidden rounded-[22px] ring-1 ring-black/10 h-[190px]">
+        <div data-photo-frame="" className="md:hidden relative overflow-hidden rounded-[22px] h-[190px]">
           <CardParallax
             src={imgSrc}
             alt={imgAlt}
@@ -80,7 +70,7 @@ export default function MenuSection({ data, lang }: SectionProps) {
         </div>
 
         {/* Desktop */}
-        <div className="hidden md:block relative overflow-hidden rounded-[22px] ring-1 ring-black/10 h-[300px]">
+        <div data-photo-frame="" className="hidden md:block relative overflow-hidden rounded-[22px] h-[300px]">
           <CardParallax
             src={imgSrc}
             alt={imgAlt}
@@ -141,11 +131,11 @@ export default function MenuSection({ data, lang }: SectionProps) {
           {infoCards.map((card, i) => (
             <div
               key={i}
-              className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6"
+              data-note-card="" className="relative overflow-hidden rounded-2xl bg-white/22 backdrop-blur-sm ring-1 ring-black/8 px-5 py-5 md:px-6 md:py-6"
             >
               <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--olivea-olive)]/35" />
               <div className="text-[12px] uppercase tracking-[0.18em] text-[var(--olivea-olive)]">
-                {emojiFor(card.label)} {t(card.label, lang)}
+                {t(card.label, lang)}
               </div>
               <p className="mt-3 text-[15px] leading-[1.65] text-[var(--olivea-ink)]/85">
                 {t(card.text, lang)}

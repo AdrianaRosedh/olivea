@@ -25,6 +25,9 @@ async function downloadMany(urls: string[]) {
   }
 }
 
+/** Cards loaded eagerly: what fills the first screen on a phone. */
+const EAGER_CARDS = 2;
+
 export default function PressMediaGallery({
   lang,
   manifest,
@@ -157,8 +160,9 @@ export default function PressMediaGallery({
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {shown.map((it) => (
+          {shown.map((it, i) => (
             <MediaCard
+              eager={i < EAGER_CARDS}
               key={it.id}
               lang={lang}
               it={it}
@@ -179,11 +183,14 @@ function MediaCard({
   it,
   checked,
   onToggle,
+  eager,
 }: {
   lang: Lang;
   it: PressMediaItem;
   checked: boolean;
   onToggle: () => void;
+  /** The first cards are on screen at load (they're the page's largest image on phones). */
+  eager: boolean;
 }) {
   const title = it.title?.[lang] ?? it.id;
   const caption = it.caption?.[lang];
@@ -197,6 +204,7 @@ function MediaCard({
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, 33vw"
+          loading={eager ? "eager" : "lazy"}
         />
 
         <button

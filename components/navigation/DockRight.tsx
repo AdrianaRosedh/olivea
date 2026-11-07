@@ -133,7 +133,7 @@ export default function DockRight({ items }: DockRightProps) {
       onPointerMove={onMove}
       className={cn(
         "fixed top-1/2 -translate-y-1/2 z-60 flex flex-col items-end",
-        mode === "tablet" ? "gap-4" : "gap-6"
+        mode === "tablet" ? "gap-3" : "gap-3.5"
       )}
       style={{ right }}
       aria-label="Quick navigation"
@@ -160,6 +160,12 @@ export default function DockRight({ items }: DockRightProps) {
     </motion.nav>
   );
 }
+
+/** Pointer distance (px) over which a blob swells, and its sizes at rest /
+ *  under the pointer. Tablet blobs stay one size (no hover there). */
+const SWELL_RANGE = 130;
+const BLOB = { rest: 44, swell: 58, tablet: 46 };
+const ICON = { rest: 18, swell: 23, tablet: 20 };
 
 function seededBlobRadius(seed: string) {
   let h = 0;
@@ -215,17 +221,20 @@ function IconContainer({
     return y - centerY.current;
   });
 
+  // Smaller and closer together than the original 56px / 24px-gap column, so
+  // the six blobs read as one quiet group beside the content, but keeping the
+  // organic shapes, clay colour and gentle swell under the pointer.
   const containerSize = useTransform(
     distance,
-    [-180, 0, 180],
-    desktop ? [56, 80, 56] : [56, 56, 56],
+    [-SWELL_RANGE, 0, SWELL_RANGE],
+    desktop ? [BLOB.rest, BLOB.swell, BLOB.rest] : [BLOB.tablet, BLOB.tablet, BLOB.tablet],
     { clamp: true }
   );
 
   const iconSize = useTransform(
     distance,
-    [-180, 0, 180],
-    desktop ? [22, 30, 22] : [24, 24, 24],
+    [-SWELL_RANGE, 0, SWELL_RANGE],
+    desktop ? [ICON.rest, ICON.swell, ICON.rest] : [ICON.tablet, ICON.tablet, ICON.tablet],
     { clamp: true }
   );
 
@@ -257,7 +266,7 @@ function IconContainer({
             : "bg-(--olivea-clay) text-(--olivea-white) border-transparent hover:bg-(--olivea-olive) hover:text-(--olivea-white)"
         )}
       >
-        <motion.div style={{ width: animatedIcon, height: animatedIcon }} className="flex items-center justify-center">
+        <motion.div style={{ width: animatedIcon, height: animatedIcon }} className="flex items-center justify-center [&>svg]:size-full">
           {item.icon}
         </motion.div>
 

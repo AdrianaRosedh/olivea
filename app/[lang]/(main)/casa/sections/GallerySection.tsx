@@ -18,7 +18,7 @@ export default function GallerySection({ data, lang }: SectionProps) {
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
     >
-      <GalleryGrid topImages={topImages} bottomImages={bottomImages} />
+      <GalleryGrid lang={lang} topImages={topImages} bottomImages={bottomImages} />
     </StickyBlock>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { loadLocale } from "@/lib/i18n";
 import { getApplicationStatus } from "@/lib/supabase/careers-actions";
 import type { JobApplication } from "@/lib/supabase/careers-actions";
+import { SITE_TIMEZONE } from "@/lib/site";
 
 type Params = { params: Promise<{ lang: string; token: string }> };
 
@@ -57,7 +58,7 @@ function fmtDate(iso: string, lang: "es" | "en") {
       day: "numeric",
       month: "long",
       year: "numeric",
-      timeZone: "America/Tijuana",
+      timeZone: SITE_TIMEZONE,
     }).format(new Date(iso));
   } catch {
     return "";

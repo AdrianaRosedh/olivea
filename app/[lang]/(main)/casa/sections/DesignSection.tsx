@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import ScrollDrift from "@/components/scroll/ScrollDrift";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function DesignSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "design";
@@ -19,7 +20,7 @@ export default function DesignSection({ data, lang }: SectionProps) {
   const titleNode = (
     <Reveal preset="up">
       <div>
-        <h2 className="text-2xl md:text-4xl font-semibold leading-tight md:hidden">{heading}</h2>
+        <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight md:hidden">{heading}</SectionHeading>
         {attribution && <p className="mt-2 text-sm italic opacity-60 md:hidden">{attribution}</p>}
       </div>
     </Reveal>
@@ -37,7 +38,7 @@ export default function DesignSection({ data, lang }: SectionProps) {
         {/* Image column */}
         <div className="w-full md:w-1/2">
           <ScrollDrift fromX={-48} toX={22} reveal align="left" className="w-full">
-            <div className="relative w-full h-[50vh] overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_34px_90px_rgba(0,0,0,0.32)]">
+            <div data-photo-frame="" className="relative w-full h-[50vh] overflow-hidden rounded-[28px]">
               <Image
                 src={imgSrc}
                 alt={imgAlt}
@@ -55,7 +56,7 @@ export default function DesignSection({ data, lang }: SectionProps) {
         <div className="w-full md:w-1/2 md:pt-2">
           <div className="hidden md:block">
             <Reveal preset="up">
-              <h2 className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</h2>
+              <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</SectionHeading>
             </Reveal>
             {attribution && (
               <Reveal preset="fade" delay={0.08}>

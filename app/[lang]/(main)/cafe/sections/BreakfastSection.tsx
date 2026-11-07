@@ -5,6 +5,7 @@ import ParallaxImage from "@/components/scroll/ParallaxImage";
 import ScrollDrift from "@/components/scroll/ScrollDrift";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function BreakfastSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "desayuno";
@@ -35,11 +36,9 @@ export default function BreakfastSection({ data, lang }: SectionProps) {
         <div className="md:col-span-6">
           <ScrollDrift fromX={-18} toX={26} reveal className="w-full">
             <div
-              className="
+              data-photo-frame="" className="
                 relative w-full
                 overflow-hidden rounded-[34px]
-                ring-1 ring-black/10
-                shadow-[0_34px_90px_rgba(0,0,0,0.32)]
                 bg-[var(--olivea-cream)]/95
               "
             >
@@ -71,9 +70,9 @@ export default function BreakfastSection({ data, lang }: SectionProps) {
         {/* Right column */}
         <div className="md:col-span-6 md:pt-1">
           <Reveal preset="up" delay={0.10}>
-            <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+            <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">
               {heading}
-            </h2>
+            </SectionHeading>
           </Reveal>
 
           <Reveal preset="fade" delay={0.20}>

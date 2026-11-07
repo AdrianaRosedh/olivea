@@ -1,7 +1,37 @@
 // proxy.ts — Next.js 16 proxy (replaces deprecated middleware.ts)
-// Handles: subdomain routing for admin portal + locale-less short URLs.
-// Auth protection is handled server-side in the admin layout.
+// Handles: subdomain routing for admin portal, locale-less short URLs, and the
+// strict (nonce-based) Content-Security-Policy for the admin portal and the
+// secure-document viewer. Auth protection is handled server-side in the admin
+// layout.
 import { NextRequest, NextResponse } from "next/server";
+import { strictCsp } from "@/lib/csp";
+
+/**
+ * Admin and secure-document pages get a per-request nonce and the strict CSP
+ * (lib/csp.ts). Next.js reads the policy from the *request* headers while it
+ * renders and stamps the nonce on its own scripts; the same policy goes back on
+ * the response for the browser to enforce. These routes are rendered per
+ * request (the admin layouts read headers, /d mints a grant), which a nonce
+ * requires; public pages stay static and keep STATIC_CSP from next.config.ts.
+ */
+function strictCspHeaders(request: NextRequest) {
+  const nonce = btoa(crypto.randomUUID());
+  const policy = strictCsp(nonce);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", policy);
+  return { requestHeaders, policy };
+}
+
+function withPolicy(res: NextResponse, policy: string): NextResponse {
+  res.headers.set("Content-Security-Policy", policy);
+  return res;
+}
+
+/** Pages served under the strict policy (on any host). */
+function isStrictPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/") || pathname === "/d" || pathname.startsWith("/d/");
+}
 
 /** Pick a sensible default language from Accept-Language; fall back to "es". */
 function detectLang(req: NextRequest): "es" | "en" {
@@ -60,7 +90,11 @@ export default function proxy(request: NextRequest) {
       pathname.startsWith("/d/") ||
       pathname === "/pdf.worker.min.mjs" ||
       pathname === "/documento-lock.svg";
-    if (docAllowed) return NextResponse.next();
+    if (docAllowed) {
+      if (!isStrictPath(pathname)) return NextResponse.next();
+      const { requestHeaders, policy } = strictCspHeaders(request);
+      return withPolicy(NextResponse.next({ request: { headers: requestHeaders } }), policy);
+    }
     return new NextResponse(OLIVEA_AI_PRIVATE_HTML, {
       status: 200,
       headers: {
@@ -76,10 +110,17 @@ export default function proxy(request: NextRequest) {
     hostname.startsWith("admin.") ||
     hostname.startsWith("admin-");
 
-  if (isAdminSubdomain && !pathname.startsWith("/admin")) {
+  // API routes are shared by every host and must not be rewritten.
+  if (isAdminSubdomain && !pathname.startsWith("/admin") && !pathname.startsWith("/api")) {
     const url = request.nextUrl.clone();
     url.pathname = `/admin${pathname === "/" ? "" : pathname}`;
-    return NextResponse.rewrite(url);
+    const { requestHeaders, policy } = strictCspHeaders(request);
+    return withPolicy(NextResponse.rewrite(url, { request: { headers: requestHeaders } }), policy);
+  }
+
+  if (isStrictPath(pathname)) {
+    const { requestHeaders, policy } = strictCspHeaders(request);
+    return withPolicy(NextResponse.next({ request: { headers: requestHeaders } }), policy);
   }
 
   // ── Locale-less short URLs → redirect to the user's preferred locale ──
@@ -102,10 +143,11 @@ export default function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and static assets. NOTE: robots.txt & sitemap.xml
-    // are intentionally NOT skipped so the proxy can serve a crawl-blocking
-    // robots.txt on olivea.ai. On every other host the proxy just falls through
-    // and the app's own robots.ts / sitemap.ts generators serve as before.
-    "/((?!_next/static|_next/image|favicon|images|brand|manifest|api).*)",
+    // Skip Next.js internals and static assets. NOTE: robots.txt, sitemap.xml
+    // and /api are intentionally NOT skipped: on olivea.ai the proxy serves a
+    // crawl-blocking robots.txt and keeps the document-only domain from
+    // answering the site's APIs. On every other host the proxy just falls
+    // through for them.
+    "/((?!_next/static|_next/image|favicon|images|brand|manifest).*)",
   ],
 };

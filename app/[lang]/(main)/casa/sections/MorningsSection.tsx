@@ -1,11 +1,12 @@
 "use client";
 
-import Image from "next/image";
+import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 import StickyBlock from "@/components/scroll/StickyBlock";
 import Reveal, { entrance } from "@/components/scroll/Reveal";
 import { motion } from "framer-motion";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function MorningsSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "mornings";
@@ -27,21 +28,19 @@ export default function MorningsSection({ data, lang }: SectionProps) {
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
     >
-      {/* Full-width hero image */}
-      <div className="mt-6 relative w-full h-[60vh] md:h-[70vh] overflow-hidden rounded-[28px] ring-1 ring-black/10 shadow-[0_34px_90px_rgba(0,0,0,0.32)]">
-        <Image
-          src={imgSrc}
-          alt={imgAlt}
-          fill
-          sizes="(max-width: 768px) 100vw, 1200px"
-          className="object-cover"
-          quality={80}
-          priority
-        />
-      </div>
+      {/* Full-width image — opens from a strip to full height as it scrolls
+          in, like the Rooms chapter's banner. */}
+      <ScrollGrowImageBand
+        src={imgSrc}
+        alt={imgAlt}
+        startH="220px"
+        endH="640px"
+        objectPosition="50% 50%"
+        mobileH="60vh"
+      />
 
       <Reveal preset="up" delay={0.1}>
-        <h2 className="mt-10 text-2xl md:text-4xl font-semibold leading-tight">{heading}</h2>
+        <SectionHeading className="mt-10 text-2xl md:text-4xl font-semibold leading-tight">{heading}</SectionHeading>
       </Reveal>
 
       <Reveal preset="fade" delay={0.15}>

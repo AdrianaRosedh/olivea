@@ -4,6 +4,7 @@ import ModernFAQ from "@/components/ui/ModernFAQ";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
 import { asFaqTopic } from "@/lib/faqTopics";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function FaqSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang) || "Before you reserve";
@@ -21,7 +22,7 @@ export default function FaqSection({ data, lang }: SectionProps) {
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
       title={
         <Reveal preset="up">
-          <h2 className="text-2xl md:text-4xl font-semibold">{heading}</h2>
+          <SectionHeading className="text-2xl md:text-4xl font-semibold">{heading}</SectionHeading>
         </Reveal>
       }
     >

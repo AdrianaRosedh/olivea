@@ -15,7 +15,6 @@ import {
   Upload,
   Trash2,
   Ban,
-  RotateCcw,
   KeyRound,
   Copy,
   Check,
@@ -69,8 +68,6 @@ function statusOf(d: SecureDocument): DocStatus {
   if (!d.enabled) return { label: { es: "Desactivado", en: "Disabled" }, cls: "bg-stone-100 text-stone-600 border-stone-200" };
   if (d.expiresAt && new Date(d.expiresAt).getTime() < Date.now())
     return { label: { es: "Expirado", en: "Expired" }, cls: "bg-amber-50 text-amber-700 border-amber-200" };
-  if (d.accessMode === "single_session" && d.claimedAt)
-    return { label: { es: "Reclamado", en: "Claimed" }, cls: "bg-violet-50 text-violet-700 border-violet-200" };
   return { label: { es: "Activo", en: "Active" }, cls: "bg-emerald-50 text-emerald-700 border-emerald-200" };
 }
 
@@ -158,6 +155,7 @@ function CreateForm({ onDone }: { onDone: () => void }) {
     error === "no_file" ? t({ es: "Elige un PDF.", en: "Choose a PDF." })
     : error === "too_large" ? t({ es: "El archivo supera 3 MB. Comprime el PDF e intenta de nuevo.", en: "File exceeds 3 MB. Compress the PDF and try again." })
     : error === "not_pdf" ? t({ es: "Solo se permiten archivos PDF.", en: "Only PDF files are allowed." })
+    : error === "passcode_too_short" ? t({ es: "El código necesita al menos 6 caracteres.", en: "The passcode needs at least 6 characters." })
     : error ? t({ es: "No se pudo crear el documento.", en: "Could not create the document." })
     : null;
 
@@ -183,20 +181,12 @@ function CreateForm({ onDone }: { onDone: () => void }) {
 
         <label className="block">
           <span className="text-[11px] uppercase tracking-wider text-stone-500">{t({ es: "Código de acceso (opcional)", en: "Passcode (optional)" })}</span>
-          <input name="passcode" type="text" autoComplete="off" placeholder="••••" className="mt-1 w-full text-sm px-3 py-2 rounded-lg border border-stone-300 bg-white/70 outline-none focus:ring-1 focus:ring-[var(--olivea-olive)]" />
+          <input name="passcode" type="text" autoComplete="off" minLength={6} placeholder="••••••" className="mt-1 w-full text-sm px-3 py-2 rounded-lg border border-stone-300 bg-white/70 outline-none focus:ring-1 focus:ring-[var(--olivea-olive)]" />
         </label>
 
         <label className="block">
           <span className="text-[11px] uppercase tracking-wider text-stone-500">{t({ es: "Expira (vacío = nunca)", en: "Expires (empty = never)" })}</span>
           <input name="expiresAt" type="datetime-local" className="mt-1 w-full text-sm px-3 py-2 rounded-lg border border-stone-300 bg-white/70 outline-none focus:ring-1 focus:ring-[var(--olivea-olive)]" />
-        </label>
-
-        <label className="block">
-          <span className="text-[11px] uppercase tracking-wider text-stone-500">{t({ es: "Modo de acceso", en: "Access mode" })}</span>
-          <select name="accessMode" defaultValue="multi_viewer" className="mt-1 w-full text-sm px-3 py-2 rounded-lg border border-stone-300 bg-white/70 outline-none focus:ring-1 focus:ring-[var(--olivea-olive)]">
-            <option value="multi_viewer">{t({ es: "Varios lectores (con nombre + código)", en: "Multiple viewers (name + passcode)" })}</option>
-            <option value="single_session">{t({ es: "Una sola sesión (se consume al abrir)", en: "Single session (consumed on open)" })}</option>
-          </select>
         </label>
 
         <label className="flex items-center gap-2 mt-5">
@@ -236,8 +226,12 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
   };
 
   const changePasscode = () => {
-    const v = window.prompt(t({ es: "Nuevo código (vacío = quitar):", en: "New passcode (empty = remove):" }), "");
+    const v = window.prompt(t({ es: "Nuevo código, mínimo 6 caracteres (vacío = quitar):", en: "New passcode, at least 6 characters (empty = remove):" }), "");
     if (v === null) return;
+    if (v.trim() && v.trim().length < 6) {
+      window.alert(t({ es: "El código necesita al menos 6 caracteres.", en: "The passcode needs at least 6 characters." }));
+      return;
+    }
     run(() => setDocumentPasscode(doc.id, v.trim() || null));
   };
 
@@ -278,7 +272,6 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
           <div className="mt-1 flex items-center gap-x-4 gap-y-1 flex-wrap text-[11px] text-stone-500">
             {doc.recipient && <span>{t({ es: "Marca de agua", en: "Watermark" })}: {doc.recipient}</span>}
             <span className="inline-flex items-center gap-1"><Eye className="w-3 h-3" /> {doc.viewCount} {t({ es: "vistas", en: "views" })}</span>
-            <span>{doc.accessMode === "single_session" ? t({ es: "Una sesión", en: "Single session" }) : t({ es: "Varios lectores", en: "Multi-viewer" })}</span>
             <span>
               {doc.expiresAt
                 ? `${t({ es: "Expira", en: "Expires" })}: ${new Date(doc.expiresAt).toLocaleString(locale === "es" ? "es-MX" : "en-US", { dateStyle: "medium", timeStyle: "short" })}`
@@ -303,12 +296,6 @@ function DocCard({ doc, canModify, onChanged }: { doc: SecureDocument; canModify
             className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium disabled:opacity-50 ${doc.revoked ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "bg-red-50 text-red-700 hover:bg-red-100"}`}>
             <Ban className="w-3 h-3" /> {doc.revoked ? t({ es: "Restaurar", en: "Un-revoke" }) : t({ es: "Revocar", en: "Revoke" })}
           </button>
-          {doc.accessMode === "single_session" && doc.claimedAt && (
-            <button onClick={() => run(() => updateSecureDocument(doc.id, { resetClaim: true }))} disabled={busy}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 disabled:opacity-50">
-              <RotateCcw className="w-3 h-3" /> {t({ es: "Reabrir sesión", en: "Reset claim" })}
-            </button>
-          )}
           <button onClick={changePasscode} disabled={busy}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 disabled:opacity-50">
             <KeyRound className="w-3 h-3" /> {doc.hasPasscode ? t({ es: "Cambiar código", en: "Change passcode" }) : t({ es: "Poner código", en: "Set passcode" })}

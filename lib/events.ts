@@ -6,6 +6,7 @@
 // still scheduled.
 
 import type { Bilingual } from "@/lib/content/types";
+import { SITE_TIMEZONE } from "@/lib/site";
 
 export interface OliveaEvent {
   id: string;
@@ -49,7 +50,7 @@ const fromRow = (r: EventRow): OliveaEvent => ({
  *  its own day there, whatever time zone the server runs in. */
 export function todayInBaja(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Tijuana",
+    timeZone: SITE_TIMEZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

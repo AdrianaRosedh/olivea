@@ -1,6 +1,7 @@
 // lib/supabase/config.ts
 // Supabase project configuration — env vars set in .env.local
 
+import "server-only";
 export const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 

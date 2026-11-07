@@ -83,7 +83,10 @@ export async function loginWithEmail(email: string, password: string) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: error.message };
+    // One fixed message whatever went wrong, so the login form can't be used
+    // to learn whether an address has an account ("Email not confirmed"…).
+    console.warn("[auth] password sign-in failed:", error.code ?? error.status);
+    return { error: "Invalid login credentials" };
   }
 
   // Update last_active_at
@@ -191,6 +194,9 @@ export async function getTeamMembers() {
 
 export async function inviteTeamMember(email: string, role: AdminRole, fullName: string) {
   const currentUser = await requireRole("owner");
+  // Validate before creating the auth user, so a bad role can't leave an
+  // orphaned account behind when the admin_users insert is rejected.
+  if (!VALID_ROLES.includes(role)) return { error: "Invalid role" };
   const siteUrl = await adminBaseUrl();
 
   // Create user via Supabase Auth admin API (service role)

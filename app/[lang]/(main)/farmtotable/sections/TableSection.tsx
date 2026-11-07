@@ -5,6 +5,7 @@ import ParallaxImage from "@/components/scroll/ParallaxImage";
 import ScrollDrift from "@/components/scroll/ScrollDrift";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function TableSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "table";
@@ -26,9 +27,9 @@ export default function TableSection({ data, lang }: SectionProps) {
       <div className="mt-10 md:mt-14 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-start">
         <div className="md:col-span-6 md:pt-1">
           <Reveal preset="up" delay={0.10}>
-            <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+            <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">
               {heading}
-            </h2>
+            </SectionHeading>
           </Reveal>
 
           <Reveal preset="fade" delay={0.22}>
@@ -57,11 +58,9 @@ export default function TableSection({ data, lang }: SectionProps) {
         <div className="md:col-span-6">
           <ScrollDrift fromX={18} toX={-26} reveal align="right" className="w-full">
             <div
-              className="
+              data-photo-frame="" className="
                 relative w-full
                 overflow-hidden rounded-[34px]
-                ring-1 ring-black/10
-                shadow-[0_34px_90px_rgba(0,0,0,0.32)]
                 bg-[var(--olivea-cream)]/95
               "
             >
@@ -93,7 +92,7 @@ export default function TableSection({ data, lang }: SectionProps) {
             <div className="mt-8 w-full grid gap-4 md:grid-cols-2 md:gap-6">
               {galleryImages[0] && (
                 <ScrollDrift fromX={-14} toX={14} reveal align="left" className="w-full">
-                  <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)] h-[38vh] md:h-[45vh]">
+                  <div data-photo-frame="" className="relative overflow-hidden rounded-2xl h-[38vh] md:h-[45vh]">
                     <ParallaxImage
                       src={galleryImages[0].src}
                       alt={t(galleryImages[0].alt, lang)}
@@ -107,7 +106,7 @@ export default function TableSection({ data, lang }: SectionProps) {
 
               {galleryImages[1] && (
                 <ScrollDrift fromX={14} toX={-14} reveal align="right" className="w-full">
-                  <div className="relative overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.45)] h-[38vh] md:h-[45vh]">
+                  <div data-photo-frame="" className="relative overflow-hidden rounded-2xl h-[38vh] md:h-[45vh]">
                     <ParallaxImage
                       src={galleryImages[1].src}
                       alt={t(galleryImages[1].alt, lang)}

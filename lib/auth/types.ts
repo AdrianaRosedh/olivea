@@ -115,7 +115,10 @@ export interface AdminUser {
 
 /** Check if a role has at least the given privilege level */
 export function hasRole(userRole: AdminRole, requiredRole: AdminRole): boolean {
-  return ROLE_HIERARCHY.indexOf(userRole) <= ROLE_HIERARCHY.indexOf(requiredRole);
+  const have = ROLE_HIERARCHY.indexOf(userRole);
+  const need = ROLE_HIERARCHY.indexOf(requiredRole);
+  // Fail closed: an unknown role (index -1) would otherwise rank above owner.
+  return have !== -1 && need !== -1 && have <= need;
 }
 
 /** Get default section access for a global role */
@@ -168,7 +171,9 @@ export function canAccessSection(
   overrides?: SectionPermissions
 ): boolean {
   const access = getSectionAccess(role, sectionKey, overrides);
-  return SECTION_ACCESS_HIERARCHY.indexOf(access) <= SECTION_ACCESS_HIERARCHY.indexOf(minAccess);
+  const have = SECTION_ACCESS_HIERARCHY.indexOf(access);
+  const need = SECTION_ACCESS_HIERARCHY.indexOf(minAccess);
+  return have !== -1 && need !== -1 && have <= need;
 }
 
 /** href → section key, for nav-level visibility checks. */

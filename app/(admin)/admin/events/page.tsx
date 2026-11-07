@@ -14,6 +14,7 @@ import ImageUpload from "@/components/admin/ImageUpload";
 import { getEventsAdmin, saveEvent, toggleEvent } from "@/lib/supabase/actions";
 import { useAdminLocale } from "@/lib/admin/i18n";
 import type { Bilingual } from "@/lib/content/types";
+import { SITE_TIMEZONE } from "@/lib/site";
 
 type EventRow = {
   id: string;
@@ -94,7 +95,7 @@ const INPUT =
 const LABEL = "text-xs font-bold uppercase tracking-wider text-stone-500";
 
 function todayInBaja(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Tijuana", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  return new Intl.DateTimeFormat("en-CA", { timeZone: SITE_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 }
 
 function EventsEditor() {

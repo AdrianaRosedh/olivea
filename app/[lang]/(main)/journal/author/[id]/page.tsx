@@ -8,13 +8,10 @@ import type { Lang } from "@/app/[lang]/(main)/dictionaries";
 import { listJournalIndex } from "@/lib/journal/load";
 import { absoluteUrl, SITE } from "@/lib/site";
 import { formatPublicDateLong } from "@/lib/date/public-date";
-import {
-  loadAuthorProfile,
-  localizedAuthorBio,
-  localizedAuthorTitle,
-} from "@/lib/journal/authors";
+import { localizedAuthorBio, localizedAuthorTitle } from "@/lib/journal/authors";
+import { loadAuthorProfile } from "@/lib/journal/authors.server";
 import { normalizeAuthors } from "@/lib/journal/author";
-import { loadLeader } from "@/app/[lang]/(main)/team/teamData";
+import { loadLeader } from "@/app/[lang]/(main)/team/teamData.server";
 import { localeAlternates, withShare } from "@/lib/site";
 import { jsonLdHtml } from "@/lib/seo/json-ld";
 

@@ -18,6 +18,7 @@ import { useSharedTransition } from "@/contexts/SharedTransitionContext";
 import { buildCenterNavItems, reserveDefault } from "@/lib/sections";
 import { motion, AnimatePresence } from "framer-motion";
 import { LOGO_MARGIN_TOP, LOGO_W, NAV_TOP_OFFSET } from "@/components/layout/logoGeometry";
+import RollText from "@/components/ui/RollText";
 
 interface NavbarProps {
   lang: "en" | "es";
@@ -306,7 +307,7 @@ export default function Navbar({ lang: _langProp }: NavbarProps) {
             ].join(" ")}
             style={{ letterSpacing: "0.18em", color: "rgba(231,234,225,0.98)" }}
           >
-            {lang === "en" ? "RESERVE" : "RESERVAR"}
+            <RollText>{lang === "en" ? "RESERVE" : "RESERVAR"}</RollText>
           </span>
         </button>
       </motion.div>
@@ -525,7 +526,7 @@ function CenterPillLink({
             : "0 1px 10px rgba(0,0,0,0.08)",
         }}
       >
-        {label}
+        <RollText>{label}</RollText>
       </motion.span>
     </Link>
   );

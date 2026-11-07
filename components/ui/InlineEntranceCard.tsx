@@ -96,6 +96,25 @@ const HOVER_EASE_CSS = "cubic-bezier(0.22,1,0.36,1)";
 const HOVER_EASE_ARRAY = [0.22, 1, 0.36, 1] as const;
 const MAX_TILT_DEG = 5;
 const HOVER_ATTACH_DELAY_MS = 120;
+/** The olive duotone over the desktop card photos lifts more slowly than the
+ *  video fades in, so the colour blooms in as the video starts playing. */
+const TINT_DUR = 0.9;
+
+/**
+ * Olive duotone for the resting desktop cards, in the manner of an editorial
+ * print: the photo's brightness is mapped onto a four-tone ramp of the house
+ * palette — deep olive for the shadows (keeps the photo's structure crisp),
+ * the brand olive (--olivea-olive #566d51) and sage (--olivea-clay #a3b09d)
+ * through the mid-tones, and the cream ground (--olivea-cream #e7eae1) for the
+ * highlights. Tried and rejected: a three-tone ramp ending in deep olive (too
+ * heavy) and one starting at the brand olive (washed out, like watercolour).
+ * Values are the sRGB channels (0–1) of the four colours, darkest first.
+ */
+const DUOTONE = {
+  r: "0.173 0.337 0.639 0.906",
+  g: "0.227 0.427 0.690 0.918",
+  b: "0.161 0.318 0.616 0.882",
+};
 
 /**
  * The phone emblem settles onto its card just after the card lands. The labels
@@ -229,6 +248,9 @@ export default function InlineEntranceCard({
   // The home page renders each card twice (phone list and desktop row, one
   // hidden by CSS), so the description id is per instance, not per house.
   const instanceId = useId();
+  // An id that is safe inside url(#…) (React's ids contain characters CSS
+  // would need escaped).
+  const duotoneId = `olivea-duotone-${instanceId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const descId = `${slug}-desc-${instanceId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   // derive video name from href segment (existing behavior)
@@ -483,7 +505,7 @@ export default function InlineEntranceCard({
 
   return (
     <div
-      className={`relative ${isMobile ? compactSizes : ""} ${className}`}
+      className={`group relative ${isMobile ? compactSizes : ""} ${className}`}
       style={{
         // ✅ KEY FIX: fluid desktop widths prevent overflow on mid screens
         width: isMobile
@@ -584,6 +606,41 @@ export default function InlineEntranceCard({
                       transition: `opacity ${HOVER_DUR}s ${HOVER_EASE_CSS}`,
                     }}
                   />
+                )}
+                {/* Desktop: an olive duotone copy of the photo sits above the
+                    photo and the video, so three cards and the hero video don't
+                    all compete in full colour. It fades out on hover/focus in
+                    step with the video fading in, so the colour blooms in as the
+                    video starts. Same file and sizes as the photo below, so the
+                    browser reuses the download. With reduced motion (no video)
+                    plain CSS hover still lifts it to the colour photo. */}
+                {!isMobile && still && (
+                  <>
+                    <svg aria-hidden="true" width="0" height="0" className="absolute">
+                      <filter id={duotoneId} colorInterpolationFilters="sRGB">
+                        <feColorMatrix type="saturate" values="0" />
+                        <feComponentTransfer>
+                          <feFuncR type="table" tableValues={DUOTONE.r} />
+                          <feFuncG type="table" tableValues={DUOTONE.g} />
+                          <feFuncB type="table" tableValues={DUOTONE.b} />
+                        </feComponentTransfer>
+                      </filter>
+                    </svg>
+                    <Image
+                      src={still}
+                      alt=""
+                      aria-hidden="true"
+                      fill
+                      sizes="(min-width: 1600px) 360px, 280px"
+                      className="pointer-events-none object-cover motion-reduce:group-hover:opacity-0! motion-reduce:group-focus-within:opacity-0!"
+                      style={{
+                        zIndex: 4,
+                        filter: `url(#${duotoneId})`,
+                        opacity: isHovered || isFocused ? 0 : 1,
+                        transition: `opacity ${TINT_DUR}s ${HOVER_EASE_CSS}`,
+                      }}
+                    />
+                  </>
                 )}
               </div>
 

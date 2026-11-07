@@ -5,6 +5,7 @@
 // writes go through server actions using the service role key.
 // ─────────────────────────────────────────────────────────────────────
 
+import "server-only";
 import {
   SUPABASE_URL,
   SUPABASE_ANON_KEY,

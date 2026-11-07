@@ -13,6 +13,7 @@ import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured } from "./config";
 import { logAudit } from "@/lib/auth/audit";
 import { pingIndexNowForPaths } from "@/lib/indexnow";
+import { authSkipped } from "@/lib/auth/dev-bypass";
 
 // ── Auth guard for write operations ────────────────────────────────
 // All mutating actions verify the user has at least "editor" role.
@@ -21,13 +22,6 @@ import { pingIndexNowForPaths } from "@/lib/indexnow";
 // Without Supabase there is no database to protect, so local development
 // skips the checks. Production never does: a missing configuration there is a
 // broken deploy, and these actions must refuse rather than run unchecked.
-function authSkipped(): boolean {
-  if (isSupabaseConfigured) return false;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("Admin actions are unavailable: Supabase is not configured.");
-  }
-  return true;
-}
 
 async function requireEditor() {
   if (authSkipped()) return;

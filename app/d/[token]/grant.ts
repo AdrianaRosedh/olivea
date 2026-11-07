@@ -6,7 +6,12 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import "server-only";
+import { headers } from "next/headers";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase/config";
+import { rateLimitDistributed } from "@/lib/rate-limit";
+
+/** Each scan writes a grant row; cap how many one visitor can mint. */
+const MINT_LIMIT = { limit: 30, windowMs: 10 * 60_000 };
 
 export type MintResult = { status: string; atoken: string | null };
 
@@ -17,6 +22,10 @@ export async function mintDocumentGrant(
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       return { status: "error", atoken: null };
     }
+    const h = await headers();
+    const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
+    const rl = await rateLimitDistributed(`securedoc-mint:${ip}`, MINT_LIMIT);
+    if (!rl.ok) return { status: "rate_limited", atoken: null };
     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/mint_document_grant`, {
       method: "POST",
       headers: {

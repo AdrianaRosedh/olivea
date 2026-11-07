@@ -752,7 +752,7 @@ function aliasesFor(member: LeaderProfile): string[] {
   return [...slugs];
 }
 
-function findMemberInList(
+export function findMemberInList(
   list: LeaderProfile[],
   id: string
 ): LeaderProfile | undefined {
@@ -771,36 +771,4 @@ export function getLeader(id?: string | null): LeaderProfile | undefined {
 
 export function getSortedTeam(): LeaderProfile[] {
   return [...TEAM].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
-}
-
-/* =========================================================
-   DB-aware loaders (server-side)
-   - loadTeam(): returns members from getContent("team") if present,
-                 else falls back to TEAM. Used by server components.
-   - loadLeader(id): same but returns one member.
-========================================================= */
-
-export async function loadTeam(): Promise<LeaderProfile[]> {
-  try {
-    const { getContent } = await import("@/lib/content");
-    const team = await getContent("team");
-    const members = team.members;
-    if (Array.isArray(members) && members.length > 0) {
-      return members as unknown as LeaderProfile[];
-    }
-  } catch {
-    // fall through
-  }
-  return TEAM;
-}
-
-export async function loadSortedTeam(): Promise<LeaderProfile[]> {
-  const list = await loadTeam();
-  return [...list].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999));
-}
-
-export async function loadLeader(id?: string | null): Promise<LeaderProfile | undefined> {
-  if (!id) return undefined;
-  const list = await loadTeam();
-  return findMemberInList(list, String(id));
 }

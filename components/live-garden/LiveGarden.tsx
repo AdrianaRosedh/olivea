@@ -25,6 +25,14 @@ import {
   getModalOpenServer,
 } from "@/components/ui/modalFlag";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { INTRO_DONE_EVENT, isIntroPlaying } from "@/hooks/useIntroAnimation";
+import { track } from "@vercel/analytics";
+import { useUiText } from "@/lib/uiText/context";
+import {
+  LIVE_GARDEN_OPEN_EVENT,
+  type LiveGardenOpenDetail,
+  type LiveGardenSource,
+} from "@/lib/liveGarden";
 
 // Web Component types declared in types/roseiies.d.ts
 
@@ -45,6 +53,31 @@ const ORB_BOTTOM_MARGIN = 28; // keep clear of the bottom
 const ORB_BANNER_GAP = 12; // breathing room above the site banner when present
 const ORB_DOCK_GAP = 12; // breathing room from the right-hand quick-nav dock
 const ORB_STORAGE_KEY = "olivea:livegarden:orb:v1";
+
+// ── One-time introduction ───────────────────────────────────────────
+// Most visitors never hover the orb, so on a first visit its label slides out
+// by itself once the page has settled, stays a moment, and tucks back. It is
+// remembered, and offered again only after INTRO_REPEAT_MS.
+const INTRO_STORAGE_KEY = "olivea:livegarden:intro:v1";
+const INTRO_DELAY_MS = 3500;
+const INTRO_SHOW_MS = 4500;
+const INTRO_REPEAT_MS = 30 * 24 * 60 * 60 * 1000;
+
+function introDue(): boolean {
+  try {
+    const last = Number(localStorage.getItem(INTRO_STORAGE_KEY) || 0);
+    return !last || Date.now() - last > INTRO_REPEAT_MS;
+  } catch {
+    return false; // no storage (private mode, blocked): don't risk repeating it
+  }
+}
+function markIntroShown() {
+  try {
+    localStorage.setItem(INTRO_STORAGE_KEY, String(Date.now()));
+  } catch {
+    // ignore
+  }
+}
 
 type OrbSide = "left" | "right";
 const clampN = (v: number, min: number, max: number) =>
@@ -121,7 +154,7 @@ const WOGGLE_PATH =
 
 // ─── Map container (iframe embed) ───────────────────────────────────
 
-function MapContainer({ isEn }: { isEn: boolean }) {
+function MapContainer({ loadingText, frameTitle }: { loadingText: string; frameTitle: string }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -140,7 +173,7 @@ function MapContainer({ isEn }: { isEn: boolean }) {
               <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
             </svg>
             <span className="text-sm tracking-wide">
-              {isEn ? "Loading map..." : "Cargando mapa..."}
+              {loadingText}
             </span>
           </div>
         </div>
@@ -151,7 +184,7 @@ function MapContainer({ isEn }: { isEn: boolean }) {
         allow="fullscreen"
         loading="lazy"
         className="absolute inset-0 w-full h-full border-0"
-        title={isEn ? "Olivea Live Garden Map" : "Mapa en vivo del huerto Olivea"}
+        title={frameTitle}
       />
     </div>
   );
@@ -177,6 +210,7 @@ export default function LiveGarden() {
   const prefersReduced = usePrefersReducedMotion();
   const pathname = usePathname();
   const isEn = useMemo(() => pathname?.startsWith("/en") ?? false, [pathname]);
+  const t = useUiText(isEn ? "en" : "es");
   const isAdmin = useMemo(() => pathname?.startsWith("/admin") ?? false, [pathname]);
   // Hide on individual team bio pages (/[lang]/team/{name}); the index keeps it.
   const isTeamMember = useMemo(() => pathname?.includes("/team/") ?? false, [pathname]);
@@ -189,10 +223,13 @@ export default function LiveGarden() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const open = useCallback(() => {
+  const open = useCallback((source: LiveGardenSource) => {
     setIsOpen(true);
     setModalOpen(true);
     lockBodyScroll();
+    // Counted by where it came from (orb, its intro, an inline link…), so the
+    // site can tell which invitation actually brings people to the map.
+    track("Live Garden Opened", { source });
   }, []);
 
   const close = useCallback(() => {
@@ -211,11 +248,15 @@ export default function LiveGarden() {
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, close]);
 
-  // Allow external open (e.g. mobile dock)
+  // Open from elsewhere on the site (inline links, the phone menu): see
+  // lib/liveGarden.ts.
   useEffect(() => {
-    const handler = () => open();
-    window.addEventListener("olivea:live-garden", handler);
-    return () => window.removeEventListener("olivea:live-garden", handler);
+    const handler = (e: Event) => {
+      const source = (e as CustomEvent<LiveGardenOpenDetail | undefined>).detail?.source ?? "other";
+      open(source);
+    };
+    window.addEventListener(LIVE_GARDEN_OPEN_EVENT, handler);
+    return () => window.removeEventListener(LIVE_GARDEN_OPEN_EVENT, handler);
   }, [open]);
 
   // ── Draggable orb (chat-head style: drag → fling → snap to edge → remember) ──
@@ -227,6 +268,7 @@ export default function LiveGarden() {
   const [orbDragging, setOrbDragging] = useState(false);
   const [orbSize, setOrbSize] = useState(56);
   const orbMovedRef = useRef(false);
+  const [introVisible, setIntroVisible] = useState(false);
 
   // Extra bottom clearance so the orb never rests over the site banner (its
   // Vote / dismiss controls sit at the bottom-right, exactly where the orb
@@ -390,8 +432,32 @@ export default function LiveGarden() {
       orbMovedRef.current = false;
       return; // it was a drag, not a tap
     }
-    open();
-  }, [open]);
+    open(introVisible ? "orb-intro" : "orb");
+    setIntroVisible(false);
+  }, [open, introVisible]);
+
+  // The one-time introduction: after the page (and, on the home page, its
+  // intro animation) has settled, show the label by itself for a moment.
+  useEffect(() => {
+    if (!orbReady || isOpen || modalOpen || !introDue()) return;
+    let showTO = 0;
+    let hideTO = 0;
+    const start = () => {
+      showTO = window.setTimeout(() => {
+        if (getModalOpen()) return;
+        markIntroShown();
+        setIntroVisible(true);
+        hideTO = window.setTimeout(() => setIntroVisible(false), INTRO_SHOW_MS);
+      }, INTRO_DELAY_MS);
+    };
+    if (isIntroPlaying()) window.addEventListener(INTRO_DONE_EVENT, start, { once: true });
+    else start();
+    return () => {
+      window.removeEventListener(INTRO_DONE_EVENT, start);
+      window.clearTimeout(showTO);
+      window.clearTimeout(hideTO);
+    };
+  }, [orbReady, isOpen, modalOpen]);
 
   const panel = prefersReduced
     ? panelReduced
@@ -439,7 +505,7 @@ export default function LiveGarden() {
             <button
               type="button"
               onClick={handleOrbClick}
-              aria-label={isEn ? "See what's growing in the garden right now" : "Vean qué crece en el huerto ahora mismo"}
+              aria-label={t("garden.orbAria")}
               className={cn(
                 "relative grid place-items-center w-full h-full rounded-full outline-none",
                 "focus-visible:ring-2 focus-visible:ring-(--olivea-olive)/45 focus-visible:ring-offset-2 focus-visible:ring-offset-(--olivea-cream)",
@@ -489,7 +555,7 @@ export default function LiveGarden() {
 
             {/* Desktop hover label (sits on the side opposite the snapped edge) */}
             <AnimatePresence>
-              {orbHover && !orbDragging && (
+              {(orbHover || introVisible) && !orbDragging && (
                 <motion.span
                   key="orb-label"
                   initial={{ opacity: 0, x: orbSide === "right" ? 8 : -8 }}
@@ -497,14 +563,17 @@ export default function LiveGarden() {
                   exit={{ opacity: 0, x: orbSide === "right" ? 8 : -8 }}
                   transition={{ duration: 0.18, ease: EASE_OUT }}
                   className={cn(
-                    "hidden md:block pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap",
+                    // Phones see it only as the one-time introduction (no hover).
+                    introVisible ? "block" : "hidden md:block",
+                    "pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap",
                     "px-3 py-1.5 rounded-full bg-(--olivea-olive) text-(--olivea-cream)",
                     "text-[10px] font-semibold tracking-widest uppercase",
                     "shadow-[0_14px_34px_-20px_rgba(0,0,0,0.55)]",
                     orbSide === "right" ? "right-full mr-3" : "left-full ml-3",
                   )}
                 >
-                  {isEn ? "See What's Growing" : "Vean Qué Crece Hoy"}
+                  <span className="font-bold">{t("garden.label")}</span>
+                  <span className="opacity-80"> · {t("garden.cue")}</span>
                 </motion.span>
               )}
             </AnimatePresence>
@@ -557,7 +626,7 @@ export default function LiveGarden() {
                     <span className="relative rounded-full h-2 w-2 bg-(--olivea-olive)" />
                   </span>
                   <h2 className="text-sm md:text-base font-medium tracking-wide uppercase" style={{ color: "var(--olivea-olive)" }}>
-                    {isEn ? "Olivea — Live" : "Olivea — En Vivo"}
+                    {t("garden.mapTitle")}
                   </h2>
                 </div>
 
@@ -571,7 +640,7 @@ export default function LiveGarden() {
                     "cursor-pointer",
                   )}
                   style={{ color: "var(--olivea-olive)" }}
-                  aria-label={isEn ? "Close map" : "Cerrar mapa"}
+                  aria-label={t("garden.close")}
                 >
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <path d="M4 4l10 10M14 4L4 14" />
@@ -581,13 +650,11 @@ export default function LiveGarden() {
 
               {/* ─── Subtitle ──────────────────────────────── */}
               <p className="px-5 pb-3 md:px-6 text-xs tracking-wide" style={{ color: "var(--olivea-olive)", opacity: 0.7 }}>
-                {isEn
-                  ? "Explore our property and discover what\u2019s growing in the garden right now."
-                  : "Explora nuestra propiedad y descubre qu\u00e9 crece en el huerto ahora mismo."}
+                {t("garden.mapSubtitle")}
               </p>
 
               {/* ─── Map ────────────────────────────────────── */}
-              <MapContainer isEn={isEn} />
+              <MapContainer loadingText={t("garden.loading")} frameTitle={t("garden.mapFrameTitle")} />
 
 
               {/* ─── Footer: Powered by Roseiies ────────────── */}
@@ -599,7 +666,7 @@ export default function LiveGarden() {
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
                 >
                   <span className="text-xs tracking-wide text-neutral-500">
-                    {isEn ? "Powered by" : "Hecho con"}
+                    {t("garden.poweredBy")}
                   </span>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img

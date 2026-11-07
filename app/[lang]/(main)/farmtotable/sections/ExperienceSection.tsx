@@ -6,6 +6,7 @@ import FieldNote from "@/components/mdx/FieldNote";
 import ScrollGrowImageBand from "@/components/mdx/ScrollGrowImageBand";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function ExperienceSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "experience";
@@ -31,9 +32,9 @@ export default function ExperienceSection({ data, lang }: SectionProps) {
     >
       <div className="max-w-[860px]">
         <Reveal preset="up" delay={0.08}>
-          <h2 className="text-2xl md:text-4xl font-semibold leading-tight">
+          <SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">
             {heading}
-          </h2>
+          </SectionHeading>
         </Reveal>
 
         <Reveal preset="fade" delay={0.18}>

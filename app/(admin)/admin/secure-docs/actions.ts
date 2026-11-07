@@ -26,6 +26,13 @@ const BUCKET = "secure-documents";
 // much over 3 MB uploaded fine but could never be opened. Uploads were also
 // capped at 5 MB by serverActions.bodySizeLimit, so "25 MB" was never real.
 const MAX_BYTES = 3 * 1024 * 1024;
+/** Shortest passcode accepted; failed tries are limited per visitor, so a
+ *  six-character code keeps guessing impractical. */
+const MIN_PASSCODE_LENGTH = 6;
+/** The DB's accepted range for grant / read-window durations (seconds). */
+const DURATION_RANGE = { min: 60, max: 86_400 };
+const clampDuration = (n: number, fallback: number) =>
+  Number.isFinite(n) && n > 0 ? Math.min(DURATION_RANGE.max, Math.max(DURATION_RANGE.min, n)) : fallback;
 
 function svc(extra: Record<string, string> = {}): Record<string, string> {
   return {
@@ -122,12 +129,9 @@ export interface SecureDocument {
   revoked: boolean;
   hasPasscode: boolean;
   requireName: boolean;
-  accessMode: "single_session" | "multi_viewer";
   expiresAt: string | null;
-  readWindowSeconds: number;
   grantTtlSeconds: number;
   viewCount: number;
-  claimedAt: string | null;
   createdAt: string;
 }
 
@@ -140,12 +144,9 @@ interface FullDocRow {
   revoked: boolean;
   passcode_hash: string | null;
   require_name: boolean;
-  access_mode: "single_session" | "multi_viewer";
   expires_at: string | null;
-  read_window_seconds: number;
   grant_ttl_seconds: number;
   view_count: number;
-  claimed_at: string | null;
   created_at: string;
 }
 
@@ -159,12 +160,9 @@ function mapDoc(r: FullDocRow, viewCount: number): SecureDocument {
     revoked: r.revoked,
     hasPasscode: r.passcode_hash != null,
     requireName: r.require_name,
-    accessMode: r.access_mode,
     expiresAt: r.expires_at,
-    readWindowSeconds: r.read_window_seconds,
     grantTtlSeconds: r.grant_ttl_seconds,
     viewCount,
-    claimedAt: r.claimed_at,
     createdAt: r.created_at,
   };
 }
@@ -184,8 +182,8 @@ export async function listSecureDocuments(): Promise<SecureDocument[]> {
       role: "service_role",
       query:
         "select=id,token,file_name,recipient,enabled,revoked,passcode_hash," +
-        "require_name,access_mode,expires_at,read_window_seconds," +
-        "grant_ttl_seconds,view_count,claimed_at,created_at&order=created_at.desc",
+        "require_name,expires_at,grant_ttl_seconds,view_count,created_at" +
+        "&order=created_at.desc",
     }),
     // displayed_at distinguishes a real read from a release the reader never
     // saw (client-side viewer failure). Count only what actually displayed.
@@ -222,13 +220,17 @@ export async function createSecureDocument(form: FormData): Promise<CreateDocRes
 
   const recipient = (form.get("recipient") as string | null)?.trim() || null;
   const passcode = (form.get("passcode") as string | null)?.trim() || null;
+  if (passcode && passcode.length < MIN_PASSCODE_LENGTH) return { ok: false, error: "passcode_too_short" };
   const requireName = form.get("requireName") !== "false";
-  const accessMode =
-    (form.get("accessMode") as string) === "single_session" ? "single_session" : "multi_viewer";
+  // Every document is multi-viewer (name + passcode). The single-session mode
+  // was never enforced by the database and is no longer offered.
+  const accessMode = "multi_viewer";
   const expiresAtRaw = (form.get("expiresAt") as string | null)?.trim();
   const expiresAt = expiresAtRaw ? new Date(expiresAtRaw).toISOString() : null;
-  const grantTtl = Number(form.get("grantTtlSeconds")) || 900;
-  const readWindow = Number(form.get("readWindowSeconds")) || 900;
+  const grantTtl = clampDuration(Number(form.get("grantTtlSeconds")), 900);
+  // The create RPC still takes a read window; it only applied to the retired
+  // single-session mode, so pass the database default.
+  const readWindow = 900;
   const fileName = (form.get("fileName") as string | null)?.trim() || file.name || "document.pdf";
 
   const storagePath = `${randomUUID()}.pdf`;
@@ -284,12 +286,9 @@ export interface DocPatch {
   revoked?: boolean;
   recipient?: string | null;
   requireName?: boolean;
-  accessMode?: "single_session" | "multi_viewer";
   expiresAt?: string | null;
   grantTtlSeconds?: number;
-  readWindowSeconds?: number;
   /** Clear the one-session claim so the doc can be opened fresh again. */
-  resetClaim?: boolean;
 }
 
 export async function updateSecureDocument(id: string, patch: DocPatch): Promise<{ ok: boolean }> {
@@ -302,14 +301,8 @@ export async function updateSecureDocument(id: string, patch: DocPatch): Promise
   if (patch.revoked !== undefined) body.revoked = patch.revoked;
   if (patch.recipient !== undefined) body.recipient = patch.recipient;
   if (patch.requireName !== undefined) body.require_name = patch.requireName;
-  if (patch.accessMode !== undefined) body.access_mode = patch.accessMode;
   if (patch.expiresAt !== undefined) body.expires_at = patch.expiresAt;
-  if (patch.grantTtlSeconds !== undefined) body.grant_ttl_seconds = patch.grantTtlSeconds;
-  if (patch.readWindowSeconds !== undefined) body.read_window_seconds = patch.readWindowSeconds;
-  if (patch.resetClaim) {
-    body.claimed_session_hash = null;
-    body.claimed_at = null;
-  }
+  if (patch.grantTtlSeconds !== undefined) body.grant_ttl_seconds = clampDuration(patch.grantTtlSeconds, 900);
   if (Object.keys(body).length === 0) return { ok: true };
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/secure_documents?id=eq.${id}`, {
@@ -324,6 +317,9 @@ export async function updateSecureDocument(id: string, patch: DocPatch): Promise
 export async function setDocumentPasscode(id: string, passcode: string | null): Promise<{ ok: boolean }> {
   await requireSectionAccess(SECURE_DOCS_SECTION, "editor");
   assertUUID(id);
+  const trimmed = passcode?.trim() || null;
+  if (trimmed && trimmed.length < MIN_PASSCODE_LENGTH) return { ok: false };
+  passcode = trimmed;
   if (!isSupabaseConfigured) return { ok: false };
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/admin_set_document_passcode`, {
     method: "POST",

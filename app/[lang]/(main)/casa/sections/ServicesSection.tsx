@@ -3,6 +3,7 @@ import Reveal from "@/components/scroll/Reveal";
 import ServicesGrid from "@/components/mdx/ServicesGrid";
 import type { SectionProps } from "./types";
 import { t } from "./md";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function ServicesSection({ data, lang }: SectionProps) {
   const sectionId = t(data.sectionId, lang) || "services";
@@ -23,7 +24,7 @@ export default function ServicesSection({ data, lang }: SectionProps) {
     <StickyBlock
       id={sectionId}
       variant="top"
-      title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</h2></Reveal>}
+      title={<Reveal preset="up"><SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</SectionHeading></Reveal>}
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
     >

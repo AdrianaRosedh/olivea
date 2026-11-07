@@ -298,15 +298,6 @@ export default function Footer({ dict, socials, copyright }: FooterProps) {
         aria-hidden="true"
       />
 
-      {/* subtle top divider haze */}
-      <div
-        className="pointer-events-none absolute top-0 left-0 right-0 h-px opacity-70"
-        style={{
-          background: "linear-gradient(90deg, transparent, rgba(94,118,88,0.25), transparent)",
-        }}
-        aria-hidden="true"
-      />
-
       {/* Inner container:
           - On small screens: stack + wrap
           - On md+: 3 columns

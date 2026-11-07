@@ -12,6 +12,7 @@ import PopupHost from "@/components/ui/popup/PopupHost";
 import SiteBanner from "@/components/ui/banner/SiteBanner";
 import { fontsClass, lora } from "@/app/fonts";
 import HiringPill from "@/components/ui/HiringPill";
+import OliveaCursor from "@/components/ui/OliveaCursor";
 import {
   loadLocale,
   type Lang,
@@ -125,6 +126,8 @@ export default async function LangLayout({
       <HiringPill lang={lang} />
       <SiteBanner />
       <PopupHost />
+      {/* Desktop house cursor (fine pointer, motion allowed only). */}
+      <OliveaCursor />
     </div>
   );
 }

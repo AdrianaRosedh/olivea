@@ -4,6 +4,7 @@ import ModernFAQ from "@/components/ui/ModernFAQ";
 import type { SectionProps } from "./types";
 import { t, tm } from "./md";
 import { asFaqTopic } from "@/lib/faqTopics";
+import SectionHeading from "@/components/scroll/SectionHeading";
 
 export default function FaqSection({ data, lang }: SectionProps) {
   const heading = t(data.heading, lang) || "FAQ";
@@ -23,7 +24,7 @@ export default function FaqSection({ data, lang }: SectionProps) {
     <StickyBlock
       id="faq"
       variant="top"
-      title={<Reveal preset="up"><h2 className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</h2></Reveal>}
+      title={<Reveal preset="up"><SectionHeading className="text-2xl md:text-4xl font-semibold leading-tight">{heading}</SectionHeading></Reveal>}
       className="pt-10 pb-6 md:pt-16 md:pb-12 snap-start"
       containerClassName="w-full md:max-w-[min(1080px,92vw)] md:mx-auto"
     >

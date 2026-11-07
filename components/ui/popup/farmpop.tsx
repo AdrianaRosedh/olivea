@@ -21,12 +21,12 @@ import { useReservation, type ReservationType } from "@/contexts/ReservationCont
 import { HOUSES } from "@/lib/houses";
 import { useHouseText } from "@/lib/uiText/context";
 import { cn } from "@/lib/utils";
+import RollText from "@/components/ui/RollText";
 
 type MenuTab = {
   id: string;
   label: string;
   url: string;
-  emoji?: string;
   icon?: ReactNode;
 };
 
@@ -693,7 +693,7 @@ export default function Farmpop({
             triggerClassName,
           ].join(" ")}
         >
-          {label}
+          {typeof label === "string" ? <RollText>{label}</RollText> : label}
         </button>
       )}
 

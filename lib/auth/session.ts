@@ -9,7 +9,7 @@ import { selectOne } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { redirect } from "next/navigation";
 import type { AdminUser, AdminRole, SectionPermissions, SectionAccess } from "./types";
-import { canAccessSection } from "./types";
+import { canAccessSection, hasRole } from "./types";
 
 /**
  * Get the current authenticated admin user.
@@ -72,11 +72,7 @@ export async function requireSession(): Promise<AdminUser> {
  */
 export async function requireRole(requiredRole: AdminRole): Promise<AdminUser> {
   const session = await requireSession();
-  const hierarchy: AdminRole[] = ["owner", "manager", "editor", "host"];
-  const userLevel = hierarchy.indexOf(session.role);
-  const requiredLevel = hierarchy.indexOf(requiredRole);
-
-  if (userLevel > requiredLevel) {
+  if (!hasRole(session.role, requiredRole)) {
     redirect("/admin?error=insufficient_permissions");
   }
   return session;

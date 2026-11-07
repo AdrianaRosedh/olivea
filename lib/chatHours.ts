@@ -4,6 +4,7 @@
 // agree. Without that entry the previous hours apply: every day 8:00–21:30.
 
 import type { HoursSlot } from "@/lib/content/types";
+import { SITE_TIMEZONE } from "@/lib/site";
 
 const DEFAULT_SLOTS: HoursSlot[] = [
   {
@@ -21,7 +22,7 @@ const toMinutes = (hhmm: string) => {
 /** Day name and minutes since midnight in Baja California. */
 function nowInBaja(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Tijuana",
+    timeZone: SITE_TIMEZONE,
     weekday: "long",
     hour: "2-digit",
     minute: "2-digit",

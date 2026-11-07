@@ -435,7 +435,7 @@ function LayoutShell({ lang, dictionary, socials, chrome, children }: LayoutShel
       {/* DOCKS */}
       {!isHome && !isMobileLike && (
         <>
-          {identity && <DockLeft identity={identity} sectionsOverride={sectionsOverride ?? []} />}
+          {identity && <DockLeft identity={identity} sectionsOverride={sectionsOverride ?? []} lang={pathLang} />}
           <DockRight items={dockRightItems} />
         </>
       )}
