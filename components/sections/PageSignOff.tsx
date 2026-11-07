@@ -6,7 +6,9 @@
 // letting it simply run out, and the time and weather quietly help guests
 // planning from another time zone.
 //
-// Wording comes from /admin → Interface text ("editorial.signoff.*").
+// Wording comes from /admin → Interface text ("editorial.signoff.*"). The
+// weather's source (MET Norway) is credited on the Legal page ("Data credits"),
+// as its CC BY 4.0 licence allows; the sign-off itself stays clean.
 // Time and weather render only after mount: both depend on "now", and
 // rendering them on the server would show a stale minute and break hydration.
 
@@ -44,8 +46,8 @@ function useWeather(lang: Lang) {
     const ctrl = new AbortController();
     fetch("/api/weather", { signal: ctrl.signal })
       .then((r) => r.json())
-      .then((d: { ok: boolean; tempC?: number; code?: number }) => {
-        if (d.ok && d.tempC != null && d.code != null) setWeather(describeWeather(d.tempC, d.code, lang));
+      .then((d: { ok: boolean; tempC?: number; symbol?: string }) => {
+        if (d.ok && d.tempC != null) setWeather(describeWeather(d.tempC, d.symbol ?? "", lang));
       })
       .catch(() => {});
     return () => ctrl.abort();

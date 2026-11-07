@@ -253,6 +253,20 @@ hola@casaolivea.com · +52 646 388 2369.`,
 Inmobiliaria MYA by DH. · Carretera Ensenada–Tecate Km 92.5, Villa de Juárez, Ensenada, Baja California, 22766, Mexico.
 hola@casaolivea.com · +52 646 388 2369.`,
       }),
+
+    // Credit required by MET Norway's open-data licence (CC BY 4.0 / NLOD) for
+    // the weather shown in the house pages' sign-off. Kept here rather than
+    // beside the weather, as the licence allows ("any reasonable manner").
+    section("creditos", 21,
+      { es: "Créditos de datos", en: "Data credits" },
+      {
+        es: `La información del clima que mostramos en nuestras páginas (temperatura y condiciones en Valle de Guadalupe, Baja California) proviene de MET Norway, el Instituto Meteorológico de Noruega, bajo la licencia Creative Commons Atribución 4.0 (CC BY 4.0) y la Licencia Noruega de Datos Abiertos (NLOD 2.0).
+
+Datos de MET Norway — https://www.met.no/en/free-meteorological-data`,
+        en: `The weather we show on our pages (temperature and conditions in Valle de Guadalupe, Baja California) comes from MET Norway, the Norwegian Meteorological Institute, under the Creative Commons Attribution 4.0 licence (CC BY 4.0) and the Norwegian Licence for Open Government Data (NLOD 2.0).
+
+Data from MET Norway — https://www.met.no/en/free-meteorological-data`,
+      }),
   ],
 };
 
